@@ -3,6 +3,9 @@ import { DRILL_LIST } from '../database/drillDatabase.js';
 import { calculateActualLoss } from '../utils/conditionEngine.js';
 import { Player } from '../database/playerSchema.js';
 
+export const getRecommendedDrills = (player: Player, fanClubLevel: number = 4) =>
+    getBestDrillSelections(player, fanClubLevel);
+
 export function getBestDrillSelections(player: Player, fanClubLevel: number = 4) {
     if (!validateRoleAdjacency(player.role)) {
         throw new Error(`Invalid combination: Roles must be adjacent.`);
