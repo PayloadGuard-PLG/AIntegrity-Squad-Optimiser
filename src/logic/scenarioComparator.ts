@@ -1,19 +1,21 @@
 import { planPlayerInvestment } from './investmentEngine';
 import { Player } from '../database/playerSchema';
-import { ManagerProfile, ScenarioComparison, ScenarioResult, TierName } from '../types/resources';
+import { ManagerProfile, ScenarioComparison, ScenarioResult, TierName, DrillSession, GameProfile } from '../types/resources';
 
 /**
- * Compares multiple players competing for the SAME resource pool.
+ * Compares multiple players competing for the SAME drill set and resource pool.
  * Each scenario is evaluated independently; ranks by projected OVR gain.
  * Returns the top recommendation with a human-readable reasoning string.
  */
 export function compareInvestmentScenarios(
   players: Player[],
   profile: ManagerProfile,
+  drillSessions: DrillSession[],
+  gameProfile: GameProfile,
   targetTier: TierName | null = null
 ): ScenarioComparison {
   const results: ScenarioResult[] = players.map(player => {
-    const plan = planPlayerInvestment(player, profile, targetTier);
+    const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
     return {
       playerName: player.name,
       currentOvr: player.overall,
@@ -24,7 +26,6 @@ export function compareInvestmentScenarios(
     };
   });
 
-  // Sort descending by OVR gain
   results.sort((a, b) => b.ovrGain - a.ovrGain);
   results.forEach((r, i) => { r.rank = i + 1; });
 
@@ -32,15 +33,8 @@ export function compareInvestmentScenarios(
   const second = results[1];
 
   let reasoning = `${best.playerName} yields the highest OVR gain (+${best.ovrGain}) from these resources`;
-
-  if (second) {
-    reasoning += `, vs +${second.ovrGain} for ${second.playerName}`;
-  }
-
-  if (best.plan.warnings.length > 0) {
-    reasoning += `. Note: ${best.plan.warnings[0]}`;
-  }
-
+  if (second) reasoning += `, vs +${second.ovrGain} for ${second.playerName}`;
+  if (best.plan.warnings.length > 0) reasoning += `. Note: ${best.plan.warnings[0]}`;
   reasoning += '.';
 
   return {

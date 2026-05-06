@@ -1,124 +1,65 @@
-import { SessionType } from '../types/resources';
+import { GameProfile, TalentTier, DrillLevel } from '../types/resources';
+import { getAgeMultiplier, xpBaseForStat, xpNeededFor1Pct } from '../logic/xpEngine';
+
+export { getAgeMultiplier };
 
 /**
- * Age factor: how much training benefit a player receives relative to age 18.
- * Calibrated from screenshot data:
- *   Age 18 → +14–22 OVR per ×30; Age 20 → +4–5; Age 21 → +2–3; Age 27 → +2–3
- * TODO: Refine exact thresholds once research docs are committed to repo.
+ * Returns the XP cost per 1% for a stat at the given value.
+ * Returns Infinity when the 180-rule applies.
  */
-export function getAgeFactor(age: number): number {
-  if (age <= 19) return 1.00;
-  if (age <= 20) return 0.55;
-  if (age <= 21) return 0.40;
-  if (age <= 23) return 0.30;
-  if (age <= 25) return 0.22;
-  return 0.16;
+export function getStatXpCost(statValue: number, profile: GameProfile): number {
+  return xpBaseForStat(statValue, profile);
 }
 
 /**
- * Stat-level gain factor based on observed training data.
- * Higher current stat → lower per-session gain (diminishing returns).
- * Hard cap: stats at 436 give exactly 0 gain (confirmed in-game).
- *
- * Calibration table (×30 coach, age 18, single stat):
- *   stat ~61  → ~2.0 per multiplier unit
- *   stat ~97  → ~1.57
- *   stat ~121 → ~0.98
- *   stat ~132 → ~0.78
- *   stat ~312 → ~0.32  (normalized from age-27 data)
- *   stat 436  → 0.00
- *
- * TODO: Replace with verified formula from research docs.
+ * Returns the grey (non-white) XP multiplier from the profile.
+ * White stats use 1.0; grey stats use profile.greyWeightMultiplier (0.5).
  */
-export function getStatGainFactor(statValue: number): number {
-  if (statValue >= 436) return 0;
-
-  // Piecewise linear interpolation through observed calibration points
-  const table: [number, number][] = [
-    [0,   2.40],
-    [60,  2.03],
-    [90,  1.73],
-    [97,  1.57],
-    [110, 1.25],
-    [121, 0.98],
-    [132, 0.78],
-    [190, 0.55],
-    [232, 0.42],
-    [290, 0.32],
-    [380, 0.10],
-    [436, 0.00],
-  ];
-
-  for (let i = 0; i < table.length - 1; i++) {
-    const [s0, f0] = table[i];
-    const [s1, f1] = table[i + 1];
-    if (statValue >= s0 && statValue <= s1) {
-      const t = (statValue - s0) / (s1 - s0);
-      return f0 + t * (f1 - f0);
-    }
-  }
-  return 0;
+export function getGreyMultiplier(isWhite: boolean, profile: GameProfile): number {
+  return isWhite ? 1.0 : profile.greyWeightMultiplier;
 }
 
 /**
- * Seminar sessions appear to yield higher OVR gains than standard Training
- * at the same multiplier. Observed ~1.6× uplift from Mixed ×25 Seminar data.
- * TODO: Verify with research docs.
+ * Returns the drill level multiplier from the profile.
  */
-export function getSessionBonus(sessionType: SessionType): number {
-  return sessionType === 'Seminar' ? 1.6 : 1.0;
+export function getDrillLevelMult(drillLevel: DrillLevel, profile: GameProfile): number {
+  return profile.drillLevelMultipliers[drillLevel] ?? 1.0;
 }
 
 /**
- * Estimates total OVR gain from applying a single coach card to a player.
- * This is the primary function the investment engine calls.
- *
- * @param multiplier   - The ×N value from the coach card (e.g. 30)
- * @param sessionType  - 'Training' (free) or 'Seminar' (premium, higher rate)
- * @param age          - Player age
- * @param whiteStats   - Current values of the player's white (role-essential) stats
- * @param greyStats    - Current values of non-essential role stats (contribute less to OVR)
+ * Returns the talent multiplier from the profile.
  */
-export function estimateOvrGainFromCoach(
-  multiplier: number,
-  sessionType: SessionType,
-  age: number,
-  whiteStats: number[],
-  greyStats: number[] = []
-): number {
-  const ageFactor = getAgeFactor(age);
-  const sessionBonus = getSessionBonus(sessionType);
-
-  // White stats contribute fully to OVR; grey/irrelevant stats contribute ~10%
-  const whiteGain = whiteStats.reduce(
-    (sum, s) => sum + multiplier * ageFactor * sessionBonus * getStatGainFactor(s),
-    0
-  );
-  const greyGain = greyStats.reduce(
-    (sum, s) => sum + multiplier * ageFactor * sessionBonus * getStatGainFactor(s) * 0.1,
-    0
-  );
-
-  // OVR is a weighted composite across all ~16 stats; this normalises to OVR scale.
-  // Calibrated from screenshot data: ×30 coach on age-18 player at OVR 114 → ~+8-9 OVR.
-  // TODO: Refine with research docs.
-  const OVR_NORMALIZER = 16;
-  return Number(((whiteGain + greyGain) / OVR_NORMALIZER).toFixed(1));
+export function getTalentMult(talent: TalentTier, profile: GameProfile): number {
+  return profile.talentMultipliers[talent] ?? 1.0;
 }
 
+// ---------------------------------------------------------------------------
+// Legacy shim — kept so existing tests that import calculateDynamicGain compile.
+// The coach-multiplier concept no longer exists in the engine.
+// ---------------------------------------------------------------------------
+
 /**
- * Legacy function — kept for backward compatibility with existing tests.
- * Prefer estimateOvrGainFromCoach for new investment engine code.
+ * @deprecated Coach card multipliers do not exist in the current game model.
+ * This shim approximates single-stat gain using the XP engine for backward
+ * compatibility with old tests. Do not use in new code.
  */
 export function calculateDynamicGain(
   multiplier: number,
   age: number,
   isWhiteSkill: boolean,
-  currentAttribute: number
+  currentAttribute: number,
+  profile?: GameProfile
 ): number {
-  const ageFactor = getAgeFactor(age);
-  const skillModifier = isWhiteSkill ? 1.0 : 0.4;
-  const statFactor = getStatGainFactor(currentAttribute);
-  const result = multiplier * ageFactor * skillModifier * statFactor;
-  return Number(result.toFixed(4));
+  if (!profile) {
+    // Graceful degradation without a profile — return a rough approximation
+    const ageFactor = age <= 19 ? 1.0 : age <= 21 ? 0.4 : 0.2;
+    const skillMod = isWhiteSkill ? 1.0 : 0.5;
+    const statFactor = currentAttribute >= 180 ? 0 : Math.max(0, 1 - currentAttribute / 340);
+    return Number((multiplier * ageFactor * skillMod * statFactor * 0.05).toFixed(4));
+  }
+  const drillMult = getDrillLevelMult('Amateur', profile);
+  const xpCost = xpNeededFor1Pct(currentAttribute, age, 0, 'Normal', isWhiteSkill, false, drillMult, profile);
+  if (!isFinite(xpCost) || xpCost === 0) return 0;
+  // multiplier treated as an XP budget proxy (rough legacy approximation)
+  return Number(Math.min(multiplier / xpCost, 10).toFixed(4));
 }

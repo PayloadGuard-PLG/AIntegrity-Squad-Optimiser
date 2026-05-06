@@ -4,8 +4,10 @@ import { getBestDrillSelections } from './logic/controller';
 import { planPlayerInvestment } from './logic/investmentEngine';
 import { compareInvestmentScenarios } from './logic/scenarioComparator';
 import { ROLE_CONSTRAINTS, validateRoleAdjacency } from './utils/roleWeights';
+import { DRILL_LIST } from './database/drillDatabase';
 import { Player } from './database/playerSchema';
-import { Coach, ManagerProfile, ManagerStyle, TierName } from './types/resources';
+import { DrillSession, DrillLevel, TalentTier, ManagerProfile, ManagerStyle, TierName } from './types/resources';
+import gameProfile from '../profiles/game_2025.json';
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const ask = (q: string) => new Promise<string>(res => rl.question(q, res));
@@ -21,58 +23,28 @@ function buildDefaultStats(roles: string[]): Record<string, number> {
   return stats;
 }
 
-async function collectCoaches(): Promise<Coach[]> {
-  const coaches: Coach[] = [];
-  console.log("\nEnter available coaches (blank name to finish):");
-  let idx = 0;
+async function collectDrillSessions(): Promise<DrillSession[]> {
+  const sessions: DrillSession[] = [];
+  console.log("\nAvailable drills:");
+  DRILL_LIST.forEach((d, i) => console.log(`  ${i + 1}. ${d.name} [${d.type}] — ${d.stats.join(', ')}`));
+  console.log("\nEnter drill sessions (blank drill # to finish):");
+
   while (true) {
-    const type = await ask("  Coach type (Attacking/Defending/Physical/Mixed/Focused) or blank to finish: ");
-    if (!type.trim()) break;
+    const drillIdxStr = await ask("  Drill # (or blank to finish): ");
+    if (!drillIdxStr.trim()) break;
+    const drillIdx = parseInt(drillIdxStr, 10) - 1;
+    const drill = DRILL_LIST[drillIdx];
+    if (!drill) { console.log("  Invalid drill number."); continue; }
 
-    const multiplierStr = await ask("  Multiplier (e.g. 30): ");
-    const sessionStr = await ask("  Session type (Training/Seminar) [Training]: ");
-    const attrsStr = await ask("  Attributes trained (comma-separated, or blank for defaults): ");
-    const sourceStr = await ask("  Source (Academy/EliteChest/Store/Other) [Academy]: ");
-    const costStr = await ask("  Cost (e.g. '150 tokens' or 'free') [free]: ");
+    const countStr = await ask("  Sessions count [10]: ");
+    const levelStr = await ask("  Level (Amateur/Semi-Pro/Pro/World Class) [Amateur]: ");
+    const count = parseInt(countStr, 10) || 10;
+    const level = (['Amateur', 'Semi-Pro', 'Pro', 'World Class'].includes(levelStr.trim())
+      ? levelStr.trim() : 'Amateur') as DrillLevel;
 
-    const coachType = type.trim() as Coach['type'];
-    const multiplier = parseInt(multiplierStr, 10) || 30;
-    const sessionType = sessionStr.trim() === 'Seminar' ? 'Seminar' : 'Training';
-    const source = (sourceStr.trim() || 'Academy') as Coach['source'];
-
-    let attributes: string[] = [];
-    if (attrsStr.trim()) {
-      attributes = attrsStr.split(',').map(a => a.trim().toUpperCase());
-    } else {
-      // Default attributes by type
-      const defaults: Record<string, string[]> = {
-        Attacking: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
-        Defending: ['BRAVERY', 'HEADING', 'MARKING', 'POSITIONING', 'TACKLING'],
-        Physical:  ['AGGRESSION', 'CREATIVITY', 'FITNESS', 'SPEED', 'STRENGTH'],
-        Mixed:     ['PASSING', 'DRIBBLING', 'TACKLING', 'MARKING'],
-        Focused:   ['POSITIONING'],
-      };
-      attributes = defaults[coachType] ?? [];
-    }
-
-    let cost: Coach['cost'] = { currency: 'free', amount: 0 };
-    const costParts = costStr.trim().toLowerCase().split(' ');
-    if (costParts[0] !== 'free' && costParts.length === 2) {
-      cost = { currency: costParts[1] as 'tokens' | 'cash', amount: parseInt(costParts[0], 10) };
-    }
-
-    coaches.push({
-      id: `c${++idx}`,
-      type: coachType,
-      sessionType,
-      multiplier,
-      attributes,
-      durationDays: 1,
-      source,
-      cost,
-    });
+    sessions.push({ drillName: drill.name, sessionCount: count, drillLevel: level });
   }
-  return coaches;
+  return sessions;
 }
 
 async function startApp() {
@@ -112,7 +84,7 @@ async function startApp() {
     const rolesInput = await ask("Role(s) [e.g. ST  or  DC,DMC]: ");
     const roles = rolesInput.split(',').map(r => r.trim().toUpperCase());
     if (!validateRoleAdjacency(roles)) {
-      console.log(`❌ Invalid role combo: ${roles.join('+')} — roles must be adjacent.`);
+      console.log(`Invalid role combo: ${roles.join('+')} — roles must be adjacent.`);
       startApp();
       return;
     }
@@ -142,25 +114,30 @@ async function startApp() {
     const player = players[parseInt(idxStr, 10) - 1];
     if (!player) { console.log("Invalid selection."); startApp(); return; }
 
-    const coaches = await collectCoaches();
+    const drillSessions = await collectDrillSessions();
     const tierInput = await ask("Target tier (None/Rare/Elite/Stellar/Master/Epic/Legendary) or blank to skip: ");
     const tierPointsStr = await ask("Available tier points: ");
     const greensStr = await ask("Available greens: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
+    const talentInput = await ask("Player talent (FT1/FT2/FT3/Normal/Slow) [Normal]: ");
+    const levelInput = await ask("Drill level (Amateur/Semi-Pro/Pro/World Class) [Amateur]: ");
+    const adInput = await ask("2× Ad active this session? (y/n) [n]: ");
     const sponsorInput = await ask("Premium sponsor? (y/n) [n]: ");
-    const budgetStr = await ask("Store budget in tokens (0 for FTP, blank = unlimited): ");
 
     const targetTier = tierInput.trim() ? (tierInput.trim() as TierName) : null;
     const profile: ManagerProfile = {
       style: ((styleInput.trim() || 'PTW') as ManagerStyle),
-      coaches,
       tierPoints: parseInt(tierPointsStr, 10) || 0,
       greens: parseInt(greensStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
-      storeBudget: budgetStr.trim() ? parseInt(budgetStr, 10) : undefined,
+      twoxAdActive: adInput.toLowerCase() === 'y',
+      talentTier: (['FT1', 'FT2', 'FT3', 'Normal', 'Slow'].includes(talentInput.trim())
+        ? talentInput.trim() : 'Normal') as TalentTier,
+      drillLevel: (['Amateur', 'Semi-Pro', 'Pro', 'World Class'].includes(levelInput.trim())
+        ? levelInput.trim() : 'Amateur') as DrillLevel,
     };
 
-    const plan = planPlayerInvestment(player, profile, targetTier);
+    const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
     console.log(`\n=== Investment Plan: ${plan.player.name} ===`);
     console.table(plan.steps.map(s => ({
       Action: s.action,
@@ -183,23 +160,29 @@ async function startApp() {
       .filter(Boolean);
     if (selectedPlayers.length < 2) { console.log("Invalid selection."); startApp(); return; }
 
-    const coaches = await collectCoaches();
+    const drillSessions = await collectDrillSessions();
     const tierInput = await ask("Target tier (or blank): ");
     const tierPointsStr = await ask("Tier points: ");
     const greensStr = await ask("Greens: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
+    const talentInput = await ask("Player talent (FT1/FT2/FT3/Normal/Slow) [Normal]: ");
+    const levelInput = await ask("Drill level (Amateur/Semi-Pro/Pro/World Class) [Amateur]: ");
     const sponsorInput = await ask("Premium sponsor? (y/n) [n]: ");
 
     const targetTier = tierInput.trim() ? (tierInput.trim() as TierName) : null;
     const profile: ManagerProfile = {
       style: ((styleInput.trim() || 'PTW') as ManagerStyle),
-      coaches,
       tierPoints: parseInt(tierPointsStr, 10) || 0,
       greens: parseInt(greensStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
+      twoxAdActive: false,
+      talentTier: (['FT1', 'FT2', 'FT3', 'Normal', 'Slow'].includes(talentInput.trim())
+        ? talentInput.trim() : 'Normal') as TalentTier,
+      drillLevel: (['Amateur', 'Semi-Pro', 'Pro', 'World Class'].includes(levelInput.trim())
+        ? levelInput.trim() : 'Amateur') as DrillLevel,
     };
 
-    const comparison = compareInvestmentScenarios(selectedPlayers, profile, targetTier);
+    const comparison = compareInvestmentScenarios(selectedPlayers, profile, drillSessions, gameProfile, targetTier);
     console.log('\n=== Scenario Comparison ===');
     console.table(comparison.results.map(r => ({
       Rank: r.rank,

@@ -7,6 +7,7 @@
     ],
     "age": 19,
     "overall": 45,
+    "tier": "None",
     "stats": {
       "FINISHING": 115,
       "SPEED": 105

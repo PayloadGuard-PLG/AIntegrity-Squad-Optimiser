@@ -1,24 +1,61 @@
-// --- Coach types ---
+// --- Game profile (loaded from profiles/game_2025.json) ---
 
-export type CoachType = 'Attacking' | 'Defending' | 'Physical' | 'Mixed' | 'Focused';
-
-// Training = free drill session; Seminar = premium (costs tokens), higher base gain rate
-export type SessionType = 'Training' | 'Seminar';
-
-export interface Coach {
-  id: string;
-  type: CoachType;
-  sessionType: SessionType;
-  multiplier: number;       // The ×N value on the card (e.g. 30 for "Standard Attacking ×30")
-  attributes: string[];     // Exact stats this card trains — varies per card instance
-  durationDays: number;     // Card expiry window
-  source: 'Academy' | 'EliteChest' | 'Store' | 'Other';
-  cost: CoachCost;
+export interface XpCostEntry {
+  statMin: number;
+  statMax: number;
+  xpPer1Pct: number; // -1 means Infinity (180-rule)
 }
+
+export interface GameProfile {
+  version: string;
+  xpCostTable: XpCostEntry[];
+  ageTable: Record<string, number>;
+  talentMultipliers: Record<string, number>;
+  drillLevelMultipliers: Record<string, number>;
+  tierAttrAdditions: Record<string, number>;
+  tierPointsRequired: Record<string, number>;
+  fanClubCondReduction: number[];
+  greyWeightMultiplier: number;
+  statCap: number;
+  rule180StatCap: number;
+  twoxAdMultiplier: number;
+  starDecayPerSession: number;
+  qualityOvrDivisor: number;
+  totalAttributeCount: number;
+}
+
+// --- Talent & drill levels ---
+
+export type TalentTier = 'FT1' | 'FT2' | 'FT3' | 'Normal' | 'Slow';
+export type DrillLevel = 'Amateur' | 'Semi-Pro' | 'Pro' | 'World Class';
+
+// --- Drill session (replaces coach card as the training unit) ---
+
+export interface DrillSession {
+  drillName: string;
+  sessionCount: number;
+  drillLevel: DrillLevel;
+}
+
+// --- Legacy coach types (kept for DB backward compatibility) ---
+
+export type CoachType = 'Attacking' | 'Defending' | 'Physical' | 'Mixed' | 'Focused'; // legacy
+export type SessionType = 'Training' | 'Seminar'; // legacy
 
 export interface CoachCost {
   currency: 'tokens' | 'cash' | 'free';
   amount: number;
+}
+
+export interface Coach { // legacy — DB schema keeps this table
+  id: string;
+  type: CoachType;
+  sessionType: SessionType;
+  multiplier: number;
+  attributes: string[];
+  durationDays: number;
+  source: 'Academy' | 'EliteChest' | 'Store' | 'Other';
+  cost: CoachCost;
 }
 
 // --- Manager profile ---
@@ -27,11 +64,13 @@ export type ManagerStyle = 'FTP' | 'Hybrid' | 'PTW';
 
 export interface ManagerProfile {
   style: ManagerStyle;
-  coaches: Coach[];
   tierPoints: number;
   greens: number;
-  isPremiumSponsor: boolean;   // Unlocks Elite Chest; green efficiency ×1.3 in mutantEngine
-  storeBudget?: number;        // Max tokens/cash willing to spend (0 for FTP, undefined = unlimited PTW)
+  isPremiumSponsor: boolean;
+  storeBudget?: number;
+  twoxAdActive: boolean;
+  talentTier: TalentTier;
+  drillLevel: DrillLevel;
 }
 
 // --- Tier system ---
@@ -47,8 +86,10 @@ export type TierName =
 
 // --- Investment plan ---
 
+export type InvestmentStepAction = 'drill' | 'tier' | 'condition';
+
 export interface InvestmentStep {
-  action: 'coach' | 'tier' | 'greens';
+  action: InvestmentStepAction;
   description: string;
   ovrBefore: number;
   ovrAfter: number;

@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "resolveJsonModule": true,
     "lib": ["ES2022"],
     "baseUrl": ".",
     "paths": {
@@ -17,7 +18,10 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
     "tests/**/*.ts",
+    "global.d.ts",
     "App.js"
   ]
 }
