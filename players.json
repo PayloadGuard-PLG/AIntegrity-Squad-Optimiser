@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "name": "Alpha Striker",
+    "role": [
+      "ST"
+    ],
+    "age": 19,
+    "overall": 45,
+    "stats": {
+      "FINISHING": 115,
+      "SPEED": 105
+    },
+    "isMutantCandidate": true
+  }
+]
