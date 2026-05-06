@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Squad Optimiser",
+    "slug": "squad-optimiser",
+    "version": "1.0.0",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-screen-capture"
+    ]
+  }
+}
