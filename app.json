@@ -11,8 +11,7 @@
       "bundleIdentifier": "com.payloadguard.squadoptimiser"
     },
     "plugins": [
-      "expo-router",
-      "expo-screen-capture"
+      "expo-router"
     ]
   }
 }
