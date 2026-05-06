@@ -4,6 +4,72 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 3 — Mobile UI
+**2026-05-06**
+
+### Shipped
+
+Full React Native / Expo mobile UI. App now runs on device — zero CLI required.
+
+**FTUE target achieved:** Launch → Add Player → Add Coach → Project OVR in under 90 seconds.
+
+**Files added:**
+
+| File | Purpose |
+|---|---|
+| `babel.config.js` | NativeWind + Reanimated babel preset |
+| `metro.config.js` | NativeWind CSS interop |
+| `global.css` / `global.d.ts` / `tailwind.config.js` | NativeWind v4 setup |
+| `app/_layout.tsx` | Root Stack; migration gate; ManagerProvider |
+| `app/(tabs)/_layout.tsx` | Tab bar — Squad / Plan / Drills |
+| `app/(tabs)/index.tsx` | Squad Dashboard — live reactive player list, FAB |
+| `app/(tabs)/plan.tsx` | Investment Planner — coaches, manager profile, OVR projection |
+| `app/(tabs)/drills.tsx` | Drill Optimiser — Fan Club level picker, drill table |
+| `app/compare.tsx` | Scenario Comparator — multi-select, ranked results |
+| `app/player/new.tsx` | Add Player modal — role grid, auto-built stats |
+| `app/player/[id].tsx` | Edit/Delete Player modal |
+| `src/components/OVRBadge.tsx` | Coloured OVR chip |
+| `src/components/TierBadge.tsx` | Tier chip with tier-specific colour |
+| `src/components/EmptyState.tsx` | Empty state with icon and CTA |
+| `src/components/PlayerCard.tsx` | Player row card with role chips |
+| `src/components/CoachInputRow.tsx` | Coach entry form (type, multiplier, session, source) |
+| `src/components/InvestmentStepTable.tsx` | Step-by-step OVR projection table |
+| `src/components/DrillTable.tsx` | Drill recommendations with zero-drain highlight |
+| `src/services/playerService.ts` | Drizzle CRUD for players table |
+| `src/services/coachService.ts` | Drizzle CRUD for coaches table |
+| `src/context/ManagerContext.tsx` | Session-level manager profile state |
+| `src/hooks/useSquad.ts` | Live reactive squad query via `useLiveQuery` |
+| `RESEARCH.md` | Renamed from `Research`; game name reference removed |
+
+**Files modified:**
+
+| File | Change |
+|---|---|
+| `src/db/schema.ts` | Extended — `players` aligned with Player interface; `coaches` table added |
+| `drizzle/migrations.ts` | Regenerated with real SQL (2 tables, 19 columns) |
+| `tsconfig.json` | Added `app/**` and `global.d.ts` to includes |
+| `tests/storage-test.ts` | Added `tier: 'None'` to satisfy updated Player interface |
+| `package.json` | Added `nativewind`, `tailwindcss`, `react-native-reanimated`, `@expo/vector-icons` |
+
+### Key decisions
+
+**Drizzle as sole data layer.** `storageService.ts` (Node `fs`) stays for CLI only and is never imported from `app/`. `useLiveQuery` provides reactive updates — no manual state refresh needed after insert/update/delete.
+
+**`nanoid/non-secure` for IDs.** React Native does not polyfill `crypto.getRandomValues`. Using the non-secure export avoids a polyfill dependency; IDs are non-sensitive.
+
+**Dark theme, plain StyleSheet.** NativeWind v4 installed and configured, but base components use RN StyleSheet for reliability on first run. NativeWind utility classes available for future use.
+
+**Migration gate in root layout.** `useDbMigration().success` must be true before any screen renders — prevents queries against non-existent tables on first install.
+
+### Still TODO
+
+- Formula calibration: `estimateOvrGainFromCoach` awaiting research data (tonight)
+- ML Kit OCR: `useScanner` stub — next sprint
+- Pro tier gating: planned after formula update
+- Push notifications: planned after mobile UI stabilises
+
+---
+
 ## Sprint 2 — Investment Engine
 **2026-05-06**
 

@@ -18,7 +18,7 @@ User Experience Baseline The tool currently requires manual input of player data
 
 2. Strategic Positioning: The Companion App Opportunity
 
-The Squad Optimiser will be positioned as a "Companion & Build" toolkit, filling the analytical gap left by the base Top Eleven game. By providing meta-builds and optimization logic for a 28-day season—where players represent multi-season investments—the app becomes an essential utility for competitive managers.
+The Squad Optimiser will be positioned as a "Companion & Build" toolkit, filling the analytical gap left by the base game. By providing meta-builds and optimization logic for a 28-day season—where players represent multi-season investments—the app becomes an essential utility for competitive managers.
 
 Value Proposition & Benchmarking We are modeling our feature set against high-performing companion apps like DBD Hub, while tailoring the logic to the specific "Greens" (rest packs) economy and player progression of sports management.
 

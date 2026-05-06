@@ -10,6 +10,7 @@ async function runTest() {
         role: ['ST'],
         age: 19,
         overall: 45,
+        tier: 'None',
         stats: { FINISHING: 115, SPEED: 105 },
         isMutantCandidate: true
     }];
