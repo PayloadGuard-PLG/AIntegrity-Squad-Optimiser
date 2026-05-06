@@ -12,6 +12,15 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5e2319b8-dda7-4fbf-9fb4-5918d690d476"
+      }
+    },
+    "owner": "sdarkvader"
   }
 }
