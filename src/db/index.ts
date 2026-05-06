@@ -1,7 +1,7 @@
 import { openDatabaseSync } from 'expo-sqlite';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'; 
-import migrations from '../../drizzle/migrations'; 
+import migrations from '../../drizzle/migrations.js'; // explicit .js forces bundler to use generated file, not the stub .ts
 import * as schema from './schema';
 
 /**
