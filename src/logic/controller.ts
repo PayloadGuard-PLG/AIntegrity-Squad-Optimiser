@@ -1,20 +1,27 @@
-import { calculateEfficiency } from '../utils/optimiserMath';
-import { isEssentialGain, validateRoleAdjacency } from '../utils/roleWeights';
-import { Player } from '../database/playerSchema';
+import { isEssentialGain, validateRoleAdjacency } from '../utils/roleWeights.js';
+import { DRILL_LIST } from '../database/drillDatabase.js';
+import { calculateActualLoss } from '../utils/conditionEngine.js';
+import { Player } from '../database/playerSchema.js';
 
-export function getRecommendedDrills(player: Player) {
+export function getBestDrillSelections(player: Player, fanClubLevel: number = 4) {
     if (!validateRoleAdjacency(player.role)) {
-        throw new Error(`Invalid combination: Roles must be adjacent and cannot bridge with GK.`);
+        throw new Error(`Invalid combination: Roles must be adjacent.`);
     }
 
-    const recommendations = [];
-    for (const [stat, value] of Object.entries(player.stats)) {
-        const essential = isEssentialGain(player.role, stat);
-        const efficiency = calculateEfficiency(value, essential);
-        
-        if (essential && efficiency > 0.6) {
-            recommendations.push({ stat, priority: 'HIGH', efficiency });
-        }
-    }
-    return recommendations.sort((a, b) => b.efficiency - a.efficiency);
+    const whiteStats = Object.keys(player.stats).filter(stat => isEssentialGain(player.role, stat));
+
+    return DRILL_LIST.map(drill => {
+        const hits = drill.stats.filter(s => whiteStats.includes(s));
+        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel);
+        const efficiency = hits.length / drill.stats.length;
+
+        return {
+            Drill: drill.name,
+            Efficiency: `${(efficiency * 100).toFixed(0)}%`,
+            'Cost (6x Slot)': `${(actualLoss * 6).toFixed(2)}%`,
+            'White Stats Hit': hits.join(', ')
+        };
+    })
+    .filter(d => parseFloat(d.Efficiency) >= 50)
+    .sort((a, b) => parseFloat(b.Efficiency) - parseFloat(a.Efficiency));
 }
