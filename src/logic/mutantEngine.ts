@@ -1,18 +1,12 @@
 /**
  * Mutant Projection Engine
- * Calculates player growth based on resource expenditure and tiers.
+ * Calculates player OVR from drill training and tier upgrade.
+ * Greens restore condition only — they do not affect OVR.
  */
 export function calculateMutantProjection(
-  baseOvr: number, 
-  coachOvrGain: number, 
-  greensToSpend: number, 
-  tierBonus: number, 
-  isPremiumSponsor: boolean
+  baseOvr: number,
+  drillOvrGain: number,
+  tierOvrGain: number
 ): number {
-  let currentOvr = baseOvr + coachOvrGain;
-  const efficiencyFactor = isPremiumSponsor ? 1.3 : 1.0; // [cite: 39]
-  const gainFromGreens = (greensToSpend / 15) * efficiencyFactor;
-  
-  currentOvr += gainFromGreens;
-  return Number((currentOvr + tierBonus).toFixed(1));
+  return Number((baseOvr + drillOvrGain + tierOvrGain).toFixed(1));
 }

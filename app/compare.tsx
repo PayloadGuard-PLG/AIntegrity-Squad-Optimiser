@@ -2,27 +2,32 @@ import { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { useSquad } from '../src/hooks/useSquad';
 import { PlayerCard } from '../src/components/PlayerCard';
-import { CoachInputRow } from '../src/components/CoachInputRow';
+import { DrillSessionRow } from '../src/components/DrillSessionRow';
 import { OVRBadge } from '../src/components/OVRBadge';
 import { compareInvestmentScenarios } from '../src/logic/scenarioComparator';
-import { Coach, ManagerProfile, ManagerStyle, TierName, ScenarioComparison } from '../src/types/resources';
-import { nanoid } from 'nanoid/non-secure';
+import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, ScenarioComparison } from '../src/types/resources';
+import gameProfile from '../profiles/game_2025.json';
 
 const STYLES: ManagerStyle[] = ['FTP', 'Hybrid', 'PTW'];
+const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const DRILL_LEVELS: DrillLevel[] = ['Amateur', 'Semi-Pro', 'Pro', 'World Class'];
 const TIERS: (TierName | null)[] = [null, 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 
-function newCoach(): Partial<Coach> {
-  return { id: nanoid(), type: 'Attacking', sessionType: 'Training', multiplier: 30, attributes: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'], source: 'Academy', cost: { currency: 'free', amount: 0 }, durationDays: 1 };
+function newSession(): DrillSession {
+  return { drillName: 'Skill Drill', sessionCount: 10, drillLevel: 'Amateur' };
 }
 
 export default function CompareScreen() {
   const { squad } = useSquad();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [coachRows, setCoachRows] = useState<Partial<Coach>[]>([newCoach()]);
+  const [drillRows, setDrillRows] = useState<DrillSession[]>([newSession()]);
   const [style, setStyle] = useState<ManagerStyle>('FTP');
+  const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
+  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Amateur');
   const [tierPoints, setTierPoints] = useState('');
   const [greens, setGreens] = useState('');
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
+  const [twoxAd, setTwoxAd] = useState(false);
   const [targetTier, setTargetTier] = useState<TierName | null>(null);
   const [comparison, setComparison] = useState<ScenarioComparison | null>(null);
 
@@ -33,14 +38,17 @@ export default function CompareScreen() {
   function compare() {
     const players = squad.filter(p => selectedIds.includes(p.id));
     if (players.length < 2) return;
-    const coaches = coachRows.filter(c => c.type && c.multiplier) as Coach[];
-    const profile: ManagerProfile = {
-      style, coaches,
+    const profile = {
+      style,
       tierPoints: parseInt(tierPoints, 10) || 0,
       greens: parseInt(greens, 10) || 0,
       isPremiumSponsor,
+      twoxAdActive: twoxAd,
+      talentTier,
+      drillLevel,
     };
-    setComparison(compareInvestmentScenarios(players, profile, targetTier));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setComparison(compareInvestmentScenarios(players, profile, drillRows, gameProfile as any, targetTier));
   }
 
   return (
@@ -57,23 +65,59 @@ export default function CompareScreen() {
         )}
       </View>
 
-      {/* Coaches */}
+      {/* Player talent */}
+      <View style={{ gap: 6 }}>
+        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>TALENT (SHARED)</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          {TALENT_TIERS.map(t => (
+            <Pressable key={t} onPress={() => setTalentTier(t)}
+              style={{ backgroundColor: talentTier === t ? '#6366f1' : '#1a1d27', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
+              <Text style={{ color: talentTier === t ? '#fff' : '#9ca3af', fontSize: 12, fontWeight: '600' }}>{t}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+
+      {/* Drill sessions */}
       <View style={{ gap: 8 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>SHARED COACHES</Text>
-        {coachRows.map((c, i) => (
-          <CoachInputRow key={c.id ?? i} value={c}
-            onChange={updated => setCoachRows(rows => rows.map((r, idx) => idx === i ? updated : r))}
-            onRemove={() => setCoachRows(rows => rows.filter((_, idx) => idx !== i))} />
+        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>SHARED DRILL SESSIONS</Text>
+        {drillRows.map((s, i) => (
+          <DrillSessionRow key={i} value={s}
+            onChange={updated => setDrillRows(rows => rows.map((r, idx) => idx === i ? updated : r))}
+            onRemove={() => setDrillRows(rows => rows.filter((_, idx) => idx !== i))} />
         ))}
-        <Pressable onPress={() => setCoachRows(rows => [...rows, newCoach()])}
+        <Pressable onPress={() => setDrillRows(rows => [...rows, newSession()])}
           style={{ backgroundColor: '#1a1d27', borderRadius: 10, paddingVertical: 10, alignItems: 'center' }}>
-          <Text style={{ color: '#6366f1', fontWeight: '700', fontSize: 14 }}>+ Add Coach</Text>
+          <Text style={{ color: '#6366f1', fontWeight: '700', fontSize: 14 }}>+ Add Drill</Text>
         </Pressable>
       </View>
 
-      {/* Profile */}
+      {/* Training settings */}
       <View style={{ gap: 12 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>MANAGER PROFILE</Text>
+        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>TRAINING SETTINGS</Text>
+        <View style={{ gap: 6 }}>
+          <Text style={{ color: '#6b7280', fontSize: 11 }}>DEFAULT LEVEL</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {DRILL_LEVELS.map(l => (
+              <Pressable key={l} onPress={() => setDrillLevel(l)}
+                style={{ backgroundColor: drillLevel === l ? '#6366f1' : '#1a1d27', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
+                <Text style={{ color: drillLevel === l ? '#fff' : '#9ca3af', fontSize: 12, fontWeight: '600' }}>{l}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+        <Pressable onPress={() => setTwoxAd(v => !v)}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#1a1d27', borderRadius: 10, padding: 12 }}>
+          <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: twoxAd ? '#22c55e' : '#2a2d3a', alignItems: 'center', justifyContent: 'center' }}>
+            {twoxAd && <Text style={{ color: '#fff', fontSize: 12, fontWeight: '900' }}>✓</Text>}
+          </View>
+          <Text style={{ color: '#e2e8f0', fontSize: 14 }}>2× Ad active</Text>
+        </Pressable>
+      </View>
+
+      {/* Resources */}
+      <View style={{ gap: 12 }}>
+        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>RESOURCES</Text>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           {STYLES.map(s => (
             <Pressable key={s} onPress={() => setStyle(s)}
@@ -82,7 +126,6 @@ export default function CompareScreen() {
             </Pressable>
           ))}
         </View>
-
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 1, gap: 6 }}>
             <Text style={{ color: '#6b7280', fontSize: 11 }}>TIER POINTS</Text>
@@ -97,7 +140,6 @@ export default function CompareScreen() {
               style={{ backgroundColor: '#1a1d27', color: '#e2e8f0', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 }} />
           </View>
         </View>
-
         <View style={{ gap: 6 }}>
           <Text style={{ color: '#6b7280', fontSize: 11 }}>TARGET TIER</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -124,14 +166,10 @@ export default function CompareScreen() {
       {comparison && (
         <View style={{ gap: 12 }}>
           <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>RESULTS</Text>
-
-          {/* Recommendation banner */}
           <View style={{ backgroundColor: '#22c55e22', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#22c55e44' }}>
             <Text style={{ color: '#22c55e', fontWeight: '700', fontSize: 14 }}>✓ Recommended: {comparison.recommendedPlayer}</Text>
             <Text style={{ color: '#9ca3af', fontSize: 12, marginTop: 4, lineHeight: 18 }}>{comparison.reasoning}</Text>
           </View>
-
-          {/* Ranked table */}
           {comparison.results.map(r => (
             <View key={r.playerName} style={{ backgroundColor: '#1a1d27', borderRadius: 10, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: r.rank === 1 ? '#6366f1' : '#2a2d3a', alignItems: 'center', justifyContent: 'center' }}>
@@ -141,7 +179,8 @@ export default function CompareScreen() {
                 <Text style={{ color: '#e2e8f0', fontWeight: '700', fontSize: 14 }}>{r.playerName}</Text>
                 <Text style={{ color: '#6b7280', fontSize: 12 }}>OVR {r.currentOvr.toFixed(0)} → {r.projectedOvr.toFixed(0)}</Text>
               </View>
-              <Text style={{ color: '#22c55e', fontWeight: '800', fontSize: 16 }}>+{r.ovrGain.toFixed(1)}</Text>
+              <OVRBadge ovr={r.projectedOvr} />
+              <Text style={{ color: '#22c55e', fontWeight: '800', fontSize: 16, marginLeft: 4 }}>+{r.ovrGain.toFixed(1)}</Text>
             </View>
           ))}
         </View>

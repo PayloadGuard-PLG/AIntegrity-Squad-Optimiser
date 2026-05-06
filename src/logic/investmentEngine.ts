@@ -1,48 +1,24 @@
 import { projectOvr, getTierCost } from './ovrProjector';
 import { Player } from '../database/playerSchema';
-import { ManagerProfile, InvestmentPlan, TierName, Coach } from '../types/resources';
+import { ManagerProfile, InvestmentPlan, TierName, DrillSession, GameProfile } from '../types/resources';
 
 /**
- * Filters the manager's coach list based on their style:
- *   FTP   — owned coaches only (no store purchases)
- *   Hybrid — include store coaches within storeBudget
- *   PTW   — include all coaches regardless of cost
- */
-function filterCoachesByStyle(profile: ManagerProfile): Coach[] {
-  if (profile.style === 'FTP') {
-    return profile.coaches.filter(c => c.source !== 'Store');
-  }
-  if (profile.style === 'Hybrid') {
-    let spent = 0;
-    return profile.coaches.filter(c => {
-      if (c.source !== 'Store') return true;
-      if (c.cost.currency === 'free') return true;
-      const budget = profile.storeBudget ?? 0;
-      if (spent + c.cost.amount <= budget) {
-        spent += c.cost.amount;
-        return true;
-      }
-      return false;
-    });
-  }
-  // PTW: all coaches
-  return profile.coaches;
-}
-
-/**
- * Produces a full investment plan for a single player given the manager's resources.
- * Enforces the "coaches first, ALWAYS" rule — tier and greens are applied after coaches.
+ * Produces a full investment plan for a single player given the manager's profile
+ * and a list of drill sessions to run.
+ *
+ * Drill sessions are always applied BEFORE tier upgrade (drills-first rule).
  */
 export function planPlayerInvestment(
   player: Player,
   profile: ManagerProfile,
+  drillSessions: DrillSession[],
+  gameProfile: GameProfile,
   targetTier: TierName | null = null
 ): InvestmentPlan {
-  const availableCoaches = filterCoachesByStyle(profile);
   const warnings: string[] = [];
 
-  if (availableCoaches.length === 0 && profile.style === 'FTP') {
-    warnings.push('FTP mode: no owned coaches available. Consider Academy coach timings.');
+  if (drillSessions.length === 0) {
+    warnings.push('No drill sessions provided — add drills to generate a projection.');
   }
 
   if (targetTier) {
@@ -56,29 +32,32 @@ export function planPlayerInvestment(
 
   const { steps, finalOvr, warnings: projectionWarnings } = projectOvr(
     player,
-    availableCoaches,
+    drillSessions,
+    profile.talentTier,
+    profile.drillLevel,
     targetTier,
     profile.greens,
-    profile.isPremiumSponsor
+    profile.twoxAdActive,
+    gameProfile
   );
 
   warnings.push(...projectionWarnings);
 
   const totalOvrGain = Number((finalOvr - player.overall).toFixed(1));
 
-  const coachSummary = availableCoaches.length > 0
-    ? availableCoaches.map(c => `${c.type} ×${c.multiplier}`).join(', ')
+  const drillSummary = drillSessions.length > 0
+    ? drillSessions.map(s => `${s.drillName} ×${s.sessionCount}`).join(', ')
     : 'none';
 
   const tierSummary = targetTier ? ` → ${targetTier} tier` : '';
-  const greenSummary = profile.greens > 0 ? ` + ${profile.greens} greens` : '';
+  const greenSummary = profile.greens > 0 ? ` + ${profile.greens} greens (condition)` : '';
 
   const recommendation =
-    `Apply coaches first (${coachSummary})${tierSummary}${greenSummary}. ` +
+    `Run drills first (${drillSummary})${tierSummary}${greenSummary}. ` +
     `Projected OVR: ${player.overall} → ${finalOvr} (+${totalOvrGain}).`;
 
   const resourceLines = [
-    availableCoaches.length > 0 ? `${availableCoaches.length} coach(es)` : null,
+    drillSessions.length > 0 ? `${drillSessions.reduce((s, d) => s + d.sessionCount, 0)} sessions` : null,
     targetTier ? `${getTierCost(targetTier)} tier points` : null,
     profile.greens > 0 ? `${profile.greens} greens` : null,
   ].filter(Boolean);
@@ -92,4 +71,24 @@ export function planPlayerInvestment(
     recommendation,
     warnings,
   };
+}
+
+/**
+ * Compares investment plans across multiple players using a shared drill set.
+ * Returns players ranked by projected OVR gain.
+ */
+export function compareInvestmentScenarios(
+  players: Player[],
+  profile: ManagerProfile,
+  drillSessions: DrillSession[],
+  gameProfile: GameProfile,
+  targetTier: TierName | null = null
+): { ranked: { player: Player; plan: InvestmentPlan }[] } {
+  const results = players.map(player => ({
+    player,
+    plan: planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier),
+  }));
+
+  results.sort((a, b) => b.plan.totalOvrGain - a.plan.totalOvrGain);
+  return { ranked: results };
 }

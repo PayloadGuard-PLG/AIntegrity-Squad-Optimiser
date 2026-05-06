@@ -4,6 +4,76 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 4 — Formula Engine Rewrite
+**2026-05-06**
+
+### Shipped
+
+Research confirmed the entire formula engine was built on wrong game mechanics. Sprint 4 replaces it with the verified XP-based model and adopts a profile-based architecture so all game coefficients are configurable without touching code.
+
+**Files added:**
+
+| File | Purpose |
+|---|---|
+| `profiles/game_2025.json` | All game coefficients as configurable JSON (XP table, age table, talent/drill multipliers, tier additions, fan club reductions) |
+| `src/logic/xpEngine.ts` | Core XP engine — `xpBaseForStat`, `xpNeededFor1Pct`, `estimateStatGainPct`, `statsToQualityPct`, `qualityPctToOvr`, `applyTierBonusToStats`, `getAgeMultiplier` |
+| `src/components/DrillSessionRow.tsx` | Drill picker UI row (name, session count, drill level) replacing CoachInputRow in Plan/Compare screens |
+| `drizzle/0001_natural_northstar.sql` | Migration adding `drill_sessions` table |
+
+**Files rewritten:**
+
+| File | Change |
+|---|---|
+| `src/types/resources.ts` | Added `GameProfile`, `TalentTier`, `DrillLevel`, `DrillSession`; removed `coaches` from `ManagerProfile`; added `twoxAdActive`, `talentTier`, `drillLevel` |
+| `src/utils/coachMath.ts` | Removed coach-multiplier model; profile-driven `getAgeFactor`, `getStatXpCost`, `getGreyMultiplier`; deprecated shim kept for backward compat |
+| `src/utils/math.ts` | `TIER_DATA.bonus` → `TIER_DATA.attrAddition` (flat per-white-stat, not OVR); removed `calculateDecay` |
+| `src/utils/roleWeights.ts` | Fixed `isEssentialGain` — was returning true for secondary (grey) stats; now essential-only; added `getWhiteStatKeys`; grey weight = 0.5 |
+| `src/logic/ovrProjector.ts` | Rewritten — drill sessions → per-stat XP → Quality%/4 → OVR; tier as flat attr addition; greens = condition restore step only |
+| `src/logic/mutantEngine.ts` | Removed greens-as-OVR; greens are condition, not OVR |
+| `src/logic/investmentEngine.ts` | New signature: `DrillSession[]` + `GameProfile`; added `compareInvestmentScenarios` |
+| `src/logic/scenarioComparator.ts` | Updated to new engine signature |
+| `src/context/ManagerContext.tsx` | Added `twoxAdActive`, `talentTier`, `drillLevel` state; removed `coaches` |
+| `src/database/drillDatabase.ts` | Added 11 missing drills; fixed `Fast Counter-Attacks` baseLoss (3.0→3.75) |
+| `src/db/schema.ts` | Added `drill_sessions` table |
+| `app/(tabs)/plan.tsx` | Replaced "Add Coach" with "Add Drill"; added talent tier picker and 2× Ad toggle |
+| `app/compare.tsx` | Same drill input replacement |
+| `src/index.ts` | CLI updated to drill session workflow |
+| `tests/investment-test.ts` | Full rewrite — 40 tests covering 180-rule, cap, age, talent, grey weight, tier delta, greens model, end-to-end plan |
+| `tsconfig.json` | Added `resolveJsonModule: true` |
+
+### Key decisions
+
+**Profile JSON.** All game coefficients live in `profiles/game_2025.json` — no magic numbers in engine code. Updating game mechanics requires only a JSON edit, not code changes.
+
+**XP model replaces coach-multiplier model.** The previous `×30 multiplier → direct OVR` model had no basis in the actual game. The new model: each drill session = 1 XP unit; `xpNeededFor1Pct = base / (ageMult × talentMult × greyMult × adMult × drillLevelMult)`; stat gains accumulate to Quality% → OVR.
+
+**Tier bonus = attribute addition.** Previous code added a flat OVR number on tier up. Correct model: `+X per white attribute → recalculate Quality% → recalculate OVR`. Stellar on a 6-white-stat player at 100% each = +50×6/15 = +20 Quality% = +5 OVR.
+
+**Greens = 15% condition restore.** Removed from OVR projection entirely; shown as informational `condition` step.
+
+**Grey weight = 0.5 (was 0.1).** Secondary stats contribute half the XP efficiency of white stats.
+
+**180-rule.** Stats at or above 180% return Infinity XP cost — drill ceases to pay that stat.
+
+### Tests
+
+```
+40/40 passing (tests/investment-test.ts)
+drill-logic-test.ts ✓
+logic-test.ts ✓
+storage-test.ts ✓
+npm run typecheck — zero errors
+```
+
+### Still TODO
+
+- Calibrate exact `baseXpPerSession` scaling once user screenshots confirm real session gains
+- GK white skill set needs verification from research
+- OCR scanner stub — next sprint
+- Pro tier gating
+
+---
+
 ## Sprint 3 — Mobile UI
 **2026-05-06**
 

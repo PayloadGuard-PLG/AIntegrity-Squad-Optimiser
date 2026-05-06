@@ -8,6 +8,13 @@
       "when": 1778080880341,
       "tag": "0000_kind_daimon_hellstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1778087829687,
+      "tag": "0001_natural_northstar",
+      "breakpoints": true
     }
   ]
 }

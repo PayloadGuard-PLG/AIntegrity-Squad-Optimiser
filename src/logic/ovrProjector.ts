@@ -1,141 +1,172 @@
-import { TIER_DATA } from '../utils/math';
-import { estimateOvrGainFromCoach } from '../utils/coachMath';
-import { isEssentialGain } from '../utils/roleWeights';
-import { Coach, TierName, InvestmentStep } from '../types/resources';
+import { getTierAttrAddition, getTierCost } from '../utils/math';
+import { isWhiteStat, getWhiteStatKeys } from '../utils/roleWeights';
+import { estimateStatGainPct, applyTierBonusToStats, statsToQualityPct, qualityPctToOvr } from './xpEngine';
+import { DrillSession, GameProfile, TalentTier, DrillLevel, TierName, InvestmentStep } from '../types/resources';
 import { Player } from '../database/playerSchema';
+import { DRILL_LIST } from '../database/drillDatabase';
 
-export function getTierData(tierName: TierName): { bonus: number; pointsRequired: number } {
-  return TIER_DATA.find(t => t.name === tierName) ?? { bonus: 0, pointsRequired: 0 };
-}
+export { getTierAttrAddition as getTierBonus, getTierCost };
 
-export function getTierBonus(tierName: TierName): number {
-  return getTierData(tierName).bonus;
-}
-
-export function getTierCost(tierName: TierName): number {
-  return getTierData(tierName).pointsRequired;
+/**
+ * Finds a drill by name (case-insensitive). Returns null if not found.
+ */
+function findDrill(drillName: string) {
+  return DRILL_LIST.find(d => d.name.toLowerCase() === drillName.toLowerCase()) ?? null;
 }
 
 /**
- * Partitions the player's stats into white (role-essential) and grey
- * based on the coach card's attribute list.
+ * Returns current OVR from player.stats via Quality%/4.
+ * Falls back to player.overall when stats are empty (e.g. first add, no stats entered).
  */
-function partitionStats(
-  player: Player,
-  coachAttributes: string[]
-): { whiteStats: number[]; greyStats: number[] } {
-  const whiteStats: number[] = [];
-  const greyStats: number[] = [];
+export function computeOvrFromStats(player: Player, profile: GameProfile): number {
+  if (Object.keys(player.stats).length === 0) return player.overall;
+  const qp = statsToQualityPct(player.stats, profile);
+  return qualityPctToOvr(qp, profile);
+}
 
-  for (const attr of coachAttributes) {
-    const normalized = attr.toUpperCase();
-    const statValue = player.stats[normalized] ?? player.stats[attr] ?? 100;
-    if (isEssentialGain(player.role, normalized)) {
-      whiteStats.push(statValue);
-    } else {
-      greyStats.push(statValue);
+/**
+ * Applies a set of drill sessions to a mutable copy of the player's stats.
+ * Returns the stat delta map, step log, and new OVR.
+ *
+ * Each session = 1 XP unit. Star decay is applied per-stat within the session.
+ * (Cross-stat star decay interaction is a calibration TODO.)
+ */
+export function applyDrillSessionsToStats(
+  player: Player,
+  drillSessions: DrillSession[],
+  talentTier: TalentTier,
+  twoxAdActive: boolean,
+  profile: GameProfile
+): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number } {
+  const steps: InvestmentStep[] = [];
+  const updatedStats = { ...player.stats };
+  const ovrBefore = computeOvrFromStats(player, profile);
+  let runningOvr = ovrBefore;
+
+  for (const session of drillSessions) {
+    const drill = findDrill(session.drillName);
+    if (!drill) continue;
+
+    const drillLevelMult = profile.drillLevelMultipliers[session.drillLevel] ?? 1.0;
+    const statDeltas: string[] = [];
+
+    for (const statKey of drill.stats) {
+      const normalized = statKey.toUpperCase();
+      const currentVal = updatedStats[normalized] ?? 0;
+      if (currentVal >= profile.statCap) continue;
+
+      const isWhite = isWhiteStat(player.role, normalized);
+      const gainPct = estimateStatGainPct(
+        session.sessionCount,
+        currentVal,
+        player.age,
+        0,
+        talentTier,
+        isWhite,
+        twoxAdActive,
+        drillLevelMult,
+        profile
+      );
+
+      if (gainPct > 0) {
+        updatedStats[normalized] = Math.min(currentVal + gainPct, profile.statCap);
+        statDeltas.push(`${normalized} +${gainPct}%`);
+      }
+    }
+
+    if (statDeltas.length > 0) {
+      const newQp = statsToQualityPct(updatedStats, profile);
+      const newOvr = qualityPctToOvr(newQp, profile);
+      const ovrDelta = Number((newOvr - runningOvr).toFixed(1));
+      steps.push({
+        action: 'drill',
+        description: `${session.drillName} ×${session.sessionCount} sessions (${session.drillLevel})`,
+        ovrBefore: runningOvr,
+        ovrAfter: newOvr,
+        resourcesUsed: `${session.sessionCount} sessions`,
+      });
+      runningOvr = newOvr;
+      void ovrDelta; // tracked via ovrBefore/ovrAfter
     }
   }
-  return { whiteStats, greyStats };
-}
 
-/**
- * Applies a set of coaches to the player in order and returns OVR gain + step log.
- * Always call this BEFORE tier upgrades (coaches-first rule).
- */
-export function applyCoachesToPlayer(
-  player: Player,
-  coaches: Coach[]
-): { totalOvrGain: number; steps: InvestmentStep[] } {
-  const steps: InvestmentStep[] = [];
-  let runningOvr = player.overall;
-
-  for (const coach of coaches) {
-    const { whiteStats, greyStats } = partitionStats(player, coach.attributes);
-    const ovrGain = estimateOvrGainFromCoach(
-      coach.multiplier,
-      coach.sessionType,
-      player.age,
-      whiteStats,
-      greyStats
-    );
-
-    const ovrBefore = runningOvr;
-    runningOvr = Number((runningOvr + ovrGain).toFixed(1));
-
-    steps.push({
-      action: 'coach',
-      description: `${coach.type} ×${coach.multiplier} ${coach.sessionType} (${coach.source}) — trains: ${coach.attributes.join(', ')}`,
-      ovrBefore,
-      ovrAfter: runningOvr,
-      resourcesUsed: coach.cost.currency === 'free'
-        ? 'FREE'
-        : `${coach.cost.amount} ${coach.cost.currency}`,
-    });
-  }
-
-  return { totalOvrGain: Number((runningOvr - player.overall).toFixed(1)), steps };
+  return { steps, updatedStats, finalOvr: runningOvr };
 }
 
 /**
  * Full OVR projection chain:
- *   1. Coaches (always first)
- *   2. Tier upgrade (if target tier supplied and points available)
- *   3. Greens
- *
- * Returns ordered steps and the final projected OVR.
+ *   1. Drill sessions (always first — drills before tier)
+ *   2. Tier upgrade (flat per-white-attr addition → recompute Quality% → OVR)
+ *   3. Greens (informational only — condition restore, NOT OVR)
  */
 export function projectOvr(
   player: Player,
-  coaches: Coach[],
+  drillSessions: DrillSession[],
+  talentTier: TalentTier,
+  drillLevel: DrillLevel,
   targetTier: TierName | null,
   greens: number,
-  isPremiumSponsor: boolean
+  twoxAdActive: boolean,
+  profile: GameProfile
 ): { steps: InvestmentStep[]; finalOvr: number; warnings: string[] } {
   const steps: InvestmentStep[] = [];
   const warnings: string[] = [];
-  let currentOvr = player.overall;
 
-  // Step 1 — Coaches first
-  if (coaches.length > 0) {
-    const { steps: coachSteps, totalOvrGain } = applyCoachesToPlayer(player, coaches);
-    steps.push(...coachSteps);
-    currentOvr = Number((currentOvr + totalOvrGain).toFixed(1));
+  // Promote all sessions to the specified drill level if not already set per-session
+  const sessions: DrillSession[] = drillSessions.map(s => ({
+    ...s,
+    drillLevel: s.drillLevel ?? drillLevel,
+  }));
+
+  // Step 1 — Drill sessions
+  let currentStats = { ...player.stats };
+  let currentOvr = computeOvrFromStats(player, profile);
+
+  if (sessions.length > 0) {
+    const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr } =
+      applyDrillSessionsToStats({ ...player, stats: currentStats }, sessions, talentTier, twoxAdActive, profile);
+    steps.push(...drillSteps);
+    currentStats = updatedStats;
+    currentOvr = postDrillOvr;
   } else {
-    warnings.push('No coaches provided — add coaches before tiering for best results.');
+    warnings.push('No drill sessions — add drills to project OVR growth.');
+  }
+
+  if (player.age >= 20) {
+    warnings.push(`Slow trainer (age ${player.age}) — gains are reduced.`);
   }
 
   // Step 2 — Tier upgrade
   if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
-    const tierBonus = getTierBonus(targetTier);
+    const tierCost = getTierCost(targetTier);
+    const whiteKeys = getWhiteStatKeys(player.role);
     const ovrBefore = currentOvr;
-    currentOvr = Number((currentOvr + tierBonus).toFixed(1));
+
+    currentStats = applyTierBonusToStats(currentStats, whiteKeys, targetTier, profile);
+    const newQp = statsToQualityPct(currentStats, profile);
+    const newOvr = qualityPctToOvr(newQp, profile);
+    const attrAdd = getTierAttrAddition(targetTier);
+
     steps.push({
       action: 'tier',
-      description: `Tier up to ${targetTier} (+${tierBonus} OVR bonus)`,
+      description: `Tier → ${targetTier} (+${attrAdd} per white attr × ${whiteKeys.length} stats)`,
       ovrBefore,
-      ovrAfter: currentOvr,
-      resourcesUsed: `${getTierCost(targetTier)} tier points`,
+      ovrAfter: newOvr,
+      resourcesUsed: `${tierCost} tier points`,
     });
+    currentOvr = newOvr;
   }
 
-  // Step 3 — Greens
+  // Step 3 — Greens (condition restore — no OVR change)
   if (greens > 0) {
-    const greenEfficiency = isPremiumSponsor ? 1.3 : 1.0;
-    const ovrFromGreens = Number(((greens / 15) * greenEfficiency).toFixed(1));
-    const ovrBefore = currentOvr;
-    currentOvr = Number((currentOvr + ovrFromGreens).toFixed(1));
+    const condPct = Math.min(greens * 15, 100);
     steps.push({
-      action: 'greens',
-      description: `${greens} greens${isPremiumSponsor ? ' (Premium ×1.3)' : ''}`,
-      ovrBefore,
+      action: 'condition',
+      description: `${greens} greens → +${condPct}% condition restored`,
+      ovrBefore: currentOvr,
       ovrAfter: currentOvr,
       resourcesUsed: `${greens} greens`,
     });
-  }
-
-  if (player.age > 25) {
-    warnings.push(`Slow trainer (age ${player.age}) — OVR gains are significantly reduced.`);
   }
 
   return { steps, finalOvr: currentOvr, warnings };

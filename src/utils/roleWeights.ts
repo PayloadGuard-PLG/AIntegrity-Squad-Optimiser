@@ -1,36 +1,33 @@
-/**
-* roleWeights.ts: Final Squad Position Logic
-* Supports multi-role merging for outfielders while locking GK functionality.
-*/
-
 export const ADJACENCY_MAP: Record<string, string[]> = {
-  'GK': [], 
-  'DC': ['DL', 'DR', 'DMC'],
-  'DL': ['DC', 'ML', 'DMC'],
-  'DR': ['DC', 'MR', 'DMC'],
+  'GK':  [],
+  'DC':  ['DL', 'DR', 'DMC'],
+  'DL':  ['DC', 'ML', 'DMC'],
+  'DR':  ['DC', 'MR', 'DMC'],
   'DMC': ['DC', 'DL', 'DR', 'MC', 'ML', 'MR'],
-  'MC': ['DMC', 'ML', 'MR', 'AMC', 'DL', 'DR'],
-  'ML': ['DL', 'DMC', 'MC', 'AML'],
-  'MR': ['DR', 'DMC', 'MC', 'AMR'],
+  'MC':  ['DMC', 'ML', 'MR', 'AMC', 'DL', 'DR'],
+  'ML':  ['DL', 'DMC', 'MC', 'AML'],
+  'MR':  ['DR', 'DMC', 'MC', 'AMR'],
   'AMC': ['MC', 'AML', 'AMR', 'ST'],
   'AML': ['ML', 'AMC', 'ST'],
   'AMR': ['MR', 'AMC', 'ST'],
-  'ST': ['AMC', 'AML', 'AMR']
+  'ST':  ['AMC', 'AML', 'AMR'],
 };
 
+// essential = white stats (full XP efficiency)
+// secondary = grey stats (×0.5 XP efficiency per profile.greyWeightMultiplier)
 export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: string[] }> = {
-  ST: { essential: ['FINISHING', 'SHOOTING', 'DRIBBLING', 'PASSING', 'POSITIONING', 'HEADING'], secondary: ['STRENGTH', 'SPEED', 'CREATIVITY'] },
-  GK: { essential: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'], secondary: ['THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'FITNESS'] },
+  ST:  { essential: ['FINISHING', 'SHOOTING', 'DRIBBLING', 'PASSING', 'POSITIONING', 'HEADING'], secondary: ['STRENGTH', 'SPEED', 'CREATIVITY'] },
+  GK:  { essential: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'], secondary: ['THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'FITNESS'] }, // TODO: verify GK white stats from research
   AMC: { essential: ['PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'HEADING'], secondary: ['SPEED', 'CREATIVITY', 'FITNESS'] },
   AML: { essential: ['CROSSING', 'DRIBBLING', 'PASSING', 'SHOOTING', 'FINISHING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
   AMR: { essential: ['CROSSING', 'DRIBBLING', 'PASSING', 'SHOOTING', 'FINISHING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  ML: { essential: ['CROSSING', 'PASSING', 'DRIBBLING', 'POSITIONING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  MR: { essential: ['CROSSING', 'PASSING', 'DRIBBLING', 'POSITIONING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  MC: { essential: ['PASSING', 'DRIBBLING', 'SHOOTING', 'TACKLING', 'POSITIONING', 'BRAVERY'], secondary: ['FITNESS', 'STRENGTH', 'SPEED', 'CREATIVITY'] },
+  ML:  { essential: ['CROSSING', 'PASSING', 'DRIBBLING', 'POSITIONING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
+  MR:  { essential: ['CROSSING', 'PASSING', 'DRIBBLING', 'POSITIONING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
+  MC:  { essential: ['PASSING', 'DRIBBLING', 'SHOOTING', 'TACKLING', 'POSITIONING', 'BRAVERY'], secondary: ['FITNESS', 'STRENGTH', 'SPEED', 'CREATIVITY'] },
   DMC: { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING'], secondary: ['FITNESS', 'STRENGTH', 'AGGRESSION'] },
-  DC: { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'], secondary: ['STRENGTH', 'AGGRESSION'] },
-  DL: { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING'], secondary: ['FITNESS', 'AGGRESSION', 'SPEED'] },
-  DR: { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING'], secondary: ['FITNESS', 'AGGRESSION', 'SPEED'] }
+  DC:  { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'], secondary: ['STRENGTH', 'AGGRESSION'] },
+  DL:  { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING'], secondary: ['FITNESS', 'AGGRESSION', 'SPEED'] },
+  DR:  { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING'], secondary: ['FITNESS', 'AGGRESSION', 'SPEED'] },
 };
 
 export function validateRoleAdjacency(roles: string[]): boolean {
@@ -44,10 +41,32 @@ export function validateRoleAdjacency(roles: string[]): boolean {
   });
 }
 
-export function isEssentialGain(roles: string[], skillName: string): boolean {
-  const normalizedSkill = skillName.toUpperCase();
+/**
+ * Returns true only if the skill is in the ESSENTIAL (white) list for any of
+ * the player's roles. Secondary (grey) stats return false — they receive ×0.5
+ * XP efficiency, not full white efficiency.
+ */
+export function isWhiteStat(roles: string[], skillName: string): boolean {
+  const normalized = skillName.toUpperCase();
   return roles.slice(0, 3).some(role => {
     const roleData = ROLE_CONSTRAINTS[role.toUpperCase()];
-    return roleData?.essential.includes(normalizedSkill) || roleData?.secondary.includes(normalizedSkill);
+    return roleData?.essential.includes(normalized) ?? false;
   });
+}
+
+/** Backward-compatible alias — prefer isWhiteStat in new code. */
+export const isEssentialGain = isWhiteStat;
+
+/**
+ * Returns all white (essential) stat keys for a player's roles (union, deduplicated).
+ */
+export function getWhiteStatKeys(roles: string[]): string[] {
+  const keys = new Set<string>();
+  for (const role of roles.slice(0, 3)) {
+    const roleData = ROLE_CONSTRAINTS[role.toUpperCase()];
+    if (roleData) {
+      for (const stat of roleData.essential) keys.add(stat);
+    }
+  }
+  return Array.from(keys);
 }
