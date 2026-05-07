@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 0.3 — Sprint 5**
+**Version 0.4 — Sprint 6**
 
 ---
 
@@ -51,9 +51,16 @@ xpNeededFor1Pct(
 ): number
 ```
 
-Formula:
+**XP budget per drill run:**
 ```
-base       = xpCostTable[statValue]   (see §3.3; Infinity if statValue ≥ 180)
+xpBudget = sessionCount × baseXpPerSession   (baseXpPerSession = 150)
+```
+
+A player running 6 sessions of a drill generates 900 XP to distribute across the stats that drill trains.
+
+**Cost per 1% gain on a single stat:**
+```
+base       = xpCostTable[statValue]   (see §3.3)
 ageMult    = ageTable[age]
 starMult   = 0.85 ^ starsGainedInSession
 talentMult = talentMultipliers[talentTier]
@@ -63,7 +70,11 @@ adMult     = 2.0 if twoxAdActive else 1.0
 xpCost = base / (ageMult × starMult × talentMult × greyMult × adMult × drillLevelMult)
 ```
 
+The engine iterates 1% at a time from the current stat value, subtracting `xpCost` from the budget, until the budget is exhausted or `statCap` (340) is reached.
+
 ### 3.3 XP cost table
+
+Costs increase with stat value. Top-level players (stats 180–250) still train — costs are steep but finite.
 
 | Stat range | XP per 1% |
 |---|---|
@@ -74,9 +85,14 @@ xpCost = base / (ageMult × starMult × talentMult × greyMult × adMult × dril
 | 120–139 | 40 |
 | 140–159 | 50 |
 | 160–179 | 60 |
-| 180+ | ∞ (180-rule) |
+| 180–199 | 80 |
+| 200–219 | 100 |
+| 220–239 | 125 |
+| 240–259 | 160 |
+| 260–279 | 200 |
+| 280–339 | 250 |
 
-**180-rule:** Once a stat reaches or exceeds 180%, it returns Infinity XP cost — that stat stops accumulating from drills. This is enforced per-stat, not player-wide.
+**Example:** stat-241 white attr, age 24, Normal talent, Very Easy drill: `xpCost = 160 / 0.24 ≈ 667`. Budget for 6 sessions = 900 XP → 1% gain.
 
 ### 3.4 Age multipliers
 
@@ -129,7 +145,7 @@ Each session applies a `starMult = 0.85 ^ starsGainedInSession` reduction to sim
 
 ## 4. Tier Upgrade Model
 
-Tier upgrades are applied after all drills. The bonus is **not** a flat OVR addition — it is a flat attribute addition per white (essential) stat, after which OVR is recalculated.
+Tier upgrades are applied after all drills. The bonus is a flat attribute addition per white (essential) stat; OVR is recalculated from the updated stat values.
 
 ```
 for each white stat:
@@ -286,12 +302,12 @@ interface InvestmentPlan {
 
 | Item | Status |
 |---|---|
-| Drill XP baseline | `baseXpPerSession` calibration pending — requires real in-game screenshots of stat gains per session |
-| GK white stat list | Needs verification from game data; marked TODO in roleWeights.ts |
-| Individual stat entry | Drill-level OVR projection requires individual stats. Players entered with only OVR get drill gains skipped (warning shown) |
-| Multi-session star decay | Star decay per session modelled as 0.85^n; actual in-game curve not confirmed |
-| Formation/synergy | Not modelled — out of scope for current engine |
-| Focused coach cap | Legacy — not relevant to drill-based model |
+| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Validate by noting a player's stat value before N sessions, comparing in-game gain to engine output, then adjusting the value in `profiles/game_2025.json` |
+| GK white stat list | `ROLE_CONSTRAINTS.GK.essential` is estimated — needs confirmation from in-game data |
+| GK stat entry UI | `app/player/new.tsx` shows outfield stats for all roles; GK needs a separate stat grid (REFLEXES, HANDLING, etc.) |
+| Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate |
+| Star decay curve | `starMult = 0.85^n` per additional % gained in a session; actual in-game curve unconfirmed |
+| Formation/synergy | Not modelled |
 
 ---
 
@@ -301,4 +317,5 @@ interface InvestmentPlan {
 |---|---|---|
 | 0.1 | Sprint 1 | Foundations — drill optimiser, condition model, role system |
 | 0.2 | Sprint 2 | Investment engine — OVR projector, coach-card gain formula, scenario comparator |
-| 0.3 | Sprint 5 | XP model replaces coach cards; drill sessions; per-tier point pools; OVR formula fix (divisor 4→1); drill level rename; role adjacency transitive fix |
+| 0.3 | Sprint 5 | XP model, drill sessions, per-tier point pools, OVR formula fix (divisor 4→1), drill level rename, role adjacency transitive fix |
+| 0.4 | Sprint 6 | Extended XP cost table to stat 339; baseXpPerSession budget multiplier; Direction B UI; OVR display delta fix |
