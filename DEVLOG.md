@@ -74,7 +74,7 @@ Bug 2 — missing XP multiplier: `applyDrillSessionsToStats()` passed `session.s
 | `src/types/resources.ts` | Added `baseXpPerSession: number` to `GameProfile` interface |
 | `src/logic/ovrProjector.ts` | XP budget: `session.sessionCount` → `session.sessionCount × profile.baseXpPerSession` |
 
-With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white attr, age 24, Normal talent, Very Easy → cost ≈ 667 XP → 1 gain per run. Value is an estimate pending screenshot calibration (see KNOWN_ISSUES #2).
+With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white attr, age 24, Normal talent, Very Easy → cost ≈ 667 XP → 1 gain per run. Value is an estimate pending empirical calibration (see KNOWN_ISSUES #2).
 
 ### Bugs fixed this sprint
 
@@ -89,7 +89,7 @@ With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white
 
 ### Still TODO
 
-- Verify `baseXpPerSession: 150` against real in-game screenshots (KNOWN_ISSUES #2)
+- Verify `baseXpPerSession: 150` against observed session gains (KNOWN_ISSUES #2)
 - GK white stat list: estimated, unconfirmed (KNOWN_ISSUES #3)
 - GK stat entry UI: shows outfield stats regardless of role (KNOWN_ISSUES #4)
 
@@ -118,11 +118,11 @@ Push from Termux → CI picks up within ~1 min → EAS OTA bundle → app update
 
 **OVR formula fix**
 
-`profiles/game_2025.json`: `qualityOvrDivisor` corrected from `4` to `1`. Game OVR = unweighted mean of all 15 stats directly. Calibrated against in-game screenshot: player Coutts mean stat ≈194.8 = game OVR 195. Previous divisor of 4 produced ~48 instead of ~195.
+`profiles/game_2025.json`: `qualityOvrDivisor` corrected from `4` to `1`. OVR = unweighted mean of all 15 stats directly. Empirically calibrated: player Coutts mean stat ≈194.8 = OVR 195. Previous divisor of 4 produced ~48 instead of ~195.
 
 **Drill level rename**
 
-`profiles/game_2025.json` and `src/types/resources.ts`: multiplier keys renamed to match in-game UI:
+`profiles/game_2025.json` and `src/types/resources.ts`: multiplier keys renamed to match observed UI labels:
 
 | Old name | New name | Multiplier |
 |---|---|---|
@@ -138,7 +138,7 @@ Push from Termux → CI picks up within ~1 min → EAS OTA bundle → app update
 
 **Tier system corrections**
 
-Real in-game tier point costs applied across `profiles/game_2025.json` and `src/utils/math.ts`:
+Empirically verified tier point costs applied across `profiles/game_2025.json` and `src/utils/math.ts`:
 
 | Tier | Points required | Attr addition |
 |---|---|---|
@@ -171,7 +171,7 @@ Real in-game tier point costs applied across `profiles/game_2025.json` and `src/
 
 ### Still TODO
 
-- Drill XP baseline calibration: `baseXpPerSession` needs confirmation from real game screenshots
+- Drill XP baseline calibration: `baseXpPerSession` pending empirical validation
 - GK white stat list needs verification
 - Compare screen missing AppHeader (uses raw ScrollView)
 - Individual stat entry for drill-level OVR projection (currently falls back to base OVR when stats={})
@@ -241,7 +241,7 @@ npm run typecheck — zero errors
 
 ### Still TODO
 
-- Calibrate exact `baseXpPerSession` scaling once user screenshots confirm real session gains
+- Calibrate exact `baseXpPerSession` scaling once empirical session gains are confirmed
 - GK white skill set needs verification from research
 - OCR scanner stub — next sprint
 - Pro tier gating

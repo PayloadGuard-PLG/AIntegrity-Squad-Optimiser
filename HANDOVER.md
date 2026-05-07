@@ -104,8 +104,8 @@ Root cause: raw `sessionCount` (e.g. 6) was used as XP budget. Cost for 1% on a 
 
 ### Next Sprint Targets
 
-- Verify `baseXpPerSession: 150` against real in-game screenshots
-- GK white stat list — currently estimated; needs game data confirmation
+- Verify `baseXpPerSession: 150` against observed session gains
+- GK white stat list — currently estimated; needs empirical confirmation
 - Calibration: per-session gain reference table for common player profiles
 ```
 
@@ -121,8 +121,8 @@ Root cause: raw `sessionCount` (e.g. 6) was used as XP budget. Cost for 1% on a 
 | # | Area | Description | Priority |
 |---|---|---|---|
 | 1 | Plan / OVR projection | Drill gains skipped when player has no individual stats entered (only OVR). Engine warns and returns base OVR. Individual stat entry required for full drill projection. | High |
-| 2 | XP calibration | `baseXpPerSession: 150` is an estimate. Needs validation against real in-game screenshots of stat gains per session. See Role 3 handover for calibration approach. | High |
-| 3 | GK white stats | `ROLE_CONSTRAINTS.GK.essential` in `src/utils/roleWeights.ts` is marked TODO — estimated as REFLEXES/AGILITY/ANTICIPATION/RUSHING OUT/COMMUNICATION. Needs in-game data to confirm. The stat entry UI also shows outfield stats for GK players. | Medium |
+| 2 | XP calibration | `baseXpPerSession: 150` is an estimate. Needs empirical validation — observe stat gains per session, compare to engine output. See Role 3 handover for calibration approach. | High |
+| 3 | GK white stats | `ROLE_CONSTRAINTS.GK.essential` in `src/utils/roleWeights.ts` is marked TODO — estimated as REFLEXES/AGILITY/ANTICIPATION/RUSHING OUT/COMMUNICATION. Unconfirmed. The stat entry UI also shows outfield stats for GK players. | Medium |
 | 4 | GK stat entry UI | `app/player/new.tsx` always shows OUTFIELD_STATS grid regardless of role. GK needs different stats (no FINISHING/CROSSING/HEADING etc.; instead REFLEXES/HANDLING/etc.). | Medium |
 | 5 | CLI drill levels | `src/index.ts` collectDrillSessions prompt updated but not yet tested end-to-end | Low |
 
@@ -210,18 +210,18 @@ xpBudget = sessionCount × baseXpPerSession
 
 Also update **§10 Limitations** — find the baseXpPerSession row and replace:
 ```
-| Drill XP baseline | `baseXpPerSession` calibration pending — requires real in-game screenshots of stat gains per session |
+| Drill XP baseline | `baseXpPerSession` calibration pending — requires observed stat gains per session |
 ```
 with:
 ```
-| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Needs validation: screenshot a player's stat before/after N sessions, compare to engine output. Adjust value in `profiles/game_2025.json` to match. |
+| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Needs validation: note a player's stat before/after N sessions, compare to engine output. Adjust value in `profiles/game_2025.json` to match. |
 ```
 
 ---
 
 ## Role 3 — "The Calibrator": XP gain reference + calibration guide
 
-**Task:** Create `docs/calibration-reference.md` — a table of expected % gains per scenario for common player profiles. User screenshots in-game results, compares, and adjusts `baseXpPerSession` in `profiles/game_2025.json`.
+**Task:** Create `docs/calibration-reference.md` — a table of expected % gains per scenario for common player profiles. User observes actual gains, compares, and adjusts `baseXpPerSession` in `profiles/game_2025.json`.
 
 **How to calibrate:**
 1. Pick a player whose stat value, age, talent tier, and drill level are known
@@ -289,7 +289,7 @@ FT1 talent gives 1.5× the gains of a Normal player. Multiply the table values a
 
 ## How to adjust
 
-If a stat-150 age-24 Normal player does 6 Very Easy sessions and gains **6%** in-game but the table says **3%**:
+If a stat-150 age-24 Normal player does 6 Very Easy sessions and gains **6%** but the table says **3%**:
 - Actual ≈ 2× predicted → double `baseXpPerSession` from 150 → 300
 - Edit `profiles/game_2025.json`: `"baseXpPerSession": 300`
 - Push and test again
@@ -306,7 +306,7 @@ If a stat-150 age-24 Normal player does 6 Very Easy sessions and gains **6%** in
 
 **Task A — Verify GK white stats**
 
-Research the game's GK stat system. The stat keys must match the string keys used in the `OUTFIELD_STATS` array pattern (all-caps). Once confirmed, update `src/utils/roleWeights.ts`:
+Research GK stat requirements. The stat keys must match the string keys used in the `OUTFIELD_STATS` array pattern (all-caps). Once confirmed, update `src/utils/roleWeights.ts`:
 
 ```typescript
 // Current (line 20):

@@ -41,7 +41,7 @@ Modern Architecture
 
 * Framework: Expo (React Native) for cross-platform efficiency.
 * Data Management: SQLite with Drizzle ORM. This enables "Live Queries," ensuring the UI stays in perfect sync with real-time squad updates.
-* AI-Powered Ingest: Integration of Google ML Kit (Text Recognition v2) will allow users to scan in-game player stats from screenshots, eliminating manual data entry.
+* AI-Powered Ingest: Integration of Google ML Kit (Text Recognition v2) will allow users to scan player stat values directly into the app, eliminating manual data entry.
 
 Security & Fraud Prevention
 
@@ -90,7 +90,7 @@ Performance Benchmarks
 Execution Strategy
 
 * "Vibe Coding" Workflow: Utilizing an AI-assisted iteration workflow to reduce development overhead, we will ensure the "First-Time User Experience" (FTUE) allows a user to reach an "Optimization Win" (quantifiable stat gain) within 120 seconds of the first launch.
-* Behavioral Triggers: Push notifications will be synchronized with the in-game clock (e.g., "Condition Reset: Optimize your training now").
+* Behavioral Triggers: Push notifications will be synchronized with the training timer (e.g., "Condition Reset: Optimize your training now").
 
 
 --------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ Drill Sessions  →  Tier Upgrade  →  Greens (condition)
 OVR = mean(all 15 stats)
 ```
 
-`qualityOvrDivisor = 1` — OVR is the unweighted mean of all 15 attributes directly. Calibrated against observed in-game values (e.g. player with mean stat 194.8 shows OVR 195).
+`qualityOvrDivisor = 1` — OVR is the unweighted mean of all 15 attributes directly. Empirically calibrated (e.g. player with mean stat 194.8 shows OVR 195).
 
 ### 3.2 XP cost per 1% stat gain
 
@@ -139,7 +139,7 @@ Stats outside a player's role essential list (grey stats) receive `greyMult = 0.
 
 ### 3.8 Star decay
 
-Each session applies a `starMult = 0.85 ^ starsGainedInSession` reduction to simulate in-game star decay. Stars gained per session is tracked per-drill-run.
+Each session applies a `starMult = 0.85 ^ starsGainedInSession` reduction to model star decay. Stars gained per session is tracked per-drill-run.
 
 ---
 
@@ -168,7 +168,7 @@ Each tier type has its own independent point pool. Rare points, Elite points, St
 | Epic | +120 | 15 |
 | Legendary | +160 | 10 |
 
-*Point costs are real in-game values as of 2025.*
+*Point costs are empirically verified as of 2025.*
 
 ### 4.2 OVR gain estimation (example)
 
@@ -208,7 +208,7 @@ If a game is scheduled for the next day, the manager has a known time window and
 
 **Premium sponsor — Faster Condition Recovery:** Milestone track grants cooldown reductions (+10% at milestone 6, further at milestone 12), meaning more drill cycles per real-time hour. `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
-**Drill condition loss** is modelled per Fan Club level. Values confirmed against in-game screenshot:
+**Drill condition loss** is modelled per Fan Club level. Empirically verified values:
 
 | Fan Club Level | Drain reduction | Effective multiplier |
 |---|---|---|
@@ -240,7 +240,7 @@ Four pillars, each with its own current score, cap, and level (1–10). Cap incr
 | Condition | 16 | 16 | 3/10 |
 | **Total** | **60** | **76** | — |
 
-**Daily decay:** "Each of your Teamplay Forms decreases by 2 or more per day." — confirmed in-game text. Decay applies at the 2am GMT server reset.
+**Daily decay:** All four Team Play pillar scores decrease by 2 or more per day. Decay applies at the 2am GMT server reset.
 
 ### 6.2 Free daily maintenance (all managers)
 
@@ -387,12 +387,12 @@ interface InvestmentPlan {
 
 | Item | Status |
 |---|---|
-| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Validate by noting a player's stat value before N sessions, comparing in-game gain to engine output, then adjusting the value in `profiles/game_2025.json` |
-| GK white stat list | `ROLE_CONSTRAINTS.GK.essential` is estimated — needs confirmation from in-game data |
+| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Validate by noting a player's stat value before N sessions, comparing observed gain to engine output, then adjusting the value in `profiles/game_2025.json` |
+| GK white stat list | `ROLE_CONSTRAINTS.GK.essential` is estimated — needs empirical validation |
 | GK stat entry UI | `app/player/new.tsx` shows outfield stats for all roles; GK needs a separate stat grid (REFLEXES, HANDLING, etc.) |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate |
 | Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Matchday Coach multiplier, and ADVANCE costs are all out of scope for current OVR projection |
-| Star decay curve | `starMult = 0.85^n` per additional % gained in a session; actual in-game curve unconfirmed |
+| Star decay curve | `starMult = 0.85^n` per additional % gained in a session; actual curve unconfirmed |
 | Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output |
 | Formation/synergy | Not modelled |
 

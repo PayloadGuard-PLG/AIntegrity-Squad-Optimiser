@@ -7,7 +7,7 @@ export interface Player {
   age: number;
   overall: number;
   tier: TierName;
-  stats: Record<string, number>;  // Raw stat values as shown in-game (e.g. 97, 312, 436)
+  stats: Record<string, number>;  // Raw stat values (e.g. 97, 312, 436)
   isMutantCandidate: boolean;
 }
 
