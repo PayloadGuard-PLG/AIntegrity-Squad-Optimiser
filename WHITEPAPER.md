@@ -189,9 +189,17 @@ conditionRestored = min(greens × 15%, 100%)
 
 Greens appear as an informational `condition` step in the plan with `ovrBefore === ovrAfter`.
 
-**Cooldown timer:** Condition recovery in the Training Centre has a per-use cooldown. This is a real-time gate, not modelled in the engine — the plan outputs total greens required without scheduling them across cooldown windows.
+**Cooldown timer:** The Training Centre has a real-time condition recovery timer. Once it expires, condition returns to ~99%. This is not modelled in the engine — the plan outputs total greens required without scheduling across cooldown windows.
 
-**Premium sponsor — Faster Condition Recovery:** The premium sponsor milestone track grants condition cooldown reductions (+10% faster at milestone 6, further reduction at milestone 12). `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
+**Optimal drill cadence (timer-based strategy):** Once condition hits ~99% (timer expired), run drills immediately rather than waiting for the final 1%. Each drill costs ~6% condition. The decision of what to train in this window depends on subscription tier:
+
+| Scenario | Optimal use of the 99% window |
+|---|---|
+| FTP / no Zero-Drain | Main player's priority white stats — maximise XP per condition % spent |
+| Premium sub, faster timer | Higher drill frequency enables secondary stat training or team play form drills between main sessions |
+| Fan Club L4 (Zero-Drain) | Timer irrelevant — condition never drops, unlimited drilling |
+
+**Premium sponsor — Faster Condition Recovery:** Milestone track grants cooldown reductions (+10% at milestone 6, further at milestone 12), meaning more drill cycles per real-time hour. `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
 **Drill condition loss** is modelled per Fan Club level. Values confirmed against in-game screenshot:
 
