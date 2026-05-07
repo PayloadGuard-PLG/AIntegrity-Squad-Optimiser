@@ -19,12 +19,13 @@ export function getBestDrillSelections(player: Player, fanClubLevel: number = 4)
         const efficiency = hits.length / drill.stats.length;
 
         return {
-            Drill: drill.name,
-            Efficiency: `${(efficiency * 100).toFixed(0)}%`,
-            'Cost (6x Slot)': `${(actualLoss * 6).toFixed(2)}%`,
-            'White Stats Hit': hits.join(', ')
+            name: drill.name,
+            type: drill.type,
+            efficiency,
+            conditionCost: actualLoss * 6,
+            statsHit: hits,
         };
     })
-    .filter(d => parseFloat(d.Efficiency) >= 50)
-    .sort((a, b) => parseFloat(b.Efficiency) - parseFloat(a.Efficiency));
+    .filter(d => d.efficiency >= 0.5)
+    .sort((a, b) => b.efficiency - a.efficiency);
 }

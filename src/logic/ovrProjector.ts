@@ -118,6 +118,53 @@ export function projectOvr(
     drillLevel: s.drillLevel ?? drillLevel,
   }));
 
+  // When individual stats are absent, fall back to analytical tier-only projection.
+  // Drill simulation requires per-stat baseline values; without them it would compute
+  // from 0, producing a completely wrong OVR.
+  if (Object.keys(player.stats).length === 0) {
+    warnings.push('Enter individual stat values for drill-level OVR projection.');
+    let currentOvr = player.overall;
+
+    if (sessions.length > 0) {
+      warnings.push('Drill gains skipped — individual stats required.');
+    }
+
+    if (player.age >= 20) {
+      warnings.push(`Slow trainer (age ${player.age}) — gains are reduced.`);
+    }
+
+    if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
+      const tierCost = getTierCost(targetTier);
+      const whiteKeys = getWhiteStatKeys(player.role);
+      const attrAdd = getTierAttrAddition(targetTier);
+      const tierOvrGain = Number(
+        (attrAdd * whiteKeys.length / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1)
+      );
+      const ovrBefore = currentOvr;
+      currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
+      steps.push({
+        action: 'tier',
+        description: `Tier → ${targetTier} (+${attrAdd} per white attr × ${whiteKeys.length} stats)`,
+        ovrBefore,
+        ovrAfter: currentOvr,
+        resourcesUsed: `${tierCost} tier points`,
+      });
+    }
+
+    if (greens > 0) {
+      const condPct = Math.min(greens * 15, 100);
+      steps.push({
+        action: 'condition',
+        description: `${greens} greens → +${condPct}% condition restored`,
+        ovrBefore: currentOvr,
+        ovrAfter: currentOvr,
+        resourcesUsed: `${greens} greens`,
+      });
+    }
+
+    return { steps, finalOvr: currentOvr, warnings };
+  }
+
   // Step 1 — Drill sessions
   let currentStats = { ...player.stats };
   let currentOvr = computeOvrFromStats(player, profile);
