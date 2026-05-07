@@ -64,6 +64,6 @@
   "rule180StatCap": 180,
   "twoxAdMultiplier": 2.0,
   "starDecayPerSession": 0.85,
-  "qualityOvrDivisor": 4,
+  "qualityOvrDivisor": 1,
   "totalAttributeCount": 15
 }
