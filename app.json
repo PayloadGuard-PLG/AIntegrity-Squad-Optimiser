@@ -11,9 +11,7 @@
       "bundleIdentifier": "com.payloadguard.squadoptimiser"
     },
     "plugins": [
-      "expo-router",
-      "expo-font",
-      "expo-sqlite"
+      "expo-router"
     ],
     "extra": {
       "router": {
