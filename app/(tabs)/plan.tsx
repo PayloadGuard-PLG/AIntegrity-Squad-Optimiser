@@ -7,6 +7,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { OvrMovement } from '../../src/components/atoms/OvrMovement';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
+import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import { calculateFixtureCycles, calculateTeamPlayPlan, calculateGreensBridge } from '../../src/logic/fixtureEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar } from '../../src/types/resources';
@@ -113,11 +114,24 @@ export default function PlanScreen() {
     invalidate();
   }
 
+  function getBestAffordableTier(currentTier: TierName | undefined): TierName | null {
+    const currentIdx = TIER_ORDER.indexOf(currentTier as TierName);
+    let best: TierName | null = null;
+    for (const tier of TIER_ORDER) {
+      if (TIER_ORDER.indexOf(tier) <= currentIdx) continue;
+      const have = parseInt(tierPointInputs[tier] ?? '0', 10) || 0;
+      if (have >= TIER_COSTS[tier]) best = tier;
+    }
+    return best;
+  }
+
   function project() {
     if (!selectedPlayer) return;
+    const tierPoints = Object.fromEntries(Object.entries(tierPointInputs).map(([k, v]) => [k, parseInt(v ?? '0', 10) || 0])) as Partial<Record<TierName, number>>;
+    const resolvedTier = targetTier ?? getBestAffordableTier(selectedPlayer.tier as TierName);
     const managerProfile = {
       style,
-      tierPoints: Object.fromEntries(Object.entries(tierPointInputs).map(([k, v]) => [k, parseInt(v ?? '0', 10) || 0])) as Partial<Record<TierName, number>>,
+      tierPoints,
       greens, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
       matchdayCoachActive,
       teamPlayPillars: Object.fromEntries(
@@ -125,13 +139,19 @@ export default function PlanScreen() {
       ) as Partial<Record<TeamPlayPillar, number>>,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setPlan(planPlayerInvestment(selectedPlayer, managerProfile, drillRows, gameProfile as any, targetTier));
+    setPlan(planPlayerInvestment(selectedPlayer, managerProfile, drillRows, gameProfile as any, resolvedTier));
   }
 
-  const storedOvr = selectedPlayer?.overall ?? 0;
+  // When all stat boxes are filled, computed OVR takes precedence over stored overall.
+  const baseOvr = useMemo(() => {
+    if (!selectedPlayer || Object.keys(selectedPlayer.stats).length === 0) return selectedPlayer?.overall ?? 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return computeOvrFromStats(selectedPlayer, gameProfile as any);
+  }, [selectedPlayer]);
+
   const engineGain = plan ? Number((plan.finalOvr - plan.player.currentOvr).toFixed(1)) : 0;
-  const displayFrom = storedOvr;
-  const displayTo = plan ? Number((storedOvr + engineGain).toFixed(1)) : storedOvr;
+  const displayFrom = baseOvr;
+  const displayTo = plan ? Number((baseOvr + engineGain).toFixed(1)) : baseOvr;
 
   if (squad.length === 0) {
     return (

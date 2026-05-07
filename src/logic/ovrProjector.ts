@@ -1,5 +1,5 @@
 import { getTierAttrAddition, getTierCost } from '../utils/math';
-import { isWhiteStat, getWhiteStatKeys } from '../utils/roleWeights';
+import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../utils/roleWeights';
 import { estimateStatGainPct, applyTierBonusToStats, statsToQualityPct, qualityPctToOvr } from './xpEngine';
 import { DrillSession, GameProfile, TalentTier, DrillLevel, TierName, InvestmentStep } from '../types/resources';
 import { Player } from '../database/playerSchema';
@@ -53,16 +53,23 @@ export function computeOvrFromStats(player: Player, profile: GameProfile): numbe
  * Each session = 1 XP unit. Star decay is applied per-stat within the session.
  * (Cross-stat star decay interaction is a calibration TODO.)
  */
+type SkippedDrillInfo = {
+  name: string;
+  missingStats: string[];    // role-valid but not entered by user
+  irrelevantStats: string[]; // not a stat for this role at all
+};
+
 export function applyDrillSessionsToStats(
   player: Player,
   drillSessions: DrillSession[],
   talentTier: TalentTier,
   twoxAdActive: boolean,
   profile: GameProfile
-): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number; skippedDrills: string[] } {
+): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number; skippedDrills: SkippedDrillInfo[] } {
   const steps: InvestmentStep[] = [];
-  const skippedDrills: string[] = [];
+  const skippedDrills: SkippedDrillInfo[] = [];
   const updatedStats = { ...player.stats };
+  const roleStats = new Set(getAllStatKeys(player.role));
   const ovrBefore = computeOvrFromStats(player, profile);
   let runningOvr = ovrBefore;
 
@@ -74,11 +81,16 @@ export function applyDrillSessionsToStats(
     const statDeltas: string[] = [];
 
     let drillHits = 0;
+    const missingStats: string[] = [];
+    const irrelevantStats: string[] = [];
+
     for (const statKey of drill.stats) {
       const normalized = statKey.toUpperCase();
-      // Skip stats the player hasn't entered. Adding them from 0 would replace
-      // their padded-196 slot with a near-zero value, making computed OVR drop.
-      if (!(normalized in updatedStats)) continue;
+      if (!(normalized in updatedStats)) {
+        if (roleStats.has(normalized)) missingStats.push(normalized);
+        else irrelevantStats.push(normalized);
+        continue;
+      }
       drillHits++;
       const currentVal = updatedStats[normalized];
       if (currentVal >= profile.statCap) continue;
@@ -103,7 +115,7 @@ export function applyDrillSessionsToStats(
     }
 
     if (drillHits === 0) {
-      skippedDrills.push(session.drillName);
+      skippedDrills.push({ name: session.drillName, missingStats, irrelevantStats });
     }
 
     if (statDeltas.length > 0) {
@@ -207,8 +219,14 @@ export function projectOvr(
     steps.push(...drillSteps);
     currentStats = updatedStats;
     currentOvr = postDrillOvr;
-    if (skippedDrills.length > 0) {
-      warnings.push(`Stats missing for: ${skippedDrills.join(', ')} — enter all player stats so drill gains can be calculated.`);
+    for (const skip of skippedDrills) {
+      if (skip.missingStats.length > 0 && skip.irrelevantStats.length === 0) {
+        warnings.push(`${skip.name}: enter ${skip.missingStats.join(', ')} to include drill gains.`);
+      } else if (skip.missingStats.length > 0) {
+        warnings.push(`${skip.name}: enter ${skip.missingStats.join(', ')} — ${skip.irrelevantStats.join(', ')} not used by this role.`);
+      } else {
+        warnings.push(`${skip.name}: no stats applicable to this role (${skip.irrelevantStats.join(', ')}).`);
+      }
     }
   } else {
     warnings.push('No drill sessions — add drills to project OVR growth.');

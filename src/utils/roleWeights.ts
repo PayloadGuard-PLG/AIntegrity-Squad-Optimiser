@@ -61,6 +61,21 @@ export function isWhiteStat(roles: string[], skillName: string): boolean {
 export const isEssentialGain = isWhiteStat;
 
 /**
+ * Returns ALL stat keys (white + grey) for a player's roles (union, deduplicated).
+ */
+export function getAllStatKeys(roles: string[]): string[] {
+  const keys = new Set<string>();
+  for (const role of roles.slice(0, 3)) {
+    const data = ROLE_CONSTRAINTS[role.toUpperCase()];
+    if (data) {
+      data.essential.forEach(s => keys.add(s));
+      data.secondary.forEach(s => keys.add(s));
+    }
+  }
+  return Array.from(keys);
+}
+
+/**
  * Returns all white (essential) stat keys for a player's roles (union, deduplicated).
  */
 export function getWhiteStatKeys(roles: string[]): string[] {
