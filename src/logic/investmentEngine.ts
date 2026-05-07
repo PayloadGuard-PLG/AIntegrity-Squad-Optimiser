@@ -23,10 +23,9 @@ export function planPlayerInvestment(
 
   if (targetTier) {
     const cost = getTierCost(targetTier);
-    if (cost > profile.tierPoints) {
-      warnings.push(
-        `Not enough tier points for ${targetTier}: need ${cost}, have ${profile.tierPoints}.`
-      );
+    const have = profile.tierPoints?.[targetTier] ?? 0;
+    if (have < cost) {
+      warnings.push(`Not enough ${targetTier} points: need ${cost}, have ${have}.`);
     }
   }
 
@@ -58,7 +57,7 @@ export function planPlayerInvestment(
 
   const resourceLines = [
     drillSessions.length > 0 ? `${drillSessions.reduce((s, d) => s + d.sessionCount, 0)} sessions` : null,
-    targetTier ? `${getTierCost(targetTier)} tier points` : null,
+    targetTier ? `${profile.tierPoints?.[targetTier] ?? 0}/${getTierCost(targetTier)} ${targetTier} pts` : null,
     profile.greens > 0 ? `${profile.greens} greens` : null,
   ].filter(Boolean);
 

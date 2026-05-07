@@ -37,10 +37,10 @@ async function collectDrillSessions(): Promise<DrillSession[]> {
     if (!drill) { console.log("  Invalid drill number."); continue; }
 
     const countStr = await ask("  Sessions count [10]: ");
-    const levelStr = await ask("  Level (Amateur/Semi-Pro/Pro/World Class) [Amateur]: ");
+    const levelStr = await ask("  Level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
     const count = parseInt(countStr, 10) || 10;
-    const level = (['Amateur', 'Semi-Pro', 'Pro', 'World Class'].includes(levelStr.trim())
-      ? levelStr.trim() : 'Amateur') as DrillLevel;
+    const level = (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelStr.trim())
+      ? levelStr.trim() : 'Very Easy') as DrillLevel;
 
     sessions.push({ drillName: drill.name, sessionCount: count, drillLevel: level });
   }
@@ -120,21 +120,21 @@ async function startApp() {
     const greensStr = await ask("Available greens: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
     const talentInput = await ask("Player talent (FT1/FT2/FT3/Normal/Slow) [Normal]: ");
-    const levelInput = await ask("Drill level (Amateur/Semi-Pro/Pro/World Class) [Amateur]: ");
+    const levelInput = await ask("Drill level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
     const adInput = await ask("2× Ad active this session? (y/n) [n]: ");
     const sponsorInput = await ask("Premium sponsor? (y/n) [n]: ");
 
     const targetTier = tierInput.trim() ? (tierInput.trim() as TierName) : null;
     const profile: ManagerProfile = {
       style: ((styleInput.trim() || 'PTW') as ManagerStyle),
-      tierPoints: parseInt(tierPointsStr, 10) || 0,
+      tierPoints: targetTier ? { [targetTier]: parseInt(tierPointsStr, 10) || 0 } : {},
       greens: parseInt(greensStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
       twoxAdActive: adInput.toLowerCase() === 'y',
       talentTier: (['FT1', 'FT2', 'FT3', 'Normal', 'Slow'].includes(talentInput.trim())
         ? talentInput.trim() : 'Normal') as TalentTier,
-      drillLevel: (['Amateur', 'Semi-Pro', 'Pro', 'World Class'].includes(levelInput.trim())
-        ? levelInput.trim() : 'Amateur') as DrillLevel,
+      drillLevel: (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelInput.trim())
+        ? levelInput.trim() : 'Very Easy') as DrillLevel,
     };
 
     const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
@@ -166,20 +166,20 @@ async function startApp() {
     const greensStr = await ask("Greens: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
     const talentInput = await ask("Player talent (FT1/FT2/FT3/Normal/Slow) [Normal]: ");
-    const levelInput = await ask("Drill level (Amateur/Semi-Pro/Pro/World Class) [Amateur]: ");
+    const levelInput = await ask("Drill level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
     const sponsorInput = await ask("Premium sponsor? (y/n) [n]: ");
 
     const targetTier = tierInput.trim() ? (tierInput.trim() as TierName) : null;
     const profile: ManagerProfile = {
       style: ((styleInput.trim() || 'PTW') as ManagerStyle),
-      tierPoints: parseInt(tierPointsStr, 10) || 0,
+      tierPoints: targetTier ? { [targetTier]: parseInt(tierPointsStr, 10) || 0 } : {},
       greens: parseInt(greensStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
       twoxAdActive: false,
       talentTier: (['FT1', 'FT2', 'FT3', 'Normal', 'Slow'].includes(talentInput.trim())
         ? talentInput.trim() : 'Normal') as TalentTier,
-      drillLevel: (['Amateur', 'Semi-Pro', 'Pro', 'World Class'].includes(levelInput.trim())
-        ? levelInput.trim() : 'Amateur') as DrillLevel,
+      drillLevel: (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelInput.trim())
+        ? levelInput.trim() : 'Very Easy') as DrillLevel,
     };
 
     const comparison = compareInvestmentScenarios(selectedPlayers, profile, drillSessions, gameProfile, targetTier);

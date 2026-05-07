@@ -144,7 +144,7 @@ const drillSessions: DrillSession[] = [
   { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Very Easy' }
 ];
 const managerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: 0, greens: 50, isPremiumSponsor: false,
+  style: 'PTW', tierPoints: {}, greens: 50, isPremiumSponsor: false,
   twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy',
 };
 const testPlayer: Player = {
@@ -176,7 +176,7 @@ const striker: Player = {
   isMutantCandidate: true, tier: 'None',
 };
 const strikerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: 650, greens: 50, isPremiumSponsor: true,
+  style: 'PTW', tierPoints: { Stellar: 650 }, greens: 50, isPremiumSponsor: true,
   twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy',
 };
 const strikerDrills: DrillSession[] = [

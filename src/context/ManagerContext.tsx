@@ -3,7 +3,7 @@ import { ManagerProfile, ManagerStyle, TalentTier, DrillLevel } from '../types/r
 
 type ManagerCtx = ManagerProfile & {
   setStyle: (s: ManagerStyle) => void;
-  setTierPoints: (n: number) => void;
+  setTierPoints: (t: Partial<Record<import('../types/resources').TierName, number>>) => void;
   setGreens: (n: number) => void;
   setStoreBudget: (n: number | undefined) => void;
   togglePremiumSponsor: () => void;
@@ -16,7 +16,7 @@ const ManagerContext = createContext<ManagerCtx | null>(null);
 
 export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [style, setStyle] = useState<ManagerStyle>('FTP');
-  const [tierPoints, setTierPoints] = useState(0);
+  const [tierPoints, setTierPoints] = useState<Partial<Record<import('../types/resources').TierName, number>>>({});
   const [greens, setGreens] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
   const [storeBudget, setStoreBudget] = useState<number | undefined>(undefined);

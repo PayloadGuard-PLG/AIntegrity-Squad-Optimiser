@@ -64,7 +64,7 @@ export type ManagerStyle = 'FTP' | 'Hybrid' | 'PTW';
 
 export interface ManagerProfile {
   style: ManagerStyle;
-  tierPoints: number;
+  tierPoints: Partial<Record<TierName, number>>;
   greens: number;
   isPremiumSponsor: boolean;
   storeBudget?: number;

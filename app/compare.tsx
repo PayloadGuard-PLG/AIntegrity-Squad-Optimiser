@@ -11,7 +11,7 @@ import gameProfile from '../profiles/game_2025.json';
 const STYLES: ManagerStyle[] = ['FTP', 'Hybrid', 'PTW'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
-const TIERS: (TierName | null)[] = [null, 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+const TIER_COSTS: Partial<Record<TierName, number>> = { Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
 
 function newSession(): DrillSession {
   return { drillName: 'Skill Drill', sessionCount: 10, drillLevel: 'Medium' };
@@ -24,7 +24,7 @@ export default function CompareScreen() {
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
-  const [tierPoints, setTierPoints] = useState('');
+  const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>({});
   const [greens, setGreens] = useState('');
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
   const [twoxAd, setTwoxAd] = useState(false);
@@ -40,7 +40,7 @@ export default function CompareScreen() {
     if (players.length < 2) return;
     const profile = {
       style,
-      tierPoints: parseInt(tierPoints, 10) || 0,
+      tierPoints: Object.fromEntries(Object.entries(tierPointInputs).map(([k, v]) => [k, parseInt(v ?? '0', 10) || 0])) as Partial<Record<TierName, number>>,
       greens: parseInt(greens, 10) || 0,
       isPremiumSponsor,
       twoxAdActive: twoxAd,
@@ -126,30 +126,37 @@ export default function CompareScreen() {
             </Pressable>
           ))}
         </View>
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <View style={{ flex: 1, gap: 6 }}>
-            <Text style={{ color: '#6b7280', fontSize: 11 }}>TIER POINTS</Text>
-            <TextInput keyboardType="numeric" value={tierPoints} onChangeText={setTierPoints} placeholder="0"
-              placeholderTextColor="#4b5563"
-              style={{ backgroundColor: '#1a1d27', color: '#e2e8f0', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 }} />
-          </View>
-          <View style={{ flex: 1, gap: 6 }}>
-            <Text style={{ color: '#6b7280', fontSize: 11 }}>GREENS</Text>
-            <TextInput keyboardType="numeric" value={greens} onChangeText={setGreens} placeholder="0"
-              placeholderTextColor="#4b5563"
-              style={{ backgroundColor: '#1a1d27', color: '#e2e8f0', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 }} />
-          </View>
+        <View style={{ gap: 6 }}>
+          <Text style={{ color: '#6b7280', fontSize: 11 }}>GREENS</Text>
+          <TextInput keyboardType="numeric" value={greens} onChangeText={setGreens} placeholder="0"
+            placeholderTextColor="#4b5563"
+            style={{ backgroundColor: '#1a1d27', color: '#e2e8f0', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 }} />
         </View>
         <View style={{ gap: 6 }}>
-          <Text style={{ color: '#6b7280', fontSize: 11 }}>TARGET TIER</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-            {TIERS.map(t => (
-              <Pressable key={t ?? 'none'} onPress={() => setTargetTier(t)}
-                style={{ backgroundColor: targetTier === t ? '#6366f1' : '#1a1d27', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
-                <Text style={{ color: targetTier === t ? '#fff' : '#9ca3af', fontSize: 12, fontWeight: '600' }}>{t ?? 'None'}</Text>
+          <Text style={{ color: '#6b7280', fontSize: 11 }}>TIER UPGRADE — tap to select target</Text>
+          {(Object.entries(TIER_COSTS) as [TierName, number][]).map(([t, threshold]) => {
+            const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
+            const canAfford = have >= threshold;
+            const isTarget = targetTier === t;
+            return (
+              <Pressable key={t} onPress={() => setTargetTier(isTarget ? null : t)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10,
+                  backgroundColor: isTarget ? '#6366f122' : '#1a1d27', borderRadius: 10, padding: 10,
+                  borderWidth: isTarget ? 1 : 0, borderColor: '#6366f1' }}>
+                <View style={{ width: 76 }}>
+                  <Text style={{ color: isTarget ? '#a5b4fc' : '#e2e8f0', fontWeight: '700', fontSize: 13 }}>{t}</Text>
+                  <Text style={{ color: canAfford ? '#22c55e' : '#6b7280', fontSize: 10 }}>need {threshold}</Text>
+                </View>
+                <TextInput keyboardType="numeric"
+                  value={tierPointInputs[t] ?? ''}
+                  onChangeText={v => setTierPointInputs(prev => ({ ...prev, [t]: v }))}
+                  placeholder="0" placeholderTextColor="#4b5563"
+                  style={{ flex: 1, backgroundColor: '#0f1117', color: '#e2e8f0', borderRadius: 8,
+                    paddingHorizontal: 10, paddingVertical: 6, fontSize: 14 }} />
+                {canAfford && <Text style={{ color: '#22c55e', fontSize: 16 }}>✓</Text>}
               </Pressable>
-            ))}
-          </View>
+            );
+          })}
         </View>
       </View>
 
