@@ -22,7 +22,7 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [storeBudget, setStoreBudget] = useState<number | undefined>(undefined);
   const [twoxAdActive, setTwoxAdActive] = useState(false);
   const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
-  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Amateur');
+  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
 
   return (
     <ManagerContext.Provider value={{

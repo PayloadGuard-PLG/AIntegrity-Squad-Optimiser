@@ -12,11 +12,11 @@ import gameProfile from '../../profiles/game_2025.json';
 
 const STYLES: ManagerStyle[] = ['FTP', 'Hybrid', 'PTW'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const DRILL_LEVELS: DrillLevel[] = ['Amateur', 'Semi-Pro', 'Pro', 'World Class'];
+const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIERS: (TierName | null)[] = [null, 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 
 function newSession(): DrillSession {
-  return { drillName: 'Skill Drill', sessionCount: 10, drillLevel: 'Amateur' };
+  return { drillName: 'Skill Drill', sessionCount: 10, drillLevel: 'Medium' };
 }
 
 export default function PlanScreen() {
@@ -25,7 +25,7 @@ export default function PlanScreen() {
   const [drillRows, setDrillRows] = useState<DrillSession[]>([newSession()]);
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
-  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Amateur');
+  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [tierPoints, setTierPoints] = useState('');
   const [greens, setGreens] = useState('');
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);

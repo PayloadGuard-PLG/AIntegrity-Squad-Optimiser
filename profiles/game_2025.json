@@ -34,10 +34,11 @@
     "Slow": 0.7
   },
   "drillLevelMultipliers": {
-    "Amateur": 1.0,
-    "Semi-Pro": 1.3,
-    "Pro": 1.55,
-    "World Class": 1.7
+    "Very Easy": 1.0,
+    "Easy": 1.15,
+    "Medium": 1.3,
+    "Hard": 1.55,
+    "Very Hard": 1.7
   },
   "tierAttrAdditions": {
     "None": 0,
@@ -51,11 +52,11 @@
   "tierPointsRequired": {
     "None": 0,
     "Rare": 100,
-    "Elite": 300,
-    "Stellar": 600,
-    "Master": 1000,
-    "Epic": 1500,
-    "Legendary": 2100
+    "Elite": 90,
+    "Stellar": 50,
+    "Master": 25,
+    "Epic": 15,
+    "Legendary": 10
   },
   "fanClubCondReduction": [0.0, 0.10, 0.20, 0.30, 0.40, 0.50],
   "greyWeightMultiplier": 0.5,
