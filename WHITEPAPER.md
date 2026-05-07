@@ -191,13 +191,20 @@ Greens appear as an informational `condition` step in the plan with `ovrBefore =
 
 **Cooldown timer:** The Training Centre has a real-time condition recovery timer. Once it expires, condition returns to ~99%. This is not modelled in the engine — the plan outputs total greens required without scheduling across cooldown windows.
 
-**Optimal drill cadence (timer-based strategy):** Once condition hits ~99% (timer expired), run drills immediately rather than waiting for the final 1%. Each drill costs ~6% condition. The decision of what to train in this window depends on subscription tier:
+**Optimal drill cadence (timer-based strategy):** Once condition hits ~99% (timer expired), run drills immediately rather than waiting for the final 1%. Each drill costs ~6% condition. The number of full training cycles available before the next fixture determines total investable XP:
 
-| Scenario | Optimal use of the 99% window |
+```
+cycles = floor(hours_until_fixture × 60 / cooldown_minutes)
+total_xp_budget = cycles × sessionCount × baseXpPerSession
+```
+
+If a game is scheduled for the next day, the manager has a known time window and can plan how many cycles to run. Premium sponsor shortens the cooldown, directly increasing cycles per window. The decision of what to train in each cycle depends on subscription tier:
+
+| Scenario | Optimal use per cycle |
 |---|---|
-| FTP / no Zero-Drain | Main player's priority white stats — maximise XP per condition % spent |
-| Premium sub, faster timer | Higher drill frequency enables secondary stat training or team play form drills between main sessions |
-| Fan Club L4 (Zero-Drain) | Timer irrelevant — condition never drops, unlimited drilling |
+| FTP / no Zero-Drain | Main player white stats — maximise XP per condition unit spent |
+| Premium sub, faster cooldown | More cycles per window enables secondary stat or team play form drills between main sessions |
+| Fan Club L4 (Zero-Drain) | Timer irrelevant — condition never drops; unlimited drilling regardless of fixture schedule |
 
 **Premium sponsor — Faster Condition Recovery:** Milestone track grants cooldown reductions (+10% at milestone 6, further at milestone 12), meaning more drill cycles per real-time hour. `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
