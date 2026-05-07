@@ -18,6 +18,7 @@ export interface GameProfile {
   greyWeightMultiplier: number;
   statCap: number;
   rule180StatCap: number;
+  baseXpPerSession: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
   qualityOvrDivisor: number;

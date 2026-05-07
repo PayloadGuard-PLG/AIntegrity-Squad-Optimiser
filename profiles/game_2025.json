@@ -8,7 +8,12 @@
     { "statMin": 120, "statMax": 139, "xpPer1Pct": 40 },
     { "statMin": 140, "statMax": 159, "xpPer1Pct": 50 },
     { "statMin": 160, "statMax": 179, "xpPer1Pct": 60 },
-    { "statMin": 180, "statMax": 999, "xpPer1Pct": -1 }
+    { "statMin": 180, "statMax": 199, "xpPer1Pct": 80 },
+    { "statMin": 200, "statMax": 219, "xpPer1Pct": 100 },
+    { "statMin": 220, "statMax": 239, "xpPer1Pct": 125 },
+    { "statMin": 240, "statMax": 259, "xpPer1Pct": 160 },
+    { "statMin": 260, "statMax": 279, "xpPer1Pct": 200 },
+    { "statMin": 280, "statMax": 339, "xpPer1Pct": 250 }
   ],
   "ageTable": {
     "17": 1.10,
@@ -61,7 +66,8 @@
   "fanClubCondReduction": [0.0, 0.10, 0.20, 0.30, 0.40, 0.50],
   "greyWeightMultiplier": 0.5,
   "statCap": 340,
-  "rule180StatCap": 180,
+  "rule180StatCap": 340,
+  "baseXpPerSession": 150,
   "twoxAdMultiplier": 2.0,
   "starDecayPerSession": 0.85,
   "qualityOvrDivisor": 1,
