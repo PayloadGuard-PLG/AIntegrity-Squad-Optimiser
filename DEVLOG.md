@@ -4,6 +4,117 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 8 — Coaches Tab + XP Engine Deep Calibration
+**2026-05-07 — night**
+
+### Shipped
+
+**Coaches tab (`app/(tabs)/coaches.tsx`)**
+
+New fourth tab: `/coaches` — SESSION SIMULATOR. Lets the manager replicate any coaching scenario from the game and project its exact OVR impact.
+
+- **Stat selector grid** — all white (essential) and grey (secondary) stats for the selected player's role. White stats rendered full brightness with current stat value shown; grey stats dimmed. Tap any stat to include/exclude it from the coach's coverage. Counter shows total selected.
+- **Sessions ×N** — TextInput for the coach multiplier (e.g. ×30 Standard Attacking, ×59 Standard Safeguard)
+- **Intensity** — Very Easy → Very Hard chips mapping to drillLevelMultipliers (1.0 → 1.7×)
+- **Talent + 2× ad** — same controls as Plan tab
+- **▶ PROJECT COACH GAIN** — computes per-stat gains and total OVR change. Shows gain breakdown: each stat, before value, gain amount (float), plus OVR before/after banner.
+- Pulls `computeOvrWithPadding` (now exported from `ovrProjector.ts`) for accurate OVR-after with partial stat entry padding.
+
+**XP engine calibration — validated against 7 coach screenshots**
+
+Real data: Standard Attacking ×30 on Ryan Rodger (age 18, Normal talent):
+- Passing 121 → +26–33 (model: ~27 at Medium intensity) ✓
+- Dribbling 132 → +20–27 (model: ~25) ✓
+- Crossing 132 → +20–27 (model: ~25) ✓
+
+Two engine fixes applied and confirmed:
+
+| File | Change | Reason |
+|---|---|---|
+| `profiles/game_2025.json` | `starDecayPerSession` 0.85 → 1.0 | Real data shows near-linear gains; 0.85^n-per-%-gained caused exponential cost increase, near-zero projections at high stat counts |
+| `src/logic/ovrProjector.ts` | XP budget ÷ `drill.stats.length` | Budget must be split across all stats a drill trains; undivided budget gave 5× too many gains |
+
+`baseXpPerSession = 150` confirmed correct when both fixes applied.
+
+**Fractional XP model**
+
+`src/logic/xpEngine.ts` — `estimateStatGainPct` now returns a float (e.g. 2.37). Partial XP progress banks as fractional carry: `gain += remaining / cost` instead of discarding leftover. Visible "+1" appears when cumulative value crosses an integer threshold. Sub-integer gains accumulate across multiple sessions.
+
+**GK role constraints — confirmed from in-game screenshot**
+
+`src/utils/roleWeights.ts` — GK corrected to confirmed game values:
+- 10 white (essential): REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION
+- 5 grey (secondary): FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY
+- GK is always solo (no multi-role combination permitted)
+
+**Drill database fixes**
+
+`src/database/drillDatabase.ts` — two drills corrected from confirmed in-game screenshots:
+
+| Drill | Field | Before | After |
+|---|---|---|---|
+| Use Your Head | type | Attack | Defence |
+| Use Your Head | stats | `['HEADING','CREATIVITY']` | `['POSITIONING','PASSING','HEADING','CREATIVITY']` |
+| Use Your Head | baseLoss | 1.5 | 3.0 |
+| Stop the Attacker | stats | `['TACKLING','MARKING','BRAVERY']` | `['STRENGTH','MARKING','BRAVERY','DRIBBLING','TACKLING']` |
+| Stop the Attacker | baseLoss | 2.25 | 4.5 |
+
+baseLoss values derived from in-game L4 Fan Club display (50% reduction shown): Use Your Head −1.5% at L4 → base = 3.0; Stop the Attacker −2.25% at L4 → base = 4.5.
+
+**ROI-based drill sort**
+
+`src/logic/controller.ts` — drill recommendations now sorted by ascending average white stat value (lowest stat first = cheapest gain per XP). Was sorted by efficiency (% overlap). Tiebreaker remains efficiency.
+
+`app/(tabs)/drills.tsx` — sort button label changed "SORT EFF ▼" → "SORT ROI ▼". Each drill card now shows `AVG {stat}` label.
+
+**Smarter skip warnings**
+
+`src/logic/ovrProjector.ts` — `applyDrillSessionsToStats` now categorises skipped drill stats as either:
+- `missingStats`: role-valid but not yet entered by user → "enter X, Y to include drill gains"
+- `irrelevantStats`: not a stat for this player's role at all → "no stats applicable to this role"
+
+Previously all skipped drills showed a generic "Stats missing" warning regardless of cause.
+
+New helper: `getAllStatKeys(roles)` in `src/utils/roleWeights.ts` — returns union of white + grey stats for a role, used for categorisation.
+
+**TextInput controls for greens and sessions**
+
+`app/(tabs)/plan.tsx` — replaced +/− stepper buttons with free-entry TextInput for both greens count and per-drill session count. Easier to enter ×30, ×59, etc.
+
+**Auto-tier selection**
+
+`app/(tabs)/plan.tsx` — `getBestAffordableTier()` runs when RUN PROJECTION is pressed without an explicit tier selected. Finds highest tier where the user has entered enough tier points. Eliminates silent "no tier applied" projections.
+
+**Stats-win OVR baseline**
+
+`app/(tabs)/plan.tsx` — when player has individual stats entered, FROM OVR displayed is `computeOvrFromStats(player)` (stats-derived), not `player.overall` (stored value). `player.overall` was set at time of entry; if stats have been trained since, the stats-derived value is more accurate.
+
+**Navigation**
+
+`src/components/AppHeader.tsx` — COACHES tab added to the 4-tab bar. Route `/coaches` triggers "COACH PLANNER / SESSION SIMULATOR" header.
+`app/(tabs)/_layout.tsx` — `coaches` screen registered.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F22 | Star decay caused near-zero gains at high stat counts | `starDecayPerSession` 0.85 → 1.0; validated against observed training data |
+| F23 | XP budget not divided across drill stats | `ovrProjector.ts`: budget ÷ `drill.stats.length` |
+| F24 | Use Your Head categorised as Attack drill | `drillDatabase.ts`: type corrected to Defence |
+| F25 | Stop the Attacker missing 2 stats | Added STRENGTH + DRIBBLING to stat list |
+| F26 | Generic "Stats missing" for all skipped drills | Separated into role-irrelevant vs un-entered categories |
+| F27 | Tier not auto-applying when points available | `getBestAffordableTier()` runs on projection if no explicit tier selected |
+| F28 | OVR baseline used stale `player.overall` when stats entered | Stats-computed OVR used as baseline when stats dict non-empty |
+
+### Next Sprint Targets
+
+- GK stat entry UI: `app/player/new.tsx` + `app/player/[id].tsx` show outfield stats regardless of GK role (KNOWN_ISSUES #4)
+- Coaches tab: user reports scenario data → update logic per scenario (multiplier → intensity mapping to be confirmed)
+- WHITEPAPER coaches section (§4 or appendix)
+- Squad-wide season simulator (KNOWN_ISSUES #7)
+
+---
+
 ## Sprint 6 — Direction B UI + Engine Calibration Fix
 **2026-05-07 — afternoon**
 

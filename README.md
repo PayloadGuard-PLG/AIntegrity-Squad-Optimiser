@@ -1,113 +1,120 @@
-# Squad Optimiser
+# AIntegrity Squad Optimiser
 
-A mobile-first decision engine that answers the question every manager asks before spending resources: **"Given exactly what I have right now, which player should I invest in, in what order, and what rating will they reach?"**
+A mobile-first investment planner for stat-based football management games. Answers the question every manager asks before spending resources: **which player, which drills, which tier — and exactly what OVR will they reach?**
 
-Built with React Native / Expo. Runs as a CLI today; mobile app in active development.
+Built with React Native / Expo. Live on branch `claude/continue-development-uXA5D` via EAS OTA.
 
 ---
 
 ## What It Does
 
-You have coaches, tier points, greens, and a budget. You have two players. You want a deterministic answer before committing anything.
+You have coaches, tier points, greens, and a budget. You have a squad. You want a deterministic answer before committing anything.
 
-Squad Optimiser models your resource pool against each player's age, current rating, role, and stat profile — then produces a ranked, step-by-step investment plan:
-
-```
-Alpha Striker (18yo, OVR 120) — Elite Chest coaches → Stellar
-─────────────────────────────────────────────────────────────
-Step 1  Apply Attacking ×30      120.0 → 130.3   (+10.3)   FREE
-Step 2  Apply Defending ×40      130.3 → 140.2   (+9.9)    FREE
-Step 3  Apply Physical ×28       140.2 → 152.0   (+11.8)   FREE
-Step 4  Tier upgrade → Stellar   152.0 → 202.0   (+50.0)   600 pts
-Step 5  100 greens (×1.3 bonus)  202.0 → 210.7   (+8.7)    100 greens
-─────────────────────────────────────────────────────────────
-Final OVR: 210.7   Total gain: +90.7
-```
-
-Then it compares that against every other candidate in your squad and tells you who benefits most from those exact resources.
+The engine models each player's age, role, stat profile, talent tier, and current stat values — then projects an exact OVR outcome for any combination of drills, tier upgrade, and condition resources.
 
 ---
 
-## Key Features
+## Four Tabs
 
-- **Coaches-first enforcement** — the engine always applies coaches before tier upgrades. This is a hard rule, not a suggestion, and the step output makes the reasoning explicit.
-- **Manager style modes**
-  - `FTP` — owned coaches only, no store purchases
-  - `Hybrid` — include store coaches up to a token budget you set
-  - `PTW` — use all available coaches regardless of cost
-- **OVR projection formula** — calibrated from empirical training data: age-based diminishing returns, stat-level gain factors, session-type bonuses (Seminar vs Training), and role-specific white/grey stat weighting.
-- **Scenario comparison** — feed in N players, same resource pool; get back a ranked table and a plain-English recommendation.
-- **Squad persistence** — add players once, plan against them anytime. File-based JSON for CLI; SQLite (Drizzle ORM) for the mobile app.
-- **Drill optimiser** — Fan Club level-aware drill selection with condition cost modelling and Zero-Drain protocol detection.
+| Tab | Purpose |
+|---|---|
+| **SQUAD** | All players — OVR, role, age, tier, mutant flag. Tap to edit. |
+| **PLAN** | Select a player, configure drills + tier + greens → get a step-by-step OVR projection with gain breakdown and warnings. |
+| **DRILLS** | Ranked drill recommendations for a player — sorted by ROI (lowest white stat value first = cheapest gain per XP). Fan Club level + drill level aware. Zero-drain protocol detection at L4 + Very Easy. |
+| **COACHES** | Simulate any coaching session: select which stats the coach covers, enter session count (×N), set intensity and talent tier → exact per-stat gains and OVR change projected. |
+
+---
+
+## Engine Overview
+
+```
+Drill Sessions  →  Tier Upgrade  →  Greens (condition only)
+```
+
+**XP model (calibrated):**
+```
+budget_per_stat = sessionCount × 150 (baseXpPerSession) / drill.stats.length
+xpCost_per_1%  = xpCostTable[stat] / (ageMult × talentMult × greyMult × adMult × drillLevelMult)
+gain           = fractional accumulation until budget exhausted
+```
+
+Validated against Standard Attacking ×30 real data (age 18, Normal, Medium intensity):
+- Passing 121 → +26–33 observed | ~27 model ✓
+- Dribbling 132 → +20–27 observed | ~25 model ✓
+
+**Key parameters** (all in `profiles/game_2025.json`):
+- `baseXpPerSession: 150` — XP per training slot
+- `starDecayPerSession: 1.0` — no decay (validated; linear gains observed)
+- `statCap: 340` — maximum stat value
+- `totalAttributeCount: 15` — for OVR mean calculation
+- `greyWeightMultiplier: 0.5` — secondary stats cost 2× per XP
+
+**OVR formula:**
+```
+OVR = mean(all 15 stats)    (qualityOvrDivisor = 1)
+```
 
 ---
 
 ## Architecture
 
 ```
+app/(tabs)/
+├── index.tsx          — Squad list
+├── plan.tsx           — Investment projection (drills + tier + greens)
+├── drills.tsx         — Drill recommendations ranked by ROI
+└── coaches.tsx        — Coach session simulator (stat selector + OVR output)
+
 src/
-├── types/resources.ts          — Coach, ManagerProfile, InvestmentPlan, TierName types
-├── database/playerSchema.ts    — Player interface + squad persistence
+├── types/resources.ts       — All interfaces: GameProfile, ManagerProfile, DrillSession…
+├── database/
+│   ├── playerSchema.ts      — Player interface + SQLite persistence
+│   └── drillDatabase.ts     — DRILL_LIST: all 24 drills with stats + condition loss
 ├── logic/
-│   ├── ovrProjector.ts         — Step-by-step OVR chain (coaches → tier → greens)
-│   ├── investmentEngine.ts     — Style-filtered planning + recommendation assembly
-│   ├── scenarioComparator.ts   — Multi-player ranking for shared resource pool
-│   ├── controller.ts           — Drill selection orchestration
-│   ├── mutantEngine.ts         — Green efficiency + premium bonus modelling
-│   └── zeroDrainProtocol.ts    — Zero-condition-loss drill protocol
+│   ├── xpEngine.ts          — XP cost formula, estimateStatGainPct (fractional)
+│   ├── ovrProjector.ts      — applyDrillSessionsToStats, projectOvr, computeOvrFromStats
+│   ├── investmentEngine.ts  — planPlayerInvestment, compareInvestmentScenarios
+│   └── controller.ts        — getDrillRecommendations (ROI sort, condition costs)
 ├── utils/
-│   ├── coachMath.ts            — Gain formula: age factor, stat curve, session bonus
-│   ├── roleWeights.ts          — Role constraints and white/grey stat classification
-│   └── conditionEngine.ts      — Condition cost per drill type
-└── services/storageService.ts  — Load/save squad JSON
+│   ├── roleWeights.ts       — ROLE_CONSTRAINTS, isWhiteStat, getAllStatKeys
+│   ├── math.ts              — getTierAttrAddition, getTierCost
+│   └── conditionEngine.ts   — calculateActualLoss (Fan Club reduction)
+├── context/ManagerContext.tsx — talentTier, drillLevel, tierPoints, twoxAd state
+└── components/
+    ├── AppHeader.tsx         — 4-tab nav bar (SQUAD · PLAN · DRILLS · COACHES)
+    └── atoms/               — MonoLabel, Chip, CornerBrackets, OvrMovement
+
+profiles/game_2025.json      — All game constants (XP table, age/talent multipliers…)
 ```
 
 ---
 
-## Getting Started
+## Quick Start
 
 ```bash
 npm install
-npm run cli            # interactive squad manager
-tsx tests/investment-test.ts   # run scenario test
-npm run typecheck      # tsc --noEmit
+npm run typecheck     # must return zero errors before any push
 ```
 
-### CLI options
-
+### Deploy (EAS OTA)
+```bash
+git push origin claude/continue-development-uXA5D
+# GitHub Actions → EAS OTA → reopen app to get update
 ```
-1. View Squad
-2. Drill Optimiser
-3. Add Player
-4. Plan Investment
-5. Compare Players
-6. Exit
-```
-
----
-
-## Status
-
-| Area | Status |
-|---|---|
-| Coach gain formula | Empirically calibrated — formula refinement pending research docs |
-| Drill optimiser | Complete |
-| Investment engine | Complete |
-| Scenario comparator | Complete |
-| CLI | Complete |
-| Mobile UI (Expo) | In progress — next sprint |
-| Screenshot OCR | Stub — planned |
-| Drizzle DB migrations | Stub — pending schema stabilisation |
 
 ---
 
 ## Docs
 
-- [`DEVLOG.md`](./DEVLOG.md) — sprint-by-sprint build history
-- [`WHITEPAPER.md`](./WHITEPAPER.md) — formula derivations, calibration data, design decisions
+| File | Content |
+|---|---|
+| [`DEVLOG.md`](./DEVLOG.md) | Sprint-by-sprint build history — what shipped, what broke, what's next |
+| [`WHITEPAPER.md`](./WHITEPAPER.md) | Full formula derivations, XP calibration, role weights, tier model |
+| [`KNOWN_ISSUES.md`](./KNOWN_ISSUES.md) | Open bugs + resolved issue log |
+| [`HANDOVER.md`](./HANDOVER.md) | Agent handover brief — current state, pending tasks, key file map |
 
 ---
 
 ## Disclaimer
 
-This project is entirely unofficial and unaffiliated with any game developer, publisher, or platform. No game assets, trademarks, or proprietary data are used or reproduced. All formula calibration is based on publicly observable behaviour. This tool is for personal, non-commercial use.
+Unofficial and unaffiliated with any game developer or publisher. No game assets or proprietary data used. All calibration is based on publicly observable game behaviour. Personal, non-commercial use only.

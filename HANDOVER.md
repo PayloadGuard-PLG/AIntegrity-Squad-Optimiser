@@ -1,202 +1,73 @@
-# AIntegrity Squad Optimiser — Handover Brief
+# AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `claude/continue-development-uXA5D`
-**As of:** Sprint 7 — 2026-05-07 evening
-**Deploy:** push to branch → GHA → EAS OTA → app updates on reopen
+**As of:** Sprint 8 — 2026-05-07 night
+**Deploy:** `git push origin claude/continue-development-uXA5D` → GitHub Actions → EAS OTA → reopen app
 
 ---
 
-## Current State (Sprint 7)
+## Current State
 
-React Native / Expo, 4 tabs: Squad · Plan · Drills · (Plan has 4 sub-tabs: Drills / Resources / Tier / Teamplay)
+React Native / Expo app. **4 tabs:** SQUAD · PLAN · DRILLS · COACHES.
 
-**Working:**
-- OVR projection engine: XP cost table 0–339, age/talent/drill-level/grey-weight multipliers, tier upgrade, greens condition step
-- Plan tab: TALENT chips show multiplier (FT2 ×1.25 etc.), FIXTURE WINDOW calculator, MATCHDAY COACH toggle, TEAMPLAY pillar inputs + maintenance plan, GREENS BRIDGE
-- Drills tab: ranked by efficiency, fan club L0–L4 selector, drill level selector, zero-drain correct at L4+Very Easy
-- Compare screen: head-to-head multi-player projection
-- OTA pipeline: commit → push → GHA → EAS OTA (multi-line commit messages handled via env var)
-- Warning messages: age multiplier shown numerically, Slow talent warned separately
+All tabs functional. Engine calibrated against real coaching data. OTA pipeline working.
 
-**Open items:**
-| # | Area | Priority |
-|---|---|---|
-| 2 | Calibrate `baseXpPerSession: 150` — compare engine output to observed session gains, adjust in `profiles/game_2025.json` | High |
-| 3 | GK white stats in `src/utils/roleWeights.ts` — estimated, unconfirmed | Medium |
-| 4 | GK stat entry UI — always shows outfield stat grid regardless of role | Medium |
-| 5 | CLI (`src/index.ts`) drill level flow — updated but untested end-to-end | Low |
+### What works
+- **SQUAD tab** — player list, tap → edit, OVR badge, tier/age/role display
+- **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-computed OVR baseline when stats entered. TextInput for greens and sessions. Smarter skip warnings.
+- **DRILLS tab** — drill recommendations sorted by ROI (lowest white stat value = cheapest XP). Fan Club L0–L4 selector. Zero-drain protocol detection at L4 + Very Easy. Condition cost display.
+- **COACHES tab** *(new Sprint 8)* — stat selector grid (white/grey), session count × N, intensity picker, talent + 2× ad toggle, per-stat gain projection + OVR output.
+- **XP engine** — fractional gains, calibrated `baseXpPerSession = 150`, no star decay, budget divided by drill stat count. Validated vs Standard Attacking ×30 real data.
+- **GK role** — confirmed 10 white / 5 grey stats. Solo only.
+- **Drill database** — 24 drills. Use Your Head and Stop the Attacker corrected from confirmed screenshots.
 
 ---
 
-## Historical Role Briefs (Sprints 5–6)
+## Open Items (Priority Order)
 
-*Kept for reference. Tasks below were the sprint 5–6 parallel session assignments — most are now complete.*
-
-**What's pending (4 roles below):**
-
----
-
-## Role 1 — "The Historian": DEVLOG Sprint 6 + KNOWN_ISSUES update
-
-**Files to edit:**
-- `DEVLOG.md` — prepend a Sprint 6 entry (before the Sprint 5 block)
-- `KNOWN_ISSUES.md` — close resolved issues, add new ones
-
-### DEVLOG.md — Insert at top (after the `---` separator, before `## Sprint 5`)
-
-```markdown
-## Sprint 6 — Direction B UI + Engine Calibration Fix
-**2026-05-07**
-
-### Shipped
-
-**Direction B design system**
-
-The app UI was fully redesigned to a "Operator" aesthetic: pitch-black background (#0a0a0c), gunmetal navy surface, JetBrains Mono throughout, zero border radius, steelblue accents. Key design tokens in `src/constants/theme.ts`:
-
-| Token | Value |
-|---|---|
-| `bg` | #0a0a0c |
-| `surface` | #111116 |
-| `surface2` | #1a1a21 |
-| `ink` | #f0f0f5 |
-| `inkSec` | #c8c8d2 |
-| `steelLight` | #5b8fe8 |
-| `negRed` | #e85b5b |
-| `hotOrange` | #e87d2a |
-| `mono` | JetBrains Mono |
-
-**New screens: player/new.tsx + player/[id].tsx**
-
-| File | Content |
-|---|---|
-| `app/player/new.tsx` | Add Player screen — 4-column ROLE_GRID position picker, 2-column bordered stats grid with ●/○ white stat indicators, colour-coded tier chips, MUTANT CANDIDATE toggle, full-width SAVE CTA |
-| `app/player/[id].tsx` | Edit Player screen — same layout + loads existing player + SAVE/DELETE side-by-side CTAs (DELETE = negRed outline) |
-
-**Plan tab config section**
-
-`app/(tabs)/plan.tsx` — configuration area rebuilt as bordered cards. Each group (TALENT, DRILL LEVEL, SESSIONS, GREENS, TIER) has a dark header row with steelLight accent stripe and content below within the same border. Section tabs changed to full ink-fill button bar. All param setters call `invalidate()` → `setPlan(null)` to clear stale projections.
-
-**OvrMovement pure-RN rewrite**
-
-`src/components/atoms/OvrMovement.tsx` — removed all `react-native-svg` imports (Pattern element + `width="100%"` on Svg crashed Android). Rewritten as pure View/Text. Removed conflicting `lineHeight: 56` with `fontSize: 62` (lineHeight < fontSize also crashes Android).
-
-**OVR display delta fix**
-
-Plan tab now anchors the FROM value to `player.overall` (stored in DB) and computes TO as `storedOvr + engineGain`. Previous approach used engine-computed FROM (partial-stat mean differs from stored OVR) causing persistent -1.2 regression display.
-
-**Contrast + readability improvements**
-
-`src/constants/theme.ts`: raised inkSec (#a1a1aa → #c8c8d2), inkMuted (#6b6b73 → #909099), hairline3 (→ rgba(255,255,255,0.38)).
-`src/components/atoms/MonoLabel.tsx`: default color inkMuted → inkSec, fontWeight 500 → 600.
-`src/components/atoms/Chip.tsx`: inactive state bg transparent → surface2, border hairline2 → hairline3, text inkSec → ink.
-
-**Drill name fix**
-
-`app/(tabs)/plan.tsx`: `DRILL_NAMES` now derived from `DRILL_LIST` import. Was hardcoded with invalid "Finishing School" which doesn't exist in the drill database.
-
-**Engine calibration fix (critical)**
-
-| File | Change |
-|---|---|
-| `profiles/game_2025.json` | Extended `xpCostTable` — 180–339 now has finite costs (80/100/125/160/200/250 XP per 1%) |
-| `profiles/game_2025.json` | `rule180StatCap`: 180 → 340 (was blocking ALL stats ≥ 180 from training; most top-level players have stats 180–250) |
-| `profiles/game_2025.json` | Added `baseXpPerSession: 150` |
-| `src/types/resources.ts` | Added `baseXpPerSession: number` to `GameProfile` interface |
-| `src/logic/ovrProjector.ts` | XP budget: `session.sessionCount` → `session.sessionCount * profile.baseXpPerSession` |
-
-Root cause: raw `sessionCount` (e.g. 6) was used as XP budget. Cost for 1% on a stat-113 grey attr at age 24 = ~250 XP. Budget of 6 << 250 → 0 gains every time.
-
-### Bugs Fixed This Sprint
-
-| Bug | Fix |
-|---|---|
-| Plan tab: first projection shows -1.2, button stops working | `invalidate()` added to all param setters; FROM anchored to `player.overall` |
-| Drills DRILL_NAMES included "Finishing School" (not in DB) | Derived from `DRILL_LIST` import |
-| All players show +0.0 OVR from drills | Two-layer fix: extended XP table above 180, added `baseXpPerSession` multiplier |
-| `compareInvestmentScenarios` shape mismatch | Rewritten to return `{ results, recommendedPlayer, reasoning }` |
-| OvrMovement crashes Android | Removed react-native-svg entirely; pure RN implementation |
-
-### Next Sprint Targets
-
-- Verify `baseXpPerSession: 150` against observed session gains
-- GK white stat list — currently estimated; needs empirical confirmation
-- Calibration: per-session gain reference table for common player profiles
-```
-
----
-
-### KNOWN_ISSUES.md — Full replacement content
-
-```markdown
-# Known Issues
-
-## Open
-
-| # | Area | Description | Priority |
+| # | Area | Task | Priority |
 |---|---|---|---|
-| 1 | Plan / OVR projection | Drill gains skipped when player has no individual stats entered (only OVR). Engine warns and returns base OVR. Individual stat entry required for full drill projection. | High |
-| 2 | XP calibration | `baseXpPerSession: 150` is an estimate. Needs empirical validation — observe stat gains per session, compare to engine output. See Role 3 handover for calibration approach. | High |
-| 3 | GK white stats | `ROLE_CONSTRAINTS.GK.essential` in `src/utils/roleWeights.ts` is marked TODO — estimated as REFLEXES/AGILITY/ANTICIPATION/RUSHING OUT/COMMUNICATION. Unconfirmed. The stat entry UI also shows outfield stats for GK players. | Medium |
-| 4 | GK stat entry UI | `app/player/new.tsx` always shows OUTFIELD_STATS grid regardless of role. GK needs different stats (no FINISHING/CROSSING/HEADING etc.; instead REFLEXES/HANDLING/etc.). | Medium |
-| 5 | CLI drill levels | `src/index.ts` collectDrillSessions prompt updated but not yet tested end-to-end | Low |
-
-## Fixed
-
-| # | Area | Fix |
-|---|---|---|
-| F1 | Drills tab efficiency blank | `app/(tabs)/drills.tsx`: controller returns 0–1 fraction; DrillTable expects 0–100 — multiplied by 100 |
-| F2 | Plan OVR ~48 instead of ~195 | `profiles/game_2025.json`: `qualityOvrDivisor` 4 → 1 (OVR = mean stat directly) |
-| F3 | ST+AMC+MC role rejected | `src/utils/roleWeights.ts`: `validateRoleAdjacency` now transitive |
-| F4 | Bottom tab bar ghost | `app/(tabs)/_layout.tsx`: `tabBar={() => null}` |
-| F5 | Tier points single input | Per-tier pool UI with individual inputs + thresholds in plan.tsx + compare.tsx |
-| F6 | Plan tab: +0.0 drill gains | Extended XP table above 180, `baseXpPerSession` multiplier added |
-| F7 | Plan tab: stale projection / locked button | `invalidate()` called on all param changes |
-| F8 | Compare screen shape mismatch | `compareInvestmentScenarios` returns `{ results, recommendedPlayer, reasoning }` |
-| F9 | OvrMovement crashes Android | Removed react-native-svg; pure View/Text implementation |
-| F10 | Plan OVR showing -1.2 | FROM anchored to `player.overall`; TO = storedOvr + engineGain delta |
-```
+| 4 | GK stat entry UI | `app/player/new.tsx` + `app/player/[id].tsx` always show outfield stats grid regardless of GK role. Need conditional GK_STATS grid when role = GK. | Medium |
+| 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Medium |
+| 6 | CLI drill levels | `src/index.ts` prompts updated to new drill level names but not tested end-to-end. | Low |
+| 7 | Squad-wide season simulator | Plan tab projects one player. User confirmed ~+7 OVR/season from squad-wide L4 zero-drain Very Easy drilling (all low white stats). Not expressible in current UI. | Low |
+| — | Coaches tab: scenario validation | User will provide coaching scenarios from the game. Update intensity → multiplier mapping as data comes in. Each coach type in game (Standard/Focused/Extensive) maps to an approximate intensity level — to be confirmed per screenshot. | Next |
 
 ---
 
-## Role 2 — "The Academic": WHITEPAPER Section 3 XP Engine update
+## Key Files
 
-**File to edit:** `WHITEPAPER.md`
+| File | Purpose |
+|---|---|
+| `profiles/game_2025.json` | ALL game constants — XP table, age/talent multipliers, statCap=340, baseXpPerSession=150, starDecayPerSession=1.0, drillLevelMultipliers, tierAttrAdditions |
+| `src/types/resources.ts` | All TypeScript interfaces: GameProfile, ManagerProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
+| `src/logic/xpEngine.ts` | XP math: `xpBaseForStat`, `xpNeededFor1Pct`, `estimateStatGainPct` (fractional float return) |
+| `src/logic/ovrProjector.ts` | `applyDrillSessionsToStats`, `projectOvr`, `computeOvrFromStats`, `computeOvrWithPadding` (exported) |
+| `src/logic/investmentEngine.ts` | `planPlayerInvestment`, `compareInvestmentScenarios` |
+| `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort (ascending avgWhiteStatValue), condition costs |
+| `src/utils/roleWeights.ts` | `ROLE_CONSTRAINTS` (white/grey per role), `isWhiteStat`, `getWhiteStatKeys`, `getAllStatKeys` |
+| `src/database/drillDatabase.ts` | `DRILL_LIST` — 24 drills, stats, baseLoss, isBase |
+| `src/constants/theme.ts` | Design tokens — pitch-black bg, gunmetal surfaces, steelblue accent, hot-orange, pos/neg |
+| `src/components/AppHeader.tsx` | 4-tab nav: SQUAD `/` · PLAN `/plan` · DRILLS `/drills` · COACHES `/coaches` |
+| `app/(tabs)/plan.tsx` | Plan tab — bordered config cards, auto-tier, stats-win baseline, TextInput sessions/greens |
+| `app/(tabs)/coaches.tsx` | Coach tab — stat selector grid, sessions ×N, intensity/talent, OVR projection |
+| `app/(tabs)/drills.tsx` | Drills tab — ROI sort, fan club selector, zero-drain detection |
+| `app/player/new.tsx` | Add player — role picker, stat grid (outfield; GK fix pending), tier, talent, save |
+| `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete |
 
-Find Section 3 and replace lines 39–79 (§3.2 and §3.3) with the following.
-The key changes: line 56 removes "Infinity if statValue ≥ 180", §3.3 table gains 180+ rows, 180-rule paragraph replaced with budget explanation.
+---
 
-```markdown
-### 3.2 XP cost per 1% stat gain
+## Engine Reference
 
-```typescript
-xpNeededFor1Pct(
-  statValue: number,       // current stat value (%)
-  age: number,
-  starsGainedInSession: number,
-  talentTier: TalentTier,
-  isWhite: boolean,        // essential stat for this role?
-  twoxAdActive: boolean,
-  drillLevelMult: number,  // from profile drillLevelMultipliers
-  profile: GameProfile
-): number
+### XP model
+```
+budget_per_stat  = sessionCount × baseXpPerSession (150) / drill.stats.length
+xpCost_per_1%   = xpCostTable[statValue] / (ageMult × talentMult × greyMult × adMult × drillMult)
+gain            = fractional; partial XP banks as carry toward next integer
 ```
 
-Formula:
-```
-base       = xpCostTable[statValue]   (see §3.3)
-ageMult    = ageTable[age]
-starMult   = 0.85 ^ starsGainedInSession
-talentMult = talentMultipliers[talentTier]
-greyMult   = 1.0 if isWhite else 0.5
-adMult     = 2.0 if twoxAdActive else 1.0
-
-xpCost = base / (ageMult × starMult × talentMult × greyMult × adMult × drillLevelMult)
-```
-
-### 3.3 XP cost table
-
-| Stat range | XP per 1% |
+### XP cost table (profiles/game_2025.json)
+| Stat range | XP/1% |
 |---|---|
 | 0–59 | 8 |
 | 60–79 | 10 |
@@ -212,192 +83,70 @@ xpCost = base / (ageMult × starMult × talentMult × greyMult × adMult × dril
 | 260–279 | 200 |
 | 280–339 | 250 |
 
-Costs above 180 are steep but finite up to `statCap = 340`. The old "180-rule" (hard infinite block at 180) was removed — top-level players commonly hold stats in the 180–260 range.
+### Calibration data (Standard Attacking ×30, age 18, Normal, Medium)
+| Stat | Start | Observed | Model |
+|---|---|---|---|
+| Passing | 121 | +26–33 | ~27 ✓ |
+| Dribbling | 132 | +20–27 | ~25 ✓ |
+| Crossing | 132 | +20–27 | ~25 ✓ |
+| Shooting | 129 | +21–29 | ~26 ✓ |
+| Finishing | 127 | +22–30 | ~27 ✓ |
 
-**Session XP budget:**
+### Age multipliers
+17=1.10, 18=1.00, 19=0.90, 20=0.55, 21=0.40, 22=0.32, 23=0.28, 24=0.24, 25=0.22, 26=0.19, 27=0.16, 28=0.14, 29=0.12, 30+=0.10
 
+### Tier attribute additions
+None=0, Rare=+10, Elite=+30, Stellar=+50, Master=+80, Epic=+120, Legendary=+160 (per white stat)
+
+### Tier points required to upgrade
+None=0, Rare=100, Elite=90, Stellar=50, Master=25, Epic=15, Legendary=10
+
+### Role constraints (white stats = essential = full XP; grey = secondary = 0.5× XP)
 ```
-xpBudget = sessionCount × baseXpPerSession
-```
-
-`baseXpPerSession = 150` (calibration estimate — see §10). A player doing 6 sessions of a drill generates 900 XP. Cost to gain 1% on a stat-240 white attribute for an age-24 Normal-talent player at Very Easy drill level = 160 / 0.24 ≈ 667 XP → 1 gain per 6 sessions.
-```
-
-Also update **§10 Limitations** — find the baseXpPerSession row and replace:
-```
-| Drill XP baseline | `baseXpPerSession` calibration pending — requires observed stat gains per session |
-```
-with:
-```
-| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Needs validation: note a player's stat before/after N sessions, compare to engine output. Adjust value in `profiles/game_2025.json` to match. |
-```
-
----
-
-## Role 3 — "The Calibrator": XP gain reference + calibration guide
-
-**Task:** Create `docs/calibration-reference.md` — a table of expected % gains per scenario for common player profiles. User observes actual gains, compares, and adjusts `baseXpPerSession` in `profiles/game_2025.json`.
-
-**How to calibrate:**
-1. Pick a player whose stat value, age, talent tier, and drill level are known
-2. Run N sessions of a drill that hits a stat you're watching
-3. Note the % gain from the game
-4. Compare to the table below — if actual > predicted, increase `baseXpPerSession`; if less, decrease it
-
-**Formula reminder:**
-```
-xpBudget  = sessionCount × baseXpPerSession   (currently 150)
-costPer1% = xpCostBase / (ageMult × talentMult × greyMult × drillMult)
-gains      = floor(xpBudget / costPer1%)       (simplified — ignores star decay for first few %)
-```
-
-**File to create: `docs/calibration-reference.md`**
-
-```markdown
-# XP Gain Calibration Reference
-
-`baseXpPerSession = 150` (current estimate). To adjust: edit `profiles/game_2025.json`.
-
-## Formula
-
-```
-xpBudget  = sessions × 150
-costPer1% = xpCostTable[stat] / (ageMult × talentMult × greyMult × drillLevelMult)
-approx_gain = floor(xpBudget / costPer1%)
-```
-(Star decay makes each subsequent % slightly more expensive — actual gains are slightly less than this approximation for large budgets.)
-
-## Expected gains — white stat, Normal talent, Very Easy drill (×1.0)
-
-| Sessions | Age 18 (×1.0) | Age 20 (×0.55) | Age 24 (×0.24) | Age 28 (×0.14) |
-|---|---|---|---|---|
-| **Stat ~100** (cost 30/%) | | | | |
-| 3 | 15% | 8% | 3% | 2% |
-| 6 | 22% | 12% | 5% | 2% |
-| 10 | 28% | 18% | 8% | 4% |
-| **Stat ~150** (cost 50/%) | | | | |
-| 3 | 9% | 4% | 2% | 1% |
-| 6 | 18% | 9% | 3% | 2% |
-| 10 | 26% | 13% | 6% | 3% |
-| **Stat ~200** (cost 100/%) | | | | |
-| 3 | 4% | 2% | 1% | 0% |
-| 6 | 9% | 4% | 2% | 1% |
-| 10 | 15% | 7% | 3% | 1% |
-| **Stat ~240** (cost 160/%) | | | | |
-| 3 | 2% | 1% | 0% | 0% |
-| 6 | 5% | 2% | 1% | 0% |
-| 10 | 9% | 4% | 2% | 1% |
-
-## FT1 talent multiplier boost (×1.5 vs Normal ×1.0)
-
-FT1 talent gives 1.5× the gains of a Normal player. Multiply the table values above by 1.5 for FT1.
-
-## Drill level multiplier boost
-
-| Drill Level | Multiplier | Gain vs Very Easy |
-|---|---|---|
-| Very Easy | 1.0 | baseline |
-| Easy | 1.15 | +15% |
-| Medium | 1.3 | +30% |
-| Hard | 1.55 | +55% |
-| Very Hard | 1.7 | +70% |
-
-## How to adjust
-
-If a stat-150 age-24 Normal player does 6 Very Easy sessions and gains **6%** but the table says **3%**:
-- Actual ≈ 2× predicted → double `baseXpPerSession` from 150 → 300
-- Edit `profiles/game_2025.json`: `"baseXpPerSession": 300`
-- Push and test again
+ST:  white=[FINISHING,SHOOTING,DRIBBLING,PASSING,POSITIONING,HEADING]  grey=[STRENGTH,SPEED,CREATIVITY]
+GK:  white=[REFLEXES,AGILITY,ANTICIPATION,RUSHING OUT,COMMUNICATION,THROWING,KICKING,PUNCHING,AERIAL REACH,CONCENTRATION]  grey=[FITNESS,STRENGTH,AGGRESSION,SPEED,CREATIVITY]
+AMC: white=[PASSING,DRIBBLING,SHOOTING,FINISHING,HEADING]  grey=[SPEED,CREATIVITY,FITNESS]
+AML: white=[CROSSING,DRIBBLING,PASSING,SHOOTING,FINISHING]  grey=[FITNESS,SPEED,CREATIVITY]
+AMR: same as AML
+ML:  white=[CROSSING,PASSING,DRIBBLING,POSITIONING]  grey=[FITNESS,SPEED,CREATIVITY]
+MR:  same as ML
+MC:  white=[PASSING,DRIBBLING,SHOOTING,TACKLING,POSITIONING,BRAVERY]  grey=[FITNESS,STRENGTH,SPEED,CREATIVITY]
+DMC: white=[TACKLING,MARKING,POSITIONING,HEADING,BRAVERY,PASSING]  grey=[FITNESS,STRENGTH,AGGRESSION]
+DC:  white=[TACKLING,MARKING,POSITIONING,HEADING,BRAVERY]  grey=[STRENGTH,AGGRESSION]
+DL:  white=[TACKLING,MARKING,POSITIONING,BRAVERY,CROSSING]  grey=[FITNESS,AGGRESSION,SPEED]
+DR:  same as DL
 ```
 
 ---
 
-## Role 4 — "The Role Engineer": GK stat handling
+## Confirmed Game Data
 
-**Context:**
-- `src/utils/roleWeights.ts` line 20: `ROLE_CONSTRAINTS.GK.essential` is estimated as `['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION']` but is marked `// TODO: verify GK white stats from research`
-- `app/player/new.tsx`: the stat entry grid always shows `OUTFIELD_STATS` (SHOOTING, PASSING, CROSSING, DRIBBLING, FINISHING, HEADING, TACKLING, MARKING, POSITIONING, BRAVERY, AGGRESSION, STRENGTH, SPEED, FITNESS, CREATIVITY) — wrong for GK
-- GK players have different stat categories in the game (REFLEXES, HANDLING, AERIAL REACH, etc.)
+**Fan Club condition reduction** (L4 = 50% — confirmed in-game):
+`[0.10, 0.15, 0.20, 0.25, 0.50]` (L0 → L4)
 
-**Task A — Verify GK white stats**
+**Zero-drain condition:** L4 Fan Club + Very Easy drill = 0% condition loss.
 
-Research GK stat requirements. The stat keys must match the string keys used in the `OUTFIELD_STATS` array pattern (all-caps). Once confirmed, update `src/utils/roleWeights.ts`:
+**Condition per green:** 15% per green.
 
-```typescript
-// Current (line 20):
-GK: { essential: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'], secondary: [...] }
-// Remove the // TODO comment once verified
-```
+**Drill condition loss** (base, before Fan Club reduction):
+- Warm-Up: 0.5% | Video Analysis: 0.75% | Stretch: 0.75%
+- Skill Drill: 1.5% | Hurdles: 1.5% | Slalom Dribble: 1.5% | Set-Piece Delivery: 1.5%
+- Pass Go & Shoot: 2.25% | Shooting Technique: 2.25% | Sprints: 2.25% | Shuttle Runs: 2.25%
+- Piggy in the Middle: 1.5% | Defensive Line: 1.5% | Defending Crosses: 1.5% | Hold the Line: 1.5%
+- Press the Play: 2.25% | Wing Play: 3.0% | Long Run: 3.0% | Use Your Head: 3.0%
+- Fast Counter-Attacks: 3.75% | Gym: 4.5% | Stop the Attacker: 4.5%
+- 1-on-1 Finishing: 2.25% | Carioca with Ladders: 1.5% | Hurdle Jumps: 1.5%
 
-**Task B — GK stat grid in player/new.tsx + player/[id].tsx**
-
-In `app/player/new.tsx`, add a `GK_STATS` constant and conditionally render it when GK is the selected role. After the existing `OUTFIELD_STATS` const (around line 30), add:
-
-```typescript
-const GK_STATS = [
-  'REFLEXES',   'HANDLING',
-  'AERIAL REACH','RUSHING OUT',
-  'COMMUNICATION','AGILITY',
-  'ANTICIPATION','KICKING',
-  'THROWING',   'PUNCHING',
-  'BRAVERY',    'FITNESS',
-  'STRENGTH',   'SPEED',
-  'POSITIONING',
-];
-```
-
-Then in the stat grid render, replace the hardcoded `OUTFIELD_STATS.map(...)` with:
-```typescript
-const statList = roles.includes('GK') ? GK_STATS : OUTFIELD_STATS;
-// then: statList.map(stat => ...)
-```
-
-Apply the same change in `app/player/[id].tsx`.
-
-**Task C — Remove GK from adjacency validation early-exit**
-
-`src/utils/roleWeights.ts` lines 36 and 40 block GK from any multi-role combination. This is correct gameplay-wise (GK can't play with outfield roles) but the early return at line 36 should handle `roles.length > 1 && primary === 'GK'` clearly:
-
-Current code is already correct — no changes needed to logic. But the comment is missing. Add a comment:
-
-```typescript
-// GK cannot be combined with any other position
-if (primary === 'GK') return false;
-```
+**Validated season meta (user-confirmed):**
+~+7 OVR/season from squad-wide strategy: L4 Fan Club zero-drain, all low white stats open, free ad drills for teamplay maintenance, Very Easy drills with 50% perfect conditions.
 
 ---
 
-## Verification (all roles)
-
-After applying changes:
+## Verification Checklist (before any push)
 
 ```bash
-# In the repo directory (Termux):
-npm run typecheck        # must return zero errors
-git add <changed files>
-git commit -m "feat/fix: <brief description>
-
-https://claude.ai/code/session_01NbN7HpqmFs1vaTREmwEsBT"
+npm run typecheck   # must return zero errors — no exceptions
 git push -u origin claude/continue-development-uXA5D
 ```
 
-GitHub Actions picks up the push → EAS OTA update → reopen app to see changes.
-
----
-
-## Key files quick-reference
-
-| File | Purpose |
-|---|---|
-| `profiles/game_2025.json` | All game constants — XP table, age/talent multipliers, statCap, baseXpPerSession |
-| `src/types/resources.ts` | TypeScript interfaces — GameProfile, ManagerProfile, DrillSession, etc. |
-| `src/logic/xpEngine.ts` | XP math — xpBaseForStat, xpNeededFor1Pct, estimateStatGainPct |
-| `src/logic/ovrProjector.ts` | applyDrillSessionsToStats, projectOvr, computeOvrFromStats |
-| `src/logic/investmentEngine.ts` | planPlayerInvestment, compareInvestmentScenarios |
-| `src/utils/roleWeights.ts` | ADJACENCY_MAP, ROLE_CONSTRAINTS (white/grey stats), isWhiteStat |
-| `src/database/drillDatabase.ts` | DRILL_LIST — all drills with stat targets, isBase flag |
-| `src/constants/theme.ts` | Direction B design tokens |
-| `app/(tabs)/plan.tsx` | Plan screen — bordered config cards, OVR projection display |
-| `app/compare.tsx` | Compare screen — head-to-head player projections |
-| `app/player/new.tsx` | Add player screen |
-| `app/player/[id].tsx` | Edit player screen |
+App updates on next open (EAS OTA). No store submission required.

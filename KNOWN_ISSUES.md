@@ -5,15 +5,27 @@
 | # | Area | Description | Priority |
 |---|---|---|---|
 | 1 | Plan / OVR projection | Drill gains skipped when player has no individual stats entered (only OVR). Engine warns and returns base OVR. Drill-level projection requires all 15 stats to be entered. | High |
-| 2 | XP calibration | `baseXpPerSession: 150` — preliminary confirmation: one Very Easy session on high-OVR player gave +1–2 per stat, consistent with 150 XP budget at stat cost 80–100 XP/%. Treat as confirmed; refine if discrepancy observed. Note: game's displayed "Training XP +30" is a separate resource — not a calibration input. | Low |
-| 3 | GK white stats | ~~Resolved~~ — confirmed white: REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION. Grey: FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY. GK is always solo (no multi-role). | ✓ |
+| 2 | XP calibration | `baseXpPerSession: 150` confirmed vs Standard Attacking ×30 real data (Passing 121 → +26–33 observed, model gives ~27 at Medium intensity). `starDecayPerSession` corrected to 1.0 (was 0.85^gain — too aggressive). Budget now divided by `drill.stats.length`. Treat as calibrated; refine if coach-tab scenario data shows systematic deviation. | Low |
+| 3 | GK white stats | ✓ CLOSED Sprint 8 — confirmed from screenshot: white = REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION (10 stats). Grey = FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY (5 stats). GK solo only. | ✓ |
 | 4 | GK stat entry UI | `app/player/new.tsx` and `app/player/[id].tsx` always show the outfield stats grid (SHOOTING, PASSING, etc.) regardless of position. GK players need different stats (REFLEXES, HANDLING, AERIAL REACH, etc.). | Medium |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` is stored in `ManagerProfile` but the Faster Condition Recovery cooldown reduction from premium milestone rewards (confirmed: milestone 6 = +10%, milestone 12 = further reduction) is not factored into engine output. | Medium |
 | 6 | CLI drill levels | `src/index.ts` drill level prompts updated to Very Easy/Easy/Medium/Hard/Very Hard but not yet tested end-to-end via CLI. | Low |
 | 7 | Squad-wide OVR projection | Plan tab projects a single player in isolation. The observed ~+7 OVR/season from squad-wide Very Easy drilling (L4 zero-drain, all low white stats, free ad drills for teamplay) is not expressible in the UI. A "Season Simulator" view across all players is out of scope but this is the real-world calibration target. | Low |
-| 8 | Drill stat priority | Drill optimiser ranks by % white stat overlap but does not sort by XP cost-efficiency (lowest stat value first = cheapest gain per session). Training the lowest white stats first maximises OVR gain per condition unit spent. | Medium |
+| 8 | Drill stat priority | ✓ CLOSED Sprint 8 — drills now sorted by ascending average white stat value (ROI sort). Lowest stat first = cheapest gain per XP. Tiebreaker: efficiency. | ✓ |
 
 ---
+
+## Fixed — Sprint 8 (2026-05-07 night)
+
+| ID | Area | Fix |
+|---|---|---|
+| F22 | Star decay caused near-zero gains for high-stat players | `profiles/game_2025.json`: `starDecayPerSession` 0.85 → 1.0 (validated vs Standard Attacking ×30 real data) |
+| F23 | XP budget not divided across drill stats | `src/logic/ovrProjector.ts`: budget ÷ `drill.stats.length` |
+| F24 | Use Your Head listed as Attack type | `src/database/drillDatabase.ts`: type → Defence, stats corrected, baseLoss 1.5 → 3.0 |
+| F25 | Stop the Attacker missing STRENGTH + DRIBBLING | Stats list corrected to 5: STRENGTH, MARKING, BRAVERY, DRIBBLING, TACKLING; baseLoss 2.25 → 4.5 |
+| F26 | All skipped drills showed generic "Stats missing" | `ovrProjector.ts`: categorises skipped stats as role-irrelevant vs un-entered; tailored warning message per case |
+| F27 | Tier not auto-applied when points available but no explicit selection | `plan.tsx`: `getBestAffordableTier()` auto-selects highest affordable tier on projection |
+| F28 | OVR baseline used stale `player.overall` when stats entered | Stats-computed OVR used as FROM baseline when `player.stats` is non-empty |
 
 ## Fixed — Sprint 7 (2026-05-07 evening)
 
