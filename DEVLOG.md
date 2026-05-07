@@ -4,6 +4,89 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 5 — OTA Pipeline, Navigation, Game Data Corrections
+**2026-05-07**
+
+### Shipped
+
+**OTA update pipeline**
+
+| File | Purpose |
+|---|---|
+| `.github/workflows/eas-update.yml` | GitHub Actions workflow — triggers on push to main or dev branch, runs `npx eas-cli update` |
+
+Push from Termux → CI picks up within ~1 min → EAS OTA bundle → app updates silently on next reopen. No PC required for deployments. Org policy required pinned full commit SHAs (not `@v4` tag refs) — workflow uses those.
+
+**AppHeader and top navigation**
+
+| File | Purpose |
+|---|---|
+| `src/components/AppHeader.tsx` | Branded header: purple accent bar, "Squad Optimiser" title, "FOOTBALL MANAGER" subtitle, underline-style tab buttons |
+
+`app/(tabs)/_layout.tsx` updated to use `tabBar={() => null}` — fully suppresses the native bottom tab bar. Previously `tabBarStyle: { display: 'none' }` left a ghost tab bar. Tab buttons now live under the title in `AppHeader`.
+
+**OVR formula fix**
+
+`profiles/game_2025.json`: `qualityOvrDivisor` corrected from `4` to `1`. Game OVR = unweighted mean of all 15 stats directly. Calibrated against in-game screenshot: player Coutts mean stat ≈194.8 = game OVR 195. Previous divisor of 4 produced ~48 instead of ~195.
+
+**Drill level rename**
+
+`profiles/game_2025.json` and `src/types/resources.ts`: multiplier keys renamed to match in-game UI:
+
+| Old name | New name | Multiplier |
+|---|---|---|
+| Amateur | Very Easy | 1.0 |
+| Semi-Pro | Easy | 1.15 |
+| *(new)* | Medium | 1.3 |
+| Pro | Hard | 1.55 |
+| World Class | Very Hard | 1.7 |
+
+**Drill database: isBase flag**
+
+`src/database/drillDatabase.ts`: `isBase: boolean` added to `Drill` interface. Core daily drills (Skill Drill, Gym, Sprints, Juggling, etc.) marked `isBase: true`. Event/lab drills (Set-Piece Delivery, Warm-Up, Carioca, etc.) marked `isBase: false`.
+
+**Tier system corrections**
+
+Real in-game tier point costs applied across `profiles/game_2025.json` and `src/utils/math.ts`:
+
+| Tier | Points required | Attr addition |
+|---|---|---|
+| Rare | 100 | +10 |
+| Elite | 90 | +30 |
+| Stellar | 50 | +50 |
+| Master | 25 | +80 |
+| Epic | 15 | +120 |
+| Legendary | 10 | +160 |
+
+`ManagerProfile.tierPoints` changed from a single `number` to `Partial<Record<TierName, number>>` — each tier type has its own independent point pool. Plan and Compare screens redesigned with a per-tier section: each of the 6 tiers shows its own input, threshold, affordability indicator, and tap-to-select-target.
+
+**Role adjacency fix**
+
+`src/utils/roleWeights.ts` `validateRoleAdjacency`: changed from "all roles must be adjacent to primary" to transitive check — each additional role must be adjacent to any already-accepted role. ST+AMC+MC now correctly accepted (MC is adjacent to AMC; previously rejected because MC is not adjacent to ST directly).
+
+**Efficiency display fix**
+
+`app/(tabs)/drills.tsx`: efficiency value multiplied by 100. `getBestDrillSelections` returns 0–1 fraction; `DrillTable` renders as percentage. Without the conversion all drill cards showed blank efficiency.
+
+### Bugs fixed this sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F1 | Drills tab efficiency blank | ×100 conversion in drills.tsx mapping |
+| F2 | Plan OVR ~48 instead of ~195 | qualityOvrDivisor 4→1 in game_2025.json |
+| F3 | ST+AMC+MC role rejected | Transitive adjacency in validateRoleAdjacency |
+| F4 | Bottom tab bar ghost below AppHeader | tabBar={() => null} in _layout.tsx |
+| F5 | Single tier points input | Per-tier pool UI with individual inputs |
+
+### Still TODO
+
+- Drill XP baseline calibration: `baseXpPerSession` needs confirmation from real game screenshots
+- GK white stat list needs verification
+- Compare screen missing AppHeader (uses raw ScrollView)
+- Individual stat entry for drill-level OVR projection (currently falls back to base OVR when stats={})
+
+---
+
 ## Sprint 4 — Formula Engine Rewrite
 **2026-05-06**
 

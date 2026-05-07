@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 0.2 — Sprint 2**
+**Version 0.3 — Sprint 5**
 
 ---
 
@@ -17,174 +17,163 @@ This document describes the underlying models, calibration methodology, data str
 The OVR projection pipeline has three stages, applied in strict order:
 
 ```
-Coaches  →  Tier Upgrade  →  Greens
+Drill Sessions  →  Tier Upgrade  →  Greens (condition)
 ```
 
-This order is not arbitrary — it is a hard mechanical constraint. Applying coaches after a tier upgrade wastes potential gain because the gain formula is sensitive to the player's current stat levels; higher-tier brackets start at higher stat baselines, where diminishing returns reduce per-session gain. The engine enforces this order and rejects any plan that violates it.
+**Drills-first rule:** Drills must be run before tier upgrade. Tier upgrade raises the base value of white stats permanently — any drills run afterwards train from a higher baseline where XP costs are greater. Running drills first maximises total gain per resource unit.
+
+**Greens are not OVR.** Greens restore condition (15% per green). They appear as an informational step in the plan but produce zero OVR change.
 
 ---
 
-## 3. Coach Gain Formula
+## 3. XP Engine
 
-### 3.1 Function signature
+### 3.1 OVR Formula
+
+```
+OVR = mean(all 15 stats)
+```
+
+`qualityOvrDivisor = 1` — OVR is the unweighted mean of all 15 attributes directly. Calibrated against observed in-game values (e.g. player with mean stat 194.8 shows OVR 195).
+
+### 3.2 XP cost per 1% stat gain
 
 ```typescript
-estimateOvrGainFromCoach(
-  multiplier: number,      // The ×N value from the coach card
-  sessionType: SessionType, // 'Training' | 'Seminar'
+xpNeededFor1Pct(
+  statValue: number,       // current stat value (%)
   age: number,
-  whiteStats: number[],    // Role-essential stats this coach trains
-  greyStats: number[]      // Non-essential stats this coach trains
-): number                  // Projected OVR gain
+  starsGainedInSession: number,
+  talentTier: TalentTier,
+  isWhite: boolean,        // essential stat for this role?
+  twoxAdActive: boolean,
+  drillLevelMult: number,  // from profile drillLevelMultipliers
+  profile: GameProfile
+): number
 ```
 
-### 3.2 Component factors
-
-**Age factor** (`getAgeFactor`)
-
-| Age | Factor |
-|---|---|
-| ≤ 19 | 1.00 |
-| ≤ 20 | 0.55 |
-| ≤ 21 | 0.40 |
-| ≤ 23 | 0.30 |
-| ≤ 25 | 0.22 |
-| 26+  | 0.16 |
-
-Calibrated from observed training data showing a sharp drop between age 18 and 20, and a plateau from age 25 onward.
-
-**Stat gain factor** (`getStatGainFactor`)
-
-Piecewise linear interpolation over the following calibration table:
-
-| Stat value | Gain factor |
-|---|---|
-| 0   | 2.40 |
-| 60  | 2.03 |
-| 90  | 1.73 |
-| 97  | 1.57 |
-| 110 | 1.25 |
-| 121 | 0.98 |
-| 132 | 0.78 |
-| 190 | 0.55 |
-| 232 | 0.42 |
-| 290 | 0.32 |
-| 380 | 0.10 |
-| 436 | 0.00 |
-
-The hard cap at maximum stat value (factor = 0.00) is confirmed — sessions applied to a maxed stat yield exactly zero gain. The curve models the non-linear diminishing returns observed empirically across players of varying OVR.
-
-**Session type bonus** (`getSessionBonus`)
-
-| Session type | Multiplier |
-|---|---|
-| Training  | 1.00 |
-| Seminar   | 1.60 |
-
-Skill Seminar sessions consistently produce higher OVR gains than equivalent Training sessions at the same coach multiplier. The 1.6× factor is derived from comparative observations across multiple player/OVR combinations and holds across age groups.
-
-**White vs grey stat weight**
-
-Stats listed in a player's role white-list (role-essential) contribute fully to OVR. Stats outside that list contribute approximately 10% of their trained value to OVR. This 0.1 grey weight is conservative and aligns with observed data — grey stat coaching is not wasted, but returns are minor.
-
-### 3.3 Composite formula
-
+Formula:
 ```
-whiteGain = Σ (multiplier × ageFactor × sessionBonus × statGainFactor(stat))
-             for each white stat trained by this coach
+base       = xpCostTable[statValue]   (see §3.3; Infinity if statValue ≥ 180)
+ageMult    = ageTable[age]
+starMult   = 0.85 ^ starsGainedInSession
+talentMult = talentMultipliers[talentTier]
+greyMult   = 1.0 if isWhite else 0.5
+adMult     = 2.0 if twoxAdActive else 1.0
 
-greyGain  = Σ (multiplier × ageFactor × sessionBonus × statGainFactor(stat) × 0.1)
-             for each grey stat trained by this coach
-
-ovrGain = (whiteGain + greyGain) / OVR_NORMALIZER
+xpCost = base / (ageMult × starMult × talentMult × greyMult × adMult × drillLevelMult)
 ```
 
-`OVR_NORMALIZER = 16` — derived from the observed number of stats contributing to OVR. Dividing by the count of stats trained by a single coach (typically 3–5) inflated projections by 3–4×; dividing by the total contributing stat count (16) aligns output with observed post-coaching OVR deltas.
+### 3.3 XP cost table
 
-### 3.4 Calibration data points
+| Stat range | XP per 1% |
+|---|---|
+| 0–59 | 8 |
+| 60–79 | 10 |
+| 80–99 | 20 |
+| 100–119 | 30 |
+| 120–139 | 40 |
+| 140–159 | 50 |
+| 160–179 | 60 |
+| 180+ | ∞ (180-rule) |
 
-| Age | OVR before | Coach | Session | Observed gain |
-|---|---|---|---|---|
-| 18 | 88  | Attacking ×30 | Training | +17–22 |
-| 18 | 92.9 | Attacking ×30 | Training | +14–17 |
-| 18 | 114 | Attacking ×30 | Training | +7–9 |
-| 18 | 114 | Mixed ×25     | Seminar  | +12–14 |
-| 20 | 231.9 | Attacking ×30 | Training | +4–5 |
-| 21 | 194.8 | Attacking ×30 | Training | +2–3 |
-| 27 | 289.7 | Attacking ×30 | Training | +2–3 |
-| 27 | 289.7 | Mixed ×25     | Seminar  | +6–8 |
+**180-rule:** Once a stat reaches or exceeds 180%, it returns Infinity XP cost — that stat stops accumulating from drills. This is enforced per-stat, not player-wide.
 
-> **Note:** The Mixed ×25 Seminar data point for OVR 114 (+12–14 vs +7–9 for Attacking ×30 Training) is explained by role composition: the player's defensive stats (low 60s–80s) have significantly higher gain factors than their attack stats (100s), so a coach training mixed attributes yields disproportionately high OVR gain when defence sits in the steeper part of the stat curve.
+### 3.4 Age multipliers
 
-### 3.5 Known approximations
+| Age | Multiplier |
+|---|---|
+| 17 | 1.10 |
+| 18 | 1.00 |
+| 19 | 0.90 |
+| 20 | 0.55 |
+| 21 | 0.40 |
+| 22 | 0.32 |
+| 23 | 0.28 |
+| 24 | 0.24 |
+| 25 | 0.22 |
+| 26 | 0.19 |
+| 27 | 0.16 |
+| 28 | 0.14 |
+| 29 | 0.12 |
+| 30+ | 0.10 (clamped) |
 
-The current formula is empirically calibrated. It produces projections within the observed ranges above but should be treated as an approximation until the formula derivation from primary research is incorporated. The function signature is stable and will not change when the body is updated from research docs.
+### 3.5 Talent tier multipliers
+
+| Talent | Multiplier |
+|---|---|
+| FT1 | 1.50 |
+| FT2 | 1.25 |
+| FT3 | 1.10 |
+| Normal | 1.00 |
+| Slow | 0.70 |
+
+### 3.6 Drill level multipliers
+
+| Level | Multiplier |
+|---|---|
+| Very Easy | 1.0 |
+| Easy | 1.15 |
+| Medium | 1.3 |
+| Hard | 1.55 |
+| Very Hard | 1.7 |
+
+### 3.7 Grey stat weight
+
+Stats outside a player's role essential list (grey stats) receive `greyMult = 0.5`. They still gain from drills but at half the XP efficiency of white (essential) stats.
+
+### 3.8 Star decay
+
+Each session applies a `starMult = 0.85 ^ starsGainedInSession` reduction to simulate in-game star decay. Stars gained per session is tracked per-drill-run.
 
 ---
 
 ## 4. Tier Upgrade Model
 
-Tier upgrades provide a flat OVR bonus applied after all coaching is complete.
+Tier upgrades are applied after all drills. The bonus is **not** a flat OVR addition — it is a flat attribute addition per white (essential) stat, after which OVR is recalculated.
 
-| Tier | OVR Bonus | Point Cost |
+```
+for each white stat:
+    stat += tierAttrAddition[targetTier]
+    stat = min(stat, statCap)   // statCap = 340
+
+OVR = mean(all 15 updated stats)
+```
+
+### 4.1 Tier attribute additions and point costs
+
+Each tier type has its own independent point pool. Rare points, Elite points, Stellar points, etc. are separate currencies.
+
+| Tier | Attr addition | Points required |
 |---|---|---|
-| None      | 0   | 0   |
-| Rare      | 5   | 100 |
-| Elite     | 15  | 250 |
-| Stellar   | 50  | 600 |
-| Master    | 100 | 1200 |
-| Epic      | 180 | 2500 |
-| Legendary | 300 | 5000 |
+| Rare | +10 | 100 |
+| Elite | +30 | 90 |
+| Stellar | +50 | 50 |
+| Master | +80 | 25 |
+| Epic | +120 | 15 |
+| Legendary | +160 | 10 |
 
-*Values sourced from in-app observation. Subject to revision as further data is collected.*
+*Point costs are real in-game values as of 2025.*
 
-The engine checks available tier points against the cost before planning. A warning is emitted if the target tier is unaffordable.
+### 4.2 OVR gain estimation (example)
+
+Stellar upgrade on a striker with 6 white stats, each at 100:
+- Attr addition: +50 per white stat
+- New white stats: 150 each (below 340 cap ✓)
+- OVR delta: 50 × 6 / 15 = +20 OVR
 
 ---
 
-## 5. Green Efficiency Model
+## 5. Condition Model (Greens)
 
-Greens provide an incremental OVR boost. Base rate: 1 OVR per 15 greens.
-
-Premium sponsor path provides a 1.3× efficiency multiplier on greens, derived from observed performance on accounts with Elite Chest access.
+Greens restore condition. They do **not** increase OVR.
 
 ```
-greenOvrGain = (greens / 15) × (isPremiumSponsor ? 1.3 : 1.0)
+conditionRestored = min(greens × 15%, 100%)
 ```
 
----
+Greens appear as an informational `condition` step in the plan with `ovrBefore === ovrAfter`.
 
-## 6. Role and Stat Classification
-
-Each player role defines:
-- **Essential stats** (white) — directly drive OVR for this role; receive full weight in gain calculations
-- **Secondary stats** (grey) — trained but contribute minimally to OVR for this role
-
-Role adjacency is validated at player creation. Only adjacent roles may be combined (e.g. ST+AMC is valid; ST+DC is not). This prevents nonsensical dual-role combinations that would distort OVR projections.
-
----
-
-## 7. Manager Style Filtering
-
-Before any projection is run, the coach list is filtered by manager style:
-
-| Style | Coach pool |
-|---|---|
-| FTP    | Owned coaches only (source ≠ `Store`) |
-| Hybrid | Owned + store coaches within `storeBudget` (token cost accumulates) |
-| PTW    | All coaches regardless of cost |
-
-Store budget tracking in Hybrid mode is first-come-first-served by order in the coach list. No optimisation of store purchase order is performed in the current version.
-
----
-
-## 8. Drill Optimiser
-
-Separate from the investment engine, the drill optimiser recommends training drills that maximise skill development for a player's role while minimising condition cost.
-
-**Condition model (`conditionEngine.ts`):**
-
-Base condition loss per drill is modified by Fan Club level:
+**Drill condition loss** is modelled separately:
 
 | Fan Club Level | Condition multiplier |
 |---|---|
@@ -194,9 +183,44 @@ Base condition loss per drill is modified by Fan Club level:
 | L3 | 0.75 |
 | L4 | 0.50 |
 
-**Zero-Drain Protocol:**
+**Zero-Drain Protocol:** At Fan Club L4 with chants active on Very Easy drills, condition loss rounds to 0%. This is the dominant strategy for intensive training periods — unlimited repetitions at no resource cost.
 
-At Fan Club L4 with chants active on Very Easy drills, condition loss rounds to 0%. This is a degenerate case the engine detects and flags — it allows unlimited drill repetitions at no resource cost, making it the dominant strategy for intensive training periods.
+---
+
+## 6. Role and Stat Classification
+
+Each player role defines:
+- **Essential stats** (white) — directly drive OVR for this role; receive full weight (`greyMult = 1.0`)
+- **Secondary stats** (grey) — trained at half weight (`greyMult = 0.5`)
+
+Role adjacency is validated at player creation. The validation is **transitive** — each additional role must be adjacent to any already-accepted role (not just the primary). Example: ST+AMC+MC is valid because MC is adjacent to AMC, even though MC is not directly adjacent to ST.
+
+---
+
+## 7. Manager Style
+
+The manager style controls the resource pool available for planning:
+
+| Style | Resource pool |
+|---|---|
+| FTP | Free-to-play — no store purchases |
+| Hybrid | Owned resources + store within `storeBudget` |
+| PTW | All available resources |
+
+---
+
+## 8. Drill Optimiser
+
+The drill optimiser (`getBestDrillSelections`) recommends training drills that maximise skill development for a player's role while minimising condition cost.
+
+Each drill returns:
+- `name` — drill name
+- `type` — Attack / Defence / Physical
+- `efficiency` — fraction 0–1 of target stats hit (rendered as %)
+- `conditionCost` — total condition % lost over a 6-slot session
+- `statsHit` — array of role-essential stat names trained
+
+Drills are classified as `isBase: true` (core daily drills available always) or `isBase: false` (event or lab drills with restricted availability).
 
 ---
 
@@ -208,38 +232,46 @@ At Fan Club L4 with chants active on Very Easy drills, condition loss rounds to 
 interface Player {
   id: string;
   name: string;
-  role: string[];          // Up to 3 roles, must be adjacent
+  role: string[];          // Up to 3 adjacent roles
   age: number;
   overall: number;         // Current OVR
   tier: TierName;
-  stats: Record<string, number>;
+  stats: Record<string, number>;  // Individual stat values; {} if not entered
   isMutantCandidate: boolean;
 }
 ```
 
-### Coach
+### DrillSession
 
 ```typescript
-interface Coach {
-  id: string;
-  type: 'Attacking' | 'Defending' | 'Physical' | 'Mixed' | 'Focused';
-  sessionType: 'Training' | 'Seminar';
-  multiplier: number;        // The ×N value from the card
-  attributes: string[];      // Exact stats this card trains (per-card, not per-type)
-  durationDays: number;
-  source: 'Academy' | 'EliteChest' | 'Store' | 'Other';
-  cost: { currency: 'tokens' | 'cash' | 'free'; amount: number };
+interface DrillSession {
+  drillName: string;
+  sessionCount: number;    // How many times this drill is run
+  drillLevel: DrillLevel;  // 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard'
 }
 ```
 
-Coach attribute lists are stored per-card instance, not derived from the type name. A Standard Attacking card may train 3, 4, or 5 attributes depending on the specific card; this is variable and must be recorded when the card is entered.
+### ManagerProfile
+
+```typescript
+interface ManagerProfile {
+  style: ManagerStyle;     // 'FTP' | 'Hybrid' | 'PTW'
+  tierPoints: Partial<Record<TierName, number>>;  // Per-tier separate balances
+  greens: number;
+  isPremiumSponsor: boolean;
+  storeBudget?: number;    // Hybrid only
+  twoxAdActive: boolean;
+  talentTier: TalentTier;
+  drillLevel: DrillLevel;
+}
+```
 
 ### InvestmentPlan
 
 ```typescript
 interface InvestmentPlan {
   player: { name: string; currentOvr: number };
-  steps: InvestmentStep[];   // Ordered: coaches → tier → greens
+  steps: InvestmentStep[];   // Ordered: drills → tier → condition
   finalOvr: number;
   totalOvrGain: number;
   totalResourceCost: string;
@@ -254,21 +286,19 @@ interface InvestmentPlan {
 
 | Item | Status |
 |---|---|
-| Coach gain formula | Empirically approximated. Will be updated from research docs without changing function signature. |
-| Seminar bonus (1.6×) | Observed in a limited data set. May vary by player OVR range or stat composition. |
-| Tier OVR bonuses | Observed values. May not be linear or may include secondary effects not captured here. |
-| Green efficiency | 15 greens/OVR is an approximation. Actual rate may be OVR-dependent. |
-| Formation/synergy | Not modelled. Squad synergy bonuses are out of scope for the current engine. |
-| Multi-session coaches | Engine models each coach card as a single-use event. Cards with multiple sessions are not yet supported. |
-| Focused coach cap | Cards noted as "Max 9 stars" appear to have a tier-based cap on gain. Not yet modelled. |
+| Drill XP baseline | `baseXpPerSession` calibration pending — requires real in-game screenshots of stat gains per session |
+| GK white stat list | Needs verification from game data; marked TODO in roleWeights.ts |
+| Individual stat entry | Drill-level OVR projection requires individual stats. Players entered with only OVR get drill gains skipped (warning shown) |
+| Multi-session star decay | Star decay per session modelled as 0.85^n; actual in-game curve not confirmed |
+| Formation/synergy | Not modelled — out of scope for current engine |
+| Focused coach cap | Legacy — not relevant to drill-based model |
 
 ---
 
 ## 11. Versioning
 
-This whitepaper tracks the version of the engine, not the app release. Formula updates from research docs will increment the minor version and note the change in the DEVLOG.
-
 | Version | Date | Notes |
 |---|---|---|
 | 0.1 | Sprint 1 | Foundations — drill optimiser, condition model, role system |
-| 0.2 | Sprint 2 | Investment engine — OVR projector, gain formula, scenario comparator |
+| 0.2 | Sprint 2 | Investment engine — OVR projector, coach-card gain formula, scenario comparator |
+| 0.3 | Sprint 5 | XP model replaces coach cards; drill sessions; per-tier point pools; OVR formula fix (divisor 4→1); drill level rename; role adjacency transitive fix |
