@@ -189,17 +189,21 @@ conditionRestored = min(greens × 15%, 100%)
 
 Greens appear as an informational `condition` step in the plan with `ovrBefore === ovrAfter`.
 
-**Drill condition loss** is modelled separately:
+**Cooldown timer:** Condition recovery in the Training Centre has a per-use cooldown. This is a real-time gate, not modelled in the engine — the plan outputs total greens required without scheduling them across cooldown windows.
 
-| Fan Club Level | Condition multiplier |
-|---|---|
-| L0 | 0.90 |
-| L1 | 0.85 |
-| L2 | 0.80 |
-| L3 | 0.75 |
-| L4 | 0.50 |
+**Premium sponsor — Faster Condition Recovery:** The premium sponsor milestone track grants condition cooldown reductions (+10% faster at milestone 6, further reduction at milestone 12). `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
-**Zero-Drain Protocol:** At Fan Club L4 with chants active on Very Easy drills, condition loss rounds to 0%. This is the dominant strategy for intensive training periods — unlimited repetitions at no resource cost.
+**Drill condition loss** is modelled per Fan Club level. Values confirmed against in-game screenshot:
+
+| Fan Club Level | Drain reduction | Effective multiplier |
+|---|---|---|
+| L0 | −10% | 0.90 |
+| L1 | −15% | 0.85 |
+| L2 | −20% | 0.80 |
+| L3 | −25% | 0.75 |
+| L4 | −50% | 0.50 |
+
+**Zero-Drain Protocol:** At Fan Club L4 with chants active on Very Easy drills, condition loss rounds to 0%. Unlimited repetitions at zero resource cost — the dominant intensive-training strategy.
 
 ---
 
@@ -308,6 +312,7 @@ interface InvestmentPlan {
 | GK stat entry UI | `app/player/new.tsx` shows outfield stats for all roles; GK needs a separate stat grid (REFLEXES, HANDLING, etc.) |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate |
 | Star decay curve | `starMult = 0.85^n` per additional % gained in a session; actual in-game curve unconfirmed |
+| Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output |
 | Formation/synergy | Not modelled |
 
 ---

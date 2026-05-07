@@ -8,7 +8,8 @@
 | 2 | XP calibration | `baseXpPerSession: 150` is a working estimate. Needs validation against real in-game screenshots — note a player's stat value before a known number of sessions, compare actual % gain to engine output, adjust value in `profiles/game_2025.json` accordingly. | High |
 | 3 | GK white stats | `ROLE_CONSTRAINTS.GK.essential` in `src/utils/roleWeights.ts` is estimated as `['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION']` — marked TODO, unconfirmed against in-game data. | Medium |
 | 4 | GK stat entry UI | `app/player/new.tsx` and `app/player/[id].tsx` always show the outfield stats grid (SHOOTING, PASSING, etc.) regardless of position. GK players need different stats (REFLEXES, HANDLING, AERIAL REACH, etc.). | Medium |
-| 5 | CLI drill levels | `src/index.ts` drill level prompts updated to Very Easy/Easy/Medium/Hard/Very Hard but not yet tested end-to-end via CLI. | Low |
+| 5 | Premium sponsor cooldown | `isPremiumSponsor` is stored in `ManagerProfile` but the Faster Condition Recovery cooldown reduction from premium milestone rewards (confirmed: milestone 6 = +10%, milestone 12 = further reduction) is not factored into engine output. | Medium |
+| 6 | CLI drill levels | `src/index.ts` drill level prompts updated to Very Easy/Easy/Medium/Hard/Very Hard but not yet tested end-to-end via CLI. | Low |
 
 ---
 

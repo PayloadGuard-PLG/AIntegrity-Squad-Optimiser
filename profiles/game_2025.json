@@ -63,7 +63,7 @@
     "Epic": 15,
     "Legendary": 10
   },
-  "fanClubCondReduction": [0.0, 0.10, 0.20, 0.30, 0.40, 0.50],
+  "fanClubCondReduction": [0.10, 0.15, 0.20, 0.25, 0.50],
   "greyWeightMultiplier": 0.5,
   "statCap": 340,
   "rule180StatCap": 340,
