@@ -95,17 +95,6 @@ export default function CompareScreen() {
       {/* Training settings */}
       <View style={{ gap: 12 }}>
         <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>TRAINING SETTINGS</Text>
-        <View style={{ gap: 6 }}>
-          <Text style={{ color: '#6b7280', fontSize: 11 }}>DEFAULT LEVEL</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-            {DRILL_LEVELS.map(l => (
-              <Pressable key={l} onPress={() => setDrillLevel(l)}
-                style={{ backgroundColor: drillLevel === l ? '#6366f1' : '#1a1d27', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
-                <Text style={{ color: drillLevel === l ? '#fff' : '#9ca3af', fontSize: 12, fontWeight: '600' }}>{l}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
         <Pressable onPress={() => setTwoxAd(v => !v)}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#1a1d27', borderRadius: 10, padding: 12 }}>
           <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: twoxAd ? '#22c55e' : '#2a2d3a', alignItems: 'center', justifyContent: 'center' }}>

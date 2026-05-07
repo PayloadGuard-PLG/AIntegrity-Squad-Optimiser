@@ -1,4 +1,4 @@
-import { projectOvr, getTierCost } from './ovrProjector';
+import { projectOvr, getTierCost, computeOvrFromStats } from './ovrProjector';
 import { Player } from '../database/playerSchema';
 import { ManagerProfile, InvestmentPlan, TierName, DrillSession, GameProfile } from '../types/resources';
 
@@ -42,7 +42,10 @@ export function planPlayerInvestment(
 
   warnings.push(...projectionWarnings);
 
-  const totalOvrGain = Number((finalOvr - player.overall).toFixed(1));
+  // Use the stats-computed OVR as the baseline so the gain reflects real improvement.
+  // Falls back to player.overall when no stats are entered (same behaviour as projectOvr).
+  const currentOvr = computeOvrFromStats(player, gameProfile);
+  const totalOvrGain = Number((finalOvr - currentOvr).toFixed(1));
 
   const drillSummary = drillSessions.length > 0
     ? drillSessions.map(s => `${s.drillName} ×${s.sessionCount}`).join(', ')
@@ -53,7 +56,7 @@ export function planPlayerInvestment(
 
   const recommendation =
     `Run drills first (${drillSummary})${tierSummary}${greenSummary}. ` +
-    `Projected OVR: ${player.overall} → ${finalOvr} (+${totalOvrGain}).`;
+    `Projected OVR: ${currentOvr.toFixed(0)} → ${finalOvr} (+${totalOvrGain}).`;
 
   const resourceLines = [
     drillSessions.length > 0 ? `${drillSessions.reduce((s, d) => s + d.sessionCount, 0)} sessions` : null,
@@ -62,7 +65,7 @@ export function planPlayerInvestment(
   ].filter(Boolean);
 
   return {
-    player: { name: player.name, currentOvr: player.overall },
+    player: { name: player.name, currentOvr },
     steps,
     finalOvr,
     totalOvrGain,

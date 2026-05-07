@@ -101,9 +101,9 @@ console.log("\n[Test 7] Quality% and OVR");
 
 const stats15Even = Object.fromEntries(Array.from({ length: 15 }, (_, i) => [`S${i}`, 100]));
 const qp100 = statsToQualityPct(stats15Even, profile);
-assert("15 stats at 100 → Quality% = 100", Math.abs(qp100 - 100) < 0.001, `got ${qp100}`);
-assert("Quality% 100 → OVR 25",            Math.abs(qualityPctToOvr(100, profile) - 25) < 0.001);
-assert("Quality% 200 → OVR 50",            Math.abs(qualityPctToOvr(200, profile) - 50) < 0.001);
+assert("15 stats at 100 → Quality% = 100",  Math.abs(qp100 - 100) < 0.001, `got ${qp100}`);
+assert("Quality% 100 → OVR 100 (divisor=1)", Math.abs(qualityPctToOvr(100, profile) - 100) < 0.001);
+assert("Quality% 200 → OVR 200 (divisor=1)", Math.abs(qualityPctToOvr(200, profile) - 200) < 0.001);
 
 // ============================================================
 // [Test Group 8] Tier bonus as attribute addition
@@ -149,7 +149,7 @@ const managerProfile: ManagerProfile = {
 };
 const testPlayer: Player = {
   id: '1', name: 'Test Player', role: ['ST'],
-  age: 18, overall: 25,
+  age: 18, overall: 100,   // consistent with stats at 100 and divisor=1
   stats: { FINISHING: 100, SHOOTING: 100, DRIBBLING: 100, PASSING: 100, POSITIONING: 100, HEADING: 100 },
   isMutantCandidate: false, tier: 'None',
 };
@@ -167,7 +167,7 @@ console.log("\n[Test 11] Investment plan — young striker, Skill Drill ×20 →
 // All 15 stats at 100 → Quality% = 100 → OVR = 25
 const striker: Player = {
   id: '1', name: 'Alpha Striker', role: ['ST', 'AMC'],
-  age: 18, overall: 25,
+  age: 18, overall: 100,   // all 15 stats at 100 → computed OVR 100
   stats: {
     FINISHING: 100, SHOOTING: 100, DRIBBLING: 100, PASSING: 100, POSITIONING: 100,
     HEADING: 100, STRENGTH: 100, SPEED: 100, CREATIVITY: 100, BRAVERY: 100,

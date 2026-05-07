@@ -15,13 +15,35 @@ function findDrill(drillName: string) {
 }
 
 /**
- * Returns current OVR from player.stats via Quality%/4.
- * Falls back to player.overall when stats are empty (e.g. first add, no stats entered).
+ * OVR from a stats dict, padding any missing attributes with a baseline value.
+ *
+ * statsToQualityPct divides by totalAttributeCount (15) regardless of how many
+ * stats are in the dict. If the player only entered their white stats (e.g. 7 out
+ * of 15), the missing 8 would effectively count as 0 and drag the mean down.
+ * Padding them with the known overall keeps the baseline accurate.
+ */
+function computeOvrWithPadding(
+  stats: Record<string, number>,
+  playerOverall: number,
+  profile: GameProfile
+): number {
+  const keys = Object.keys(stats);
+  if (keys.length === 0) return playerOverall;
+  const entered = Object.values(stats);
+  const missingCount = Math.max(0, profile.totalAttributeCount - keys.length);
+  const sum = entered.reduce((a, b) => a + b, 0) + playerOverall * missingCount;
+  const qp = sum / profile.totalAttributeCount;
+  return qualityPctToOvr(qp, profile);
+}
+
+/**
+ * Returns current OVR from player.stats.
+ * Falls back to player.overall when stats are empty.
+ * Pads missing attributes with player.overall so partial stat entry
+ * does not drag the computed OVR below the known baseline.
  */
 export function computeOvrFromStats(player: Player, profile: GameProfile): number {
-  if (Object.keys(player.stats).length === 0) return player.overall;
-  const qp = statsToQualityPct(player.stats, profile);
-  return qualityPctToOvr(qp, profile);
+  return computeOvrWithPadding(player.stats, player.overall, profile);
 }
 
 /**
@@ -75,8 +97,7 @@ export function applyDrillSessionsToStats(
     }
 
     if (statDeltas.length > 0) {
-      const newQp = statsToQualityPct(updatedStats, profile);
-      const newOvr = qualityPctToOvr(newQp, profile);
+      const newOvr = computeOvrWithPadding(updatedStats, player.overall, profile);
       const ovrDelta = Number((newOvr - runningOvr).toFixed(1));
       steps.push({
         action: 'drill',
@@ -190,8 +211,7 @@ export function projectOvr(
     const ovrBefore = currentOvr;
 
     currentStats = applyTierBonusToStats(currentStats, whiteKeys, targetTier, profile);
-    const newQp = statsToQualityPct(currentStats, profile);
-    const newOvr = qualityPctToOvr(newQp, profile);
+    const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
     const attrAdd = getTierAttrAddition(targetTier);
 
     steps.push({
