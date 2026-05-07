@@ -27,7 +27,7 @@ export default function DrillsScreen() {
     name: d.drillName ?? d.name ?? 'Drill',
     type: d.type ?? 'Attack',
     statsHit: d.whiteStatsHit ?? d.statsHit ?? [],
-    efficiency: d.efficiency ?? d.efficiencyPct ?? 0,
+    efficiency: (d.efficiency ?? d.efficiencyPct ?? 0) * 100,
     conditionCost: d.conditionCost ?? d.cost ?? 0,
     isZeroDrain: (d.conditionCost ?? d.cost ?? 1) <= 0.01,
   }));

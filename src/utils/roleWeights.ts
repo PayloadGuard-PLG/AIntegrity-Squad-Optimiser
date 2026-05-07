@@ -34,11 +34,14 @@ export function validateRoleAdjacency(roles: string[]): boolean {
   if (roles.length <= 1) return true;
   const primary = roles[0].toUpperCase();
   if (primary === 'GK') return false;
-  const validAdjacents = ADJACENCY_MAP[primary] || [];
-  return roles.slice(1, 3).every(sec => {
-    const s = sec.toUpperCase();
-    return s !== 'GK' && validAdjacents.includes(s);
-  });
+  const accepted = [primary];
+  for (const role of roles.slice(1, 3)) {
+    const r = role.toUpperCase();
+    if (r === 'GK') return false;
+    if (!accepted.some(a => ADJACENCY_MAP[a]?.includes(r))) return false;
+    accepted.push(r);
+  }
+  return true;
 }
 
 /**
