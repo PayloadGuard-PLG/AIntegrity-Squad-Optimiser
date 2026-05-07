@@ -8,6 +8,7 @@ import { InvestmentStepTable } from '../../src/components/InvestmentStepTable';
 import { EmptyState } from '../../src/components/EmptyState';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
 import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan } from '../../src/types/resources';
+import { AppHeader } from '../../src/components/AppHeader';
 import gameProfile from '../../profiles/game_2025.json';
 
 const STYLES: ManagerStyle[] = ['FTP', 'Hybrid', 'PTW'];
@@ -38,6 +39,7 @@ export default function PlanScreen() {
   if (squad.length === 0) {
     return (
       <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
+        <AppHeader />
         <EmptyState icon="trending-up-outline" message="Add players to your squad first." ctaLabel="Add Player" onCta={() => router.push('/player/new')} />
       </View>
     );
@@ -60,7 +62,9 @@ export default function PlanScreen() {
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#0f1117' }} contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
+    <AppHeader />
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 40 }}>
 
       {/* Player selector */}
       {squad.length > 1 && (
@@ -214,5 +218,6 @@ export default function PlanScreen() {
         </View>
       )}
     </ScrollView>
+    </View>
   );
 }

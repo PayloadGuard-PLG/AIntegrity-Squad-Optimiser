@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { PlayerCard } from '../../src/components/PlayerCard';
 import { EmptyState } from '../../src/components/EmptyState';
+import { AppHeader } from '../../src/components/AppHeader';
 
 export default function SquadDashboard() {
   const { squad } = useSquad();
@@ -10,9 +11,10 @@ export default function SquadDashboard() {
   if (squad.length === 0) {
     return (
       <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
+        <AppHeader />
         <EmptyState
           icon="people-outline"
-          message="Your squad is empty. Add your first player to get started. ✓ OTA live"
+          message="Your squad is empty. Add your first player to get started."
           ctaLabel="Add First Player"
           onCta={() => router.push('/player/new')}
         />
@@ -22,6 +24,7 @@ export default function SquadDashboard() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
+      <AppHeader />
       <FlatList
         data={squad}
         keyExtractor={p => p.id}

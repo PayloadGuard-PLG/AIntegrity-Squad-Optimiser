@@ -6,6 +6,7 @@ import { PlayerCard } from '../../src/components/PlayerCard';
 import { DrillTable } from '../../src/components/DrillTable';
 import { EmptyState } from '../../src/components/EmptyState';
 import { getBestDrillSelections } from '../../src/logic/controller';
+import { AppHeader } from '../../src/components/AppHeader';
 
 export default function DrillsScreen() {
   const { squad } = useSquad();
@@ -17,6 +18,7 @@ export default function DrillsScreen() {
   if (squad.length === 0) {
     return (
       <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
+        <AppHeader />
         <EmptyState icon="barbell-outline" message="Add players to your squad first." ctaLabel="Add Player" onCta={() => router.push('/player/new')} />
       </View>
     );
@@ -33,7 +35,9 @@ export default function DrillsScreen() {
   }));
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#0f1117' }} contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
+    <AppHeader />
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 40 }}>
 
       {/* Player selector */}
       {squad.length > 1 && (
@@ -86,5 +90,6 @@ export default function DrillsScreen() {
         <Text style={{ color: '#6b7280', textAlign: 'center', marginTop: 16 }}>Select a player to see drill recommendations.</Text>
       )}
     </ScrollView>
+    </View>
   );
 }
