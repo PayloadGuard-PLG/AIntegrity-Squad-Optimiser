@@ -43,9 +43,9 @@ xpNeededFor1Pct(
   statValue: number,       // current stat value (%)
   age: number,
   starsGainedInSession: number,
-  talentTier: TalentTier,
+  talent: TalentTier,
   isWhite: boolean,        // essential stat for this role?
-  twoxAdActive: boolean,
+  twoxAd: boolean,
   drillLevelMult: number,  // from profile drillLevelMultipliers
   profile: GameProfile
 ): number
@@ -232,9 +232,10 @@ The drill optimiser (`getBestDrillSelections`) recommends training drills that m
 Each drill returns:
 - `name` — drill name
 - `type` — Attack / Defence / Physical
-- `efficiency` — fraction 0–1 of target stats hit (rendered as %)
+- `efficiency` — fraction 0–1 of target stats hit (rendered as % in UI)
 - `conditionCost` — total condition % lost over a 6-slot session
-- `statsHit` — array of role-essential stat names trained
+- `isZeroDrain` — true when conditionCost === 0 (Zero-Drain Protocol active)
+- `whiteHits` — `{ stat: string; white: boolean }[]` — every stat the drill trains, flagged whether it is role-essential (white) or grey
 
 Drills are classified as `isBase: true` (core daily drills available always) or `isBase: false` (event or lab drills with restricted availability).
 
