@@ -6,7 +6,7 @@
 |---|---|---|---|
 | 1 | Plan / OVR projection | Drill gains skipped when player has no individual stats entered (only OVR). Engine warns and returns base OVR. Drill-level projection requires all 15 stats to be entered. | High |
 | 2 | XP calibration | `baseXpPerSession: 150` — preliminary confirmation: one Very Easy session on high-OVR player gave +1–2 per stat, consistent with 150 XP budget at stat cost 80–100 XP/%. Treat as confirmed; refine if discrepancy observed. Note: game's displayed "Training XP +30" is a separate resource — not a calibration input. | Low |
-| 3 | GK white stats | `ROLE_CONSTRAINTS.GK.essential` in `src/utils/roleWeights.ts` is estimated as `['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION']` — marked TODO, unconfirmed. | Medium |
+| 3 | GK white stats | ~~Resolved~~ — confirmed white: REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION. Grey: FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY. GK is always solo (no multi-role). | ✓ |
 | 4 | GK stat entry UI | `app/player/new.tsx` and `app/player/[id].tsx` always show the outfield stats grid (SHOOTING, PASSING, etc.) regardless of position. GK players need different stats (REFLEXES, HANDLING, AERIAL REACH, etc.). | Medium |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` is stored in `ManagerProfile` but the Faster Condition Recovery cooldown reduction from premium milestone rewards (confirmed: milestone 6 = +10%, milestone 12 = further reduction) is not factored into engine output. | Medium |
 | 6 | CLI drill levels | `src/index.ts` drill level prompts updated to Very Easy/Easy/Medium/Hard/Very Hard but not yet tested end-to-end via CLI. | Low |

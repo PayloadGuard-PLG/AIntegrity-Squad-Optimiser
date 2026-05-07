@@ -17,7 +17,7 @@ export const ADJACENCY_MAP: Record<string, string[]> = {
 // secondary = grey stats (×0.5 XP efficiency per profile.greyWeightMultiplier)
 export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: string[] }> = {
   ST:  { essential: ['FINISHING', 'SHOOTING', 'DRIBBLING', 'PASSING', 'POSITIONING', 'HEADING'], secondary: ['STRENGTH', 'SPEED', 'CREATIVITY'] },
-  GK:  { essential: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'], secondary: ['THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'FITNESS'] }, // TODO: verify GK white stats from research
+  GK:  { essential: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION', 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION'], secondary: ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'] },
   AMC: { essential: ['PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'HEADING'], secondary: ['SPEED', 'CREATIVITY', 'FITNESS'] },
   AML: { essential: ['CROSSING', 'DRIBBLING', 'PASSING', 'SHOOTING', 'FINISHING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
   AMR: { essential: ['CROSSING', 'DRIBBLING', 'PASSING', 'SHOOTING', 'FINISHING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
