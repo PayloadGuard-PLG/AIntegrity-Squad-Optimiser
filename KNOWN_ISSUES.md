@@ -10,6 +10,8 @@
 | 4 | GK stat entry UI | `app/player/new.tsx` and `app/player/[id].tsx` always show the outfield stats grid (SHOOTING, PASSING, etc.) regardless of position. GK players need different stats (REFLEXES, HANDLING, AERIAL REACH, etc.). | Medium |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` is stored in `ManagerProfile` but the Faster Condition Recovery cooldown reduction from premium milestone rewards (confirmed: milestone 6 = +10%, milestone 12 = further reduction) is not factored into engine output. | Medium |
 | 6 | CLI drill levels | `src/index.ts` drill level prompts updated to Very Easy/Easy/Medium/Hard/Very Hard but not yet tested end-to-end via CLI. | Low |
+| 7 | Squad-wide OVR projection | Plan tab projects a single player in isolation. The observed ~+7 OVR/season from squad-wide Very Easy drilling (L4 zero-drain, all low white stats, free ad drills for teamplay) is not expressible in the UI. A "Season Simulator" view across all players is out of scope but this is the real-world calibration target. | Low |
+| 8 | Drill stat priority | Drill optimiser ranks by % white stat overlap but does not sort by XP cost-efficiency (lowest stat value first = cheapest gain per session). Training the lowest white stats first maximises OVR gain per condition unit spent. | Medium |
 
 ---
 

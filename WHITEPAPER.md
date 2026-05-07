@@ -290,6 +290,31 @@ Applies to all 4 pillars (Attack, Defence, Possession, Condition) with identical
 
 ---
 
+## 6a. Validated Season Meta — Squad-Wide Growth
+
+**Observed outcome:** ~+7 OVR per season from sustained Very Easy drills at Fan Club L4.
+
+This strategy compounds three mechanics simultaneously:
+
+### Training loop
+1. **Zero-drain at L4 + Very Easy** — condition never drops; drill cycles are unlimited regardless of fixture schedule.
+2. **Spam all low white stats** — train the stats furthest below tier cap first. XP cost is lowest at the bottom of the range; the gain per session is highest here. Once a stat hits the current tier cap, skip it until the next tier upgrade.
+3. **Don't wait for perfect condition** — 50% condition reduction (L4) means you can chain drills continuously; perfect-condition waiting wastes cycles.
+
+### Teamplay maintenance (free)
+4. **4 free ad drills daily (×4 multiplier)** — train Attack, Defence, and Possession on relevant positions using the free Top Eleven TV drills. This offsets daily decay and steadily pushes pillar levels higher, raising match performance without spending condition.
+
+### Squad-wide effect
+5. **Train across the whole squad** — the aggregate XP flowing through all 11+ players means more integer thresholds crossed per day than single-player projection suggests. Each player's white stats accumulate fractionally; when a crossing fires, it feeds into OVR for that player. Across the squad, crossings happen constantly.
+6. **Role opening** — as stats hit new thresholds, adjacent roles unlock. This widens available drilling options and enables Matchday Coach to cover a broader teamplay pillar set.
+
+### Season yield
+~+7 OVR is the observed aggregate for this approach. Individual player gains are smaller (fractional each cycle); the season total comes from hundreds of crossings across all players.
+
+**Engine note:** The current Plan tab projects a single player in isolation. Squad-wide cumulative gain is not modelled — the +7 OVR/season figure is an observed season benchmark, not an engine output.
+
+---
+
 ## 7. Role and Stat Classification
 
 
