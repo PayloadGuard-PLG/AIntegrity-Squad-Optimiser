@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import Svg, { Circle, Line, Rect, Defs, Pattern, Path } from 'react-native-svg';
+import Svg, { Circle, Line } from 'react-native-svg';
 import { theme, ovrColor } from '../../constants/theme';
 import { MonoLabel } from './MonoLabel';
 
@@ -32,16 +32,6 @@ export function OvrMovement({ from, to, gain, name, age, tier }: Props) {
       borderColor: theme.hairline2,
       overflow: 'hidden',
     }}>
-      {/* Guilloché grid */}
-      <Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} width="100%" height="100%">
-        <Defs>
-          <Pattern id="movGrid" width="14" height="14" patternUnits="userSpaceOnUse">
-            <Path d="M14 0H0V14" stroke="rgba(255,255,255,0.045)" strokeWidth="0.5" fill="none" />
-          </Pattern>
-        </Defs>
-        <Rect width="100%" height="100%" fill="url(#movGrid)" />
-      </Svg>
-
       {/* Decorative gear top-right */}
       <Svg width={120} height={120} viewBox="0 0 60 60" style={{ position: 'absolute', top: -22, right: -22, opacity: 0.18 }}>
         <Circle cx="30" cy="30" r="26" stroke={theme.steelLight} strokeWidth="0.4" fill="none" />
