@@ -1,186 +1,154 @@
-import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
+import { useState, useMemo } from 'react';
+import { View, Text, Pressable, ScrollView } from 'react-native';
+import { router } from 'expo-router';
 import { useSquad } from '../src/hooks/useSquad';
-import { PlayerCard } from '../src/components/PlayerCard';
-import { DrillSessionRow } from '../src/components/DrillSessionRow';
-import { OVRBadge } from '../src/components/OVRBadge';
+import { AppHeader } from '../src/components/AppHeader';
+import { MonoLabel } from '../src/components/atoms/MonoLabel';
+import { Chip } from '../src/components/atoms/Chip';
+import { CornerBrackets } from '../src/components/atoms/CornerBrackets';
 import { compareInvestmentScenarios } from '../src/logic/scenarioComparator';
-import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, ScenarioComparison } from '../src/types/resources';
+import { DrillSession, TalentTier, TierName } from '../src/types/resources';
+import { theme, ovrColor } from '../src/constants/theme';
 import gameProfile from '../profiles/game_2025.json';
 
-const STYLES: ManagerStyle[] = ['FTP', 'Hybrid', 'PTW'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
-const TIER_COSTS: Partial<Record<TierName, number>> = { Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
+const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 
-function newSession(): DrillSession {
-  return { drillName: 'Skill Drill', sessionCount: 10, drillLevel: 'Medium' };
-}
+const DEFAULT_DRILLS: DrillSession[] = [
+  { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Medium' },
+  { drillName: 'Stamina Run', sessionCount: 3, drillLevel: 'Medium' },
+];
 
 export default function CompareScreen() {
   const { squad } = useSquad();
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [drillRows, setDrillRows] = useState<DrillSession[]>([newSession()]);
-  const [style, setStyle] = useState<ManagerStyle>('FTP');
-  const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
-  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
-  const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>({});
-  const [greens, setGreens] = useState('');
-  const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
-  const [twoxAd, setTwoxAd] = useState(false);
-  const [targetTier, setTargetTier] = useState<TierName | null>(null);
-  const [comparison, setComparison] = useState<ScenarioComparison | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>(squad.slice(0, 2).map(p => p.id));
+  const [talent, setTalent] = useState<TalentTier>('FT1');
+  const [targetTier, setTargetTier] = useState<TierName | null>('Master');
 
-  function togglePlayer(id: string) {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  function toggle(id: string) {
+    setSelectedIds(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
   }
 
-  function compare() {
+  const results = useMemo(() => {
+    if (selectedIds.length < 2) return null;
     const players = squad.filter(p => selectedIds.includes(p.id));
-    if (players.length < 2) return;
     const profile = {
-      style,
-      tierPoints: Object.fromEntries(Object.entries(tierPointInputs).map(([k, v]) => [k, parseInt(v ?? '0', 10) || 0])) as Partial<Record<TierName, number>>,
-      greens: parseInt(greens, 10) || 0,
-      isPremiumSponsor,
-      twoxAdActive: twoxAd,
-      talentTier,
-      drillLevel,
+      style: 'FTP' as const,
+      tierPoints: {} as Partial<Record<TierName, number>>,
+      greens: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setComparison(compareInvestmentScenarios(players, profile, drillRows, gameProfile as any, targetTier));
-  }
+    return compareInvestmentScenarios(players, profile, DEFAULT_DRILLS, gameProfile as any, targetTier);
+  }, [selectedIds, squad, talent, targetTier]);
+
+  const maxGain = results ? Math.max(...results.results.map(r => r.ovrGain), 0.1) : 0.1;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#0f1117' }} contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <AppHeader title="HEAD-TO-HEAD" subtitle="COMPARATIVE ANALYSIS" onBack={() => router.back()} />
+      <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 30 }}>
 
-      {/* Player multi-select */}
-      <View style={{ gap: 8 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>SELECT PLAYERS TO COMPARE</Text>
-        {squad.map(p => (
-          <PlayerCard key={p.id} player={p} selected={selectedIds.includes(p.id)} onPress={() => togglePlayer(p.id)} />
-        ))}
-        {selectedIds.length < 2 && (
-          <Text style={{ color: '#6b7280', fontSize: 12 }}>Select at least 2 players</Text>
-        )}
-      </View>
-
-      {/* Player talent */}
-      <View style={{ gap: 6 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>TALENT (SHARED)</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {TALENT_TIERS.map(t => (
-            <Pressable key={t} onPress={() => setTalentTier(t)}
-              style={{ backgroundColor: talentTier === t ? '#6366f1' : '#1a1d27', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}>
-              <Text style={{ color: talentTier === t ? '#fff' : '#9ca3af', fontSize: 12, fontWeight: '600' }}>{t}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      {/* Drill sessions */}
-      <View style={{ gap: 8 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>SHARED DRILL SESSIONS</Text>
-        {drillRows.map((s, i) => (
-          <DrillSessionRow key={i} value={s}
-            onChange={updated => setDrillRows(rows => rows.map((r, idx) => idx === i ? updated : r))}
-            onRemove={() => setDrillRows(rows => rows.filter((_, idx) => idx !== i))} />
-        ))}
-        <Pressable onPress={() => setDrillRows(rows => [...rows, newSession()])}
-          style={{ backgroundColor: '#1a1d27', borderRadius: 10, paddingVertical: 10, alignItems: 'center' }}>
-          <Text style={{ color: '#6366f1', fontWeight: '700', fontSize: 14 }}>+ Add Drill</Text>
-        </Pressable>
-      </View>
-
-      {/* Training settings */}
-      <View style={{ gap: 12 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>TRAINING SETTINGS</Text>
-        <Pressable onPress={() => setTwoxAd(v => !v)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#1a1d27', borderRadius: 10, padding: 12 }}>
-          <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: twoxAd ? '#22c55e' : '#2a2d3a', alignItems: 'center', justifyContent: 'center' }}>
-            {twoxAd && <Text style={{ color: '#fff', fontSize: 12, fontWeight: '900' }}>✓</Text>}
-          </View>
-          <Text style={{ color: '#e2e8f0', fontSize: 14 }}>2× Ad active</Text>
-        </Pressable>
-      </View>
-
-      {/* Resources */}
-      <View style={{ gap: 12 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>RESOURCES</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {STYLES.map(s => (
-            <Pressable key={s} onPress={() => setStyle(s)}
-              style={{ flex: 1, backgroundColor: style === s ? '#6366f1' : '#1a1d27', borderRadius: 8, paddingVertical: 8, alignItems: 'center' }}>
-              <Text style={{ color: style === s ? '#fff' : '#9ca3af', fontWeight: '700', fontSize: 13 }}>{s}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <View style={{ gap: 6 }}>
-          <Text style={{ color: '#6b7280', fontSize: 11 }}>GREENS</Text>
-          <TextInput keyboardType="numeric" value={greens} onChangeText={setGreens} placeholder="0"
-            placeholderTextColor="#4b5563"
-            style={{ backgroundColor: '#1a1d27', color: '#e2e8f0', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 }} />
-        </View>
-        <View style={{ gap: 6 }}>
-          <Text style={{ color: '#6b7280', fontSize: 11 }}>TIER UPGRADE — tap to select target</Text>
-          {(Object.entries(TIER_COSTS) as [TierName, number][]).map(([t, threshold]) => {
-            const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
-            const canAfford = have >= threshold;
-            const isTarget = targetTier === t;
+        <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECTS</MonoLabel>
+        <View style={{ marginBottom: 18 }}>
+          {squad.map((p, i) => {
+            const sel = selectedIds.includes(p.id);
             return (
-              <Pressable key={t} onPress={() => setTargetTier(isTarget ? null : t)}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10,
-                  backgroundColor: isTarget ? '#6366f122' : '#1a1d27', borderRadius: 10, padding: 10,
-                  borderWidth: isTarget ? 1 : 0, borderColor: '#6366f1' }}>
-                <View style={{ width: 76 }}>
-                  <Text style={{ color: isTarget ? '#a5b4fc' : '#e2e8f0', fontWeight: '700', fontSize: 13 }}>{t}</Text>
-                  <Text style={{ color: canAfford ? '#22c55e' : '#6b7280', fontSize: 10 }}>need {threshold}</Text>
+              <Pressable key={p.id} onPress={() => toggle(p.id)} style={{
+                flexDirection: 'row', alignItems: 'center', gap: 12,
+                backgroundColor: sel ? theme.surface2 : theme.surface,
+                borderWidth: 1, borderColor: sel ? theme.steelLight : theme.hairline2,
+                borderTopWidth: i > 0 ? 0 : 1,
+                padding: 10, paddingHorizontal: 12,
+              }}>
+                <View style={{ width: 14, height: 14, backgroundColor: sel ? theme.steelLight : 'transparent', borderWidth: 1, borderColor: sel ? theme.steelLight : theme.inkMuted }} />
+                <Text style={{ fontFamily: theme.mono, fontSize: 12, color: ovrColor(p.overall), minWidth: 30 }}>{p.overall}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: theme.ink, fontFamily: theme.display }}>{p.name}</Text>
+                  <MonoLabel size={9}>{p.role.join('·')} · {p.age}Y · {(p.tier ?? 'NONE').toUpperCase()}</MonoLabel>
                 </View>
-                <TextInput keyboardType="numeric"
-                  value={tierPointInputs[t] ?? ''}
-                  onChangeText={v => setTierPointInputs(prev => ({ ...prev, [t]: v }))}
-                  placeholder="0" placeholderTextColor="#4b5563"
-                  style={{ flex: 1, backgroundColor: '#0f1117', color: '#e2e8f0', borderRadius: 8,
-                    paddingHorizontal: 10, paddingVertical: 6, fontSize: 14 }} />
-                {canAfford && <Text style={{ color: '#22c55e', fontSize: 16 }}>✓</Text>}
               </Pressable>
             );
           })}
         </View>
-      </View>
 
-      {/* Compare button */}
-      <Pressable onPress={compare} disabled={selectedIds.length < 2}
-        style={({ pressed }) => ({
-          backgroundColor: selectedIds.length < 2 ? '#2a2d3a' : pressed ? '#4f46e5' : '#6366f1',
-          borderRadius: 12, paddingVertical: 14, alignItems: 'center',
-        })}>
-        <Text style={{ color: selectedIds.length < 2 ? '#6b7280' : '#fff', fontWeight: '700', fontSize: 16 }}>Compare</Text>
-      </Pressable>
-
-      {/* Results */}
-      {comparison && (
-        <View style={{ gap: 12 }}>
-          <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>RESULTS</Text>
-          <View style={{ backgroundColor: '#22c55e22', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#22c55e44' }}>
-            <Text style={{ color: '#22c55e', fontWeight: '700', fontSize: 14 }}>✓ Recommended: {comparison.recommendedPlayer}</Text>
-            <Text style={{ color: '#9ca3af', fontSize: 12, marginTop: 4, lineHeight: 18 }}>{comparison.reasoning}</Text>
+        <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SHARED PARAMETERS</MonoLabel>
+        <View style={{ marginBottom: 6 }}>
+          <MonoLabel style={{ marginBottom: 6 }}>TALENT</MonoLabel>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+            {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => setTalent(t)}>{t}</Chip>)}
           </View>
-          {comparison.results.map(r => (
-            <View key={r.playerName} style={{ backgroundColor: '#1a1d27', borderRadius: 10, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: r.rank === 1 ? '#6366f1' : '#2a2d3a', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>#{r.rank}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: '#e2e8f0', fontWeight: '700', fontSize: 14 }}>{r.playerName}</Text>
-                <Text style={{ color: '#6b7280', fontSize: 12 }}>OVR {r.currentOvr.toFixed(0)} → {r.projectedOvr.toFixed(0)}</Text>
-              </View>
-              <OVRBadge ovr={r.projectedOvr} />
-              <Text style={{ color: '#22c55e', fontWeight: '800', fontSize: 16, marginLeft: 4 }}>+{r.ovrGain.toFixed(1)}</Text>
-            </View>
-          ))}
         </View>
-      )}
-    </ScrollView>
+        <View style={{ marginTop: 14, marginBottom: 18 }}>
+          <MonoLabel style={{ marginBottom: 6 }}>TARGET TIER</MonoLabel>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+            {TIER_ORDER.map(t => (
+              <Chip key={t} active={targetTier === t} onPress={() => setTargetTier(targetTier === t ? null : t)}>{t}</Chip>
+            ))}
+          </View>
+        </View>
+
+        {results && selectedIds.length >= 2 && (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <MonoLabel color={theme.pos}>VERDICT</MonoLabel>
+              <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
+            </View>
+
+            <CornerBrackets color={theme.pos + '88'} style={{ backgroundColor: 'rgba(126,184,154,0.05)', marginBottom: 14 }}>
+              <MonoLabel size={10} color={theme.pos} style={{ marginBottom: 6 }}>RECOMMENDED ASSET</MonoLabel>
+              <Text style={{ fontSize: 22, color: theme.ink, fontFamily: theme.display, fontWeight: '600', letterSpacing: -0.4, marginBottom: 6 }}>
+                {results.recommendedPlayer}
+              </Text>
+              <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>
+                Projects highest yield ({' '}
+                <Text style={{ color: theme.pos, fontFamily: theme.mono, fontWeight: '600' }}>
+                  +{results.results[0]?.ovrGain.toFixed(1)} OVR
+                </Text>
+                {' '}) under shared resources.
+              </Text>
+              {results.reasoning ? (
+                <Text style={{ fontSize: 12, color: theme.inkMuted, marginTop: 6, lineHeight: 18 }}>{results.reasoning}</Text>
+              ) : null}
+            </CornerBrackets>
+
+            <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>RANKED RESULTS</MonoLabel>
+            {results.results.map((r, i) => (
+              <View key={r.playerName} style={{
+                borderWidth: 1, borderColor: theme.hairline2,
+                borderTopWidth: i > 0 ? 0 : 1,
+                backgroundColor: i === 0 ? theme.surface2 : theme.surface,
+                padding: 12, paddingHorizontal: 14,
+              }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <View style={{
+                    width: 24, height: 24, borderWidth: 1,
+                    borderColor: i === 0 ? theme.pos : theme.hairline3,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, color: i === 0 ? theme.pos : theme.inkSec, fontWeight: '600' }}>#{i + 1}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: theme.ink, fontFamily: theme.display }}>{r.playerName}</Text>
+                    <MonoLabel size={9}>OVR {r.currentOvr.toFixed(0)} → {r.projectedOvr.toFixed(1)}</MonoLabel>
+                  </View>
+                  <Text style={{ fontFamily: theme.display, fontSize: 18, fontWeight: '600', color: theme.pos, letterSpacing: -0.3 }}>
+                    +{r.ovrGain.toFixed(1)}
+                  </Text>
+                </View>
+                <View style={{ height: 3, backgroundColor: theme.surface3 }}>
+                  <View style={{ width: `${(r.ovrGain / maxGain) * 100}%` as any, height: '100%', backgroundColor: i === 0 ? theme.pos : theme.steel }} />
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+
+        {selectedIds.length < 2 && (
+          <View style={{ padding: 24, alignItems: 'center', borderWidth: 1, borderColor: theme.hairline }}>
+            <MonoLabel color={theme.steelLight}>SELECT 2+ SUBJECTS TO COMPARE</MonoLabel>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
