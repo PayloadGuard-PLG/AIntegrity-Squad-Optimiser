@@ -1,7 +1,7 @@
-import { isEssentialGain, validateRoleAdjacency } from '../utils/roleWeights.js';
-import { DRILL_LIST } from '../database/drillDatabase.js';
-import { calculateActualLoss } from '../utils/conditionEngine.js';
-import { Player } from '../database/playerSchema.js';
+import { isEssentialGain, validateRoleAdjacency } from '../utils/roleWeights';
+import { DRILL_LIST } from '../database/drillDatabase';
+import { calculateActualLoss } from '../utils/conditionEngine';
+import { Player } from '../database/playerSchema';
 
 export const getRecommendedDrills = (player: Player, fanClubLevel: number = 4) =>
     getBestDrillSelections(player, fanClubLevel);
