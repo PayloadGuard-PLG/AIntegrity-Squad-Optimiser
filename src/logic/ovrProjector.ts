@@ -161,7 +161,8 @@ export function projectOvr(
     }
 
     if (player.age >= 20) {
-      warnings.push(`Slow trainer (age ${player.age}) — gains are reduced.`);
+      const ageMult = profile.ageTable[String(player.age)] ?? 0.10;
+      warnings.push(`Age ${player.age} — training multiplier ${ageMult.toFixed(2)}×. Gains are reduced.`);
     }
 
     if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
@@ -213,8 +214,12 @@ export function projectOvr(
     warnings.push('No drill sessions — add drills to project OVR growth.');
   }
 
+  if (talentTier === 'Slow') {
+    warnings.push('Slow talent tier — training XP multiplier 0.70×.');
+  }
   if (player.age >= 20) {
-    warnings.push(`Slow trainer (age ${player.age}) — gains are reduced.`);
+    const ageMult = profile.ageTable[String(player.age)] ?? 0.10;
+    warnings.push(`Age ${player.age} — training multiplier ${ageMult.toFixed(2)}×. Gains are reduced.`);
   }
 
   // Step 2 — Tier upgrade

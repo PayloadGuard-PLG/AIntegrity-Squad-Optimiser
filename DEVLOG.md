@@ -87,9 +87,51 @@ With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white
 | F15 | OvrMovement crashes Android | Removed react-native-svg entirely; pure View/Text |
 | F16 | Plan OVR shows persistent −1.2 | FROM anchored to DB `player.overall`; gain computed as delta |
 
+---
+
+## Sprint 7 — UI Clarity + Zero-Drain Fix
+**2026-05-07 — evening**
+
+### Shipped
+
+**Talent tier labels now show multiplier**
+
+`app/(tabs)/plan.tsx`: TALENT chips relabelled — "FT2" → "FT2 ×1.25" etc. No ambiguity about what each tier means.
+
+| Tier | Label | Multiplier |
+|---|---|---|
+| FT1 | FT1 ×1.50 | 1.50 |
+| FT2 | FT2 ×1.25 | 1.25 |
+| FT3 | FT3 ×1.10 | 1.10 |
+| Normal | Normal ×1.00 | 1.00 |
+| Slow | Slow ×0.70 | 0.70 |
+
+**Zero-drain fixed**
+
+`src/logic/controller.ts`: `isZeroDrain` was hardcoded to `conditionCost === 0` — always false since L4 halves cost, never zeroes it. Fixed: `isZeroDrain = fanClubLevel === 4 && drillLevel === 'Very Easy'`. Drills tab now accepts drill level and passes it through.
+
+**Drill level selector added to Drills tab**
+
+`app/(tabs)/drills.tsx`: drill level chips above fan club selector. Condition costs and zero-drain status now reflect the selected drill level.
+
+**Warning text corrected**
+
+`src/logic/ovrProjector.ts`: "Slow trainer (age X)" was firing for any player ≥20 — "Slow" implies the talent tier, which is wrong. Now shows actual age multiplier: "Age 21 — training multiplier 0.40×." Added separate warning for Slow talent tier.
+
+| ID | Fix |
+|---|---|
+| F17 | "Slow trainer" warning mislabelled talent as Slow — now shows age multiplier |
+| F18 | Zero-drain never triggered — L4+Very Easy now correctly returns 0% condition cost |
+| F19 | FT1/FT2/FT3 labels opaque — now show XP multiplier inline |
+| F20 | Drills tab had no drill level input — selector added, feeds zero-drain logic |
+
+**GHA workflow fix**
+
+`.github/workflows/eas-update.yml`: commit message passed via `$COMMIT_MSG` env var instead of inline template expansion. Multi-line messages were being word-split as CLI arguments, causing OTA push failures.
+
 ### Still TODO
 
-- Verify `baseXpPerSession: 150` against observed session gains (KNOWN_ISSUES #2)
+- Calibrate `baseXpPerSession: 150` against observed session gains (KNOWN_ISSUES #2)
 - GK white stat list: estimated, unconfirmed (KNOWN_ISSUES #3)
 - GK stat entry UI: shows outfield stats regardless of role (KNOWN_ISSUES #4)
 

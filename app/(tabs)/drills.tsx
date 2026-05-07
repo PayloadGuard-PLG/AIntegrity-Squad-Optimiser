@@ -11,13 +11,14 @@ export default function DrillsScreen() {
   const { squad } = useSquad();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [fanLevel, setFanLevel] = useState(2);
+  const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
 
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
-    return getDrillRecommendations(selectedPlayer, fanLevel);
-  }, [selectedPlayer, fanLevel]);
+    return getDrillRecommendations(selectedPlayer, fanLevel, drillLevel);
+  }, [selectedPlayer, fanLevel, drillLevel]);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -34,6 +35,21 @@ export default function DrillsScreen() {
             </ScrollView>
           </>
         )}
+
+        {/* Drill level selector */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <MonoLabel color={theme.steelLight}>DRILL LEVEL</MonoLabel>
+        </View>
+        <View style={{ flexDirection: 'row', marginBottom: 14, gap: 6, flexWrap: 'wrap' }}>
+          {['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].map(l => {
+            const sel = drillLevel === l;
+            return (
+              <Pressable key={l} onPress={() => setDrillLevel(l)} style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>{l.toUpperCase()}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
         {/* Fan Club selector */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>

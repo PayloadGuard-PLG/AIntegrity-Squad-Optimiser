@@ -1,21 +1,36 @@
 # AIntegrity Squad Optimiser — Handover Brief
 
 **Branch:** `claude/continue-development-uXA5D`
-**Last pushed commit:** `884dafd` — engine calibration fix (drill gains now work)
-**To apply changes:** paste the code blocks into files via your Termux editor, then `git add <files> && git commit -m "..." && git push -u origin claude/continue-development-uXA5D`
+**As of:** Sprint 7 — 2026-05-07 evening
+**Deploy:** push to branch → GHA → EAS OTA → app updates on reopen
 
 ---
 
-## Current State Summary
+## Current State (Sprint 7)
 
-The app is a React Native / Expo football squad management tool with 3 tabs: Squad, Plan, Drills.
+React Native / Expo, 4 tabs: Squad · Plan · Drills · (Plan has 4 sub-tabs: Drills / Resources / Tier / Teamplay)
 
-**What works:**
-- Squad tab: view/add/edit players with full Direction B (pitch-black, JetBrains Mono) UI
-- Drills tab: ranked drill recommendations with efficiency display
-- Plan tab: bordered config cards (talent, drill level, sessions, tier, greens), projected OVR gain, step-by-step plan
-- Compare screen: head-to-head player projection with AppHeader
-- OTA pipeline: push to `claude/continue-development-uXA5D` → GitHub Actions → EAS OTA update → app updates on reopen
+**Working:**
+- OVR projection engine: XP cost table 0–339, age/talent/drill-level/grey-weight multipliers, tier upgrade, greens condition step
+- Plan tab: TALENT chips show multiplier (FT2 ×1.25 etc.), FIXTURE WINDOW calculator, MATCHDAY COACH toggle, TEAMPLAY pillar inputs + maintenance plan, GREENS BRIDGE
+- Drills tab: ranked by efficiency, fan club L0–L4 selector, drill level selector, zero-drain correct at L4+Very Easy
+- Compare screen: head-to-head multi-player projection
+- OTA pipeline: commit → push → GHA → EAS OTA (multi-line commit messages handled via env var)
+- Warning messages: age multiplier shown numerically, Slow talent warned separately
+
+**Open items:**
+| # | Area | Priority |
+|---|---|---|
+| 2 | Calibrate `baseXpPerSession: 150` — compare engine output to observed session gains, adjust in `profiles/game_2025.json` | High |
+| 3 | GK white stats in `src/utils/roleWeights.ts` — estimated, unconfirmed | Medium |
+| 4 | GK stat entry UI — always shows outfield stat grid regardless of role | Medium |
+| 5 | CLI (`src/index.ts`) drill level flow — updated but untested end-to-end | Low |
+
+---
+
+## Historical Role Briefs (Sprints 5–6)
+
+*Kept for reference. Tasks below were the sprint 5–6 parallel session assignments — most are now complete.*
 
 **What's pending (4 roles below):**
 

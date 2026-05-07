@@ -14,6 +14,9 @@ import { theme, TIER_COLORS } from '../../src/constants/theme';
 import gameProfile from '../../profiles/game_2025.json';
 
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const TALENT_LABEL: Record<TalentTier, string> = {
+  FT1: 'FT1 ×1.50', FT2: 'FT2 ×1.25', FT3: 'FT3 ×1.10', Normal: 'Normal ×1.00', Slow: 'Slow ×0.70',
+};
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30, Stellar: 50, Master: 80, Epic: 120, Legendary: 160 };
@@ -218,7 +221,7 @@ export default function PlanScreen() {
                   <MonoLabel size={10} color={theme.steelLight}>TALENT</MonoLabel>
                 </View>
                 <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                  {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => { setTalent(t); invalidate(); }}>{t}</Chip>)}
+                  {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => { setTalent(t); invalidate(); }}>{TALENT_LABEL[t]}</Chip>)}
                 </View>
               </View>
 
