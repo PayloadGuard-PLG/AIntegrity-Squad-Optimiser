@@ -25,6 +25,8 @@
     "expo-router": "~5.1.11",
     "expo-screen-capture": "~7.2.0",
     "expo-sqlite": "~15.2.14",
+    "metro-config": "^0.82.5",
+    "metro-resolver": "^0.82.5",
     "react": "19.0.0",
     "react-native": "0.79.6",
     "react-native-safe-area-context": "5.4.0",
