@@ -19,8 +19,14 @@ export function getBestDrillSelections(player: Player, fanClubLevel: number = 4,
 
     return DRILL_LIST.map(drill => {
         const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel);
-        const efficiency = drill.stats.filter(s => whiteStats.includes(s)).length / drill.stats.length;
+        const whiteDrillStats = drill.stats.filter(s => whiteStats.includes(s));
+        const efficiency = whiteDrillStats.length / drill.stats.length;
         const conditionCost = isZeroDrain ? 0 : actualLoss * 6;
+
+        // Average current value of white stats this drill trains.
+        // Lower average = cheaper XP cost per 1% = higher gain per session.
+        const vals = whiteDrillStats.map(s => player.stats[s]).filter((v): v is number => v !== undefined);
+        const avgWhiteStatValue = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : Infinity;
 
         return {
             name: drill.name,
@@ -28,9 +34,15 @@ export function getBestDrillSelections(player: Player, fanClubLevel: number = 4,
             efficiency,
             conditionCost,
             isZeroDrain,
+            avgWhiteStatValue,
             whiteHits: drill.stats.map(stat => ({ stat, white: whiteStats.includes(stat) })),
         };
     })
     .filter(d => d.efficiency >= 0.5)
-    .sort((a, b) => b.efficiency - a.efficiency);
+    .sort((a, b) => {
+        // Primary: lowest average white stat value (cheapest gains first)
+        if (a.avgWhiteStatValue !== b.avgWhiteStatValue) return a.avgWhiteStatValue - b.avgWhiteStatValue;
+        // Tiebreaker: highest white stat coverage
+        return b.efficiency - a.efficiency;
+    });
 }

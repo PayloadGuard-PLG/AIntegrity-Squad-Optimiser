@@ -85,7 +85,7 @@ export default function DrillsScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <MonoLabel color={theme.steelLight}>RECOMMENDATIONS</MonoLabel>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-              <MonoLabel size={9}>SORT EFF ▼</MonoLabel>
+              <MonoLabel size={9}>SORT ROI ▼</MonoLabel>
             </View>
 
             {drills.map((d, i) => {
@@ -93,6 +93,8 @@ export default function DrillsScreen() {
               const eff = Math.round(d.efficiency * 100);
               const condCost = d.conditionCost;
               const isZero = d.isZeroDrain;
+              const avgStat = (d as any).avgWhiteStatValue;
+              const avgStatLabel = isFinite(avgStat) ? `AVG ${Math.round(avgStat)}` : null;
               return (
                 <View key={d.name} style={{
                   borderWidth: 1, borderColor: theme.hairline2,
@@ -105,6 +107,9 @@ export default function DrillsScreen() {
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
                     </View>
                     <Text style={{ flex: 1, fontSize: 14, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
+                    {avgStatLabel && (
+                      <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkGhost }}>{avgStatLabel}</Text>
+                    )}
                     {isZero && (
                       <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: theme.pos + '55' }}>
                         <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.pos }}>ZERO·DRAIN</Text>
