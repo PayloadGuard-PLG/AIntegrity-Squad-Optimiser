@@ -263,17 +263,16 @@ export default function PlanScreen() {
                         <Chip key={name} size="sm" active={row.drillName === name} onPress={() => { setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, drillName: name } : r)); invalidate(); }}>{name}</Chip>
                       ))}
                     </ScrollView>
-                    <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.hairline2 }}>
-                      <Pressable onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: Math.max(0, r.sessionCount - 1) } : r))} style={{ width: 44, borderRightWidth: 1, borderRightColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 18, fontWeight: '300', color: theme.ink }}>−</Text>
-                      </Pressable>
-                      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
-                        <MonoLabel size={10}>SESSIONS</MonoLabel>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink }}>{String(row.sessionCount).padStart(2, '0')}</Text>
-                      </View>
-                      <Pressable onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: r.sessionCount + 1 } : r))} style={{ width: 44, borderLeftWidth: 1, borderLeftColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 18, fontWeight: '300', color: theme.ink }}>+</Text>
-                      </Pressable>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, borderTopWidth: 1, borderTopColor: theme.hairline2 }}>
+                      <MonoLabel size={10}>SESSIONS</MonoLabel>
+                      <TextInput
+                        keyboardType="numeric"
+                        value={row.sessionCount === 0 ? '' : String(row.sessionCount)}
+                        onChangeText={v => { setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: parseInt(v, 10) || 0 } : r)); invalidate(); }}
+                        placeholder="0"
+                        placeholderTextColor={theme.inkGhost}
+                        style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink, minWidth: 60, textAlign: 'right' }}
+                      />
                     </View>
                   </View>
                 ))}
@@ -351,16 +350,15 @@ export default function PlanScreen() {
                   <View style={{ flex: 1 }} />
                   <MonoLabel size={10} color={theme.pos}>+{Math.min(100, greens * 15)}% COND</MonoLabel>
                 </View>
-                <View style={{ flexDirection: 'row' }}>
-                  <Pressable onPress={() => { setGreens(v => Math.max(0, v - 1)); invalidate(); }} style={{ width: 52, borderRightWidth: 1, borderRightColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '300', color: theme.ink }}>−</Text>
-                  </Pressable>
-                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 28, fontWeight: '700', color: theme.ink }}>{greens}</Text>
-                  </View>
-                  <Pressable onPress={() => { setGreens(v => v + 1); invalidate(); }} style={{ width: 52, borderLeftWidth: 1, borderLeftColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '300', color: theme.ink }}>+</Text>
-                  </Pressable>
+                <View style={{ paddingHorizontal: 14, paddingVertical: 10 }}>
+                  <TextInput
+                    keyboardType="numeric"
+                    value={greens === 0 ? '' : String(greens)}
+                    onChangeText={v => { setGreens(parseInt(v, 10) || 0); invalidate(); }}
+                    placeholder="0"
+                    placeholderTextColor={theme.inkGhost}
+                    style={{ fontFamily: theme.mono, fontSize: 28, fontWeight: '700', color: theme.ink, textAlign: 'center' }}
+                  />
                 </View>
               </View>
 
