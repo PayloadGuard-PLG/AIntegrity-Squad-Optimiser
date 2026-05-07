@@ -1,4 +1,4 @@
-import { projectOvr, getTierCost } from './ovrProjector';
+import { projectOvr, getTierCost, computeOvrFromStats } from './ovrProjector';
 import { Player } from '../database/playerSchema';
 import { ManagerProfile, InvestmentPlan, TierName, DrillSession, GameProfile } from '../types/resources';
 
@@ -23,10 +23,9 @@ export function planPlayerInvestment(
 
   if (targetTier) {
     const cost = getTierCost(targetTier);
-    if (cost > profile.tierPoints) {
-      warnings.push(
-        `Not enough tier points for ${targetTier}: need ${cost}, have ${profile.tierPoints}.`
-      );
+    const have = profile.tierPoints?.[targetTier] ?? 0;
+    if (have < cost) {
+      warnings.push(`Not enough ${targetTier} points: need ${cost}, have ${have}.`);
     }
   }
 
@@ -43,7 +42,10 @@ export function planPlayerInvestment(
 
   warnings.push(...projectionWarnings);
 
-  const totalOvrGain = Number((finalOvr - player.overall).toFixed(1));
+  // Use the stats-computed OVR as the baseline so the gain reflects real improvement.
+  // Falls back to player.overall when no stats are entered (same behaviour as projectOvr).
+  const currentOvr = computeOvrFromStats(player, gameProfile);
+  const totalOvrGain = Number((finalOvr - currentOvr).toFixed(1));
 
   const drillSummary = drillSessions.length > 0
     ? drillSessions.map(s => `${s.drillName} ×${s.sessionCount}`).join(', ')
@@ -54,16 +56,16 @@ export function planPlayerInvestment(
 
   const recommendation =
     `Run drills first (${drillSummary})${tierSummary}${greenSummary}. ` +
-    `Projected OVR: ${player.overall} → ${finalOvr} (+${totalOvrGain}).`;
+    `Projected OVR: ${currentOvr.toFixed(0)} → ${finalOvr} (+${totalOvrGain}).`;
 
   const resourceLines = [
     drillSessions.length > 0 ? `${drillSessions.reduce((s, d) => s + d.sessionCount, 0)} sessions` : null,
-    targetTier ? `${getTierCost(targetTier)} tier points` : null,
+    targetTier ? `${profile.tierPoints?.[targetTier] ?? 0}/${getTierCost(targetTier)} ${targetTier} pts` : null,
     profile.greens > 0 ? `${profile.greens} greens` : null,
   ].filter(Boolean);
 
   return {
-    player: { name: player.name, currentOvr: player.overall },
+    player: { name: player.name, currentOvr },
     steps,
     finalOvr,
     totalOvrGain,
@@ -75,7 +77,7 @@ export function planPlayerInvestment(
 
 /**
  * Compares investment plans across multiple players using a shared drill set.
- * Returns players ranked by projected OVR gain.
+ * Returns players ranked by projected OVR gain in ScenarioComparison shape.
  */
 export function compareInvestmentScenarios(
   players: Player[],
@@ -83,12 +85,32 @@ export function compareInvestmentScenarios(
   drillSessions: DrillSession[],
   gameProfile: GameProfile,
   targetTier: TierName | null = null
-): { ranked: { player: Player; plan: InvestmentPlan }[] } {
-  const results = players.map(player => ({
-    player,
-    plan: planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier),
+): import('../types/resources').ScenarioComparison {
+  const ranked = players
+    .map(player => {
+      const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
+      return { player, plan };
+    })
+    .sort((a, b) => b.plan.totalOvrGain - a.plan.totalOvrGain);
+
+  const results = ranked.map((r, i) => ({
+    playerName: r.player.name,
+    currentOvr: r.plan.player.currentOvr,
+    projectedOvr: r.plan.finalOvr,
+    ovrGain: r.plan.totalOvrGain,
+    plan: r.plan,
+    rank: i + 1,
   }));
 
-  results.sort((a, b) => b.plan.totalOvrGain - a.plan.totalOvrGain);
-  return { ranked: results };
+  const best = ranked[0];
+  const second = ranked[1];
+  const reasoning = best && second
+    ? `${best.player.name} projects +${best.plan.totalOvrGain} OVR vs ${second.player.name} +${second.plan.totalOvrGain} under identical resources.`
+    : '';
+
+  return {
+    results,
+    recommendedPlayer: best?.player.name ?? '',
+    reasoning,
+  };
 }

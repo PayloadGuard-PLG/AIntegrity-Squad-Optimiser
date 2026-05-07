@@ -87,12 +87,12 @@ assert("2× Ad halves XP cost", Math.abs(xpWithAd / xpNoAd - 0.5) < 0.001,
 // ============================================================
 console.log("\n[Test 6] Drill level multipliers");
 
-const xpAmateur   = xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.0,  profile);
-const xpSemiPro   = xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.3,  profile);
-const xpWorldClass= xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.7,  profile);
-assert("Semi-Pro cheaper than Amateur",   xpSemiPro < xpAmateur);
-assert("World Class cheapest of all",     xpWorldClass < xpSemiPro);
-assert("Semi-Pro/Amateur ratio ≈ 1/1.3",  Math.abs(xpSemiPro / xpAmateur - 1/1.3) < 0.01);
+const xpVeryEasy  = xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.0,  profile);
+const xpMedium    = xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.3,  profile);
+const xpVeryHard  = xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.7,  profile);
+assert("Medium cheaper than Very Easy",   xpMedium < xpVeryEasy);
+assert("Very Hard cheapest of all",       xpVeryHard < xpMedium);
+assert("Medium/VeryEasy ratio ≈ 1/1.3",   Math.abs(xpMedium / xpVeryEasy - 1/1.3) < 0.01);
 
 // ============================================================
 // [Test Group 7] Quality% and OVR formula
@@ -101,9 +101,9 @@ console.log("\n[Test 7] Quality% and OVR");
 
 const stats15Even = Object.fromEntries(Array.from({ length: 15 }, (_, i) => [`S${i}`, 100]));
 const qp100 = statsToQualityPct(stats15Even, profile);
-assert("15 stats at 100 → Quality% = 100", Math.abs(qp100 - 100) < 0.001, `got ${qp100}`);
-assert("Quality% 100 → OVR 25",            Math.abs(qualityPctToOvr(100, profile) - 25) < 0.001);
-assert("Quality% 200 → OVR 50",            Math.abs(qualityPctToOvr(200, profile) - 50) < 0.001);
+assert("15 stats at 100 → Quality% = 100",  Math.abs(qp100 - 100) < 0.001, `got ${qp100}`);
+assert("Quality% 100 → OVR 100 (divisor=1)", Math.abs(qualityPctToOvr(100, profile) - 100) < 0.001);
+assert("Quality% 200 → OVR 200 (divisor=1)", Math.abs(qualityPctToOvr(200, profile) - 200) < 0.001);
 
 // ============================================================
 // [Test Group 8] Tier bonus as attribute addition
@@ -141,15 +141,15 @@ assert("Stat at 180% yields 0 gain (180-rule)",      estimateStatGainPct(50, 180
 console.log("\n[Test 10] Greens step produces zero OVR change");
 
 const drillSessions: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Amateur' }
+  { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Very Easy' }
 ];
 const managerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: 0, greens: 50, isPremiumSponsor: false,
-  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Amateur',
+  style: 'PTW', tierPoints: {}, greens: 50, isPremiumSponsor: false,
+  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchdayCoachActive: false,
 };
 const testPlayer: Player = {
   id: '1', name: 'Test Player', role: ['ST'],
-  age: 18, overall: 25,
+  age: 18, overall: 100,   // consistent with stats at 100 and divisor=1
   stats: { FINISHING: 100, SHOOTING: 100, DRIBBLING: 100, PASSING: 100, POSITIONING: 100, HEADING: 100 },
   isMutantCandidate: false, tier: 'None',
 };
@@ -167,7 +167,7 @@ console.log("\n[Test 11] Investment plan — young striker, Skill Drill ×20 →
 // All 15 stats at 100 → Quality% = 100 → OVR = 25
 const striker: Player = {
   id: '1', name: 'Alpha Striker', role: ['ST', 'AMC'],
-  age: 18, overall: 25,
+  age: 18, overall: 100,   // all 15 stats at 100 → computed OVR 100
   stats: {
     FINISHING: 100, SHOOTING: 100, DRIBBLING: 100, PASSING: 100, POSITIONING: 100,
     HEADING: 100, STRENGTH: 100, SPEED: 100, CREATIVITY: 100, BRAVERY: 100,
@@ -176,11 +176,11 @@ const striker: Player = {
   isMutantCandidate: true, tier: 'None',
 };
 const strikerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: 650, greens: 50, isPremiumSponsor: true,
-  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Amateur',
+  style: 'PTW', tierPoints: { Stellar: 650 }, greens: 50, isPremiumSponsor: true,
+  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchdayCoachActive: false,
 };
 const strikerDrills: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 50, drillLevel: 'Amateur' },
+  { drillName: 'Skill Drill', sessionCount: 50, drillLevel: 'Very Easy' },
 ];
 const strikerPlan = planPlayerInvestment(striker, strikerProfile, strikerDrills, profile, 'Stellar');
 console.log(`  Plan: ${strikerPlan.recommendation}`);
@@ -207,7 +207,7 @@ const youngGK: Player = {
   isMutantCandidate: false, tier: 'None',
 };
 const compDrills: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 20, drillLevel: 'Amateur' },
+  { drillName: 'Skill Drill', sessionCount: 20, drillLevel: 'Very Easy' },
 ];
 const comparison = compareInvestmentScenarios([striker, youngGK], strikerProfile, compDrills, profile, null);
 assert("Comparison has 2 results",            comparison.results.length === 2);

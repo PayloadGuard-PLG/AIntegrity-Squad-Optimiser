@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { DrillSession, DrillLevel } from '../types/resources';
 import { DRILL_LIST } from '../database/drillDatabase';
 
-const DRILL_LEVELS: DrillLevel[] = ['Amateur', 'Semi-Pro', 'Pro', 'World Class'];
-const DRILL_NAMES = DRILL_LIST.map(d => d.name);
+const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
+const BASE_DRILLS = DRILL_LIST.filter(d => d.isBase);
+const ALL_DRILLS = DRILL_LIST;
 
 interface Props {
   value: DrillSession;
@@ -24,8 +26,10 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 }
 
 export function DrillSessionRow({ value, onChange, onRemove }: Props) {
+  const [showAll, setShowAll] = useState(false);
   const drill = DRILL_LIST.find(d => d.name === value.drillName);
   const typeColor = drill?.type === 'Attack' ? '#6366f1' : drill?.type === 'Defence' ? '#22c55e' : '#f59e0b';
+  const visibleDrills = showAll ? ALL_DRILLS : BASE_DRILLS;
 
   return (
     <View style={{ backgroundColor: '#1a1d27', borderRadius: 12, padding: 14, marginBottom: 10, gap: 10 }}>
@@ -39,17 +43,22 @@ export function DrillSessionRow({ value, onChange, onRemove }: Props) {
           )}
           <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>DRILL</Text>
         </View>
-        <Pressable onPress={onRemove}>
-          <Text style={{ color: '#ef4444', fontSize: 18, fontWeight: '700', paddingHorizontal: 8 }}>×</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Pressable onPress={() => setShowAll(v => !v)}>
+            <Text style={{ color: showAll ? '#6366f1' : '#4b5563', fontSize: 11 }}>{showAll ? 'Base only' : '+ Lab/Event'}</Text>
+          </Pressable>
+          <Pressable onPress={onRemove}>
+            <Text style={{ color: '#ef4444', fontSize: 18, fontWeight: '700', paddingHorizontal: 8 }}>×</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Drill name picker */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{ flexDirection: 'row', flexWrap: 'nowrap' }}>
-          {DRILL_NAMES.map(name => (
-            <Chip key={name} label={name} active={value.drillName === name}
-              onPress={() => onChange({ ...value, drillName: name })} />
+          {visibleDrills.map(d => (
+            <Chip key={d.name} label={d.name} active={value.drillName === d.name}
+              onPress={() => onChange({ ...value, drillName: d.name })} />
           ))}
         </View>
       </ScrollView>

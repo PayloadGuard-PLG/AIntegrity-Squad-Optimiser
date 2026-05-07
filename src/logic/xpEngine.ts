@@ -45,9 +45,12 @@ export function xpNeededFor1Pct(
 }
 
 /**
- * Estimates how many percentage points a stat increases given an XP budget.
- * Iterates 1% at a time from current stat value up to profile.statCap.
- * Stops when XP budget is exhausted or the 180-rule blocks further gain.
+ * Estimates the fractional stat gain for a given XP budget.
+ *
+ * Stats have sub-integer internal values. XP accumulates fractionally across
+ * sessions — a visible "+1" only appears when the cumulative value crosses an
+ * integer threshold. This function returns a float (e.g. 2.37), not a floor.
+ * The fractional part represents banked progress toward the next integer.
  */
 export function estimateStatGainPct(
   xpBudget: number,
@@ -66,7 +69,11 @@ export function estimateStatGainPct(
 
   while (remaining > 0 && current < profile.statCap) {
     const cost = xpNeededFor1Pct(current, age, starsGainedInSession + gain, talent, isWhite, twoxAd, drillLevelMult, profile);
-    if (!isFinite(cost) || cost > remaining) break;
+    if (!isFinite(cost) || cost <= 0) break;
+    if (cost > remaining) {
+      gain += remaining / cost; // fractional: bank the partial progress
+      break;
+    }
     remaining -= cost;
     gain += 1;
     current += 1;

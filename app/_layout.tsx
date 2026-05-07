@@ -2,7 +2,6 @@ import { Stack } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
 import { useDbMigration } from '../src/db';
 import { ManagerProvider } from '../src/context/ManagerContext';
-import '../global.css';
 
 export default function RootLayout() {
   const { success, error } = useDbMigration();

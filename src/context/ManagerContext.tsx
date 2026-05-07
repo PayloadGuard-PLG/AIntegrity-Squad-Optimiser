@@ -3,31 +3,33 @@ import { ManagerProfile, ManagerStyle, TalentTier, DrillLevel } from '../types/r
 
 type ManagerCtx = ManagerProfile & {
   setStyle: (s: ManagerStyle) => void;
-  setTierPoints: (n: number) => void;
+  setTierPoints: (t: Partial<Record<import('../types/resources').TierName, number>>) => void;
   setGreens: (n: number) => void;
   setStoreBudget: (n: number | undefined) => void;
   togglePremiumSponsor: () => void;
   toggleTwoxAd: () => void;
   setTalentTier: (t: TalentTier) => void;
   setDrillLevel: (d: DrillLevel) => void;
+  toggleMatchdayCoach: () => void;
 };
 
 const ManagerContext = createContext<ManagerCtx | null>(null);
 
 export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [style, setStyle] = useState<ManagerStyle>('FTP');
-  const [tierPoints, setTierPoints] = useState(0);
+  const [tierPoints, setTierPoints] = useState<Partial<Record<import('../types/resources').TierName, number>>>({});
   const [greens, setGreens] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
   const [storeBudget, setStoreBudget] = useState<number | undefined>(undefined);
   const [twoxAdActive, setTwoxAdActive] = useState(false);
   const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
-  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Amateur');
+  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
+  const [matchdayCoachActive, setMatchdayCoachActive] = useState(false);
 
   return (
     <ManagerContext.Provider value={{
       style, tierPoints, greens, isPremiumSponsor, storeBudget,
-      twoxAdActive, talentTier, drillLevel,
+      twoxAdActive, talentTier, drillLevel, matchdayCoachActive,
       setStyle,
       setTierPoints,
       setGreens,
@@ -36,6 +38,7 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
       toggleTwoxAd: () => setTwoxAdActive(v => !v),
       setTalentTier,
       setDrillLevel,
+      toggleMatchdayCoach: () => setMatchdayCoachActive(v => !v),
     }}>
       {children}
     </ManagerContext.Provider>

@@ -57,7 +57,7 @@ export function calculateDynamicGain(
     const statFactor = currentAttribute >= 180 ? 0 : Math.max(0, 1 - currentAttribute / 340);
     return Number((multiplier * ageFactor * skillMod * statFactor * 0.05).toFixed(4));
   }
-  const drillMult = getDrillLevelMult('Amateur', profile);
+  const drillMult = getDrillLevelMult('Very Easy', profile);
   const xpCost = xpNeededFor1Pct(currentAttribute, age, 0, 'Normal', isWhiteSkill, false, drillMult, profile);
   if (!isFinite(xpCost) || xpCost === 0) return 0;
   // multiplier treated as an XP budget proxy (rough legacy approximation)

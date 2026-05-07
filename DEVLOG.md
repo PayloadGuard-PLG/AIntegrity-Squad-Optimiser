@@ -4,6 +4,333 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 8 — Coaches Tab + XP Engine Deep Calibration
+**2026-05-07 — night**
+
+### Shipped
+
+**Coaches tab (`app/(tabs)/coaches.tsx`)**
+
+New fourth tab: `/coaches` — SESSION SIMULATOR. Lets the manager replicate any coaching scenario from the game and project its exact OVR impact.
+
+- **Stat selector grid** — all white (essential) and grey (secondary) stats for the selected player's role. White stats rendered full brightness with current stat value shown; grey stats dimmed. Tap any stat to include/exclude it from the coach's coverage. Counter shows total selected.
+- **Sessions ×N** — TextInput for the coach multiplier (e.g. ×30 Standard Attacking, ×59 Standard Safeguard)
+- **Intensity** — Very Easy → Very Hard chips mapping to drillLevelMultipliers (1.0 → 1.7×)
+- **Talent + 2× ad** — same controls as Plan tab
+- **▶ PROJECT COACH GAIN** — computes per-stat gains and total OVR change. Shows gain breakdown: each stat, before value, gain amount (float), plus OVR before/after banner.
+- Pulls `computeOvrWithPadding` (now exported from `ovrProjector.ts`) for accurate OVR-after with partial stat entry padding.
+
+**XP engine calibration — validated against 7 coach screenshots**
+
+Real data: Standard Attacking ×30 on Ryan Rodger (age 18, Normal talent):
+- Passing 121 → +26–33 (model: ~27 at Medium intensity) ✓
+- Dribbling 132 → +20–27 (model: ~25) ✓
+- Crossing 132 → +20–27 (model: ~25) ✓
+
+Two engine fixes applied and confirmed:
+
+| File | Change | Reason |
+|---|---|---|
+| `profiles/game_2025.json` | `starDecayPerSession` 0.85 → 1.0 | Real data shows near-linear gains; 0.85^n-per-%-gained caused exponential cost increase, near-zero projections at high stat counts |
+| `src/logic/ovrProjector.ts` | XP budget ÷ `drill.stats.length` | Budget must be split across all stats a drill trains; undivided budget gave 5× too many gains |
+
+`baseXpPerSession = 150` confirmed correct when both fixes applied.
+
+**Fractional XP model**
+
+`src/logic/xpEngine.ts` — `estimateStatGainPct` now returns a float (e.g. 2.37). Partial XP progress banks as fractional carry: `gain += remaining / cost` instead of discarding leftover. Visible "+1" appears when cumulative value crosses an integer threshold. Sub-integer gains accumulate across multiple sessions.
+
+**GK role constraints — confirmed from in-game screenshot**
+
+`src/utils/roleWeights.ts` — GK corrected to confirmed game values:
+- 10 white (essential): REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION
+- 5 grey (secondary): FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY
+- GK is always solo (no multi-role combination permitted)
+
+**Drill database fixes**
+
+`src/database/drillDatabase.ts` — two drills corrected from confirmed in-game screenshots:
+
+| Drill | Field | Before | After |
+|---|---|---|---|
+| Use Your Head | type | Attack | Defence |
+| Use Your Head | stats | `['HEADING','CREATIVITY']` | `['POSITIONING','PASSING','HEADING','CREATIVITY']` |
+| Use Your Head | baseLoss | 1.5 | 3.0 |
+| Stop the Attacker | stats | `['TACKLING','MARKING','BRAVERY']` | `['STRENGTH','MARKING','BRAVERY','DRIBBLING','TACKLING']` |
+| Stop the Attacker | baseLoss | 2.25 | 4.5 |
+
+baseLoss values derived from in-game L4 Fan Club display (50% reduction shown): Use Your Head −1.5% at L4 → base = 3.0; Stop the Attacker −2.25% at L4 → base = 4.5.
+
+**ROI-based drill sort**
+
+`src/logic/controller.ts` — drill recommendations now sorted by ascending average white stat value (lowest stat first = cheapest gain per XP). Was sorted by efficiency (% overlap). Tiebreaker remains efficiency.
+
+`app/(tabs)/drills.tsx` — sort button label changed "SORT EFF ▼" → "SORT ROI ▼". Each drill card now shows `AVG {stat}` label.
+
+**Smarter skip warnings**
+
+`src/logic/ovrProjector.ts` — `applyDrillSessionsToStats` now categorises skipped drill stats as either:
+- `missingStats`: role-valid but not yet entered by user → "enter X, Y to include drill gains"
+- `irrelevantStats`: not a stat for this player's role at all → "no stats applicable to this role"
+
+Previously all skipped drills showed a generic "Stats missing" warning regardless of cause.
+
+New helper: `getAllStatKeys(roles)` in `src/utils/roleWeights.ts` — returns union of white + grey stats for a role, used for categorisation.
+
+**TextInput controls for greens and sessions**
+
+`app/(tabs)/plan.tsx` — replaced +/− stepper buttons with free-entry TextInput for both greens count and per-drill session count. Easier to enter ×30, ×59, etc.
+
+**Auto-tier selection**
+
+`app/(tabs)/plan.tsx` — `getBestAffordableTier()` runs when RUN PROJECTION is pressed without an explicit tier selected. Finds highest tier where the user has entered enough tier points. Eliminates silent "no tier applied" projections.
+
+**Stats-win OVR baseline**
+
+`app/(tabs)/plan.tsx` — when player has individual stats entered, FROM OVR displayed is `computeOvrFromStats(player)` (stats-derived), not `player.overall` (stored value). `player.overall` was set at time of entry; if stats have been trained since, the stats-derived value is more accurate.
+
+**Navigation**
+
+`src/components/AppHeader.tsx` — COACHES tab added to the 4-tab bar. Route `/coaches` triggers "COACH PLANNER / SESSION SIMULATOR" header.
+`app/(tabs)/_layout.tsx` — `coaches` screen registered.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F22 | Star decay caused near-zero gains at high stat counts | `starDecayPerSession` 0.85 → 1.0; validated against observed training data |
+| F23 | XP budget not divided across drill stats | `ovrProjector.ts`: budget ÷ `drill.stats.length` |
+| F24 | Use Your Head categorised as Attack drill | `drillDatabase.ts`: type corrected to Defence |
+| F25 | Stop the Attacker missing 2 stats | Added STRENGTH + DRIBBLING to stat list |
+| F26 | Generic "Stats missing" for all skipped drills | Separated into role-irrelevant vs un-entered categories |
+| F27 | Tier not auto-applying when points available | `getBestAffordableTier()` runs on projection if no explicit tier selected |
+| F28 | OVR baseline used stale `player.overall` when stats entered | Stats-computed OVR used as baseline when stats dict non-empty |
+
+### Next Sprint Targets
+
+- GK stat entry UI: `app/player/new.tsx` + `app/player/[id].tsx` show outfield stats regardless of GK role (KNOWN_ISSUES #4)
+- Coaches tab: user reports scenario data → update logic per scenario (multiplier → intensity mapping to be confirmed)
+- WHITEPAPER coaches section (§4 or appendix)
+- Squad-wide season simulator (KNOWN_ISSUES #7)
+
+---
+
+## Sprint 6 — Direction B UI + Engine Calibration Fix
+**2026-05-07 — afternoon**
+
+### Shipped
+
+**Direction B design system**
+
+Full UI redesign to "Operator" aesthetic: pitch-black background, gunmetal navy surfaces, JetBrains Mono throughout, zero border radius, steelblue accents, hot-orange for mutant/danger states.
+
+| Token | Value | Notes |
+|---|---|---|
+| `bg` | #0a0a0c | pitch black |
+| `surface` | #111116 | card background |
+| `surface2` | #1a1a21 | secondary surface |
+| `ink` | #f0f0f5 | primary text |
+| `inkSec` | #c8c8d2 | secondary text (raised from #a1a1aa for readability) |
+| `inkMuted` | #909099 | muted text (raised from #6b6b73) |
+| `hairline3` | rgba(255,255,255,0.38) | borders (raised from 0.18) |
+| `steelLight` | #5b8fe8 | accent / active state |
+| `negRed` | #e85b5b | delete / destructive |
+| `hotOrange` | #e87d2a | mutant candidate accent |
+
+**New player screens**
+
+| File | Content |
+|---|---|
+| `app/player/new.tsx` | Full Direction B add-player screen: 4-column ROLE_GRID position picker, 2-column bordered stats grid with ●/○ white stat indicators (via `isWhiteStat`), colour-coded tier chips, MUTANT CANDIDATE toggle, full-width SAVE CTA |
+| `app/player/[id].tsx` | Same layout + loads existing player on mount + SAVE/DELETE side-by-side CTAs (DELETE uses negRed outline) |
+
+**Plan tab config section redesign**
+
+`app/(tabs)/plan.tsx` — each configuration group (TALENT, DRILL LEVEL, SESSIONS, GREENS, TIER) rebuilt as a bordered card: dark header row with steelLight accent stripe, content below within the same border. Section tabs (PLAN / STEPS / WARNINGS) changed from text links to full-width ink-fill button bar. All param setters now call `invalidate()` → `setPlan(null)` to clear stale projections before any re-run.
+
+**OvrMovement: pure-RN rewrite (critical)**
+
+`src/components/atoms/OvrMovement.tsx` — removed all `react-native-svg` imports. Two separate crash vectors eliminated:
+1. `Pattern` element + `width="100%"` on `Svg` → hard crash on Android
+2. `lineHeight: 56` with `fontSize: 62` → crash (lineHeight must be ≥ fontSize)
+
+Rewritten as pure `View`/`Text` layout with identical visual output.
+
+**Readability improvements**
+
+- `src/components/atoms/MonoLabel.tsx`: default color `inkMuted` → `inkSec`; fontWeight `500` → `600`
+- `src/components/atoms/Chip.tsx`: inactive state bg `transparent` → `surface2`; border `hairline2` → `hairline3`; text `inkSec` → `ink`
+
+**Drill name fix**
+
+`app/(tabs)/plan.tsx`: `DRILL_NAMES` constant replaced — was hardcoded with invalid names including "Finishing School" (not in DB). Now derived via `DRILL_LIST` import so drill picker always reflects the real drill database.
+
+**OVR display delta anchor**
+
+Plan tab FROM/TO display was using engine-computed OVR as the baseline, which differs from `player.overall` by ~1–2 OVR when stats are partially entered (partial-stat mean ≠ stored overall). Fixed: FROM anchors to `player.overall` (stored DB value), TO computed as `storedOvr + engineGain`. Eliminates persistent −1.2 regression display.
+
+**Engine calibration fix (critical)**
+
+Root cause of +0.0 drill gains for all high-stat players: two compounding bugs.
+
+Bug 1 — hard stat cap at 180: `xpBaseForStat()` returned Infinity for any stat ≥ `rule180StatCap` (was 180). Player Coutts' white stats are all 187–246 → all returned Infinity → 0 gains.
+
+Bug 2 — missing XP multiplier: `applyDrillSessionsToStats()` passed `session.sessionCount` (e.g. 6) raw as XP budget. Cost for 1% on a stat-113 grey attr at age 24 ≈ 250 XP. Budget of 6 << 250 → always 0.
+
+| File | Change |
+|---|---|
+| `profiles/game_2025.json` | Extended `xpCostTable` — added 6 bands covering stats 180–339 with finite costs (80/100/125/160/200/250 XP per 1%) |
+| `profiles/game_2025.json` | `rule180StatCap`: 180 → 340 (now matches `statCap`; hard cap never fires) |
+| `profiles/game_2025.json` | Added `baseXpPerSession: 150` |
+| `src/types/resources.ts` | Added `baseXpPerSession: number` to `GameProfile` interface |
+| `src/logic/ovrProjector.ts` | XP budget: `session.sessionCount` → `session.sessionCount × profile.baseXpPerSession` |
+
+With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white attr, age 24, Normal talent, Very Easy → cost ≈ 667 XP → 1 gain per run. Value is an estimate pending empirical calibration (see KNOWN_ISSUES #2).
+
+### Bugs fixed this sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F11 | Plan tab: first run shows −1.2, button locks | `invalidate()` on all param setters; FROM anchored to `player.overall` |
+| F12 | Drill picker contained "Finishing School" (not in DB) | `DRILL_NAMES` derived from `DRILL_LIST` import |
+| F13 | All players show +0.0 OVR from drills | Extended XP table above 180; `baseXpPerSession` multiplier applied |
+| F14 | `compareInvestmentScenarios` shape mismatch | Rewritten to return `{ results, recommendedPlayer, reasoning }` |
+| F15 | OvrMovement crashes Android | Removed react-native-svg entirely; pure View/Text |
+| F16 | Plan OVR shows persistent −1.2 | FROM anchored to DB `player.overall`; gain computed as delta |
+
+---
+
+## Sprint 7 — UI Clarity + Zero-Drain Fix
+**2026-05-07 — evening**
+
+### Shipped
+
+**Talent tier labels now show multiplier**
+
+`app/(tabs)/plan.tsx`: TALENT chips relabelled — "FT2" → "FT2 ×1.25" etc. No ambiguity about what each tier means.
+
+| Tier | Label | Multiplier |
+|---|---|---|
+| FT1 | FT1 ×1.50 | 1.50 |
+| FT2 | FT2 ×1.25 | 1.25 |
+| FT3 | FT3 ×1.10 | 1.10 |
+| Normal | Normal ×1.00 | 1.00 |
+| Slow | Slow ×0.70 | 0.70 |
+
+**Zero-drain fixed**
+
+`src/logic/controller.ts`: `isZeroDrain` was hardcoded to `conditionCost === 0` — always false since L4 halves cost, never zeroes it. Fixed: `isZeroDrain = fanClubLevel === 4 && drillLevel === 'Very Easy'`. Drills tab now accepts drill level and passes it through.
+
+**Drill level selector added to Drills tab**
+
+`app/(tabs)/drills.tsx`: drill level chips above fan club selector. Condition costs and zero-drain status now reflect the selected drill level.
+
+**Warning text corrected**
+
+`src/logic/ovrProjector.ts`: "Slow trainer (age X)" was firing for any player ≥20 — "Slow" implies the talent tier, which is wrong. Now shows actual age multiplier: "Age 21 — training multiplier 0.40×." Added separate warning for Slow talent tier.
+
+| ID | Fix |
+|---|---|
+| F17 | "Slow trainer" warning mislabelled talent as Slow — now shows age multiplier |
+| F18 | Zero-drain never triggered — L4+Very Easy now correctly returns 0% condition cost |
+| F19 | FT1/FT2/FT3 labels opaque — now show XP multiplier inline |
+| F20 | Drills tab had no drill level input — selector added, feeds zero-drain logic |
+
+**GHA workflow fix**
+
+`.github/workflows/eas-update.yml`: commit message passed via `$COMMIT_MSG` env var instead of inline template expansion. Multi-line messages were being word-split as CLI arguments, causing OTA push failures.
+
+### Still TODO
+
+- Calibrate `baseXpPerSession: 150` against observed session gains (KNOWN_ISSUES #2)
+- GK white stat list: estimated, unconfirmed (KNOWN_ISSUES #3)
+- GK stat entry UI: shows outfield stats regardless of role (KNOWN_ISSUES #4)
+
+---
+
+## Sprint 5 — OTA Pipeline, Navigation, Game Data Corrections
+**2026-05-07 — morning**
+
+### Shipped
+
+**OTA update pipeline**
+
+| File | Purpose |
+|---|---|
+| `.github/workflows/eas-update.yml` | GitHub Actions workflow — triggers on push to main or dev branch, runs `npx eas-cli update` |
+
+Push from Termux → CI picks up within ~1 min → EAS OTA bundle → app updates silently on next reopen. No PC required for deployments. Org policy required pinned full commit SHAs (not `@v4` tag refs) — workflow uses those.
+
+**AppHeader and top navigation**
+
+| File | Purpose |
+|---|---|
+| `src/components/AppHeader.tsx` | Branded header: purple accent bar, "Squad Optimiser" title, "FOOTBALL MANAGER" subtitle, underline-style tab buttons |
+
+`app/(tabs)/_layout.tsx` updated to use `tabBar={() => null}` — fully suppresses the native bottom tab bar. Previously `tabBarStyle: { display: 'none' }` left a ghost tab bar. Tab buttons now live under the title in `AppHeader`.
+
+**OVR formula fix**
+
+`profiles/game_2025.json`: `qualityOvrDivisor` corrected from `4` to `1`. OVR = unweighted mean of all 15 stats directly. Empirically calibrated: player Coutts mean stat ≈194.8 = OVR 195. Previous divisor of 4 produced ~48 instead of ~195.
+
+**Drill level rename**
+
+`profiles/game_2025.json` and `src/types/resources.ts`: multiplier keys renamed to match observed UI labels:
+
+| Old name | New name | Multiplier |
+|---|---|---|
+| Amateur | Very Easy | 1.0 |
+| Semi-Pro | Easy | 1.15 |
+| *(new)* | Medium | 1.3 |
+| Pro | Hard | 1.55 |
+| World Class | Very Hard | 1.7 |
+
+**Drill database: isBase flag**
+
+`src/database/drillDatabase.ts`: `isBase: boolean` added to `Drill` interface. Core daily drills (Skill Drill, Gym, Sprints, Juggling, etc.) marked `isBase: true`. Event/lab drills (Set-Piece Delivery, Warm-Up, Carioca, etc.) marked `isBase: false`.
+
+**Tier system corrections**
+
+Empirically verified tier point costs applied across `profiles/game_2025.json` and `src/utils/math.ts`:
+
+| Tier | Points required | Attr addition |
+|---|---|---|
+| Rare | 100 | +10 |
+| Elite | 90 | +30 |
+| Stellar | 50 | +50 |
+| Master | 25 | +80 |
+| Epic | 15 | +120 |
+| Legendary | 10 | +160 |
+
+`ManagerProfile.tierPoints` changed from a single `number` to `Partial<Record<TierName, number>>` — each tier type has its own independent point pool. Plan and Compare screens redesigned with a per-tier section: each of the 6 tiers shows its own input, threshold, affordability indicator, and tap-to-select-target.
+
+**Role adjacency fix**
+
+`src/utils/roleWeights.ts` `validateRoleAdjacency`: changed from "all roles must be adjacent to primary" to transitive check — each additional role must be adjacent to any already-accepted role. ST+AMC+MC now correctly accepted (MC is adjacent to AMC; previously rejected because MC is not adjacent to ST directly).
+
+**Efficiency display fix**
+
+`app/(tabs)/drills.tsx`: efficiency value multiplied by 100. `getBestDrillSelections` returns 0–1 fraction; `DrillTable` renders as percentage. Without the conversion all drill cards showed blank efficiency.
+
+### Bugs fixed this sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F1 | Drills tab efficiency blank | ×100 conversion in drills.tsx mapping |
+| F2 | Plan OVR ~48 instead of ~195 | qualityOvrDivisor 4→1 in game_2025.json |
+| F3 | ST+AMC+MC role rejected | Transitive adjacency in validateRoleAdjacency |
+| F4 | Bottom tab bar ghost below AppHeader | tabBar={() => null} in _layout.tsx |
+| F5 | Single tier points input | Per-tier pool UI with individual inputs |
+
+### Still TODO
+
+- Drill XP baseline calibration: `baseXpPerSession` pending empirical validation
+- GK white stat list needs verification
+- Compare screen missing AppHeader (uses raw ScrollView)
+- Individual stat entry for drill-level OVR projection (currently falls back to base OVR when stats={})
+
+---
+
 ## Sprint 4 — Formula Engine Rewrite
 **2026-05-06**
 
@@ -67,7 +394,7 @@ npm run typecheck — zero errors
 
 ### Still TODO
 
-- Calibrate exact `baseXpPerSession` scaling once user screenshots confirm real session gains
+- Calibrate exact `baseXpPerSession` scaling once empirical session gains are confirmed
 - GK white skill set needs verification from research
 - OCR scanner stub — next sprint
 - Pro tier gating

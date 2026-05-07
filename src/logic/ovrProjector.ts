@@ -1,5 +1,5 @@
 import { getTierAttrAddition, getTierCost } from '../utils/math';
-import { isWhiteStat, getWhiteStatKeys } from '../utils/roleWeights';
+import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../utils/roleWeights';
 import { estimateStatGainPct, applyTierBonusToStats, statsToQualityPct, qualityPctToOvr } from './xpEngine';
 import { DrillSession, GameProfile, TalentTier, DrillLevel, TierName, InvestmentStep } from '../types/resources';
 import { Player } from '../database/playerSchema';
@@ -15,13 +15,35 @@ function findDrill(drillName: string) {
 }
 
 /**
- * Returns current OVR from player.stats via Quality%/4.
- * Falls back to player.overall when stats are empty (e.g. first add, no stats entered).
+ * OVR from a stats dict, padding any missing attributes with a baseline value.
+ *
+ * statsToQualityPct divides by totalAttributeCount (15) regardless of how many
+ * stats are in the dict. If the player only entered their white stats (e.g. 7 out
+ * of 15), the missing 8 would effectively count as 0 and drag the mean down.
+ * Padding them with the known overall keeps the baseline accurate.
+ */
+export function computeOvrWithPadding(
+  stats: Record<string, number>,
+  playerOverall: number,
+  profile: GameProfile
+): number {
+  const keys = Object.keys(stats);
+  if (keys.length === 0) return playerOverall;
+  const entered = Object.values(stats);
+  const missingCount = Math.max(0, profile.totalAttributeCount - keys.length);
+  const sum = entered.reduce((a, b) => a + b, 0) + playerOverall * missingCount;
+  const qp = sum / profile.totalAttributeCount;
+  return qualityPctToOvr(qp, profile);
+}
+
+/**
+ * Returns current OVR from player.stats.
+ * Falls back to player.overall when stats are empty.
+ * Pads missing attributes with player.overall so partial stat entry
+ * does not drag the computed OVR below the known baseline.
  */
 export function computeOvrFromStats(player: Player, profile: GameProfile): number {
-  if (Object.keys(player.stats).length === 0) return player.overall;
-  const qp = statsToQualityPct(player.stats, profile);
-  return qualityPctToOvr(qp, profile);
+  return computeOvrWithPadding(player.stats, player.overall, profile);
 }
 
 /**
@@ -31,15 +53,23 @@ export function computeOvrFromStats(player: Player, profile: GameProfile): numbe
  * Each session = 1 XP unit. Star decay is applied per-stat within the session.
  * (Cross-stat star decay interaction is a calibration TODO.)
  */
+type SkippedDrillInfo = {
+  name: string;
+  missingStats: string[];    // role-valid but not entered by user
+  irrelevantStats: string[]; // not a stat for this role at all
+};
+
 export function applyDrillSessionsToStats(
   player: Player,
   drillSessions: DrillSession[],
   talentTier: TalentTier,
   twoxAdActive: boolean,
   profile: GameProfile
-): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number } {
+): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number; skippedDrills: SkippedDrillInfo[] } {
   const steps: InvestmentStep[] = [];
+  const skippedDrills: SkippedDrillInfo[] = [];
   const updatedStats = { ...player.stats };
+  const roleStats = new Set(getAllStatKeys(player.role));
   const ovrBefore = computeOvrFromStats(player, profile);
   let runningOvr = ovrBefore;
 
@@ -50,14 +80,24 @@ export function applyDrillSessionsToStats(
     const drillLevelMult = profile.drillLevelMultipliers[session.drillLevel] ?? 1.0;
     const statDeltas: string[] = [];
 
+    let drillHits = 0;
+    const missingStats: string[] = [];
+    const irrelevantStats: string[] = [];
+
     for (const statKey of drill.stats) {
       const normalized = statKey.toUpperCase();
-      const currentVal = updatedStats[normalized] ?? 0;
+      if (!(normalized in updatedStats)) {
+        if (roleStats.has(normalized)) missingStats.push(normalized);
+        else irrelevantStats.push(normalized);
+        continue;
+      }
+      drillHits++;
+      const currentVal = updatedStats[normalized];
       if (currentVal >= profile.statCap) continue;
 
       const isWhite = isWhiteStat(player.role, normalized);
       const gainPct = estimateStatGainPct(
-        session.sessionCount,
+        session.sessionCount * profile.baseXpPerSession / drill.stats.length,
         currentVal,
         player.age,
         0,
@@ -74,9 +114,12 @@ export function applyDrillSessionsToStats(
       }
     }
 
+    if (drillHits === 0) {
+      skippedDrills.push({ name: session.drillName, missingStats, irrelevantStats });
+    }
+
     if (statDeltas.length > 0) {
-      const newQp = statsToQualityPct(updatedStats, profile);
-      const newOvr = qualityPctToOvr(newQp, profile);
+      const newOvr = computeOvrWithPadding(updatedStats, player.overall, profile);
       const ovrDelta = Number((newOvr - runningOvr).toFixed(1));
       steps.push({
         action: 'drill',
@@ -90,7 +133,7 @@ export function applyDrillSessionsToStats(
     }
   }
 
-  return { steps, updatedStats, finalOvr: runningOvr };
+  return { steps, updatedStats, finalOvr: runningOvr, skippedDrills };
 }
 
 /**
@@ -118,22 +161,83 @@ export function projectOvr(
     drillLevel: s.drillLevel ?? drillLevel,
   }));
 
+  // When individual stats are absent, fall back to analytical tier-only projection.
+  // Drill simulation requires per-stat baseline values; without them it would compute
+  // from 0, producing a completely wrong OVR.
+  if (Object.keys(player.stats).length === 0) {
+    warnings.push('Enter individual stat values for drill-level OVR projection.');
+    let currentOvr = player.overall;
+
+    if (sessions.length > 0) {
+      warnings.push('Drill gains skipped — individual stats required.');
+    }
+
+    if (player.age >= 20) {
+      const ageMult = profile.ageTable[String(player.age)] ?? 0.10;
+      warnings.push(`Age ${player.age} — training multiplier ${ageMult.toFixed(2)}×. Gains are reduced.`);
+    }
+
+    if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
+      const tierCost = getTierCost(targetTier);
+      const whiteKeys = getWhiteStatKeys(player.role);
+      const attrAdd = getTierAttrAddition(targetTier);
+      const tierOvrGain = Number(
+        (attrAdd * whiteKeys.length / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1)
+      );
+      const ovrBefore = currentOvr;
+      currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
+      steps.push({
+        action: 'tier',
+        description: `Tier → ${targetTier} (+${attrAdd} per white attr × ${whiteKeys.length} stats)`,
+        ovrBefore,
+        ovrAfter: currentOvr,
+        resourcesUsed: `${tierCost} tier points`,
+      });
+    }
+
+    if (greens > 0) {
+      const condPct = Math.min(greens * 15, 100);
+      steps.push({
+        action: 'condition',
+        description: `${greens} greens → +${condPct}% condition restored`,
+        ovrBefore: currentOvr,
+        ovrAfter: currentOvr,
+        resourcesUsed: `${greens} greens`,
+      });
+    }
+
+    return { steps, finalOvr: currentOvr, warnings };
+  }
+
   // Step 1 — Drill sessions
   let currentStats = { ...player.stats };
   let currentOvr = computeOvrFromStats(player, profile);
 
   if (sessions.length > 0) {
-    const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr } =
+    const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr, skippedDrills } =
       applyDrillSessionsToStats({ ...player, stats: currentStats }, sessions, talentTier, twoxAdActive, profile);
     steps.push(...drillSteps);
     currentStats = updatedStats;
     currentOvr = postDrillOvr;
+    for (const skip of skippedDrills) {
+      if (skip.missingStats.length > 0 && skip.irrelevantStats.length === 0) {
+        warnings.push(`${skip.name}: enter ${skip.missingStats.join(', ')} to include drill gains.`);
+      } else if (skip.missingStats.length > 0) {
+        warnings.push(`${skip.name}: enter ${skip.missingStats.join(', ')} — ${skip.irrelevantStats.join(', ')} not used by this role.`);
+      } else {
+        warnings.push(`${skip.name}: no stats applicable to this role (${skip.irrelevantStats.join(', ')}).`);
+      }
+    }
   } else {
     warnings.push('No drill sessions — add drills to project OVR growth.');
   }
 
+  if (talentTier === 'Slow') {
+    warnings.push('Slow talent tier — training XP multiplier 0.70×.');
+  }
   if (player.age >= 20) {
-    warnings.push(`Slow trainer (age ${player.age}) — gains are reduced.`);
+    const ageMult = profile.ageTable[String(player.age)] ?? 0.10;
+    warnings.push(`Age ${player.age} — training multiplier ${ageMult.toFixed(2)}×. Gains are reduced.`);
   }
 
   // Step 2 — Tier upgrade
@@ -143,8 +247,7 @@ export function projectOvr(
     const ovrBefore = currentOvr;
 
     currentStats = applyTierBonusToStats(currentStats, whiteKeys, targetTier, profile);
-    const newQp = statsToQualityPct(currentStats, profile);
-    const newOvr = qualityPctToOvr(newQp, profile);
+    const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
     const attrAdd = getTierAttrAddition(targetTier);
 
     steps.push({

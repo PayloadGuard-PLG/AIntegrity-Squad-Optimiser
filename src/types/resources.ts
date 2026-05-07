@@ -18,16 +18,22 @@ export interface GameProfile {
   greyWeightMultiplier: number;
   statCap: number;
   rule180StatCap: number;
+  baseXpPerSession: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
   qualityOvrDivisor: number;
   totalAttributeCount: number;
+  teamPlayDecayPerDay: number;
+  matchdayCoachMultiplier: number;
+  conditionCostPerDrill: number;
+  teamPlayFreeDrillsPerDay: number;
+  conditionPerGreen: number;
 }
 
 // --- Talent & drill levels ---
 
 export type TalentTier = 'FT1' | 'FT2' | 'FT3' | 'Normal' | 'Slow';
-export type DrillLevel = 'Amateur' | 'Semi-Pro' | 'Pro' | 'World Class';
+export type DrillLevel = 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard';
 
 // --- Drill session (replaces coach card as the training unit) ---
 
@@ -64,13 +70,15 @@ export type ManagerStyle = 'FTP' | 'Hybrid' | 'PTW';
 
 export interface ManagerProfile {
   style: ManagerStyle;
-  tierPoints: number;
+  tierPoints: Partial<Record<TierName, number>>;
   greens: number;
   isPremiumSponsor: boolean;
   storeBudget?: number;
   twoxAdActive: boolean;
   talentTier: TalentTier;
   drillLevel: DrillLevel;
+  matchdayCoachActive: boolean;
+  teamPlayPillars?: Partial<Record<TeamPlayPillar, number>>;
 }
 
 // --- Tier system ---
@@ -83,6 +91,30 @@ export type TierName =
   | 'Master'
   | 'Epic'
   | 'Legendary';
+
+// --- Team Play ---
+
+export type TeamPlayPillar = 'attack' | 'defence' | 'possession' | 'condition';
+
+export interface TeamPlayPlan {
+  pillars: Partial<Record<TeamPlayPillar, number>>;
+  decayPerDay: number;
+  freeDrillsNeeded: number;
+  matchdayCoachCoversDecay: boolean;
+  recommendation: string;
+}
+
+export interface FixtureWindow {
+  cycles: number;
+  totalSessions: number;
+}
+
+export interface GreensBridgeSuggestion {
+  greensNeeded: number;
+  additionalCycles: number;
+  worthwhile: boolean;
+  note: string;
+}
 
 // --- Investment plan ---
 

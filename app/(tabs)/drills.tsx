@@ -1,90 +1,156 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
-import { PlayerCard } from '../../src/components/PlayerCard';
-import { DrillTable } from '../../src/components/DrillTable';
-import { EmptyState } from '../../src/components/EmptyState';
-import { getBestDrillSelections } from '../../src/logic/controller';
+import { AppHeader } from '../../src/components/AppHeader';
+import { MonoLabel } from '../../src/components/atoms/MonoLabel';
+import { Chip } from '../../src/components/atoms/Chip';
+import { getDrillRecommendations } from '../../src/logic/controller';
+import { theme } from '../../src/constants/theme';
 
 export default function DrillsScreen() {
   const { squad } = useSquad();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [fanClubLevel, setFanClubLevel] = useState(0);
+  const [fanLevel, setFanLevel] = useState(2);
+  const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
 
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
-  if (squad.length === 0) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
-        <EmptyState icon="barbell-outline" message="Add players to your squad first." ctaLabel="Add Player" onCta={() => router.push('/player/new')} />
-      </View>
-    );
-  }
-
-  const rawDrills = selectedPlayer ? getBestDrillSelections(selectedPlayer, fanClubLevel) : [];
-  const drills = rawDrills.map((d: any) => ({
-    name: d.drillName ?? d.name ?? 'Drill',
-    type: d.type ?? 'Attack',
-    statsHit: d.whiteStatsHit ?? d.statsHit ?? [],
-    efficiency: d.efficiency ?? d.efficiencyPct ?? 0,
-    conditionCost: d.conditionCost ?? d.cost ?? 0,
-    isZeroDrain: (d.conditionCost ?? d.cost ?? 1) <= 0.01,
-  }));
+  const drills = useMemo(() => {
+    if (!selectedPlayer) return [];
+    return getDrillRecommendations(selectedPlayer, fanLevel, drillLevel);
+  }, [selectedPlayer, fanLevel, drillLevel]);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#0f1117' }} contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 40 }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <AppHeader />
+      <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 30 }}>
 
-      {/* Player selector */}
-      {squad.length > 1 && (
-        <View style={{ gap: 8 }}>
-          <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>SELECT PLAYER</Text>
-          {squad.map(p => (
-            <PlayerCard key={p.id} player={p} selected={p.id === selectedPlayer?.id} onPress={() => setSelectedId(p.id)} />
-          ))}
-        </View>
-      )}
-      {squad.length === 1 && selectedPlayer && (
-        <View style={{ gap: 8 }}>
-          <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>PLAYER</Text>
-          <PlayerCard player={selectedPlayer} selected onPress={() => {}} />
-        </View>
-      )}
-
-      {/* Fan Club level */}
-      <View style={{ gap: 8 }}>
-        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>FAN CLUB LEVEL</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {[0, 1, 2, 3, 4].map(lvl => (
-            <Pressable
-              key={lvl}
-              onPress={() => setFanClubLevel(lvl)}
-              style={{
-                flex: 1,
-                backgroundColor: fanClubLevel === lvl ? '#6366f1' : '#1a1d27',
-                borderRadius: 8,
-                paddingVertical: 10,
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ color: fanClubLevel === lvl ? '#fff' : '#9ca3af', fontWeight: '700', fontSize: 14 }}>L{lvl}</Text>
-            </Pressable>
-          ))}
-        </View>
-        {fanClubLevel === 4 && (
-          <Text style={{ color: '#22c55e', fontSize: 12 }}>Zero-Drain protocol active — Very Easy drills cost 0% condition</Text>
+        {squad.length > 1 && (
+          <>
+            <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
+              {squad.map(p => (
+                <Chip key={p.id} active={p.id === selectedId} onPress={() => setSelectedId(p.id)}>{p.name}</Chip>
+              ))}
+            </ScrollView>
+          </>
         )}
-      </View>
 
-      {/* Drill results */}
-      {selectedPlayer ? (
-        <View style={{ gap: 8 }}>
-          <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>RECOMMENDED DRILLS</Text>
-          <DrillTable drills={drills} />
+        {/* Drill level selector */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <MonoLabel color={theme.steelLight}>DRILL LEVEL</MonoLabel>
         </View>
-      ) : (
-        <Text style={{ color: '#6b7280', textAlign: 'center', marginTop: 16 }}>Select a player to see drill recommendations.</Text>
-      )}
-    </ScrollView>
+        <View style={{ flexDirection: 'row', marginBottom: 14, gap: 6, flexWrap: 'wrap' }}>
+          {['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].map(l => {
+            const sel = drillLevel === l;
+            return (
+              <Pressable key={l} onPress={() => setDrillLevel(l)} style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>{l.toUpperCase()}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Fan Club selector */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <MonoLabel color={theme.steelLight}>FAN CLUB</MonoLabel>
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
+          {fanLevel === 4 && <MonoLabel size={9} color={theme.pos}>ZERO-DRAIN UNLOCKED</MonoLabel>}
+        </View>
+        <View style={{ flexDirection: 'row', marginBottom: 18, borderWidth: 1, borderColor: theme.hairline2 }}>
+          {[0, 1, 2, 3, 4].map(l => {
+            const sel = fanLevel === l;
+            return (
+              <Pressable key={l} onPress={() => setFanLevel(l)} style={{
+                flex: 1, paddingVertical: 12, alignItems: 'center',
+                backgroundColor: sel ? theme.ink : 'transparent',
+                borderRightWidth: l < 4 ? 1 : 0, borderRightColor: theme.hairline2,
+                position: 'relative',
+              }}>
+                {l === 4 && !sel && (
+                  <View style={{ position: 'absolute', top: 3, right: 4, width: 5, height: 5, backgroundColor: theme.pos, borderRadius: 3 }} />
+                )}
+                <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>L{l}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {!selectedPlayer ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <MonoLabel>SELECT A PLAYER</MonoLabel>
+          </View>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <MonoLabel color={theme.steelLight}>RECOMMENDATIONS</MonoLabel>
+              <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
+              <MonoLabel size={9}>SORT ROI ▼</MonoLabel>
+            </View>
+
+            {drills.map((d, i) => {
+              const tc = d.type === 'Attack' ? theme.steelLight : d.type === 'Defence' ? '#86c5d6' : theme.hot;
+              const eff = Math.round(d.efficiency * 100);
+              const condCost = d.conditionCost;
+              const isZero = d.isZeroDrain;
+              const avgStat = (d as any).avgWhiteStatValue;
+              const avgStatLabel = isFinite(avgStat) ? `AVG ${Math.round(avgStat)}` : null;
+              return (
+                <View key={d.name} style={{
+                  borderWidth: 1, borderColor: theme.hairline2,
+                  borderTopWidth: i > 0 ? 0 : 1,
+                  backgroundColor: theme.surface, padding: 12, paddingHorizontal: 14,
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <MonoLabel size={9} style={{ minWidth: 18 }}>{String(i + 1).padStart(2, '0')}</MonoLabel>
+                    <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: tc + '55' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
+                    </View>
+                    <Text style={{ flex: 1, fontSize: 14, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
+                    {avgStatLabel && (
+                      <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkGhost }}>{avgStatLabel}</Text>
+                    )}
+                    {isZero && (
+                      <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: theme.pos + '55' }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.pos }}>ZERO·DRAIN</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                    {d.whiteHits.map(({ stat, white }) => (
+                      <Text key={stat} style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: white ? theme.steelLight : theme.inkGhost }}>
+                        {white ? '●' : '○'} {stat}
+                      </Text>
+                    ))}
+                  </View>
+
+                  <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <MonoLabel size={9}>EFFICIENCY</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '600', color: theme.pos }}>{eff}%</Text>
+                      </View>
+                      <View style={{ height: 3, backgroundColor: theme.surface3 }}>
+                        <View style={{ width: `${eff}%` as any, height: '100%', backgroundColor: theme.pos }} />
+                      </View>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <MonoLabel size={9}>COND·LOSS</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '600', color: condCost === 0 ? theme.pos : condCost < 2 ? theme.hot : theme.neg }}>{condCost.toFixed(2)}%</Text>
+                      </View>
+                      <View style={{ height: 3, backgroundColor: theme.surface3 }}>
+                        <View style={{ width: `${Math.min(100, condCost * 20)}%` as any, height: '100%', backgroundColor: condCost === 0 ? theme.pos : condCost < 2 ? theme.hot : theme.neg }} />
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }
