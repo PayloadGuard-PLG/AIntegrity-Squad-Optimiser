@@ -97,7 +97,7 @@ export function applyDrillSessionsToStats(
 
       const isWhite = isWhiteStat(player.role, normalized);
       const gainPct = estimateStatGainPct(
-        session.sessionCount * profile.baseXpPerSession,
+        session.sessionCount * profile.baseXpPerSession / drill.stats.length,
         currentVal,
         player.age,
         0,

@@ -69,7 +69,7 @@
   "rule180StatCap": 340,
   "baseXpPerSession": 150,
   "twoxAdMultiplier": 2.0,
-  "starDecayPerSession": 0.85,
+  "starDecayPerSession": 1.0,
   "qualityOvrDivisor": 1,
   "totalAttributeCount": 15,
   "teamPlayDecayPerDay": 2,
