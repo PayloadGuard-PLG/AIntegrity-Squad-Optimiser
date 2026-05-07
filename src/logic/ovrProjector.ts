@@ -74,7 +74,10 @@ export function applyDrillSessionsToStats(
 
     for (const statKey of drill.stats) {
       const normalized = statKey.toUpperCase();
-      const currentVal = updatedStats[normalized] ?? 0;
+      // Skip stats the player hasn't entered. Adding them from 0 would replace
+      // their padded-196 slot with a near-zero value, making computed OVR drop.
+      if (!(normalized in updatedStats)) continue;
+      const currentVal = updatedStats[normalized];
       if (currentVal >= profile.statCap) continue;
 
       const isWhite = isWhiteStat(player.role, normalized);
