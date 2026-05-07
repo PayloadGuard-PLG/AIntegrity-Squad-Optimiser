@@ -4,8 +4,99 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 6 — Direction B UI + Engine Calibration Fix
+**2026-05-07 — afternoon**
+
+### Shipped
+
+**Direction B design system**
+
+Full UI redesign to "Operator" aesthetic: pitch-black background, gunmetal navy surfaces, JetBrains Mono throughout, zero border radius, steelblue accents, hot-orange for mutant/danger states.
+
+| Token | Value | Notes |
+|---|---|---|
+| `bg` | #0a0a0c | pitch black |
+| `surface` | #111116 | card background |
+| `surface2` | #1a1a21 | secondary surface |
+| `ink` | #f0f0f5 | primary text |
+| `inkSec` | #c8c8d2 | secondary text (raised from #a1a1aa for readability) |
+| `inkMuted` | #909099 | muted text (raised from #6b6b73) |
+| `hairline3` | rgba(255,255,255,0.38) | borders (raised from 0.18) |
+| `steelLight` | #5b8fe8 | accent / active state |
+| `negRed` | #e85b5b | delete / destructive |
+| `hotOrange` | #e87d2a | mutant candidate accent |
+
+**New player screens**
+
+| File | Content |
+|---|---|
+| `app/player/new.tsx` | Full Direction B add-player screen: 4-column ROLE_GRID position picker, 2-column bordered stats grid with ●/○ white stat indicators (via `isWhiteStat`), colour-coded tier chips, MUTANT CANDIDATE toggle, full-width SAVE CTA |
+| `app/player/[id].tsx` | Same layout + loads existing player on mount + SAVE/DELETE side-by-side CTAs (DELETE uses negRed outline) |
+
+**Plan tab config section redesign**
+
+`app/(tabs)/plan.tsx` — each configuration group (TALENT, DRILL LEVEL, SESSIONS, GREENS, TIER) rebuilt as a bordered card: dark header row with steelLight accent stripe, content below within the same border. Section tabs (PLAN / STEPS / WARNINGS) changed from text links to full-width ink-fill button bar. All param setters now call `invalidate()` → `setPlan(null)` to clear stale projections before any re-run.
+
+**OvrMovement: pure-RN rewrite (critical)**
+
+`src/components/atoms/OvrMovement.tsx` — removed all `react-native-svg` imports. Two separate crash vectors eliminated:
+1. `Pattern` element + `width="100%"` on `Svg` → hard crash on Android
+2. `lineHeight: 56` with `fontSize: 62` → crash (lineHeight must be ≥ fontSize)
+
+Rewritten as pure `View`/`Text` layout with identical visual output.
+
+**Readability improvements**
+
+- `src/components/atoms/MonoLabel.tsx`: default color `inkMuted` → `inkSec`; fontWeight `500` → `600`
+- `src/components/atoms/Chip.tsx`: inactive state bg `transparent` → `surface2`; border `hairline2` → `hairline3`; text `inkSec` → `ink`
+
+**Drill name fix**
+
+`app/(tabs)/plan.tsx`: `DRILL_NAMES` constant replaced — was hardcoded with invalid names including "Finishing School" (not in DB). Now derived via `DRILL_LIST` import so drill picker always reflects the real drill database.
+
+**OVR display delta anchor**
+
+Plan tab FROM/TO display was using engine-computed OVR as the baseline, which differs from `player.overall` by ~1–2 OVR when stats are partially entered (partial-stat mean ≠ stored overall). Fixed: FROM anchors to `player.overall` (stored DB value), TO computed as `storedOvr + engineGain`. Eliminates persistent −1.2 regression display.
+
+**Engine calibration fix (critical)**
+
+Root cause of +0.0 drill gains for all high-stat players: two compounding bugs.
+
+Bug 1 — hard stat cap at 180: `xpBaseForStat()` returned Infinity for any stat ≥ `rule180StatCap` (was 180). Player Coutts' white stats are all 187–246 → all returned Infinity → 0 gains.
+
+Bug 2 — missing XP multiplier: `applyDrillSessionsToStats()` passed `session.sessionCount` (e.g. 6) raw as XP budget. Cost for 1% on a stat-113 grey attr at age 24 ≈ 250 XP. Budget of 6 << 250 → always 0.
+
+| File | Change |
+|---|---|
+| `profiles/game_2025.json` | Extended `xpCostTable` — added 6 bands covering stats 180–339 with finite costs (80/100/125/160/200/250 XP per 1%) |
+| `profiles/game_2025.json` | `rule180StatCap`: 180 → 340 (now matches `statCap`; hard cap never fires) |
+| `profiles/game_2025.json` | Added `baseXpPerSession: 150` |
+| `src/types/resources.ts` | Added `baseXpPerSession: number` to `GameProfile` interface |
+| `src/logic/ovrProjector.ts` | XP budget: `session.sessionCount` → `session.sessionCount × profile.baseXpPerSession` |
+
+With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white attr, age 24, Normal talent, Very Easy → cost ≈ 667 XP → 1 gain per run. Value is an estimate pending screenshot calibration (see KNOWN_ISSUES #2).
+
+### Bugs fixed this sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F11 | Plan tab: first run shows −1.2, button locks | `invalidate()` on all param setters; FROM anchored to `player.overall` |
+| F12 | Drill picker contained "Finishing School" (not in DB) | `DRILL_NAMES` derived from `DRILL_LIST` import |
+| F13 | All players show +0.0 OVR from drills | Extended XP table above 180; `baseXpPerSession` multiplier applied |
+| F14 | `compareInvestmentScenarios` shape mismatch | Rewritten to return `{ results, recommendedPlayer, reasoning }` |
+| F15 | OvrMovement crashes Android | Removed react-native-svg entirely; pure View/Text |
+| F16 | Plan OVR shows persistent −1.2 | FROM anchored to DB `player.overall`; gain computed as delta |
+
+### Still TODO
+
+- Verify `baseXpPerSession: 150` against real in-game screenshots (KNOWN_ISSUES #2)
+- GK white stat list: estimated, unconfirmed (KNOWN_ISSUES #3)
+- GK stat entry UI: shows outfield stats regardless of role (KNOWN_ISSUES #4)
+
+---
+
 ## Sprint 5 — OTA Pipeline, Navigation, Game Data Corrections
-**2026-05-07**
+**2026-05-07 — morning**
 
 ### Shipped
 
