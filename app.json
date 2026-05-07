@@ -11,8 +11,15 @@
       "bundleIdentifier": "com.payloadguard.squadoptimiser"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-updates"
     ],
+    "updates": {
+      "url": "https://u.expo.dev/5e2319b8-dda7-4fbf-9fb4-5918d690d476"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "router": {
         "origin": false
