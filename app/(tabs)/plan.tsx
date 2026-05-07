@@ -146,148 +146,182 @@ export default function PlanScreen() {
           </View>
         )}
 
-        <View style={{ padding: 24, paddingBottom: 0 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <MonoLabel color={theme.steelLight}>CONFIGURATION</MonoLabel>
-            <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-            {(['drills', 'resources', 'tier'] as Section[]).map(s => (
-              <Pressable key={s} onPress={() => setSection(s)} style={{ marginLeft: 10, paddingBottom: 2, borderBottomWidth: 1, borderBottomColor: section === s ? theme.steelLight : 'transparent' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.4, color: section === s ? theme.ink : theme.inkMuted, textTransform: 'uppercase' }}>{s}</Text>
-              </Pressable>
-            ))}
+        <View style={{ padding: 16, paddingBottom: 0 }}>
+
+          {/* Section tab bar */}
+          <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
+            {(['drills', 'resources', 'tier'] as Section[]).map((s, i) => {
+              const active = section === s;
+              return (
+                <Pressable key={s} onPress={() => setSection(s)} style={{
+                  flex: 1, paddingVertical: 11, alignItems: 'center',
+                  backgroundColor: active ? theme.ink : theme.surface,
+                  borderRightWidth: i < 2 ? 1 : 0, borderRightColor: theme.hairline2,
+                }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.8, fontWeight: '700', color: active ? theme.bg : theme.inkSec, textTransform: 'uppercase' }}>{s}</Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           {section === 'drills' && (
             <>
-              <View style={{ gap: 14, marginBottom: 16 }}>
-                <View>
-                  <MonoLabel style={{ marginBottom: 6 }}>TALENT</MonoLabel>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
-                    {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => setTalent(t)}>{t}</Chip>)}
-                  </View>
+              {/* TALENT card */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>TALENT</MonoLabel>
                 </View>
-                <View>
-                  <MonoLabel style={{ marginBottom: 6 }}>DRILL LEVEL</MonoLabel>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
-                    {DRILL_LEVELS.map(l => <Chip key={l} active={drillLevel === l} onPress={() => setDrillLevel(l)}>{l}</Chip>)}
-                  </View>
+                <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                  {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => setTalent(t)}>{t}</Chip>)}
                 </View>
               </View>
 
-              <Pressable onPress={() => setTwoxAd(v => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: twoxAd ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 10, paddingHorizontal: 12, marginBottom: 18 }}>
-                <View style={{ width: 14, height: 14, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.inkMuted }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, color: twoxAd ? theme.hot : theme.inkSec }}>2× AD MULTIPLIER</Text>
-                <View style={{ flex: 1 }} />
-                <MonoLabel size={9}>×2.00 XP</MonoLabel>
+              {/* DRILL LEVEL card */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>DRILL LEVEL</MonoLabel>
+                </View>
+                <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                  {DRILL_LEVELS.map(l => <Chip key={l} active={drillLevel === l} onPress={() => setDrillLevel(l)}>{l}</Chip>)}
+                </View>
+              </View>
+
+              {/* 2× AD toggle */}
+              <Pressable onPress={() => setTwoxAd(v => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: twoxAd ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 12, paddingHorizontal: 14, marginBottom: 10 }}>
+                <View style={{ width: 16, height: 16, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: twoxAd ? theme.hot : theme.ink, flex: 1 }}>2× AD MULTIPLIER</Text>
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: twoxAd ? theme.hot : theme.inkSec }}>×2.00 XP</Text>
               </Pressable>
 
-              <MonoLabel style={{ marginBottom: 8 }}>SESSIONS</MonoLabel>
-              {drillRows.map((row, idx) => (
-                <View key={idx} style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 6, backgroundColor: theme.surface }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 9, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
-                    <MonoLabel size={9} style={{ minWidth: 20 }}>{String(idx + 1).padStart(2, '0')}</MonoLabel>
-                    <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '500', fontFamily: theme.display }}>{row.drillName}</Text>
-                    <Pressable onPress={() => setDrillRows(rows => rows.filter((_, i) => i !== idx))}>
-                      <Text style={{ color: theme.inkMuted, fontSize: 14, padding: 4 }}>×</Text>
-                    </Pressable>
-                  </View>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, padding: 8, paddingHorizontal: 10 }}>
-                    {DRILL_NAMES.map(name => (
-                      <Chip key={name} size="sm" active={row.drillName === name} onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, drillName: name } : r))}>{name}</Chip>
-                    ))}
-                  </ScrollView>
-                  <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.hairline }}>
-                    <Pressable onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: Math.max(0, r.sessionCount - 1) } : r))} style={{ width: 38, backgroundColor: theme.surface, borderRightWidth: 1, borderRightColor: theme.hairline, alignItems: 'center', justifyContent: 'center', paddingVertical: 10 }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.ink }}>−</Text>
-                    </Pressable>
-                    <View style={{ flex: 1, padding: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <MonoLabel size={9}>SESSIONS</MonoLabel>
-                      <Text style={{ fontFamily: theme.display, fontSize: 18, color: theme.ink, fontWeight: '300' }}>{String(row.sessionCount).padStart(2, '0')}</Text>
-                    </View>
-                    <Pressable onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: r.sessionCount + 1 } : r))} style={{ width: 38, backgroundColor: theme.surface, borderLeftWidth: 1, borderLeftColor: theme.hairline, alignItems: 'center', justifyContent: 'center', paddingVertical: 10 }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.ink }}>+</Text>
-                    </Pressable>
-                  </View>
+              {/* SESSIONS card */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>SESSIONS</MonoLabel>
                 </View>
-              ))}
-              <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, alignItems: 'center' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, color: theme.inkSec }}>＋  ADD DRILL</Text>
-              </Pressable>
+                {drillRows.map((row, idx) => (
+                  <View key={idx} style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
+                      <MonoLabel size={10} style={{ minWidth: 22 }}>{String(idx + 1).padStart(2, '0')}</MonoLabel>
+                      <Text style={{ flex: 1, fontSize: 14, color: theme.ink, fontWeight: '700', fontFamily: theme.display }}>{row.drillName}</Text>
+                      <Pressable onPress={() => setDrillRows(rows => rows.filter((_, i) => i !== idx))}>
+                        <Text style={{ color: theme.neg, fontSize: 16, paddingHorizontal: 6 }}>×</Text>
+                      </Pressable>
+                    </View>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, padding: 8, paddingHorizontal: 10 }}>
+                      {DRILL_NAMES.map(name => (
+                        <Chip key={name} size="sm" active={row.drillName === name} onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, drillName: name } : r))}>{name}</Chip>
+                      ))}
+                    </ScrollView>
+                    <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.hairline2 }}>
+                      <Pressable onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: Math.max(0, r.sessionCount - 1) } : r))} style={{ width: 44, borderRightWidth: 1, borderRightColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 18, fontWeight: '300', color: theme.ink }}>−</Text>
+                      </Pressable>
+                      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
+                        <MonoLabel size={10}>SESSIONS</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink }}>{String(row.sessionCount).padStart(2, '0')}</Text>
+                      </View>
+                      <Pressable onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, sessionCount: r.sessionCount + 1 } : r))} style={{ width: 44, borderLeftWidth: 1, borderLeftColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 18, fontWeight: '300', color: theme.ink }}>+</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
+                <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
+                </Pressable>
+              </View>
             </>
           )}
 
           {section === 'resources' && (
             <>
-              <View style={{ marginBottom: 18 }}>
-                <MonoLabel style={{ marginBottom: 6 }}>STYLE</MonoLabel>
-                <View style={{ flexDirection: 'row', gap: 5 }}>
+              {/* STYLE card */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>MANAGER STYLE</MonoLabel>
+                </View>
+                <View style={{ padding: 12, flexDirection: 'row', gap: 6 }}>
                   {(['FTP', 'Hybrid', 'PTW'] as ManagerStyle[]).map(s => <Chip key={s} active={style === s} onPress={() => setStyle(s)}>{s}</Chip>)}
                 </View>
               </View>
-              <View style={{ marginBottom: 18 }}>
-                <MonoLabel style={{ marginBottom: 6 }}>GREENS</MonoLabel>
-                <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: theme.hairline2 }}>
-                  <Pressable onPress={() => setGreens(v => Math.max(0, v - 1))} style={{ width: 36, backgroundColor: theme.surface, borderRightWidth: 1, borderRightColor: theme.hairline, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.ink }}>−</Text>
+
+              {/* GREENS card */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>GREENS</MonoLabel>
+                  <View style={{ flex: 1 }} />
+                  <MonoLabel size={10} color={theme.pos}>+{Math.min(100, greens * 15)}% COND</MonoLabel>
+                </View>
+                <View style={{ flexDirection: 'row' }}>
+                  <Pressable onPress={() => setGreens(v => Math.max(0, v - 1))} style={{ width: 52, borderRightWidth: 1, borderRightColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '300', color: theme.ink }}>−</Text>
                   </Pressable>
-                  <View style={{ flex: 1, padding: 10, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <MonoLabel size={9}>QTY</MonoLabel>
-                    <Text style={{ fontFamily: theme.display, fontSize: 20, color: theme.ink, fontWeight: '300' }}>{greens}</Text>
-                    <View style={{ flex: 1 }} />
-                    <MonoLabel size={9} color={theme.pos}>+{Math.min(100, greens * 15)}% COND</MonoLabel>
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 28, fontWeight: '700', color: theme.ink }}>{greens}</Text>
                   </View>
-                  <Pressable onPress={() => setGreens(v => v + 1)} style={{ width: 36, backgroundColor: theme.surface, borderLeftWidth: 1, borderLeftColor: theme.hairline, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.ink }}>+</Text>
+                  <Pressable onPress={() => setGreens(v => v + 1)} style={{ width: 52, borderLeftWidth: 1, borderLeftColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '300', color: theme.ink }}>+</Text>
                   </Pressable>
                 </View>
               </View>
-              <Pressable onPress={() => setIsPremiumSponsor(v => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: isPremiumSponsor ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline2, padding: 10, paddingHorizontal: 12 }}>
-                <View style={{ width: 14, height: 14, backgroundColor: isPremiumSponsor ? theme.hot : 'transparent', borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.inkMuted }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, color: isPremiumSponsor ? theme.hot : theme.inkSec }}>PREMIUM SPONSOR</Text>
+
+              {/* PREMIUM SPONSOR toggle */}
+              <Pressable onPress={() => setIsPremiumSponsor(v => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: isPremiumSponsor ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
+                <View style={{ width: 16, height: 16, backgroundColor: isPremiumSponsor ? theme.hot : 'transparent', borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline3 }} />
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: isPremiumSponsor ? theme.hot : theme.ink }}>PREMIUM SPONSOR</Text>
               </Pressable>
             </>
           )}
 
           {section === 'tier' && (
             <>
-              <MonoLabel style={{ marginBottom: 8 }}>TIER UPGRADE</MonoLabel>
-              {TIER_ORDER.map(t => {
-                const cost = TIER_COSTS[t];
-                const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
-                const canAfford = have >= cost;
-                const sel = targetTier === t;
-                const c = TIER_COLORS[t];
-                return (
-                  <Pressable key={t} onPress={() => setTargetTier(sel ? null : t)} style={{ flexDirection: 'row', alignItems: 'stretch', backgroundColor: sel ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: sel ? c : theme.hairline2, marginBottom: 5 }}>
-                    <View style={{ width: 6, backgroundColor: c }} />
-                    <View style={{ flex: 1, padding: 10, paddingHorizontal: 12 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginBottom: 3 }}>
-                        <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '600', color: c, letterSpacing: 0.5, textTransform: 'uppercase' }}>{t}</Text>
-                        <MonoLabel size={9}>+{TIER_ADDITIONS[t]}/STAT</MonoLabel>
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>TIER UPGRADE</MonoLabel>
+                </View>
+                {TIER_ORDER.map((t, idx) => {
+                  const cost = TIER_COSTS[t];
+                  const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
+                  const canAfford = have >= cost;
+                  const sel = targetTier === t;
+                  const c = TIER_COLORS[t];
+                  return (
+                    <Pressable key={t} onPress={() => setTargetTier(sel ? null : t)} style={{ flexDirection: 'row', alignItems: 'stretch', backgroundColor: sel ? theme.surface2 : 'transparent', borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: sel ? 3 : 0, borderLeftColor: c }}>
+                      <View style={{ flex: 1, padding: 12, paddingHorizontal: 14 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                          <Text style={{ fontFamily: theme.display, fontSize: 15, fontWeight: '700', color: c, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t}</Text>
+                          <MonoLabel size={9} color={theme.inkSec}>+{TIER_ADDITIONS[t]} / STAT</MonoLabel>
+                          <View style={{ flex: 1 }} />
+                          <Text style={{ fontSize: 20, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost }}>{canAfford ? '✓' : '·'}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                          <MonoLabel size={9} color={theme.inkSec}>NEED {cost} · HAVE</MonoLabel>
+                          <TextInput keyboardType="numeric" value={tierPointInputs[t] ?? ''} onChangeText={v => setTierPointInputs(prev => ({ ...prev, [t]: v }))} placeholder="0" placeholderTextColor={theme.inkGhost}
+                            style={{ backgroundColor: theme.surface3, color: theme.ink, fontFamily: theme.mono, fontSize: 13, fontWeight: '700', padding: 5, paddingHorizontal: 10, minWidth: 60, borderWidth: 1, borderColor: theme.hairline2 }} />
+                          {!canAfford && have > 0 && <MonoLabel size={9} color={theme.neg}>{cost - have} SHORT</MonoLabel>}
+                        </View>
                       </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <MonoLabel size={9}>NEED {cost} · HAVE</MonoLabel>
-                        <TextInput keyboardType="numeric" value={tierPointInputs[t] ?? ''} onChangeText={v => setTierPointInputs(prev => ({ ...prev, [t]: v }))} placeholder="0" placeholderTextColor={theme.inkGhost} style={{ backgroundColor: theme.surface3, color: theme.ink, fontFamily: theme.mono, fontSize: 11, padding: 4, paddingHorizontal: 8, minWidth: 50 }} />
-                        {!canAfford && have > 0 && <MonoLabel size={9} color={theme.neg}>{cost - have} SHORT</MonoLabel>}
-                      </View>
-                    </View>
-                    <View style={{ width: 50, alignItems: 'center', justifyContent: 'center', borderLeftWidth: 1, borderLeftColor: theme.hairline2 }}>
-                      <Text style={{ fontSize: 18, fontWeight: '300', color: canAfford ? theme.pos : theme.inkGhost }}>{canAfford ? '✓' : '·'}</Text>
-                    </View>
-                  </Pressable>
-                );
-              })}
+                    </Pressable>
+                  );
+                })}
+              </View>
             </>
           )}
 
-          <Pressable onPress={project} disabled={!selectedPlayer} style={{ marginTop: 24, backgroundColor: selectedPlayer ? theme.ink : theme.surface2, paddingVertical: 14, alignItems: 'center' }}>
-            <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2.5, fontWeight: '600', color: selectedPlayer ? theme.bg : theme.inkGhost }}>
+          <Pressable onPress={project} disabled={!selectedPlayer} style={{ marginTop: 16, backgroundColor: selectedPlayer ? theme.ink : theme.surface2, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: selectedPlayer ? theme.ink : theme.hairline2 }}>
+            <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2.5, fontWeight: '700', color: selectedPlayer ? theme.bg : theme.inkGhost }}>
               {selectedPlayer ? 'RUN PROJECTION' : 'SELECT A SUBJECT'}
             </Text>
           </Pressable>
 
-          <Pressable onPress={() => router.push('/compare')} style={{ marginTop: 12, borderWidth: 1, borderColor: theme.hairline3, paddingVertical: 12, alignItems: 'center' }}>
-            <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, fontWeight: '600', color: theme.steelLight }}>
+          <Pressable onPress={() => router.push('/compare')} style={{ marginTop: 10, borderWidth: 1, borderColor: theme.hairline3, paddingVertical: 13, alignItems: 'center' }}>
+            <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, fontWeight: '700', color: theme.steelLight }}>
               HEAD-TO-HEAD COMPARISON →
             </Text>
           </Pressable>

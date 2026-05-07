@@ -14,9 +14,9 @@ export function Chip({ active, onPress, children, size = 'md' }: Props) {
   return (
     <Pressable onPress={onPress} style={{
       ...pad,
-      backgroundColor: active ? theme.ink : 'transparent',
+      backgroundColor: active ? theme.ink : theme.surface2,
       borderWidth: 1,
-      borderColor: active ? theme.ink : theme.hairline2,
+      borderColor: active ? theme.ink : theme.hairline3,
       borderRadius: 0,
     }}>
       <Text style={{
@@ -24,8 +24,8 @@ export function Chip({ active, onPress, children, size = 'md' }: Props) {
         fontSize,
         letterSpacing: 1,
         textTransform: 'uppercase',
-        color: active ? theme.bg : theme.inkSec,
-        fontWeight: '500',
+        color: active ? theme.bg : theme.ink,
+        fontWeight: '600',
       }}>
         {children}
       </Text>

@@ -15,8 +15,8 @@ export function MonoLabel({ children, size = 10, color, style }: Props) {
       fontSize: size,
       letterSpacing: 1.4,
       textTransform: 'uppercase',
-      color: color ?? theme.inkMuted,
-      fontWeight: '500',
+      color: color ?? theme.inkSec,
+      fontWeight: '600',
       ...style,
     }}>
       {children}
