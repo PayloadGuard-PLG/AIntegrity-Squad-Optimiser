@@ -12,7 +12,7 @@ export default function SquadDashboard() {
       <View style={{ flex: 1, backgroundColor: '#0f1117' }}>
         <EmptyState
           icon="people-outline"
-          message="Your squad is empty. Add your first player to get started."
+          message="Your squad is empty. Add your first player to get started. ✓ OTA live"
           ctaLabel="Add First Player"
           onCta={() => router.push('/player/new')}
         />
