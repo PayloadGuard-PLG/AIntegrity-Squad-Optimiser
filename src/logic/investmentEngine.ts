@@ -77,7 +77,7 @@ export function planPlayerInvestment(
 
 /**
  * Compares investment plans across multiple players using a shared drill set.
- * Returns players ranked by projected OVR gain.
+ * Returns players ranked by projected OVR gain in ScenarioComparison shape.
  */
 export function compareInvestmentScenarios(
   players: Player[],
@@ -85,12 +85,32 @@ export function compareInvestmentScenarios(
   drillSessions: DrillSession[],
   gameProfile: GameProfile,
   targetTier: TierName | null = null
-): { ranked: { player: Player; plan: InvestmentPlan }[] } {
-  const results = players.map(player => ({
-    player,
-    plan: planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier),
+): import('../types/resources').ScenarioComparison {
+  const ranked = players
+    .map(player => {
+      const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
+      return { player, plan };
+    })
+    .sort((a, b) => b.plan.totalOvrGain - a.plan.totalOvrGain);
+
+  const results = ranked.map((r, i) => ({
+    playerName: r.player.name,
+    currentOvr: r.plan.player.currentOvr,
+    projectedOvr: r.plan.finalOvr,
+    ovrGain: r.plan.totalOvrGain,
+    plan: r.plan,
+    rank: i + 1,
   }));
 
-  results.sort((a, b) => b.plan.totalOvrGain - a.plan.totalOvrGain);
-  return { ranked: results };
+  const best = ranked[0];
+  const second = ranked[1];
+  const reasoning = best && second
+    ? `${best.player.name} projects +${best.plan.totalOvrGain} OVR vs ${second.player.name} +${second.plan.totalOvrGain} under identical resources.`
+    : '';
+
+  return {
+    results,
+    recommendedPlayer: best?.player.name ?? '',
+    reasoning,
+  };
 }

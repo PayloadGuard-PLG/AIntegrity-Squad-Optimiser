@@ -7,6 +7,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { OvrMovement } from '../../src/components/atoms/OvrMovement';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
+import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep } from '../../src/types/resources';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import gameProfile from '../../profiles/game_2025.json';
@@ -16,7 +17,7 @@ const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very
 const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30, Stellar: 50, Master: 80, Epic: 120, Legendary: 160 };
 const TIER_COSTS: Record<TierName, number> = { None: 0, Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
-const DRILL_NAMES = ['Skill Drill', 'Finishing School', 'Wing Play', 'Defensive Shape', 'Backline Press', 'Stamina Run', 'Strength Circuit'];
+const DRILL_NAMES = DRILL_LIST.map(d => d.name);
 
 type Section = 'drills' | 'resources' | 'tier';
 
@@ -74,6 +75,8 @@ export default function PlanScreen() {
 
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
+  function invalidate() { setPlan(null); }
+
   function project() {
     if (!selectedPlayer) return;
     const managerProfile = {
@@ -84,6 +87,12 @@ export default function PlanScreen() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setPlan(planPlayerInvestment(selectedPlayer, managerProfile, drillRows, gameProfile as any, targetTier));
   }
+
+  // Engine computes its own baseline OVR from partial stats — use that as "from"
+  // so the displayed gain reflects what the engine actually produced.
+  const engineFrom = plan?.player.currentOvr ?? selectedPlayer?.overall ?? 0;
+  const engineTo = plan?.finalOvr ?? engineFrom;
+  const engineGain = plan ? Number((engineTo - engineFrom).toFixed(1)) : 0;
 
   if (squad.length === 0) {
     return (
@@ -110,7 +119,7 @@ export default function PlanScreen() {
             {squad.map(p => {
               const sel = p.id === selectedId;
               return (
-                <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
+                <Pressable key={p.id} onPress={() => { setSelectedId(p.id); invalidate(); }} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
                   <Text style={{ fontSize: 12, color: sel ? theme.ink : theme.inkMuted, fontWeight: sel ? '600' : '400', fontFamily: theme.display, marginBottom: 2 }}>{p.name}</Text>
                   <MonoLabel size={8}>{p.overall} · {p.role[0]}</MonoLabel>
                 </Pressable>
@@ -121,7 +130,7 @@ export default function PlanScreen() {
 
         <View style={{ padding: 14, paddingBottom: 0 }}>
           {selectedPlayer ? (
-            <OvrMovement from={selectedPlayer.overall} to={plan?.finalOvr ?? selectedPlayer.overall} gain={(plan?.finalOvr ?? selectedPlayer.overall) - selectedPlayer.overall} name={selectedPlayer.name} age={selectedPlayer.age} tier={selectedPlayer.tier ?? 'None'} />
+            <OvrMovement from={engineFrom} to={engineTo} gain={engineGain} name={selectedPlayer.name} age={selectedPlayer.age} tier={selectedPlayer.tier ?? 'None'} />
           ) : (
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 24, alignItems: 'center' }}>
               <MonoLabel color={theme.steelLight}>SELECT A SUBJECT ABOVE</MonoLabel>
@@ -173,7 +182,7 @@ export default function PlanScreen() {
                   <MonoLabel size={10} color={theme.steelLight}>TALENT</MonoLabel>
                 </View>
                 <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                  {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => setTalent(t)}>{t}</Chip>)}
+                  {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => { setTalent(t); invalidate(); }}>{t}</Chip>)}
                 </View>
               </View>
 
@@ -184,12 +193,12 @@ export default function PlanScreen() {
                   <MonoLabel size={10} color={theme.steelLight}>DRILL LEVEL</MonoLabel>
                 </View>
                 <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                  {DRILL_LEVELS.map(l => <Chip key={l} active={drillLevel === l} onPress={() => setDrillLevel(l)}>{l}</Chip>)}
+                  {DRILL_LEVELS.map(l => <Chip key={l} active={drillLevel === l} onPress={() => { setDrillLevel(l); invalidate(); }}>{l}</Chip>)}
                 </View>
               </View>
 
               {/* 2× AD toggle */}
-              <Pressable onPress={() => setTwoxAd(v => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: twoxAd ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 12, paddingHorizontal: 14, marginBottom: 10 }}>
+              <Pressable onPress={() => { setTwoxAd(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: twoxAd ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 12, paddingHorizontal: 14, marginBottom: 10 }}>
                 <View style={{ width: 16, height: 16, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: twoxAd ? theme.hot : theme.ink, flex: 1 }}>2× AD MULTIPLIER</Text>
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: twoxAd ? theme.hot : theme.inkSec }}>×2.00 XP</Text>
@@ -210,9 +219,9 @@ export default function PlanScreen() {
                         <Text style={{ color: theme.neg, fontSize: 16, paddingHorizontal: 6 }}>×</Text>
                       </Pressable>
                     </View>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, padding: 8, paddingHorizontal: 10 }}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled contentContainerStyle={{ flexDirection: 'row', gap: 5, padding: 8, paddingHorizontal: 10 }}>
                       {DRILL_NAMES.map(name => (
-                        <Chip key={name} size="sm" active={row.drillName === name} onPress={() => setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, drillName: name } : r))}>{name}</Chip>
+                        <Chip key={name} size="sm" active={row.drillName === name} onPress={() => { setDrillRows(rows => rows.map((r, i) => i === idx ? { ...r, drillName: name } : r)); invalidate(); }}>{name}</Chip>
                       ))}
                     </ScrollView>
                     <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.hairline2 }}>
@@ -245,7 +254,7 @@ export default function PlanScreen() {
                   <MonoLabel size={10} color={theme.steelLight}>MANAGER STYLE</MonoLabel>
                 </View>
                 <View style={{ padding: 12, flexDirection: 'row', gap: 6 }}>
-                  {(['FTP', 'Hybrid', 'PTW'] as ManagerStyle[]).map(s => <Chip key={s} active={style === s} onPress={() => setStyle(s)}>{s}</Chip>)}
+                  {(['FTP', 'Hybrid', 'PTW'] as ManagerStyle[]).map(s => <Chip key={s} active={style === s} onPress={() => { setStyle(s); invalidate(); }}>{s}</Chip>)}
                 </View>
               </View>
 
@@ -258,20 +267,20 @@ export default function PlanScreen() {
                   <MonoLabel size={10} color={theme.pos}>+{Math.min(100, greens * 15)}% COND</MonoLabel>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
-                  <Pressable onPress={() => setGreens(v => Math.max(0, v - 1))} style={{ width: 52, borderRightWidth: 1, borderRightColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
+                  <Pressable onPress={() => { setGreens(v => Math.max(0, v - 1)); invalidate(); }} style={{ width: 52, borderRightWidth: 1, borderRightColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
                     <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '300', color: theme.ink }}>−</Text>
                   </Pressable>
                   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
                     <Text style={{ fontFamily: theme.mono, fontSize: 28, fontWeight: '700', color: theme.ink }}>{greens}</Text>
                   </View>
-                  <Pressable onPress={() => setGreens(v => v + 1)} style={{ width: 52, borderLeftWidth: 1, borderLeftColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
+                  <Pressable onPress={() => { setGreens(v => v + 1); invalidate(); }} style={{ width: 52, borderLeftWidth: 1, borderLeftColor: theme.hairline2, alignItems: 'center', justifyContent: 'center', paddingVertical: 14 }}>
                     <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '300', color: theme.ink }}>+</Text>
                   </Pressable>
                 </View>
               </View>
 
               {/* PREMIUM SPONSOR toggle */}
-              <Pressable onPress={() => setIsPremiumSponsor(v => !v)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: isPremiumSponsor ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
+              <Pressable onPress={() => { setIsPremiumSponsor(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: isPremiumSponsor ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
                 <View style={{ width: 16, height: 16, backgroundColor: isPremiumSponsor ? theme.hot : 'transparent', borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline3 }} />
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: isPremiumSponsor ? theme.hot : theme.ink }}>PREMIUM SPONSOR</Text>
               </Pressable>
@@ -292,7 +301,7 @@ export default function PlanScreen() {
                   const sel = targetTier === t;
                   const c = TIER_COLORS[t];
                   return (
-                    <Pressable key={t} onPress={() => setTargetTier(sel ? null : t)} style={{ flexDirection: 'row', alignItems: 'stretch', backgroundColor: sel ? theme.surface2 : 'transparent', borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: sel ? 3 : 0, borderLeftColor: c }}>
+                    <Pressable key={t} onPress={() => { setTargetTier(sel ? null : t); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'stretch', backgroundColor: sel ? theme.surface2 : 'transparent', borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: sel ? 3 : 0, borderLeftColor: c }}>
                       <View style={{ flex: 1, padding: 12, paddingHorizontal: 14 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                           <Text style={{ fontFamily: theme.display, fontSize: 15, fontWeight: '700', color: c, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t}</Text>
