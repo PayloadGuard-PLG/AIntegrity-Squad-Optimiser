@@ -4,9 +4,10 @@ import { theme } from '../constants/theme';
 import { MonoLabel } from './atoms/MonoLabel';
 
 const TABS = [
-  { id: 'squad', label: 'SQUAD', href: '/' },
-  { id: 'plan',  label: 'PLAN',  href: '/plan' },
-  { id: 'drills',label: 'DRILLS',href: '/drills' },
+  { id: 'squad',   label: 'SQUAD',   href: '/' },
+  { id: 'plan',    label: 'PLAN',    href: '/plan' },
+  { id: 'drills',  label: 'DRILLS',  href: '/drills' },
+  { id: 'coaches', label: 'COACHES', href: '/coaches' },
 ];
 
 interface Props {
@@ -17,16 +18,18 @@ interface Props {
 
 export function AppHeader({ title, subtitle, onBack }: Props) {
   const pathname = usePathname();
-  const showTabs = ['/', '/plan', '/drills'].includes(pathname);
+  const showTabs = ['/', '/plan', '/drills', '/coaches'].includes(pathname);
 
   const routeTitle = pathname === '/' ? 'DOSSIER'
     : pathname === '/plan' ? 'INVESTMENT MODEL'
     : pathname === '/drills' ? 'DRILL LIBRARY'
+    : pathname === '/coaches' ? 'COACH PLANNER'
     : title ?? 'SQUAD OPTIMISER';
 
   const routeSub = pathname === '/' ? 'ACTIVE PERSONNEL'
     : pathname === '/plan' ? 'PROJECTION ENGINE'
     : pathname === '/drills' ? 'TRAINING PROTOCOLS'
+    : pathname === '/coaches' ? 'SESSION SIMULATOR'
     : subtitle ?? 'OPERATOR · 1.0';
 
   return (

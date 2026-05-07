@@ -22,7 +22,7 @@ function findDrill(drillName: string) {
  * of 15), the missing 8 would effectively count as 0 and drag the mean down.
  * Padding them with the known overall keeps the baseline accurate.
  */
-function computeOvrWithPadding(
+export function computeOvrWithPadding(
   stats: Record<string, number>,
   playerOverall: number,
   profile: GameProfile

@@ -51,30 +51,39 @@ xpNeededFor1Pct(
 ): number
 ```
 
-**XP budget per drill run:**
+**XP budget per stat per drill run:**
 ```
-xpBudget = sessionCount × baseXpPerSession   (baseXpPerSession = 150)
+xpBudget = sessionCount × baseXpPerSession / drill.stats.length
 ```
 
-A player running 6 sessions of a drill generates 900 XP to distribute across the stats that drill trains.
+Budget is divided equally across all stats a drill trains. A 5-stat drill run for 30 sessions gives each stat 30 × 150 / 5 = **900 XP**.
 
-**Note — Training XP ≠ stat-gain XP:** The game displays a "Training XP" value in session reports (e.g. +30 per session). This is a separate game resource and is unrelated to the stat-gain XP budget the engine models. Do not use the displayed Training XP figure to calibrate `baseXpPerSession`.
+**Calibration — Standard Attacking ×30 (age 18, Normal talent):**
 
-**Preliminary calibration:** One Video Analysis session (Very Easy) on a high-OVR player produced +2 Positioning, +1 Creativity. For a stat in the 180–200 range (cost 80–100 XP per 1%), a budget of 150 XP yields 1.5–1.875 per-stat gain — consistent with the observed +1–2. `baseXpPerSession = 150` is treated as confirmed pending further data points.
+| Stat | Start | Observed gain | Model (Medium) |
+|---|---|---|---|
+| Passing | 121 | +26–33 | ~27 |
+| Dribbling | 132 | +20–27 | ~25 |
+| Crossing | 132 | +20–27 | ~25 |
+| Shooting | 129 | +21–29 | ~26 |
+| Finishing | 127 | +22–30 | ~27 |
+
+Model gives gains within the observed ranges at Medium intensity (1.3×). `baseXpPerSession = 150` confirmed.
+
+**Note — Training XP ≠ stat-gain XP:** The in-game "Training XP" display is a separate resource and does not map to the XP budget modelled here.
 
 **Cost per 1% gain on a single stat:**
 ```
 base       = xpCostTable[statValue]   (see §3.3)
 ageMult    = ageTable[age]
-starMult   = 0.85 ^ starsGainedInSession
 talentMult = talentMultipliers[talentTier]
 greyMult   = 1.0 if isWhite else 0.5
 adMult     = 2.0 if twoxAdActive else 1.0
 
-xpCost = base / (ageMult × starMult × talentMult × greyMult × adMult × drillLevelMult)
+xpCost = base / (ageMult × talentMult × greyMult × adMult × drillLevelMult)
 ```
 
-The engine iterates 1% at a time from the current stat value, subtracting `xpCost` from the budget, until the budget is exhausted or `statCap` (340) is reached.
+The engine iterates 1% at a time from the current stat value, subtracting `xpCost` from the budget, until the budget is exhausted or `statCap` (340) is reached. Sub-integer progress banks as a fractional carry.
 
 ### 3.3 XP cost table
 
@@ -143,7 +152,7 @@ Stats outside a player's role essential list (grey stats) receive `greyMult = 0.
 
 ### 3.8 Star decay
 
-Each session applies a `starMult = 0.85 ^ starsGainedInSession` reduction to model star decay. Stars gained per session is tracked per-drill-run.
+No star decay is applied (`starDecayPerSession = 1.0`). Real training data (Standard Attacking ×30) shows near-linear gains across all session counts — aggressive per-% decay was not supported by observation and caused severely understated projections for high-stat players. The parameter remains in `game_2025.json` for future refinement if non-linearity is confirmed.
 
 ---
 
