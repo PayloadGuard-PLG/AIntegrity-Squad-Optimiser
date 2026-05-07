@@ -58,6 +58,10 @@ xpBudget = sessionCount × baseXpPerSession   (baseXpPerSession = 150)
 
 A player running 6 sessions of a drill generates 900 XP to distribute across the stats that drill trains.
 
+**Note — Training XP ≠ stat-gain XP:** The game displays a "Training XP" value in session reports (e.g. +30 per session). This is a separate game resource and is unrelated to the stat-gain XP budget the engine models. Do not use the displayed Training XP figure to calibrate `baseXpPerSession`.
+
+**Preliminary calibration:** One Video Analysis session (Very Easy) on a high-OVR player produced +2 Positioning, +1 Creativity. For a stat in the 180–200 range (cost 80–100 XP per 1%), a budget of 150 XP yields 1.5–1.875 per-stat gain — consistent with the observed +1–2. `baseXpPerSession = 150` is treated as confirmed pending further data points.
+
 **Cost per 1% gain on a single stat:**
 ```
 base       = xpCostTable[statValue]   (see §3.3)
@@ -208,17 +212,17 @@ If a game is scheduled for the next day, the manager has a known time window and
 
 **Premium sponsor — Faster Condition Recovery:** Milestone track grants cooldown reductions (+10% at milestone 6, further at milestone 12), meaning more drill cycles per real-time hour. `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
-**Drill condition loss** is modelled per Fan Club level. Empirically verified values:
+**Drill condition loss** per Fan Club level. Model and observed values confirmed:
 
-| Fan Club Level | Drain reduction | Effective multiplier |
-|---|---|---|
-| L0 | −10% | 0.90 |
-| L1 | −15% | 0.85 |
-| L2 | −20% | 0.80 |
-| L3 | −25% | 0.75 |
-| L4 | −50% | 0.50 |
+| Fan Club Level | Drain reduction | Effective multiplier | Observed (Video Analysis, Very Easy) |
+|---|---|---|---|
+| L0 | −10% | 0.90 | — |
+| L1 | −15% | 0.85 | — |
+| L2 | −20% | 0.80 | — |
+| L3 | −25% | 0.75 | — |
+| L4 | −50% | 0.50 | 0.375% per session (model) = 0.38% displayed (game) ✓ |
 
-**Zero-Drain Protocol:** At Fan Club L4 with chants active on Very Easy drills, condition loss rounds to 0%. Unlimited repetitions at zero resource cost — the dominant intensive-training strategy.
+**Zero-Drain Protocol:** Confirmed. At Fan Club L4 with chants active on Very Easy drills, condition loss = 0%. Training list shows 0.00% per session when conditions are met. Engine correctly returns 0% for L4 + Very Easy (`isZeroDrain = true`).
 
 ---
 
