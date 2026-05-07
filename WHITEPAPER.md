@@ -222,7 +222,72 @@ If a game is scheduled for the next day, the manager has a known time window and
 
 ---
 
-## 6. Role and Stat Classification
+## 6. Team Play System
+
+Team Play is a separate scoring system that affects match performance but does **not** influence individual player stat training. It is currently unmodelled in the engine — tracked here for future implementation.
+
+### 6.1 Structure
+
+Four pillars, each with its own current score, cap, and level (1–10). Cap increases as the pillar is levelled up via the ADVANCE button. Combined score = sum of all four current values vs sum of all four caps.
+
+**Example observed values:**
+
+| Pillar | Current | Cap | Level |
+|---|---|---|---|
+| Attack | 14 | 18 | 4/10 |
+| Defence | 16 | 22 | 6/10 |
+| Possession | 14 | 20 | 5/10 |
+| Condition | 16 | 16 | 3/10 |
+| **Total** | **60** | **76** | — |
+
+**Daily decay:** "Each of your Teamplay Forms decreases by 2 or more per day." — confirmed in-game text. Decay applies at the 2am GMT server reset.
+
+### 6.2 Free daily maintenance (all managers)
+
+Four free teamplay training drills are available daily, accessible by watching ads (Top Eleven TV). These drills specifically raise teamplay pillar scores. A base multiplier (2×–4×, scaling with ads watched) applies to the teamplay gain from these drills.
+
+**Effective free daily boost:** 4 drills × base multiplier — sufficient to offset the ~2-point daily decay if used consistently.
+
+### 6.3 Matchday Coach (premium)
+
+The Matchday Coach grants **+150% Teamplay multiplier on all training sessions** — not just the 4 free teamplay drills. Duration: 7 days from activation. Source: premium sponsor milestone rewards.
+
+| Boost type | Scope | Duration |
+|---|---|---|
+| 4 free ad drills (2×–4× mult) | Teamplay drills only | Daily |
+| Matchday Coach (+150%) | All training sessions | 7 days |
+
+The Matchday Coach is equivalent to the 4-video ad multiplier but applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
+
+### 6.4 Top Eleven TV — match-day teamplay boosts
+
+Top Eleven TV provides random teamplay form boosts that apply **to matches only** — they do not affect training. Progress resets approximately every 6 hours.
+
+Boost probabilities per pillar draw:
+
+| Boost amount | Probability |
+|---|---|
+| +1 | 7% |
+| +2 | 10% |
+| +3 | 5.5% |
+| +4 | 2.5% |
+
+Applies to all 4 pillars (Attack, Defence, Possession, Condition) with identical probability distribution. Boost lasts until end of season day.
+
+**Special Ability Boost** is also available from the same reward track — applies to all Special Abilities for all matches until end of season day. Does not influence training.
+
+### 6.5 Strategic priority
+
+| Manager type | Team play approach |
+|---|---|
+| FTP | 4 free daily drills (watch ads) to hold pillars above decay baseline |
+| Premium (no coach) | Same as FTP + faster condition cooldown = more training cycles available |
+| Premium (Matchday Coach active) | All individual player drills also advance teamplay — no separate maintenance needed for 7 days |
+
+---
+
+## 7. Role and Stat Classification
+
 
 Each player role defines:
 - **Essential stats** (white) — directly drive OVR for this role; receive full weight (`greyMult = 1.0`)
@@ -232,7 +297,7 @@ Role adjacency is validated at player creation. The validation is **transitive**
 
 ---
 
-## 7. Manager Style
+## 8. Manager Style
 
 The manager style controls the resource pool available for planning:
 
@@ -244,7 +309,7 @@ The manager style controls the resource pool available for planning:
 
 ---
 
-## 8. Drill Optimiser
+## 9. Drill Optimiser
 
 The drill optimiser (`getBestDrillSelections`) recommends training drills that maximise skill development for a player's role while minimising condition cost.
 
@@ -260,7 +325,7 @@ Drills are classified as `isBase: true` (core daily drills available always) or 
 
 ---
 
-## 9. Data Structures
+## 10. Data Structures
 
 ### Player
 
@@ -318,7 +383,7 @@ interface InvestmentPlan {
 
 ---
 
-## 10. Limitations and Open Questions
+## 11. Limitations and Open Questions
 
 | Item | Status |
 |---|---|
@@ -326,13 +391,14 @@ interface InvestmentPlan {
 | GK white stat list | `ROLE_CONSTRAINTS.GK.essential` is estimated — needs confirmation from in-game data |
 | GK stat entry UI | `app/player/new.tsx` shows outfield stats for all roles; GK needs a separate stat grid (REFLEXES, HANDLING, etc.) |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate |
+| Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Matchday Coach multiplier, and ADVANCE costs are all out of scope for current OVR projection |
 | Star decay curve | `starMult = 0.85^n` per additional % gained in a session; actual in-game curve unconfirmed |
 | Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output |
 | Formation/synergy | Not modelled |
 
 ---
 
-## 11. Versioning
+## 12. Versioning
 
 | Version | Date | Notes |
 |---|---|---|
