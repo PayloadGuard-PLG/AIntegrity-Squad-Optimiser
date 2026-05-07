@@ -2,22 +2,30 @@ import { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { playerService } from '../../src/services/playerService';
-import { validateRoleAdjacency, ROLE_CONSTRAINTS } from '../../src/utils/roleWeights';
+import { validateRoleAdjacency, isWhiteStat } from '../../src/utils/roleWeights';
 import { TierName } from '../../src/types/resources';
 
 const ALL_ROLES = ['GK', 'DR', 'DC', 'DL', 'DMC', 'MR', 'MC', 'ML', 'AMR', 'AMC', 'AML', 'ST'];
 const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 
-function buildDefaultStats(roles: string[]): Record<string, number> {
-  const stats: Record<string, number> = {};
-  for (const role of roles.slice(0, 3)) {
-    const data = ROLE_CONSTRAINTS[role.toUpperCase()];
-    if (!data) continue;
-    for (const s of data.essential) stats[s] = stats[s] ?? 100;
-    for (const s of data.secondary) stats[s] = stats[s] ?? 80;
-  }
-  return stats;
-}
+const OUTFIELD_STATS = [
+  'SHOOTING',    'PASSING',
+  'CROSSING',    'DRIBBLING',
+  'FINISHING',   'HEADING',
+  'TACKLING',    'MARKING',
+  'POSITIONING', 'BRAVERY',
+  'AGGRESSION',  'STRENGTH',
+  'SPEED',       'FITNESS',
+  'CREATIVITY',
+];
+
+const GK_STATS = [
+  'REFLEXES',     'AGILITY',
+  'ANTICIPATION', 'RUSHING OUT',
+  'COMMUNICATION','THROWING',
+  'KICKING',      'PUNCHING',
+  'AERIAL REACH', 'FITNESS',
+];
 
 export default function NewPlayerScreen() {
   const [name, setName] = useState('');
@@ -27,6 +35,10 @@ export default function NewPlayerScreen() {
   const [tier, setTier] = useState<TierName>('None');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
+  const [statInputs, setStatInputs] = useState<Record<string, string>>({});
+
+  const isGK = selectedRoles.includes('GK');
+  const statList = isGK ? GK_STATS : OUTFIELD_STATS;
 
   function toggleRole(role: string) {
     let next: string[];
@@ -49,7 +61,13 @@ export default function NewPlayerScreen() {
     const ageNum = parseInt(age, 10);
     const ovrNum = parseFloat(overall);
     if (isNaN(ageNum) || ageNum < 14 || ageNum > 40) { Alert.alert('Age must be between 14 and 40'); return; }
-    if (isNaN(ovrNum) || ovrNum < 40 || ovrNum > 200) { Alert.alert('OVR must be between 40 and 200'); return; }
+    if (isNaN(ovrNum) || ovrNum <= 0) { Alert.alert('Enter a valid OVR'); return; }
+
+    const statsObj: Record<string, number> = {};
+    for (const stat of statList) {
+      const v = parseFloat(statInputs[stat] ?? '');
+      if (!isNaN(v) && v > 0) statsObj[stat] = v;
+    }
 
     playerService.create({
       name: name.trim(),
@@ -57,7 +75,7 @@ export default function NewPlayerScreen() {
       age: ageNum,
       overall: ovrNum,
       tier,
-      stats: buildDefaultStats(selectedRoles),
+      stats: statsObj,
       isMutantCandidate: mutant,
     });
     router.dismiss();
@@ -152,6 +170,39 @@ export default function NewPlayerScreen() {
         </View>
         <Text style={{ color: '#e2e8f0', fontSize: 14 }}>Mutant Candidate</Text>
       </Pressable>
+
+      {/* Individual Stats */}
+      <View style={{ gap: 8 }}>
+        <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>INDIVIDUAL STATS</Text>
+        <Text style={{ color: '#6b7280', fontSize: 11 }}>Purple = white (essential)  ·  Grey = secondary. Leave blank to skip drill projection.</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {statList.map(stat => {
+            const white = isWhiteStat(selectedRoles, stat);
+            return (
+              <View key={stat} style={{ width: '47%', gap: 4 }}>
+                <Text style={{ color: white ? '#a5b4fc' : '#6b7280', fontSize: 11, fontWeight: '600' }}>{stat}</Text>
+                <TextInput
+                  keyboardType="numeric"
+                  value={statInputs[stat] ?? ''}
+                  onChangeText={v => setStatInputs(prev => ({ ...prev, [stat]: v }))}
+                  placeholder="—"
+                  placeholderTextColor="#4b5563"
+                  style={{
+                    backgroundColor: '#1a1d27',
+                    color: '#e2e8f0',
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    fontSize: 14,
+                    borderWidth: white ? 1 : 0,
+                    borderColor: '#6366f133',
+                  }}
+                />
+              </View>
+            );
+          })}
+        </View>
+      </View>
 
       {/* Save */}
       <Pressable
