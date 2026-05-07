@@ -23,6 +23,11 @@ export interface GameProfile {
   starDecayPerSession: number;
   qualityOvrDivisor: number;
   totalAttributeCount: number;
+  teamPlayDecayPerDay: number;
+  matchdayCoachMultiplier: number;
+  conditionCostPerDrill: number;
+  teamPlayFreeDrillsPerDay: number;
+  conditionPerGreen: number;
 }
 
 // --- Talent & drill levels ---
@@ -72,6 +77,8 @@ export interface ManagerProfile {
   twoxAdActive: boolean;
   talentTier: TalentTier;
   drillLevel: DrillLevel;
+  matchdayCoachActive: boolean;
+  teamPlayPillars?: Partial<Record<TeamPlayPillar, number>>;
 }
 
 // --- Tier system ---
@@ -84,6 +91,30 @@ export type TierName =
   | 'Master'
   | 'Epic'
   | 'Legendary';
+
+// --- Team Play ---
+
+export type TeamPlayPillar = 'attack' | 'defence' | 'possession' | 'condition';
+
+export interface TeamPlayPlan {
+  pillars: Partial<Record<TeamPlayPillar, number>>;
+  decayPerDay: number;
+  freeDrillsNeeded: number;
+  matchdayCoachCoversDecay: boolean;
+  recommendation: string;
+}
+
+export interface FixtureWindow {
+  cycles: number;
+  totalSessions: number;
+}
+
+export interface GreensBridgeSuggestion {
+  greensNeeded: number;
+  additionalCycles: number;
+  worthwhile: boolean;
+  note: string;
+}
 
 // --- Investment plan ---
 

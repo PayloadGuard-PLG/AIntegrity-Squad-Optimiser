@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
@@ -7,8 +7,9 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { OvrMovement } from '../../src/components/atoms/OvrMovement';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
+import { calculateFixtureCycles, calculateTeamPlayPlan, calculateGreensBridge } from '../../src/logic/fixtureEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
-import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep } from '../../src/types/resources';
+import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar } from '../../src/types/resources';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import gameProfile from '../../profiles/game_2025.json';
 
@@ -18,8 +19,9 @@ const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'L
 const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30, Stellar: 50, Master: 80, Epic: 120, Legendary: 160 };
 const TIER_COSTS: Record<TierName, number> = { None: 0, Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
 const DRILL_NAMES = DRILL_LIST.map(d => d.name);
+const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 'condition'];
 
-type Section = 'drills' | 'resources' | 'tier';
+type Section = 'drills' | 'resources' | 'tier' | 'teamplay';
 
 function newDrill(): DrillSession {
   return { drillName: 'Skill Drill', sessionCount: 6, drillLevel: 'Medium' };
@@ -68,14 +70,45 @@ export default function PlanScreen() {
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [greens, setGreens] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
+  const [matchdayCoachActive, setMatchdayCoachActive] = useState(false);
   const [targetTier, setTargetTier] = useState<TierName | null>(null);
   const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>({});
   const [section, setSection] = useState<Section>('drills');
   const [plan, setPlan] = useState<InvestmentPlan | null>(null);
+  const [fixtureHours, setFixtureHours] = useState('');
+  const [fixtureCooldown, setFixtureCooldown] = useState('60');
+  const [teamPlayInputs, setTeamPlayInputs] = useState<Partial<Record<TeamPlayPillar, string>>>({});
 
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   function invalidate() { setPlan(null); }
+
+  const fixtureWindow = useMemo(() => {
+    const h = parseFloat(fixtureHours);
+    const c = parseInt(fixtureCooldown, 10);
+    if (!h || !c || c <= 0) return null;
+    return calculateFixtureCycles(h, c);
+  }, [fixtureHours, fixtureCooldown]);
+
+  const teamPlayPlan = useMemo(() => {
+    const pillars = Object.fromEntries(
+      TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
+    ) as Partial<Record<TeamPlayPillar, number>>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return calculateTeamPlayPlan(pillars, matchdayCoachActive, gameProfile as any);
+  }, [teamPlayInputs, matchdayCoachActive]);
+
+  const greensBridge = useMemo(() => {
+    if (!fixtureWindow || greens === 0) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return calculateGreensBridge(greens, fixtureWindow.cycles, gameProfile as any);
+  }, [fixtureWindow, greens]);
+
+  function applyFixtureCycles() {
+    if (!fixtureWindow || fixtureWindow.cycles <= 0) return;
+    setDrillRows(rows => rows.map(r => ({ ...r, sessionCount: fixtureWindow.cycles })));
+    invalidate();
+  }
 
   function project() {
     if (!selectedPlayer) return;
@@ -83,14 +116,15 @@ export default function PlanScreen() {
       style,
       tierPoints: Object.fromEntries(Object.entries(tierPointInputs).map(([k, v]) => [k, parseInt(v ?? '0', 10) || 0])) as Partial<Record<TierName, number>>,
       greens, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
+      matchdayCoachActive,
+      teamPlayPillars: Object.fromEntries(
+        TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
+      ) as Partial<Record<TeamPlayPillar, number>>,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setPlan(planPlayerInvestment(selectedPlayer, managerProfile, drillRows, gameProfile as any, targetTier));
   }
 
-  // Always anchor FROM to the game's stored overall — the engine may compute a
-  // different starting baseline from partial stats, but we display gain as a delta
-  // on top of the value the user actually sees in-game.
   const storedOvr = selectedPlayer?.overall ?? 0;
   const engineGain = plan ? Number((plan.finalOvr - plan.player.currentOvr).toFixed(1)) : 0;
   const displayFrom = storedOvr;
@@ -159,17 +193,17 @@ export default function PlanScreen() {
 
         <View style={{ padding: 16, paddingBottom: 0 }}>
 
-          {/* Section tab bar */}
+          {/* Section tab bar — 4 tabs */}
           <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-            {(['drills', 'resources', 'tier'] as Section[]).map((s, i) => {
+            {(['drills', 'resources', 'tier', 'teamplay'] as Section[]).map((s, i) => {
               const active = section === s;
               return (
                 <Pressable key={s} onPress={() => setSection(s)} style={{
                   flex: 1, paddingVertical: 11, alignItems: 'center',
                   backgroundColor: active ? theme.ink : theme.surface,
-                  borderRightWidth: i < 2 ? 1 : 0, borderRightColor: theme.hairline2,
+                  borderRightWidth: i < 3 ? 1 : 0, borderRightColor: theme.hairline2,
                 }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.8, fontWeight: '700', color: active ? theme.bg : theme.inkSec, textTransform: 'uppercase' }}>{s}</Text>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.4, fontWeight: '700', color: active ? theme.bg : theme.inkSec, textTransform: 'uppercase' }}>{s}</Text>
                 </Pressable>
               );
             })}
@@ -244,6 +278,52 @@ export default function PlanScreen() {
                   <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
                 </Pressable>
               </View>
+
+              {/* FIXTURE WINDOW card */}
+              <View style={{ borderWidth: 1, borderColor: fixtureWindow ? theme.steelLight + '88' : theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>FIXTURE WINDOW</MonoLabel>
+                  <View style={{ flex: 1 }} />
+                  <MonoLabel size={9} color={theme.inkGhost}>UNTIL NEXT GAME</MonoLabel>
+                </View>
+                <View style={{ padding: 12, gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <MonoLabel size={10} style={{ width: 88 }}>HOURS LEFT</MonoLabel>
+                    <TextInput
+                      keyboardType="numeric"
+                      value={fixtureHours}
+                      onChangeText={v => setFixtureHours(v)}
+                      placeholder="24"
+                      placeholderTextColor={theme.inkGhost}
+                      style={{ flex: 1, backgroundColor: theme.surface3, color: theme.ink, fontFamily: theme.mono, fontSize: 13, fontWeight: '700', padding: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.hairline2 }}
+                    />
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <MonoLabel size={10} style={{ width: 88 }}>COOLDOWN</MonoLabel>
+                    <TextInput
+                      keyboardType="numeric"
+                      value={fixtureCooldown}
+                      onChangeText={v => setFixtureCooldown(v)}
+                      placeholder="60"
+                      placeholderTextColor={theme.inkGhost}
+                      style={{ flex: 1, backgroundColor: theme.surface3, color: theme.ink, fontFamily: theme.mono, fontSize: 13, fontWeight: '700', padding: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.hairline2 }}
+                    />
+                    <MonoLabel size={9} style={{ width: 24 }}>MIN</MonoLabel>
+                  </View>
+                  {fixtureWindow && (
+                    <View style={{ backgroundColor: theme.surface2, borderWidth: 1, borderColor: theme.hairline2, padding: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                      <MonoLabel size={10}>CYCLES AVAILABLE</MonoLabel>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 24, fontWeight: '700', color: fixtureWindow.cycles > 0 ? theme.ink : theme.inkGhost }}>{fixtureWindow.cycles}</Text>
+                    </View>
+                  )}
+                  {fixtureWindow && fixtureWindow.cycles > 0 && (
+                    <Pressable onPress={applyFixtureCycles} style={{ backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.steelLight, padding: 10, alignItems: 'center' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: theme.steelLight }}>APPLY — SET {fixtureWindow.cycles} SESSIONS PER DRILL</Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
             </>
           )}
 
@@ -281,10 +361,34 @@ export default function PlanScreen() {
                 </View>
               </View>
 
+              {/* GREENS BRIDGE — shown when fixture window is set and greens > 0 */}
+              {greensBridge && (
+                <View style={{ borderWidth: 1, borderColor: greensBridge.worthwhile ? theme.pos + '88' : theme.hairline2, marginBottom: 10 }}>
+                  <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
+                    <MonoLabel size={10} color={theme.steelLight}>GREENS BRIDGE</MonoLabel>
+                    <View style={{ flex: 1 }} />
+                    {greensBridge.worthwhile && <MonoLabel size={9} color={theme.pos}>+{greensBridge.additionalCycles} CYCLES</MonoLabel>}
+                  </View>
+                  <View style={{ padding: 12 }}>
+                    <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{greensBridge.note}</Text>
+                  </View>
+                </View>
+              )}
+
               {/* PREMIUM SPONSOR toggle */}
-              <Pressable onPress={() => { setIsPremiumSponsor(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: isPremiumSponsor ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
+              <Pressable onPress={() => { setIsPremiumSponsor(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: isPremiumSponsor ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14, marginBottom: 8 }}>
                 <View style={{ width: 16, height: 16, backgroundColor: isPremiumSponsor ? theme.hot : 'transparent', borderWidth: 1, borderColor: isPremiumSponsor ? theme.hot : theme.hairline3 }} />
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: isPremiumSponsor ? theme.hot : theme.ink }}>PREMIUM SPONSOR</Text>
+              </Pressable>
+
+              {/* MATCHDAY COACH toggle */}
+              <Pressable onPress={() => { setMatchdayCoachActive(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: matchdayCoachActive ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
+                <View style={{ width: 16, height: 16, backgroundColor: matchdayCoachActive ? theme.hot : 'transparent', borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot : theme.hairline3 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: matchdayCoachActive ? theme.hot : theme.ink }}>MATCHDAY COACH</Text>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkSec, marginTop: 2, letterSpacing: 0.5 }}>PREMIUM · ALL DRILLS ADVANCE TEAM PLAY</Text>
+                </View>
               </Pressable>
             </>
           )}
@@ -322,6 +426,75 @@ export default function PlanScreen() {
                   );
                 })}
               </View>
+            </>
+          )}
+
+          {section === 'teamplay' && (
+            <>
+              {/* PILLARS card */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>TEAM PLAY PILLARS</MonoLabel>
+                  <View style={{ flex: 1 }} />
+                  <MonoLabel size={9} color={theme.inkGhost}>CURRENT SCORE</MonoLabel>
+                </View>
+                {TEAM_PLAY_PILLARS.map((pillar, idx) => (
+                  <View key={pillar} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, paddingHorizontal: 14, borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline }}>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: theme.ink, fontFamily: theme.display, flex: 1, textTransform: 'capitalize' }}>{pillar}</Text>
+                    <TextInput
+                      keyboardType="numeric"
+                      value={teamPlayInputs[pillar] ?? ''}
+                      onChangeText={v => setTeamPlayInputs(prev => ({ ...prev, [pillar]: v }))}
+                      placeholder="0"
+                      placeholderTextColor={theme.inkGhost}
+                      style={{ backgroundColor: theme.surface3, color: theme.ink, fontFamily: theme.mono, fontSize: 14, fontWeight: '700', padding: 8, paddingHorizontal: 12, minWidth: 72, borderWidth: 1, borderColor: theme.hairline2, textAlign: 'center' }}
+                    />
+                  </View>
+                ))}
+              </View>
+
+              {/* TEAM PLAY PLAN card */}
+              <View style={{ borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot + '88' : theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: matchdayCoachActive ? theme.hot : theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>MAINTENANCE PLAN</MonoLabel>
+                  {matchdayCoachActive && (
+                    <>
+                      <View style={{ flex: 1 }} />
+                      <MonoLabel size={9} color={theme.hot}>COACH ACTIVE</MonoLabel>
+                    </>
+                  )}
+                </View>
+                <View style={{ padding: 12, gap: 10 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <MonoLabel size={10}>DAILY DECAY</MonoLabel>
+                    <MonoLabel size={11} color={theme.neg}>−{teamPlayPlan.decayPerDay} / PILLAR / DAY</MonoLabel>
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <MonoLabel size={10}>FREE DRILLS NEEDED</MonoLabel>
+                    <MonoLabel size={11} color={teamPlayPlan.freeDrillsNeeded === 0 ? theme.pos : theme.ink}>
+                      {teamPlayPlan.freeDrillsNeeded === 0 ? 'COVERED BY COACH' : `${teamPlayPlan.freeDrillsNeeded} ADS / DAY`}
+                    </MonoLabel>
+                  </View>
+                  <View style={{ height: 1, backgroundColor: theme.hairline }} />
+                  <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{teamPlayPlan.recommendation}</Text>
+                </View>
+              </View>
+
+              {fixtureWindow && greensBridge && (
+                <View style={{ borderWidth: 1, borderColor: greensBridge.worthwhile ? theme.pos + '88' : theme.hairline2, marginBottom: 10 }}>
+                  <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
+                    <MonoLabel size={10} color={theme.steelLight}>GREENS BRIDGE</MonoLabel>
+                    <View style={{ flex: 1 }} />
+                    {greensBridge.worthwhile && <MonoLabel size={9} color={theme.pos}>+{greensBridge.additionalCycles} EXTRA CYCLES</MonoLabel>}
+                  </View>
+                  <View style={{ padding: 12 }}>
+                    <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{greensBridge.note}</Text>
+                  </View>
+                </View>
+              )}
             </>
           )}
 

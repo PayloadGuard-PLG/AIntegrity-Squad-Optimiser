@@ -145,7 +145,7 @@ const drillSessions: DrillSession[] = [
 ];
 const managerProfile: ManagerProfile = {
   style: 'PTW', tierPoints: {}, greens: 50, isPremiumSponsor: false,
-  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy',
+  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchdayCoachActive: false,
 };
 const testPlayer: Player = {
   id: '1', name: 'Test Player', role: ['ST'],
@@ -177,7 +177,7 @@ const striker: Player = {
 };
 const strikerProfile: ManagerProfile = {
   style: 'PTW', tierPoints: { Stellar: 650 }, greens: 50, isPremiumSponsor: true,
-  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy',
+  twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchdayCoachActive: false,
 };
 const strikerDrills: DrillSession[] = [
   { drillName: 'Skill Drill', sessionCount: 50, drillLevel: 'Very Easy' },
