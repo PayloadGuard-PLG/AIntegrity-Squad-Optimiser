@@ -22,7 +22,7 @@ export function AppHeader() {
             Squad Optimiser
           </Text>
           <Text style={{ color: '#4b5563', fontSize: 11, fontWeight: '500', letterSpacing: 1.5 }}>
-            TOP ELEVEN TOOLKIT
+            FOOTBALL MANAGER
           </Text>
         </View>
       </View>
