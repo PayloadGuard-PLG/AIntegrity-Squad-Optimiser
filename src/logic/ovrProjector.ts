@@ -59,8 +59,9 @@ export function applyDrillSessionsToStats(
   talentTier: TalentTier,
   twoxAdActive: boolean,
   profile: GameProfile
-): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number } {
+): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number; skippedDrills: string[] } {
   const steps: InvestmentStep[] = [];
+  const skippedDrills: string[] = [];
   const updatedStats = { ...player.stats };
   const ovrBefore = computeOvrFromStats(player, profile);
   let runningOvr = ovrBefore;
@@ -72,11 +73,13 @@ export function applyDrillSessionsToStats(
     const drillLevelMult = profile.drillLevelMultipliers[session.drillLevel] ?? 1.0;
     const statDeltas: string[] = [];
 
+    let drillHits = 0;
     for (const statKey of drill.stats) {
       const normalized = statKey.toUpperCase();
       // Skip stats the player hasn't entered. Adding them from 0 would replace
       // their padded-196 slot with a near-zero value, making computed OVR drop.
       if (!(normalized in updatedStats)) continue;
+      drillHits++;
       const currentVal = updatedStats[normalized];
       if (currentVal >= profile.statCap) continue;
 
@@ -99,6 +102,10 @@ export function applyDrillSessionsToStats(
       }
     }
 
+    if (drillHits === 0) {
+      skippedDrills.push(session.drillName);
+    }
+
     if (statDeltas.length > 0) {
       const newOvr = computeOvrWithPadding(updatedStats, player.overall, profile);
       const ovrDelta = Number((newOvr - runningOvr).toFixed(1));
@@ -114,7 +121,7 @@ export function applyDrillSessionsToStats(
     }
   }
 
-  return { steps, updatedStats, finalOvr: runningOvr };
+  return { steps, updatedStats, finalOvr: runningOvr, skippedDrills };
 }
 
 /**
@@ -194,11 +201,14 @@ export function projectOvr(
   let currentOvr = computeOvrFromStats(player, profile);
 
   if (sessions.length > 0) {
-    const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr } =
+    const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr, skippedDrills } =
       applyDrillSessionsToStats({ ...player, stats: currentStats }, sessions, talentTier, twoxAdActive, profile);
     steps.push(...drillSteps);
     currentStats = updatedStats;
     currentOvr = postDrillOvr;
+    if (skippedDrills.length > 0) {
+      warnings.push(`Stats missing for: ${skippedDrills.join(', ')} — enter all player stats so drill gains can be calculated.`);
+    }
   } else {
     warnings.push('No drill sessions — add drills to project OVR growth.');
   }

@@ -88,11 +88,13 @@ export default function PlanScreen() {
     setPlan(planPlayerInvestment(selectedPlayer, managerProfile, drillRows, gameProfile as any, targetTier));
   }
 
-  // Engine computes its own baseline OVR from partial stats — use that as "from"
-  // so the displayed gain reflects what the engine actually produced.
-  const engineFrom = plan?.player.currentOvr ?? selectedPlayer?.overall ?? 0;
-  const engineTo = plan?.finalOvr ?? engineFrom;
-  const engineGain = plan ? Number((engineTo - engineFrom).toFixed(1)) : 0;
+  // Always anchor FROM to the game's stored overall — the engine may compute a
+  // different starting baseline from partial stats, but we display gain as a delta
+  // on top of the value the user actually sees in-game.
+  const storedOvr = selectedPlayer?.overall ?? 0;
+  const engineGain = plan ? Number((plan.finalOvr - plan.player.currentOvr).toFixed(1)) : 0;
+  const displayFrom = storedOvr;
+  const displayTo = plan ? Number((storedOvr + engineGain).toFixed(1)) : storedOvr;
 
   if (squad.length === 0) {
     return (
@@ -130,7 +132,7 @@ export default function PlanScreen() {
 
         <View style={{ padding: 14, paddingBottom: 0 }}>
           {selectedPlayer ? (
-            <OvrMovement from={engineFrom} to={engineTo} gain={engineGain} name={selectedPlayer.name} age={selectedPlayer.age} tier={selectedPlayer.tier ?? 'None'} />
+            <OvrMovement from={displayFrom} to={displayTo} gain={engineGain} name={selectedPlayer.name} age={selectedPlayer.age} tier={selectedPlayer.tier ?? 'None'} />
           ) : (
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 24, alignItems: 'center' }}>
               <MonoLabel color={theme.steelLight}>SELECT A SUBJECT ABOVE</MonoLabel>
