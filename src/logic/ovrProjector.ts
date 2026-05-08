@@ -179,7 +179,7 @@ export function projectOvr(
 
     if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
       const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
-      const whiteKeys = getWhiteStatKeys(player.role);
+      const allKeys = getAllStatKeys(player.role);
       const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'None'));
       const toIdx   = ALL_TIERS.indexOf(targetTier);
       for (let i = fromIdx + 1; i <= toIdx; i++) {
@@ -187,12 +187,12 @@ export function projectOvr(
         const prevTier = ALL_TIERS[i - 1] as TierName;
         const inc  = (profile.tierAttrAdditions[stepTier] ?? 0) - (profile.tierAttrAdditions[prevTier] ?? 0);
         const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
-        const tierOvrGain = Number((inc * whiteKeys.length / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
+        const tierOvrGain = Number((inc * allKeys.length / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
         const ovrBefore = currentOvr;
         currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
         steps.push({
           action: 'tier',
-          description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeys.length} stats)`,
+          description: `Tier → ${stepTier} (+${inc} per key attr × ${allKeys.length} stats)`,
           ovrBefore,
           ovrAfter: currentOvr,
           resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,
@@ -248,7 +248,7 @@ export function projectOvr(
   // Step 2 — Tier upgrade(s): one step per intermediate tier, each with its incremental stat addition
   if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
     const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
-    const whiteKeys = getWhiteStatKeys(player.role);
+    const allKeys = getAllStatKeys(player.role);
     const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'None'));
     const toIdx   = ALL_TIERS.indexOf(targetTier);
     for (let i = fromIdx + 1; i <= toIdx; i++) {
@@ -258,9 +258,9 @@ export function projectOvr(
       const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
       const ovrBefore = currentOvr;
 
-      // Apply incremental addition to each white stat
+      // Apply incremental addition to each key stat (essentials + secondaries)
       const newStats = { ...currentStats };
-      for (const key of whiteKeys) {
+      for (const key of allKeys) {
         if (key in newStats) newStats[key] = Math.min(newStats[key] + inc, profile.statCap);
       }
       currentStats = newStats;
@@ -268,7 +268,7 @@ export function projectOvr(
       const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
       steps.push({
         action: 'tier',
-        description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeys.length} stats)`,
+        description: `Tier → ${stepTier} (+${inc} per key attr × ${allKeys.length} stats)`,
         ovrBefore,
         ovrAfter: newOvr,
         resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,

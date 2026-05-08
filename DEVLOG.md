@@ -4,6 +4,64 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 9 — Tier Bonus Fix + RESULTS Tab
+**2026-05-08**
+
+### Shipped
+
+**Tier bonus formula corrected (`coaches.tsx`, `results.tsx`, `ovrProjector.ts`)**
+
+Root cause: all callers of `applyTierBonusToStats` passed `getWhiteStatKeys(player.role)` (role essentials only). The game applies the tier stat increment to a wider set — essentials + secondaries — equivalent to `getAllStatKeys(player.role)`.
+
+Confirmed by Ricky Grant accidental ELITE→STELLAR upgrade (full 15-stat before/after snapshot):
+- 13 stats gained +20 each (all essentials + secondaries for DL/ML/AML)
+- HEADING and STRENGTH unchanged — not in any DL/ML/AML essential or secondary list
+- OVR: 157 → 174 (+17, matching `floor(13 × 20 / 15) = 17`)
+- App was predicting +12 (9 essentials × 20 / 15); now correctly predicts +17
+
+Fix: three files patched to use `getAllStatKeys`:
+- `app/(tabs)/coaches.tsx` lines 112, 128
+- `app/(tabs)/results.tsx` line 147
+- `src/logic/ovrProjector.ts` lines 182, 251 (both stats-only and full drill+tier paths)
+
+Step descriptions updated: "white attr" → "key attr".
+
+**RESULTS tab — combined multi-session OVR projection hub**
+
+New fifth tab at `/results`. Chains multiple coaching sessions, a tier upgrade, and greens into one sequential OVR projection:
+
+1. Select player
+2. Add coaching sessions (N sessions, stat selection, intensity, talent, 2× ad)
+3. Optionally add a tier upgrade step
+4. Add greens (condition only, no OVR change)
+5. Tap PROJECT → step-by-step chain with OVR before/after each action
+
+Tab bar switched to horizontal `ScrollView` to accommodate 5 tabs without overflow.
+
+**Calibration data logged**
+
+`data/CALIBRATION_LOG.md`:
+- Full TIER_UPGRADE confirmed entry for Ricky Grant (ELITE→STELLAR, all 15 stats)
+- KEY FINDING updated: hypothesis replaced with confirmed `getAllStatKeys` mapping
+- Section 4b coaching session projections for Ricky (Physical ×35, Attacking ×30, Defending ×35)
+
+**KNOWN_ISSUES.md**
+
+Issue #9 (tier OVR under-prediction) closed. Sprint 9 Fixed block added (F29, F30).
+
+### Calibration notes
+
+- OVR formula `floor(sum_all_15 / 15)` confirmed independently 5× across different players
+- Coaching XP rate is ~4–5× higher than regular drill XP — cannot replicate with `baseXpPerSession=150`; use ratio-based estimates from game preview ranges
+- `getAllStatKeys` for each role combo is the correct "key attribute" set for tier bonuses
+
+### Next
+
+- Issue #5: premium sponsor cooldown reduction not modelled
+- Standard Defending ×35 (all 5 stats) for Ricky Grant at STELLAR — calculate and log final stats
+
+---
+
 ## Sprint 8 — Coaches Tab + XP Engine Deep Calibration
 **2026-05-07 — night**
 

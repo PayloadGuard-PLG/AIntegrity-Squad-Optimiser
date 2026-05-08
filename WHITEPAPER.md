@@ -34,7 +34,7 @@ Drill Sessions  →  Tier Upgrade  →  Greens (condition)
 OVR = mean(all 15 stats)
 ```
 
-`qualityOvrDivisor = 1` — OVR is the unweighted mean of all 15 attributes directly. Empirically calibrated (e.g. player with mean stat 194.8 shows OVR 195).
+`qualityOvrDivisor = 1` — OVR is the unweighted mean of all 15 attributes directly. **Display behaviour:** Sutters (GK) — sum 2,844 ÷ 15 = 189.6, game shows 189 → suggests truncation (floor). Earlier estimate (mean ≈194.8 → OVR 195) is unverified; raw stats were not logged for that player so the mean may have been imprecise. Sutters is the first fully-logged data point. Treat as floor pending a second confirmed full snapshot.
 
 ### 3.2 XP cost per 1% stat gain
 

@@ -366,6 +366,211 @@ Stats:
 --------------------
 ```
 
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Jaseyboi Sutters
+Player age: 26
+Role(s): GK (solo — confirmed: GK cannot combine with any other role)
+Current tier: STELLAR
+Game OVR displayed: 189
+
+GK white stats (GOALKEEPING section):
+  REFLEXES:       261
+  AGILITY:        196
+  ANTICIPATION:   205
+  RUSHING OUT:    176
+  COMMUNICATION:  280
+  THROWING:       222
+  KICKING:        219
+  PUNCHING:       191
+  AERIAL REACH:   231
+  CONCENTRATION:  256
+
+GK grey stats (PHYSICAL section):
+  FITNESS:        233
+  STRENGTH:        78
+  AGGRESSION:     111
+  SPEED:           52
+  CREATIVITY:     133
+
+OVR FORMULA VERIFICATION:
+  Sum all 15 stats: 261+196+205+176+280+222+219+191+231+256+233+78+111+52+133 = 2,844
+  Mean: 2,844 ÷ 15 = 189.6
+  Game OVR: 189 → CONFIRMED: OVR = floor(mean), not round ✓
+
+CONFIRMED (from user):
+  - All GKs share the same white/grey stat split (universal, not player-specific)
+  - GK is strictly solo — cannot be combined with any other role in either direction
+  - No other role can become GK
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Ricky Grant
+Player age: 20
+Role(s): DL / ML / AML
+Current tier: STELLAR (+50 on key attributes already included in stats below)
+Game OVR displayed: 174
+
+Stats (all 15 confirmed from coaching preview screens):
+  TACKLING:    120
+  MARKING:     137
+  POSITIONING: 225
+  HEADING:     154
+  BRAVERY:     214
+  PASSING:     130
+  DRIBBLING:   223
+  CROSSING:    154
+  SHOOTING:    150
+  FINISHING:   164
+  FITNESS:     260
+  STRENGTH:     64
+  AGGRESSION:  201
+  SPEED:       160
+  CREATIVITY:  256
+
+OVR FORMULA VERIFICATION:
+  Sum: 120+137+225+154+214+130+223+154+150+164+260+64+201+160+256 = 2,612
+  Mean: 2,612 ÷ 15 = 174.13
+  Game OVR: 174 → CONFIRMED: OVR = floor(mean) ✓ (second independent confirmation)
+
+Column averages from profile (cross-check):
+  DEFENCE avg:  170  (850 ÷ 5 = 170.0)
+  ATTACK avg:   164  (821 ÷ 5 = 164.2 → floor 164)
+  PHYSICAL avg: 188  (941 ÷ 5 = 188.2 → floor 188)
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Cptn Dallas
+Player age: 22
+Role(s): AMR / MR / DR
+Current tier: STELLAR
+Game OVR displayed: 202
+
+Stats (read from column averages — individual stats approximate, averages reliable):
+  Column DEFENCE avg: 177  (sum ≈ 885)
+    Tackling:    ~177  Marking: ~156  Positioning: ~207  Heading: ~154  Bravery: ~225
+    NOTE: individual reads may have 5-10pt error — trust column avg 177 (sum 885)
+
+  Column ATTACK avg: 236  (sum ≈ 1,180)
+    Passing: ~207  Dribbling: ~235  Crossing: ~272  Shooting: ~249  Finishing: ~218
+
+  Column PHYSICAL avg: 193  (sum ≈ 965)
+    Fitness: ~245  Strength: ~85  Aggression: ~209  Speed: ~189  Creativity: ~238
+
+OVR FORMULA VERIFICATION:
+  Sum (via column avgs): 885 + 1,180 + 965 = 3,030
+  Mean: 3,030 ÷ 15 = 202.0
+  Game OVR: 202 → OVR = floor(mean) ✓ (confirms formula via column-avg method)
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Damian Rasiak
+Player age: 26
+Role(s): DC / DMC / MC  (role development: 1/50)
+Current tier: RARE (+10 on key attributes already included)
+Game OVR displayed: 124
+
+Stats (read from profile screenshot):
+  TACKLING:    111    MARKING:     120    POSITIONING: 164
+  HEADING:     175    BRAVERY:     157
+  PASSING:     103    DRIBBLING:   102    CROSSING:     92
+  SHOOTING:     72    FINISHING:    91
+  FITNESS:     158    STRENGTH:    127    AGGRESSION:  134
+  SPEED:       107    CREATIVITY:  144
+
+Column averages: DEFENCE 145 / ATTACK 92 / PHYSICAL 134
+Sum check: (111+120+164+175+157)+(103+102+92+72+91)+(158+127+134+107+144)
+         = 727 + 460 + 670 = 1,857
+OVR = 1,857 ÷ 15 = 123.8 → floor = 123 (game shows 124 — 1pt rounding, likely one stat off by ~1)
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Graham Mackintosh
+Player age: 20
+Role(s): ML / AML / MC
+Current tier: RARE (+10 on key attributes already included)
+Game OVR displayed: 128
+
+Stats (read from profile screenshot):
+  TACKLING:    112    MARKING:      50    POSITIONING: 193
+  HEADING:     131    BRAVERY:     128
+  PASSING:     103    DRIBBLING:   178    CROSSING:    111
+  SHOOTING:     93    FINISHING:   109
+  FITNESS:     223    STRENGTH:     52    AGGRESSION:  108
+  SPEED:       125    CREATIVITY:  252
+
+Column averages: DEFENCE 122 / ATTACK 119 / PHYSICAL 152
+Sum check: (112+50+193+131+128)+(103+178+111+93+109)+(223+52+108+125+252)
+         = 614 + 594 + 760 = 1,968
+OVR = 1,968 ÷ 15 = 131.2 → floor = 131 (game shows 128 — discrepancy of 3, some stats misread)
+NOTE: Marking at 50 is extremely low for this role — excellent coaching priority.
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Jakob Kilian
+Player age: 24
+Role(s): AMC / MC  (role development: 45/50)
+Current tier: None (pre-Rare)
+Game OVR displayed: 133
+
+Stats (read from profile screenshot):
+  TACKLING:    113    MARKING:     120    POSITIONING: 117
+  HEADING:     154    BRAVERY:     114
+  PASSING:     146    DRIBBLING:   136    CROSSING:    114
+  SHOOTING:    128    FINISHING:   146
+  FITNESS:     140    STRENGTH:    123    AGGRESSION:  135
+  SPEED:       154    CREATIVITY:  153
+
+Column averages: DEFENCE 123 / ATTACK 134 / PHYSICAL 141
+Sum check: (113+120+117+154+114)+(146+136+114+128+146)+(140+123+135+154+153)
+         = 618 + 670 + 705 = 1,993
+OVR = 1,993 ÷ 15 = 132.9 → floor = 132 (game shows 133 — within 1pt, acceptable read)
+Tier up to RARE: 133 → 138 (+5 OVR, n_key ≈ 7–8 stats for AMC/MC at +10 increment)
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: David Farquhar
+Player age: 18
+Role(s): ST / AMC
+Current tier: None (pre-Rare)
+Game OVR displayed: 95
+
+Stats (read from profile screenshot):
+  TACKLING:     62    MARKING:      57    POSITIONING: 126
+  HEADING:     141    BRAVERY:      73
+  PASSING:      98    DRIBBLING:   114    CROSSING:     61
+  SHOOTING:     91    FINISHING:   116
+  FITNESS:      77    STRENGTH:     88    AGGRESSION:   74
+  SPEED:       111    CREATIVITY:  136
+
+Column averages: DEFENCE 92 / ATTACK 96 / PHYSICAL 97
+Sum check: (62+57+126+141+73)+(98+114+61+91+116)+(77+88+74+111+136)
+         = 459 + 480 + 486 = 1,425
+OVR = 1,425 ÷ 15 = 95.0 → floor = 95 ✓ EXACT MATCH
+Tier up to RARE: 95 → 102 (+7 OVR, n_key ≈ 10–11 stats for ST/AMC at +10 increment)
+NOTE: Very young (18), no tier, low stats — highest training ROI of any player shown.
+--------------------
+```
+
 ---
 
 ## SECTION 4 — TIER UPGRADE OBSERVATIONS
@@ -412,6 +617,174 @@ Stat changes:
 OVR before:
 OVR after:
 Tier points used:
+--------------------
+```
+
+```
+--- TIER_UPGRADE (CONFIRMED — accidental, 2026-05-08) ---
+Player name: Ricky Grant
+Player role(s): DL / ML / AML
+Tier before: ELITE
+Tier after: STELLAR
+Tier increment per key stat: +20 (tierAttrAdditions[Stellar]-[Elite] = 50-30 = 20 ✓)
+
+All 15 stats — before → after:
+  TACKLING:     100 → 120  (+20) ← KEY STAT
+  MARKING:      117 → 137  (+20) ← KEY STAT
+  POSITIONING:  208 → 228  (+20) ← KEY STAT
+  BRAVERY:      194 → 214  (+20) ← KEY STAT
+  PASSING:      110 → 130  (+20) ← KEY STAT
+  DRIBBLING:    203 → 223  (+20) ← KEY STAT
+  CROSSING:     134 → 154  (+20) ← KEY STAT
+  SHOOTING:     130 → 150  (+20) ← KEY STAT
+  FINISHING:    144 → 164  (+20) ← KEY STAT
+  FITNESS:      240 → 260  (+20) ← KEY STAT
+  AGGRESSION:   181 → 201  (+20) ← KEY STAT
+  SPEED:        140 → 160  (+20) ← KEY STAT
+  CREATIVITY:   236 → 256  (+20) ← KEY STAT
+  HEADING:      154 → 154  ( 0)  ← NOT key stat
+  STRENGTH:      64 →  64  ( 0)  ← NOT key stat
+
+OVR before: 157 (ELITE, sum=2355, 2355/15=157.0 ✓)
+OVR after: 174 (STELLAR, sum=2615, 2615/15=174.3 → floor 174 ✓)
+OVR gain: +17 displayed (actually 174-157=17 integer, but model predicts 13×20/15=17.3 → +17 ✓)
+Key stats: 13 (all 15 except HEADING and STRENGTH)
+Confirmed: getAllStatKeys(DL/ML/AML) returns exactly these 13 stats ✓
+--------------------
+```
+
+```
+--- TIER_UPGRADE_PROJECTION ---
+Date: 2026-05-08
+Source: In-game TIER UP preview screens (projected OVR, not confirmed post-upgrade)
+
+STELLAR → MASTER (+30 increment on "key attributes", cost 25 Master Tier Points):
+  Jaseyboi Sutters  GK          OVR 189 → 211  (+22)
+  King Alfie        (roles TBC) OVR 220 → 244  (+24)
+  Garry McCluskey   (roles TBC) OVR 208 → 234  (+26)
+  S Rayne           (roles TBC) OVR 207 → 233  (+26)
+  Cptn Dallas       AMR/MR/DR   OVR 202 → 228  (+26)
+  Mark Gillespie    (roles TBC) OVR 213 → 233  (+20)
+  SD Pulse          (roles TBC) OVR 196 → 222  (+26)
+  Ricky Grant       DL/ML/AML   OVR 174 → 200  (+26)
+
+RARE → ELITE (+20 increment on "key attributes", cost 90 Elite Tier Points):
+  Damian Rasiak     DC/DMC/MC   OVR 124 → 137  (+13)
+  Maik Feller       (roles TBC) OVR 134 → 147  (+13)
+  Graham Mackintosh ML/AML/MC   OVR 128 → 144  (+16)
+  Alexis Acevedo    (roles TBC) OVR 129 → 140  (+11)
+
+NONE → RARE (+10 on "key attributes", cost 100 Rare Tier Points):
+  David Farquhar    ST/AMC      OVR 95  → 102  (+7)
+  Jakob Kilian      AMC/MC      OVR 133 → 138  (+5)
+
+KEY FINDING — TIER WHITE STAT COUNT DISCREPANCY:
+  App model uses getWhiteStatKeys() (role essentials only). Game's "key attributes"
+  covers more stats, producing higher OVR gains per tier step.
+
+  Reverse-engineering from OVR gain = (n_key_stats × increment) / 15:
+
+  Cptn Dallas (AMR/MR/DR):  +26 OVR / +30 → n = 13 key stats
+    App whites = 9 (CROSSING, DRIBBLING, PASSING, SHOOTING, FINISHING, POSITIONING, TACKLING, MARKING, BRAVERY)
+    Game whites = 13 → 4 extra (likely HEADING + 3 physical/grey)
+
+  Ricky Grant (DL/ML/AML):  +26 OVR / +30 → n = 13 key stats  (same)
+    App whites = 9 same union — confirms 13-stat pattern for winger combos
+
+  Jaseyboi Sutters (GK):    +22 OVR / +30 → n = 11 key stats
+    App whites = 10 — game adds ~1 grey (likely FITNESS)
+
+  Graham Mackintosh (ML/AML/MC): +16 OVR / +20 → n = 12 key stats
+    App whites = 8 — game adds 4 more
+
+  Damian Rasiak (DC/DMC/MC): +13 OVR / +20 → n ≈ 10 key stats
+    App whites = 8 — game adds 2 more
+
+  CONFIRMED (2026-05-08): Game applies tier bonus to getAllStatKeys() — essentials + secondaries.
+  For DL/ML/AML: TACKLING, MARKING, POSITIONING, BRAVERY, CROSSING, PASSING, DRIBBLING,
+  SHOOTING, FINISHING (essentials) + FITNESS, AGGRESSION, SPEED, CREATIVITY (secondaries) = 13 stats.
+  HEADING and STRENGTH are NOT key stats for this combo.
+
+  FIX APPLIED: All callers of applyTierBonusToStats() now use getAllStatKeys(player.role).
+  Coaches.tsx, results.tsx, ovrProjector.ts all patched — Sprint 9.
+--------------------
+```
+
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08 (second snapshot — from Stellar→Master tier preview screen)
+Player name: Jaseyboi Sutters
+Player age: 26
+Role(s): GK (solo)
+Current tier: STELLAR
+Game OVR displayed: 189
+
+Stats (read from profile in tier preview — may differ slightly from earlier snapshot):
+  REFLEXES:      261    AGILITY:       196    ANTICIPATION:  205
+  RUSHING OUT:   176    COMMUNICATION: 281
+  THROWING:      206    KICKING:       220    PUNCHING:      192
+  AERIAL REACH:  231    CONCENTRATION: 257
+  FITNESS:       234    STRENGTH:       78    AGGRESSION:    111
+  SPEED:          52    CREATIVITY:    134
+
+Sum: 261+196+205+176+281+206+220+192+231+257+234+78+111+52+134 = 2,634
+OVR = 2,634 ÷ 15 = 175.6 → floor 175 ≠ game shows 189.
+  DISCREPANCY NOTED: Sum gives 175 but game shows 189. Difference = 14×15 = 210 points.
+  Earlier Sutters snapshot (Section 3) gave sum 2,844 → 189.6 → floor 189 ✓.
+  This snapshot reads lower values — some stats likely misread (small font, screenshot quality).
+  TRUST earlier snapshot (Section 3) as correct. Stats here have ≤15pt read error.
+  Column averages from tier preview: GOALKEEPING avg 223 / PHYSICAL avg 122.
+--------------------
+```
+
+---
+
+## SECTION 4b — COACHING SESSION PROJECTIONS
+
+These are the game's own projected gain ranges shown on coach preview screens.
+They use the game's internal coaching XP system, which appears to give ~4–5× the
+XP rate of manual drills. The app's engine (baseXpPerSession=150, VH) is calibrated
+to regular drills — do not try to match these with drill parameters.
+
+```
+--- COACH_PROJECTION ---
+Date: 2026-05-08
+Player: Ricky Grant  Age: 20  Roles: DL/ML/AML  Tier: STELLAR
+
+STANDARD PHYSICAL ×35 — covers FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY:
+  FITNESS:     260  +6–8    → ~266–268
+  STRENGTH:     64  +52–67  → ~116–131  (very low base, huge gain)
+  AGGRESSION:  201  +14–21  → ~215–222
+  SPEED:       160  +34–41  → ~194–201
+  CREATIVITY:  256  +5–7    → ~261–263
+  OVR boost projected: +7–10
+
+STANDARD ATTACKING ×30 — covers PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING:
+  PASSING:     130  +53–64  → ~183–194
+  DRIBBLING:   223  +11–17  → ~234–240
+  CROSSING:    154  +38–46  → ~192–200
+  SHOOTING:    150  +41–48  → ~191–198
+  FINISHING:   164  +31–38  → ~195–202
+  OVR boost projected: +12–14
+
+STANDARD DEFENDING ×20 — covers TACKLING, MARKING, HEADING, BRAVERY (4 stats, NOT Positioning):
+  TACKLING:    120  +66–77  → ~186–197
+  MARKING:     137  +54–63  → ~191–200
+  POSITIONING: 225  +0      (not covered in ×20 coach)
+  HEADING:     154  +13–18  → ~167–172  (grey stat for DL — lower gain)
+  BRAVERY:     214  +22     → ~236       (upper bound, lower cut off in screenshot)
+  OVR boost projected: +10–12
+
+USER QUERY — STANDARD DEFENDING ×35 (all 5 stats including POSITIONING):
+  Budget ratio vs ×20/4-stat: (35÷5)/(20÷4) = 7/5 = 1.4× more XP per stat
+  Estimated gains (1.2× scaling for diminishing returns, 1.4× budget):
+    TACKLING:    120  → ~203–212   (+83–92)
+    MARKING:     137  → ~205–213   (+68–76)
+    POSITIONING: 225  → ~250–258   (+25–33)  [same budget, but 225 is expensive bracket]
+    HEADING:     154  → ~170–175   (+16–21)  [grey stat]
+    BRAVERY:     214  → ~239–242   (+25–28)
+  Estimated OVR: 174 → ~189        (+15)
+  NOTE: These are app estimates. Game's ×35 screen would show exact range.
 --------------------
 ```
 

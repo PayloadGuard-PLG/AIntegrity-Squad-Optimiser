@@ -144,14 +144,14 @@ export default function ResultsScreen() {
 
     // 2. Tier upgrade
     if (selectedTier) {
-      const whiteKeys = getWhiteStatKeys(player.role);
-      const afterTier = applyTierBonusToStats(currentStats, whiteKeys, selectedTier, profile, player.tier);
+      const allKeys = getAllStatKeys(player.role);
+      const afterTier = applyTierBonusToStats(currentStats, allKeys, selectedTier, profile, player.tier);
       const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
       steps.push({
-        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / WHITE STAT)`,
+        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / KEY STAT)`,
         ovrBefore: currentOvr,
         ovrAfter,
-        detail: `${whiteKeys.length} white stats affected`,
+        detail: `${allKeys.length} key stats affected`,
         color: TIER_COLORS[selectedTier] ?? theme.hot,
       });
       currentStats = afterTier;
