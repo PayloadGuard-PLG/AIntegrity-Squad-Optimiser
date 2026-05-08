@@ -151,7 +151,7 @@ const testPlayer: Player = {
   id: '1', name: 'Test Player', role: ['ST'],
   age: 18, overall: 100,   // consistent with stats at 100 and divisor=1
   stats: { FINISHING: 100, SHOOTING: 100, DRIBBLING: 100, PASSING: 100, POSITIONING: 100, HEADING: 100 },
-  isMutantCandidate: false, tier: 'None',
+  isMutantCandidate: false, tier: 'None', talent: 'Normal',
 };
 const planWithGreens = planPlayerInvestment(testPlayer, managerProfile, drillSessions, profile, null);
 const greensStep = planWithGreens.steps.find(s => s.action === 'condition');
@@ -173,7 +173,7 @@ const striker: Player = {
     HEADING: 100, STRENGTH: 100, SPEED: 100, CREATIVITY: 100, BRAVERY: 100,
     AGILITY: 100, FITNESS: 100, STAMINA: 100, TACKLING: 100, MARKING: 100,
   },
-  isMutantCandidate: true, tier: 'None',
+  isMutantCandidate: true, tier: 'None', talent: 'Normal',
 };
 const strikerProfile: ManagerProfile = {
   style: 'PTW', tierPoints: { Stellar: 650 }, greens: 50, isPremiumSponsor: true,
@@ -204,7 +204,7 @@ const youngGK: Player = {
     THROWING: 80, KICKING: 80, PUNCHING: 80, 'AERIAL REACH': 80, FITNESS: 80,
     STRENGTH: 80, SPEED: 80, STAMINA: 80, BRAVERY: 80, CREATIVITY: 80,
   },
-  isMutantCandidate: false, tier: 'None',
+  isMutantCandidate: false, tier: 'None', talent: 'Normal',
 };
 const compDrills: DrillSession[] = [
   { drillName: 'Skill Drill', sessionCount: 20, drillLevel: 'Very Easy' },

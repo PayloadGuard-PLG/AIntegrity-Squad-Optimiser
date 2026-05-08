@@ -11,6 +11,7 @@ async function runTest() {
         age: 19,
         overall: 45,
         tier: 'None',
+        talent: 'Normal',
         stats: { FINISHING: 115, SPEED: 105 },
         isMutantCandidate: true
     }];

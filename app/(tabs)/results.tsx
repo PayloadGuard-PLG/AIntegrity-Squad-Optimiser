@@ -7,8 +7,8 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
-import { estimateStatGainPct } from '../../src/logic/xpEngine';
-import { applyTierBonusToStats } from '../../src/logic/xpEngine';
+import { estimateStatGainPct, applyTierBonusToStats } from '../../src/logic/xpEngine';
+import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources'; // DrillLevel used by ACADEMY_DRILL_LEVEL
@@ -17,7 +17,6 @@ const profile = gameProfileJson as unknown as GameProfile;
 
 // Academy coaches always run at Very Hard rate — no difficulty picker needed
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
 const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TIER_COSTS: Record<TierName, number> = { None: 0, Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
@@ -46,7 +45,6 @@ export default function ResultsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [talent, setTalent] = useState<TalentTier>('Normal');
   const [twoxAd, setTwoxAd] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
@@ -56,6 +54,7 @@ export default function ResultsScreen() {
   const [greens, setGreens] = useState('');
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
+  const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
@@ -77,6 +76,7 @@ export default function ResultsScreen() {
     setSessions([]);
     setSelectedTier(null);
     setResult(null);
+    setFinalStats(null);
   }
 
   function addSession() {
@@ -123,7 +123,7 @@ export default function ResultsScreen() {
         const from = currentStats[stat];
         if (from === undefined) continue;
         const isWhite = isWhiteStat(player.role, stat);
-        const gain = estimateStatGainPct(budget, from, player.age, 0, talent, isWhite, twoxAd, drillMult, profile);
+        const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, twoxAd, drillMult, profile);
         if (gain > 0) {
           updatedStats[stat] = Math.min(from + gain, profile.statCap);
           gainParts.push(`${stat} +${gain.toFixed(1)}`);
@@ -185,6 +185,7 @@ export default function ResultsScreen() {
     }
 
     setResult(steps);
+    setFinalStats(currentStats);
   }
 
   const finalOvr = result ? result[result.length - 1]?.ovrAfter ?? null : null;
@@ -230,19 +231,18 @@ export default function ResultsScreen() {
               </View>
             </View>
 
-            {/* Talent + 2× ad — shared */}
+            {/* Talent (from card) + 2× ad */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 12, marginBottom: 14 }}>
-              <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center', marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <MonoLabel style={{ width: 56 }}>TALENT</MonoLabel>
-                <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
-                  {TALENT_TIERS.map(t => (
-                    <Chip key={t} active={talent === t} onPress={() => { setTalent(t); setResult(null); }}>
-                      {TALENT_LABEL[t]}
-                    </Chip>
-                  ))}
+                <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.steelLight }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
+                    {TALENT_LABEL[player.talent] ?? player.talent}
+                  </Text>
                 </View>
+                <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
-              <Pressable onPress={() => { setTwoxAd(v => !v); setResult(null); }}
+              <Pressable onPress={() => { setTwoxAd(v => !v); setResult(null); setFinalStats(null); }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 8, backgroundColor: twoxAd ? theme.surface2 : 'transparent' }}>
                 <View style={{ width: 12, height: 12, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
                 <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.2, color: twoxAd ? theme.hot : theme.inkSec }}>2× AD ACTIVE</Text>
@@ -518,6 +518,32 @@ export default function ResultsScreen() {
                   );
                 })}
               </View>
+            )}
+
+            {/* Apply full plan to player card */}
+            {finalStats && finalOvr != null && (
+              <Pressable
+                onPress={() => {
+                  if (!player || !finalStats) return;
+                  playerService.update({
+                    ...player,
+                    stats: finalStats,
+                    overall: Number(finalOvr.toFixed(1)),
+                    tier: selectedTier ?? player.tier,
+                  });
+                  setResult(null);
+                  setFinalStats(null);
+                  setSessions([]);
+                  setSelectedTier(null);
+                }}
+                style={{ borderWidth: 1, borderColor: theme.pos, padding: 14, alignItems: 'center', marginTop: 14, backgroundColor: theme.pos + '18' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: theme.pos, fontWeight: '700' }}>
+                  ✓ APPLY FULL PLAN TO CARD
+                </Text>
+                <MonoLabel size={8} color={theme.pos} style={{ marginTop: 4 }}>
+                  {selectedTier ? `STATS + OVR + TIER → ${selectedTier.toUpperCase()}` : 'STATS + OVR ONLY'}
+                </MonoLabel>
+              </Pressable>
             )}
           </>
         )}

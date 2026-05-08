@@ -100,6 +100,7 @@ async function startApp() {
       age: parseInt(ageStr, 10),
       overall: parseFloat(ovrStr),
       tier: (tierInput.trim() || 'None') as TierName,
+      talent: 'Normal',
       stats: buildDefaultStats(roles),
       isMutantCandidate: mutStr.toLowerCase() === 'y',
     };

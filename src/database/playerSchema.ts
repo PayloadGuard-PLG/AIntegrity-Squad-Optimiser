@@ -1,4 +1,4 @@
-import { TierName } from '../types/resources';
+import { TierName, TalentTier } from '../types/resources';
 
 export interface Player {
   id: string;
@@ -7,7 +7,8 @@ export interface Player {
   age: number;
   overall: number;
   tier: TierName;
-  stats: Record<string, number>;  // Raw stat values (e.g. 97, 312, 436)
+  talent: TalentTier;
+  stats: Record<string, number>;
   isMutantCandidate: boolean;
 }
 
@@ -18,6 +19,7 @@ export const INITIAL_PLAYER_STATE: Player = {
   age: 18,
   overall: 40,
   tier: 'None',
+  talent: 'Normal',
   stats: {},
-  isMutantCandidate: false
+  isMutantCandidate: false,
 };

@@ -12,12 +12,12 @@ import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrP
 import { applyTierBonusToStats } from '../../src/logic/xpEngine';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources';
+import { playerService } from '../../src/services/playerService';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
 // Academy coaches have no difficulty setting — they always run at peak (Very Hard) rate
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = {
   FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW',
 };
@@ -33,7 +33,6 @@ export default function CoachesScreen() {
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sessions, setSessions] = useState('30');
-  const [talent, setTalent] = useState<TalentTier>('Normal');
   const [twoxAd, setTwoxAd] = useState(false);
   const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<ProjectionResult | null>(null);
@@ -94,7 +93,7 @@ export default function CoachesScreen() {
       const from = player.stats[stat];
       if (from === undefined) continue;
       const isWhite = isWhiteStat(player.role, stat);
-      const gain = estimateStatGainPct(budget, from, player.age, 0, talent, isWhite, twoxAd, drillMult, profile);
+      const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, twoxAd, drillMult, profile);
       if (gain > 0) {
         postCoachStats[stat] = Math.min(from + gain, profile.statCap);
         gains.push({ stat, from, gain: Number(gain.toFixed(1)), isWhite });
@@ -119,6 +118,22 @@ export default function CoachesScreen() {
   const combinedGain = combinedOvr != null && result
     ? Number((combinedOvr - result.ovrBefore).toFixed(1))
     : null;
+
+  function applyGains() {
+    if (!player || !result) return;
+    let newStats = { ...result.postCoachStats };
+    let newTier = player.tier;
+    let newOvr = result.ovrAfter;
+    if (selectedTier && combinedOvr != null) {
+      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile);
+      newTier = selectedTier;
+      newOvr = combinedOvr;
+    }
+    playerService.update({ ...player, stats: newStats, overall: Number(newOvr.toFixed(1)), tier: newTier });
+    setResult(null);
+    setSelectedStats(new Set());
+    setSelectedTier(null);
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -174,14 +189,15 @@ export default function CoachesScreen() {
                 <MonoLabel size={8} color={theme.inkGhost}>ACADEMY FIXED</MonoLabel>
               </View>
 
-              {/* Talent */}
-              <MonoLabel color={theme.steelLight} style={{ marginBottom: 6 }}>TALENT</MonoLabel>
-              <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap', marginBottom: 14 }}>
-                {TALENT_TIERS.map(t => (
-                  <Chip key={t} active={talent === t} onPress={() => { setTalent(t); setResult(null); setSelectedTier(null); }}>
-                    {TALENT_LABEL[t]}
-                  </Chip>
-                ))}
+              {/* Talent — read from player card */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
+                    {TALENT_LABEL[player.talent] ?? player.talent}
+                  </Text>
+                </View>
+                <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
 
               {/* 2× ad */}
@@ -430,6 +446,19 @@ export default function CoachesScreen() {
                     })
                   )}
                 </View>
+
+                {/* Apply gains to player card */}
+                {result.gains.length > 0 && (
+                  <Pressable onPress={applyGains}
+                    style={{ borderWidth: 1, borderColor: theme.pos, padding: 14, alignItems: 'center', marginBottom: 14, backgroundColor: theme.pos + '18' }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: theme.pos, fontWeight: '700' }}>
+                      ✓ APPLY TO PLAYER CARD
+                    </Text>
+                    <MonoLabel size={8} color={theme.pos} style={{ marginTop: 4 }}>
+                      {selectedTier ? `UPDATES STATS + TIER → ${selectedTier.toUpperCase()}` : 'UPDATES BASE STATS + OVR'}
+                    </MonoLabel>
+                  </Pressable>
+                )}
               </>
             )}
           </>

@@ -3,7 +3,7 @@ import { players } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
 import { Player } from '../database/playerSchema';
-import { TierName } from '../types/resources';
+import { TierName, TalentTier } from '../types/resources';
 
 type PlayerRow = typeof players.$inferSelect;
 
@@ -15,6 +15,7 @@ function toRow(p: Player): PlayerRow {
     age: p.age,
     overall: p.overall,
     tier: p.tier,
+    talent: p.talent ?? 'Normal',
     stats: JSON.stringify(p.stats),
     isMutantCandidate: p.isMutantCandidate,
     createdAt: Date.now(),
@@ -30,6 +31,7 @@ function fromRow(row: PlayerRow): Player {
       age: row.age,
       overall: row.overall,
       tier: row.tier as TierName,
+      talent: (row.talent ?? 'Normal') as TalentTier,
       stats: JSON.parse(row.stats) as Record<string, number>,
       isMutantCandidate: Boolean(row.isMutantCandidate),
     };
@@ -41,6 +43,7 @@ function fromRow(row: PlayerRow): Player {
       age: row.age,
       overall: row.overall,
       tier: row.tier as TierName,
+      talent: 'Normal',
       stats: {},
       isMutantCandidate: false,
     };
