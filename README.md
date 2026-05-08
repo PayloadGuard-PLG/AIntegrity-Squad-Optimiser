@@ -14,7 +14,7 @@ The engine models each player's age, role, stat profile, talent tier, and curren
 
 ---
 
-## Four Tabs
+## Five Tabs
 
 | Tab | Purpose |
 |---|---|
@@ -22,6 +22,7 @@ The engine models each player's age, role, stat profile, talent tier, and curren
 | **PLAN** | Select a player, configure drills + tier + greens → get a step-by-step OVR projection with gain breakdown and warnings. |
 | **DRILLS** | Ranked drill recommendations for a player — sorted by ROI (lowest white stat value first = cheapest gain per XP). Fan Club level + drill level aware. Zero-drain protocol detection at L4 + Very Easy. |
 | **COACHES** | Simulate any coaching session: select which stats the coach covers, enter session count (×N), set intensity and talent tier → exact per-stat gains and OVR change projected. |
+| **RESULTS** | Chain multiple coaching sessions + tier upgrade + greens into one sequential OVR projection. Full step-by-step breakdown with final OVR. |
 
 ---
 
@@ -63,7 +64,8 @@ app/(tabs)/
 ├── index.tsx          — Squad list
 ├── plan.tsx           — Investment projection (drills + tier + greens)
 ├── drills.tsx         — Drill recommendations ranked by ROI
-└── coaches.tsx        — Coach session simulator (stat selector + OVR output)
+├── coaches.tsx        — Coach session simulator (stat selector + OVR output)
+└── results.tsx        — Combined projection: chain sessions + tier + greens
 
 src/
 ├── types/resources.ts       — All interfaces: GameProfile, ManagerProfile, DrillSession…
@@ -81,7 +83,7 @@ src/
 │   └── conditionEngine.ts   — calculateActualLoss (Fan Club reduction)
 ├── context/ManagerContext.tsx — talentTier, drillLevel, tierPoints, twoxAd state
 └── components/
-    ├── AppHeader.tsx         — 4-tab nav bar (SQUAD · PLAN · DRILLS · COACHES)
+    ├── AppHeader.tsx         — 5-tab nav bar (SQUAD · PLAN · DRILLS · COACHES · RESULTS)
     └── atoms/               — MonoLabel, Chip, CornerBrackets, OvrMovement
 
 profiles/game_2025.json      — All game constants (XP table, age/talent multipliers…)

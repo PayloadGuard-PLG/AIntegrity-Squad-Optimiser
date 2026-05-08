@@ -621,6 +621,39 @@ Tier points used:
 ```
 
 ```
+--- TIER_UPGRADE (CONFIRMED — accidental, 2026-05-08) ---
+Player name: Ricky Grant
+Player role(s): DL / ML / AML
+Tier before: ELITE
+Tier after: STELLAR
+Tier increment per key stat: +20 (tierAttrAdditions[Stellar]-[Elite] = 50-30 = 20 ✓)
+
+All 15 stats — before → after:
+  TACKLING:     100 → 120  (+20) ← KEY STAT
+  MARKING:      117 → 137  (+20) ← KEY STAT
+  POSITIONING:  208 → 228  (+20) ← KEY STAT
+  BRAVERY:      194 → 214  (+20) ← KEY STAT
+  PASSING:      110 → 130  (+20) ← KEY STAT
+  DRIBBLING:    203 → 223  (+20) ← KEY STAT
+  CROSSING:     134 → 154  (+20) ← KEY STAT
+  SHOOTING:     130 → 150  (+20) ← KEY STAT
+  FINISHING:    144 → 164  (+20) ← KEY STAT
+  FITNESS:      240 → 260  (+20) ← KEY STAT
+  AGGRESSION:   181 → 201  (+20) ← KEY STAT
+  SPEED:        140 → 160  (+20) ← KEY STAT
+  CREATIVITY:   236 → 256  (+20) ← KEY STAT
+  HEADING:      154 → 154  ( 0)  ← NOT key stat
+  STRENGTH:      64 →  64  ( 0)  ← NOT key stat
+
+OVR before: 157 (ELITE, sum=2355, 2355/15=157.0 ✓)
+OVR after: 174 (STELLAR, sum=2615, 2615/15=174.3 → floor 174 ✓)
+OVR gain: +17 displayed (actually 174-157=17 integer, but model predicts 13×20/15=17.3 → +17 ✓)
+Key stats: 13 (all 15 except HEADING and STRENGTH)
+Confirmed: getAllStatKeys(DL/ML/AML) returns exactly these 13 stats ✓
+--------------------
+```
+
+```
 --- TIER_UPGRADE_PROJECTION ---
 Date: 2026-05-08
 Source: In-game TIER UP preview screens (projected OVR, not confirmed post-upgrade)
@@ -667,13 +700,13 @@ KEY FINDING — TIER WHITE STAT COUNT DISCREPANCY:
   Damian Rasiak (DC/DMC/MC): +13 OVR / +20 → n ≈ 10 key stats
     App whites = 8 — game adds 2 more
 
-  HYPOTHESIS: Game applies tier bonus to all stats shown in white/gold on player card
-  — this includes role essentials AND at least some grey stats (FITNESS, SPEED, CREATIVITY
-  are strong candidates). Exact mapping needs a confirmed before/after stat snapshot.
+  CONFIRMED (2026-05-08): Game applies tier bonus to getAllStatKeys() — essentials + secondaries.
+  For DL/ML/AML: TACKLING, MARKING, POSITIONING, BRAVERY, CROSSING, PASSING, DRIBBLING,
+  SHOOTING, FINISHING (essentials) + FITNESS, AGGRESSION, SPEED, CREATIVITY (secondaries) = 13 stats.
+  HEADING and STRENGTH are NOT key stats for this combo.
 
-  ACTION: Log one confirmed TIER_UPGRADE with full stat-by-stat before/after to determine
-  exactly which stats change at tier-up. Until then, app tier projections are conservative
-  (real game gain will exceed app projection by ~5-8 OVR for outfield, ~2 for GK).
+  FIX APPLIED: All callers of applyTierBonusToStats() now use getAllStatKeys(player.role).
+  Coaches.tsx, results.tsx, ovrProjector.ts all patched — Sprint 9.
 --------------------
 ```
 

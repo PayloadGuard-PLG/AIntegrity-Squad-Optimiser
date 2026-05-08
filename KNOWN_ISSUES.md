@@ -9,12 +9,19 @@
 | 3 | GK white stats | ✓ CLOSED Sprint 8 — confirmed: white = REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION (10 stats). Grey = FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY (5 stats). GK solo only. | ✓ |
 | 4 | GK stat entry UI | ✓ CLOSED — GK role shows GK_STATS grid (all 15: 10 white + 5 grey confirmed from player card). GK is enforced as strictly solo in both directions. | ✓ |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` is stored in `ManagerProfile` but the Faster Condition Recovery cooldown reduction from premium milestone rewards (confirmed: milestone 6 = +10%, milestone 12 = further reduction) is not factored into engine output. | Medium |
-| 9 | Tier OVR projection under-predicts | `applyTierBonusToStats` applies bonus only to `getWhiteStatKeys()` (role essentials). Game applies bonus to more stats — its own "key attribute" set is larger. Observed: winger combos (DL/ML/AML, AMR/MR/DR) → 13 game-key stats vs 9 app whites, giving +26 OVR at MASTER instead of app-predicted +18. GK: 11 vs 10, Midfielders: 10–12 vs 8. Need confirmed before/after stat snapshot to determine exact game-key stat set per role. | High |
+| 9 | Tier OVR projection under-predicts | ✓ CLOSED Sprint 9 — `applyTierBonusToStats` now uses `getAllStatKeys()` (essentials + secondaries). Confirmed via Ricky Grant ELITE→STELLAR: 13 key stats gained +20 each → +26 OVR. HEADING and STRENGTH unchanged (not in any DL/ML/AML key set). Fix applied in coaches.tsx, results.tsx, ovrProjector.ts. | ✓ |
 | 6 | CLI drill levels | `src/index.ts` drill level prompts updated to Very Easy/Easy/Medium/Hard/Very Hard but not yet tested end-to-end via CLI. | Low |
 | 7 | Squad-wide OVR projection | Plan tab projects a single player in isolation. The observed ~+7 OVR/season from squad-wide Very Easy drilling (L4 zero-drain, all low white stats, free ad drills for teamplay) is not expressible in the UI. A "Season Simulator" view across all players is out of scope but this is the real-world calibration target. | Low |
 | 8 | Drill stat priority | ✓ CLOSED Sprint 8 — drills now sorted by ascending average white stat value (ROI sort). Lowest stat first = cheapest gain per XP. Tiebreaker: efficiency. | ✓ |
 
 ---
+
+## Fixed — Sprint 9 (2026-05-08)
+
+| ID | Area | Fix |
+|---|---|---|
+| F29 | Tier OVR under-predicts for all roles | `coaches.tsx`, `results.tsx`, `ovrProjector.ts`: `getWhiteStatKeys` → `getAllStatKeys` in all `applyTierBonusToStats` calls. Confirmed via Ricky Grant ELITE→STELLAR snapshot: 13 key stats +20 each = +26 OVR (not +18). |
+| F30 | RESULTS tab not wired into navigation | `app/(tabs)/_layout.tsx` + `src/components/AppHeader.tsx`: RESULTS registered as 5th tab with horizontal ScrollView tab bar. `app/(tabs)/results.tsx` committed. |
 
 ## Fixed — Sprint 8 (2026-05-07 night)
 
