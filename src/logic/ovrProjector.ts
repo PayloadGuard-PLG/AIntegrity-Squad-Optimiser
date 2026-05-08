@@ -178,21 +178,26 @@ export function projectOvr(
     }
 
     if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
-      const tierCost = getTierCost(targetTier);
+      const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
       const whiteKeys = getWhiteStatKeys(player.role);
-      const attrAdd = getTierAttrAddition(targetTier);
-      const tierOvrGain = Number(
-        (attrAdd * whiteKeys.length / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1)
-      );
-      const ovrBefore = currentOvr;
-      currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
-      steps.push({
-        action: 'tier',
-        description: `Tier → ${targetTier} (+${attrAdd} per white attr × ${whiteKeys.length} stats)`,
-        ovrBefore,
-        ovrAfter: currentOvr,
-        resourcesUsed: `${tierCost} tier points`,
-      });
+      const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'None'));
+      const toIdx   = ALL_TIERS.indexOf(targetTier);
+      for (let i = fromIdx + 1; i <= toIdx; i++) {
+        const stepTier = ALL_TIERS[i] as TierName;
+        const prevTier = ALL_TIERS[i - 1] as TierName;
+        const inc  = (profile.tierAttrAdditions[stepTier] ?? 0) - (profile.tierAttrAdditions[prevTier] ?? 0);
+        const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
+        const tierOvrGain = Number((inc * whiteKeys.length / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
+        const ovrBefore = currentOvr;
+        currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
+        steps.push({
+          action: 'tier',
+          description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeys.length} stats)`,
+          ovrBefore,
+          ovrAfter: currentOvr,
+          resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,
+        });
+      }
     }
 
     if (greens > 0) {
@@ -240,24 +245,36 @@ export function projectOvr(
     warnings.push(`Age ${player.age} — training multiplier ${ageMult.toFixed(2)}×. Gains are reduced.`);
   }
 
-  // Step 2 — Tier upgrade
+  // Step 2 — Tier upgrade(s): one step per intermediate tier, each with its incremental stat addition
   if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
-    const tierCost = getTierCost(targetTier);
+    const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
     const whiteKeys = getWhiteStatKeys(player.role);
-    const ovrBefore = currentOvr;
+    const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'None'));
+    const toIdx   = ALL_TIERS.indexOf(targetTier);
+    for (let i = fromIdx + 1; i <= toIdx; i++) {
+      const stepTier = ALL_TIERS[i] as TierName;
+      const prevTier = ALL_TIERS[i - 1] as TierName;
+      const inc  = (profile.tierAttrAdditions[stepTier] ?? 0) - (profile.tierAttrAdditions[prevTier] ?? 0);
+      const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
+      const ovrBefore = currentOvr;
 
-    currentStats = applyTierBonusToStats(currentStats, whiteKeys, targetTier, profile);
-    const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
-    const attrAdd = getTierAttrAddition(targetTier);
+      // Apply incremental addition to each white stat
+      const newStats = { ...currentStats };
+      for (const key of whiteKeys) {
+        if (key in newStats) newStats[key] = Math.min(newStats[key] + inc, profile.statCap);
+      }
+      currentStats = newStats;
 
-    steps.push({
-      action: 'tier',
-      description: `Tier → ${targetTier} (+${attrAdd} per white attr × ${whiteKeys.length} stats)`,
-      ovrBefore,
-      ovrAfter: newOvr,
-      resourcesUsed: `${tierCost} tier points`,
-    });
-    currentOvr = newOvr;
+      const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
+      steps.push({
+        action: 'tier',
+        description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeys.length} stats)`,
+        ovrBefore,
+        ovrAfter: newOvr,
+        resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,
+      });
+      currentOvr = newOvr;
+    }
   }
 
   // Step 3 — Greens (condition restore — no OVR change)

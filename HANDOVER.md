@@ -19,7 +19,7 @@ All tabs functional. Engine calibrated against real coaching data. OTA pipeline 
 - **COACHES tab** *(new Sprint 8)* — stat selector grid (white/grey), session count × N, intensity picker, talent + 2× ad toggle, per-stat gain projection + OVR output.
 - **XP engine** — fractional gains, calibrated `baseXpPerSession = 150`, no star decay, budget divided by drill stat count. Validated vs Standard Attacking ×30 real data.
 - **GK role** — confirmed 10 white / 5 grey stats. Solo only.
-- **Drill database** — 24 drills. Use Your Head and Stop the Attacker corrected from confirmed screenshots.
+- **Drill database** — 24 drills. Use Your Head and Stop the Attacker corrected from confirmed data.
 
 ---
 
@@ -31,7 +31,7 @@ All tabs functional. Engine calibrated against real coaching data. OTA pipeline 
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Medium |
 | 6 | CLI drill levels | `src/index.ts` prompts updated to new drill level names but not tested end-to-end. | Low |
 | 7 | Squad-wide season simulator | Plan tab projects one player. User confirmed ~+7 OVR/season from squad-wide L4 zero-drain Very Easy drilling (all low white stats). Not expressible in current UI. | Low |
-| — | Coaches tab: scenario validation | User will provide coaching scenarios from the game. Update intensity → multiplier mapping as data comes in. Each coach type in game (Standard/Focused/Extensive) maps to an approximate intensity level — to be confirmed per screenshot. | Next |
+| — | Coaches tab: scenario validation | User will provide coaching scenarios. Update intensity → multiplier mapping as data comes in. Each coach type (Standard/Focused/Extensive) maps to an approximate intensity level — to be confirmed. | Next |
 
 ---
 
@@ -121,7 +121,7 @@ DR:  same as DL
 
 ## Confirmed Game Data
 
-**Fan Club condition reduction** (L4 = 50% — confirmed in-game):
+**Fan Club condition reduction** (L4 = 50% — confirmed):
 `[0.10, 0.15, 0.20, 0.25, 0.50]` (L0 → L4)
 
 **Zero-drain condition:** L4 Fan Club + Very Easy drill = 0% condition loss.

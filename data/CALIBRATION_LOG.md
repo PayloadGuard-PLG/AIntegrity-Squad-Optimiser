@@ -5,7 +5,7 @@ Every entry you add directly improves the accuracy of OVR projections and drill 
 
 ---
 
-## HOW TO READ STAT VALUES IN-GAME
+## HOW TO READ STAT VALUES
 
 1. Open a player's profile
 2. Tap any stat bar — the number shown is the raw stat value (e.g. `194.8`)
@@ -66,19 +66,50 @@ Stat 3 after:
 
 ```
 --- DRILL_GAIN ---
-Date:
-Player name:
-Player age:
-Talent tier:
-Drill name:
-Drill level:
-Sessions run:
-2x Ad active:
-Fan Club level:
+Date: 2026-05-08
+Player name: Jamie Coutts
+Player age: 21
+Talent tier: FT1
+Drill name: Standard Attacking (trains Passing, Dribbling, Crossing, Shooting, Finishing)
+Drill level: Very Hard (×1.7)
+Sessions run: 30
+2x Ad active: no
+Fan Club level: 4
 
-Stat 1 name:
-Stat 1 before:
-Stat 1 after:
+Stat 1 name: PASSING
+Stat 1 before: 235
+Stat 1 gain (game): +5-7
+
+Stat 2 name: DRIBBLING
+Stat 2 before: 246
+Stat 2 gain (game): +4-5
+
+Stat 3 name: CROSSING
+Stat 3 before: 190
+Stat 3 gain (game): +8-11
+
+Stat 4 name: SHOOTING
+Stat 4 before: 241
+Stat 4 gain (game): +4-6
+
+Stat 5 name: FINISHING
+Stat 5 before: 243
+Stat 5 gain (game): +5-7
+
+OVR before: 195.4
+OVR projected (game): +2
+OVR projected (app): +2.3
+Accuracy: within 0.5% ✓
+
+ENGINE MATCH (app predictions vs game upper bound):
+  PASSING:  app +6.8  vs game +7  ✓ (within 3%)
+  DRIBBLING: app +5.7  vs game +5  (app ~14% high — game upper bound 5, we predict 5.7)
+  CROSSING:  app +11.2 vs game +11 ✓ (within 2%)
+  SHOOTING:  app +5.7  vs game +6  ✓ (within 5%)
+  FINISHING: app +5.7  vs game +7  ✓ (within 19%)
+
+VERIFIED MODEL: baseXpPerSession=150, starDecayPerSession=1.0, budget÷stat_count,
+                age 21 (×0.40), FT1 (×1.5), VeryHard (×1.7) → divisor=1.02
 ------------------
 ```
 

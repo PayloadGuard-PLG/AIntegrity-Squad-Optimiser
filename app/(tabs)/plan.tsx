@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
+import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
@@ -66,6 +67,7 @@ function StepRail({ steps }: { steps: InvestmentStep[] }) {
 
 export default function PlanScreen() {
   const { squad } = useSquad();
+  const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drillRows, setDrillRows] = useState<DrillSession[]>([newDrill()]);
   const [talent, setTalent] = useState<TalentTier>('Normal');
@@ -76,7 +78,9 @@ export default function PlanScreen() {
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
   const [matchdayCoachActive, setMatchdayCoachActive] = useState(false);
   const [targetTier, setTargetTier] = useState<TierName | null>(null);
-  const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>({});
+  const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
+    Object.fromEntries(TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : '']))
+  );
   const [section, setSection] = useState<Section>('drills');
   const [plan, setPlan] = useState<InvestmentPlan | null>(null);
   const [fixtureHours, setFixtureHours] = useState('');
@@ -115,12 +119,17 @@ export default function PlanScreen() {
   }
 
   function getBestAffordableTier(currentTier: TierName | undefined): TierName | null {
-    const currentIdx = TIER_ORDER.indexOf(currentTier as TierName);
+    const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+    const fromIdx = Math.max(0, ALL_TIERS.indexOf((currentTier ?? 'None') as TierName));
     let best: TierName | null = null;
-    for (const tier of TIER_ORDER) {
-      if (TIER_ORDER.indexOf(tier) <= currentIdx) continue;
-      const have = parseInt(tierPointInputs[tier] ?? '0', 10) || 0;
-      if (have >= TIER_COSTS[tier]) best = tier;
+    for (let i = fromIdx + 1; i < ALL_TIERS.length; i++) {
+      const t = ALL_TIERS[i];
+      const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
+      if (have >= TIER_COSTS[t]) {
+        best = t;
+      } else {
+        break; // tiers must be bought in sequence — stop at first unaffordable
+      }
     }
     return best;
   }
@@ -438,7 +447,12 @@ export default function PlanScreen() {
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                           <MonoLabel size={9} color={theme.inkSec}>NEED {cost} · HAVE</MonoLabel>
-                          <TextInput keyboardType="numeric" value={tierPointInputs[t] ?? ''} onChangeText={v => setTierPointInputs(prev => ({ ...prev, [t]: v }))} placeholder="0" placeholderTextColor={theme.inkGhost}
+                          <TextInput keyboardType="numeric" value={tierPointInputs[t] ?? ''} onChangeText={v => {
+                              const clean = v.replace(/[^0-9]/g, '');
+                              setTierPointInputs(prev => ({ ...prev, [t]: clean }));
+                              manager.setTierPoints({ ...manager.tierPoints, [t]: parseInt(clean, 10) || 0 });
+                              invalidate();
+                            }} placeholder="0" placeholderTextColor={theme.inkGhost}
                             style={{ backgroundColor: theme.surface3, color: theme.ink, fontFamily: theme.mono, fontSize: 13, fontWeight: '700', padding: 5, paddingHorizontal: 10, minWidth: 60, borderWidth: 1, borderColor: theme.hairline2 }} />
                           {!canAfford && have > 0 && <MonoLabel size={9} color={theme.neg}>{cost - have} SHORT</MonoLabel>}
                         </View>

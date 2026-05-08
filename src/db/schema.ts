@@ -8,6 +8,7 @@ export const players = sqliteTable('players', {
   overall: real('overall').notNull(),
   tier: text('tier').notNull().default('None'),
   stats: text('stats').notNull().default('{}'),             // JSON: Record<string, number>
+  talent: text('talent').notNull().default('Normal'),
   isMutantCandidate: integer('is_mutant_candidate', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at').notNull(),
 });

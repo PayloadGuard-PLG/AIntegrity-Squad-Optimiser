@@ -6,9 +6,11 @@ import { validateRoleAdjacency, isWhiteStat } from '../../src/utils/roleWeights'
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
-import { TierName } from '../../src/types/resources';
+import { TierName, TalentTier } from '../../src/types/resources';
 
 const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
 
 const ROLE_GRID = [
   [null, 'DR', 'DC', 'DL'],
@@ -54,6 +56,7 @@ export default function EditPlayerScreen() {
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
   const [tier, setTier] = useState<TierName>('None');
+  const [talent, setTalent] = useState<TalentTier>('Normal');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
@@ -70,6 +73,7 @@ export default function EditPlayerScreen() {
     setAge(p.age.toString());
     setOverall(p.overall.toString());
     setTier(p.tier);
+    setTalent(p.talent ?? 'Normal');
     setMutant(p.isMutantCandidate);
     if (p.stats && Object.keys(p.stats).length > 0) {
       setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, v.toString()])));
@@ -114,6 +118,7 @@ export default function EditPlayerScreen() {
       age: ageNum,
       overall: ovrNum,
       tier,
+      talent,
       stats: statsObj,
       isMutantCandidate: mutant,
     });
@@ -215,6 +220,27 @@ export default function EditPlayerScreen() {
                 }}>
                   <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : c }}>
                     {t.toUpperCase()}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* TALENT */}
+        <View style={{ marginBottom: 20 }}>
+          <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>TALENT TIER</MonoLabel>
+          <View style={{ flexDirection: 'row', gap: 5 }}>
+            {TALENT_TIERS.map(t => {
+              const sel = talent === t;
+              return (
+                <Pressable key={t} onPress={() => setTalent(t)} style={{
+                  flex: 1, paddingVertical: 9, alignItems: 'center',
+                  borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2,
+                  backgroundColor: sel ? theme.ink : 'transparent',
+                }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>
+                    {TALENT_LABEL[t]}
                   </Text>
                 </Pressable>
               );

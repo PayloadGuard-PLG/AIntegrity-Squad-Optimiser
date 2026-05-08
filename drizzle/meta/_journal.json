@@ -15,6 +15,13 @@
       "when": 1778087829687,
       "tag": "0001_natural_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1746662400000,
+      "tag": "0002_player_talent",
+      "breakpoints": true
     }
   ]
 }

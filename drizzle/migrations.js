@@ -39,10 +39,13 @@ const m0001 = `CREATE TABLE \`drill_sessions\` (
 	\`created_at\` integer NOT NULL
 );`;
 
+const m0002 = `ALTER TABLE \`players\` ADD \`talent\` text DEFAULT 'Normal' NOT NULL;`;
+
 export default {
   journal,
   migrations: {
     m0000,
     m0001,
+    m0002,
   },
 };
