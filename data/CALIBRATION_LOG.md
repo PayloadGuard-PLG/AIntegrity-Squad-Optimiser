@@ -366,6 +366,46 @@ Stats:
 --------------------
 ```
 
+```
+--- OVR_SNAPSHOT ---
+Date: 2026-05-08
+Player name: Jaseyboi Sutters
+Player age: 26
+Role(s): GK (solo — confirmed: GK cannot combine with any other role)
+Current tier: STELLAR
+Game OVR displayed: 189
+
+GK white stats (GOALKEEPING section):
+  REFLEXES:       261
+  AGILITY:        196
+  ANTICIPATION:   205
+  RUSHING OUT:    176
+  COMMUNICATION:  280
+  THROWING:       222
+  KICKING:        219
+  PUNCHING:       191
+  AERIAL REACH:   231
+  CONCENTRATION:  256
+
+GK grey stats (PHYSICAL section):
+  FITNESS:        233
+  STRENGTH:        78
+  AGGRESSION:     111
+  SPEED:           52
+  CREATIVITY:     133
+
+OVR FORMULA VERIFICATION:
+  Sum all 15 stats: 261+196+205+176+280+222+219+191+231+256+233+78+111+52+133 = 2,844
+  Mean: 2,844 ÷ 15 = 189.6
+  Game OVR: 189 → CONFIRMED: OVR = floor(mean), not round ✓
+
+CONFIRMED (from user):
+  - All GKs share the same white/grey stat split (universal, not player-specific)
+  - GK is strictly solo — cannot be combined with any other role in either direction
+  - No other role can become GK
+--------------------
+```
+
 ---
 
 ## SECTION 4 — TIER UPGRADE OBSERVATIONS

@@ -31,11 +31,16 @@ const OUTFIELD_STATS = [
 ];
 
 const GK_STATS = [
+  // white (essential) — 10 stats confirmed
   'REFLEXES',      'AGILITY',
   'ANTICIPATION',  'RUSHING OUT',
   'COMMUNICATION', 'THROWING',
   'KICKING',       'PUNCHING',
-  'AERIAL REACH',  'FITNESS',
+  'AERIAL REACH',  'CONCENTRATION',
+  // grey (secondary) — 5 stats confirmed
+  'FITNESS',       'STRENGTH',
+  'AGGRESSION',    'SPEED',
+  'CREATIVITY',
 ];
 
 const inputStyle = {
