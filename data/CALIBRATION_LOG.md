@@ -255,11 +255,25 @@ PILLAR DETAILS (confirmed from pillar info panels):
   CONDITION — 16/16 · L3/10 · +15% bonus
     Requires: ≥8 players (ANY drill type — Physical & Mental category)
 
-AD TV BOOSTS (confirmed):
-  - Random each day, FREE
-  - Up to +4 on any single pillar
-  - Match-day only (does not affect training, resets daily)
-  - Attack showed "+1 from TOP ELEVEN TV" in panel
+AD TV BOOSTS — FULL TRACK (confirmed 2026-05-08):
+  Resets every 24 hours. All rewards free (watch video ads). Not in fixed order.
+  Step 1: Daily Appearance       — daily reward bundle
+  Step 2: Special Sponsor        — +5 sponsor points, completes "Video Master" task
+  Step 3: Playbook               — 1 Basic Playbook drill (×3 videos = 3 drills)
+  Step 4: Matchday Coach (2×)    — limited training session with 2× teamplay mult (×4 videos)
+  Step 5 (Milestone): Teamplay Form Boost: Random — match-day only (see probabilities below)
+  Step 5–10: Mourinho Support    — +2% Possession before fixture (×3 watches needed)
+  Step 10 (Milestone): Special Ability Boost — all players' specials boosted, match-day only
+
+  TEAMPLAY FORM BOOST PROBABILITIES (per pillar, same distribution for all 4):
+    +1: 7%  |  +2: 10%  |  +3: 5.5%  |  +4: 2.5%
+    → Always hits exactly 1 pillar per draw (4 × 25% = 100%)
+    → Expected value: ~+2.14 on the drawn pillar
+
+  MATCHES FOR MOURINHO SUPPORT: 1–6 per day depending on active competitions:
+    League + Association (clan ≤6 players) + Friendly Championship + accepted Friend Friendlies
+
+  Attack showed "+1 from TOP ELEVEN TV" in pillar panel (match-day only)
 
 TRAINING LEVEL (confirmed 2026-05-08):
   Current level: 111 (MAXIMUM — tooltip: "The Maximum Training Level is 111")

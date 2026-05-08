@@ -302,22 +302,41 @@ The Matchday Coach applies to every drill a player runs, meaning normal individu
 
 **Variety penalty:** The game warns "Training today lacked variety. Different intensities and types in drills enhance teamplay impact." Repeating the same drill across all 41 sessions reduces per-session teamplay efficiency. Rotating drills or mixing intensities maximises pillar gain rate.
 
-### 6.4 Ad TV — match-day teamplay boosts
+### 6.4 Ad TV — daily reward track
 
-The ad TV feature provides random teamplay form boosts that apply **to matches only** — they do not affect training. Progress resets approximately every 6 hours. Confirmed: Attack pillar displayed "18 +1 from TOP ELEVEN TV" — additive on top of the base pillar score, match-day only. The boost is **random each day, free, up to +4 on any single pillar**. Resets daily.
+The Ad TV (Top Eleven TV) is a sequential reward track completed by watching video ads. **Progress resets every 24 hours.** All boosts are match-day only and do not influence training.
 
-Boost probabilities per pillar draw:
+**Reward track (in order):**
 
-| Boost amount | Probability |
+| Step | Reward | Notes |
+|---|---|---|
+| 1 | Daily Appearance | Daily login reward bundle |
+| 2 | Special Sponsor | +5 sponsor points · completes "Video Master" sponsor task |
+| 3 | Playbook | 1 random Basic Playbook drill · completes Playbook shop videos |
+| 4 | Matchday Coach (2×) | Limited training run with 2× teamplay multiplier |
+| 5 (Milestone) | Teamplay Form Boost: Random | Applied to all matches until end of season day |
+| Between 5–10 | Mourinho Support (+2%) | +2% Possession before a scheduled fixture · requires 3 watches |
+| 10 (Milestone) | Special Ability Boost | All players' Special Abilities boosted for all matches today |
+
+**Matches to unlock Mourinho Support:** Watch an ad before each of 3 fixtures ("GO TO FIXTURES"). +2% Possession for that match. Number of fixtures available depends on how many competitions you're active in: League + Association (clan of up to 6) + Friendly Championship + accepted Friend Friendlies = 1–6 matches per day.
+
+**Teamplay Form Boost — exact probabilities (confirmed from UI):**
+
+Same distribution applied independently to each of the 4 pillars per draw. You always receive exactly one boost on one random pillar.
+
+| Boost | Probability |
 |---|---|
 | +1 | 7% |
 | +2 | 10% |
 | +3 | 5.5% |
 | +4 | 2.5% |
+| **Any boost on this pillar** | **25%** |
 
-Applies to all 4 pillars (Attack, Defence, Possession, Condition) with identical probability distribution. Boost lasts until end of season day.
+Since 4 pillars × 25% = 100%, every draw guarantees a boost on exactly one pillar. Expected boost value: **~+2.14** on the selected pillar.
 
-**Special Ability Boost** is also available from the same reward track — applies to all Special Abilities for all matches until end of season day. Does not influence training.
+**Special Ability Boost:** All players' Special Abilities enhanced for all matches until end of season day. Does not affect training.
+
+**Associations (clans):** Groups of up to 6 players. Association matches count toward fixture availability for Mourinho Support watches.
 
 ### 6.5 Training Level and Drill Quality
 
