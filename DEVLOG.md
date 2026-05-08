@@ -11,7 +11,7 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 **Coaches tab (`app/(tabs)/coaches.tsx`)**
 
-New fourth tab: `/coaches` — SESSION SIMULATOR. Lets the manager replicate any coaching scenario from the game and project its exact OVR impact.
+New fourth tab: `/coaches` — SESSION SIMULATOR. Lets the manager replicate any coaching scenario and project its exact OVR impact.
 
 - **Stat selector grid** — all white (essential) and grey (secondary) stats for the selected player's role. White stats rendered full brightness with current stat value shown; grey stats dimmed. Tap any stat to include/exclude it from the coach's coverage. Counter shows total selected.
 - **Sessions ×N** — TextInput for the coach multiplier (e.g. ×30 Standard Attacking, ×59 Standard Safeguard)
@@ -20,7 +20,7 @@ New fourth tab: `/coaches` — SESSION SIMULATOR. Lets the manager replicate any
 - **▶ PROJECT COACH GAIN** — computes per-stat gains and total OVR change. Shows gain breakdown: each stat, before value, gain amount (float), plus OVR before/after banner.
 - Pulls `computeOvrWithPadding` (now exported from `ovrProjector.ts`) for accurate OVR-after with partial stat entry padding.
 
-**XP engine calibration — validated against 7 coach screenshots**
+**XP engine calibration — validated against 7 real coaching observations**
 
 Real data: Standard Attacking ×30 on Ryan Rodger (age 18, Normal talent):
 - Passing 121 → +26–33 (model: ~27 at Medium intensity) ✓
@@ -40,7 +40,7 @@ Two engine fixes applied and confirmed:
 
 `src/logic/xpEngine.ts` — `estimateStatGainPct` now returns a float (e.g. 2.37). Partial XP progress banks as fractional carry: `gain += remaining / cost` instead of discarding leftover. Visible "+1" appears when cumulative value crosses an integer threshold. Sub-integer gains accumulate across multiple sessions.
 
-**GK role constraints — confirmed from in-game screenshot**
+**GK role constraints — confirmed**
 
 `src/utils/roleWeights.ts` — GK corrected to confirmed game values:
 - 10 white (essential): REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION
@@ -49,7 +49,7 @@ Two engine fixes applied and confirmed:
 
 **Drill database fixes**
 
-`src/database/drillDatabase.ts` — two drills corrected from confirmed in-game screenshots:
+`src/database/drillDatabase.ts` — two drills corrected from confirmed data:
 
 | Drill | Field | Before | After |
 |---|---|---|---|
@@ -59,7 +59,7 @@ Two engine fixes applied and confirmed:
 | Stop the Attacker | stats | `['TACKLING','MARKING','BRAVERY']` | `['STRENGTH','MARKING','BRAVERY','DRIBBLING','TACKLING']` |
 | Stop the Attacker | baseLoss | 2.25 | 4.5 |
 
-baseLoss values derived from in-game L4 Fan Club display (50% reduction shown): Use Your Head −1.5% at L4 → base = 3.0; Stop the Attacker −2.25% at L4 → base = 4.5.
+baseLoss values derived from L4 Fan Club data (50% reduction observed): Use Your Head −1.5% at L4 → base = 3.0; Stop the Attacker −2.25% at L4 → base = 4.5.
 
 **ROI-based drill sort**
 
@@ -436,7 +436,7 @@ Full React Native / Expo mobile UI. App now runs on device — zero CLI required
 | `src/services/coachService.ts` | Drizzle CRUD for coaches table |
 | `src/context/ManagerContext.tsx` | Session-level manager profile state |
 | `src/hooks/useSquad.ts` | Live reactive squad query via `useLiveQuery` |
-| `RESEARCH.md` | Renamed from `Research`; game name reference removed |
+| `RESEARCH.md` | Renamed from `Research` |
 
 **Files modified:**
 
@@ -565,7 +565,7 @@ Project skeleton, build tooling, and all pre-existing logic brought to a working
 |---|---|---|
 | Research docs → formula update | High | User to commit docs; update `estimateOvrGainFromCoach` |
 | Mobile UI (Expo screens) | High | Next sprint once logic is stable |
-| Screenshot OCR / stat reader | Medium | `useScanner` is a stub; depends on UI sprint |
+| OCR / stat reader | Medium | `useScanner` is a stub; depends on UI sprint |
 | Drizzle DB migrations | Medium | Run `npm run db:generate` after schema stabilises |
 | Squad synergy / formation engine | Low | `engine.js` stubs left as-is |
 | Play Store release | — | Target after mobile UI sprint |

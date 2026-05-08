@@ -5,7 +5,7 @@ Every entry you add directly improves the accuracy of OVR projections and drill 
 
 ---
 
-## HOW TO READ STAT VALUES IN-GAME
+## HOW TO READ STAT VALUES
 
 1. Open a player's profile
 2. Tap any stat bar — the number shown is the raw stat value (e.g. `194.8`)
@@ -70,7 +70,7 @@ Date: 2026-05-08
 Player name: Jamie Coutts
 Player age: 21
 Talent tier: FT1
-Drill name: Standard Attacking (game coach — trains Passing, Dribbling, Crossing, Shooting, Finishing)
+Drill name: Standard Attacking (trains Passing, Dribbling, Crossing, Shooting, Finishing)
 Drill level: Very Hard (×1.7)
 Sessions run: 30
 2x Ad active: no

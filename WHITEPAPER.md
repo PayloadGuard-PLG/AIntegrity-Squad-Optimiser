@@ -70,7 +70,7 @@ Budget is divided equally across all stats a drill trains. A 5-stat drill run fo
 
 Model gives gains within the observed ranges at Medium intensity (1.3×). `baseXpPerSession = 150` confirmed.
 
-**Note — Training XP ≠ stat-gain XP:** The in-game "Training XP" display is a separate resource and does not map to the XP budget modelled here.
+**Note — Training XP ≠ stat-gain XP:** The "Training XP" display is a separate resource and does not map to the XP budget modelled here.
 
 **Cost per 1% gain on a single stat:**
 ```
@@ -257,7 +257,7 @@ Four pillars, each with its own current score, cap, and level (1–10). Cap incr
 
 ### 6.2 Free daily maintenance (all managers)
 
-Four free teamplay training drills are available daily, accessible by watching ads (Top Eleven TV). These drills specifically raise teamplay pillar scores. A base multiplier (2×–4×, scaling with ads watched) applies to the teamplay gain from these drills.
+Four free teamplay training drills are available daily, accessible by watching ads. These drills specifically raise teamplay pillar scores. A base multiplier (2×–4×, scaling with ads watched) applies to the teamplay gain from these drills.
 
 **Effective free daily boost:** 4 drills × base multiplier — sufficient to offset the ~2-point daily decay if used consistently.
 
@@ -272,9 +272,9 @@ The Matchday Coach grants **+150% Teamplay multiplier on all training sessions**
 
 The Matchday Coach is equivalent to the 4-video ad multiplier but applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
 
-### 6.4 Top Eleven TV — match-day teamplay boosts
+### 6.4 Ad TV — match-day teamplay boosts
 
-Top Eleven TV provides random teamplay form boosts that apply **to matches only** — they do not affect training. Progress resets approximately every 6 hours.
+The ad TV feature provides random teamplay form boosts that apply **to matches only** — they do not affect training. Progress resets approximately every 6 hours.
 
 Boost probabilities per pillar draw:
 
@@ -311,7 +311,7 @@ This strategy compounds three mechanics simultaneously:
 3. **Don't wait for perfect condition** — 50% condition reduction (L4) means you can chain drills continuously; perfect-condition waiting wastes cycles.
 
 ### Teamplay maintenance (free)
-4. **4 free ad drills daily (×4 multiplier)** — train Attack, Defence, and Possession on relevant positions using the free Top Eleven TV drills. This offsets daily decay and steadily pushes pillar levels higher, raising match performance without spending condition.
+4. **4 free ad drills daily (×4 multiplier)** — train Attack, Defence, and Possession on relevant positions using the free daily ad drills. This offsets daily decay and steadily pushes pillar levels higher, raising match performance without spending condition.
 
 ### Squad-wide effect
 5. **Train across the whole squad** — the aggregate XP flowing through all 11+ players means more integer thresholds crossed per day than single-player projection suggests. Each player's white stats accumulate fractionally; when a crossing fires, it feeds into OVR for that player. Across the squad, crossings happen constantly.
