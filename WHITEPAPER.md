@@ -229,9 +229,9 @@ If a game is scheduled for the next day, the manager has a known time window and
 | L1 | −15% | 0.85 | — |
 | L2 | −20% | 0.80 | — |
 | L3 | −25% | 0.75 | — |
-| L4 | −50% | 0.50 | 0.375% per session (model) = 0.38% displayed (game) ✓ |
+| L4 | −50% | 0.50 | 0.375% per session (model) = 0.38% displayed (observed) ✓ |
 
-**Zero-Drain Protocol:** Confirmed. At Fan Club L4 with chants active on Very Easy drills, condition loss = 0%. Training list shows 0.00% per session when conditions are met. Engine correctly returns 0% for L4 + Very Easy (`isZeroDrain = true`).
+**Zero-Drain Protocol — REVISED:** Zero drain is **drill-specific**, not universal at L4 + Very Easy. Observed: Ball Control at Very Easy + L4 = −0.38% (not zero). The L4 factor halves condition loss; a drill with baseLoss 0.75% becomes 0.375%, which the display rounds to 0.38%. Zero drain (0.00% displayed) only occurs for drills whose computed loss falls below the game's display minimum threshold (~0.01%). Engine `isZeroDrain` is now computed per-drill: `actualLoss < 0.01`. Note: active chants may further reduce condition — this is not yet modelled.
 
 ---
 
@@ -263,14 +263,19 @@ Four free teamplay training drills are available daily, accessible by watching a
 
 ### 6.3 Matchday Coach (premium)
 
-The Matchday Coach grants **+150% Teamplay multiplier on all training sessions** — not just the 4 free teamplay drills. Duration: 7 days from activation. Source: premium sponsor milestone rewards.
+The Matchday Coach grants **+150% Teamplay multiplier on all training sessions** — not just the 4 free teamplay drills. Duration: 7 days from activation. Also purchasable as a 1-day version for 25 tokens at any time. Source: premium sponsor milestone rewards.
 
-| Boost type | Scope | Duration |
-|---|---|---|
-| 4 free ad drills (2×–4× mult) | Teamplay drills only | Daily |
-| Matchday Coach (+150%) | All training sessions | 7 days |
+| Boost type | Scope | Duration | Cost |
+|---|---|---|---|
+| 4 free ad drills (2×–4× mult) | Teamplay drills only | Daily | Free |
+| Matchday Coach (+150%) | All training sessions | 7 days | Premium milestone |
+| Matchday Coach (+150%) | All training sessions | 1 day | 25 tokens |
 
-The Matchday Coach is equivalent to the 4-video ad multiplier but applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
+The Matchday Coach applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
+
+**Confirmed observed effect (2026-05-08):** 41 × Ball Control Very Easy with Matchday Coach active → Attack pillar +7 above its current level cap (L4 cap = 18, reached 25 effective). Matchday Coach can temporarily push pillars above their level cap. This excess above cap is not retained permanently — it represents form gained from training that the pillar level ceiling does not limit.
+
+**Variety penalty:** The game warns "Training today lacked variety. Different intensities and types in drills enhance teamplay impact." Repeating the same drill across all 41 sessions reduces per-session teamplay efficiency. Rotating drills or mixing intensities maximises pillar gain rate.
 
 ### 6.4 Ad TV — match-day teamplay boosts
 

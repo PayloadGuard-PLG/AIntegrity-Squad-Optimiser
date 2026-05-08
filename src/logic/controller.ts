@@ -15,10 +15,12 @@ export function getBestDrillSelections(player: Player, fanClubLevel: number = 4,
     }
 
     const whiteStats = Object.keys(player.stats).filter(stat => isEssentialGain(player.role, stat));
-    const isZeroDrain = fanClubLevel === 4 && drillLevel === 'Very Easy';
 
     return DRILL_LIST.map(drill => {
         const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel);
+        // Zero drain is per-drill: Ball Control Very Easy L4 = -0.38% (not zero).
+        // Only drills whose computed loss rounds to 0.00% in the game UI qualify.
+        const isZeroDrain = actualLoss < 0.01;
         const whiteDrillStats = drill.stats.filter(s => whiteStats.includes(s));
         const efficiency = whiteDrillStats.length / drill.stats.length;
         const conditionCost = isZeroDrain ? 0 : actualLoss * 6;

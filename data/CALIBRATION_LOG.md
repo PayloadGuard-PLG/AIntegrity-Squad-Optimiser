@@ -113,6 +113,61 @@ VERIFIED MODEL: baseXpPerSession=150, starDecayPerSession=1.0, budget÷stat_coun
 ------------------
 ```
 
+```
+--- SQUAD_SESSION ---
+Date: 2026-05-08
+Time start: 11:30
+Drill name: Ball Control
+Drill level: Very Easy (×1.0)
+Drill stats trained: Concentration, Dribbling, Heading, Creativity (4 stats)
+Drill coach quality: World-class (+35 Training effect shown in UI)
+Sessions run: 41
+Players trained: 31
+Fan Club level: 4
+Matchday Coach active: YES — 7-day (premium sponsor reward), 150% teamplay boost, 2× shown
+2x Ad active: no (not confirmed in report)
+
+Training XP per session: +31 total (+1 per player × 31 players)
+Training XP total: 1,271 (41 × 31 ✓)
+NOTE: Training XP ≠ stat-gain XP. Separate resource.
+
+Condition per session: −0.38% (confirmed from drill selection screen)
+Zero drain: NO — Ball Control Very Easy at L4 = −0.38%, NOT 0%.
+  → baseLoss 0.75% × 0.5 (L4) = 0.375% ≈ 0.38% ✓
+  → IMPORTANT: zero drain is NOT universal at L4 + Very Easy. It is drill-specific.
+     Engine isZeroDrain logic must account for this — only drills with sufficiently
+     low baseLoss reach 0 after L4 halving.
+
+Individual stat gains (from training report, one session):
+  Multiple players: +1 Creativity
+  Some players: no stat gain shown (training XP bar only — not enough budget to cross integer)
+
+Team OVR before: 215.7 (DarkVader FC squad aggregate, main squad only)
+Team OVR after:  215.8 (+0.1 from 41 sessions)
+NOTE: OVR reported here is TEAM OVR (match strength), not individual player OVR.
+      Reserves/subs excluded — they gain MORE per session (lower stats = cheaper XP).
+
+Teamplay pillars before (session start): Attack 18, Defence 22, Possession ~20, Condition 16 → 74/76
+Teamplay pillars after (41 sessions + Matchday Coach):
+  Attack: 18 base + 7 Matchday Coach bonus = 25 effective
+  Defence: 22 (unchanged — Ball Control doesn't train defence stats)
+  Possession: 20 (recovered from mid-session decay)
+  Condition: 16
+
+MATCHDAY COACH NOTES (confirmed from premium sponsor 7-day):
+  - Source: premium sponsor milestone reward. Also purchasable: 1-day version = 25 tokens.
+  - Duration: 7 days from activation (14h 29m remaining at 11:30 = ~14.5h left of session)
+  - Effect: +150% teamplay form multiplier on ALL training sessions (not just teamplay drills)
+  - UI shows "2×" badge on Matchday Coach banner
+  - Pushes pillars ABOVE current level cap (Attack at L4 cap=18, with Matchday Coach active → 25)
+  - Ball Control (attack-related stats) → drove Attack pillar +7 above cap across 41 sessions
+  - Teamplay warning shown: "Training today lacked variety. Different intensities and types
+    in drills enhance teamplay impact." → repeated same drill reduces teamplay efficiency
+
+Match result same day: DarkVader FC 5–0 zMAGASz FC ✓
+-----------------------
+```
+
 ---
 
 ## SECTION 2 — CONDITION DRAIN OBSERVATIONS
@@ -152,6 +207,25 @@ Chants active:
 Sessions run:
 Condition before:   %
 Condition after:    %
+-----------------------
+```
+
+```
+--- CONDITION_DRAIN ---
+Date: 2026-05-08
+Drill name: Ball Control
+Drill level: Very Easy
+Fan Club level: 4
+Matchday Coach: active (150% teamplay boost — no condition effect)
+Sessions run: 41 (squad-wide, 31 players)
+Condition per session: −0.38% (confirmed from drill selection UI)
+
+DERIVED: baseLoss = 0.38% ÷ 0.5 (L4 factor) = 0.75% ≈ matches Video Analysis estimate
+ZERO DRAIN FINDING: Ball Control Very Easy L4 = −0.38%, NOT zero.
+  → Zero drain is NOT simply L4 + Very Easy.
+  → Must be either: (a) threshold below which game rounds to 0.00%, or
+    (b) specific drills with lower baseLoss that fall below display minimum.
+  → Engine `isZeroDrain` logic needs revision — cannot be universal L4+VE flag.
 -----------------------
 ```
 
@@ -341,19 +415,64 @@ OVR: 196 → 196 (unchanged — makes sense, gains tiny)
 
 ---
 
+## SECTION 7 — TEAMPLAY & MATCHDAY COACH OBSERVATIONS
+
+```
+--- TEAMPLAY ---
+Date: 2026-05-08
+Session: 41× Ball Control Very Easy, 31 players, Fan Club L4
+Matchday Coach: active (7-day premium, 150% teamplay multiplier, 2× badge shown in UI)
+  Cost of 1-day version: 25 tokens (purchasable anytime)
+
+Pillar levels at session start:
+  Attack:     18  (level 4/10, cap = 18)
+  Defence:    22  (level 6/10)
+  Possession: ~20 (level 5/10) — fluctuated due to daily decay mid-session
+  Condition:  16  (level 3/10)
+  Total:      74 / 76 shown in training hub
+
+Pillar levels after 41 sessions:
+  Attack:     18 base + 7 Matchday Coach bonus = 25 effective (ABOVE cap)
+  Defence:    22 (unchanged — Ball Control trains attack stats, not defence)
+  Possession: 20 (recovered)
+  Condition:  16 (unchanged)
+
+CONFIRMED: Matchday Coach pushes pillars ABOVE their current level cap.
+  → L4 Attack cap = 18. With Matchday Coach active after 41 sessions = 25.
+  → +7 extra = teamplay form contribution that exceeds the level 4 ceiling.
+  → This is distinct from ADVANCING to the next level (which costs resources).
+  → Matchday Coach effect is temporary (lasts until coach expires).
+
+TEAMPLAY GAIN RATE: ~+7 Attack from 41 sessions with 150% multiplier active.
+  Without Matchday Coach: ~+7 / 2.5 ≈ +3 Attack per 41 sessions normally.
+  Ball Control stats (Dribbling, Heading, Creativity) map to Attack pillar.
+
+VARIETY WARNING: "Training today lacked variety. Different intensities and types
+  in drills enhance teamplay impact." — using same drill repeatedly reduces
+  teamplay efficiency per session. Rotating drills maximises pillar gain rate.
+-----------
+```
+
+---
+
 ## NOTES ON "PERFECT CONDITIONS"
 
-Perfect conditions = Fan Club L4 + all chants active + Very Easy drill + 2× Ad if available
+Perfect conditions = Fan Club L4 + chants active + Very Easy drill + 2× Ad if available
+
+REVISED: "Perfect conditions" does NOT guarantee zero condition drain for all drills.
+Ball Control Very Easy + L4 = −0.38% (NOT zero). Zero drain appears to be drill-specific.
+Best current candidate for zero drain: drills with lower baseLoss than 0.75%.
 
 Under these conditions:
-- Condition drain = 0% (you can drill indefinitely)
-- XP efficiency = maximum for the drill level
+- Condition drain = minimal (very low, possibly zero for some drills)
+- XP efficiency = 1.0× (Very Easy multiplier) with ad/talent boost on top
 - Best time to fill Section 1 and 2 together
 
-**When logging perfect conditions, always note:**
+**When logging, always note:**
 - Were chants active? How many?
 - Was the 2× Ad running?
 - What Fan Club level?
+- What was the actual condition displayed per session?
 
 ---
 
