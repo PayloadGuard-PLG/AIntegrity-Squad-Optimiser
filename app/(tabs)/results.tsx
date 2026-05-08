@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useId } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -11,12 +11,12 @@ import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { applyTierBonusToStats } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
-import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources';
+import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources'; // DrillLevel used by ACADEMY_DRILL_LEVEL
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
-const DRILL_SHORT: Record<DrillLevel, string> = { 'Very Easy': 'VE', 'Easy': 'E', 'Medium': 'M', 'Hard': 'H', 'Very Hard': 'VH' };
+// Academy coaches always run at Very Hard rate — no difficulty picker needed
+const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
 const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
@@ -27,9 +27,8 @@ const CONDITION_PER_REST = 25; // rest pack restores ~25% condition
 
 type SessionEntry = {
   id: string;
-  stats: string[];     // selected stat keys
+  stats: string[];
   sessions: string;
-  drillLevel: DrillLevel;
 };
 
 type StepResult = {
@@ -81,7 +80,7 @@ export default function ResultsScreen() {
   }
 
   function addSession() {
-    setSessions(prev => [...prev, { id: uid(), stats: [], sessions: '30', drillLevel: 'Very Hard' }]);
+    setSessions(prev => [...prev, { id: uid(), stats: [], sessions: '30' }]);
     setResult(null);
   }
 
@@ -115,7 +114,7 @@ export default function ResultsScreen() {
       if (session.stats.length === 0) continue;
       const n = parseInt(session.sessions, 10) || 0;
       if (n === 0) continue;
-      const drillMult = profile.drillLevelMultipliers[session.drillLevel] ?? 1.0;
+      const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
       const budget = n * profile.baseXpPerSession / session.stats.length;
       const updatedStats = { ...currentStats };
       const gainParts: string[] = [];
@@ -133,7 +132,7 @@ export default function ResultsScreen() {
 
       const ovrAfter = computeOvrWithPadding(updatedStats, player.overall, profile);
       steps.push({
-        label: `COACHING ×${n} (${DRILL_SHORT[session.drillLevel]}) — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
+        label: `COACHING ×${n} (VH) — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
         ovrBefore: currentOvr,
         ovrAfter: Number(ovrAfter.toFixed(1)),
         detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no gains — enter stat values',
@@ -279,7 +278,7 @@ export default function ResultsScreen() {
                     </Pressable>
                   </View>
 
-                  {/* Sessions × and intensity on same row */}
+                  {/* Sessions × and intensity */}
                   <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginBottom: 10 }}>
                     <MonoLabel size={9} style={{ width: 24 }}>×</MonoLabel>
                     <View style={{ width: 72, borderWidth: 1, borderColor: theme.hairline2 }}>
@@ -292,19 +291,10 @@ export default function ResultsScreen() {
                         style={{ fontFamily: theme.mono, fontSize: 16, fontWeight: '700', color: theme.ink, padding: 7, textAlign: 'center' }}
                       />
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 3, flexWrap: 'wrap', flex: 1 }}>
-                      {DRILL_LEVELS.map(l => {
-                        const sel = sess.drillLevel === l;
-                        return (
-                          <Pressable key={l} onPress={() => updateSession(sess.id, { drillLevel: l })}
-                            style={{ paddingHorizontal: 7, paddingVertical: 5, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
-                            <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.5, color: sel ? theme.bg : theme.inkMuted }}>
-                              {DRILL_SHORT[l]}
-                            </Text>
-                          </Pressable>
-                        );
-                      })}
+                    <View style={{ paddingHorizontal: 8, paddingVertical: 5, borderWidth: 1, borderColor: theme.ink, backgroundColor: theme.ink }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.5, color: theme.bg }}>VERY HARD</Text>
                     </View>
+                    <MonoLabel size={8} color={theme.inkGhost}>ACADEMY</MonoLabel>
                   </View>
 
                   {/* Stat picker — white */}
@@ -374,7 +364,7 @@ export default function ResultsScreen() {
                     <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.steelLight }} />
                       <MonoLabel size={8} color={theme.inkSec}>
-                        {sess.stats.length} STAT{sess.stats.length !== 1 ? 'S' : ''} · ×{sess.sessions || '0'} SESSIONS · {sess.drillLevel.toUpperCase()} ({profile.drillLevelMultipliers[sess.drillLevel]}×)
+                        {sess.stats.length} STAT{sess.stats.length !== 1 ? 'S' : ''} · ×{sess.sessions || '0'} SESSIONS · VERY HARD ({profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL]}×)
                       </MonoLabel>
                     </View>
                   )}
@@ -410,20 +400,32 @@ export default function ResultsScreen() {
                   return (
                     <Pressable key={t}
                       onPress={() => { setSelectedTier(sel ? null : t); setResult(null); }}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 11, paddingHorizontal: 14, borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: sel ? 3 : 0, borderLeftColor: c, backgroundColor: sel ? theme.surface2 : 'transparent' }}>
-                      <Text style={{ fontFamily: theme.display, fontSize: 13, fontWeight: '700', color: c, textTransform: 'uppercase', minWidth: 82 }}>{t}</Text>
-                      <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>+{TIER_ADDITIONS[t]}/STAT · NEED {cost}</MonoLabel>
-                      <TextInput
-                        keyboardType="numeric"
-                        value={tierPointInputs[t] ?? ''}
-                        onChangeText={v => { setTierPointInputs(prev => ({ ...prev, [t]: v.replace(/[^0-9]/g, '') })); setResult(null); }}
-                        placeholder="0"
-                        placeholderTextColor={theme.inkGhost}
-                        style={{ color: canAfford ? theme.pos : theme.ink, fontFamily: theme.mono, fontSize: 12, fontWeight: '700', padding: 5, paddingHorizontal: 8, minWidth: 52, borderWidth: 1, borderColor: canAfford ? theme.pos + '66' : theme.hairline2, backgroundColor: theme.surface2, textAlign: 'center' }}
-                      />
-                      <Text style={{ fontFamily: theme.mono, fontSize: 18, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost, minWidth: 20, textAlign: 'center' }}>
-                        {canAfford ? '✓' : '·'}
-                      </Text>
+                      style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: sel ? 3 : 0, borderLeftColor: c, backgroundColor: sel ? theme.surface2 : 'transparent', padding: 11, paddingHorizontal: 14 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <Text style={{ fontFamily: theme.display, fontSize: 13, fontWeight: '700', color: c, textTransform: 'uppercase', minWidth: 82 }}>{t}</Text>
+                        <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>+{TIER_ADDITIONS[t]}/STAT · NEED {cost}</MonoLabel>
+                        <TextInput
+                          keyboardType="numeric"
+                          value={tierPointInputs[t] ?? ''}
+                          onChangeText={v => { setTierPointInputs(prev => ({ ...prev, [t]: v.replace(/[^0-9]/g, '') })); setResult(null); }}
+                          placeholder="0"
+                          placeholderTextColor={theme.inkGhost}
+                          style={{ color: canAfford ? theme.pos : theme.ink, fontFamily: theme.mono, fontSize: 12, fontWeight: '700', padding: 5, paddingHorizontal: 8, minWidth: 52, borderWidth: 1, borderColor: canAfford ? theme.pos + '66' : theme.hairline2, backgroundColor: theme.surface2, textAlign: 'center' }}
+                        />
+                        <Text style={{ fontFamily: theme.mono, fontSize: 18, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost, minWidth: 20, textAlign: 'center' }}>
+                          {canAfford ? '✓' : '·'}
+                        </Text>
+                      </View>
+                      {!canAfford && have > 0 && (
+                        <MonoLabel size={8} color={theme.neg} style={{ marginTop: 4, marginLeft: 92 }}>
+                          {cost - have} SHORT
+                        </MonoLabel>
+                      )}
+                      {canAfford && !sel && (
+                        <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4, marginLeft: 92 }}>
+                          TAP TO INCLUDE IN PLAN
+                        </MonoLabel>
+                      )}
                     </Pressable>
                   );
                 })
