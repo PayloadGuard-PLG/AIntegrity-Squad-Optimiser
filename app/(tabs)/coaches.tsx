@@ -110,7 +110,7 @@ export default function CoachesScreen() {
   function tierOvr(tier: TierName): number | null {
     if (!player || !result) return null;
     const whiteKeys = getWhiteStatKeys(player.role);
-    const afterTierStats = applyTierBonusToStats(result.postCoachStats, whiteKeys, tier, profile);
+    const afterTierStats = applyTierBonusToStats(result.postCoachStats, whiteKeys, tier, profile, player.tier);
     return computeOvrWithPadding(afterTierStats, player.overall, profile);
   }
 
@@ -125,7 +125,7 @@ export default function CoachesScreen() {
     let newTier = player.tier;
     let newOvr = result.ovrAfter;
     if (selectedTier && combinedOvr != null) {
-      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile);
+      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile, player.tier);
       newTier = selectedTier;
       newOvr = combinedOvr;
     }
@@ -412,8 +412,10 @@ export default function CoachesScreen() {
                                 keyboardType="numeric"
                                 value={tierPointInputs[t] ?? ''}
                                 onChangeText={v => {
-                                  setTierPointInputs(prev => ({ ...prev, [t]: v.replace(/[^0-9]/g, '') }));
-                                  if (sel) setSelectedTier(null); // re-tap to recalculate
+                                  const clean = v.replace(/[^0-9]/g, '');
+                                  setTierPointInputs(prev => ({ ...prev, [t]: clean }));
+                                  manager.setTierPoints({ ...manager.tierPoints, [t]: parseInt(clean, 10) || 0 });
+                                  if (sel) setSelectedTier(null);
                                 }}
                                 placeholder="0"
                                 placeholderTextColor={theme.inkGhost}

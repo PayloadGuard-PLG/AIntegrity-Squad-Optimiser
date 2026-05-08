@@ -145,7 +145,7 @@ export default function ResultsScreen() {
     // 2. Tier upgrade
     if (selectedTier) {
       const whiteKeys = getWhiteStatKeys(player.role);
-      const afterTier = applyTierBonusToStats(currentStats, whiteKeys, selectedTier, profile);
+      const afterTier = applyTierBonusToStats(currentStats, whiteKeys, selectedTier, profile, player.tier);
       const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
       steps.push({
         label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / WHITE STAT)`,
@@ -407,7 +407,12 @@ export default function ResultsScreen() {
                         <TextInput
                           keyboardType="numeric"
                           value={tierPointInputs[t] ?? ''}
-                          onChangeText={v => { setTierPointInputs(prev => ({ ...prev, [t]: v.replace(/[^0-9]/g, '') })); setResult(null); }}
+                          onChangeText={v => {
+                            const clean = v.replace(/[^0-9]/g, '');
+                            setTierPointInputs(prev => ({ ...prev, [t]: clean }));
+                            manager.setTierPoints({ ...manager.tierPoints, [t]: parseInt(clean, 10) || 0 });
+                            setResult(null); setFinalStats(null);
+                          }}
                           placeholder="0"
                           placeholderTextColor={theme.inkGhost}
                           style={{ color: canAfford ? theme.pos : theme.ink, fontFamily: theme.mono, fontSize: 12, fontWeight: '700', padding: 5, paddingHorizontal: 8, minWidth: 52, borderWidth: 1, borderColor: canAfford ? theme.pos + '66' : theme.hairline2, backgroundColor: theme.surface2, textAlign: 'center' }}

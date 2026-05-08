@@ -102,7 +102,9 @@ export function qualityPctToOvr(qualityPct: number, profile: GameProfile): numbe
 }
 
 /**
- * Applies a tier upgrade by adding a flat bonus to every white stat.
+ * Applies a tier upgrade by adding the INCREMENTAL bonus to every white stat.
+ * The incremental is: tierAttrAdditions[targetTier] - tierAttrAdditions[fromTier].
+ * Pass fromTier = player's current tier so only the net gain is applied.
  * Returns a new stats object (does not mutate input).
  * White stats are capped at profile.statCap after addition.
  */
@@ -110,15 +112,18 @@ export function applyTierBonusToStats(
   stats: Record<string, number>,
   whiteStatKeys: string[],
   targetTier: TierName,
-  profile: GameProfile
+  profile: GameProfile,
+  fromTier: TierName = 'None'
 ): Record<string, number> {
-  const addition = profile.tierAttrAdditions[targetTier] ?? 0;
-  if (addition === 0) return { ...stats };
+  const totalAddition = profile.tierAttrAdditions[targetTier] ?? 0;
+  const prevAddition  = profile.tierAttrAdditions[fromTier]   ?? 0;
+  const increment = totalAddition - prevAddition;
+  if (increment <= 0) return { ...stats };
 
   const updated = { ...stats };
   for (const key of whiteStatKeys) {
     if (key in updated) {
-      updated[key] = Math.min(updated[key] + addition, profile.statCap);
+      updated[key] = Math.min(updated[key] + increment, profile.statCap);
     }
   }
   return updated;
