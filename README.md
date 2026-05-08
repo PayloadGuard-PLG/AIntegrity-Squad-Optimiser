@@ -104,6 +104,86 @@ git push origin claude/continue-development-uXA5D
 
 ---
 
+## Web App
+
+The app builds to a static site and can be hosted anywhere — GitHub Pages, Netlify, Cloudflare Pages, or your own server.
+
+### Build
+
+```bash
+npx expo export -p web
+# outputs to dist/
+```
+
+### Local preview
+
+```bash
+npx serve dist
+# or: python3 -m http.server 8080 --directory dist
+```
+
+### Deploy to GitHub Pages (automated)
+
+Add `.github/workflows/deploy-web.yml`:
+
+```yaml
+name: Deploy Web
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npx expo export -p web
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          cname: payloadguard.org   # remove this line if not using a custom domain
+```
+
+Then in **Settings → Pages** set source to `gh-pages` branch.
+
+### Custom domain DNS (Namecheap / any registrar)
+
+#### GitHub Pages — add these A records + CNAME in Advanced DNS:
+
+| Type | Host | Value |
+|------|------|-------|
+| A | @ | 185.199.108.153 |
+| A | @ | 185.199.109.153 |
+| A | @ | 185.199.110.153 |
+| A | @ | 185.199.111.153 |
+| CNAME | www | `<your-org>.github.io` |
+
+#### Netlify — point the apex record at Netlify's load balancer:
+
+| Type | Host | Value |
+|------|------|-------|
+| A | @ | 75.2.60.5 |
+| CNAME | www | `<your-site>.netlify.app` |
+
+HTTPS is provisioned automatically (Let's Encrypt) on both. DNS propagates in ~15–30 min.
+
+### How web storage works
+
+On web the app uses `localStorage` instead of SQLite — Metro resolves the `.web.ts` variants automatically:
+
+| Native | Web |
+|--------|-----|
+| `src/db/index.ts` (expo-sqlite) | `src/db/index.web.ts` (no-op migration) |
+| `src/services/playerService.ts` (Drizzle) | `src/services/playerService.web.ts` (localStorage) |
+| `src/hooks/useSquad.ts` (useLiveQuery) | `src/hooks/useSquad.web.ts` (useState + window events) |
+
+Player data is stored under the key `aintegrity_squad` in the browser's localStorage and persists across sessions. Writes dispatch a `'aintegrity_squad_updated'` window event so all open tabs stay in sync.
+
+---
+
 ## Docs
 
 | File | Content |
