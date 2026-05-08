@@ -243,17 +243,42 @@ Team Play is a separate scoring system that affects match performance but does *
 
 Four pillars, each with its own current score, cap, and level (1–10). Cap increases as the pillar is levelled up via the ADVANCE button. Combined score = sum of all four current values vs sum of all four caps.
 
-**Example observed values:**
+**Confirmed pillar caps by level (2026-05-08):**
 
-| Pillar | Current | Cap | Level |
-|---|---|---|---|
-| Attack | 14 | 18 | 4/10 |
-| Defence | 16 | 22 | 6/10 |
-| Possession | 14 | 20 | 5/10 |
-| Condition | 16 | 16 | 3/10 |
-| **Total** | **60** | **76** | — |
+| Level | Pillar cap | Formula |
+|---|---|---|
+| 3/10 | 16 | level × 2 + 10 |
+| 4/10 | 18 | level × 2 + 10 |
+| 5/10 | 20 | level × 2 + 10 |
+| 6/10 | 22 | level × 2 + 10 |
+| 10/10 | 30 | level × 2 + 10 (projected) |
 
-**Daily decay:** All four Team Play pillar scores decrease by 2 or more per day. Decay applies at the 2am GMT server reset.
+**Formula confirmed:** `pillarCap = (level × 2) + 10`. Verified across all four pillars simultaneously.
+
+**Confirmed pillar state (fully maxed, 2026-05-08):**
+
+| Pillar | Score | Cap | Level | Bonus | Min players required | Eligible roles |
+|---|---|---|---|---|---|---|
+| Attack | 18 | 18 | 4/10 | +20% | ≥ 3 | ST · AMC · AML · AMR · ML · MR |
+| Defence | 22 | 22 | 6/10 | +25% | ≥ 4 | GK · DC · DL · DR |
+| Possession | 20 | 20 | 5/10 | +25% | ≥ 4 | ML · MR · MC · DMC |
+| Condition | 16 | 16 | 3/10 | +15% | ≥ 8 | ANY (Physical & Mental drills) |
+| **Total** | **76** | **76** | — | — | — | — |
+
+**Ad TV boost:** Attack shows 18+1 from Ad TV (match-day only, does not persist between sessions).
+
+**Daily decay:** All four pillar scores decrease by 2 or more per day. Decay applies at the daily server reset.
+
+**Bonus % by level (observed):**
+
+| Level | Attack bonus | Defence bonus | Possession bonus | Condition bonus |
+|---|---|---|---|---|
+| 3/10 | — | — | — | +15% |
+| 4/10 | +20% | — | — | — |
+| 5/10 | — | — | +25% | — |
+| 6/10 | — | +25% | — | — |
+
+Note: L5 and L6 both show +25% — whether bonus plateaus at L5 or scales differently between pillars needs further data.
 
 ### 6.2 Free daily maintenance (all managers)
 
@@ -279,7 +304,7 @@ The Matchday Coach applies to every drill a player runs, meaning normal individu
 
 ### 6.4 Ad TV — match-day teamplay boosts
 
-The ad TV feature provides random teamplay form boosts that apply **to matches only** — they do not affect training. Progress resets approximately every 6 hours.
+The ad TV feature provides random teamplay form boosts that apply **to matches only** — they do not affect training. Progress resets approximately every 6 hours. Confirmed: Attack pillar displayed "18 +1 from TOP ELEVEN TV" — additive on top of the base pillar score, match-day only. The boost is **random each day, free, up to +4 on any single pillar**. Resets daily.
 
 Boost probabilities per pillar draw:
 
@@ -294,7 +319,20 @@ Applies to all 4 pillars (Attack, Defence, Possession, Condition) with identical
 
 **Special Ability Boost** is also available from the same reward track — applies to all Special Abilities for all matches until end of season day. Does not influence training.
 
-### 6.5 Strategic priority
+### 6.5 Training Level and Drill Quality
+
+Training Level is a separate progression track from individual player OVR. It is advanced by accumulating Training XP (the "+1 per player" shown in training reports — distinct from stat-gain XP).
+
+**Confirmed facts (2026-05-08):**
+- Maximum Training Level = **111** (stated in tooltip: "The Maximum Training Level is 111")
+- Training XP at Level 111: **1,855,042** (displayed as accumulated total at max)
+- Each level up unlocks a new drill or improves an existing one
+- Drill quality tiers (e.g. "World-class, +35 Training effect") are determined by Training Level unlocks applied to that drill
+- The `+35 Training effect` on Ball Control at World-class quality affects Training XP yield per session, not stat-gain XP — it does not affect the stat gain model
+
+**Training XP vs stat-gain XP:** These are entirely separate systems. Training XP fills the level bar and unlocks drills. Stat-gain XP (modelled as `baseXpPerSession × multipliers`) drives actual player stat improvements. The two numbers do not interact.
+
+### 6.7 Strategic priority
 
 | Manager type | Team play approach |
 |---|---|

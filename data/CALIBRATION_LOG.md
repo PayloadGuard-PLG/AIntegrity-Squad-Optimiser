@@ -229,6 +229,47 @@ ZERO DRAIN FINDING: Ball Control Very Easy L4 = −0.38%, NOT zero.
 -----------------------
 ```
 
+```
+--- TEAMPLAY_PILLARS ---
+Date: 2026-05-08
+State: All four pillars at cap (76/76)
+
+PILLAR CAPS BY LEVEL (formula confirmed: cap = level × 2 + 10):
+  Level 3/10 → cap 16  (Condition) ✓
+  Level 4/10 → cap 18  (Attack)    ✓
+  Level 5/10 → cap 20  (Possession)✓
+  Level 6/10 → cap 22  (Defence)   ✓
+  Level 10/10 → cap 30 (projected, not yet confirmed)
+
+PILLAR DETAILS (confirmed from pillar info panels):
+  ATTACK    — 18/18 · L4/10 · +20% bonus
+    Requires: ≥3 players of type: ST, AMC, AML, AMR, ML, MR
+    Ad TV boost: +1 (random each day, free, up to +4 on any pillar)
+
+  DEFENCE   — 22/22 · L6/10 · +25% bonus
+    Requires: ≥4 players of type: GK, DC, DL, DR
+
+  POSSESSION— 20/20 · L5/10 · +25% bonus
+    Requires: ≥4 players of type: ML, MR, MC, DMC
+
+  CONDITION — 16/16 · L3/10 · +15% bonus
+    Requires: ≥8 players (ANY drill type — Physical & Mental category)
+
+AD TV BOOSTS (confirmed):
+  - Random each day, FREE
+  - Up to +4 on any single pillar
+  - Match-day only (does not affect training, resets daily)
+  - Attack showed "+1 from TOP ELEVEN TV" in panel
+
+TRAINING LEVEL (confirmed 2026-05-08):
+  Current level: 111 (MAXIMUM — tooltip: "The Maximum Training Level is 111")
+  XP at max: 1,855,042 / 1,855,042
+  Each level unlocks/improves a drill
+  Ball Control shown as "World-class, +35 Training effect" = high unlock tier
+  Training XP ≠ stat-gain XP (confirmed — separate systems)
+-----------
+```
+
 ---
 
 ## SECTION 3 — FULL OVR SNAPSHOTS
