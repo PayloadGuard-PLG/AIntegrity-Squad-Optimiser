@@ -48,8 +48,20 @@ Confirmed: Ricky Grant ELITE→STELLAR (+20 per stat, 13 key stats for DL/ML/AML
 
 **Fix applied Sprint 9:** `coaches.tsx` (×2), `results.tsx`, `ovrProjector.ts` (×2) all use `getAllStatKeys`.
 
-### Coaching XP vs drill XP
-Coach sessions give ~4–5× more XP per session than regular drills. `baseXpPerSession=150` is calibrated to regular drills — cannot replicate coaching gain numbers exactly. Use ratio-based estimates from in-game coach preview ranges.
+### Coaching XP vs drill XP — sub-engine in progress
+Coaching uses a separate XP system. Do NOT use the drill engine for coaching projections.
+
+**Calibrated so far (Sprint 9):**
+- `baseCoachXpPerSession ≈ 1325` (vs 150 for drills — ~9× more effective per session)
+- Formula is otherwise identical: same XP cost table, same age multiplier, budget ÷ n_stats_covered
+- Grey multiplier differs — coaching uses a "priority tier" system per coach type:
+  - Primary stats: 1.0× | Secondary: 0.5× | Tertiary: 0.25×
+  - e.g. Standard Defending: TACKLING+MARKING=primary, BRAVERY=secondary, HEADING=tertiary
+
+**Still needed:** age multiplier confirmation (only age 20 data so far), talent multiplier confirmation, priority tier mapping for Physical and Attacking coach types, Extensive coach XP rate.
+
+**Data lives in:** `data/COACH_CALIBRATION.csv` — add rows from coaching preview screenshots.
+**Instructions:** `data/COACH_CALIBRATION_README.md` — read before adding data.
 
 ---
 
@@ -86,6 +98,8 @@ Coach sessions give ~4–5× more XP per session than regular drills. `baseXpPer
 | `app/player/new.tsx` | Add player — role picker, stat grid, tier, talent, save |
 | `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete |
 | `data/CALIBRATION_LOG.md` | All confirmed game data: drill gains, OVR snapshots, tier upgrades, coaching projections |
+| `data/COACH_CALIBRATION.csv` | Coaching sub-engine calibration data — one row per stat per coaching preview screen. Pre-filled S1–S4 (Ricky Grant). Add new rows as user provides screenshots. |
+| `data/COACH_CALIBRATION_README.md` | Instructions for adding to COACH_CALIBRATION.csv — column guide, priority data needed, current findings, how to run calibration. **Read this before touching the CSV.** |
 
 ---
 
