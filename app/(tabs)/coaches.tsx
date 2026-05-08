@@ -15,7 +15,8 @@ import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/r
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
+// Academy coaches have no difficulty setting — they always run at peak (Very Hard) rate
+const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = {
   FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW',
@@ -32,7 +33,6 @@ export default function CoachesScreen() {
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sessions, setSessions] = useState('30');
-  const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [twoxAd, setTwoxAd] = useState(false);
   const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
@@ -85,7 +85,7 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    const drillMult = profile.drillLevelMultipliers[drillLevel] ?? 1.0;
+    const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
     const budget = sessionCount * profile.baseXpPerSession / selectedStats.size;
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
@@ -165,20 +165,13 @@ export default function CoachesScreen() {
                 </View>
               </View>
 
-              {/* Intensity */}
-              <MonoLabel color={theme.steelLight} style={{ marginBottom: 6 }}>INTENSITY</MonoLabel>
-              <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap', marginBottom: 14 }}>
-                {DRILL_LEVELS.map(l => {
-                  const sel = drillLevel === l;
-                  return (
-                    <Pressable key={l} onPress={() => { setDrillLevel(l); setResult(null); setSelectedTier(null); }}
-                      style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>
-                        {l.toUpperCase()}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+              {/* Intensity — fixed for academy coaches */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <MonoLabel style={{ flex: 1 }}>INTENSITY</MonoLabel>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.ink, backgroundColor: theme.ink }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.bg }}>VERY HARD</Text>
+                </View>
+                <MonoLabel size={8} color={theme.inkGhost}>ACADEMY FIXED</MonoLabel>
               </View>
 
               {/* Talent */}
