@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { usePathname, router } from 'expo-router';
 import { theme } from '../constants/theme';
 import { MonoLabel } from './atoms/MonoLabel';
@@ -8,6 +8,7 @@ const TABS = [
   { id: 'plan',    label: 'PLAN',    href: '/plan' },
   { id: 'drills',  label: 'DRILLS',  href: '/drills' },
   { id: 'coaches', label: 'COACHES', href: '/coaches' },
+  { id: 'results', label: 'RESULTS', href: '/results' },
 ];
 
 interface Props {
@@ -18,18 +19,20 @@ interface Props {
 
 export function AppHeader({ title, subtitle, onBack }: Props) {
   const pathname = usePathname();
-  const showTabs = ['/', '/plan', '/drills', '/coaches'].includes(pathname);
+  const showTabs = ['/', '/plan', '/drills', '/coaches', '/results'].includes(pathname);
 
   const routeTitle = pathname === '/' ? 'DOSSIER'
     : pathname === '/plan' ? 'INVESTMENT MODEL'
     : pathname === '/drills' ? 'DRILL LIBRARY'
     : pathname === '/coaches' ? 'COACH PLANNER'
+    : pathname === '/results' ? 'FULL PLAN'
     : title ?? 'SQUAD OPTIMISER';
 
   const routeSub = pathname === '/' ? 'ACTIVE PERSONNEL'
     : pathname === '/plan' ? 'PROJECTION ENGINE'
     : pathname === '/drills' ? 'TRAINING PROTOCOLS'
     : pathname === '/coaches' ? 'SESSION SIMULATOR'
+    : pathname === '/results' ? 'COMBINED PROJECTION'
     : subtitle ?? 'OPERATOR · 1.0';
 
   return (
@@ -57,17 +60,23 @@ export function AppHeader({ title, subtitle, onBack }: Props) {
       </View>
 
       {showTabs && (
-        <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: theme.hairline }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ borderTopWidth: 1, borderTopColor: theme.hairline }}
+          contentContainerStyle={{ flexDirection: 'row' }}
+        >
           {TABS.map((t, i) => {
             const active = pathname === t.href;
             return (
               <Pressable key={t.id} onPress={() => router.push(t.href as any)}
                 style={{
-                  flex: 1, paddingVertical: 12, alignItems: 'center',
+                  paddingHorizontal: 18, paddingVertical: 12, alignItems: 'center',
                   backgroundColor: active ? theme.surface2 : 'transparent',
                   borderRightWidth: i < TABS.length - 1 ? 1 : 0,
                   borderRightColor: theme.hairline,
                   position: 'relative',
+                  minWidth: 72,
                 }}>
                 {active && <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, backgroundColor: theme.steelLight }} />}
                 <Text style={{
@@ -77,7 +86,7 @@ export function AppHeader({ title, subtitle, onBack }: Props) {
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
       )}
     </View>
   );
