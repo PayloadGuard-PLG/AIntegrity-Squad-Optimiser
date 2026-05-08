@@ -1,9 +1,14 @@
 {
   "expo": {
-    "name": "Squad Optimiser",
+    "name": "AIntegrity Squad Optimiser",
     "slug": "squad-optimiser",
     "version": "1.0.0",
     "newArchEnabled": true,
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
     "android": {
       "package": "com.payloadguard.squadoptimiser"
     },
