@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { View, Text, AppState, AppStateStatus, ActivityIndicator } from 'react-native';
 import { useDbMigration } from '../src/db';
 import { ManagerProvider } from '../src/context/ManagerContext';
-import { pickingImage } from '../src/logic/pickImage';
+import { picker } from '../src/logic/pickImage';
 
 const fill = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
 
@@ -37,7 +37,7 @@ function usePrivacyOverlay() {
       if (next === 'background') {
         // Skip overlay if the image picker is open — it fires 'background' for the full
         // duration the picker is open on Android, not just briefly.
-        if (!pickingImage) setObscured(true);
+        if (!picker.active) setObscured(true);
       }
       if (next === 'active' && prev === 'background') {
         setObscured(false);

@@ -1,9 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 
-// Set to true while the picker is open so the privacy overlay is suppressed.
-// AppState fires 'background' for the full duration the picker is open on Android.
-export let pickingImage = false;
+// Mutable object — object reference is shared across all importers, so mutations
+// are visible immediately. A plain `export let` primitive would be frozen at the
+// import-time value in Metro's CommonJS output and never update.
+export const picker = { active: false };
 
 export async function pickImage(): Promise<string | null> {
   const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -11,7 +12,7 @@ export async function pickImage(): Promise<string | null> {
     Alert.alert('Permission required', 'Allow access to your photo library to scan screenshots.');
     return null;
   }
-  pickingImage = true;
+  picker.active = true;
   try {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -23,6 +24,6 @@ export async function pickImage(): Promise<string | null> {
     if (result.canceled || result.assets.length === 0) return null;
     return result.assets[0].uri;
   } finally {
-    pickingImage = false;
+    picker.active = false;
   }
 }
