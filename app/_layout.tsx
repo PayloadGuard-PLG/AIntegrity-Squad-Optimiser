@@ -38,8 +38,8 @@ function usePrivacyOverlay() {
       const prev = appState.current;
       appState.current = next;
       if (!ready.current) return;
-      if (next === 'inactive' || next === 'background') setObscured(true);
-      if (next === 'active' && (prev === 'inactive' || prev === 'background')) setObscured(false);
+      if (next === 'background') setObscured(true);
+      if (next === 'active' && prev === 'background') setObscured(false);
     });
     return () => { sub.remove(); clearTimeout(timer); };
   }, []);
