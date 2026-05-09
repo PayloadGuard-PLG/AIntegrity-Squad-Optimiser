@@ -12,13 +12,15 @@ export default function DrillsScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [fanLevel, setFanLevel] = useState(2);
   const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
+  const [typeFilter, setTypeFilter] = useState<'All' | 'Attack' | 'Defence' | 'Physical'>('All');
 
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
-    return getDrillRecommendations(selectedPlayer, fanLevel, drillLevel);
-  }, [selectedPlayer, fanLevel, drillLevel]);
+    const all = getDrillRecommendations(selectedPlayer, fanLevel, drillLevel);
+    return typeFilter === 'All' ? all : all.filter(d => (d as any).type === typeFilter);
+  }, [selectedPlayer, fanLevel, drillLevel, typeFilter]);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -71,6 +73,19 @@ export default function DrillsScreen() {
                   <View style={{ position: 'absolute', top: 3, right: 4, width: 5, height: 5, backgroundColor: theme.pos, borderRadius: 3 }} />
                 )}
                 <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>L{l}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Drill type filter */}
+        <View style={{ flexDirection: 'row', marginBottom: 14, borderWidth: 1, borderColor: theme.hairline2 }}>
+          {(['All', 'Attack', 'Defence', 'Physical'] as const).map((t, i) => {
+            const sel = typeFilter === t;
+            const c = t === 'Attack' ? theme.hot : t === 'Defence' ? '#86c5d6' : t === 'Physical' ? theme.pos : theme.steelLight;
+            return (
+              <Pressable key={t} onPress={() => setTypeFilter(t)} style={{ flex: 1, paddingVertical: 10, alignItems: 'center', backgroundColor: sel ? c : 'transparent', borderRightWidth: i < 3 ? 1 : 0, borderRightColor: theme.hairline2 }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: sel ? theme.bg : c }}>{t.toUpperCase()}</Text>
               </Pressable>
             );
           })}

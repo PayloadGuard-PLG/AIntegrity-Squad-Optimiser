@@ -69,7 +69,7 @@ export default function PlanScreen() {
   const { squad } = useSquad();
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [drillRows, setDrillRows] = useState<DrillSession[]>([newDrill()]);
+  const [drillRows, setDrillRows] = useState<DrillSession[]>([]);
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [twoxAd, setTwoxAd] = useState(false);
@@ -429,8 +429,14 @@ export default function PlanScreen() {
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
                   <MonoLabel size={10} color={theme.steelLight}>TIER UPGRADE</MonoLabel>
+                  <View style={{ flex: 1 }} />
+                  <MonoLabel size={9} color={theme.inkGhost}>TAP TO ADD TO PLAN</MonoLabel>
                 </View>
-                {TIER_ORDER.map((t, idx) => {
+                {TIER_ORDER.filter(t => {
+                  const playerTierIdx = ['None','Rare','Elite','Stellar','Master','Epic','Legendary'].indexOf(selectedPlayer?.tier ?? 'None');
+                  const thisTierIdx   = ['None','Rare','Elite','Stellar','Master','Epic','Legendary'].indexOf(t);
+                  return thisTierIdx > playerTierIdx;
+                }).map((t, idx) => {
                   const cost = TIER_COSTS[t];
                   const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
                   const canAfford = have >= cost;
