@@ -41,11 +41,14 @@ const m0001 = `CREATE TABLE \`drill_sessions\` (
 
 const m0002 = `ALTER TABLE \`players\` ADD \`talent\` text DEFAULT 'Normal' NOT NULL;`;
 
+const m0003 = `ALTER TABLE \`players\` ADD \`snapshot\` text DEFAULT NULL;`;
+
 export default {
   journal,
   migrations: {
     m0000,
     m0001,
     m0002,
+    m0003,
   },
 };

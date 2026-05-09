@@ -129,7 +129,7 @@ export default function CoachesScreen() {
       newTier = selectedTier;
       newOvr = combinedOvr;
     }
-    playerService.update({ ...player, stats: newStats, overall: Number(newOvr.toFixed(1)), tier: newTier });
+    playerService.applyAndSnapshot(player, { stats: newStats, overall: Number(newOvr.toFixed(1)), tier: newTier });
     setResult(null);
     setSelectedStats(new Set());
     setSelectedTier(null);

@@ -60,6 +60,8 @@ export default function EditPlayerScreen() {
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
+  const [snapshot, setSnapshot] = useState<import('../../src/database/playerSchema').PlayerSnapshot | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
@@ -75,10 +77,11 @@ export default function EditPlayerScreen() {
     setTier(p.tier);
     setTalent(p.talent ?? 'Normal');
     setMutant(p.isMutantCandidate);
+    setSnapshot(p.snapshot ?? null);
     if (p.stats && Object.keys(p.stats).length > 0) {
       setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, v.toString()])));
     }
-  }, [id]);
+  }, [id, reloadKey]);
 
   function toggleRole(role: string | null) {
     if (!role) return;
@@ -121,8 +124,29 @@ export default function EditPlayerScreen() {
       talent,
       stats: statsObj,
       isMutantCandidate: mutant,
+      snapshot,
     });
     router.dismiss();
+  }
+
+  function confirmRevert() {
+    if (!id || !snapshot) return;
+    Alert.alert(
+      'REVERT CARD',
+      `Restore pre-apply snapshot?\n\nOVR ${snapshot.overall.toFixed(1)} · ${snapshot.tier}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Revert',
+          style: 'destructive',
+          onPress: () => {
+            playerService.revertToSnapshot(id);
+            setSnapshot(null);
+            setReloadKey(k => k + 1);
+          },
+        },
+      ]
+    );
   }
 
   function confirmDelete() {
@@ -136,6 +160,18 @@ export default function EditPlayerScreen() {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader title="EDIT ASSET" subtitle="PROFILE · MUTABLE" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
+
+        {/* REVERT SNAPSHOT BANNER */}
+        {snapshot && (
+          <Pressable
+            onPress={confirmRevert}
+            style={{ borderWidth: 1, borderColor: theme.hot, backgroundColor: theme.hot + '18', padding: 12, marginBottom: 16 }}>
+            <MonoLabel size={9} color={theme.hot} style={{ marginBottom: 2 }}>PRE-APPLY SNAPSHOT AVAILABLE</MonoLabel>
+            <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.hot }}>
+              OVR {snapshot.overall.toFixed(1)} · {snapshot.tier.toUpperCase()} — TAP TO REVERT
+            </Text>
+          </Pressable>
+        )}
 
         {/* IDENTITY */}
         <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>IDENTITY</MonoLabel>

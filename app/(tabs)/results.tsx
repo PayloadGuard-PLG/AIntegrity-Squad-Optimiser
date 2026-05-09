@@ -530,8 +530,7 @@ export default function ResultsScreen() {
               <Pressable
                 onPress={() => {
                   if (!player || !finalStats) return;
-                  playerService.update({
-                    ...player,
+                  playerService.applyAndSnapshot(player, {
                     stats: finalStats,
                     overall: Number(finalOvr.toFixed(1)),
                     tier: selectedTier ?? player.tier,
