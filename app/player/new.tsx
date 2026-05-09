@@ -64,12 +64,17 @@ export default function NewPlayerScreen() {
         setOvrManual(false); // let auto-OVR take over from stats
       }
       const found = Object.keys(p.stats).length;
-      setScanMsg(found > 0
-        ? `Scanned ${found} stats — review and save.`
-        : `No stats found. OCR read: "${p._debug ?? '(nothing)'}"`
-      );
+      if (found > 0) {
+        setScanMsg(`Scanned ${found} stats — review and save.`);
+      } else {
+        const raw = p._debug ?? '(nothing read)';
+        setScanMsg(`No stats found. OCR: ${raw}`);
+        Alert.alert('OCR DEBUG', `Stats found: ${found}\n\nRaw text:\n${raw}`, [{ text: 'OK' }]);
+      }
     } catch (e) {
-      setScanMsg(`Scan failed: ${String(e)}`);
+      const msg = String(e);
+      setScanMsg(`Scan failed: ${msg}`);
+      Alert.alert('SCAN ERROR', msg, [{ text: 'OK' }]);
     } finally {
       setScanning(false);
     }
