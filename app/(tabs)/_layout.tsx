@@ -4,7 +4,7 @@ export default function TabLayout() {
   return (
     <Tabs
       tabBar={() => null}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, lazy: false }}
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="plan" />

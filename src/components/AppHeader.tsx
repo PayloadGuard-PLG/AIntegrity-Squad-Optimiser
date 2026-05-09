@@ -69,7 +69,7 @@ export function AppHeader({ title, subtitle, onBack }: Props) {
           {TABS.map((t, i) => {
             const active = pathname === t.href;
             return (
-              <Pressable key={t.id} onPress={() => router.push(t.href as any)}
+              <Pressable key={t.id} onPress={() => router.navigate(t.href as any)}
                 style={{
                   paddingHorizontal: 18, paddingVertical: 12, alignItems: 'center',
                   backgroundColor: active ? theme.surface2 : 'transparent',
