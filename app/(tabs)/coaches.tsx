@@ -109,8 +109,8 @@ export default function CoachesScreen() {
   // OVR after adding tier upgrade on top of coach gains
   function tierOvr(tier: TierName): number | null {
     if (!player || !result) return null;
-    const whiteKeys = getWhiteStatKeys(player.role);
-    const afterTierStats = applyTierBonusToStats(result.postCoachStats, whiteKeys, tier, profile, player.tier);
+    const roleKeys = getAllStatKeys(player.role);
+    const afterTierStats = applyTierBonusToStats(result.postCoachStats, roleKeys, tier, profile, player.tier);
     return computeOvrWithPadding(afterTierStats, player.overall, profile);
   }
 
@@ -125,7 +125,7 @@ export default function CoachesScreen() {
     let newTier = player.tier;
     let newOvr = result.ovrAfter;
     if (selectedTier && combinedOvr != null) {
-      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile, player.tier);
+      newStats = applyTierBonusToStats(newStats, getAllStatKeys(player.role), selectedTier, profile, player.tier);
       newTier = selectedTier;
       newOvr = combinedOvr;
     }

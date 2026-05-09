@@ -102,15 +102,15 @@ export function qualityPctToOvr(qualityPct: number, profile: GameProfile): numbe
 }
 
 /**
- * Applies a tier upgrade by adding the INCREMENTAL bonus to every white stat.
+ * Applies a tier upgrade by adding the INCREMENTAL bonus to role stats (white+grey).
+ * Off-role stats (present in player's stats but not in roleStatKeys) get a flat +1.
  * The incremental is: tierAttrAdditions[targetTier] - tierAttrAdditions[fromTier].
  * Pass fromTier = player's current tier so only the net gain is applied.
  * Returns a new stats object (does not mutate input).
- * White stats are capped at profile.statCap after addition.
  */
 export function applyTierBonusToStats(
   stats: Record<string, number>,
-  whiteStatKeys: string[],
+  roleStatKeys: string[],
   targetTier: TierName,
   profile: GameProfile,
   fromTier: TierName = 'None'
@@ -120,10 +120,14 @@ export function applyTierBonusToStats(
   const increment = totalAddition - prevAddition;
   if (increment <= 0) return { ...stats };
 
+  const roleSet = new Set(roleStatKeys);
   const updated = { ...stats };
-  for (const key of whiteStatKeys) {
-    if (key in updated) {
+  for (const key of Object.keys(updated)) {
+    if (roleSet.has(key)) {
       updated[key] = Math.min(updated[key] + increment, profile.statCap);
+    } else {
+      // off-role stat: game applies flat +1 per tier upgrade
+      updated[key] = Math.min(updated[key] + 1, profile.statCap);
     }
   }
   return updated;
