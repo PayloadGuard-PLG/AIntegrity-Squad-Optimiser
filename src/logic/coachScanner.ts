@@ -52,7 +52,7 @@ export interface CoachScanResult {
 
 // ─── OCR scan ─────────────────────────────────────────────────────────────────
 
-const TIMEOUT_MS = 12000;
+const TIMEOUT_MS = 5000;
 
 export async function scanCoachPreview(imageUri: string): Promise<CoachScanResult> {
   const result = await Promise.race([

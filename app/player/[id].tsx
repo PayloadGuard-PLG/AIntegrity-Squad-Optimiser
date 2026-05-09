@@ -107,9 +107,11 @@ export default function EditPlayerScreen() {
   }
 
   async function runScan() {
-    setScanMsg('');
-    const uri = await pickImage();
+    setScanMsg('STARTING SCAN...');
+    let uri: string | null = null;
+    try { uri = await pickImage(); } catch (e) { setScanMsg(`Picker error: ${e}`); return; }
     if (!uri) { setScanMsg('No image selected.'); return; }
+    setScanMsg('SCANNING — please wait...');
     setScanning(true);
     try {
       const p = await scanPlayerCard(uri);
@@ -123,19 +125,18 @@ export default function EditPlayerScreen() {
       if (p.roles && p.roles.length > 0) setRoles(p.roles);
       if (Object.keys(p.stats).length > 0)
         setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, String(v)])));
-      // OVR always computed from stats — never taken from card text
       setOvrManual(false);
       const found = Object.keys(p.stats).length;
       if (found > 0) {
         setScanMsg(`Scanned ${found} stats — review and save.`);
       } else {
         const raw = p._debug ?? '(nothing read)';
-        setScanMsg(`No stats found. OCR: ${raw}`);
+        setScanMsg(`No stats found. Raw OCR: "${raw}"`);
         Alert.alert('OCR DEBUG', `Stats found: ${found}\n\nRaw text:\n${raw}`, [{ text: 'OK' }]);
       }
     } catch (e) {
       const msg = String(e);
-      setScanMsg(`Scan failed: ${msg}`);
+      setScanMsg(`SCAN ERROR: ${msg}`);
       Alert.alert('SCAN ERROR', msg, [{ text: 'OK' }]);
     } finally {
       setScanning(false);
