@@ -24,6 +24,10 @@ export default function RootLayout() {
           options={{ headerShown: true, title: 'Scenario Comparator', headerStyle: { backgroundColor: '#1a1d27' }, headerTintColor: '#e2e8f0' }}
         />
         <Stack.Screen
+          name="scan"
+          options={{ presentation: 'modal', headerShown: true, title: 'Coach Session Capture', headerStyle: { backgroundColor: '#1a1d27' }, headerTintColor: '#e2e8f0' }}
+        />
+        <Stack.Screen
           name="player/new"
           options={{ presentation: 'modal', headerShown: true, title: 'Add Player', headerStyle: { backgroundColor: '#1a1d27' }, headerTintColor: '#e2e8f0' }}
         />

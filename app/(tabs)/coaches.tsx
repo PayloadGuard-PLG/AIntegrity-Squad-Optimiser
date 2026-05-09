@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -28,6 +29,7 @@ type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
 
 export default function CoachesScreen() {
+  const router = useRouter();
   const { squad } = useSquad();
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -268,13 +270,21 @@ export default function CoachesScreen() {
               )}
             </View>
 
-            {/* Project button */}
-            <Pressable onPress={runProjection}
-              style={{ borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.ink : theme.hairline2, padding: 16, alignItems: 'center', marginBottom: 14, backgroundColor: selectedStats.size > 0 ? theme.surface2 : 'transparent' }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2, color: selectedStats.size > 0 ? theme.ink : theme.inkGhost }}>
-                ▶ PROJECT COACH GAIN
-              </Text>
-            </Pressable>
+            {/* Action buttons */}
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+              <Pressable onPress={runProjection}
+                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.ink : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.surface2 : 'transparent' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2, color: selectedStats.size > 0 ? theme.ink : theme.inkGhost }}>
+                  ▶ PROJECT
+                </Text>
+              </Pressable>
+              <Pressable onPress={() => router.push('/scan')}
+                style={{ borderWidth: 1, borderColor: theme.steelDeep, padding: 16, alignItems: 'center', paddingHorizontal: 18 }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2, color: theme.steelLight }}>
+                  ⊕ SCAN
+                </Text>
+              </Pressable>
+            </View>
 
             {/* Result */}
             {result && (
