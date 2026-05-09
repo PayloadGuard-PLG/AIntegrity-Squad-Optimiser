@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `claude/continue-session-UHXEX`
-**As of:** Session UHXEX — 2026-05-09
+**As of:** Session UHXEX — 2026-05-09 (Sprint 12)
 **Deploy:** `git push -u origin claude/continue-session-UHXEX` → GitHub Actions → EAS OTA → reopen app
 
 ---
@@ -20,11 +20,13 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 - **COACHES tab** — stat selector grid (white/grey), session count ×N, intensity locked to Very Hard, talent read from player card. Per-stat gain projection + OVR output. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back.
 - **RESULTS tab** — chains multiple coaching blocks + tier + greens into a full OVR plan. APPLY FULL PLAN TO CARD write-back.
 - **XP engine** — fractional gains, calibrated `baseXpPerSession = 150`, no star decay, budget divided by drill stat count. Validated vs Standard Attacking ×30 real data.
-- **Tier bonus** — applies to all 15 stats (white + grey), confirmed from Ricky Grant ELITE→STELLAR snapshot.
+- **Tier bonus** — role stats (white+grey via `getAllStatKeys`) get full increment; off-role stats get flat +1. Confirmed from Ricky Grant ELITE→STELLAR: 13 role stats +20, HEADING and STRENGTH (off-role for DL) each +1. OVR 175 matched engine exactly.
 - **OVR formula** — `floor(mean(all 15 stats))`. Confirmed from Sutters GK: sum 2,844 ÷ 15 = 189.6 → displays 189.
 - **GK role** — confirmed 10 white / 5 grey stats. Solo only. Stat grid complete (15 stats).
 - **Talent** — stored on player card; read by Coaches and Results tabs.
 - **Drill database** — 25 drills. All `baseLoss = 0.75`. Condition cost is level-based (not drill-based).
+- **Tier bonus** — role stats (white+grey = `getAllStatKeys`) get full increment; off-role stats get +1 flat. Validated against Ricky Grant Elite→Stellar (OVR 175 matched exactly).
+- **Player snapshot / revert** — APPLY TO CARD saves pre-apply state as a `snapshot` field. Orange banner on player edit screen; tap to revert with confirmation. DB migration 0003.
 
 ---
 

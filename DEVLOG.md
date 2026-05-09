@@ -4,6 +4,48 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 12 — Tier Bonus Engine Fix + Player Snapshot / Revert
+**2026-05-09 — Session UHXEX (continued)**
+
+### Shipped
+
+**Tier bonus now correctly applied to role stats (white + grey), off-role gets +1**
+
+Reality-checked against Ricky Grant Elite→Stellar:
+- Role stats (getAllStatKeys: white + grey union) → receive the full tier increment
+- Off-role stats present in the player's stat dict → receive a flat +1 per tier step
+
+Previously `applyTierBonusToStats` only applied the increment to white stats. Grey stats (e.g. HEADING for a DC secondary role) received nothing. Off-role stats (e.g. STRENGTH, HEADING for a DL-only player) also received nothing, resulting in OVR over-prediction.
+
+Fixed in:
+- `src/logic/xpEngine.ts` — `applyTierBonusToStats` now iterates all keys in the stats dict: role keys get `+inc`, others get `+1`
+- `src/logic/ovrProjector.ts` — both the stat-entry path (direct loop) and the no-stats analytical path updated
+- `app/(tabs)/coaches.tsx` — tier preview + apply now pass `getAllStatKeys` instead of `getWhiteStatKeys`
+- `app/(tabs)/results.tsx` — same
+
+**Player snapshot + one-step revert**
+
+When APPLY TO PLAYER CARD or APPLY FULL PLAN TO CARD is pressed, the pre-apply state (`{ stats, overall, tier }`) is saved as a `snapshot` field on the player record before overwriting. A subsequent apply replaces the snapshot (one level of undo only).
+
+The player edit screen (`app/player/[id].tsx`) shows an orange banner when a snapshot exists, displaying the previous OVR and tier. Tapping the banner prompts a confirmation dialog. On confirm, `playerService.revertToSnapshot` restores the original values and clears the snapshot; the form reloads in-place.
+
+DB migration `0003_player_snapshot.sql`: `ALTER TABLE players ADD snapshot text DEFAULT NULL`.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F35 | Tier bonus only applied to white stats — grey stats got 0 increment | `applyTierBonusToStats` now uses `getAllStatKeys` (white+grey); off-role get +1 |
+| F36 | No way to undo APPLY TO PLAYER CARD — had to manually re-enter stats | Snapshot saved before every apply; REVERT banner on edit screen restores pre-apply state |
+
+### Next Sprint Targets
+
+- Beta testing results (user session tonight/tomorrow) — expect label cleanup, navigation gaps, UI polish
+- Validate condition formula at Easy and Medium difficulty (only VH and VE cross-checked)
+- Add Ball Control drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
+
+---
+
 ## Sprint 11 — Drill Condition Formula Overhaul + All Drills Visible
 **2026-05-09 — Session UHXEX**
 

@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 0.8 — Sprint 11**
+**Version 0.9 — Sprint 12**
 
 ---
 
@@ -162,15 +162,25 @@ No star decay is applied (`starDecayPerSession = 1.0`). Real training data (Stan
 
 ## 4. Tier Upgrade Model
 
-Tier upgrades are applied after all drills. The bonus is a flat attribute addition per white (essential) stat; OVR is recalculated from the updated stat values.
+Tier upgrades are applied after all drills. The bonus is a flat attribute addition per **role stat** (white + grey); off-role stats (present in a player's 15-stat grid but outside their role's essential+secondary list) receive a flat +1. OVR is recalculated from all 15 updated values.
 
 ```
-for each white stat:
-    stat += tierAttrAddition[targetTier]
-    stat = min(stat, statCap)   // statCap = 340
+roleStats = getAllStatKeys(player.role)   // white ∪ grey for all player roles
 
-OVR = mean(all 15 updated stats)
+for each stat in player.stats:
+    if stat in roleStats:
+        stat += tierAttrAddition[targetTier] - tierAttrAddition[fromTier]
+        stat = min(stat, statCap)    // statCap = 340
+    else:
+        stat += 1                    // off-role: flat +1 per tier step
+
+OVR = floor(mean(all 15 updated stats))
 ```
+
+**Confirmed from Ricky Grant Elite→Stellar reality check (2026-05-09):**
+- 13 role stats: each +20 (Elite→Stellar increment = 50−30 = +20)
+- HEADING and STRENGTH (off-role for DL): each +1
+- Predicted OVR 175 matched game exactly.
 
 ### 4.1 Tier attribute additions and point costs
 
@@ -189,10 +199,10 @@ Each tier type has its own independent point pool. Rare points, Elite points, St
 
 ### 4.2 OVR gain estimation (example)
 
-Stellar upgrade on a striker with 6 white stats, each at 100:
-- Attr addition: +50 per white stat
-- New white stats: 150 each (below 340 cap ✓)
-- OVR delta: 50 × 6 / 15 = +20 OVR
+Stellar upgrade on a striker (6 white + 3 grey = 9 role stats, 6 off-role), each role stat at 100, off-role at 80:
+- Role stats: +50 each → 150 (below 340 cap ✓)
+- Off-role stats: +1 each → 81
+- OVR delta: (50 × 9 + 1 × 6) / 15 = 456/15 = +30.4 OVR
 
 ---
 
@@ -526,7 +536,7 @@ interface InvestmentPlan {
 | Drill XP baseline | `baseXpPerSession = 150` confirmed from Standard Attacking ×30 (age 18, Normal talent). Validate for other intensities/ages with CALIBRATION_LOG data. |
 | GK white stat list | Confirmed Sprint 8: 10 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION) + 5 grey. |
 | GK stat entry UI | Fixed Sprint 9: GK_STATS grid 10 → 15; all confirmed from Sutters card. |
-| Tier bonus scope | Confirmed Sprint 9: bonus applies to all 15 stats (white + grey), not just white. Engine updated accordingly (`getAllStatKeys`). |
+| Tier bonus scope | Confirmed Sprint 12: role stats (white+grey via `getAllStatKeys`) get full increment; off-role stats get +1 flat. Validated Ricky Grant Elite→Stellar — engine OVR 175 matched game exactly. |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
 | Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
 | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
@@ -549,6 +559,7 @@ interface InvestmentPlan {
 | 0.6 | Sprint 8 | Coaches tab (SESSION SIMULATOR); fractional XP model; ROI-based drill sort; GK role constraints confirmed; smarter skip warnings |
 | 0.7 | Sprints 9–10 | RESULTS tab; tier bonus applied to all 15 stats (fix); talent on player card; apply-gains write-back; GK stat grid complete; OVR truncation confirmed; Expo Web; Matchday Coach + teamplay data logged |
 | 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; First Touch Play rename; Piggy in the Middle AGGRESSION |
+| 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
 
 ---
 
