@@ -49,7 +49,7 @@ export default function NewPlayerScreen() {
   async function runScan() {
     setScanMsg('');
     const uri = await pickImage();
-    if (!uri) return;
+    if (!uri) { setScanMsg('No image selected.'); return; }
     setScanning(true);
     try {
       const p = await scanPlayerCard(uri);
@@ -202,9 +202,15 @@ export default function NewPlayerScreen() {
           </Text>
         </Pressable>
         {scanMsg.length > 0 && (
-          <MonoLabel size={8} color={scanMsg.startsWith('Scan') ? theme.neg : theme.pos} style={{ marginBottom: 4 }}>
-            {scanMsg}
-          </MonoLabel>
+          <View style={{
+            backgroundColor: scanMsg.startsWith('No stats') ? theme.hot + '22' : theme.steelDeep + '33',
+            borderWidth: 1, borderColor: scanMsg.startsWith('No stats') ? theme.hot : theme.steelDeep,
+            padding: 10, marginBottom: 6,
+          }}>
+            <MonoLabel size={8} color={scanMsg.startsWith('No stats') ? theme.hot : theme.pos}>
+              {scanMsg}
+            </MonoLabel>
+          </View>
         )}
         <MonoLabel size={7} color={theme.inkGhost} style={{ marginBottom: 10, textAlign: 'center' }}>
           OR ENTER MANUALLY BELOW · OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY
