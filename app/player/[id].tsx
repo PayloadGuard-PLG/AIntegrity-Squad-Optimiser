@@ -259,47 +259,54 @@ export default function EditPlayerScreen() {
           OR ENTER MANUALLY BELOW · WHITE = KEY ATTRS FOR SELECTED POSITIONS
         </MonoLabel>
 
-        {/* 5-per-row stat grid — DEFENCE (blue) / ATTACK (orange) / PHYSICAL (green) */}
+        {/* 3-column stat grid matching game layout: DEFENCE / ATTACK / PHYSICAL, 5 stats each */}
         {(() => {
-          const GROUP_COLORS = [theme.steelLight, theme.hot, theme.pos];
-          const GROUP_BGS    = [theme.steelDeep + '28', theme.hot + '18', theme.pos + '14'];
-          const numRows = Math.ceil(statList.length / 5);
+          const isGKGrid = statList === GK_STATS;
+          const COLS = isGKGrid
+            ? [
+                { label: 'GK', color: theme.steelLight, bg: theme.steelDeep + '28', stats: statList.slice(0, 5) },
+                { label: 'GK', color: theme.steelLight, bg: theme.steelDeep + '20', stats: statList.slice(5, 10) },
+                { label: 'PHY', color: theme.pos,        bg: theme.pos + '14',       stats: statList.slice(10, 15) },
+              ]
+            : [
+                { label: 'DEF', color: theme.steelLight, bg: theme.steelDeep + '28', stats: statList.slice(0, 5) },
+                { label: 'ATT', color: theme.hot,        bg: theme.hot + '18',       stats: statList.slice(5, 10) },
+                { label: 'PHY', color: theme.pos,        bg: theme.pos + '14',       stats: statList.slice(10, 15) },
+              ];
           return (
-            <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
-              {Array.from({ length: numRows }, (_, ri) => {
-                const row = statList.slice(ri * 5, ri * 5 + 5);
-                const groupColor = GROUP_COLORS[ri] ?? theme.steelLight;
-                const groupBg    = GROUP_BGS[ri] ?? theme.steelDeep + '28';
-                return (
-                  <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < numRows - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
-                    {row.map((s, ci) => {
-                      const w = isWhiteStat(selectedRoles, s);
-                      const val = parseFloat(statInputs[s] ?? '') || 0;
-                      return (
-                        <View key={s} style={{
-                          flex: 1, padding: 7,
-                          borderRightWidth: ci < row.length - 1 ? 1 : 0, borderRightColor: theme.hairline,
-                          backgroundColor: w ? groupBg : 'transparent',
-                        }}>
-                          <MonoLabel size={7} color={w ? groupColor : theme.inkGhost} style={{ marginBottom: 4 }}>{s}</MonoLabel>
-                          <TextInput
-                            keyboardType="numeric"
-                            value={statInputs[s] ?? ''}
-                            onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v.replace(/[^0-9]/g, '') }))}
-                            placeholder="—"
-                            placeholderTextColor={theme.inkGhost}
-                            style={{
-                              backgroundColor: 'transparent', padding: 0,
-                              color: val > 0 ? theme.ink : theme.inkGhost,
-                              fontSize: 13, fontFamily: theme.display, fontWeight: '300',
-                            }}
-                          />
-                        </View>
-                      );
-                    })}
+            <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
+              {COLS.map((col, ci) => (
+                <View key={ci} style={{ flex: 1, borderRightWidth: ci < 2 ? 1 : 0, borderRightColor: theme.hairline2 }}>
+                  <View style={{ backgroundColor: col.bg, padding: 5, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
+                    <MonoLabel size={7} color={col.color} style={{ textAlign: 'center' }}>{col.label}</MonoLabel>
                   </View>
-                );
-              })}
+                  {col.stats.map((s, si) => {
+                    const w = isWhiteStat(selectedRoles, s);
+                    const val = parseFloat(statInputs[s] ?? '') || 0;
+                    return (
+                      <View key={s} style={{
+                        padding: 6,
+                        borderBottomWidth: si < 4 ? 1 : 0, borderBottomColor: theme.hairline,
+                        backgroundColor: w ? col.bg : 'transparent',
+                      }}>
+                        <MonoLabel size={6} color={w ? col.color : theme.inkGhost} style={{ marginBottom: 2 }}>{s}</MonoLabel>
+                        <TextInput
+                          keyboardType="numeric"
+                          value={statInputs[s] ?? ''}
+                          onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v.replace(/[^0-9]/g, '') }))}
+                          placeholder="—"
+                          placeholderTextColor={theme.inkGhost}
+                          style={{
+                            backgroundColor: 'transparent', padding: 0,
+                            color: val > 0 ? theme.ink : theme.inkGhost,
+                            fontSize: 14, fontFamily: theme.display, fontWeight: '300',
+                          }}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
             </View>
           );
         })()}
