@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { playerService } from '../../src/services/playerService';
 import { validateRoleAdjacency, isWhiteStat, OUTFIELD_STATS, GK_STATS } from '../../src/utils/roleWeights';
@@ -7,6 +7,8 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
+import { scanPlayerCard } from '../../src/logic/playerScanner';
+import { pickImage } from '../../src/logic/pickImage';
 
 const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
@@ -41,6 +43,34 @@ export default function NewPlayerScreen() {
   const [mutant, setMutant]         = useState(false);
   const [roleError, setRoleError]   = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
+  const [scanning, setScanning]     = useState(false);
+  const [scanMsg, setScanMsg]       = useState('');
+
+  async function runScan() {
+    setScanMsg('');
+    const uri = await pickImage();
+    if (!uri) return;
+    setScanning(true);
+    try {
+      const p = await scanPlayerCard(uri);
+      if (p.name)    setName(p.name);
+      if (p.age)     setAge(String(p.age));
+      if (p.overall) { setOverall(String(p.overall)); setOvrManual(true); }
+      if (p.tier)    setTier(p.tier as TierName);
+      if (p.talent)  setTalent(p.talent as TalentTier);
+      if (p.roles && p.roles.length > 0) setRoles(p.roles);
+      if (Object.keys(p.stats).length > 0) {
+        setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, String(v)])));
+        setOvrManual(false); // let auto-OVR take over from stats
+      }
+      const found = Object.keys(p.stats).length;
+      setScanMsg(found > 0 ? `Scanned ${found} stats — review and save.` : 'No stats found — check the screenshot shows the full player card.');
+    } catch (e) {
+      setScanMsg(`Scan failed: ${String(e)}`);
+    } finally {
+      setScanning(false);
+    }
+  }
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
@@ -153,21 +183,29 @@ export default function NewPlayerScreen() {
           <MonoLabel size={8} color={theme.inkGhost}>FROM GAME CARD · ● WHITE</MonoLabel>
         </View>
 
-        {/* snapshot banner */}
-        <View style={{
-          flexDirection: 'row', alignItems: 'center', gap: 10,
-          borderWidth: 1, borderColor: theme.steelDeep,
-          backgroundColor: theme.steelDeep + '22',
-          padding: 10, marginBottom: 12,
-        }}>
-          <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.steelLight }}>⊕</Text>
-          <View>
-            <MonoLabel size={9} color={theme.steelLight}>ENTER ALL 15 STATS FROM PLAYER CARD SCREENSHOT</MonoLabel>
-            <MonoLabel size={7} color={theme.inkGhost} style={{ marginTop: 2 }}>
-              OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY COLOURING
-            </MonoLabel>
-          </View>
-        </View>
+        {/* scan button */}
+        <Pressable onPress={runScan} disabled={scanning}
+          style={{
+            flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+            borderWidth: 1, borderColor: theme.steelLight,
+            backgroundColor: theme.steelDeep + '33',
+            padding: 13, marginBottom: 6,
+          }}>
+          {scanning
+            ? <ActivityIndicator color={theme.steelLight} size="small" />
+            : <Text style={{ fontFamily: theme.mono, fontSize: 13, color: theme.steelLight }}>⊕</Text>}
+          <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: theme.steelLight }}>
+            {scanning ? 'SCANNING...' : 'SCAN PLAYER CARD SCREENSHOT'}
+          </Text>
+        </Pressable>
+        {scanMsg.length > 0 && (
+          <MonoLabel size={8} color={scanMsg.startsWith('Scan') ? theme.neg : theme.pos} style={{ marginBottom: 4 }}>
+            {scanMsg}
+          </MonoLabel>
+        )}
+        <MonoLabel size={7} color={theme.inkGhost} style={{ marginBottom: 10, textAlign: 'center' }}>
+          OR ENTER MANUALLY BELOW · OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY
+        </MonoLabel>
 
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
           {statList.map((stat, i) => {

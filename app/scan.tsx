@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, TextInput, Pressable,
+  View, Text, ScrollView, TextInput, Pressable, ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSquad } from '../src/hooks/useSquad';
@@ -13,7 +13,9 @@ import {
   CoachType, CoachCategory, TalentOption,
   CoachSessionCapture, StatCapture,
   buildCsvRows, todayIso, statListForRoles,
+  scanCoachPreview,
 } from '../src/logic/coachScanner';
+import { pickImage } from '../src/logic/pickImage';
 
 const EXISTING_CSV_SESSIONS = 4; // last S-number already in COACH_CALIBRATION.csv
 
@@ -68,6 +70,41 @@ export default function ScanScreen() {
     const list = statListForRoles(player?.role ?? []);
     setStatRows(list.map(s => ({ statName: s, active: false, statBefore: '', gainLo: '', gainHi: '' })));
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── OCR scan ──────────────────────────────────────────────────────────────
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState('');
+
+  async function runScan() {
+    setScanError('');
+    const uri = await pickImage();
+    if (!uri) return;
+    setScanning(true);
+    try {
+      const parsed = await scanCoachPreview(uri);
+      if (parsed.coachType)     setCoachType(parsed.coachType);
+      if (parsed.coachCategory) setCoachCat(parsed.coachCategory);
+      if (parsed.multiplier)    setMultiplier(String(parsed.multiplier));
+      if (parsed.playerName)    setPlayerName(parsed.playerName);
+      if (parsed.playerAge)     setPlayerAge(String(parsed.playerAge));
+      if (parsed.talentTier)    setTalent(parsed.talentTier);
+      if (parsed.ovrBefore)     setOvrBefore(String(parsed.ovrBefore));
+      if (parsed.ovrBoostLo)    setOvrBoostLo(String(parsed.ovrBoostLo));
+      if (parsed.ovrBoostHi)    setOvrBoostHi(String(parsed.ovrBoostHi));
+      if (parsed.stats.length > 0) {
+        setStatRows(prev => prev.map(row => {
+          const hit = parsed.stats.find(s => s.statName === row.statName);
+          if (!hit) return row;
+          return { ...row, active: true, statBefore: String(hit.statBefore), gainLo: String(hit.gainLo), gainHi: String(hit.gainHi) };
+        }));
+      }
+      if (parsed.stats.length === 0) setScanError('No highlighted stats found — check the screenshot shows the coaching preview screen.');
+    } catch (e) {
+      setScanError(`Scan failed: ${String(e)}`);
+    } finally {
+      setScanning(false);
+    }
+  }
 
   function pickPlayer(id: string) {
     const p = squad.find(q => q.id === id);
@@ -127,8 +164,30 @@ export default function ScanScreen() {
       contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
       keyboardShouldPersistTaps="handled"
     >
-      <MonoLabel color={theme.steelLight} style={{ marginBottom: 18, fontSize: 12 }}>
+      <MonoLabel color={theme.steelLight} style={{ marginBottom: 12, fontSize: 12 }}>
         COACH SESSION CAPTURE
+      </MonoLabel>
+
+      {/* ── SCAN FROM SCREENSHOT ── */}
+      <Pressable onPress={runScan} disabled={scanning}
+        style={{
+          flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+          borderWidth: 1, borderColor: theme.steelLight,
+          backgroundColor: theme.steelDeep + '33',
+          padding: 14, marginBottom: 8,
+        }}>
+        {scanning
+          ? <ActivityIndicator color={theme.steelLight} size="small" />
+          : <Text style={{ fontFamily: theme.mono, fontSize: 13, color: theme.steelLight }}>⊕</Text>}
+        <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2, color: theme.steelLight }}>
+          {scanning ? 'SCANNING...' : 'SCAN COACHING PREVIEW SCREENSHOT'}
+        </Text>
+      </Pressable>
+      {scanError.length > 0 && (
+        <MonoLabel size={8} color={theme.neg} style={{ marginBottom: 8 }}>{scanError}</MonoLabel>
+      )}
+      <MonoLabel size={7} color={theme.inkGhost} style={{ marginBottom: 18, textAlign: 'center' }}>
+        OR FILL MANUALLY BELOW
       </MonoLabel>
 
       {/* ── 1. COACH HEADER ── */}

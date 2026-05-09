@@ -17,7 +17,10 @@
     },
     "plugins": [
       "expo-router",
-      "expo-updates"
+      "expo-updates",
+      ["expo-image-picker", {
+        "photosPermission": "Allow Squad Optimiser to access your photo library to scan player card and coaching session screenshots."
+      }]
     ],
     "updates": {
       "url": "https://u.expo.dev/5e2319b8-dda7-4fbf-9fb4-5918d690d476"

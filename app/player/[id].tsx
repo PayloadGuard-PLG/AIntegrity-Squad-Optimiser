@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { playerService } from '../../src/services/playerService';
 import { validateRoleAdjacency, isWhiteStat, OUTFIELD_STATS, GK_STATS } from '../../src/utils/roleWeights';
@@ -7,6 +7,8 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
+import { scanPlayerCard } from '../../src/logic/playerScanner';
+import { pickImage } from '../../src/logic/pickImage';
 
 const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
@@ -45,6 +47,8 @@ export default function EditPlayerScreen() {
   const [roleError, setRoleError]   = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
   const [statsLoaded, setStatsLoaded] = useState(false); // true once player data loaded
+  const [scanning, setScanning]       = useState(false);
+  const [scanMsg, setScanMsg]         = useState('');
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
@@ -100,6 +104,35 @@ export default function EditPlayerScreen() {
     // Tier is one-way — can only increase, never decrease from locked tier
     if (idx < lockedTierIdx) return;
     setTier(t);
+  }
+
+  async function runScan() {
+    setScanMsg('');
+    const uri = await pickImage();
+    if (!uri) return;
+    setScanning(true);
+    try {
+      const p = await scanPlayerCard(uri);
+      if (p.name)    setName(p.name);
+      if (p.age)     setAge(String(p.age));
+      if (p.overall) { setOverall(String(p.overall)); setOvrManual(true); }
+      if (p.tier) {
+        const incoming = TIERS.indexOf(p.tier as TierName);
+        if (incoming >= lockedTierIdx) setTier(p.tier as TierName);
+      }
+      if (p.talent)  setTalent(p.talent as TalentTier);
+      if (p.roles && p.roles.length > 0) setRoles(p.roles);
+      if (Object.keys(p.stats).length > 0) {
+        setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, String(v)])));
+        setOvrManual(false);
+      }
+      const found = Object.keys(p.stats).length;
+      setScanMsg(found > 0 ? `Scanned ${found} stats — review and save.` : 'No stats found — fill manually.');
+    } catch (e) {
+      setScanMsg(`Scan failed: ${String(e)}`);
+    } finally {
+      setScanning(false);
+    }
   }
 
   function save() {
@@ -194,21 +227,37 @@ export default function EditPlayerScreen() {
           </MonoLabel>
         </View>
 
-        {/* screenshot refresh banner */}
-        <View style={{
-          flexDirection: 'row', alignItems: 'center', gap: 10,
-          borderWidth: 1, borderColor: theme.steelDeep,
-          backgroundColor: theme.steelDeep + '22',
-          padding: 10, marginBottom: 12,
-        }}>
-          <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.steelLight }}>↻</Text>
+        {/* Scan button — updates stats from new screenshot; tier lock enforced */}
+        <Pressable
+          onPress={runScan}
+          disabled={scanning}
+          style={{
+            flexDirection: 'row', alignItems: 'center', gap: 10,
+            borderWidth: 1, borderColor: theme.steelDeep,
+            backgroundColor: theme.steelDeep + '22',
+            padding: 10, marginBottom: 4,
+          }}
+        >
+          {scanning
+            ? <ActivityIndicator color={theme.steelLight} size="small" />
+            : <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.steelLight }}>↻</Text>}
           <View style={{ flex: 1 }}>
-            <MonoLabel size={9} color={theme.steelLight}>UPDATE FROM NEW SCREENSHOT</MonoLabel>
+            <MonoLabel size={9} color={theme.steelLight}>
+              {scanning ? 'SCANNING...' : 'SCAN UPDATED PLAYER CARD'}
+            </MonoLabel>
             <MonoLabel size={7} color={theme.inkGhost} style={{ marginTop: 2 }}>
-              STATS CHANGE — ENTER CURRENT VALUES · OVR AUTO-COMPUTES · TIER IS LOCKED
+              STATS CHANGE — TIER LOCKED · OVR AUTO-COMPUTES
             </MonoLabel>
           </View>
-        </View>
+        </Pressable>
+        {scanMsg.length > 0 && (
+          <MonoLabel size={9} color={scanMsg.startsWith('Scan failed') ? theme.neg : theme.pos} style={{ marginBottom: 4 }}>
+            {scanMsg}
+          </MonoLabel>
+        )}
+        <MonoLabel size={7} color={theme.inkGhost} style={{ marginBottom: 12 }}>
+          OR ENTER MANUALLY BELOW · WHITE = KEY ATTRS FOR SELECTED POSITIONS
+        </MonoLabel>
 
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
           {statList.map((stat, i) => {
