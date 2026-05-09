@@ -6,7 +6,8 @@ const KNOWN_ROLES = ['GK', 'DC', 'DL', 'DR', 'DMC', 'MC', 'ML', 'MR', 'AMC', 'AM
 const KNOWN_TIERS = ['Legendary', 'Epic', 'Master', 'Stellar', 'Elite', 'Rare', 'None']; // longest-first for regex
 const KNOWN_TALENTS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 
-const Y_TOL = 18; // px — tolerance for Y-baseline grouping
+const Y_TOL = 28;   // px — tolerance for same-row Y-baseline grouping
+const Y_BELOW = 65; // px — tolerance for value directly below stat label
 
 export interface PlayerCardScan {
   name?: string;
@@ -68,7 +69,22 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
       .map(t => parseInt(t.text, 10))
       .filter(n => !isNaN(n) && n > 0 && n <= 340);
 
-    if (rowNums.length > 0) stats[statName] = rowNums[0];
+    if (rowNums.length > 0) {
+      stats[statName] = rowNums[0];
+    } else {
+      // Fallback: value may be directly below the label (vertically stacked layout)
+      const belowNums = tokens
+        .filter((t, idx) =>
+          !consumed.includes(idx) &&
+          t.top > tok.top &&
+          t.top - tok.top < Y_BELOW &&
+          Math.abs(t.left - tok.left) < 100
+        )
+        .sort((a, b) => a.top - b.top)
+        .map(t => parseInt(t.text, 10))
+        .filter(n => !isNaN(n) && n > 0 && n <= 340);
+      if (belowNums.length > 0) stats[statName] = belowNums[0];
+    }
     consumed.forEach(idx => used.add(idx));
   }
 

@@ -259,46 +259,50 @@ export default function EditPlayerScreen() {
           OR ENTER MANUALLY BELOW · WHITE = KEY ATTRS FOR SELECTED POSITIONS
         </MonoLabel>
 
-        <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
-          {statList.map((stat, i) => {
-            if (i % 2 === 1) return null;
-            const nextStat = statList[i + 1];
-            const isLastRow = i >= statList.length - 2;
-            return (
-              <View key={stat} style={{ flexDirection: 'row', borderBottomWidth: isLastRow ? 0 : 1, borderBottomColor: theme.hairline }}>
-                {[stat, nextStat].map((s, idx) => {
-                  if (!s) return <View key={idx} style={{ flex: 1 }} />;
-                  const w = isWhiteStat(selectedRoles, s);
-                  const val = parseFloat(statInputs[s] ?? '') || 0;
-                  return (
-                    <View key={s} style={{
-                      flex: 1, padding: 10,
-                      borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
-                      backgroundColor: w ? theme.steelDeep + '18' : 'transparent',
-                    }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                        <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
-                        <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
-                      </View>
-                      <TextInput
-                        keyboardType="numeric"
-                        value={statInputs[s] ?? ''}
-                        onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v.replace(/[^0-9]/g, '') }))}
-                        placeholder="—"
-                        placeholderTextColor={theme.inkGhost}
-                        style={{
-                          backgroundColor: 'transparent', padding: 0,
-                          color: val > 0 ? theme.ink : theme.inkGhost,
-                          fontSize: 16, fontFamily: theme.display, fontWeight: '300',
-                        }}
-                      />
-                    </View>
-                  );
-                })}
-              </View>
-            );
-          })}
-        </View>
+        {/* 5-per-row stat grid — DEFENCE (blue) / ATTACK (orange) / PHYSICAL (green) */}
+        {(() => {
+          const GROUP_COLORS = [theme.steelLight, theme.hot, theme.pos];
+          const GROUP_BGS    = [theme.steelDeep + '28', theme.hot + '18', theme.pos + '14'];
+          const numRows = Math.ceil(statList.length / 5);
+          return (
+            <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
+              {Array.from({ length: numRows }, (_, ri) => {
+                const row = statList.slice(ri * 5, ri * 5 + 5);
+                const groupColor = GROUP_COLORS[ri] ?? theme.steelLight;
+                const groupBg    = GROUP_BGS[ri] ?? theme.steelDeep + '28';
+                return (
+                  <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < numRows - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
+                    {row.map((s, ci) => {
+                      const w = isWhiteStat(selectedRoles, s);
+                      const val = parseFloat(statInputs[s] ?? '') || 0;
+                      return (
+                        <View key={s} style={{
+                          flex: 1, padding: 7,
+                          borderRightWidth: ci < row.length - 1 ? 1 : 0, borderRightColor: theme.hairline,
+                          backgroundColor: w ? groupBg : 'transparent',
+                        }}>
+                          <MonoLabel size={7} color={w ? groupColor : theme.inkGhost} style={{ marginBottom: 4 }}>{s}</MonoLabel>
+                          <TextInput
+                            keyboardType="numeric"
+                            value={statInputs[s] ?? ''}
+                            onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v.replace(/[^0-9]/g, '') }))}
+                            placeholder="—"
+                            placeholderTextColor={theme.inkGhost}
+                            style={{
+                              backgroundColor: 'transparent', padding: 0,
+                              color: val > 0 ? theme.ink : theme.inkGhost,
+                              fontSize: 13, fontFamily: theme.display, fontWeight: '300',
+                            }}
+                          />
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
+            </View>
+          );
+        })()}
 
         {/* POSITION GRID */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>

@@ -1,13 +1,12 @@
 // All 15 attributes each player type can have. Used for full stat display in coaches tab.
+// Order matches the game's column layout: DEFENCE → ATTACK → PHYSICAL (rows of 5)
 export const OUTFIELD_STATS: string[] = [
-  'SHOOTING',    'PASSING',
-  'CROSSING',    'DRIBBLING',
-  'FINISHING',   'HEADING',
-  'TACKLING',    'MARKING',
-  'POSITIONING', 'BRAVERY',
-  'AGGRESSION',  'STRENGTH',
-  'SPEED',       'FITNESS',
-  'CREATIVITY',
+  // DEFENCE
+  'TACKLING',    'MARKING',    'POSITIONING', 'HEADING',  'BRAVERY',
+  // ATTACK
+  'PASSING',     'DRIBBLING',  'CROSSING',    'SHOOTING', 'FINISHING',
+  // PHYSICAL
+  'FITNESS',     'STRENGTH',   'AGGRESSION',  'SPEED',    'CREATIVITY',
 ];
 
 export const GK_STATS: string[] = [
