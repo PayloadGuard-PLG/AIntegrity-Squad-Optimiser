@@ -28,15 +28,20 @@ function PrivacyOverlay() {
 function usePrivacyOverlay() {
   const [obscured, setObscured] = useState(false);
   const appState = useRef(AppState.currentState);
+  const ready = useRef(false);
 
   useEffect(() => {
+    // Ignore AppState transitions during cold start — Android briefly fires
+    // background→active during launch which would flash the overlay.
+    const timer = setTimeout(() => { ready.current = true; }, 1500);
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
       const prev = appState.current;
       appState.current = next;
+      if (!ready.current) return;
       if (next === 'inactive' || next === 'background') setObscured(true);
       if (next === 'active' && (prev === 'inactive' || prev === 'background')) setObscured(false);
     });
-    return () => sub.remove();
+    return () => { sub.remove(); clearTimeout(timer); };
   }, []);
 
   return obscured;
