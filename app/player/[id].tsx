@@ -109,27 +109,34 @@ export default function EditPlayerScreen() {
   async function runScan() {
     setScanMsg('');
     const uri = await pickImage();
-    if (!uri) return;
+    if (!uri) { setScanMsg('No image selected.'); return; }
     setScanning(true);
     try {
       const p = await scanPlayerCard(uri);
-      if (p.name)    setName(p.name);
-      if (p.age)     setAge(String(p.age));
-      if (p.overall) { setOverall(String(p.overall)); setOvrManual(true); }
+      if (p.name)   setName(p.name);
+      if (p.age)    setAge(String(p.age));
       if (p.tier) {
         const incoming = TIERS.indexOf(p.tier as TierName);
         if (incoming >= lockedTierIdx) setTier(p.tier as TierName);
       }
-      if (p.talent)  setTalent(p.talent as TalentTier);
+      if (p.talent) setTalent(p.talent as TalentTier);
       if (p.roles && p.roles.length > 0) setRoles(p.roles);
-      if (Object.keys(p.stats).length > 0) {
+      if (Object.keys(p.stats).length > 0)
         setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, String(v)])));
-        setOvrManual(false);
-      }
+      // OVR always computed from stats — never taken from card text
+      setOvrManual(false);
       const found = Object.keys(p.stats).length;
-      setScanMsg(found > 0 ? `Scanned ${found} stats — review and save.` : 'No stats found — fill manually.');
+      if (found > 0) {
+        setScanMsg(`Scanned ${found} stats — review and save.`);
+      } else {
+        const raw = p._debug ?? '(nothing read)';
+        setScanMsg(`No stats found. OCR: ${raw}`);
+        Alert.alert('OCR DEBUG', `Stats found: ${found}\n\nRaw text:\n${raw}`, [{ text: 'OK' }]);
+      }
     } catch (e) {
-      setScanMsg(`Scan failed: ${String(e)}`);
+      const msg = String(e);
+      setScanMsg(`Scan failed: ${msg}`);
+      Alert.alert('SCAN ERROR', msg, [{ text: 'OK' }]);
     } finally {
       setScanning(false);
     }

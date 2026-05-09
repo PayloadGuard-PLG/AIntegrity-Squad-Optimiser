@@ -53,16 +53,15 @@ export default function NewPlayerScreen() {
     setScanning(true);
     try {
       const p = await scanPlayerCard(uri);
-      if (p.name)    setName(p.name);
-      if (p.age)     setAge(String(p.age));
-      if (p.overall) { setOverall(String(p.overall)); setOvrManual(true); }
-      if (p.tier)    setTier(p.tier as TierName);
-      if (p.talent)  setTalent(p.talent as TalentTier);
+      if (p.name)   setName(p.name);
+      if (p.age)    setAge(String(p.age));
+      if (p.tier)   setTier(p.tier as TierName);
+      if (p.talent) setTalent(p.talent as TalentTier);
       if (p.roles && p.roles.length > 0) setRoles(p.roles);
-      if (Object.keys(p.stats).length > 0) {
+      if (Object.keys(p.stats).length > 0)
         setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, String(v)])));
-        setOvrManual(false); // let auto-OVR take over from stats
-      }
+      // OVR always computed from stats — never taken from card text
+      setOvrManual(false);
       const found = Object.keys(p.stats).length;
       if (found > 0) {
         setScanMsg(`Scanned ${found} stats — review and save.`);
