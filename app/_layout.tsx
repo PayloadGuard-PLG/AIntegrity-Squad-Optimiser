@@ -28,20 +28,23 @@ function PrivacyOverlay() {
 function usePrivacyOverlay() {
   const [obscured, setObscured] = useState(false);
   const appState = useRef(AppState.currentState);
-  const ready = useRef(false);
+  const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Ignore AppState transitions during cold start — Android briefly fires
-    // background→active during launch which would flash the overlay.
-    const timer = setTimeout(() => { ready.current = true; }, 1500);
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
       const prev = appState.current;
       appState.current = next;
-      if (!ready.current) return;
-      if (next === 'background') setObscured(true);
-      if (next === 'active' && prev === 'background') setObscured(false);
+      if (next === 'background') {
+        // Delay before showing — image picker briefly fires background on Android.
+        // If the app returns within 600ms the timer is cancelled and overlay never shows.
+        showTimer.current = setTimeout(() => setObscured(true), 600);
+      }
+      if (next === 'active' && prev === 'background') {
+        if (showTimer.current) { clearTimeout(showTimer.current); showTimer.current = null; }
+        setObscured(false);
+      }
     });
-    return () => { sub.remove(); clearTimeout(timer); };
+    return () => { sub.remove(); if (showTimer.current) clearTimeout(showTimer.current); };
   }, []);
 
   return obscured;
