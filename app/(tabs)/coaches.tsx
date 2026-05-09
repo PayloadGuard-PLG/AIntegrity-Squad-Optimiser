@@ -6,7 +6,7 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
-import { isWhiteStat, getAllStatKeys, getWhiteStatKeys } from '../../src/utils/roleWeights';
+import { isWhiteStat, getAllStatKeys, OUTFIELD_STATS, GK_STATS } from '../../src/utils/roleWeights';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import { applyTierBonusToStats } from '../../src/logic/xpEngine';
@@ -16,7 +16,6 @@ import { playerService } from '../../src/services/playerService';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-// Academy coaches have no difficulty setting — they always run at peak (Very Hard) rate
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = {
   FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW',
@@ -33,11 +32,9 @@ export default function CoachesScreen() {
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sessions, setSessions] = useState('30');
-  const [twoxAd, setTwoxAd] = useState(false);
   const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<ProjectionResult | null>(null);
   const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
-  // Tier point inputs — pre-seeded from ManagerContext, editable per session
   const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
     Object.fromEntries(
       TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : ''])
@@ -47,14 +44,16 @@ export default function CoachesScreen() {
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const { white, grey } = useMemo(() => {
-    if (!player) return { white: [] as string[], grey: [] as string[] };
-    const w = getWhiteStatKeys(player.role);
-    const all = getAllStatKeys(player.role);
-    const g = all.filter(s => !w.includes(s));
+    if (!player || !player.role || !Array.isArray(player.role)) {
+      return { white: [] as string[], grey: [] as string[] };
+    }
+    const isGK = player.role.includes('GK');
+    const all = isGK ? GK_STATS : OUTFIELD_STATS;
+    const w = all.filter(s => isWhiteStat(player.role, s));
+    const g = all.filter(s => !isWhiteStat(player.role, s));
     return { white: w, grey: g };
   }, [player]);
 
-  // Tiers above the player's current tier
   const upgradableTiers = useMemo(() => {
     if (!player) return TIER_ORDER;
     const currentIdx = TIER_ORDER.indexOf(player.tier as TierName);
@@ -93,7 +92,8 @@ export default function CoachesScreen() {
       const from = player.stats[stat];
       if (from === undefined) continue;
       const isWhite = isWhiteStat(player.role, stat);
-      const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, twoxAd, drillMult, profile);
+      // 2× ad does not apply to coaching sessions — drills only
+      const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, false, drillMult, profile);
       if (gain > 0) {
         postCoachStats[stat] = Math.min(from + gain, profile.statCap);
         gains.push({ stat, from, gain: Number(gain.toFixed(1)), isWhite });
@@ -106,7 +106,6 @@ export default function CoachesScreen() {
     setSelectedTier(null);
   }
 
-  // OVR after adding tier upgrade on top of coach gains
   function tierOvr(tier: TierName): number | null {
     if (!player || !result) return null;
     const allKeys = getAllStatKeys(player.role);
@@ -165,7 +164,7 @@ export default function CoachesScreen() {
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
               <MonoLabel color={theme.steelLight} style={{ marginBottom: 12 }}>COACH CONFIG</MonoLabel>
 
-              {/* Sessions */}
+              {/* Sessions × N */}
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <MonoLabel style={{ width: 80 }}>SESSIONS ×</MonoLabel>
                 <View style={{ flex: 1, borderWidth: 1, borderColor: theme.hairline2 }}>
@@ -181,7 +180,7 @@ export default function CoachesScreen() {
               </View>
 
               {/* Intensity — fixed for academy coaches */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <MonoLabel style={{ flex: 1 }}>INTENSITY</MonoLabel>
                 <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.ink, backgroundColor: theme.ink }}>
                   <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.bg }}>VERY HARD</Text>
@@ -190,7 +189,7 @@ export default function CoachesScreen() {
               </View>
 
               {/* Talent — read from player card */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
                 <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
                   <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
@@ -199,19 +198,9 @@ export default function CoachesScreen() {
                 </View>
                 <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
-
-              {/* 2× ad */}
-              <Pressable onPress={() => { setTwoxAd(v => !v); setResult(null); setSelectedTier(null); }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 10, backgroundColor: twoxAd ? theme.surface2 : 'transparent' }}>
-                <View style={{ width: 14, height: 14, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.2, color: twoxAd ? theme.hot : theme.inkSec }}>
-                  2× AD ACTIVE
-                </Text>
-                {twoxAd && <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.hot, marginLeft: 'auto' }}>×2.0</Text>}
-              </Pressable>
             </View>
 
-            {/* Stat coverage */}
+            {/* Stat coverage — all 15 stats */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                 <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>STAT COVERAGE</MonoLabel>
@@ -221,7 +210,7 @@ export default function CoachesScreen() {
               </View>
 
               {/* White stats */}
-              <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 6 }}>WHITE — ESSENTIAL</MonoLabel>
+              <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 6 }}>WHITE — ESSENTIAL (×1.0 XP)</MonoLabel>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
                 {white.map(stat => {
                   const hasValue = stat in player.stats;
@@ -247,10 +236,10 @@ export default function CoachesScreen() {
                 })}
               </View>
 
-              {/* Grey stats */}
+              {/* Grey stats — all remaining (secondary + non-role) */}
               {grey.length > 0 && (
                 <>
-                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 6 }}>GREY — SECONDARY (×0.5 XP)</MonoLabel>
+                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 6 }}>GREY — SECONDARY / NON-ROLE (×0.5 XP)</MonoLabel>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
                     {grey.map(stat => {
                       const hasValue = stat in player.stats;
@@ -313,7 +302,7 @@ export default function CoachesScreen() {
                     </View>
                   </View>
 
-                  {/* Combined drill + tier banner — shown when tier selected */}
+                  {/* Combined coach + tier banner */}
                   {combinedOvr != null && combinedGain != null && selectedTier && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
                       <View style={{ flex: 1 }}>
@@ -353,11 +342,9 @@ export default function CoachesScreen() {
 
                 {/* Tier upgrade section */}
                 <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-                  {/* Header */}
                   <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
                     <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>TIER UPGRADE</MonoLabel>
-                    {/* Current tier badge */}
                     {player.tier && player.tier !== 'None' && (
                       <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: TIER_COLORS[player.tier] ?? theme.hairline2 }}>
                         <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: TIER_COLORS[player.tier] ?? theme.inkSec }}>
@@ -392,20 +379,18 @@ export default function CoachesScreen() {
                             backgroundColor: sel ? theme.surface2 : 'transparent',
                           }}>
                           <View style={{ padding: 12, paddingHorizontal: 14 }}>
-                            {/* Row 1: tier name + additions + tick */}
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                               <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: c, textTransform: 'uppercase', letterSpacing: 0.5, minWidth: 90 }}>
                                 {t}
                               </Text>
                               <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>
-                                +{TIER_ADDITIONS[t]} / WHITE STAT · NEED {cost} PTS
+                                +{TIER_ADDITIONS[t]} / KEY STAT · NEED {cost} PTS
                               </MonoLabel>
                               <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost }}>
                                 {canAfford ? '✓' : '·'}
                               </Text>
                             </View>
 
-                            {/* Row 2: HAVE input + shortfall / combined OVR */}
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                               <MonoLabel size={9} color={theme.inkSec}>HAVE</MonoLabel>
                               <TextInput
@@ -436,7 +421,7 @@ export default function CoachesScreen() {
                                 <MonoLabel size={9} color={theme.inkGhost}>TAP TO ADD TO PROJECTION</MonoLabel>
                               )}
                               {sel && ovrResult != null && (
-                                <View style={{ marginLeft: 'auto', flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
                                   <Text style={{ fontFamily: theme.display, fontSize: 18, fontWeight: '700', color: c }}>{ovrResult.toFixed(1)}</Text>
                                   <MonoLabel size={9} color={c}>OVR</MonoLabel>
                                 </View>

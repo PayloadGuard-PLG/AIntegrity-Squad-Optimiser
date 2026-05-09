@@ -1,3 +1,26 @@
+// All 15 attributes each player type can have. Used for full stat display in coaches tab.
+export const OUTFIELD_STATS: string[] = [
+  'SHOOTING',    'PASSING',
+  'CROSSING',    'DRIBBLING',
+  'FINISHING',   'HEADING',
+  'TACKLING',    'MARKING',
+  'POSITIONING', 'BRAVERY',
+  'AGGRESSION',  'STRENGTH',
+  'SPEED',       'FITNESS',
+  'CREATIVITY',
+];
+
+export const GK_STATS: string[] = [
+  'REFLEXES',      'AGILITY',
+  'ANTICIPATION',  'RUSHING OUT',
+  'COMMUNICATION', 'THROWING',
+  'KICKING',       'PUNCHING',
+  'AERIAL REACH',  'CONCENTRATION',
+  'FITNESS',       'STRENGTH',
+  'AGGRESSION',    'SPEED',
+  'CREATIVITY',
+];
+
 export const ADJACENCY_MAP: Record<string, string[]> = {
   'GK':  [],
   'DC':  ['DL', 'DR', 'DMC'],

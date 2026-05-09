@@ -45,7 +45,6 @@ export default function ResultsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [twoxAd, setTwoxAd] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
   const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
@@ -109,53 +108,66 @@ export default function ResultsScreen() {
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
 
-    // 1. Each coaching session in order
-    for (const session of sessions) {
-      if (session.stats.length === 0) continue;
-      const n = parseInt(session.sessions, 10) || 0;
-      if (n === 0) continue;
-      const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
-      const budget = n * profile.baseXpPerSession / session.stats.length;
-      const updatedStats = { ...currentStats };
-      const gainParts: string[] = [];
+    try {
+      // 1. Each coaching session in order
+      for (const session of sessions) {
+        if (session.stats.length === 0) continue;
+        const n = parseInt(session.sessions, 10) || 0;
+        if (n === 0) continue;
+        const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
+        const budget = n * profile.baseXpPerSession / session.stats.length;
+        const updatedStats = { ...currentStats };
+        const gainParts: string[] = [];
 
-      for (const stat of session.stats) {
-        const from = currentStats[stat];
-        if (from === undefined) continue;
-        const isWhite = isWhiteStat(player.role, stat);
-        const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, twoxAd, drillMult, profile);
-        if (gain > 0) {
-          updatedStats[stat] = Math.min(from + gain, profile.statCap);
-          gainParts.push(`${stat} +${gain.toFixed(1)}`);
+        for (const stat of session.stats) {
+          const from = currentStats[stat];
+          if (from === undefined || typeof from !== 'number' || !isFinite(from)) continue;
+          const isWhite = isWhiteStat(player.role, stat);
+          // 2× ad does not apply to coaching sessions — drills only
+          const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, false, drillMult, profile);
+          if (gain > 0 && isFinite(gain)) {
+            updatedStats[stat] = Math.min(from + gain, profile.statCap);
+            gainParts.push(`${stat} +${gain.toFixed(1)}`);
+          }
         }
+
+        const newOvr = computeOvrWithPadding(updatedStats, player.overall, profile);
+        const ovrAfterSession = isFinite(newOvr) ? Number(newOvr.toFixed(1)) : currentOvr;
+        steps.push({
+          label: `COACHING ×${n} (VH) — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
+          ovrBefore: currentOvr,
+          ovrAfter: ovrAfterSession,
+          detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no gains — enter stat values',
+          color: theme.steelLight,
+        });
+        currentStats = updatedStats;
+        currentOvr = ovrAfterSession;
       }
 
-      const ovrAfter = computeOvrWithPadding(updatedStats, player.overall, profile);
+      // 2. Tier upgrade
+      if (selectedTier) {
+        const allKeys = getAllStatKeys(player.role);
+        const afterTier = applyTierBonusToStats(currentStats, allKeys, selectedTier, profile, player.tier);
+        const rawOvr = computeOvrWithPadding(afterTier, player.overall, profile);
+        const ovrAfter = isFinite(rawOvr) ? Number(rawOvr.toFixed(1)) : currentOvr;
+        steps.push({
+          label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / KEY STAT)`,
+          ovrBefore: currentOvr,
+          ovrAfter,
+          detail: `${allKeys.length} key stats affected`,
+          color: TIER_COLORS[selectedTier] ?? theme.hot,
+        });
+        currentStats = afterTier;
+        currentOvr = ovrAfter;
+      }
+    } catch (e) {
       steps.push({
-        label: `COACHING ×${n} (VH) — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
+        label: 'PROJECTION ERROR',
         ovrBefore: currentOvr,
-        ovrAfter: Number(ovrAfter.toFixed(1)),
-        detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no gains — enter stat values',
-        color: theme.steelLight,
+        ovrAfter: currentOvr,
+        detail: String(e),
+        color: theme.neg,
       });
-      currentStats = updatedStats;
-      currentOvr = ovrAfter;
-    }
-
-    // 2. Tier upgrade
-    if (selectedTier) {
-      const allKeys = getAllStatKeys(player.role);
-      const afterTier = applyTierBonusToStats(currentStats, allKeys, selectedTier, profile, player.tier);
-      const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
-      steps.push({
-        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / KEY STAT)`,
-        ovrBefore: currentOvr,
-        ovrAfter,
-        detail: `${allKeys.length} key stats affected`,
-        color: TIER_COLORS[selectedTier] ?? theme.hot,
-      });
-      currentStats = afterTier;
-      currentOvr = ovrAfter;
     }
 
     // 3. Greens — condition restore (informational)
@@ -231,9 +243,9 @@ export default function ResultsScreen() {
               </View>
             </View>
 
-            {/* Talent (from card) + 2× ad */}
+            {/* Talent (from card) */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 12, marginBottom: 14 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <MonoLabel style={{ width: 56 }}>TALENT</MonoLabel>
                 <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.steelLight }}>
                   <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
@@ -242,12 +254,6 @@ export default function ResultsScreen() {
                 </View>
                 <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
-              <Pressable onPress={() => { setTwoxAd(v => !v); setResult(null); setFinalStats(null); }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 8, backgroundColor: twoxAd ? theme.surface2 : 'transparent' }}>
-                <View style={{ width: 12, height: 12, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.2, color: twoxAd ? theme.hot : theme.inkSec }}>2× AD ACTIVE</Text>
-                {twoxAd && <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.hot, marginLeft: 'auto' }}>×2.0</Text>}
-              </Pressable>
             </View>
 
             {/* Coaching sessions */}
