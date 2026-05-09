@@ -1,12 +1,13 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSquad } from '../../src/hooks/useSquad';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { CornerBrackets } from '../../src/components/atoms/CornerBrackets';
 import { theme, TIER_COLORS, ovrColor } from '../../src/constants/theme';
 import { Player } from '../../src/database/playerSchema';
+import { isWhiteStat, OUTFIELD_STATS, GK_STATS } from '../../src/utils/roleWeights';
 
 const TIER_ORDER = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TALENT_TIERS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
@@ -27,40 +28,123 @@ function OvrBadge({ ovr }: { ovr: number }) {
 }
 
 function PlayerRow({ player, index }: { player: Player; index: number }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const isGK = player.role.includes('GK');
+  const statList = isGK ? GK_STATS : OUTFIELD_STATS;
+  const statsEntries = statList.filter(s => player.stats[s] != null && player.stats[s] > 0);
+  const hasStats = statsEntries.length > 0;
+
+  // Compute OVR from stored stats (same formula as engine: floor(sum/15))
+  const computedOvr = useMemo(() => {
+    if (!hasStats) return null;
+    const total = statList.reduce((sum, s) => sum + (player.stats[s] ?? 0), 0);
+    return Math.floor(total / 15);
+  }, [player.stats, statList, hasStats]);
+
   return (
-    <Pressable onPress={() => router.push(`/player/${player.id}`)} style={{
-      backgroundColor: theme.surface,
-      borderWidth: 1, borderColor: theme.hairline,
-      borderTopWidth: index > 0 ? 0 : 1,
-      padding: 12, paddingHorizontal: 14,
-      flexDirection: 'row', alignItems: 'center', gap: 14,
-    }}>
-      <MonoLabel size={9} style={{ width: 20 }}>{String(index + 1).padStart(2, '0')}</MonoLabel>
-      <OvrBadge ovr={player.overall} />
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: '600', color: theme.ink, fontFamily: theme.display, letterSpacing: -0.2, marginBottom: 4 }}>
-          {player.name}
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: theme.steelLight }}>
-            {player.role.join('·')}
+    <View style={{ borderWidth: 1, borderColor: theme.hairline, borderTopWidth: index > 0 ? 0 : 1 }}>
+      {/* main row */}
+      <Pressable onPress={() => setExpanded(v => !v)} style={{
+        backgroundColor: theme.surface,
+        padding: 12, paddingHorizontal: 14,
+        flexDirection: 'row', alignItems: 'center', gap: 14,
+      }}>
+        <MonoLabel size={9} style={{ width: 20 }}>{String(index + 1).padStart(2, '0')}</MonoLabel>
+        <OvrBadge ovr={player.overall} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 15, fontWeight: '600', color: theme.ink, fontFamily: theme.display, letterSpacing: -0.2, marginBottom: 4 }}>
+            {player.name}
           </Text>
-          <Text style={{ color: theme.inkGhost }}>/</Text>
-          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: theme.inkMuted }}>
-            {player.age}Y · {(player.tier ?? 'NONE').toUpperCase()}
+          <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: theme.steelLight }}>
+              {player.role.join('·')}
+            </Text>
+            <Text style={{ color: theme.inkGhost }}>/</Text>
+            <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: theme.inkMuted }}>
+              {player.age}Y · {(player.tier ?? 'NONE').toUpperCase()}
+            </Text>
+            {player.isMutantCandidate && (
+              <View style={{ paddingHorizontal: 5, paddingVertical: 1, borderWidth: 1, borderColor: theme.hot + '55', marginLeft: 4 }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.hot }}>MUTANT</Text>
+              </View>
+            )}
+            {!hasStats && (
+              <View style={{ paddingHorizontal: 5, paddingVertical: 1, borderWidth: 1, borderColor: theme.neg + '44' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.neg + 'bb' }}>NO STATS</Text>
+              </View>
+            )}
+          </View>
+        </View>
+        <View style={{ alignItems: 'flex-end', gap: 4 }}>
+          {hasStats && computedOvr != null && (
+            <MonoLabel size={7} color={theme.inkGhost}>{statsEntries.length}/15</MonoLabel>
+          )}
+          <Text style={{ color: theme.inkMuted, fontFamily: theme.mono, fontSize: 14 }}>
+            {expanded ? '˅' : '›'}
           </Text>
-          {player.isMutantCandidate && (
-            <View style={{
-              paddingHorizontal: 5, paddingVertical: 1,
-              borderWidth: 1, borderColor: theme.hot + '55', marginLeft: 4,
-            }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.hot }}>MUTANT</Text>
+        </View>
+      </Pressable>
+
+      {/* expanded bio — all stats from stored profile */}
+      {expanded && (
+        <View style={{ backgroundColor: theme.surface2, borderTopWidth: 1, borderTopColor: theme.hairline }}>
+          {hasStats ? (
+            <>
+              {/* OVR from stats vs stored OVR */}
+              <View style={{ flexDirection: 'row', padding: 10, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: theme.hairline, gap: 20 }}>
+                <View>
+                  <MonoLabel size={7} color={theme.inkGhost} style={{ marginBottom: 2 }}>STORED OVR</MonoLabel>
+                  <Text style={{ fontFamily: theme.display, fontSize: 20, fontWeight: '300', color: ovrColor(player.overall) }}>{player.overall}</Text>
+                </View>
+                {computedOvr != null && (
+                  <View>
+                    <MonoLabel size={7} color={theme.inkGhost} style={{ marginBottom: 2 }}>CALC FROM STATS</MonoLabel>
+                    <Text style={{ fontFamily: theme.display, fontSize: 20, fontWeight: '300', color: computedOvr !== Math.round(player.overall) ? theme.hot : theme.pos }}>
+                      {computedOvr}
+                    </Text>
+                  </View>
+                )}
+                <View style={{ flex: 1 }} />
+                <MonoLabel size={7} color={theme.steelLight} style={{ alignSelf: 'flex-end' }}>
+                  {player.talent} · {statsEntries.length}/15 STATS
+                </MonoLabel>
+              </View>
+
+              {/* stat grid — 3 columns */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', padding: 10, paddingHorizontal: 14, gap: 2 }}>
+                {statList.map(s => {
+                  const val = player.stats[s];
+                  const white = isWhiteStat(player.role, s);
+                  const hasVal = val != null && val > 0;
+                  return (
+                    <View key={s} style={{ width: '33%', paddingVertical: 4, paddingRight: 8 }}>
+                      <MonoLabel size={7} color={white ? theme.steelLight : theme.inkGhost} style={{ marginBottom: 1 }}>{s}</MonoLabel>
+                      <Text style={{
+                        fontFamily: theme.display, fontSize: 14, fontWeight: '300',
+                        color: hasVal ? (white ? theme.ink : theme.inkMuted) : theme.inkGhost,
+                      }}>
+                        {hasVal ? Math.round(val) : '—'}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </>
+          ) : (
+            <View style={{ padding: 14, alignItems: 'center' }}>
+              <MonoLabel size={9} color={theme.neg}>NO STATS ON FILE — EDIT PLAYER TO ADD</MonoLabel>
             </View>
           )}
+
+          {/* edit button */}
+          <Pressable onPress={() => router.push(`/player/${player.id}`)}
+            style={{ margin: 10, marginTop: 4, padding: 10, borderWidth: 1, borderColor: theme.hairline2, alignItems: 'center', backgroundColor: theme.surface }}>
+            <MonoLabel size={9} color={theme.ink}>EDIT / UPDATE STATS</MonoLabel>
+          </Pressable>
         </View>
-      </View>
-      <Text style={{ color: theme.inkMuted, fontFamily: theme.mono, fontSize: 14 }}>›</Text>
-    </Pressable>
+      )}
+    </View>
   );
 }
 

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { playerService } from '../../src/services/playerService';
-import { validateRoleAdjacency, isWhiteStat } from '../../src/utils/roleWeights';
+import { validateRoleAdjacency, isWhiteStat, OUTFIELD_STATS, GK_STATS } from '../../src/utils/roleWeights';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
@@ -19,30 +19,6 @@ const ROLE_GRID = [
   [null, null, 'ST', null],
 ];
 
-const OUTFIELD_STATS = [
-  'SHOOTING',    'PASSING',
-  'CROSSING',    'DRIBBLING',
-  'FINISHING',   'HEADING',
-  'TACKLING',    'MARKING',
-  'POSITIONING', 'BRAVERY',
-  'AGGRESSION',  'STRENGTH',
-  'SPEED',       'FITNESS',
-  'CREATIVITY',
-];
-
-const GK_STATS = [
-  // white (essential) — 10 stats confirmed
-  'REFLEXES',      'AGILITY',
-  'ANTICIPATION',  'RUSHING OUT',
-  'COMMUNICATION', 'THROWING',
-  'KICKING',       'PUNCHING',
-  'AERIAL REACH',  'CONCENTRATION',
-  // grey (secondary) — 5 stats confirmed
-  'FITNESS',       'STRENGTH',
-  'AGGRESSION',    'SPEED',
-  'CREATIVITY',
-];
-
 const inputStyle = {
   backgroundColor: theme.surface,
   borderWidth: 1,
@@ -56,32 +32,48 @@ const inputStyle = {
 
 export default function EditPlayerScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [name, setName] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(['ST']);
-  const [age, setAge] = useState('18');
-  const [overall, setOverall] = useState('100');
-  const [tier, setTier] = useState<TierName>('None');
-  const [talent, setTalent] = useState<TalentTier>('Normal');
-  const [mutant, setMutant] = useState(false);
-  const [roleError, setRoleError] = useState('');
+
+  const [name, setName]             = useState('');
+  const [selectedRoles, setRoles]   = useState<string[]>(['ST']);
+  const [lockedTier, setLockedTier] = useState<TierName>('None'); // the tier saved on load — can't go below
+  const [age, setAge]               = useState('18');
+  const [overall, setOverall]       = useState('100');
+  const [ovrManual, setOvrManual]   = useState(false);
+  const [tier, setTier]             = useState<TierName>('None');
+  const [talent, setTalent]         = useState<TalentTier>('Normal');
+  const [mutant, setMutant]         = useState(false);
+  const [roleError, setRoleError]   = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
+  const [statsLoaded, setStatsLoaded] = useState(false); // true once player data loaded
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
+
+  // Auto-OVR: floor(sum of all 15 / 15), shown when ≥10 stats filled
+  const computedOvr = useMemo(() => {
+    const values = statList.map(s => parseFloat(statInputs[s] ?? '') || 0);
+    const filled = values.filter(v => v > 0).length;
+    if (filled < 10) return null;
+    return Math.floor(values.reduce((a, b) => a + b, 0) / 15);
+  }, [statInputs, statList]);
+
+  const lockedTierIdx = TIERS.indexOf(lockedTier);
 
   useEffect(() => {
     if (!id) return;
     const p = playerService.getById(id);
     if (!p) return;
     setName(p.name);
-    setSelectedRoles(p.role);
+    setRoles(p.role);
     setAge(p.age.toString());
     setOverall(p.overall.toString());
     setTier(p.tier);
+    setLockedTier(p.tier); // remember what was saved — can't downgrade below this
     setTalent(p.talent ?? 'Normal');
     setMutant(p.isMutantCandidate);
     if (p.stats && Object.keys(p.stats).length > 0) {
-      setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, v.toString()])));
+      setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, String(Math.round(v))])));
+      setStatsLoaded(true);
     }
   }, [id]);
 
@@ -92,7 +84,7 @@ export default function EditPlayerScreen() {
     if (selectedRoles.includes(role)) {
       next = selectedRoles.filter(r => r !== role);
     } else {
-      if (role === 'GK') { setSelectedRoles(['GK']); return; }
+      if (role === 'GK') { setRoles(['GK']); return; }
       if (selectedRoles.includes('GK')) { setRoleError('GK CANNOT COMBINE'); return; }
       next = [...selectedRoles, role];
     }
@@ -100,15 +92,22 @@ export default function EditPlayerScreen() {
       setRoleError('NOT ADJACENT');
       return;
     }
-    setSelectedRoles(next);
+    setRoles(next);
+  }
+
+  function pickTier(t: TierName) {
+    const idx = TIERS.indexOf(t);
+    // Tier is one-way — can only increase, never decrease from locked tier
+    if (idx < lockedTierIdx) return;
+    setTier(t);
   }
 
   function save() {
     if (!id || !name.trim()) { Alert.alert('NAME REQUIRED'); return; }
     const ageNum = parseInt(age, 10);
-    const ovrNum = parseFloat(overall);
+    const ovrNum = ovrManual ? parseFloat(overall) : (computedOvr ?? parseFloat(overall));
     if (isNaN(ageNum) || ageNum < 14 || ageNum > 40) { Alert.alert('Age 14–40'); return; }
-    if (isNaN(ovrNum) || ovrNum <= 0) { Alert.alert('Enter a valid OVR'); return; }
+    if (isNaN(ovrNum) || ovrNum <= 0) { Alert.alert('Enter stats or an OVR value'); return; }
 
     const statsObj: Record<string, number> = {};
     for (const stat of statList) {
@@ -137,6 +136,8 @@ export default function EditPlayerScreen() {
     ]);
   }
 
+  const filledCount = statList.filter(s => (parseFloat(statInputs[s] ?? '') || 0) > 0).length;
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader title="EDIT ASSET" subtitle="PROFILE · MUTABLE" onBack={() => router.back()} />
@@ -162,14 +163,92 @@ export default function EditPlayerScreen() {
             />
           </View>
           <View style={{ flex: 1 }}>
-            <MonoLabel size={9} style={{ marginBottom: 4 }}>OVR</MonoLabel>
+            <MonoLabel size={9} style={{ marginBottom: 4 }}>
+              OVR{computedOvr && !ovrManual ? ' (AUTO)' : ''}
+            </MonoLabel>
             <TextInput
               keyboardType="decimal-pad"
-              value={overall}
-              onChangeText={setOverall}
-              style={inputStyle}
+              value={ovrManual ? overall : (computedOvr != null ? String(computedOvr) : overall)}
+              onChangeText={v => { setOverall(v); setOvrManual(true); }}
+              placeholder="—"
+              placeholderTextColor={theme.inkGhost}
+              style={{
+                ...inputStyle,
+                borderColor: computedOvr && !ovrManual ? theme.pos + '66' : theme.hairline2,
+                color: computedOvr && !ovrManual ? theme.pos : theme.ink,
+              }}
             />
+            {computedOvr && ovrManual && (
+              <Pressable onPress={() => { setOvrManual(false); setOverall(''); }}>
+                <MonoLabel size={7} color={theme.pos} style={{ marginTop: 3 }}>↩ USE AUTO ({computedOvr})</MonoLabel>
+              </Pressable>
+            )}
           </View>
+        </View>
+
+        {/* STAT PROFILE — primary bio, update from screenshot */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <MonoLabel color={theme.steelLight}>STAT PROFILE</MonoLabel>
+          <MonoLabel size={8} color={filledCount === 15 ? theme.pos : theme.inkGhost}>
+            {filledCount}/15 ENTERED
+          </MonoLabel>
+        </View>
+
+        {/* screenshot refresh banner */}
+        <View style={{
+          flexDirection: 'row', alignItems: 'center', gap: 10,
+          borderWidth: 1, borderColor: theme.steelDeep,
+          backgroundColor: theme.steelDeep + '22',
+          padding: 10, marginBottom: 12,
+        }}>
+          <Text style={{ fontFamily: theme.mono, fontSize: 14, color: theme.steelLight }}>↻</Text>
+          <View style={{ flex: 1 }}>
+            <MonoLabel size={9} color={theme.steelLight}>UPDATE FROM NEW SCREENSHOT</MonoLabel>
+            <MonoLabel size={7} color={theme.inkGhost} style={{ marginTop: 2 }}>
+              STATS CHANGE — ENTER CURRENT VALUES · OVR AUTO-COMPUTES · TIER IS LOCKED
+            </MonoLabel>
+          </View>
+        </View>
+
+        <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 20 }}>
+          {statList.map((stat, i) => {
+            if (i % 2 === 1) return null;
+            const nextStat = statList[i + 1];
+            const isLastRow = i >= statList.length - 2;
+            return (
+              <View key={stat} style={{ flexDirection: 'row', borderBottomWidth: isLastRow ? 0 : 1, borderBottomColor: theme.hairline }}>
+                {[stat, nextStat].map((s, idx) => {
+                  if (!s) return <View key={idx} style={{ flex: 1 }} />;
+                  const w = isWhiteStat(selectedRoles, s);
+                  const val = parseFloat(statInputs[s] ?? '') || 0;
+                  return (
+                    <View key={s} style={{
+                      flex: 1, padding: 10,
+                      borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
+                      backgroundColor: w ? theme.steelDeep + '18' : 'transparent',
+                    }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                        <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
+                        <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
+                      </View>
+                      <TextInput
+                        keyboardType="numeric"
+                        value={statInputs[s] ?? ''}
+                        onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v.replace(/[^0-9]/g, '') }))}
+                        placeholder="—"
+                        placeholderTextColor={theme.inkGhost}
+                        style={{
+                          backgroundColor: 'transparent', padding: 0,
+                          color: val > 0 ? theme.ink : theme.inkGhost,
+                          fontSize: 16, fontFamily: theme.display, fontWeight: '300',
+                        }}
+                      />
+                    </View>
+                  );
+                })}
+              </View>
+            );
+          })}
         </View>
 
         {/* POSITION GRID */}
@@ -188,12 +267,9 @@ export default function EditPlayerScreen() {
                     onPress={() => toggleRole(role)}
                     disabled={role === null}
                     style={{
-                      flex: 1,
-                      paddingVertical: 13,
-                      alignItems: 'center',
+                      flex: 1, paddingVertical: 13, alignItems: 'center',
                       backgroundColor: sel ? theme.ink : 'transparent',
-                      borderRightWidth: ci < 3 ? 1 : 0,
-                      borderRightColor: theme.hairline,
+                      borderRightWidth: ci < 3 ? 1 : 0, borderRightColor: theme.hairline,
                     }}
                   >
                     <Text style={{
@@ -210,21 +286,31 @@ export default function EditPlayerScreen() {
           <MonoLabel size={10} color={theme.neg} style={{ marginBottom: 6 }}>⚠ {roleError}</MonoLabel>
         ) : null}
 
-        {/* TIER */}
+        {/* TIER — one-way locked, can only upgrade */}
         <View style={{ marginTop: 18 }}>
-          <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>TIER</MonoLabel>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <MonoLabel color={theme.steelLight}>TIER</MonoLabel>
+            <MonoLabel size={8} color={theme.hot}>· ONE-WAY — LOCKED AT {lockedTier.toUpperCase()}</MonoLabel>
+          </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
-            {TIERS.map(t => {
+            {TIERS.map((t, idx) => {
               const c = TIER_COLORS[t] ?? theme.inkMuted;
               const sel = tier === t;
+              const locked = idx < lockedTierIdx; // below current saved tier — cannot select
               return (
-                <Pressable key={t} onPress={() => setTier(t)} style={{
-                  paddingHorizontal: 11, paddingVertical: 7,
-                  backgroundColor: sel ? c : 'transparent',
-                  borderWidth: 1, borderColor: sel ? c : c + '55',
-                }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : c }}>
-                    {t.toUpperCase()}
+                <Pressable
+                  key={t}
+                  onPress={() => pickTier(t)}
+                  disabled={locked}
+                  style={{
+                    paddingHorizontal: 11, paddingVertical: 7,
+                    backgroundColor: sel ? c : 'transparent',
+                    borderWidth: 1, borderColor: locked ? theme.hairline : (sel ? c : c + '55'),
+                    opacity: locked ? 0.3 : 1,
+                  }}
+                >
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: locked ? theme.inkGhost : (sel ? theme.bg : c) }}>
+                    {t.toUpperCase()}{locked ? ' ·' : ''}
                   </Text>
                 </Pressable>
               );
@@ -269,54 +355,6 @@ export default function EditPlayerScreen() {
             ★ MUTANT CANDIDATE
           </Text>
         </Pressable>
-
-        {/* STATS GRID */}
-        {selectedRoles.length > 0 && (
-          <>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <MonoLabel color={theme.steelLight}>STATS</MonoLabel>
-              <MonoLabel size={9} color={theme.inkMuted}>· ● ESSENTIAL</MonoLabel>
-            </View>
-            <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 24 }}>
-              {statList.map((stat, i) => {
-                const isRight = i % 2 === 1;
-                const isLastRow = i >= statList.length - 2;
-                if (isRight) return null;
-                const nextStat = statList[i + 1];
-                return (
-                  <View key={stat} style={{ flexDirection: 'row', borderBottomWidth: isLastRow ? 0 : 1, borderBottomColor: theme.hairline }}>
-                    {[stat, nextStat].map((s, idx) => {
-                      if (!s) return <View key={idx} style={{ flex: 1 }} />;
-                      const w = isWhiteStat(selectedRoles, s);
-                      return (
-                        <View key={s} style={{
-                          flex: 1, padding: 10,
-                          borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
-                        }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                            <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
-                            <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
-                          </View>
-                          <TextInput
-                            keyboardType="numeric"
-                            value={statInputs[s] ?? ''}
-                            onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v }))}
-                            placeholder="0"
-                            placeholderTextColor={theme.inkGhost}
-                            style={{
-                              backgroundColor: 'transparent', padding: 0,
-                              color: theme.ink, fontSize: 15, fontFamily: theme.display, fontWeight: '300',
-                            }}
-                          />
-                        </View>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-            </View>
-          </>
-        )}
 
         {/* CTAs */}
         <View style={{ flexDirection: 'row', gap: 8 }}>

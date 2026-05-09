@@ -5,6 +5,8 @@ import { nanoid } from 'nanoid/non-secure';
 import { Player } from '../database/playerSchema';
 import { TierName, TalentTier } from '../types/resources';
 
+const TIER_ORDER: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+
 type PlayerRow = typeof players.$inferSelect;
 
 function toRow(p: Player): PlayerRow {
@@ -67,6 +69,13 @@ export const playerService = {
   },
 
   update(p: Player): void {
+    // Tier is one-way: locked at the highest achieved value, can never decrease.
+    const existing = this.getById(p.id);
+    if (existing) {
+      const existingIdx = TIER_ORDER.indexOf(existing.tier);
+      const newIdx = TIER_ORDER.indexOf(p.tier);
+      if (newIdx < existingIdx) p = { ...p, tier: existing.tier };
+    }
     const { id, ...rest } = toRow(p);
     db.update(players).set(rest).where(eq(players.id, id)).run();
   },
