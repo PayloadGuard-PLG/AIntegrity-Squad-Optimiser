@@ -20,8 +20,15 @@ export interface PlayerCardScan {
   _debug?: string; // raw OCR sample for troubleshooting
 }
 
+const TIMEOUT_MS = 12000;
+
 export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> {
-  const result = await TextRecognition.recognize(imageUri);
+  const result = await Promise.race([
+    TextRecognition.recognize(imageUri),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('ML Kit timed out — New Architecture may be incompatible. Rebuild with newArchEnabled:false.')), TIMEOUT_MS)
+    ),
+  ]);
 
   // Flatten to a single list of positioned tokens
   type Token = { text: string; top: number; left: number };

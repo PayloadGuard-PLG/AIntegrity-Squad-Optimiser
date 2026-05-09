@@ -52,8 +52,15 @@ export interface CoachScanResult {
 
 // ─── OCR scan ─────────────────────────────────────────────────────────────────
 
+const TIMEOUT_MS = 12000;
+
 export async function scanCoachPreview(imageUri: string): Promise<CoachScanResult> {
-  const result = await TextRecognition.recognize(imageUri);
+  const result = await Promise.race([
+    TextRecognition.recognize(imageUri),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('ML Kit timed out — rebuild with newArchEnabled:false.')), TIMEOUT_MS)
+    ),
+  ]);
   const fullText = result.text;
 
   type Token = { text: string; top: number; left: number };

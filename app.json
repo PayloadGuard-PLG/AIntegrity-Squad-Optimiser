@@ -3,7 +3,7 @@
     "name": "AIntegrity Squad Optimiser",
     "slug": "squad-optimiser",
     "version": "1.0.0",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "web": {
       "bundler": "metro",
       "output": "static",
