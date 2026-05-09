@@ -4,6 +4,58 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 10 — OCR Scanning + Player Bio
+**2026-05-09**
+
+### Shipped
+
+**OCR scan for player cards (`src/logic/playerScanner.ts`)**
+
+`scanPlayerCard(imageUri)` uses ML Kit to read a player card screenshot at native resolution and returns `PlayerCardScan`: name, age, roles, OVR, tier, talent, and all 15 stats. Algorithm: flatten all text recognition blocks into tokens with `{text, top, left}`, group tokens by Y-baseline (±18px tolerance), match stat names (single-word and two-word: RUSHING OUT, AERIAL REACH), extract numeric values from same-row tokens.
+
+**OCR scan for coaching previews (`src/logic/coachScanner.ts`)**
+
+Rewrote from stub to full ML Kit implementation. Three zones:
+- Zone A: header regex extracts coach type (Standard/Focused/Extensive), category (Attacking/Defending/Physical/Safeguard), and session count (×N)
+- Zone B: OVR, age, talent tier, player name, OVR boost range
+- Zone C: highlighted stat rows — only rows with a gain range (`+lo–hi`) captured, others skipped
+
+**Native-resolution image picker (`src/logic/pickImage.ts`)**
+
+`quality: 1`, `allowsEditing: false`, `base64: false` — passes original file URI directly to ML Kit without recompression or resize. Ensures scan reads at device screenshot resolution.
+
+**Scan button in Add Player (`app/player/new.tsx`)**
+
+`SCAN PLAYER CARD SCREENSHOT` Pressable with ActivityIndicator spinner. On success: fills name, age, roles, OVR, tier, talent, and all 15 stats. Scan message shows count of stats found or error. Manual entry still available below with `OR ENTER MANUALLY BELOW` label.
+
+**Scan button in Edit Player (`app/player/[id].tsx`)**
+
+`SCAN UPDATED PLAYER CARD` Pressable replaces the old static "UPDATE FROM NEW SCREENSHOT" banner. Tier lock enforced on scan result: scanned tier only applied if ≥ locked tier index in TIERS array. Stats update from scan; OVR auto-computed from new stats.
+
+**Coach session capture scan (`app/scan.tsx`)**
+
+`⊕ SCAN COACHING PREVIEW SCREENSHOT` button auto-fills all coach session form fields from OCR result. Scan error state shown inline.
+
+**app.json**
+
+Added `expo-image-picker` plugin with photos permission string.
+
+### Notes
+
+- Requires `eas build` — `@react-native-ml-kit/text-recognition` is a native module, not OTA-deployable
+- `expo-image-picker` v16 API: `mediaTypes: ['images']` (not deprecated `MediaTypeOptions.Images`)
+- ML Kit frame uses `{ top, left, width, height }` — NOT `{ x, y }`
+- `npm run typecheck` — 0 errors after all changes
+
+### Next
+
+- User to run `eas build` and test OCR scan on device
+- If OCR picks up incorrect tier, tier lock ensures it cannot go backwards — safe to test
+- Coach sub-engine calibration: need Attacking and Physical coach type priority tiers
+- Issue #5: premium sponsor cooldown not modelled
+
+---
+
 ## Sprint 9 — Tier Bonus Fix + RESULTS Tab
 **2026-05-08**
 

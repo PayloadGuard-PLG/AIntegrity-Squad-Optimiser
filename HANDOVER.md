@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `claude/continue-development-uXA5D`
-**As of:** Sprint 10 — 2026-05-09
+**As of:** Sprint 10 — 2026-05-09 (OCR scan complete)
 **Deploy:** `git push -u origin claude/continue-development-uXA5D` → GitHub Actions → EAS OTA → reopen app
 
 ---
@@ -13,7 +13,8 @@ React Native / Expo app. **5 tabs:** SQUAD · PLAN · DRILLS · COACHES · RESUL
 All tabs functional. Engine calibrated. Tier bonus formula corrected in Sprint 9. OTA pipeline working.
 
 ### What works
-- **SQUAD tab** — player list, tap → edit, OVR badge, tier/age/role display
+- **SQUAD tab** — player list, tap → edit, OVR badge, tier/age/role display. Tap player row → expanded bio with all 15 stats in 3-column grid (white/grey highlighted).
+- **OCR scanning** *(Sprint 10)* — `SCAN PLAYER CARD SCREENSHOT` button in Add Player and Edit Player screens. Uses ML Kit to extract name, age, roles, OVR, tier, talent, and all 15 stats from a photo library screenshot. Tier lock enforced on scan: scanned tier can only increase, never decrease. Requires new EAS binary build (native module — not OTA-updatable). Coach session capture (`app/scan.tsx`) also has OCR for coaching preview screenshots.
 - **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-computed OVR baseline when stats entered. TextInput for greens and sessions. Smarter skip warnings.
 - **DRILLS tab** — drill recommendations sorted by ROI (lowest white stat value = cheapest XP). Fan Club L0–L4 selector. Zero-drain protocol detection at L4 + Very Easy. Condition cost display. 2× ad toggle (drills only, ≤4/day).
 - **COACHES tab** *(Sprint 10)* — shows ALL 15 outfield/GK stats (white = essential ×1.0, grey = secondary/non-role ×0.5). Tap stats to include in session, set ×N multiplier, project coach gains. 2× ad toggle removed (drills only). Tier upgrade preview post-coach with correct key-stat count.
@@ -103,8 +104,12 @@ Coaching uses a separate XP system. Do NOT use the drill engine for coaching pro
 | `app/(tabs)/coaches.tsx` | Coach tab — ALL 15 stats (white/grey), sessions ×N, no 2× ad, OVR projection + tier preview |
 | `app/(tabs)/results.tsx` | Results tab — sequential session chain + tier + greens; try-catch crash guard; no 2× ad |
 | `app/(tabs)/drills.tsx` | Drills tab — ROI sort, fan club selector, zero-drain detection |
-| `app/player/new.tsx` | Add player — role picker, stat grid, tier, talent, save |
-| `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete |
+| `app/player/new.tsx` | Add player — role picker, stat grid, tier, talent, save. **Scan button** → auto-fills all fields from player card screenshot. |
+| `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete. **Scan updated card** button — replaces old static banner. Tier lock enforced on OCR result. |
+| `src/logic/playerScanner.ts` | `scanPlayerCard(uri)` — ML Kit OCR → `PlayerCardScan` (name, age, roles, overall, tier, talent, stats). Y-baseline grouping ±18px. Two-word stats (RUSHING OUT, AERIAL REACH) handled. |
+| `src/logic/coachScanner.ts` | `scanCoachPreview(uri)` — ML Kit OCR → `CoachScanResult`. Zones: header (type/category/×N), player bio (OVR/age/talent), highlighted stat rows (gain ranges). |
+| `src/logic/pickImage.ts` | `pickImage()` — photo library picker at native resolution (quality:1, no crop, no base64). Pass URI directly to ML Kit. |
+| `app/scan.tsx` | Coach session capture — OCR button auto-fills session form from coaching preview screenshot. CSV export row builder. |
 | `data/CALIBRATION_LOG.md` | All confirmed game data: drill gains, OVR snapshots, tier upgrades, coaching projections |
 | `data/COACH_CALIBRATION.csv` | Coaching sub-engine calibration data — one row per stat per coaching preview screen. Pre-filled S1–S4 (Ricky Grant). Add new rows as user provides screenshots. |
 | `data/COACH_CALIBRATION_README.md` | Instructions for adding to COACH_CALIBRATION.csv — column guide, priority data needed, current findings, how to run calibration. **Read this before touching the CSV.** |

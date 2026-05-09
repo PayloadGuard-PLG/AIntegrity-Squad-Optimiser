@@ -18,7 +18,7 @@ The engine models each player's age, role, stat profile, talent tier, and curren
 
 | Tab | Purpose |
 |---|---|
-| **SQUAD** | All players — OVR, role, age, tier, mutant flag. Tap to edit. |
+| **SQUAD** | All players — OVR, role, age, tier, mutant flag. Tap to edit. Tap row → expanded bio with all 15 stats. Add / edit player screens include **OCR scan** button — point camera at a player card screenshot to auto-fill all fields. |
 | **PLAN** | Select a player, configure drills + tier + greens → get a step-by-step OVR projection with gain breakdown and warnings. |
 | **DRILLS** | Ranked drill recommendations for a player — sorted by ROI (lowest white stat value first = cheapest gain per XP). Fan Club level + drill level aware. Zero-drain protocol detection at L4 + Very Easy. |
 | **COACHES** | Simulate any coaching session: select which stats the coach covers, enter session count (×N), set intensity and talent tier → exact per-stat gains and OVR change projected. |
