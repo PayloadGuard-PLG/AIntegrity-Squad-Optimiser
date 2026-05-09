@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { View, Text, AppState, AppStateStatus, ActivityIndicator } from 'react-native';
 import { useDbMigration } from '../src/db';
 import { ManagerProvider } from '../src/context/ManagerContext';
+import { pickingImage } from '../src/logic/pickImage';
 
 const fill = { position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0 };
 
@@ -28,23 +29,21 @@ function PrivacyOverlay() {
 function usePrivacyOverlay() {
   const [obscured, setObscured] = useState(false);
   const appState = useRef(AppState.currentState);
-  const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
       const prev = appState.current;
       appState.current = next;
       if (next === 'background') {
-        // Delay before showing — image picker briefly fires background on Android.
-        // If the app returns within 600ms the timer is cancelled and overlay never shows.
-        showTimer.current = setTimeout(() => setObscured(true), 600);
+        // Skip overlay if the image picker is open — it fires 'background' for the full
+        // duration the picker is open on Android, not just briefly.
+        if (!pickingImage) setObscured(true);
       }
       if (next === 'active' && prev === 'background') {
-        if (showTimer.current) { clearTimeout(showTimer.current); showTimer.current = null; }
         setObscured(false);
       }
     });
-    return () => { sub.remove(); if (showTimer.current) clearTimeout(showTimer.current); };
+    return () => sub.remove();
   }, []);
 
   return obscured;
