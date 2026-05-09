@@ -64,14 +64,20 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
 
     if (!statName) continue;
 
-    // find a numeric value on the same horizontal baseline
-    const rowNums = tokens
-      .filter((t, idx) => !consumed.includes(idx) && Math.abs(t.top - tok.top) < Y_TOL)
+    // Find the closest number to the RIGHT of the stat label on the same baseline.
+    // Using closest-right avoids picking values from adjacent columns — the game
+    // shows 3 stat columns side by side, so each row has 3 names and 3 values.
+    const sameRow = tokens.filter((t, idx) =>
+      !consumed.includes(idx) && Math.abs(t.top - tok.top) < Y_TOL
+    );
+    const rightNums = sameRow
+      .filter(t => t.left > tok.left)
+      .sort((a, b) => a.left - b.left)
       .map(t => parseInt(t.text, 10))
       .filter(n => !isNaN(n) && n > 0 && n <= 340);
 
-    if (rowNums.length > 0) {
-      stats[statName] = rowNums[0];
+    if (rightNums.length > 0) {
+      stats[statName] = rightNums[0];
     } else {
       // Fallback: value may be directly below the label (vertically stacked layout)
       const belowNums = tokens
