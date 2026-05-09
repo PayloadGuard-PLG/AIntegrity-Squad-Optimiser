@@ -3,14 +3,14 @@ export const FAN_CLUB_REDUCTIONS: Record<number, number> = {
 };
 
 // Difficulty multiplier applied to base condition loss.
-// baseLoss values in drillDatabase are calibrated at Very Easy.
-// NOTE: confirm exact game multipliers — these are estimated until verified.
+// baseLoss in drillDatabase is calibrated at Very Easy (0.75% raw loss).
+// Confirmed from game screenshots: VE=0.75%, E=1.5%, M=2.25%, H=3.0%, VH=3.75%.
 const DIFFICULTY_MULTIPLIERS: Record<string, number> = {
   'Very Easy': 1.0,
-  'Easy':      1.5,
-  'Medium':    2.0,
-  'Hard':      2.5,
-  'Very Hard': 3.0,
+  'Easy':      2.0,
+  'Medium':    3.0,
+  'Hard':      4.0,
+  'Very Hard': 5.0,
 };
 
 export function calculateActualLoss(baseLoss: number, fanLevel: number, drillLevel = 'Very Easy'): number {

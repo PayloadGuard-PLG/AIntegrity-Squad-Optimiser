@@ -284,6 +284,45 @@ TRAINING LEVEL (confirmed 2026-05-08):
 -----------
 ```
 
+```
+--- FAN_CLUB_REDUCTIONS_CONFIRMED ---
+Date: 2026-05-09
+Source: "Perfect Conditions" club screen (Level 4 active, all levels shown)
+
+  Level 0: Condition drain -10%
+  Level 1: Condition drain -15%
+  Level 2: Condition drain -20%
+  Level 3: Condition drain -25%
+  Level 4: Condition drain -50%
+
+These match FAN_CLUB_REDUCTIONS in conditionEngine.ts exactly. ✓
+-----------------------
+```
+
+```
+--- CONDITION_LOSS_BY_DIFFICULTY_CONFIRMED ---
+Date: 2026-05-09
+Source: In-game drill selection tooltips (multiple drills, Level: World-class trainer)
+All values are RAW loss shown in UI — fan club NOT applied.
+Pattern is perfectly linear: +0.75% per level.
+
+  Very Easy: -0.75%   (Video Analysis confirmed)
+  Easy:      -1.50%   (Use Your Head, Piggy in the Middle confirmed)
+  Medium:    -2.25%   (Rapid Side Switch confirmed)
+  Hard:      -3.00%   (Passes Before Shot confirmed)
+  Very Hard: -3.75%   (Sprint confirmed)
+
+FINDING: Condition loss is PURELY difficulty-driven — identical for all drills at the same level.
+ENGINE FIX APPLIED 2026-05-09:
+  - baseLoss normalised to 0.75 for ALL drills
+  - DIFFICULTY_MULTIPLIERS corrected to 1.0 / 2.0 / 3.0 / 4.0 / 5.0
+    (was: 1.0 / 1.5 / 2.0 / 2.5 / 3.0 — WRONG)
+
+VERIFICATION: 0.75 × diffMult × (100 − fanClubReduction) / 100
+  Ball Control, VE, L4: 0.75 × 1.0 × 0.5 = 0.375% — confirmed from game UI (0.38%) ✓
+-----------------------
+```
+
 ---
 
 ## SECTION 3 — FULL OVR SNAPSHOTS
