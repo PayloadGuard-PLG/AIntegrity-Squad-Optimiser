@@ -17,6 +17,7 @@ export interface PlayerCardScan {
   tier?: string;
   talent?: string;
   stats: Record<string, number>;
+  _debug?: string; // raw OCR sample for troubleshooting
 }
 
 export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> {
@@ -121,5 +122,6 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   });
   const name = nameBlock?.text.trim();
 
-  return { name, age, roles: roles.length > 0 ? roles : undefined, overall, tier, talent, stats };
+  const _debug = fullText.replace(/\n/g, ' | ').slice(0, 300);
+  return { name, age, roles: roles.length > 0 ? roles : undefined, overall, tier, talent, stats, _debug };
 }

@@ -64,7 +64,10 @@ export default function NewPlayerScreen() {
         setOvrManual(false); // let auto-OVR take over from stats
       }
       const found = Object.keys(p.stats).length;
-      setScanMsg(found > 0 ? `Scanned ${found} stats — review and save.` : 'No stats found — check the screenshot shows the full player card.');
+      setScanMsg(found > 0
+        ? `Scanned ${found} stats — review and save.`
+        : `No stats found. OCR read: "${p._debug ?? '(nothing)'}"`
+      );
     } catch (e) {
       setScanMsg(`Scan failed: ${String(e)}`);
     } finally {
