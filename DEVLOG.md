@@ -38,18 +38,43 @@ Rewrote from stub to full ML Kit implementation. Three zones:
 
 **app.json**
 
-Added `expo-image-picker` plugin with photos permission string.
+Added `expo-image-picker` plugin with photos permission string. Set `newArchEnabled: false` — ML Kit text recognition is incompatible with React Native's New Architecture (silently hangs with no result or error). Requires a new EAS binary build; cannot be fixed via OTA.
+
+**Scanner fixes — closest-right value matching + vertical fallback (`src/logic/playerScanner.ts`)**
+
+Game shows 3 vertical stat columns side by side (DEFENCE / ATTACK / PHYSICAL). Original same-row scan picked up values from adjacent columns. Fixed: value extraction now requires token to be to the **right** of the stat label (`t.left > tok.left`), then takes the closest one. Vertical fallback added: if no right-side value, look directly below the label (within 65px, within 100px horizontal). Y_TOL: 18 → 28px. Added `_debug` field (raw OCR text, first 300 chars) to `PlayerCardScan` for troubleshooting.
+
+**3-column stat grid matching game layout (`app/player/new.tsx`, `app/player/[id].tsx`)**
+
+Stat grid rebuilt as 3 vertical columns — DEFENCE (TACKLING/MARKING/POSITIONING/HEADING/BRAVERY), ATTACK (PASSING/DRIBBLING/CROSSING/SHOOTING/FINISHING), PHYSICAL (FITNESS/STRENGTH/AGGRESSION/SPEED/CREATIVITY) — matching the game's card layout. Each column header uses a distinct colour. `OUTFIELD_STATS` reordered in `src/utils/roleWeights.ts` to match: DEF × 5 → ATT × 5 → PHY × 5.
+
+**OVR always auto-computed from stats after scan**
+
+Removed `p.overall` from scan handler in both new.tsx and [id].tsx. OVR is always `floor(sum / 15)` of current stats — the game's card OVR value is never used directly. `setOvrManual(false)` called after every scan.
+
+**Privacy overlay — 600ms delayed background trigger (`app/_layout.tsx`)**
+
+Android briefly fires `AppState 'background'` when the image picker launches (not a true app switch). Changed trigger: overlay now appears only after the app has been in background for ≥600ms. Timer is cancelled if the app returns before 600ms (image picker returns within this window). Eliminates the flash seen when opening the scan picker.
+
+**OCR debug output on empty scan**
+
+When scan finds 0 stats: inline message shows raw OCR text (first 300 chars) AND an `Alert.alert('OCR DEBUG', ...)` popup with full detail. Helps diagnose issues without a dev build.
+
+**Scan timeout (`src/logic/playerScanner.ts`, `src/logic/coachScanner.ts`)**
+
+12-second `Promise.race` timeout wraps the ML Kit call. If ML Kit hangs (e.g. due to New Architecture being enabled), the error surfaces as a readable message rather than silent freeze.
 
 ### Notes
 
 - Requires `eas build` — `@react-native-ml-kit/text-recognition` is a native module, not OTA-deployable
+- `newArchEnabled: false` required for ML Kit — rebuild needed after this change
 - `expo-image-picker` v16 API: `mediaTypes: ['images']` (not deprecated `MediaTypeOptions.Images`)
 - ML Kit frame uses `{ top, left, width, height }` — NOT `{ x, y }`
 - `npm run typecheck` — 0 errors after all changes
 
 ### Next
 
-- User to run `eas build` and test OCR scan on device
+- User to install new EAS binary build and test OCR scan on device
 - If OCR picks up incorrect tier, tier lock ensures it cannot go backwards — safe to test
 - Coach sub-engine calibration: need Attacking and Physical coach type priority tiers
 - Issue #5: premium sponsor cooldown not modelled

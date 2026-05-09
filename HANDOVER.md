@@ -14,7 +14,7 @@ All tabs functional. Engine calibrated. Tier bonus formula corrected in Sprint 9
 
 ### What works
 - **SQUAD tab** — player list, tap → edit, OVR badge, tier/age/role display. Tap player row → expanded bio with all 15 stats in 3-column grid (white/grey highlighted).
-- **OCR scanning** *(Sprint 10)* — `SCAN PLAYER CARD SCREENSHOT` button in Add Player and Edit Player screens. Uses ML Kit to extract name, age, roles, OVR, tier, talent, and all 15 stats from a photo library screenshot. Tier lock enforced on scan: scanned tier can only increase, never decrease. Requires new EAS binary build (native module — not OTA-updatable). Coach session capture (`app/scan.tsx`) also has OCR for coaching preview screenshots.
+- **OCR scanning** *(Sprint 10)* — `SCAN PLAYER CARD SCREENSHOT` button in Add Player and Edit Player screens. Uses ML Kit to extract name, age, roles, tier, talent, and all 15 stats from a photo library screenshot. OVR is always auto-computed from stats (never from card text). Tier lock enforced: scanned tier only applied if ≥ current tier. Stat display is 3 vertical columns (DEF/ATT/PHY), matching game layout. Scanner uses closest-right value matching to avoid cross-column pickup. Requires new EAS binary build (native module — not OTA-updatable, and `newArchEnabled: false` required for ML Kit). Coach session capture (`app/scan.tsx`) also has OCR for coaching preview screenshots. Privacy overlay uses 600ms delayed trigger to prevent flash when image picker opens.
 - **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-computed OVR baseline when stats entered. TextInput for greens and sessions. Smarter skip warnings.
 - **DRILLS tab** — drill recommendations sorted by ROI (lowest white stat value = cheapest XP). Fan Club L0–L4 selector. Zero-drain protocol detection at L4 + Very Easy. Condition cost display. 2× ad toggle (drills only, ≤4/day).
 - **COACHES tab** *(Sprint 10)* — shows ALL 15 outfield/GK stats (white = essential ×1.0, grey = secondary/non-role ×0.5). Tap stats to include in session, set ×N multiplier, project coach gains. 2× ad toggle removed (drills only). Tier upgrade preview post-coach with correct key-stat count.
@@ -27,6 +27,9 @@ All tabs functional. Engine calibrated. Tier bonus formula corrected in Sprint 9
 ---
 
 ## Critical Facts (read before touching engine)
+
+### ML Kit — New Architecture incompatibility
+`@react-native-ml-kit/text-recognition` silently hangs (no result, no error) when `newArchEnabled: true`. **`app.json` must stay `newArchEnabled: false`.** Any new binary build must be built with this setting. OTA updates do not change native architecture — only a new EAS build does.
 
 ### OVR formula
 ```
@@ -106,7 +109,7 @@ Coaching uses a separate XP system. Do NOT use the drill engine for coaching pro
 | `app/(tabs)/drills.tsx` | Drills tab — ROI sort, fan club selector, zero-drain detection |
 | `app/player/new.tsx` | Add player — role picker, stat grid, tier, talent, save. **Scan button** → auto-fills all fields from player card screenshot. |
 | `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete. **Scan updated card** button — replaces old static banner. Tier lock enforced on OCR result. |
-| `src/logic/playerScanner.ts` | `scanPlayerCard(uri)` — ML Kit OCR → `PlayerCardScan` (name, age, roles, overall, tier, talent, stats). Y-baseline grouping ±18px. Two-word stats (RUSHING OUT, AERIAL REACH) handled. |
+| `src/logic/playerScanner.ts` | `scanPlayerCard(uri)` — ML Kit OCR → `PlayerCardScan` (name, age, roles, tier, talent, stats, _debug). Y-baseline grouping ±28px. Closest-right value matching (prevents cross-column pickup). Vertical fallback (65px below). Two-word stats handled. 12s timeout. |
 | `src/logic/coachScanner.ts` | `scanCoachPreview(uri)` — ML Kit OCR → `CoachScanResult`. Zones: header (type/category/×N), player bio (OVR/age/talent), highlighted stat rows (gain ranges). |
 | `src/logic/pickImage.ts` | `pickImage()` — photo library picker at native resolution (quality:1, no crop, no base64). Pass URI directly to ML Kit. |
 | `app/scan.tsx` | Coach session capture — OCR button auto-fills session form from coaching preview screenshot. CSV export row builder. |
