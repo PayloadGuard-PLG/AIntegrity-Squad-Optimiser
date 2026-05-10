@@ -55,6 +55,12 @@ const STAT_COLUMNS = {
   PHY: ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
 };
 
+const COL_COLORS = {
+  DEF: '#4A7FC1',
+  ATT: '#7C3AED',
+  PHY: '#C05621',
+} as const;
+
 const inputStyle = {
   backgroundColor: theme.surface,
   borderWidth: 1,
@@ -231,22 +237,32 @@ export default function NewPlayerScreen() {
 
         {/* Scanned stats preview — DEF / ATT / PHY 3-col */}
         {scanned && Object.keys(statInputs).length > 0 && (
-          <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 16 }}>
-            <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: theme.hairline2 }}>
-              {(['DEF', 'ATT', 'PHY'] as const).map((col, ci) => (
-                <View key={col} style={{ flex: 1, borderRightWidth: ci < 2 ? 1 : 0, borderRightColor: theme.hairline2 }}>
-                  <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
-                    <MonoLabel size={8} color={theme.steelLight}>{col}</MonoLabel>
+          <View style={{ flexDirection: 'row', gap: 4, marginBottom: 16 }}>
+            {(['DEF', 'ATT', 'PHY'] as const).map(col => {
+              const cc = COL_COLORS[col];
+              return (
+                <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc }}>
+                  <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
+                    <MonoLabel size={8} color={cc}>{col}</MonoLabel>
                   </View>
-                  {STAT_COLUMNS[col].filter(s => statInputs[s]).map(s => (
-                    <View key={s} style={{ paddingHorizontal: 8, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
-                      <MonoLabel size={7} color={theme.inkGhost}>{s}</MonoLabel>
-                      <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: theme.ink }}>{statInputs[s]}</Text>
-                    </View>
-                  ))}
+                  {STAT_COLUMNS[col].filter(s => statInputs[s]).map(s => {
+                    const white = isWhiteStat(selectedRoles, s);
+                    return (
+                      <View key={s} style={{
+                        paddingHorizontal: 8, paddingVertical: 6,
+                        borderBottomWidth: 1, borderBottomColor: cc + '33',
+                        borderLeftWidth: 2, borderLeftColor: white ? cc : 'transparent',
+                      }}>
+                        <MonoLabel size={7} color={white ? theme.steelLight : theme.inkGhost}>{s}</MonoLabel>
+                        <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: white ? theme.ink : theme.inkMuted }}>
+                          {statInputs[s]}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
-              ))}
-            </View>
+              );
+            })}
           </View>
         )}
 
