@@ -1,35 +1,56 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
-**Branch:** `claude/continue-session-UHXEX`
-**As of:** Session UHXEX — 2026-05-10 (Sprint 13)
-**Deploy:** `git push -u origin claude/continue-session-UHXEX` → GitHub Actions → EAS OTA → reopen app
+**Branch:** `main` (PR #4 merged 2026-05-10)
+**As of:** Sprint 14 — 2026-05-10 (Session UHXEX late)
+**Deploy:** Create a new branch from `main`, push, PR back. EAS OTA auto-fires on merge.
 
 ---
 
 ## Current State
 
-React Native / Expo app (also runs in browser via `npx expo start --web`). **5 tabs:** SQUAD · PLAN · DRILLS · COACHES · RESULTS.
+React Native / Expo SDK 53 app (also runs in browser). **6 tabs:** SQUAD · PLAN · DRILLS · COACHES · SQUAD PLAN · RESULTS.
 
-All tabs functional. Engine calibrated against real data. OTA pipeline working.
+All tabs functional. Engine calibrated against real in-game data. OTA pipeline live.
 
 ### What works
 
-- **SQUAD tab** — player list, tap → edit, OVR badge, tier/age/role display
-- **SQUAD PLAN tab** — per-player run history from Coaches projections. OVR before/after, stat gains, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
-- **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Squad auto-fill (copies stats/OVR/talent), per-stat lo/hi gain entry, live OVR boost preview, saves to Squad Plan. Accessible via `→ CAPTURE` button in Coaches tab.
-- **COACHES tab** — 3-column stat grid (5 rows per section), 2× AD removed, SAVE RUN button persists to Squad Plan, CAPTURE link in header.
-- **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-computed OVR baseline when stats entered. TextInput for greens and sessions. Smarter skip warnings.
-- **DRILLS tab** — all 25 drills shown for all players (no role filter). ROI sort (lowest white stat value = cheapest XP). Fan Club L0–L4 selector. Zero-drain detection (VE+L4 = 0.375% → shows 0%). Condition cost display per drill (direct % matching game display).
-- **COACHES tab** — stat selector grid (white/grey), session count ×N, intensity locked to Very Hard, talent read from player card. Per-stat gain projection + OVR output. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back.
+- **SQUAD tab** — player list, tap → edit/delete, OVR badge, tier/age/role display, snapshot revert banner
+- **SQUAD PLAN tab** — per-player history of saved coaching projections. OVR before/after, stat gains, session count, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
+- **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Access via `→ CAPTURE` button in Coaches tab. Squad auto-fill copies stats/OVR/talent from player card. Per-stat lo/hi gain entry (tap to expand). Live OVR boost preview. Saves to Squad Plan.
+- **COACHES tab** — 3-col stat selector grid (white/grey sections), ×N sessions input, intensity locked to Very Hard, talent read from player card. SCAN button scans a coach preview screenshot and pre-fills session count. Per-stat gain projection + OVR delta. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back. SAVE RUN persists to Squad Plan.
+- **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
+- **DRILLS tab** — all 25 drills for all players (no role filter). ROI sort (lowest white stat = cheapest XP). Fan Club L0–L4 selector. Zero-drain detection (VE+L4 = 0.375%). Condition cost per drill.
 - **RESULTS tab** — chains multiple coaching blocks + tier + greens into a full OVR plan. APPLY FULL PLAN TO CARD write-back.
-- **XP engine** — fractional gains, calibrated `baseXpPerSession = 150`, no star decay, budget divided by drill stat count. Validated vs Standard Attacking ×30 real data.
-- **Tier bonus** — role stats (white+grey via `getAllStatKeys`) get full increment; off-role stats get flat +1. Confirmed from Ricky Grant ELITE→STELLAR: 13 role stats +20, HEADING and STRENGTH (off-role for DL) each +1. OVR 175 matched engine exactly.
-- **OVR formula** — `floor(mean(all 15 stats))`. Confirmed from Sutters GK: sum 2,844 ÷ 15 = 189.6 → displays 189.
-- **GK role** — confirmed 10 white / 5 grey stats. Solo only. Stat grid complete (15 stats).
-- **Talent** — stored on player card; read by Coaches and Results tabs.
-- **Drill database** — 25 drills. All `baseLoss = 0.75`. Condition cost is level-based (not drill-based).
-- **Tier bonus** — role stats (white+grey = `getAllStatKeys`) get full increment; off-role stats get +1 flat. Validated against Ricky Grant Elite→Stellar (OVR 175 matched exactly).
-- **Player snapshot / revert** — APPLY TO CARD saves pre-apply state as a `snapshot` field. Orange banner on player edit screen; tap to revert with confirmation. DB migration 0003.
+- **Add Player** (`/player/new`) — SCAN PLAYER CARD screenshot button (ML Kit OCR, no API). 3-col DEF/ATT/PHY scan preview. Role picker, stat grid, tier, talent, save.
+- **Edit Player** (`/player/[id]`) — same as add + load existing + delete + snapshot revert.
+
+### Visual Design System
+
+All stat surfaces share the same **DEF / ATT / PHY column colour language**:
+
+| Column | Hex | Stats |
+|---|---|---|
+| DEF | `#4A7FC1` | TACKLING, MARKING, POSITIONING, HEADING, BRAVERY, REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION |
+| ATT | `#7C3AED` | PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION |
+| PHY | `#C05621` | FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY |
+
+Each file that renders stat cells declares its own `STAT_COLS` / `COL_COLORS` / `statColor(stat)` helper (local, no shared import — avoids circular deps). Pattern to copy when adding new stat surfaces:
+
+```typescript
+const STAT_COLS = {
+  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
+  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
+  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+};
+const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+function statColor(stat: string): string {
+  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
+  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
+  return COL_COLORS.PHY;
+}
+```
+
+White stats (essential for role) render at full column colour. Grey stats (secondary/non-role) use `cc + '44'` or `'55'` dimmed border, `inkMuted` label.
 
 ---
 
@@ -37,12 +58,14 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 
 | # | Area | Task | Priority |
 |---|---|---|---|
-| — | Beta testing | Ongoing — Squad Plan + Coach Capture are new; expect UX feedback from real use. | Immediate |
-| — | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity. Appears in game calibration data. Type TBC (possibly Attack). Add when type confirmed. | High |
-| — | Condition validation | Confirm COND_LEVEL_MULTIPLIERS at Easy, Medium, Hard levels. Only VE and VH cross-checked so far. | Medium |
-| 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Medium |
-| 6 | CLI drill levels | `src/index.ts` prompts updated to new drill level names but not tested end-to-end. | Low |
+| 1 | OCR — roles | Token-exact matching is now in place. Still possible to get zero roles if the screenshot crops the role badges. Add a fallback: if no roles detected, keep the previously selected roles (don't wipe them). | Medium |
+| 2 | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity. Type TBC (possibly Attack). Add when confirmed from game. | Medium |
+| 3 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
+| 4 | Coach Capture → real calibration | The Capture screen is built but gains entered there don't update `game_2025.json` or the XP engine. Future: use captured lo/hi to back-solve actual XP budget and validate against model. | Low |
+| 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Low |
+| 6 | CLI drill levels | `src/index.ts` updated to new drill level names but not tested end-to-end. | Low |
 | 7 | Squad-wide season simulator | Plan tab projects one player. ~+7 OVR/season confirmed from squad-wide L4 Very Easy drilling. Not expressible in current UI. | Low |
+| 8 | AppHeader 6th tab | SQUAD PLAN is in the tab bar but the AppHeader scrollable nav still shows 5 tabs. Confirm SQUAD PLAN appears in `src/components/AppHeader.tsx` `NAV_ITEMS` array. | Quick check |
 
 ---
 
@@ -50,50 +73,40 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 
 | File | Purpose |
 |---|---|
-| `profiles/game_2025.json` | ALL game constants — XP table, age/talent multipliers, statCap=340, baseXpPerSession=150, starDecayPerSession=1.0, drillLevelMultipliers (XP only), tierAttrAdditions |
-| `src/utils/conditionEngine.ts` | Condition model — `COND_LEVEL_MULTIPLIERS` (VE×1→VH×5), `FAN_CLUB_REDUCTIONS`, `calculateActualLoss(baseLoss, fanLevel, drillLevel)` |
-| `src/types/resources.ts` | All TypeScript interfaces: GameProfile, ManagerProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
-| `src/logic/xpEngine.ts` | XP math: `xpBaseForStat`, `xpNeededFor1Pct`, `estimateStatGainPct` (fractional float return) |
-| `src/logic/ovrProjector.ts` | `applyDrillSessionsToStats`, `projectOvr`, `computeOvrFromStats`, `computeOvrWithPadding` (exported); tier bonus uses `getAllStatKeys` |
-| `src/logic/investmentEngine.ts` | `planPlayerInvestment`, `compareInvestmentScenarios` |
-| `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort, condition costs, no efficiency filter |
-| `src/utils/roleWeights.ts` | `ROLE_CONSTRAINTS` (white/grey per role), `isWhiteStat`, `getWhiteStatKeys`, `getAllStatKeys`, `OUTFIELD_STATS`, `GK_STATS` |
-| `src/logic/playerScanner.ts` | **⚠ CRITICAL** — on-device ML Kit OCR for player card screenshots. Y-baseline token pairing, extracts all 25 stats + OVR/age/name/roles/tier/talent. No API calls. |
-| `src/logic/pickImage.ts` | Gallery image picker wrapper; `picker.active` shared flag. Used by scanner and Coach Capture. |
-| `src/hooks/useScanner.ts` | React hook wrapping `scanPlayerCard` — returns `scanPlayerScreenshot`, `isScanning`, `scanError`. |
-| `src/database/drillDatabase.ts` | `DRILL_LIST` — 25 drills, all `baseLoss = 0.75`, stats, isBase |
-| `src/constants/theme.ts` | Design tokens — pitch-black bg, gunmetal surfaces, steelblue accent, hot-orange, pos/neg |
-| `src/components/AppHeader.tsx` | 5-tab scrollable nav: SQUAD · PLAN · DRILLS · COACHES · RESULTS |
-| `app/(tabs)/plan.tsx` | Plan tab — bordered config cards, auto-tier, stats-win baseline, TextInput sessions/greens |
-| `app/(tabs)/coaches.tsx` | Coaches tab — stat selector, ×N sessions, VH locked, talent from card, tier upgrade card, apply-gains |
-| `app/(tabs)/drills.tsx` | Drills tab — all drills, ROI sort, fan club selector, zero-drain detection |
-| `app/(tabs)/squad-plan.tsx` | Squad Plan tab — per-player run history, OVR deltas, stat gains, delete |
-| `app/coach/capture.tsx` | Coach Capture screen — calibration data logger, squad auto-fill, lo/hi gains, OVR boost preview |
-| `src/services/squadPlanService.ts` | CRUD for squad_plan_runs: saveRun, getRunsForPlayer, getAllRuns, deleteRun |
-| `app/(tabs)/results.tsx` | Results tab — full OVR chain: coaching blocks + tier + greens, apply full plan |
-| `app/player/new.tsx` | Add player — role picker, stat grid (GK or outfield), tier, talent, save |
-| `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete |
+| `profiles/game_2025.json` | ALL game constants — XP table, age/talent multipliers, statCap=340, baseXpPerSession=150, drillLevelMultipliers (XP only), tierAttrAdditions |
+| `src/utils/conditionEngine.ts` | Condition model — `COND_LEVEL_MULTIPLIERS` (VE×1→VH×5), `FAN_CLUB_REDUCTIONS`, `calculateActualLoss` |
+| `src/types/resources.ts` | All TypeScript interfaces: GameProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
+| `src/logic/xpEngine.ts` | XP math: `estimateStatGainPct` (fractional float), `applyTierBonusToStats` |
+| `src/logic/ovrProjector.ts` | `computeOvrFromStats`, `computeOvrWithPadding`, `applyDrillSessionsToStats`, `projectOvr` |
+| `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort, condition costs |
+| `src/utils/roleWeights.ts` | `ROLE_CONSTRAINTS`, `isWhiteStat`, `getWhiteStatKeys`, `getAllStatKeys`, `OUTFIELD_STATS`, `GK_STATS` |
+| `src/logic/playerScanner.ts` | **⚠ CRITICAL** — on-device ML Kit OCR. Token-exact role matching. Y-baseline stat pairing. No API calls. |
+| `src/logic/coachScanner.ts` | OCR for coach preview screenshots — type/category/multiplier from header; per-stat gain ranges from highlighted rows |
+| `src/logic/pickImage.ts` | Gallery/camera picker wrapper; shared `picker.active` flag |
+| `src/hooks/useScanner.ts` | React hook wrapping `scanPlayerCard` |
+| `src/database/drillDatabase.ts` | `DRILL_LIST` — 25 drills, all `baseLoss = 0.75` |
+| `src/constants/theme.ts` | Design tokens — pitch-black bg, gunmetal surfaces, steelblue accent |
+| `src/components/AppHeader.tsx` | Scrollable tab nav |
+| `src/services/squadPlanService.ts` | CRUD for `squad_plan_runs`: saveRun, getRunsForPlayer, getAllRuns, deleteRun |
+| `app/(tabs)/coaches.tsx` | Coaches tab — stat selector, projection, tier upgrade, apply/save |
+| `app/(tabs)/squad-plan.tsx` | Squad Plan tab — per-player run history |
+| `app/coach/capture.tsx` | Coach Capture screen — calibration logger |
+| `app/player/new.tsx` | Add player — role picker, stat grid, tier, talent, scan |
+| `app/player/[id].tsx` | Edit player — load existing, delete, snapshot revert |
 
 ---
 
 ## Critical Native Dependencies
 
-**This app makes zero LLM API calls. No Anthropic key, no OpenAI key, nothing.** All intelligence is on-device OCR or pure math.
+**Zero LLM API calls. No Anthropic key, no OpenAI key, nothing.** All intelligence is on-device OCR or pure math.
 
 | Package | Purpose | Must not be removed |
 |---|---|---|
-| `@react-native-ml-kit/text-recognition` | On-device ML Kit OCR — powers player card scanning | Yes — removing it breaks the scan feature entirely |
-| `expo-image-picker` | Camera + gallery access for scanning and Coach Capture | Yes |
-| `expo-sqlite` | Local database for players, squad, squad plan runs | Yes |
+| `@react-native-ml-kit/text-recognition` | On-device OCR — player card scanning | Yes |
+| `expo-image-picker` | Camera + gallery access | Yes |
+| `expo-sqlite` | Local DB — players, squad plan runs | Yes |
 
-### Scan feature files — do not delete without replacement
-
-| File | Why critical |
-|---|---|
-| `src/logic/playerScanner.ts` | The actual OCR logic. Removed in PR #3 revert, breaking scan for a full session. |
-| `src/logic/pickImage.ts` | Image picker wrapper shared by Add Player and Coach Capture. |
-
-**Rule:** Any PR removing these files or packages must explicitly state what replaces the functionality. Never remove them as "cleanup" — they are active features.
+**Rule:** Any PR removing `src/logic/playerScanner.ts`, `src/logic/pickImage.ts`, or these packages must explicitly justify what replaces the functionality. Never remove as "cleanup".
 
 ---
 
@@ -101,21 +114,19 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 
 ### XP model
 ```
-budget_per_stat  = sessionCount × baseXpPerSession (150) / drill.stats.length
-xpCost_per_1%   = xpCostTable[statValue] / (ageMult × talentMult × greyMult × adMult × drillLevelMult)
-gain            = fractional; partial XP banks as carry toward next integer
-OVR             = floor(mean(all 15 stats))
+budget_per_stat  = sessionCount × 150 (baseXpPerSession) / drill.stats.length
+xpCost_per_1%   = xpCostTable[statValue] / (ageMult × talentMult × greyMult × drillLevelMult)
+gain             = fractional float; OVR = floor(mean(all 15 stats))
 ```
 
 ### Condition model
 ```
 conditionLoss = 0.75 × COND_LEVEL_MULTIPLIERS[drillLevel] × (1 − FAN_CLUB_REDUCTIONS[fanLevel] / 100)
-isZeroDrain   = conditionLoss < 0.5%   (fires at VE+L4 = 0.375%)
+isZeroDrain   = conditionLoss < 0.5%   (only fires at VE+L4 = 0.375%)
 ```
+COND_LEVEL_MULTIPLIERS: VE=1, Easy=2, Medium=3, Hard=4, VH=5
 
-COND_LEVEL_MULTIPLIERS: Very Easy=1, Easy=2, Medium=3, Hard=4, Very Hard=5
-
-### XP cost table (profiles/game_2025.json)
+### XP cost table
 | Stat range | XP/1% |
 |---|---|
 | 0–59 | 8 |
@@ -132,26 +143,16 @@ COND_LEVEL_MULTIPLIERS: Very Easy=1, Easy=2, Medium=3, Hard=4, Very Hard=5
 | 260–279 | 200 |
 | 280–339 | 250 |
 
-### Calibration data
-Standard Attacking ×30, age 18, Normal talent, Medium intensity:
-| Stat | Start | Observed | Model |
-|---|---|---|---|
-| Passing | 121 | +26–33 | ~27 ✓ |
-| Dribbling | 132 | +20–27 | ~25 ✓ |
-| Crossing | 132 | +20–27 | ~25 ✓ |
-| Shooting | 129 | +21–29 | ~26 ✓ |
-| Finishing | 127 | +22–30 | ~27 ✓ |
-
 ### Age multipliers
 17=1.10, 18=1.00, 19=0.90, 20=0.55, 21=0.40, 22=0.32, 23=0.28, 24=0.24, 25=0.22, 26=0.19, 27=0.16, 28=0.14, 29=0.12, 30+=0.10
 
-### Tier attribute additions
-None=0, Rare=+10, Elite=+30, Stellar=+50, Master=+80, Epic=+120, Legendary=+160 (per stat — applied to ALL 15 stats, not just white)
+### Tier attribute additions (per stat, applied to ALL 15 stats)
+None=0, Rare=+10, Elite=+30, Stellar=+50, Master=+80, Epic=+120, Legendary=+160
 
-### Tier points required to upgrade
-None=0, Rare=100, Elite=90, Stellar=50, Master=25, Epic=15, Legendary=10
+### Tier points to upgrade
+Rare=100, Elite=90, Stellar=50, Master=25, Epic=15, Legendary=10
 
-### Role constraints (white stats = essential = full XP; grey = secondary = 0.5× XP)
+### Role constraints (white = essential = full XP, grey = 0.5× XP)
 ```
 ST:  white=[FINISHING,SHOOTING,DRIBBLING,PASSING,POSITIONING,HEADING]  grey=[STRENGTH,SPEED,CREATIVITY]
 GK:  white=[REFLEXES,AGILITY,ANTICIPATION,RUSHING OUT,COMMUNICATION,THROWING,KICKING,PUNCHING,AERIAL REACH,CONCENTRATION]  grey=[FITNESS,STRENGTH,AGGRESSION,SPEED,CREATIVITY]
@@ -171,32 +172,33 @@ DR:  same as DL
 
 ## Confirmed Game Data
 
-**Fan Club condition reduction** (confirmed): `[0.10, 0.15, 0.20, 0.25, 0.50]` (L0 → L4)
+**OVR formula:** `floor(mean(all 15 stats))` — confirmed from Sutters GK (sum 2,844 ÷ 15 = 189.6 → displays 189).
 
-**Condition loss formula** (confirmed Sprint 11):
-- baseLoss = **0.75% for all drills** (level-based, not drill-specific)
-- `COND_LEVEL_MULTIPLIERS`: VE×1, Easy×2, Medium×3, Hard×4, VH×5
-- VE+L4 = 0.375% → displays as **0%** (zero drain)
-- Easy+L4 = 0.75% → not zero drain
+**Tier bonus:** Applied to all 15 stats. Role stats (getAllStatKeys) get full increment; off-role get +1 flat. Confirmed from Ricky Grant ELITE→STELLAR (OVR 175 matched engine exactly).
 
-**Condition per green:** 15% per green.
+**Zero-drain:** VE + L4 = 0.375% → shown as 0%. Only this combination.
 
-**OVR formula:** `floor(mean(all 15 stats))` — truncation confirmed from Sutters GK snapshot.
+**Condition per green:** 15%.
 
-**Tier bonus:** Applied to all 15 stats (white + grey). Confirmed from Ricky Grant ELITE→STELLAR (13/15 stats +20 each; 2 at cap).
+**Fan Club condition reduction:** L0=10%, L1=15%, L2=20%, L3=25%, L4=50%.
 
-**Zero-drain condition:** VE + L4 = 0.375% < 0.5% threshold → shown as 0% in game. Only fires at this combination.
-
-**Validated season meta (user-confirmed):**
-~+7 OVR/season from squad-wide strategy: L4 Fan Club zero-drain, all low white stats open, free ad drills for teamplay maintenance, Very Easy drills.
+**Calibration data (Standard Attacking ×30, age 18, Normal talent, Medium):**
+| Stat | Start | Observed | Model |
+|---|---|---|---|
+| Passing | 121 | +26–33 | ~27 ✓ |
+| Dribbling | 132 | +20–27 | ~25 ✓ |
+| Crossing | 132 | +20–27 | ~25 ✓ |
+| Shooting | 129 | +21–29 | ~26 ✓ |
+| Finishing | 127 | +22–30 | ~27 ✓ |
 
 ---
 
 ## Verification Checklist (before any push)
 
 ```bash
-npm run typecheck   # must return zero errors — tsconfig baseUrl deprecation warning is pre-existing, ignore it
-git push -u origin claude/continue-session-UHXEX
+npx tsc --noEmit   # must return zero errors
+git push -u origin <your-branch>
+# EAS OTA fires automatically on merge to main
 ```
 
-App updates on next open (EAS OTA). No store submission required.
+**Branching convention:** Always branch from `main`. Dev branches are workspaces only. Merge to `main` when done. `main` = source of truth.
