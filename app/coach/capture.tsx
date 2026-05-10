@@ -1,6 +1,7 @@
-import { useState, useMemo, useCallback } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { useState, useMemo } from 'react';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, Image, Platform } from 'react-native';
 import { router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { useSquad } from '../../src/hooks/useSquad';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
@@ -42,6 +43,7 @@ export default function CoachCaptureScreen() {
   const [expandedStat, setExpandedStat] = useState<string | null>(null);
 
   const [saved, setSaved] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   const player: Player | null = squad.find(p => p.id === selectedPlayerId) ?? null;
 
@@ -52,6 +54,20 @@ export default function CoachCaptureScreen() {
     const g = all.filter(s => !w.includes(s));
     return { white: w, grey: g };
   }, [player]);
+
+  async function pickFromGallery() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+    if (!result.canceled && result.assets[0]) setCapturedImage(result.assets[0].uri);
+  }
+
+  async function pickFromCamera() {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
+    const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
+    if (!result.canceled && result.assets[0]) setCapturedImage(result.assets[0].uri);
+  }
 
   function selectPlayer(p: Player) {
     setSelectedPlayerId(p.id);
@@ -183,6 +199,32 @@ export default function CoachCaptureScreen() {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
+
+        {/* 0. SCREENSHOT UPLOAD */}
+        <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
+          {capturedImage ? (
+            <>
+              <Image source={{ uri: capturedImage }} style={{ width: '100%', height: 220, resizeMode: 'contain', backgroundColor: theme.surface }} />
+              <Pressable onPress={() => setCapturedImage(null)}
+                style={{ padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.hairline }}>
+                <MonoLabel size={9} color={theme.neg}>✕ CLEAR IMAGE</MonoLabel>
+              </Pressable>
+            </>
+          ) : (
+            <View style={{ flexDirection: 'row' }}>
+              <Pressable onPress={pickFromCamera}
+                style={{ flex: 1, padding: 16, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>◉</Text>
+                <MonoLabel size={9} color={theme.steelLight}>CAMERA</MonoLabel>
+              </Pressable>
+              <Pressable onPress={pickFromGallery}
+                style={{ flex: 1, padding: 16, alignItems: 'center' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>⊞</Text>
+                <MonoLabel size={9} color={theme.steelLight}>GALLERY</MonoLabel>
+              </Pressable>
+            </View>
+          )}
+        </View>
 
         {/* 1. COACH TYPE */}
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>

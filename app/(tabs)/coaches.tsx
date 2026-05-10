@@ -82,7 +82,7 @@ export default function CoachesScreen() {
   const { squad } = useSquad();
   const manager = useManager();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [sessions, setSessions] = useState('30');
+  const [sessions, setSessions] = useState('');
   const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<ProjectionResult | null>(null);
   const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
