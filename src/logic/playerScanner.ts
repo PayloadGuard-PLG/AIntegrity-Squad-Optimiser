@@ -111,7 +111,14 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     ?? /\b(\d{2})\s*(?:yr|years?)\b/i.exec(fullText);
   const age = ageMatch ? parseInt(ageMatch[1]) : undefined;
 
-  const roles = KNOWN_ROLES.filter(r => new RegExp(`\\b${r}\\b`, 'i').test(fullText));
+  // Match roles by exact token equality (avoids partial-word false positives like "DR" in "DRILLS")
+  const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
+  const foundRoles = new Set<string>();
+  for (const t of tokens) {
+    const upper = t.text.toUpperCase();
+    if (roleSet.has(upper)) foundRoles.add(upper);
+  }
+  const roles = KNOWN_ROLES.filter(r => foundRoles.has(r));
 
   const tier = KNOWN_TIERS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
 

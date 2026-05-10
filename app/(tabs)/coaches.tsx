@@ -31,6 +31,18 @@ const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30,
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
 
+const STAT_COLS = {
+  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
+  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
+  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+};
+const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+function statColor(stat: string): string {
+  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
+  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
+  return COL_COLORS.PHY;
+}
+
 function ResultGrid({ gains, white, grey }: {
   gains: StatGain[];
   white: string[];
@@ -43,16 +55,16 @@ function ResultGrid({ gains, white, grey }: {
     if (relevant.length === 0) return null;
     const rows: string[][] = [];
     for (let i = 0; i < relevant.length; i += 3) rows.push(relevant.slice(i, i + 3));
-    const accent = isWhite ? theme.steelLight : theme.inkMuted;
     return (
       <>
         {rows.map((row, ri) => (
           <View key={ri} style={{ flexDirection: 'row', gap: 5, marginBottom: 5 }}>
             {row.map(stat => {
               const g = gainMap[stat];
+              const cc = statColor(stat);
               return (
-                <View key={stat} style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: accent + '55', backgroundColor: theme.surface, alignItems: 'center' }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.5, color: accent, textAlign: 'center', marginBottom: 2 }}>{stat}</Text>
+                <View key={stat} style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: cc + '55', borderLeftWidth: 2, borderLeftColor: cc, backgroundColor: theme.surface, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.5, color: isWhite ? cc : theme.inkMuted, textAlign: 'center', marginBottom: 2 }}>{stat}</Text>
                   <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkGhost }}>{Math.round(g.from)}</Text>
                   <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>+{g.gain}</Text>
                 </View>
@@ -91,8 +103,6 @@ function StatGrid({ stats, player, selectedStats, onToggle, isWhiteSection }: {
   for (let i = 0; i < stats.length; i += 3) {
     rows.push(stats.slice(i, i + 3));
   }
-  const accentColor = isWhiteSection ? theme.steelLight : theme.inkMuted;
-
   return (
     <>
       {rows.map((row, ri) => (
@@ -100,26 +110,28 @@ function StatGrid({ stats, player, selectedStats, onToggle, isWhiteSection }: {
           {row.map(stat => {
             const hasValue = stat in player.stats;
             const sel = selectedStats.has(stat);
+            const cc = statColor(stat);
             return (
               <Pressable key={stat} onPress={() => onToggle(stat)}
                 style={{
                   flex: 1, paddingHorizontal: 6, paddingVertical: 8,
                   borderWidth: 1,
-                  borderColor: sel ? accentColor : (hasValue ? theme.hairline2 : theme.hairline),
-                  backgroundColor: sel ? accentColor + '1a' : 'transparent',
+                  borderColor: sel ? cc : (hasValue ? theme.hairline2 : theme.hairline),
+                  borderLeftWidth: 2,
+                  borderLeftColor: sel ? cc : cc + '55',
+                  backgroundColor: sel ? cc + '1a' : 'transparent',
                   opacity: hasValue ? 1 : (isWhiteSection ? 0.4 : 0.35),
                   alignItems: 'center',
                 }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 0.6, color: sel ? accentColor : (hasValue ? theme.inkSec : theme.inkGhost), textAlign: 'center', marginBottom: 3 }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 0.6, color: sel ? cc : (hasValue ? theme.inkSec : theme.inkGhost), textAlign: 'center', marginBottom: 3 }}>
                   {stat}
                 </Text>
-                <Text style={{ fontFamily: theme.mono, fontSize: 12, fontWeight: '700', color: sel ? accentColor : (hasValue ? theme.ink : theme.inkGhost) }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 12, fontWeight: '700', color: sel ? cc : (hasValue ? theme.ink : theme.inkGhost) }}>
                   {hasValue ? Math.round(player.stats[stat]) : '—'}
                 </Text>
               </Pressable>
             );
           })}
-          {/* pad incomplete last row */}
           {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, i) => (
             <View key={`pad-${i}`} style={{ flex: 1 }} />
           ))}

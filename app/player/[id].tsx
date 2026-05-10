@@ -38,6 +38,18 @@ const GK_STATS = [
   'AERIAL REACH',  'FITNESS',
 ];
 
+const STAT_COLS = {
+  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
+  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
+  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+};
+const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+function statColor(stat: string): string {
+  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
+  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
+  return COL_COLORS.PHY;
+}
+
 const inputStyle = {
   backgroundColor: theme.surface,
   borderWidth: 1,
@@ -319,14 +331,15 @@ export default function EditPlayerScreen() {
                     {[stat, nextStat].map((s, idx) => {
                       if (!s) return <View key={idx} style={{ flex: 1 }} />;
                       const w = isWhiteStat(selectedRoles, s);
+                      const cc = statColor(s);
                       return (
                         <View key={s} style={{
                           flex: 1, padding: 10,
                           borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
+                          borderLeftWidth: 2, borderLeftColor: w ? cc : cc + '44',
                         }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                            <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
-                            <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
+                            <MonoLabel size={8} color={w ? cc : theme.inkMuted}>{s}</MonoLabel>
                           </View>
                           <TextInput
                             keyboardType="numeric"

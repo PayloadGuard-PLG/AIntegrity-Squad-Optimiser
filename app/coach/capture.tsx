@@ -17,6 +17,18 @@ import { Player } from '../../src/database/playerSchema';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
+const STAT_COLS = {
+  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
+  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
+  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+};
+const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+function statColor(stat: string): string {
+  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
+  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
+  return COL_COLORS.PHY;
+}
+
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
 
@@ -174,16 +186,17 @@ export default function CoachCaptureScreen() {
     const expanded = expandedStat === stat;
     const g = gains[stat] ?? { lo: '', hi: '' };
     const hasGain = g.lo || g.hi;
-    const accentColor = isWhite ? theme.steelLight : theme.inkMuted;
+    const cc = statColor(stat);
+    const labelColor = isWhite ? cc : theme.inkMuted;
 
     return (
-      <View key={stat} style={{ borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
+      <View key={stat} style={{ borderBottomWidth: 1, borderBottomColor: theme.hairline, borderLeftWidth: 2, borderLeftColor: isWhite ? cc : cc + '44' }}>
         <Pressable onPress={() => setExpandedStat(expanded ? null : stat)}
           style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12 }}>
-          <View style={{ width: 8, height: 8, backgroundColor: hasGain ? accentColor : 'transparent', borderWidth: 1, borderColor: accentColor + '66', marginRight: 10 }} />
-          <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 0.8, color: hasGain ? accentColor : theme.inkMuted, flex: 1 }}>{stat}</Text>
+          <View style={{ width: 8, height: 8, backgroundColor: hasGain ? cc : 'transparent', borderWidth: 1, borderColor: cc + '66', marginRight: 10 }} />
+          <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 0.8, color: hasGain ? cc : labelColor, flex: 1 }}>{stat}</Text>
           {hasGain ? (
-            <MonoLabel size={9} color={accentColor}>+{g.lo}–{g.hi}</MonoLabel>
+            <MonoLabel size={9} color={cc}>+{g.lo}–{g.hi}</MonoLabel>
           ) : (
             <MonoLabel size={9} color={theme.inkGhost}>TAP</MonoLabel>
           )}
