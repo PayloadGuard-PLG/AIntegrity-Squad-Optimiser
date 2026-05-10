@@ -28,6 +28,19 @@ export const coaches = sqliteTable('coaches', {
   createdAt: integer('created_at').notNull(),
 });
 
+export const squadPlanRuns = sqliteTable('squad_plan_runs', {
+  id: text('id').primaryKey(),
+  playerId: text('player_id').notNull(),
+  label: text('label'),
+  sessions: integer('sessions').notNull(),
+  selectedStats: text('selected_stats').notNull(),  // JSON: string[]
+  ovrBefore: real('ovr_before').notNull(),
+  ovrAfter: real('ovr_after').notNull(),
+  gains: text('gains').notNull(),                   // JSON: StatGain[]
+  tier: text('tier'),
+  createdAt: integer('created_at').notNull(),
+});
+
 export const drillSessions = sqliteTable('drill_sessions', {
   id: text('id').primaryKey(),
   playerId: text('player_id').notNull(),

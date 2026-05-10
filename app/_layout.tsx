@@ -31,6 +31,10 @@ export default function RootLayout() {
           name="player/[id]"
           options={{ presentation: 'modal', headerShown: true, title: 'Edit Player', headerStyle: { backgroundColor: '#1a1d27' }, headerTintColor: '#e2e8f0' }}
         />
+        <Stack.Screen
+          name="coach/capture"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </ManagerProvider>
   );

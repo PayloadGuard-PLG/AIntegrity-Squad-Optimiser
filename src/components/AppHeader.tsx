@@ -9,6 +9,7 @@ const TABS = [
   { id: 'drills',  label: 'DRILLS',  href: '/drills' },
   { id: 'coaches', label: 'COACHES', href: '/coaches' },
   { id: 'results', label: 'RESULTS', href: '/results' },
+  { id: 'squad-plan', label: 'SQUAD PLAN', href: '/squad-plan' },
 ];
 
 interface Props {
@@ -19,13 +20,15 @@ interface Props {
 
 export function AppHeader({ title, subtitle, onBack }: Props) {
   const pathname = usePathname();
-  const showTabs = ['/', '/plan', '/drills', '/coaches', '/results'].includes(pathname);
+  const showTabs = ['/', '/plan', '/drills', '/coaches', '/results', '/squad-plan'].includes(pathname);
 
   const routeTitle = pathname === '/' ? 'DOSSIER'
     : pathname === '/plan' ? 'INVESTMENT MODEL'
     : pathname === '/drills' ? 'DRILL LIBRARY'
     : pathname === '/coaches' ? 'COACH PLANNER'
     : pathname === '/results' ? 'FULL PLAN'
+    : pathname === '/squad-plan' ? 'SQUAD PLAN'
+    : pathname === '/coach/capture' ? 'COACH CAPTURE'
     : title ?? 'SQUAD OPTIMISER';
 
   const routeSub = pathname === '/' ? 'ACTIVE PERSONNEL'
@@ -33,6 +36,8 @@ export function AppHeader({ title, subtitle, onBack }: Props) {
     : pathname === '/drills' ? 'TRAINING PROTOCOLS'
     : pathname === '/coaches' ? 'SESSION SIMULATOR'
     : pathname === '/results' ? 'COMBINED PROJECTION'
+    : pathname === '/squad-plan' ? 'SCENARIO BUILDER'
+    : pathname === '/coach/capture' ? 'DATA LOGGER'
     : subtitle ?? 'OPERATOR · 1.0';
 
   return (
