@@ -31,6 +31,55 @@ const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30,
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
 
+function ResultGrid({ gains, white, grey }: {
+  gains: StatGain[];
+  white: string[];
+  grey: string[];
+}) {
+  const gainMap = Object.fromEntries(gains.map(g => [g.stat, g]));
+
+  function renderSection(stats: string[], isWhite: boolean) {
+    const relevant = stats.filter(s => gainMap[s]);
+    if (relevant.length === 0) return null;
+    const rows: string[][] = [];
+    for (let i = 0; i < relevant.length; i += 3) rows.push(relevant.slice(i, i + 3));
+    const accent = isWhite ? theme.steelLight : theme.inkMuted;
+    return (
+      <>
+        {rows.map((row, ri) => (
+          <View key={ri} style={{ flexDirection: 'row', gap: 5, marginBottom: 5 }}>
+            {row.map(stat => {
+              const g = gainMap[stat];
+              return (
+                <View key={stat} style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: accent + '55', backgroundColor: theme.surface, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.5, color: accent, textAlign: 'center', marginBottom: 2 }}>{stat}</Text>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkGhost }}>{Math.round(g.from)}</Text>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>+{g.gain}</Text>
+                </View>
+              );
+            })}
+            {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, i) => <View key={i} style={{ flex: 1 }} />)}
+          </View>
+        ))}
+      </>
+    );
+  }
+
+  const whiteSection = renderSection(white, true);
+  const greySection  = renderSection(grey, false);
+  return (
+    <>
+      {whiteSection}
+      {greySection && (
+        <>
+          <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 10, marginBottom: 6 }}>GREY — SECONDARY / NON-ROLE</MonoLabel>
+          {greySection}
+        </>
+      )}
+    </>
+  );
+}
+
 function StatGrid({ stats, player, selectedStats, onToggle, isWhiteSection }: {
   stats: string[];
   player: { role: string[]; stats: Record<string, number> };
@@ -143,11 +192,12 @@ export default function CoachesScreen() {
 
   const selectPlayer = useCallback((id: string) => {
     setSelectedId(id);
-    setSelectedStats(new Set());
+    const p = squad.find(s => s.id === id);
+    setSelectedStats(p ? new Set(getWhiteStatKeys(p.role)) : new Set());
     setResult(null);
     setSelectedTier(null);
     setSaveConfirmed(false);
-  }, []);
+  }, [squad]);
 
   const toggleStat = useCallback((stat: string) => {
     setSelectedStats(prev => {
@@ -389,22 +439,10 @@ export default function CoachesScreen() {
                     </View>
                   )}
 
-                  {/* Per-stat breakdown */}
-                  {result.gains.length > 0 ? result.gains.map(g => (
-                    <View key={g.stat} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
-                      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: g.isWhite ? theme.steelLight : theme.inkGhost, marginRight: 10 }} />
-                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 0.8, color: g.isWhite ? theme.inkSec : theme.inkMuted, flex: 1 }}>
-                        {g.stat}
-                      </Text>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkGhost, marginRight: 10 }}>
-                        {Math.round(g.from)}
-                      </Text>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkMuted, marginRight: 6 }}>→</Text>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.pos, fontWeight: '700', minWidth: 48, textAlign: 'right' }}>
-                        +{g.gain}
-                      </Text>
-                    </View>
-                  )) : (
+                  {/* Per-stat breakdown — grid layout */}
+                  {result.gains.length > 0 ? (
+                    <ResultGrid gains={result.gains} white={white} grey={grey} />
+                  ) : (
                     <View style={{ paddingVertical: 12, alignItems: 'center' }}>
                       <MonoLabel color={theme.inkGhost}>NO GAINS — ENTER STAT VALUES ON PLAYER PROFILE</MonoLabel>
                     </View>
