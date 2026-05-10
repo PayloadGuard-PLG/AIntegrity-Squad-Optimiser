@@ -1,0 +1,17 @@
+name: PayloadGuard Analysis
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  forensic-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: PayloadGuard
+        uses: PayloadGuard-PLG/payload-consequence-analyser@main
+        with:
+          analysis_depth: 'forensic'
+          fail_on_risky_diff: true
