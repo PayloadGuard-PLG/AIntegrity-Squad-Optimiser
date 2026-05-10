@@ -4,6 +4,37 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 13 — Squad Plan, Coach Capture, Coaches Overhaul
+**2026-05-10 — Session UHXEX (day 2)**
+
+### Shipped
+
+**Squad Plan tab (new)**
+
+New `SQUAD PLAN` tab added to the main nav. Displays all saved projection runs grouped by player — OVR before/after, stat gains, session count, tier (if any), timestamp. Per-run delete. "Add run → Coaches tab" shortcut for players with no runs yet. Backed by `squad_plan_runs` SQLite table (DB migration 0004).
+
+**Coach Session Capture screen (new)**
+
+`/coach/capture` accessible via `→ CAPTURE` button in the Coaches tab header. Lets you log what the game's coach preview shows (+gain lo/hi per stat). Sections: coach type/category/multiplier, squad auto-fill (player card copies stats, role, talent, OVR), per-stat gain entry (tap to expand → CURRENT / +LO / +HI inputs), live OVR boost preview. Actions: SAVE TO LOG (saves to Squad Plan) and PROJECT (navigate to Coaches tab).
+
+**Coaches tab overhauls**
+
+- **Removed 2× AD toggle** — hardcoded `false`; the multiplier only applies to Teamplay drills, not Academy coaches.
+- **3-column stat grid** — replaced `flexWrap` pile with a proper 3-col `StatGrid` component (rows of 3 Pressables). White and grey sections each use 3 columns, 5 rows max for outfield.
+- **Grey label** — "GREY — SECONDARY (×0.5 XP)" → "GREY — SECONDARY / NON-ROLE"
+- **SAVE RUN button** — after projection, "SAVE RUN TO SQUAD PLAN" button persists the run to `squad_plan_runs` and confirms inline (text changes to ✓).
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F37 | Coaches stat grid was flexWrap pile — no consistent layout | Replaced with `StatGrid` 3-column component |
+| F38 | 2× AD toggle present in coaches — doesn't apply to Academy coaches | Removed toggle, hardcoded `false` |
+| F39 | No persistent history of coach projections | Squad Plan tab + `squadPlanService` + DB migration 0004 |
+| F40 | White/grey stat detection not surfaced in capture flow | Coach Capture auto-fills from player card and labels stats WHITE/GREY by role |
+
+---
+
 ## Sprint 12 — Tier Bonus Engine Fix + Player Snapshot / Revert
 **2026-05-09 — Session UHXEX (continued)**
 

@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 0.9 — Sprint 12**
+**Version 1.0 — Sprint 13**
 
 ---
 
@@ -485,6 +485,24 @@ interface Player {
   tier: TierName;
   stats: Record<string, number>;  // Individual stat values; {} if not entered
   isMutantCandidate: boolean;
+  snapshot?: { stats: Record<string, number>; overall: number; tier: TierName } | null;
+}
+```
+
+### SquadPlanRun
+
+```typescript
+interface SquadPlanRun {
+  id: string;
+  playerId: string;
+  label: string | null;
+  sessions: number;
+  selectedStats: string[];
+  ovrBefore: number;
+  ovrAfter: number;
+  gains: { stat: string; from: number; gain: number; isWhite: boolean }[];
+  tier: TierName | null;
+  createdAt: number;
 }
 ```
 
@@ -560,6 +578,7 @@ interface InvestmentPlan {
 | 0.7 | Sprints 9–10 | RESULTS tab; tier bonus applied to all 15 stats (fix); talent on player card; apply-gains write-back; GK stat grid complete; OVR truncation confirmed; Expo Web; Matchday Coach + teamplay data logged |
 | 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; First Touch Play rename; Piggy in the Middle AGGRESSION |
 | 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
+| 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
 
 ---
 
@@ -569,17 +588,51 @@ interface InvestmentPlan {
 
 `app/(tabs)/coaches.tsx` — models the effect of a coaching block on a single player. The user specifies:
 - **Subject** — player from squad
-- **Stat coverage** — tap to select/deselect any of the player's 15 stats. White stats shown full brightness; grey stats dimmed. Counter shows total selected.
+- **Stat coverage** — 3-column grid (StatGrid component). White stats section + Grey/Non-role section, each rendered in rows of 3. Tap to toggle. Counter shows total selected.
 - **Sessions ×N** — how many coaching sessions (e.g. ×30 Standard Attacking, ×59 Standard Safeguard)
 - **Intensity** — locked to Very Hard (academy coaches have no adjustable difficulty)
 - **Talent** — read from player card (`player.talent`); no per-session dropdown
 
-Output: per-stat gains (float), OVR before/after banner, and optional TIER UPGRADE card below showing projected combined OVR if an affordable tier is added on top.
+The **2× AD multiplier** is absent from this tab. The 2× ad boost applies only to Teamplay drills, not Academy coaching. The engine hardcodes `twoxAd = false` for all coach projections.
 
-**APPLY TO PLAYER CARD** writes post-coach stats + updated OVR (+ tier if selected) back to the player's DB record, clearing the projection and resetting for the next coaching block.
+Output: per-stat gains (float), OVR before/after banner, optional TIER UPGRADE card showing combined OVR.
+
+**SAVE RUN TO SQUAD PLAN** — persists the current projection (sessions, selected stats, gains, OVR before/after, tier) to the `squad_plan_runs` table for the current player. Button confirms inline (text changes to ✓ SAVED).
+
+**APPLY TO PLAYER CARD** writes post-coach stats + updated OVR (+ tier if selected) back to the player's DB record.
+
+**→ CAPTURE** button in the header navigates to the Coach Session Capture screen for logging raw game data.
 
 ### 13.2 FULL PLAN (Results tab)
 
 `app/(tabs)/results.tsx` — chains multiple coaching sessions + tier upgrades + greens + rest packs into a single sequential OVR projection. Each step shows OVR before → after. Gives the manager a complete end-to-end roadmap: drill blocks → Epic upgrade → Legendary upgrade → condition restore.
 
 **APPLY FULL PLAN TO CARD** writes the final stats, OVR, and tier back to the player record in one tap.
+
+### 13.3 COACH SESSION CAPTURE (`/coach/capture`)
+
+`app/coach/capture.tsx` — calibration data logger. Lets the user enter what the in-game coach preview shows (per-stat gain ranges) and saves the data for reference.
+
+**Sections:**
+1. **Coach Type** — TYPE (STANDARD / FOCUSED / EXTENSIVE) + CATEGORY (ATTACKING / DEFENDING / PHYSICAL / SAFEGUARD) + MULTIPLIER ×N
+2. **Player Card** — squad auto-fill chip row. Selecting a player copies OVR, age, talent, and all stats from the player card. White/grey classification is derived from the player's role via `getWhiteStatKeys` / `getAllStatKeys`.
+3. **Highlighted Stats** — tap any stat to expand it. Enter CURRENT value (pre-filled from card) + +GAIN LO and +GAIN HI observed in the game preview. OVR BOOST LO/HI panels auto-calculate using `computeOvrWithPadding`.
+4. **Actions** — SAVE TO LOG (persists run to Squad Plan), PROJECT (navigates to Coaches tab).
+
+Stat classification in the Capture screen correctly reflects the selected player's role — white stats show under WHITE — ESSENTIAL, grey under GREY — SECONDARY / NON-ROLE.
+
+### 13.4 SQUAD PLAN tab
+
+`app/(tabs)/squad-plan.tsx` — persistent per-player scenario builder.
+
+Displays all saved projection runs grouped by player. Each run shows:
+- OVR before → after and gain delta
+- Session count and stat count
+- Tier (if applicable)
+- Timestamp
+- Expandable stat gain tags (per-stat +gain values)
+- Delete button (with confirmation)
+
+Players with no saved runs appear below with a shortcut to the Coaches tab. The instruction footer reminds users to use SAVE RUN in the Coaches tab to populate this view.
+
+**DB backing:** `squad_plan_runs` table (migration 0004). `squadPlanService` provides `saveRun`, `getRunsForPlayer`, `getAllRuns`, `deleteRun`. Runs are inserted by the Coaches tab (SAVE RUN button) and by the Coach Capture screen (SAVE TO LOG button).

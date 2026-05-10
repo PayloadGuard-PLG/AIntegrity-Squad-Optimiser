@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `claude/continue-session-UHXEX`
-**As of:** Session UHXEX — 2026-05-09 (Sprint 12)
+**As of:** Session UHXEX — 2026-05-10 (Sprint 13)
 **Deploy:** `git push -u origin claude/continue-session-UHXEX` → GitHub Actions → EAS OTA → reopen app
 
 ---
@@ -15,6 +15,9 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 ### What works
 
 - **SQUAD tab** — player list, tap → edit, OVR badge, tier/age/role display
+- **SQUAD PLAN tab** — per-player run history from Coaches projections. OVR before/after, stat gains, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
+- **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Squad auto-fill (copies stats/OVR/talent), per-stat lo/hi gain entry, live OVR boost preview, saves to Squad Plan. Accessible via `→ CAPTURE` button in Coaches tab.
+- **COACHES tab** — 3-column stat grid (5 rows per section), 2× AD removed, SAVE RUN button persists to Squad Plan, CAPTURE link in header.
 - **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-computed OVR baseline when stats entered. TextInput for greens and sessions. Smarter skip warnings.
 - **DRILLS tab** — all 25 drills shown for all players (no role filter). ROI sort (lowest white stat value = cheapest XP). Fan Club L0–L4 selector. Zero-drain detection (VE+L4 = 0.375% → shows 0%). Condition cost display per drill (direct % matching game display).
 - **COACHES tab** — stat selector grid (white/grey), session count ×N, intensity locked to Very Hard, talent read from player card. Per-stat gain projection + OVR output. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back.
@@ -34,7 +37,7 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 
 | # | Area | Task | Priority |
 |---|---|---|---|
-| — | Beta testing | User beta testing tonight/tomorrow — will report issues. Expect label cleanup, navigation gaps, UI fixes. | Immediate |
+| — | Beta testing | Ongoing — Squad Plan + Coach Capture are new; expect UX feedback from real use. | Immediate |
 | — | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity. Appears in game calibration data. Type TBC (possibly Attack). Add when type confirmed. | High |
 | — | Condition validation | Confirm COND_LEVEL_MULTIPLIERS at Easy, Medium, Hard levels. Only VE and VH cross-checked so far. | Medium |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Medium |
@@ -61,6 +64,9 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 | `app/(tabs)/plan.tsx` | Plan tab — bordered config cards, auto-tier, stats-win baseline, TextInput sessions/greens |
 | `app/(tabs)/coaches.tsx` | Coaches tab — stat selector, ×N sessions, VH locked, talent from card, tier upgrade card, apply-gains |
 | `app/(tabs)/drills.tsx` | Drills tab — all drills, ROI sort, fan club selector, zero-drain detection |
+| `app/(tabs)/squad-plan.tsx` | Squad Plan tab — per-player run history, OVR deltas, stat gains, delete |
+| `app/coach/capture.tsx` | Coach Capture screen — calibration data logger, squad auto-fill, lo/hi gains, OVR boost preview |
+| `src/services/squadPlanService.ts` | CRUD for squad_plan_runs: saveRun, getRunsForPlayer, getAllRuns, deleteRun |
 | `app/(tabs)/results.tsx` | Results tab — full OVR chain: coaching blocks + tier + greens, apply full plan |
 | `app/player/new.tsx` | Add player — role picker, stat grid (GK or outfield), tier, talent, save |
 | `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete |
