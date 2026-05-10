@@ -7,6 +7,12 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 ## Sprint 13 — Squad Plan, Coach Capture, Coaches Overhaul
 **2026-05-10 — Session UHXEX (day 2)**
 
+### CI Note — Node.js 24 Action Pins (2026-05-10)
+
+`actions/checkout` and `actions/setup-node` are still compiled against Node 20. Set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` in the workflow env so GitHub forces them onto Node 24 — jobs pass, warning is informational only. When the action maintainers publish Node 24 native releases, re-pin both SHAs and drop the env flag. Watch `github.com/actions/checkout/releases` and `github.com/actions/setup-node/releases` for a release noting Node 24 support.
+
+---
+
 ### Shipped
 
 **Squad Plan tab (new)**
