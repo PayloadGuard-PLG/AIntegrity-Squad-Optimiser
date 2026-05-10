@@ -116,7 +116,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     const t = b.text.trim();
     return (
       t.length >= 3 &&
-      /^[A-Z][a-zA-Z]/.test(t) &&
+      /^[A-Z][a-z]/.test(t) &&
       !KNOWN_ROLES.includes(t.toUpperCase()) &&
       !KNOWN_TIERS.some(tier => t.toLowerCase() === tier.toLowerCase()) &&
       !/^\d+$/.test(t)
