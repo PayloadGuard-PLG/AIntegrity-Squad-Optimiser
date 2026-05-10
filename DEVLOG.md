@@ -7,6 +7,25 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 ## Sprint 13 — Squad Plan, Coach Capture, Coaches Overhaul
 **2026-05-10 — Session UHXEX (day 2)**
 
+### Scan Feature Restored (2026-05-10)
+
+**Background:** When PR #3 reverted `COACH_CALIBRATION.csv` and related files, it also removed `src/logic/playerScanner.ts` and `src/logic/pickImage.ts` — the on-device OCR that powered "SCAN PLAYER CARD SCREENSHOT" in Add Player. A temporary replacement incorrectly used the Claude Vision API (which this project intentionally does not use — no LLM API calls, no API keys).
+
+**What was restored:**
+
+- `src/logic/playerScanner.ts` — ML Kit text recognition; Y-baseline token pairing to extract stat names + values from card screenshots; also extracts OVR, age, name, roles, tier, talent.
+- `src/logic/pickImage.ts` — `expo-image-picker` gallery launcher; `picker.active` shared flag.
+- `src/hooks/useScanner.ts` — Now wraps `scanPlayerCard` instead of calling any API. Zero external network calls.
+- `src/utils/roleWeights.ts` — Added `OUTFIELD_STATS` and `GK_STATS` exports (required by `playerScanner.ts`).
+- `app/player/new.tsx` — `pickAndScan` now also populates `tier`, `talent`, `roles` from scan result (these were wired in the original but lost in the rewrite).
+- Installed `@react-native-ml-kit/text-recognition` (native module, requires a dev build — not available in Expo Go).
+
+**Design principle confirmed:** This app makes no LLM API calls. All intelligence is on-device (ML Kit OCR) or pure math (XP/OVR engine). No `EXPO_PUBLIC_ANTHROPIC_API_KEY` or any other AI service key is needed or used.
+
+**Prevention:** See HANDOVER → Critical Native Dependencies section. These files must never be removed without a replacement. Any PR that removes `src/logic/playerScanner.ts`, `src/logic/pickImage.ts`, or `@react-native-ml-kit/text-recognition` from `package.json` must include an explicit justification.
+
+---
+
 ### CI Note — npm audit warnings (2026-05-10)
 
 9 vulnerabilities reported by `npm audit` (8 moderate, 1 high). All are inside Expo's own dep chain: `postcss` via `@expo/metro-config` → `@expo/cli` → `expo`. These are build-tool-only (Metro bundler); they do not affect the shipped app. The suggested fix (`npm audit fix --force`) would downgrade Expo to v49 — do **not** run it. Will clear when Expo patches their deps. No action required from us.

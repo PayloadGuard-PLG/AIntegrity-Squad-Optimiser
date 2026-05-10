@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert, Image } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, Image, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
@@ -8,6 +8,12 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
+import { useScanner } from '../../src/hooks/useScanner';
+import { computeOvrFromStats } from '../../src/logic/ovrProjector';
+import gameProfileJson from '../../profiles/game_2025.json';
+import { GameProfile } from '../../src/types/resources';
+
+const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
@@ -36,8 +42,18 @@ const GK_STATS = [
   'ANTICIPATION',  'RUSHING OUT',
   'COMMUNICATION', 'THROWING',
   'KICKING',       'PUNCHING',
-  'AERIAL REACH',  'FITNESS',
+  'AERIAL REACH',  'CONCENTRATION',
+  'FITNESS',       'STRENGTH',
+  'AGGRESSION',    'SPEED',
+  'CREATIVITY',
 ];
+
+// DEF / ATT / PHY groupings for the scanned stats display
+const STAT_COLUMNS = {
+  DEF: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'],
+  ATT: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION'],
+  PHY: ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
+};
 
 const inputStyle = {
   backgroundColor: theme.surface,
@@ -55,27 +71,71 @@ export default function NewPlayerScreen() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
+  const [ovrIsAuto, setOvrIsAuto] = useState(false);
   const [tier, setTier] = useState<TierName>('None');
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
   const [cardImage, setCardImage] = useState<string | null>(null);
+  const [scanned, setScanned] = useState(false);
+
+  const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
 
-  async function pickCardImage(from: 'camera' | 'gallery') {
+  // Auto-compute OVR from scanned stats
+  function recomputeOvr(inputs: Record<string, string>) {
+    const statsObj: Record<string, number> = {};
+    for (const [k, v] of Object.entries(inputs)) {
+      const n = parseFloat(v);
+      if (!isNaN(n) && n > 0) statsObj[k] = n;
+    }
+    if (Object.keys(statsObj).length >= 10) {
+      const fakePlayer = { stats: statsObj, overall: 0, role: ['ST'] } as any;
+      const auto = computeOvrFromStats(fakePlayer, profile);
+      setOverall(auto.toFixed(1));
+      setOvrIsAuto(true);
+    }
+  }
+
+  async function pickAndScan(from: 'camera' | 'gallery') {
+    let result: ImagePicker.ImagePickerResult;
     if (from === 'camera') {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
-      const r = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
-      if (!r.canceled && r.assets[0]) setCardImage(r.assets[0].uri);
+      result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
     } else {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
-      if (!r.canceled && r.assets[0]) setCardImage(r.assets[0].uri);
+      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+    }
+    if (result.canceled || !result.assets[0]) return;
+
+    const uri = result.assets[0].uri;
+    setCardImage(uri);
+    setScanned(false);
+
+    const data = await scanPlayerScreenshot(uri);
+    if (!data) return;
+
+    if (data.name) setName(data.name);
+    if (data.age) setAge(data.age.toString());
+    if (data.tier) setTier(data.tier as TierName);
+    if (data.talent) setTalent(data.talent as TalentTier);
+    if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
+
+    if (data.stats && Object.keys(data.stats).length > 0) {
+      const inputs = Object.fromEntries(
+        Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
+      );
+      setStatInputs(inputs);
+      recomputeOvr(inputs);
+      setScanned(true);
+    } else if (data.overall) {
+      setOverall(data.overall.toString());
+      setOvrIsAuto(false);
     }
   }
 
@@ -129,8 +189,79 @@ export default function NewPlayerScreen() {
       <AppHeader title="NEW ASSET" subtitle="INTAKE FORM" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
 
+        {/* STAT PROFILE — scan section */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+          <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>STAT PROFILE</MonoLabel>
+          <MonoLabel size={8} color={theme.inkGhost}>FROM GAME CARD · ● WHITE</MonoLabel>
+        </View>
+
+        <Pressable onPress={() => pickAndScan('gallery')}
+          disabled={isScanning}
+          style={{ borderWidth: 1, borderColor: theme.steelLight, padding: 14, alignItems: 'center', marginBottom: 8, backgroundColor: theme.surface2 }}>
+          {isScanning ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <ActivityIndicator color={theme.steelLight} size="small" />
+              <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>SCANNING...</Text>
+            </View>
+          ) : (
+            <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>
+              ◎ SCAN PLAYER CARD SCREENSHOT
+            </Text>
+          )}
+        </Pressable>
+
+        {/* Camera option */}
+        <Pressable onPress={() => pickAndScan('camera')} disabled={isScanning}
+          style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, alignItems: 'center', marginBottom: 12 }}>
+          <MonoLabel size={9} color={theme.inkMuted}>◉ USE CAMERA</MonoLabel>
+        </Pressable>
+
+        {scanned && (
+          <View style={{ padding: 10, borderWidth: 1, borderColor: theme.pos + '55', backgroundColor: theme.pos + '0d', marginBottom: 8 }}>
+            <MonoLabel size={9} color={theme.pos}>SCANNED {Object.keys(statInputs).length} STATS — REVIEW AND SAVE.</MonoLabel>
+            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>
+              OR ENTER MANUALLY BELOW · OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY
+            </MonoLabel>
+          </View>
+        )}
+
+        {scanError && (
+          <MonoLabel size={9} color={theme.neg} style={{ marginBottom: 8 }}>⚠ {scanError}</MonoLabel>
+        )}
+
+        {/* Scanned stats preview — DEF / ATT / PHY 3-col */}
+        {scanned && Object.keys(statInputs).length > 0 && (
+          <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: theme.hairline2 }}>
+              {(['DEF', 'ATT', 'PHY'] as const).map((col, ci) => (
+                <View key={col} style={{ flex: 1, borderRightWidth: ci < 2 ? 1 : 0, borderRightColor: theme.hairline2 }}>
+                  <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
+                    <MonoLabel size={8} color={theme.steelLight}>{col}</MonoLabel>
+                  </View>
+                  {STAT_COLUMNS[col].filter(s => statInputs[s]).map(s => (
+                    <View key={s} style={{ paddingHorizontal: 8, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
+                      <MonoLabel size={7} color={theme.inkGhost}>{s}</MonoLabel>
+                      <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: theme.ink }}>{statInputs[s]}</Text>
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {cardImage && !scanned && (
+          <View style={{ marginBottom: 12 }}>
+            <Image source={{ uri: cardImage }} style={{ width: '100%', height: 180, resizeMode: 'contain', backgroundColor: theme.surface }} />
+            <Pressable onPress={() => { setCardImage(null); setScanned(false); }}
+              style={{ padding: 8, alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.hairline }}>
+              <MonoLabel size={9} color={theme.neg}>✕ CLEAR</MonoLabel>
+            </Pressable>
+          </View>
+        )}
+
         {/* IDENTITY */}
-        <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>IDENTITY</MonoLabel>
+        <MonoLabel color={theme.steelLight} style={{ marginBottom: 8, marginTop: 4 }}>IDENTITY</MonoLabel>
         <TextInput
           value={name}
           onChangeText={setName}
@@ -150,11 +281,14 @@ export default function NewPlayerScreen() {
             />
           </View>
           <View style={{ flex: 1 }}>
-            <MonoLabel size={9} style={{ marginBottom: 4 }}>OVR</MonoLabel>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 6 }}>
+              <MonoLabel size={9}>OVR</MonoLabel>
+              {ovrIsAuto && <MonoLabel size={7} color={theme.pos}>(AUTO)</MonoLabel>}
+            </View>
             <TextInput
               keyboardType="decimal-pad"
               value={overall}
-              onChangeText={setOverall}
+              onChangeText={v => { setOverall(v); setOvrIsAuto(false); }}
               style={inputStyle}
             />
           </View>
@@ -176,12 +310,9 @@ export default function NewPlayerScreen() {
                     onPress={() => toggleRole(role)}
                     disabled={role === null}
                     style={{
-                      flex: 1,
-                      paddingVertical: 13,
-                      alignItems: 'center',
+                      flex: 1, paddingVertical: 13, alignItems: 'center',
                       backgroundColor: sel ? theme.ink : 'transparent',
-                      borderRightWidth: ci < 3 ? 1 : 0,
-                      borderRightColor: theme.hairline,
+                      borderRightWidth: ci < 3 ? 1 : 0, borderRightColor: theme.hairline,
                     }}
                   >
                     <Text style={{
@@ -248,41 +379,11 @@ export default function NewPlayerScreen() {
           borderWidth: 1, borderColor: mutant ? theme.hot : theme.hairline2,
           padding: 12, marginBottom: 20,
         }}>
-          <View style={{
-            width: 14, height: 14,
-            backgroundColor: mutant ? theme.hot : 'transparent',
-            borderWidth: 1, borderColor: mutant ? theme.hot : theme.inkMuted,
-          }} />
+          <View style={{ width: 14, height: 14, backgroundColor: mutant ? theme.hot : 'transparent', borderWidth: 1, borderColor: mutant ? theme.hot : theme.inkMuted }} />
           <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, color: mutant ? theme.hot : theme.inkSec }}>
             ★ MUTANT CANDIDATE
           </Text>
         </Pressable>
-
-        {/* CARD CAPTURE */}
-        <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-          {cardImage ? (
-            <>
-              <Image source={{ uri: cardImage }} style={{ width: '100%', height: 200, resizeMode: 'contain', backgroundColor: theme.surface }} />
-              <Pressable onPress={() => setCardImage(null)}
-                style={{ padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.hairline }}>
-                <MonoLabel size={9} color={theme.neg}>✕ CLEAR</MonoLabel>
-              </Pressable>
-            </>
-          ) : (
-            <View style={{ flexDirection: 'row' }}>
-              <Pressable onPress={() => pickCardImage('camera')}
-                style={{ flex: 1, padding: 13, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 16, color: theme.steelLight, marginBottom: 3 }}>◉</Text>
-                <MonoLabel size={8} color={theme.steelLight}>PHOTO CARD</MonoLabel>
-              </Pressable>
-              <Pressable onPress={() => pickCardImage('gallery')}
-                style={{ flex: 1, padding: 13, alignItems: 'center' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 16, color: theme.steelLight, marginBottom: 3 }}>⊞</Text>
-                <MonoLabel size={8} color={theme.steelLight}>GALLERY</MonoLabel>
-              </Pressable>
-            </View>
-          )}
-        </View>
 
         {/* STATS GRID */}
         {selectedRoles.length > 0 && (
@@ -293,7 +394,6 @@ export default function NewPlayerScreen() {
             </View>
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 24 }}>
               {statList.map((stat, i) => {
-                const isWhite = isWhiteStat(selectedRoles, stat);
                 const isRight = i % 2 === 1;
                 const isLastRow = i >= statList.length - 2;
                 if (isRight) return null;
@@ -304,10 +404,7 @@ export default function NewPlayerScreen() {
                       if (!s) return <View key={idx} style={{ flex: 1 }} />;
                       const w = isWhiteStat(selectedRoles, s);
                       return (
-                        <View key={s} style={{
-                          flex: 1, padding: 10,
-                          borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
-                        }}>
+                        <View key={s} style={{ flex: 1, padding: 10, borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                             <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
                             <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
@@ -315,13 +412,14 @@ export default function NewPlayerScreen() {
                           <TextInput
                             keyboardType="numeric"
                             value={statInputs[s] ?? ''}
-                            onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v }))}
+                            onChangeText={v => {
+                              const next = { ...statInputs, [s]: v };
+                              setStatInputs(next);
+                              recomputeOvr(next);
+                            }}
                             placeholder="0"
                             placeholderTextColor={theme.inkGhost}
-                            style={{
-                              backgroundColor: 'transparent', padding: 0,
-                              color: theme.ink, fontSize: 15, fontFamily: theme.display, fontWeight: '300',
-                            }}
+                            style={{ backgroundColor: 'transparent', padding: 0, color: theme.ink, fontSize: 15, fontFamily: theme.display, fontWeight: '300' }}
                           />
                         </View>
                       );
@@ -334,13 +432,8 @@ export default function NewPlayerScreen() {
         )}
 
         {/* SAVE CTA */}
-        <Pressable onPress={save} style={{
-          backgroundColor: theme.ink, paddingVertical: 13,
-          alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, fontWeight: '600', color: theme.bg }}>
-            SAVE
-          </Text>
+        <Pressable onPress={save} style={{ backgroundColor: theme.ink, paddingVertical: 13, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, fontWeight: '600', color: theme.bg }}>SAVE</Text>
         </Pressable>
 
       </ScrollView>

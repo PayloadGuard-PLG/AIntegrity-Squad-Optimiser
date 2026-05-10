@@ -57,7 +57,10 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 | `src/logic/ovrProjector.ts` | `applyDrillSessionsToStats`, `projectOvr`, `computeOvrFromStats`, `computeOvrWithPadding` (exported); tier bonus uses `getAllStatKeys` |
 | `src/logic/investmentEngine.ts` | `planPlayerInvestment`, `compareInvestmentScenarios` |
 | `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort, condition costs, no efficiency filter |
-| `src/utils/roleWeights.ts` | `ROLE_CONSTRAINTS` (white/grey per role), `isWhiteStat`, `getWhiteStatKeys`, `getAllStatKeys` |
+| `src/utils/roleWeights.ts` | `ROLE_CONSTRAINTS` (white/grey per role), `isWhiteStat`, `getWhiteStatKeys`, `getAllStatKeys`, `OUTFIELD_STATS`, `GK_STATS` |
+| `src/logic/playerScanner.ts` | **⚠ CRITICAL** — on-device ML Kit OCR for player card screenshots. Y-baseline token pairing, extracts all 25 stats + OVR/age/name/roles/tier/talent. No API calls. |
+| `src/logic/pickImage.ts` | Gallery image picker wrapper; `picker.active` shared flag. Used by scanner and Coach Capture. |
+| `src/hooks/useScanner.ts` | React hook wrapping `scanPlayerCard` — returns `scanPlayerScreenshot`, `isScanning`, `scanError`. |
 | `src/database/drillDatabase.ts` | `DRILL_LIST` — 25 drills, all `baseLoss = 0.75`, stats, isBase |
 | `src/constants/theme.ts` | Design tokens — pitch-black bg, gunmetal surfaces, steelblue accent, hot-orange, pos/neg |
 | `src/components/AppHeader.tsx` | 5-tab scrollable nav: SQUAD · PLAN · DRILLS · COACHES · RESULTS |
@@ -70,6 +73,27 @@ All tabs functional. Engine calibrated against real data. OTA pipeline working.
 | `app/(tabs)/results.tsx` | Results tab — full OVR chain: coaching blocks + tier + greens, apply full plan |
 | `app/player/new.tsx` | Add player — role picker, stat grid (GK or outfield), tier, talent, save |
 | `app/player/[id].tsx` | Edit player — same as new.tsx + loads existing + delete |
+
+---
+
+## Critical Native Dependencies
+
+**This app makes zero LLM API calls. No Anthropic key, no OpenAI key, nothing.** All intelligence is on-device OCR or pure math.
+
+| Package | Purpose | Must not be removed |
+|---|---|---|
+| `@react-native-ml-kit/text-recognition` | On-device ML Kit OCR — powers player card scanning | Yes — removing it breaks the scan feature entirely |
+| `expo-image-picker` | Camera + gallery access for scanning and Coach Capture | Yes |
+| `expo-sqlite` | Local database for players, squad, squad plan runs | Yes |
+
+### Scan feature files — do not delete without replacement
+
+| File | Why critical |
+|---|---|
+| `src/logic/playerScanner.ts` | The actual OCR logic. Removed in PR #3 revert, breaking scan for a full session. |
+| `src/logic/pickImage.ts` | Image picker wrapper shared by Add Player and Coach Capture. |
+
+**Rule:** Any PR removing these files or packages must explicitly state what replaces the functionality. Never remove them as "cleanup" — they are active features.
 
 ---
 
