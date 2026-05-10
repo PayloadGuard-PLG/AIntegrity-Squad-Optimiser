@@ -7,6 +7,12 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 ## Sprint 13 — Squad Plan, Coach Capture, Coaches Overhaul
 **2026-05-10 — Session UHXEX (day 2)**
 
+### CI Note — npm audit warnings (2026-05-10)
+
+9 vulnerabilities reported by `npm audit` (8 moderate, 1 high). All are inside Expo's own dep chain: `postcss` via `@expo/metro-config` → `@expo/cli` → `expo`. These are build-tool-only (Metro bundler); they do not affect the shipped app. The suggested fix (`npm audit fix --force`) would downgrade Expo to v49 — do **not** run it. Will clear when Expo patches their deps. No action required from us.
+
+---
+
 ### CI Note — Node.js 24 Action Pins (2026-05-10)
 
 `actions/checkout` and `actions/setup-node` are still compiled against Node 20. Set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` in the workflow env so GitHub forces them onto Node 24 — jobs pass, warning is informational only. When the action maintainers publish Node 24 native releases, re-pin both SHAs and drop the env flag. Watch `github.com/actions/checkout/releases` and `github.com/actions/setup-node/releases` for a release noting Node 24 support.
