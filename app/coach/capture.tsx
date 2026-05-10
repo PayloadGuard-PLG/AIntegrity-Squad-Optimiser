@@ -12,7 +12,7 @@ import { computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile, TalentTier } from '../../src/types/resources';
 import { squadPlanService } from '../../src/services/squadPlanService';
-import { scanCoachScreen } from '../../src/logic/coachScanner';
+import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { Player } from '../../src/database/playerSchema';
 
 const profile = gameProfileJson as unknown as GameProfile;
@@ -61,11 +61,27 @@ export default function CoachCaptureScreen() {
     setIsScanning(true);
     setScanStatus('SCANNING...');
     try {
-      const scan = await scanCoachScreen(uri);
+      const scan = await scanCoachPreview(uri);
       const parts: string[] = [];
-      if (scan.coachType) { setCoachType(scan.coachType); parts.push(scan.coachType); }
-      if (scan.coachCategory) { setCoachCategory(scan.coachCategory); parts.push(scan.coachCategory); }
-      if (scan.multiplier) { setMultiplier(String(scan.multiplier)); parts.push(`×${scan.multiplier}`); }
+      if (scan.coachType)     { setCoachType(scan.coachType.toUpperCase());     parts.push(scan.coachType); }
+      if (scan.coachCategory) { setCoachCategory(scan.coachCategory.toUpperCase()); parts.push(scan.coachCategory); }
+      if (scan.multiplier)    { setMultiplier(String(scan.multiplier));          parts.push(`×${scan.multiplier}`); }
+
+      if (scan.stats.length > 0) {
+        const newGains: Record<string, GainEntry> = {};
+        const newStatVals: Record<string, string> = {};
+        for (const s of scan.stats) {
+          newGains[s.statName]  = { lo: String(s.gainLo), hi: String(s.gainHi) };
+          if (s.statBefore > 0) newStatVals[s.statName] = String(s.statBefore);
+        }
+        setGains(prev => ({ ...prev, ...newGains }));
+        setStatValues(prev => ({ ...prev, ...newStatVals }));
+        parts.push(`${scan.stats.length} STAT${scan.stats.length !== 1 ? 'S' : ''}`);
+      }
+
+      if (!selectedPlayerId && scan.playerAge) setAgeInput(String(scan.playerAge));
+      if (!selectedPlayerId && scan.ovrBefore)  setOvrInput(String(scan.ovrBefore));
+
       setScanStatus(parts.length > 0 ? `DETECTED: ${parts.join(' · ')}` : 'NOTHING DETECTED — SET MANUALLY');
     } catch (e) {
       setScanStatus('SCAN FAILED — SET MANUALLY');
