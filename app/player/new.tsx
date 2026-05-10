@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, Image } from 'react-native';
 import { router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
 import { validateRoleAdjacency, isWhiteStat } from '../../src/utils/roleWeights';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -59,9 +60,24 @@ export default function NewPlayerScreen() {
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
+  const [cardImage, setCardImage] = useState<string | null>(null);
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
+
+  async function pickCardImage(from: 'camera' | 'gallery') {
+    if (from === 'camera') {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
+      const r = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
+      if (!r.canceled && r.assets[0]) setCardImage(r.assets[0].uri);
+    } else {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+      if (!r.canceled && r.assets[0]) setCardImage(r.assets[0].uri);
+    }
+  }
 
   function toggleRole(role: string | null) {
     if (!role) return;
@@ -241,6 +257,32 @@ export default function NewPlayerScreen() {
             ★ MUTANT CANDIDATE
           </Text>
         </Pressable>
+
+        {/* CARD CAPTURE */}
+        <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
+          {cardImage ? (
+            <>
+              <Image source={{ uri: cardImage }} style={{ width: '100%', height: 200, resizeMode: 'contain', backgroundColor: theme.surface }} />
+              <Pressable onPress={() => setCardImage(null)}
+                style={{ padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.hairline }}>
+                <MonoLabel size={9} color={theme.neg}>✕ CLEAR</MonoLabel>
+              </Pressable>
+            </>
+          ) : (
+            <View style={{ flexDirection: 'row' }}>
+              <Pressable onPress={() => pickCardImage('camera')}
+                style={{ flex: 1, padding: 13, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 16, color: theme.steelLight, marginBottom: 3 }}>◉</Text>
+                <MonoLabel size={8} color={theme.steelLight}>PHOTO CARD</MonoLabel>
+              </Pressable>
+              <Pressable onPress={() => pickCardImage('gallery')}
+                style={{ flex: 1, padding: 13, alignItems: 'center' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 16, color: theme.steelLight, marginBottom: 3 }}>⊞</Text>
+                <MonoLabel size={8} color={theme.steelLight}>GALLERY</MonoLabel>
+              </Pressable>
+            </View>
+          )}
+        </View>
 
         {/* STATS GRID */}
         {selectedRoles.length > 0 && (
