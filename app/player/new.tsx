@@ -122,7 +122,7 @@ export default function NewPlayerScreen() {
 
     if (data.name) setName(data.name);
     if (data.age) setAge(data.age.toString());
-    if (data.tier) setTier(data.tier as TierName);
+    setTier((data.tier ?? 'None') as TierName);
     if (data.talent) setTalent(data.talent as TalentTier);
     if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
 
