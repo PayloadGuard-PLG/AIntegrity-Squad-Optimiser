@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 1.0 — Sprint 13**
+**Version 1.1 — Sprint 14**
 
 ---
 
@@ -557,11 +557,64 @@ interface InvestmentPlan {
 | Tier bonus scope | Confirmed Sprint 12: role stats (white+grey via `getAllStatKeys`) get full increment; off-role stats get +1 flat. Validated Ricky Grant Elite→Stellar — engine OVR 175 matched game exactly. |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
 | Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
+| Role OCR | Sprint 14: switched from full-text `\bROLE\b` regex to token-exact match. Eliminates false positives from partial word matches. Remaining gap: if the screenshot crops the role badge area entirely, zero roles are detected — currently the scan returns `undefined` (no roles set). Future fix: preserve the existing role selection when scan returns no roles. |
 | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
 | Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Matchday Coach multiplier, and ADVANCE costs are out of scope for current OVR projection. |
 | Star decay curve | `starDecayPerSession = 1.0` (no decay). Confirmed near-linear from real data. |
 | Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output. |
 | Formation/synergy | Not modelled. |
+
+---
+
+## 14. On-Device OCR System
+
+**Design principle:** This app makes zero LLM or external API calls. All text extraction is performed on-device using ML Kit (`@react-native-ml-kit/text-recognition`). No Anthropic key, no OpenAI key, no network request is made during a scan.
+
+### 14.1 Player Card Scanner (`src/logic/playerScanner.ts`)
+
+Scans a screenshot of a player's in-game card and extracts:
+- All 15 stats + their values
+- OVR, age, name, roles, tier, talent
+
+**Algorithm — Y-baseline token pairing:**
+
+1. ML Kit returns a list of `Block → Line → Element` tokens, each with a bounding box (`frame.top`, `frame.left`).
+2. Tokens are flattened to a list of `{ text, top, left }`.
+3. For each token, check if `text.toUpperCase()` is a known stat name (single word) or if the next token completes a two-word stat (e.g. `RUSHING OUT`). Two-word match requires both tokens to be within `Y_TOL = 28px` vertically.
+4. For each matched stat name, look for numbers to its RIGHT on the same baseline (within `Y_TOL`). Take the leftmost valid number (1–340). Fallback: look directly below the label (within `Y_BELOW = 65px`, within 100px horizontally).
+
+**Role detection (token-exact matching, Sprint 14):**
+
+Roles are matched by exact token equality — each ML Kit element is already a whitespace-separated unit, so `token.text.toUpperCase() === 'DC'` will not false-positive on "DRILLS", "ACADEMY", etc. Prior approach used `\bROLE\b` regex against the full text string, which caused false positives.
+
+```typescript
+const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
+const foundRoles = new Set<string>();
+for (const t of tokens) {
+  if (roleSet.has(t.text.toUpperCase())) foundRoles.add(t.text.toUpperCase());
+}
+```
+
+**Name heuristic:**
+- Find the first OCR block whose text starts with a capital letter followed by a lowercase letter (`/^[A-Z][a-z]/`)
+- Exclude: known roles, known tiers, a UI blocklist (`Squad`, `Contract`, `Overview`, `Skills`, `Stats`, `Training`, `Playstyle`, `Celebrations`, `Trainer`, `Personal`, `Defence`, `Attack`, `Physical`, `Special`, `Ability`, `Team`, `None`, `Select`, `Player`, `Start`)
+- This avoids reading game UI labels as player names
+
+**Tier/talent:** Full-text regex for known tier names (`Legendary`, `Epic`, `Master`, `Stellar`, `Elite`, `Rare`) and talent tokens (`FT1`, `FT2`, `FT3`, `Normal`, `Slow`). `None` is NOT in the tier list — absence of a tier token → `undefined` → UI defaults to `None`.
+
+### 14.2 Coach Preview Scanner (`src/logic/coachScanner.ts`)
+
+Scans a screenshot of the in-game coach assignment preview and extracts:
+- Coach type (Standard / Focused / Extensive), category (Attacking / Defending / Physical / Safeguard), multiplier (×N) from a header line
+- Per-highlighted-stat gain ranges (`+lo–hi`) — only rows that contain a gain range pattern are captured
+
+**Gain range detection:**
+
+The game highlights affected stats with a `+lo–hi` gain range indicator. The scanner uses `GAIN_RE = /\+(\d+)[–\-—](\d+)/` — three dash variants (en-dash, hyphen, em-dash) because OCR frequently misclassifies dash characters.
+
+Only tokens on the same baseline as a recognised stat name are scanned for the gain range. This prevents false matches from other on-screen numbers.
+
+**Integration with Coaches tab:** The `⊕ SCAN` button in the Coaches tab runs `scanCoachPreview` on a gallery image. If a multiplier is detected, it auto-fills the Sessions ×N input. The Coach Session Capture screen (`/coach/capture`) gives finer control — stat-by-stat lo/hi entry with live OVR boost preview.
 
 ---
 
@@ -579,6 +632,7 @@ interface InvestmentPlan {
 | 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; First Touch Play rename; Piggy in the Middle AGGRESSION |
 | 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
 | 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
+| 1.1 | Sprint 14 | Consistent DEF/ATT/PHY column colour scheme across all stat surfaces. Role OCR switched to token-exact matching. PR #4 merged to main; main is now source of truth. |
 
 ---
 
@@ -609,7 +663,25 @@ Output: per-stat gains (float), OVR before/after banner, optional TIER UPGRADE c
 
 **APPLY FULL PLAN TO CARD** writes the final stats, OVR, and tier back to the player record in one tap.
 
-### 13.3 COACH SESSION CAPTURE (`/coach/capture`)
+### 13.3 Stat Grid Visual Design
+
+All screens that display individual stats use a three-column colour language — DEF (Defending), ATT (Attacking), PHY (Physical). Each stat is permanently assigned to exactly one column regardless of which screen it appears on or whether it is white or grey for the current player.
+
+| Column | Hex | Stats |
+|---|---|---|
+| DEF | `#4A7FC1` | TACKLING, MARKING, POSITIONING, HEADING, BRAVERY, REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION |
+| ATT | `#7C3AED` | PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION |
+| PHY | `#C05621` | FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY |
+
+**Rendering convention:**
+- Each stat cell carries a 2px left border in its column colour.
+- White (essential) stats: border and label at full column colour, value in foreground ink.
+- Grey (secondary/non-role) stats: border at `cc + '44'` (dimmed), label in `inkMuted`, value muted.
+- Selected state (Coaches stat grid): full column colour for all border, background tint, label and value text.
+
+This convention is implemented via a `statColor(stat)` helper and `STAT_COLS`/`COL_COLORS` constants declared locally in each stat-rendering file. The columns do not change per role — they are fixed to the stat, not the player. The white/grey distinction (which varies by role) is layered on top via brightness/opacity only.
+
+### 13.4 COACH SESSION CAPTURE (`/coach/capture`)
 
 `app/coach/capture.tsx` — calibration data logger. Lets the user enter what the in-game coach preview shows (per-stat gain ranges) and saves the data for reference.
 

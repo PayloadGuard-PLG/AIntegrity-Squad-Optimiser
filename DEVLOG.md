@@ -4,6 +4,51 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 14 — Visual Consistency + OCR Role Fix + Merge to Main
+**2026-05-10 — Session UHXEX (late)**
+
+### Shipped
+
+**Consistent DEF / ATT / PHY column colour scheme across all stat surfaces**
+
+All screens that display individual stats now use the same three-column colour language:
+
+| Column | Colour | Stats |
+|---|---|---|
+| DEF (Defending) | `#4A7FC1` (steel blue) | TACKLING, MARKING, POSITIONING, HEADING, BRAVERY, REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION |
+| ATT (Attacking) | `#7C3AED` (purple) | PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION |
+| PHY (Physical) | `#C05621` (burnt orange) | FITNESS, STRENGTH, AGGRESSION, SPEED, CREATIVITY |
+
+Applied consistently via `STAT_COLS` + `COL_COLORS` + `statColor(stat)` helper added to each file:
+
+- **`app/(tabs)/coaches.tsx`** — `StatGrid` (stat selector) and `ResultGrid` (projection output): each cell has a 2px left border in column colour. Selected stats show column colour for border, background tint, label and value text. Unselected show `cc + '55'` dimmed left accent. Result grid: white row labels use full column colour, grey rows use `inkMuted`.
+- **`app/player/[id].tsx`** (edit player) — 2-column stat input grid: 2px left border per stat in column colour. White stats full opacity, grey at `cc + '44'`. Replaced the `●` dot indicator with the border — cleaner and consistent.
+- **`app/coach/capture.tsx`** — `renderStatRow`: indicator square, stat label, and gain range display all use `statColor(stat)`. Row container gets the same 2px left border. White/grey brightness distinction preserved.
+- **`app/player/new.tsx`** — Already had the 3-column DEF/ATT/PHY scan preview grid. Unchanged.
+
+`STAT_COLS` and `COL_COLORS` are declared locally in each file (no shared import) to avoid circular deps and keep each screen self-contained.
+
+**Role OCR detection — switched to token-exact matching**
+
+`src/logic/playerScanner.ts` — previously used `\bROLE\b` regex against the full OCR text string, which caused false positives when two-letter role codes (DC, DR, ML, MR, ST) appeared as substrings inside other words or UI labels.
+
+Fixed by scanning the token list instead — each ML Kit element is already a whitespace-separated word, so `token.text.toUpperCase() === 'DC'` will not match "DRILLS", "DISCOVERY", etc. The role set is built as a `Set<string>` for O(1) lookups; the final result is filtered back through `KNOWN_ROLES` to preserve ordering.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F41 | Stat cells used white/grey accent only — no DEF/ATT/PHY distinction | Per-stat `statColor()` applied to borders, labels, backgrounds across all 4 stat surfaces |
+| F42 | Role OCR false positives — "DR" matching inside "DRILLS" etc. | Token-exact match instead of full-text `\bROLE\b` regex |
+
+### Infrastructure
+
+**Merged to `main` (PR #4)** — branch `claude/continue-session-UHXEX` merged. `main` now represents the full working app state. All future work should branch from `main` and PR back. Dev branches are workspaces only; `main` is the truth.
+
+EAS OTA Build #120 — Success (1m 12s). Triggered automatically on merge.
+
+---
+
 ## Sprint 13 — Squad Plan, Coach Capture, Coaches Overhaul
 **2026-05-10 — Session UHXEX (day 2)**
 
