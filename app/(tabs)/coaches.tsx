@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -93,12 +95,35 @@ export default function CoachesScreen() {
     )
   );
 
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanStatus, setScanStatus] = useState('');
+
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
 
   useEffect(() => {
     if (incomingPlayerId) selectPlayer(incomingPlayerId);
     if (incomingSessions) setSessions(incomingSessions);
   }, [incomingPlayerId, incomingSessions]);
+
+  async function scanCoach() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+    if (picked.canceled || !picked.assets[0]) return;
+    setIsScanning(true);
+    setScanStatus('');
+    try {
+      const scan = await scanCoachPreview(picked.assets[0].uri);
+      const parts: string[] = [];
+      if (scan.multiplier) { setSessions(String(scan.multiplier)); parts.push(`×${scan.multiplier}`); }
+      if (scan.stats.length > 0) parts.push(`${scan.stats.length} stats`);
+      setScanStatus(parts.length > 0 ? `SCANNED: ${parts.join(' · ')}` : 'NOTHING DETECTED');
+    } catch {
+      setScanStatus('SCAN FAILED');
+    } finally {
+      setIsScanning(false);
+    }
+  }
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
@@ -288,25 +313,39 @@ export default function CoachesScreen() {
               </View>
 
               {/* White stats — 3-column grid */}
-              <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>WHITE — ESSENTIAL</MonoLabel>
+              <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>WHITE — ESSENTIAL (+1.0 XP)</MonoLabel>
               <StatGrid stats={white} player={player} selectedStats={selectedStats} onToggle={toggleStat} isWhiteSection={true} />
 
               {/* Grey stats — 3-column grid */}
               {grey.length > 0 && (
                 <>
-                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 12, marginBottom: 8 }}>GREY — SECONDARY / NON-ROLE</MonoLabel>
+                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 12, marginBottom: 8 }}>GREY — SECONDARY / NON-ROLE (+0.5 XP)</MonoLabel>
                   <StatGrid stats={grey} player={player} selectedStats={selectedStats} onToggle={toggleStat} isWhiteSection={false} />
                 </>
               )}
             </View>
 
-            {/* Project button */}
-            <Pressable onPress={runProjection}
-              style={{ borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.ink : theme.hairline2, padding: 16, alignItems: 'center', marginBottom: 14, backgroundColor: selectedStats.size > 0 ? theme.surface2 : 'transparent' }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2, color: selectedStats.size > 0 ? theme.ink : theme.inkGhost }}>
-                ▶ PROJECT COACH GAIN
-              </Text>
-            </Pressable>
+            {/* Project + Scan buttons */}
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
+              <Pressable onPress={runProjection}
+                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.ink : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.surface2 : 'transparent' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: selectedStats.size > 0 ? theme.ink : theme.inkGhost }}>
+                  ▶ PROJECT
+                </Text>
+              </Pressable>
+              <Pressable onPress={scanCoach} disabled={isScanning}
+                style={{ borderWidth: 1, borderColor: theme.steelLight + '88', padding: 16, alignItems: 'center', minWidth: 80, backgroundColor: theme.surface2 }}>
+                {isScanning
+                  ? <ActivityIndicator size="small" color={theme.steelLight} />
+                  : <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1, color: theme.steelLight }}>⊕ SCAN</Text>
+                }
+              </Pressable>
+            </View>
+            {scanStatus !== '' && (
+              <MonoLabel size={9} color={scanStatus.startsWith('SCANNED') ? theme.pos : theme.neg} style={{ marginBottom: 10 }}>
+                {scanStatus}
+              </MonoLabel>
+            )}
 
             {/* Result */}
             {result && (
