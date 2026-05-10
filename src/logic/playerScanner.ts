@@ -20,6 +20,11 @@ export interface PlayerCardScan {
   _debug?: string;
 }
 
+// Game UI labels that pass the name regex but are not player names
+const UI_BLOCKLIST = ['Squad', 'Contract', 'Overview', 'Skills', 'Stats', 'Training',
+  'Playstyle', 'Celebrations', 'Trainer', 'Personal', 'Defence', 'Attack', 'Physical',
+  'Special', 'Ability', 'Team', 'None', 'Select', 'Player', 'Start'];
+
 const TIMEOUT_MS = 5000;
 
 export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> {
@@ -119,6 +124,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
       /^[A-Z][a-z]/.test(t) &&
       !KNOWN_ROLES.includes(t.toUpperCase()) &&
       !KNOWN_TIERS.some(tier => t.toLowerCase() === tier.toLowerCase()) &&
+      !UI_BLOCKLIST.some(kw => t.toLowerCase() === kw.toLowerCase()) &&
       !/^\d+$/.test(t)
     );
   });

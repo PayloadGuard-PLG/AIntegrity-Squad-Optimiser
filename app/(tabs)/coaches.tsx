@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -92,6 +92,13 @@ export default function CoachesScreen() {
       TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : ''])
     )
   );
+
+  const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
+
+  useEffect(() => {
+    if (incomingPlayerId) selectPlayer(incomingPlayerId);
+    if (incomingSessions) setSessions(incomingSessions);
+  }, [incomingPlayerId, incomingSessions]);
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 

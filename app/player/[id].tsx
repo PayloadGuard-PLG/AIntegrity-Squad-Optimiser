@@ -126,7 +126,7 @@ export default function EditPlayerScreen() {
       isMutantCandidate: mutant,
       snapshot,
     });
-    router.dismiss();
+    router.back();
   }
 
   function confirmRevert() {

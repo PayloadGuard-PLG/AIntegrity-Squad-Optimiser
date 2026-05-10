@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
@@ -83,8 +83,8 @@ export default function NewPlayerScreen() {
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
-  const [cardImage, setCardImage] = useState<string | null>(null);
   const [scanned, setScanned] = useState(false);
+  const [scanMsg, setScanMsg] = useState('');
 
   const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
@@ -120,8 +120,8 @@ export default function NewPlayerScreen() {
     if (result.canceled || !result.assets[0]) return;
 
     const uri = result.assets[0].uri;
-    setCardImage(uri);
     setScanned(false);
+    setScanMsg('');
 
     const data = await scanPlayerScreenshot(uri);
     if (!data) return;
@@ -139,9 +139,13 @@ export default function NewPlayerScreen() {
       setStatInputs(inputs);
       recomputeOvr(inputs);
       setScanned(true);
+      setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
     } else if (data.overall) {
       setOverall(data.overall.toString());
       setOvrIsAuto(false);
+      setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
+    } else {
+      setScanMsg('NO STATS FOUND — TRY A CLEARER SCREENSHOT.');
     }
   }
 
@@ -187,7 +191,7 @@ export default function NewPlayerScreen() {
       stats: statsObj,
       isMutantCandidate: mutant,
     });
-    router.dismiss();
+    router.back();
   }
 
   return (
@@ -222,12 +226,10 @@ export default function NewPlayerScreen() {
           <MonoLabel size={9} color={theme.inkMuted}>◉ USE CAMERA</MonoLabel>
         </Pressable>
 
-        {scanned && (
-          <View style={{ padding: 10, borderWidth: 1, borderColor: theme.pos + '55', backgroundColor: theme.pos + '0d', marginBottom: 8 }}>
-            <MonoLabel size={9} color={theme.pos}>SCANNED {Object.keys(statInputs).length} STATS — REVIEW AND SAVE.</MonoLabel>
-            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>
-              OR ENTER MANUALLY BELOW · OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY
-            </MonoLabel>
+        {scanMsg !== '' && (
+          <View style={{ padding: 10, borderWidth: 1, borderColor: (scanned ? theme.pos : theme.neg) + '55', backgroundColor: (scanned ? theme.pos : theme.neg) + '0d', marginBottom: 8 }}>
+            <MonoLabel size={9} color={scanned ? theme.pos : theme.neg}>{scanMsg}</MonoLabel>
+            {scanned && <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>OR ENTER MANUALLY BELOW · OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY</MonoLabel>}
           </View>
         )}
 
@@ -266,15 +268,6 @@ export default function NewPlayerScreen() {
           </View>
         )}
 
-        {cardImage && !scanned && (
-          <View style={{ marginBottom: 12 }}>
-            <Image source={{ uri: cardImage }} style={{ width: '100%', height: 180, resizeMode: 'contain', backgroundColor: theme.surface }} />
-            <Pressable onPress={() => { setCardImage(null); setScanned(false); }}
-              style={{ padding: 8, alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.hairline }}>
-              <MonoLabel size={9} color={theme.neg}>✕ CLEAR</MonoLabel>
-            </Pressable>
-          </View>
-        )}
 
         {/* IDENTITY */}
         <MonoLabel color={theme.steelLight} style={{ marginBottom: 8, marginTop: 4 }}>IDENTITY</MonoLabel>

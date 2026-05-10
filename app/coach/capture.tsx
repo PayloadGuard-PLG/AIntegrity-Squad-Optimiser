@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert, Image, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, ActivityIndicator, Platform } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useSquad } from '../../src/hooks/useSquad';
@@ -12,6 +12,7 @@ import { computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile, TalentTier } from '../../src/types/resources';
 import { squadPlanService } from '../../src/services/squadPlanService';
+import { scanCoachScreen } from '../../src/logic/coachScanner';
 import { Player } from '../../src/database/playerSchema';
 
 const profile = gameProfileJson as unknown as GameProfile;
@@ -43,7 +44,8 @@ export default function CoachCaptureScreen() {
   const [expandedStat, setExpandedStat] = useState<string | null>(null);
 
   const [saved, setSaved] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanStatus, setScanStatus] = useState('');
 
   const player: Player | null = squad.find(p => p.id === selectedPlayerId) ?? null;
 
@@ -55,18 +57,35 @@ export default function CoachCaptureScreen() {
     return { white: w, grey: g };
   }, [player]);
 
+  async function scanFromUri(uri: string) {
+    setIsScanning(true);
+    setScanStatus('SCANNING...');
+    try {
+      const scan = await scanCoachScreen(uri);
+      const parts: string[] = [];
+      if (scan.coachType) { setCoachType(scan.coachType); parts.push(scan.coachType); }
+      if (scan.coachCategory) { setCoachCategory(scan.coachCategory); parts.push(scan.coachCategory); }
+      if (scan.multiplier) { setMultiplier(String(scan.multiplier)); parts.push(`×${scan.multiplier}`); }
+      setScanStatus(parts.length > 0 ? `DETECTED: ${parts.join(' · ')}` : 'NOTHING DETECTED — SET MANUALLY');
+    } catch (e) {
+      setScanStatus('SCAN FAILED — SET MANUALLY');
+    } finally {
+      setIsScanning(false);
+    }
+  }
+
   async function pickFromGallery() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
-    if (!result.canceled && result.assets[0]) setCapturedImage(result.assets[0].uri);
+    if (!result.canceled && result.assets[0]) await scanFromUri(result.assets[0].uri);
   }
 
   async function pickFromCamera() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
     const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
-    if (!result.canceled && result.assets[0]) setCapturedImage(result.assets[0].uri);
+    if (!result.canceled && result.assets[0]) await scanFromUri(result.assets[0].uri);
   }
 
   function selectPlayer(p: Player) {
@@ -200,28 +219,29 @@ export default function CoachCaptureScreen() {
       <AppHeader onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
 
-        {/* 0. SCREENSHOT UPLOAD */}
+        {/* 0. SCREENSHOT SCAN — no image displayed */}
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-          {capturedImage ? (
-            <>
-              <Image source={{ uri: capturedImage }} style={{ width: '100%', height: 220, resizeMode: 'contain', backgroundColor: theme.surface }} />
-              <Pressable onPress={() => setCapturedImage(null)}
-                style={{ padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: theme.hairline }}>
-                <MonoLabel size={9} color={theme.neg}>✕ CLEAR IMAGE</MonoLabel>
-              </Pressable>
-            </>
-          ) : (
-            <View style={{ flexDirection: 'row' }}>
-              <Pressable onPress={pickFromCamera}
-                style={{ flex: 1, padding: 16, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>◉</Text>
-                <MonoLabel size={9} color={theme.steelLight}>CAMERA</MonoLabel>
-              </Pressable>
-              <Pressable onPress={pickFromGallery}
-                style={{ flex: 1, padding: 16, alignItems: 'center' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>⊞</Text>
-                <MonoLabel size={9} color={theme.steelLight}>GALLERY</MonoLabel>
-              </Pressable>
+          <View style={{ flexDirection: 'row' }}>
+            <Pressable onPress={pickFromCamera} disabled={isScanning}
+              style={{ flex: 1, padding: 16, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>◉</Text>
+              <MonoLabel size={9} color={theme.steelLight}>CAMERA</MonoLabel>
+            </Pressable>
+            <Pressable onPress={pickFromGallery} disabled={isScanning}
+              style={{ flex: 1, padding: 16, alignItems: 'center' }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>⊞</Text>
+              <MonoLabel size={9} color={theme.steelLight}>GALLERY</MonoLabel>
+            </Pressable>
+          </View>
+          {isScanning && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderTopWidth: 1, borderTopColor: theme.hairline }}>
+              <ActivityIndicator size="small" color={theme.steelLight} />
+              <MonoLabel size={9} color={theme.steelLight}>SCANNING COACH SCREEN...</MonoLabel>
+            </View>
+          )}
+          {!isScanning && scanStatus !== '' && (
+            <View style={{ padding: 10, borderTopWidth: 1, borderTopColor: theme.hairline }}>
+              <MonoLabel size={9} color={scanStatus.startsWith('DETECTED') ? theme.pos : theme.inkMuted}>{scanStatus}</MonoLabel>
             </View>
           )}
         </View>
@@ -380,12 +400,15 @@ export default function CoachCaptureScreen() {
               {saved ? '✓ SAVED TO SQUAD PLAN' : '⊞ SAVE TO LOG'}
             </Text>
           </Pressable>
-          <Pressable onPress={() => router.push('/coaches' as any)}
+          <Pressable
+            onPress={() => router.push({ pathname: '/(tabs)/coaches', params: { playerId: selectedPlayerId ?? '', sessions: multiplier } } as any)}
             style={{ borderWidth: 1, borderColor: theme.ink, padding: 14, alignItems: 'center', backgroundColor: theme.surface2 }}>
             <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: theme.ink, fontWeight: '700' }}>
               ▶ PROJECT
             </Text>
-            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>GO TO COACHES TAB</MonoLabel>
+            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>
+              {selectedPlayerId ? `→ COACHES · ${playerName} · ×${multiplier}` : 'SELECT PLAYER FIRST'}
+            </MonoLabel>
           </Pressable>
         </View>
 
