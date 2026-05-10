@@ -17,7 +17,14 @@
     },
     "plugins": [
       "expo-router",
-      "expo-updates"
+      "expo-updates",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Squad Optimiser to select coach screenshots from your photo library.",
+          "cameraPermission": "Allow Squad Optimiser to photograph the coach screen."
+        }
+      ]
     ],
     "updates": {
       "url": "https://u.expo.dev/5e2319b8-dda7-4fbf-9fb4-5918d690d476"

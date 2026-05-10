@@ -1,5 +1,11 @@
 import { TierName, TalentTier } from '../types/resources';
 
+export interface PlayerSnapshot {
+  stats: Record<string, number>;
+  overall: number;
+  tier: TierName;
+}
+
 export interface Player {
   id: string;
   name: string;
@@ -10,6 +16,7 @@ export interface Player {
   talent: TalentTier;
   stats: Record<string, number>;
   isMutantCandidate: boolean;
+  snapshot?: PlayerSnapshot | null;
 }
 
 export const INITIAL_PLAYER_STATE: Player = {
@@ -22,4 +29,5 @@ export const INITIAL_PLAYER_STATE: Player = {
   talent: 'Normal',
   stats: {},
   isMutantCandidate: false,
+  snapshot: null,
 };

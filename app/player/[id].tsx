@@ -38,6 +38,18 @@ const GK_STATS = [
   'AERIAL REACH',  'FITNESS',
 ];
 
+const STAT_COLS = {
+  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
+  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
+  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+};
+const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+function statColor(stat: string): string {
+  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
+  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
+  return COL_COLORS.PHY;
+}
+
 const inputStyle = {
   backgroundColor: theme.surface,
   borderWidth: 1,
@@ -60,6 +72,8 @@ export default function EditPlayerScreen() {
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
+  const [snapshot, setSnapshot] = useState<import('../../src/database/playerSchema').PlayerSnapshot | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
@@ -75,10 +89,11 @@ export default function EditPlayerScreen() {
     setTier(p.tier);
     setTalent(p.talent ?? 'Normal');
     setMutant(p.isMutantCandidate);
+    setSnapshot(p.snapshot ?? null);
     if (p.stats && Object.keys(p.stats).length > 0) {
       setStatInputs(Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, v.toString()])));
     }
-  }, [id]);
+  }, [id, reloadKey]);
 
   function toggleRole(role: string | null) {
     if (!role) return;
@@ -121,8 +136,29 @@ export default function EditPlayerScreen() {
       talent,
       stats: statsObj,
       isMutantCandidate: mutant,
+      snapshot,
     });
-    router.dismiss();
+    router.back();
+  }
+
+  function confirmRevert() {
+    if (!id || !snapshot) return;
+    Alert.alert(
+      'REVERT CARD',
+      `Restore pre-apply snapshot?\n\nOVR ${snapshot.overall.toFixed(1)} · ${snapshot.tier}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Revert',
+          style: 'destructive',
+          onPress: () => {
+            playerService.revertToSnapshot(id);
+            setSnapshot(null);
+            setReloadKey(k => k + 1);
+          },
+        },
+      ]
+    );
   }
 
   function confirmDelete() {
@@ -136,6 +172,18 @@ export default function EditPlayerScreen() {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader title="EDIT ASSET" subtitle="PROFILE · MUTABLE" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
+
+        {/* REVERT SNAPSHOT BANNER */}
+        {snapshot && (
+          <Pressable
+            onPress={confirmRevert}
+            style={{ borderWidth: 1, borderColor: theme.hot, backgroundColor: theme.hot + '18', padding: 12, marginBottom: 16 }}>
+            <MonoLabel size={9} color={theme.hot} style={{ marginBottom: 2 }}>PRE-APPLY SNAPSHOT AVAILABLE</MonoLabel>
+            <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.hot }}>
+              OVR {snapshot.overall.toFixed(1)} · {snapshot.tier.toUpperCase()} — TAP TO REVERT
+            </Text>
+          </Pressable>
+        )}
 
         {/* IDENTITY */}
         <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>IDENTITY</MonoLabel>
@@ -283,14 +331,15 @@ export default function EditPlayerScreen() {
                     {[stat, nextStat].map((s, idx) => {
                       if (!s) return <View key={idx} style={{ flex: 1 }} />;
                       const w = isWhiteStat(selectedRoles, s);
+                      const cc = statColor(s);
                       return (
                         <View key={s} style={{
                           flex: 1, padding: 10,
                           borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
+                          borderLeftWidth: 2, borderLeftColor: w ? cc : cc + '44',
                         }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                            <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
-                            <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
+                            <MonoLabel size={8} color={w ? cc : theme.inkMuted}>{s}</MonoLabel>
                           </View>
                           <TextInput
                             keyboardType="numeric"

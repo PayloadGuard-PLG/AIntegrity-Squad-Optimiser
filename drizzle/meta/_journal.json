@@ -22,6 +22,20 @@
       "when": 1746662400000,
       "tag": "0002_player_talent",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1746835200000,
+      "tag": "0003_player_snapshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1746921600000,
+      "tag": "0004_squad_plans",
+      "breakpoints": true
     }
   ]
 }

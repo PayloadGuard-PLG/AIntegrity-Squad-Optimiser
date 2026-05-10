@@ -11,6 +11,7 @@ export default function TabLayout() {
       <Tabs.Screen name="drills" />
       <Tabs.Screen name="coaches" />
       <Tabs.Screen name="results" />
+      <Tabs.Screen name="squad-plan" />
     </Tabs>
   );
 }

@@ -1,3 +1,14 @@
+export const OUTFIELD_STATS = [
+  'SHOOTING', 'PASSING', 'CROSSING', 'DRIBBLING', 'FINISHING', 'HEADING',
+  'TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'AGGRESSION', 'STRENGTH',
+  'SPEED', 'FITNESS', 'CREATIVITY',
+] as const;
+
+export const GK_STATS = [
+  'REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION',
+  'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION',
+] as const;
+
 export const ADJACENCY_MAP: Record<string, string[]> = {
   'GK':  [],
   'DC':  ['DL', 'DR', 'DMC'],

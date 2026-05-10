@@ -144,14 +144,14 @@ export default function ResultsScreen() {
 
     // 2. Tier upgrade
     if (selectedTier) {
-      const whiteKeys = getWhiteStatKeys(player.role);
-      const afterTier = applyTierBonusToStats(currentStats, whiteKeys, selectedTier, profile, player.tier);
+      const roleKeys = getAllStatKeys(player.role);
+      const afterTier = applyTierBonusToStats(currentStats, roleKeys, selectedTier, profile, player.tier);
       const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
       steps.push({
-        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / WHITE STAT)`,
+        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / ROLE STAT)`,
         ovrBefore: currentOvr,
         ovrAfter,
-        detail: `${whiteKeys.length} white stats affected`,
+        detail: `${roleKeys.length} role stats +${TIER_ADDITIONS[selectedTier]}, off-role +1`,
         color: TIER_COLORS[selectedTier] ?? theme.hot,
       });
       currentStats = afterTier;
@@ -530,8 +530,7 @@ export default function ResultsScreen() {
               <Pressable
                 onPress={() => {
                   if (!player || !finalStats) return;
-                  playerService.update({
-                    ...player,
+                  playerService.applyAndSnapshot(player, {
                     stats: finalStats,
                     overall: Number(finalOvr.toFixed(1)),
                     tier: selectedTier ?? player.tier,

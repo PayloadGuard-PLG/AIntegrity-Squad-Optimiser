@@ -10,6 +10,7 @@ export const players = sqliteTable('players', {
   stats: text('stats').notNull().default('{}'),             // JSON: Record<string, number>
   talent: text('talent').notNull().default('Normal'),
   isMutantCandidate: integer('is_mutant_candidate', { mode: 'boolean' }).notNull().default(false),
+  snapshot: text('snapshot'),  // JSON: PlayerSnapshot | null — pre-apply state for revert
   createdAt: integer('created_at').notNull(),
 });
 
@@ -24,6 +25,19 @@ export const coaches = sqliteTable('coaches', {
   costCurrency: text('cost_currency').notNull().default('free'),
   costAmount: integer('cost_amount').notNull().default(0),
   durationDays: integer('duration_days').notNull().default(1),
+  createdAt: integer('created_at').notNull(),
+});
+
+export const squadPlanRuns = sqliteTable('squad_plan_runs', {
+  id: text('id').primaryKey(),
+  playerId: text('player_id').notNull(),
+  label: text('label'),
+  sessions: integer('sessions').notNull(),
+  selectedStats: text('selected_stats').notNull(),  // JSON: string[]
+  ovrBefore: real('ovr_before').notNull(),
+  ovrAfter: real('ovr_after').notNull(),
+  gains: text('gains').notNull(),                   // JSON: StatGain[]
+  tier: text('tier'),
   createdAt: integer('created_at').notNull(),
 });
 

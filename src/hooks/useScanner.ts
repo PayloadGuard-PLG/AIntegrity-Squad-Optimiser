@@ -1,29 +1,32 @@
 import { useState } from 'react';
+import { scanPlayerCard } from '../logic/playerScanner';
 
-/**
- * useScanner Hook
- * Placeholder for the ML Kit Text Recognition implementation.
- * Maps extracted text to the Schema.players table.
- */
+export type ScanResult = {
+  stats: Record<string, number>;
+  name?: string;
+  age?: number;
+  overall?: number;
+  roles?: string[];
+  tier?: string;
+  talent?: string;
+};
+
 export const useScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const scanPlayerScreenshot = async (imageUri: string) => {
+  const scanPlayerScreenshot = async (imageUri: string): Promise<ScanResult | null> => {
     setIsScanning(true);
-    // In the final build, this calls the Native TurboModule for ML Kit
-    console.log("AIntegrity OCR: Processing image...");
-    
-    // Mock result based on Schema
-    const result = {
-      id: Date.now().toString(),
-      name: "Detected Player",
-      age: 22,
-      baseOvr: 110.5,
-    };
-
-    setIsScanning(false);
-    return result;
+    setError(null);
+    try {
+      return await scanPlayerCard(imageUri);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Scan failed');
+      return null;
+    } finally {
+      setIsScanning(false);
+    }
   };
 
-  return { scanPlayerScreenshot, isScanning };
+  return { scanPlayerScreenshot, isScanning, scanError: error };
 };

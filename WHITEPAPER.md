@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 0.4 — Sprint 6**
+**Version 1.0 — Sprint 13**
 
 ---
 
@@ -31,10 +31,10 @@ Drill Sessions  →  Tier Upgrade  →  Greens (condition)
 ### 3.1 OVR Formula
 
 ```
-OVR = mean(all 15 stats)
+OVR = floor(mean(all 15 stats))
 ```
 
-`qualityOvrDivisor = 1` — OVR is the unweighted mean of all 15 attributes directly. Empirically calibrated (e.g. player with mean stat 194.8 shows OVR 195).
+`qualityOvrDivisor = 1` — OVR is the **floored** (truncated) unweighted mean of all 15 attributes. Confirmed from Sutters GK snapshot (2026-05-08): sum of 15 stats = 2,844; 2,844 ÷ 15 = 189.6 → game displays **189**. Earlier estimate (mean 194.8 → displays 195) was unverified; the truncation rule supersedes it.
 
 ### 3.2 XP cost per 1% stat gain
 
@@ -136,15 +136,19 @@ Costs increase with stat value. Top-level players (stats 180–250) still train 
 | Normal | 1.00 |
 | Slow | 0.70 |
 
-### 3.6 Drill level multipliers
+### 3.6 Drill level multipliers (XP)
 
-| Level | Multiplier |
+These multipliers scale the XP budget available per session. They apply to stat-gain calculations only.
+
+| Level | XP multiplier |
 |---|---|
 | Very Easy | 1.0 |
 | Easy | 1.15 |
 | Medium | 1.3 |
 | Hard | 1.55 |
 | Very Hard | 1.7 |
+
+**Note:** Condition loss uses a separate set of multipliers (`COND_LEVEL_MULTIPLIERS`) — see §5. The two sets are not interchangeable.
 
 ### 3.7 Grey stat weight
 
@@ -158,15 +162,25 @@ No star decay is applied (`starDecayPerSession = 1.0`). Real training data (Stan
 
 ## 4. Tier Upgrade Model
 
-Tier upgrades are applied after all drills. The bonus is a flat attribute addition per white (essential) stat; OVR is recalculated from the updated stat values.
+Tier upgrades are applied after all drills. The bonus is a flat attribute addition per **role stat** (white + grey); off-role stats (present in a player's 15-stat grid but outside their role's essential+secondary list) receive a flat +1. OVR is recalculated from all 15 updated values.
 
 ```
-for each white stat:
-    stat += tierAttrAddition[targetTier]
-    stat = min(stat, statCap)   // statCap = 340
+roleStats = getAllStatKeys(player.role)   // white ∪ grey for all player roles
 
-OVR = mean(all 15 updated stats)
+for each stat in player.stats:
+    if stat in roleStats:
+        stat += tierAttrAddition[targetTier] - tierAttrAddition[fromTier]
+        stat = min(stat, statCap)    // statCap = 340
+    else:
+        stat += 1                    // off-role: flat +1 per tier step
+
+OVR = floor(mean(all 15 updated stats))
 ```
+
+**Confirmed from Ricky Grant Elite→Stellar reality check (2026-05-09):**
+- 13 role stats: each +20 (Elite→Stellar increment = 50−30 = +20)
+- HEADING and STRENGTH (off-role for DL): each +1
+- Predicted OVR 175 matched game exactly.
 
 ### 4.1 Tier attribute additions and point costs
 
@@ -185,10 +199,10 @@ Each tier type has its own independent point pool. Rare points, Elite points, St
 
 ### 4.2 OVR gain estimation (example)
 
-Stellar upgrade on a striker with 6 white stats, each at 100:
-- Attr addition: +50 per white stat
-- New white stats: 150 each (below 340 cap ✓)
-- OVR delta: 50 × 6 / 15 = +20 OVR
+Stellar upgrade on a striker (6 white + 3 grey = 9 role stats, 6 off-role), each role stat at 100, off-role at 80:
+- Role stats: +50 each → 150 (below 340 cap ✓)
+- Off-role stats: +1 each → 81
+- OVR delta: (50 × 9 + 1 × 6) / 15 = 456/15 = +30.4 OVR
 
 ---
 
@@ -221,17 +235,46 @@ If a game is scheduled for the next day, the manager has a known time window and
 
 **Premium sponsor — Faster Condition Recovery:** Milestone track grants cooldown reductions (+10% at milestone 6, further at milestone 12), meaning more drill cycles per real-time hour. `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
-**Drill condition loss** per Fan Club level. Model and observed values confirmed:
+**Drill condition loss — confirmed formula (Sprint 11)**
 
-| Fan Club Level | Drain reduction | Effective multiplier | Observed (Video Analysis, Very Easy) |
-|---|---|---|---|
-| L0 | −10% | 0.90 | — |
-| L1 | −15% | 0.85 | — |
-| L2 | −20% | 0.80 | — |
-| L3 | −25% | 0.75 | — |
-| L4 | −50% | 0.50 | 0.375% per session (model) = 0.38% displayed (observed) ✓ |
+Condition loss is **level-based, not drill-specific**. Every drill shares the same `baseLoss = 0.75%`. Actual loss per drill:
 
-**Zero-Drain Protocol — REVISED:** Zero drain is **drill-specific**, not universal at L4 + Very Easy. Observed: Ball Control at Very Easy + L4 = −0.38% (not zero). The L4 factor halves condition loss; a drill with baseLoss 0.75% becomes 0.375%, which the display rounds to 0.38%. Zero drain (0.00% displayed) only occurs for drills whose computed loss falls below the game's display minimum threshold (~0.01%). Engine `isZeroDrain` is now computed per-drill: `actualLoss < 0.01`. Note: active chants may further reduce condition — this is not yet modelled.
+```
+conditionLoss = baseLoss × COND_LEVEL_MULTIPLIERS[drillLevel] × (1 − fanClubReduction)
+```
+
+**Condition level multipliers (`COND_LEVEL_MULTIPLIERS`) — confirmed from in-game screenshots:**
+
+| Drill level | Multiplier |
+|---|---|
+| Very Easy | 1 |
+| Easy | 2 |
+| Medium | 3 |
+| Hard | 4 |
+| Very Hard | 5 |
+
+**Fan Club drain reduction:**
+
+| Fan Club Level | Reduction | Retention |
+|---|---|---|
+| L0 | −10% | 0.90 |
+| L1 | −15% | 0.85 |
+| L2 | −20% | 0.80 |
+| L3 | −25% | 0.75 |
+| L4 | −50% | 0.50 |
+
+**Verification (all values match in-game observations):**
+
+| Level | Fan Club | Formula | Result | Observed |
+|---|---|---|---|---|
+| Very Easy | L4 | 0.75 × 1 × 0.50 | 0.375% | 0% (see zero-drain below) ✓ |
+| Easy | L4 | 0.75 × 2 × 0.50 | 0.75% | 0.75% ✓ |
+| Very Hard | L0 | 0.75 × 5 × 0.90 | 3.375% | 3.38% ✓ |
+| Very Hard | L4 | 0.75 × 5 × 0.50 | 1.875% | 1.88% ✓ |
+
+**Zero-Drain Protocol — confirmed:** Very Easy + Fan Club L4 = 0.375%, which falls below the game's display threshold and shows as **0.00%**. Engine `isZeroDrain` fires when `conditionLoss < 0.5%` — which is exclusive to VE+L4 under current fan club and level ranges. Easy+L4 = 0.75% is above the threshold and is not zero drain.
+
+Note: active chants may further reduce condition — not yet modelled.
 
 ---
 
@@ -411,15 +454,18 @@ The manager style controls the resource pool available for planning:
 
 ## 9. Drill Optimiser
 
-The drill optimiser (`getBestDrillSelections`) recommends training drills that maximise skill development for a player's role while minimising condition cost.
+The drill optimiser (`getBestDrillSelections`) recommends all drills sorted by ROI, letting the manager identify the highest-value training for a player's role.
 
 Each drill returns:
 - `name` — drill name
 - `type` — Attack / Defence / Physical
-- `efficiency` — fraction 0–1 of target stats hit (rendered as % in UI)
-- `conditionCost` — total condition % lost over a 6-slot session
-- `isZeroDrain` — true when conditionCost === 0 (Zero-Drain Protocol active)
-- `whiteHits` — `{ stat: string; white: boolean }[]` — every stat the drill trains, flagged whether it is role-essential (white) or grey
+- `efficiency` — fraction 0–1 of the drill's stats that are white (essential) for this player's role (rendered as % in UI)
+- `conditionCost` — per-drill condition % lost (direct game display value; 0 when `isZeroDrain`)
+- `isZeroDrain` — true when `conditionLoss < 0.5%` (only VE+L4 qualifies under current ranges)
+- `avgWhiteStatValue` — mean current value of white stats this drill trains; lower = cheaper XP per gain = higher ROI
+- `whiteHits` — `{ stat: string; white: boolean }[]` — every stat the drill trains, flagged white or grey
+
+**All 25 drills are shown for every player** (no efficiency filter). Drills are sorted ascending by `avgWhiteStatValue` — cheapest gains first. Drills that train no white stats for a given role (Infinity value) sink to the bottom naturally.
 
 Drills are classified as `isBase: true` (core daily drills available always) or `isBase: false` (event or lab drills with restricted availability).
 
@@ -439,6 +485,24 @@ interface Player {
   tier: TierName;
   stats: Record<string, number>;  // Individual stat values; {} if not entered
   isMutantCandidate: boolean;
+  snapshot?: { stats: Record<string, number>; overall: number; tier: TierName } | null;
+}
+```
+
+### SquadPlanRun
+
+```typescript
+interface SquadPlanRun {
+  id: string;
+  playerId: string;
+  label: string | null;
+  sessions: number;
+  selectedStats: string[];
+  ovrBefore: number;
+  ovrAfter: number;
+  gains: { stat: string; from: number; gain: number; isWhite: boolean }[];
+  tier: TierName | null;
+  createdAt: number;
 }
 ```
 
@@ -487,14 +551,17 @@ interface InvestmentPlan {
 
 | Item | Status |
 |---|---|
-| Drill XP baseline | `baseXpPerSession = 150` is a working estimate. Validate by noting a player's stat value before N sessions, comparing observed gain to engine output, then adjusting the value in `profiles/game_2025.json` |
-| GK white stat list | `ROLE_CONSTRAINTS.GK.essential` is estimated — needs empirical validation |
-| GK stat entry UI | `app/player/new.tsx` shows outfield stats for all roles; GK needs a separate stat grid (REFLEXES, HANDLING, etc.) |
-| Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate |
-| Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Matchday Coach multiplier, and ADVANCE costs are all out of scope for current OVR projection |
-| Star decay curve | `starMult = 0.85^n` per additional % gained in a session; actual curve unconfirmed |
-| Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output |
-| Formation/synergy | Not modelled |
+| Drill XP baseline | `baseXpPerSession = 150` confirmed from Standard Attacking ×30 (age 18, Normal talent). Validate for other intensities/ages with CALIBRATION_LOG data. |
+| GK white stat list | Confirmed Sprint 8: 10 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION) + 5 grey. |
+| GK stat entry UI | Fixed Sprint 9: GK_STATS grid 10 → 15; all confirmed from Sutters card. |
+| Tier bonus scope | Confirmed Sprint 12: role stats (white+grey via `getAllStatKeys`) get full increment; off-role stats get +1 flat. Validated Ricky Grant Elite→Stellar — engine OVR 175 matched game exactly. |
+| Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
+| Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
+| Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
+| Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Matchday Coach multiplier, and ADVANCE costs are out of scope for current OVR projection. |
+| Star decay curve | `starDecayPerSession = 1.0` (no decay). Confirmed near-linear from real data. |
+| Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output. |
+| Formation/synergy | Not modelled. |
 
 ---
 
@@ -506,3 +573,66 @@ interface InvestmentPlan {
 | 0.2 | Sprint 2 | Investment engine — OVR projector, coach-card gain formula, scenario comparator |
 | 0.3 | Sprint 5 | XP model, drill sessions, per-tier point pools, OVR formula fix (divisor 4→1), drill level rename, role adjacency transitive fix |
 | 0.4 | Sprint 6 | Extended XP cost table to stat 339; baseXpPerSession budget multiplier; Direction B UI; OVR display delta fix |
+| 0.5 | Sprint 7 | Drill level selector in Drills tab; talent multiplier labels; zero-drain detection at L4+VE |
+| 0.6 | Sprint 8 | Coaches tab (SESSION SIMULATOR); fractional XP model; ROI-based drill sort; GK role constraints confirmed; smarter skip warnings |
+| 0.7 | Sprints 9–10 | RESULTS tab; tier bonus applied to all 15 stats (fix); talent on player card; apply-gains write-back; GK stat grid complete; OVR truncation confirmed; Expo Web; Matchday Coach + teamplay data logged |
+| 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; First Touch Play rename; Piggy in the Middle AGGRESSION |
+| 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
+| 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
+
+---
+
+## 13. Coaches Tab and Results Hub
+
+### 13.1 SESSION SIMULATOR (Coaches tab)
+
+`app/(tabs)/coaches.tsx` — models the effect of a coaching block on a single player. The user specifies:
+- **Subject** — player from squad
+- **Stat coverage** — 3-column grid (StatGrid component). White stats section + Grey/Non-role section, each rendered in rows of 3. Tap to toggle. Counter shows total selected.
+- **Sessions ×N** — how many coaching sessions (e.g. ×30 Standard Attacking, ×59 Standard Safeguard)
+- **Intensity** — locked to Very Hard (academy coaches have no adjustable difficulty)
+- **Talent** — read from player card (`player.talent`); no per-session dropdown
+
+The **2× AD multiplier** is absent from this tab. The 2× ad boost applies only to Teamplay drills, not Academy coaching. The engine hardcodes `twoxAd = false` for all coach projections.
+
+Output: per-stat gains (float), OVR before/after banner, optional TIER UPGRADE card showing combined OVR.
+
+**SAVE RUN TO SQUAD PLAN** — persists the current projection (sessions, selected stats, gains, OVR before/after, tier) to the `squad_plan_runs` table for the current player. Button confirms inline (text changes to ✓ SAVED).
+
+**APPLY TO PLAYER CARD** writes post-coach stats + updated OVR (+ tier if selected) back to the player's DB record.
+
+**→ CAPTURE** button in the header navigates to the Coach Session Capture screen for logging raw game data.
+
+### 13.2 FULL PLAN (Results tab)
+
+`app/(tabs)/results.tsx` — chains multiple coaching sessions + tier upgrades + greens + rest packs into a single sequential OVR projection. Each step shows OVR before → after. Gives the manager a complete end-to-end roadmap: drill blocks → Epic upgrade → Legendary upgrade → condition restore.
+
+**APPLY FULL PLAN TO CARD** writes the final stats, OVR, and tier back to the player record in one tap.
+
+### 13.3 COACH SESSION CAPTURE (`/coach/capture`)
+
+`app/coach/capture.tsx` — calibration data logger. Lets the user enter what the in-game coach preview shows (per-stat gain ranges) and saves the data for reference.
+
+**Sections:**
+1. **Coach Type** — TYPE (STANDARD / FOCUSED / EXTENSIVE) + CATEGORY (ATTACKING / DEFENDING / PHYSICAL / SAFEGUARD) + MULTIPLIER ×N
+2. **Player Card** — squad auto-fill chip row. Selecting a player copies OVR, age, talent, and all stats from the player card. White/grey classification is derived from the player's role via `getWhiteStatKeys` / `getAllStatKeys`.
+3. **Highlighted Stats** — tap any stat to expand it. Enter CURRENT value (pre-filled from card) + +GAIN LO and +GAIN HI observed in the game preview. OVR BOOST LO/HI panels auto-calculate using `computeOvrWithPadding`.
+4. **Actions** — SAVE TO LOG (persists run to Squad Plan), PROJECT (navigates to Coaches tab).
+
+Stat classification in the Capture screen correctly reflects the selected player's role — white stats show under WHITE — ESSENTIAL, grey under GREY — SECONDARY / NON-ROLE.
+
+### 13.4 SQUAD PLAN tab
+
+`app/(tabs)/squad-plan.tsx` — persistent per-player scenario builder.
+
+Displays all saved projection runs grouped by player. Each run shows:
+- OVR before → after and gain delta
+- Session count and stat count
+- Tier (if applicable)
+- Timestamp
+- Expandable stat gain tags (per-stat +gain values)
+- Delete button (with confirmation)
+
+Players with no saved runs appear below with a shortcut to the Coaches tab. The instruction footer reminds users to use SAVE RUN in the Coaches tab to populate this view.
+
+**DB backing:** `squad_plan_runs` table (migration 0004). `squadPlanService` provides `saveRun`, `getRunsForPlayer`, `getAllRuns`, `deleteRun`. Runs are inserted by the Coaches tab (SAVE RUN button) and by the Coach Capture screen (SAVE TO LOG button).

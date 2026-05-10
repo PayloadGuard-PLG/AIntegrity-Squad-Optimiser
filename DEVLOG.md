@@ -4,6 +4,336 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 13 — Squad Plan, Coach Capture, Coaches Overhaul
+**2026-05-10 — Session UHXEX (day 2)**
+
+### Scan Feature Restored (2026-05-10)
+
+**Background:** When PR #3 reverted `COACH_CALIBRATION.csv` and related files, it also removed `src/logic/playerScanner.ts` and `src/logic/pickImage.ts` — the on-device OCR that powered "SCAN PLAYER CARD SCREENSHOT" in Add Player. A temporary replacement incorrectly used the Claude Vision API (which this project intentionally does not use — no LLM API calls, no API keys).
+
+**What was restored:**
+
+- `src/logic/playerScanner.ts` — ML Kit text recognition; Y-baseline token pairing to extract stat names + values from card screenshots; also extracts OVR, age, name, roles, tier, talent.
+- `src/logic/pickImage.ts` — `expo-image-picker` gallery launcher; `picker.active` shared flag.
+- `src/hooks/useScanner.ts` — Now wraps `scanPlayerCard` instead of calling any API. Zero external network calls.
+- `src/utils/roleWeights.ts` — Added `OUTFIELD_STATS` and `GK_STATS` exports (required by `playerScanner.ts`).
+- `app/player/new.tsx` — `pickAndScan` now also populates `tier`, `talent`, `roles` from scan result (these were wired in the original but lost in the rewrite).
+- Installed `@react-native-ml-kit/text-recognition` (native module, requires a dev build — not available in Expo Go).
+
+**Design principle confirmed:** This app makes no LLM API calls. All intelligence is on-device (ML Kit OCR) or pure math (XP/OVR engine). No `EXPO_PUBLIC_ANTHROPIC_API_KEY` or any other AI service key is needed or used.
+
+**Prevention:** See HANDOVER → Critical Native Dependencies section. These files must never be removed without a replacement. Any PR that removes `src/logic/playerScanner.ts`, `src/logic/pickImage.ts`, or `@react-native-ml-kit/text-recognition` from `package.json` must include an explicit justification.
+
+---
+
+### CI Note — npm audit warnings (2026-05-10)
+
+9 vulnerabilities reported by `npm audit` (8 moderate, 1 high). All are inside Expo's own dep chain: `postcss` via `@expo/metro-config` → `@expo/cli` → `expo`. These are build-tool-only (Metro bundler); they do not affect the shipped app. The suggested fix (`npm audit fix --force`) would downgrade Expo to v49 — do **not** run it. Will clear when Expo patches their deps. No action required from us.
+
+---
+
+### CI Note — Node.js 24 Action Pins (2026-05-10)
+
+`actions/checkout` and `actions/setup-node` are still compiled against Node 20. Set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` in the workflow env so GitHub forces them onto Node 24 — jobs pass, warning is informational only. When the action maintainers publish Node 24 native releases, re-pin both SHAs and drop the env flag. Watch `github.com/actions/checkout/releases` and `github.com/actions/setup-node/releases` for a release noting Node 24 support.
+
+---
+
+### Shipped
+
+**Squad Plan tab (new)**
+
+New `SQUAD PLAN` tab added to the main nav. Displays all saved projection runs grouped by player — OVR before/after, stat gains, session count, tier (if any), timestamp. Per-run delete. "Add run → Coaches tab" shortcut for players with no runs yet. Backed by `squad_plan_runs` SQLite table (DB migration 0004).
+
+**Coach Session Capture screen (new)**
+
+`/coach/capture` accessible via `→ CAPTURE` button in the Coaches tab header. Lets you log what the game's coach preview shows (+gain lo/hi per stat). Sections: coach type/category/multiplier, squad auto-fill (player card copies stats, role, talent, OVR), per-stat gain entry (tap to expand → CURRENT / +LO / +HI inputs), live OVR boost preview. Actions: SAVE TO LOG (saves to Squad Plan) and PROJECT (navigate to Coaches tab).
+
+**Coaches tab overhauls**
+
+- **Removed 2× AD toggle** — hardcoded `false`; the multiplier only applies to Teamplay drills, not Academy coaches.
+- **3-column stat grid** — replaced `flexWrap` pile with a proper 3-col `StatGrid` component (rows of 3 Pressables). White and grey sections each use 3 columns, 5 rows max for outfield.
+- **Grey label** — "GREY — SECONDARY (×0.5 XP)" → "GREY — SECONDARY / NON-ROLE"
+- **SAVE RUN button** — after projection, "SAVE RUN TO SQUAD PLAN" button persists the run to `squad_plan_runs` and confirms inline (text changes to ✓).
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F37 | Coaches stat grid was flexWrap pile — no consistent layout | Replaced with `StatGrid` 3-column component |
+| F38 | 2× AD toggle present in coaches — doesn't apply to Academy coaches | Removed toggle, hardcoded `false` |
+| F39 | No persistent history of coach projections | Squad Plan tab + `squadPlanService` + DB migration 0004 |
+| F40 | White/grey stat detection not surfaced in capture flow | Coach Capture auto-fills from player card and labels stats WHITE/GREY by role |
+
+---
+
+## Sprint 12 — Tier Bonus Engine Fix + Player Snapshot / Revert
+**2026-05-09 — Session UHXEX (continued)**
+
+### Shipped
+
+**Tier bonus now correctly applied to role stats (white + grey), off-role gets +1**
+
+Reality-checked against Ricky Grant Elite→Stellar:
+- Role stats (getAllStatKeys: white + grey union) → receive the full tier increment
+- Off-role stats present in the player's stat dict → receive a flat +1 per tier step
+
+Previously `applyTierBonusToStats` only applied the increment to white stats. Grey stats (e.g. HEADING for a DC secondary role) received nothing. Off-role stats (e.g. STRENGTH, HEADING for a DL-only player) also received nothing, resulting in OVR over-prediction.
+
+Fixed in:
+- `src/logic/xpEngine.ts` — `applyTierBonusToStats` now iterates all keys in the stats dict: role keys get `+inc`, others get `+1`
+- `src/logic/ovrProjector.ts` — both the stat-entry path (direct loop) and the no-stats analytical path updated
+- `app/(tabs)/coaches.tsx` — tier preview + apply now pass `getAllStatKeys` instead of `getWhiteStatKeys`
+- `app/(tabs)/results.tsx` — same
+
+**Player snapshot + one-step revert**
+
+When APPLY TO PLAYER CARD or APPLY FULL PLAN TO CARD is pressed, the pre-apply state (`{ stats, overall, tier }`) is saved as a `snapshot` field on the player record before overwriting. A subsequent apply replaces the snapshot (one level of undo only).
+
+The player edit screen (`app/player/[id].tsx`) shows an orange banner when a snapshot exists, displaying the previous OVR and tier. Tapping the banner prompts a confirmation dialog. On confirm, `playerService.revertToSnapshot` restores the original values and clears the snapshot; the form reloads in-place.
+
+DB migration `0003_player_snapshot.sql`: `ALTER TABLE players ADD snapshot text DEFAULT NULL`.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F35 | Tier bonus only applied to white stats — grey stats got 0 increment | `applyTierBonusToStats` now uses `getAllStatKeys` (white+grey); off-role get +1 |
+| F36 | No way to undo APPLY TO PLAYER CARD — had to manually re-enter stats | Snapshot saved before every apply; REVERT banner on edit screen restores pre-apply state |
+
+### Next Sprint Targets
+
+- Beta testing results (user session tonight/tomorrow) — expect label cleanup, navigation gaps, UI polish
+- Validate condition formula at Easy and Medium difficulty (only VH and VE cross-checked)
+- Add Ball Control drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
+
+---
+
+## Sprint 11 — Drill Condition Formula Overhaul + All Drills Visible
+**2026-05-09 — Session UHXEX**
+
+### Shipped
+
+**Condition formula corrected — confirmed from in-game screenshots**
+
+`src/utils/conditionEngine.ts` — complete rewrite of condition loss calculation:
+
+- New `COND_LEVEL_MULTIPLIERS`: VE×1, Easy×2, Medium×3, Hard×4, VH×5. These are separate from the XP `drillLevelMultipliers` in `game_2025.json` (which go 1.0→1.7). Confirmed by cross-referencing all difficulty/fan levels against game UI.
+- `calculateActualLoss(baseLoss, fanLevel, drillLevel)` — now accepts `drillLevel` and applies the correct condition multiplier before fan club reduction.
+- Formula: `baseLoss × COND_LEVEL_MULTIPLIERS[drillLevel] × (1 − FAN_CLUB_REDUCTIONS[fanLevel] / 100)`
+
+**Universal `baseLoss = 0.75` for all drills**
+
+`src/database/drillDatabase.ts` — replaced all individual `baseLoss` values with the universal constant `BASE_LOSS = 0.75`. Condition cost is determined entirely by difficulty level and fan club level, not by which specific drill is used.
+
+Verification from in-game screenshots:
+
+| Drill | Level | Fan Club | Formula | Observed |
+|---|---|---|---|---|
+| Use Your Head | VH | L0 | 0.75 × 5 × 0.9 | 3.375 ≈ 3.38% ✓ |
+| Carioca with Ladders | VH | L4 | 0.75 × 5 × 0.5 | 1.875 ≈ 1.88% ✓ |
+| Carioca with Ladders | Easy | L4 | 0.75 × 2 × 0.5 | 0.75% ✓ |
+| Any drill | VE | L4 | 0.75 × 1 × 0.5 | 0.375% → 0% in game display ✓ |
+
+**`isZeroDrain` threshold revised**
+
+`src/logic/controller.ts` — zero-drain is now `actualLoss < 0.5%`. VE+L4 = 0.375% < 0.5% → shows 0% (matches game). Easy+L4 = 0.75% → not zero drain.
+
+Removed the `× 6` multiplier hack (`conditionCost = actualLoss * 6` → `conditionCost = actualLoss`). `conditionCost` is now a direct per-drill % matching the game's display value.
+
+**All drills visible for all players**
+
+`src/logic/controller.ts` — removed `filter(d => d.efficiency >= 0.5)`. All 25 drills in the database are now shown for every player regardless of role overlap. ROI sort (ascending `avgWhiteStatValue`) still puts the best-value drills first; drills with no white stat hits (`avgWhiteStatValue = Infinity`) naturally appear at the bottom.
+
+**Drill database corrections**
+
+| Drill | Change |
+|---|---|
+| Skill Drill | Renamed → First Touch Play (confirmed from game) |
+| Piggy in the Middle | Added AGGRESSION to stat list |
+| Long Run, Stretch, Shuttle Runs | Removed STAMINA (not in any role's white/grey list) |
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F31 | Condition cost formula missing drill-level multiplier | Added `COND_LEVEL_MULTIPLIERS`; `calculateActualLoss` now accepts `drillLevel` |
+| F32 | All per-drill `baseLoss` values wrong (cost is level-based, not drill-based) | Universal `baseLoss = 0.75`; `× 6` hack removed |
+| F33 | `isZeroDrain` threshold too tight (< 0.01%) — VE+L4 showed as 0.38%, not zero | Threshold changed to < 0.5% — correctly flags VE+L4 as zero drain |
+| F34 | Drills with < 50% white stat overlap hidden from recommendations | Efficiency filter removed — all 25 drills visible for all roles |
+
+### Next Sprint Targets
+
+- Validate condition formula with more drill/level/fan combinations (user to provide screenshots at Easy, Medium, Hard levels)
+- Add Ball Control drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
+- Premium sponsor condition cooldown modelling
+
+---
+
+## Sprint 10 — Expo Web + Game Data Calibration Blitz
+**2026-05-08 — afternoon/evening**
+
+### Shipped
+
+**Expo Web support**
+
+`feat: add Expo Web support — localStorage storage layer + DOM tsconfig lib`
+
+- `localStorage`-backed storage adapter added alongside the existing SQLite layer
+- `tsconfig.json` lib updated to include DOM types
+- App now runs in-browser via `npx expo start --web` (no native binary required)
+- README updated with web setup guide (`docs: add web setup guide to README`)
+
+**Ball Control ×41 squad session logged (calibration)**
+
+`data/CALIBRATION_LOG.md` — section 6 entry: 31 players × 41 × Ball Control Very Easy at Fan Club L4 with Matchday Coach active.
+
+Key findings:
+- Condition per session: **−0.38%** confirmed from drill selection screen (not 0%)
+- `baseLoss 0.75% × 0.5 (L4) = 0.375% ≈ 0.38%` — formula validates
+- Zero-drain **revised**: Ball Control VE+L4 = 0.38% (not zero). Zero drain is difficulty-level-based, not universal. Underlying bug identified (fix shipped Sprint 11)
+
+**Matchday Coach mechanics confirmed**
+
+- Source: premium sponsor milestone reward. Also purchasable: 1-day = 25 tokens
+- Effect: **+150% teamplay multiplier on ALL training sessions** (not just 4 free drills)
+- Duration: 7 days from activation
+- Observed: 41 × Ball Control VE → Attack pillar +7 above its L4 cap (18 → 25 effective)
+- Matchday Coach can push pillars **above their level cap** temporarily
+- Variety penalty: repeating same drill reduces teamplay gain rate; game warns "Training today lacked variety"
+- Training XP yield confirmed separate from stat-gain XP
+
+**Full teamplay pillar mechanics confirmed**
+
+`data/CALIBRATION_LOG.md` — `TEAMPLAY_PILLARS` entry (2026-05-08):
+
+| Pillar | Level | Cap | Formula confirmed |
+|---|---|---|---|
+| Attack | 4/10 | 18 | level × 2 + 10 ✓ |
+| Defence | 6/10 | 22 | level × 2 + 10 ✓ |
+| Possession | 5/10 | 20 | level × 2 + 10 ✓ |
+| Condition | 3/10 | 16 | level × 2 + 10 ✓ |
+
+**Ad TV full reward track confirmed**
+
+All 10 Ad TV steps mapped: Daily Appearance → Special Sponsor → Playbook → Matchday Coach (2×) → Teamplay Form Boost (milestone) → Mourinho Support × 3 → Special Ability Boost (milestone).
+
+Teamplay Form Boost probabilities per pillar (same for all 4):
+- +1: 7% · +2: 10% · +3: 5.5% · +4: 2.5% = 25% per pillar = 1 hit guaranteed per draw
+- Expected value: ~+2.14 on the drawn pillar
+
+**Full squad snapshot logged**
+
+`data/` — 7 player profiles with all stats, coach projections, and tier formula findings from live data.
+
+**COACH_CALIBRATION.csv added**
+
+`data/COACH_CALIBRATION.csv` — machine-readable calibration sheet for coaching sub-engine validation.
+
+**Coaching sub-engine calibration instructions**
+
+`HANDOVER.md` updated with instructions for the next agent on how to supply coaching scenario data and what to record.
+
+**Proprietary licence applied**
+
+`LICENSE` updated: PayloadGuard PLG / AIntegrity Research, all rights reserved.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| — | Zero-drain incorrectly flagged universal at VE+L4 | Root cause confirmed: baseLoss model wrong + missing difficulty multiplier. Fix deferred to Sprint 11. |
+
+### Next Sprint Targets
+
+- Fix condition loss formula (identified this sprint, fix deferred)
+- Show all drills for all players (efficiency filter too aggressive)
+- Add coaching data validation entries as user provides scenarios
+
+---
+
+## Sprint 9 — RESULTS Hub + Talent Card + Tier Chain Fix
+**2026-05-08 — morning**
+
+### Shipped
+
+**RESULTS tab — 5-tab navigation**
+
+`app/(tabs)/results.tsx` (new, 525 lines) — combined multi-session OVR projection hub. Stacks multiple coaching blocks + tier upgrade + greens + rest packs into a single sequential OVR chain projection. Each step shows OVR before → after.
+
+`src/components/AppHeader.tsx` + `app/(tabs)/_layout.tsx` — 5-tab navigation. AppHeader now uses a horizontal scroll row to accommodate SQUAD · PLAN · DRILLS · COACHES · RESULTS.
+
+**Tier upgrade section in Coaches tab**
+
+`app/(tabs)/coaches.tsx` — TIER UPGRADE card added below the OVR projection result:
+- Shows all tiers above the player's current tier
+- Pre-fills HAVE inputs from `ManagerContext.tierPoints` (same pool as Plan tab)
+- ✓ tick when player has enough points to afford the upgrade; SHORT label when insufficient
+- Tap any affordable row → COACH + [TIER] combined banner appears showing total OVR gain
+- Drills-first order preserved: tier stat additions applied on top of post-coach stats
+
+**Talent tier on player card — single source of truth**
+
+DB migration `drizzle/0002_player_talent.sql` — `ALTER TABLE players ADD COLUMN talent DEFAULT 'Normal'`. Talent is now a first-class field on the `Player` record, set once at player creation/edit and read by every tab.
+
+`app/player/new.tsx` + `app/player/[id].tsx` — TALENT TIER picker added between TIER and MUTANT sections.
+
+`app/(tabs)/coaches.tsx` + `app/(tabs)/results.tsx` — per-session talent dropdowns removed. Both tabs now read `player.talent` directly.
+
+**APPLY TO PLAYER CARD — gains write-back**
+
+`app/(tabs)/coaches.tsx` — APPLY TO PLAYER CARD button writes post-coach stats, updated OVR, and selected tier back to the player's DB record. Projection is cleared, ready for the next coaching block.
+
+`app/(tabs)/results.tsx` — APPLY FULL PLAN TO CARD: same write-back for the full results chain.
+
+**GK stat grid — completed (closes KNOWN_ISSUES #4)**
+
+`app/player/new.tsx` + `app/player/[id].tsx` — GK_STATS grid expanded from 10 → 15 stats:
+- Added CONCENTRATION (white — was missing entirely)
+- Added STRENGTH, AGGRESSION, SPEED, CREATIVITY (all 5 grey stats; only FITNESS was present before)
+
+Confirmed from Sutters GK card (all 15 visible in screenshot).
+
+**Tier chain fix — bonus applies to all 15 stats**
+
+`src/logic/ovrProjector.ts` + `app/(tabs)/coaches.tsx` + `app/(tabs)/results.tsx`: `getWhiteStatKeys` → `getAllStatKeys` in all `applyTierBonusToStats` calls.
+
+Confirmed from Ricky Grant ELITE→STELLAR upgrade: 13 of 15 stats gained +20 each (2 already at cap). Game applies tier attribute additions to **all stats** (white + grey), not just essentials. Previous behaviour:
+
+| Role | White stats | Old OVR per STELLAR | Correct OVR per STELLAR |
+|---|---|---|---|
+| DL / ML / AML | 4–5 | +12 | +17 |
+| GK | 10 | +35 | ~+50 |
+
+**OVR formula — truncation confirmed**
+
+Sutters GK: sum of all 15 stats = 2,844. 2,844 ÷ 15 = 189.6 → game displays **189**. OVR is `floor(mean)`, not `round(mean)`.
+
+`WHITEPAPER.md §3.1` updated accordingly.
+
+**Academy coaches lock to Very Hard**
+
+`app/(tabs)/coaches.tsx` — INTENSITY picker removed; tab locked to Very Hard. Academy coaches have no adjustable difficulty setting.
+
+**Results tab refinements**
+
+`app/(tabs)/results.tsx` — sessions field locked to VH; tier shortfall indicator added when points entered but insufficient.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F29 | Tier bonus applied only to white stats — DL/AML showed +12 OVR per STELLAR (should be +17) | `getWhiteStatKeys` → `getAllStatKeys` in all tier bonus calls |
+| F30 | RESULTS tab missing from 5th nav slot | Wired into AppHeader + `_layout.tsx` |
+| F31 (pre) | GK stat grid incomplete — CONCENTRATION and 4 grey stats absent | GK_STATS expanded 10 → 15 |
+
+### Next Sprint Targets
+
+- Ball Control ×41 session data logging (in progress, user running session)
+- Condition loss formula investigation (zero-drain showing incorrectly for all VE drills at L4)
+- Coaching calibration: user to supply scenario data (Standard Attacking, Standard Safeguard, etc.)
+
+---
+
 ## Sprint 8 — Coaches Tab + XP Engine Deep Calibration
 **2026-05-07 — night**
 

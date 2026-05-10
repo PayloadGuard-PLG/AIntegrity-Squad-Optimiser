@@ -17,13 +17,12 @@ export function getBestDrillSelections(player: Player, fanClubLevel: number = 4,
     const whiteStats = Object.keys(player.stats).filter(stat => isEssentialGain(player.role, stat));
 
     return DRILL_LIST.map(drill => {
-        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel);
-        // Zero drain is per-drill: Ball Control Very Easy L4 = -0.38% (not zero).
-        // Only drills whose computed loss rounds to 0.00% in the game UI qualify.
-        const isZeroDrain = actualLoss < 0.01;
+        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drillLevel);
+        // Very Easy + L4 → 0.375% which the game rounds to 0 in isolation.
+        const isZeroDrain = actualLoss < 0.5;
         const whiteDrillStats = drill.stats.filter(s => whiteStats.includes(s));
         const efficiency = whiteDrillStats.length / drill.stats.length;
-        const conditionCost = isZeroDrain ? 0 : actualLoss * 6;
+        const conditionCost = isZeroDrain ? 0 : actualLoss;
 
         // Average current value of white stats this drill trains.
         // Lower average = cheaper XP cost per 1% = higher gain per session.
@@ -40,9 +39,9 @@ export function getBestDrillSelections(player: Player, fanClubLevel: number = 4,
             whiteHits: drill.stats.map(stat => ({ stat, white: whiteStats.includes(stat) })),
         };
     })
-    .filter(d => d.efficiency >= 0.5)
     .sort((a, b) => {
-        // Primary: lowest average white stat value (cheapest gains first)
+        // Primary: lowest average white stat value (cheapest gains first = best ROI)
+        // Drills with no white hits sort last (avgWhiteStatValue = Infinity)
         if (a.avgWhiteStatValue !== b.avgWhiteStatValue) return a.avgWhiteStatValue - b.avgWhiteStatValue;
         // Tiebreaker: highest white stat coverage
         return b.efficiency - a.efficiency;
