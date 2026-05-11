@@ -7,6 +7,14 @@ import { Chip } from '../../src/components/atoms/Chip';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { theme } from '../../src/constants/theme';
 
+const INTENSITY_COLORS: Record<string, string> = {
+  'Very Easy': '#34d399',
+  'Easy':      '#60a5fa',
+  'Medium':    '#fbbf24',
+  'Hard':      '#fb923c',
+  'Very Hard': '#f87171',
+};
+
 export default function DrillsScreen() {
   const { squad } = useSquad();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -17,7 +25,7 @@ export default function DrillsScreen() {
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
-    return getDrillRecommendations(selectedPlayer, fanLevel, drillLevel)
+    return getDrillRecommendations(selectedPlayer, fanLevel)
       .filter(d => d.intensity === drillLevel);
   }, [selectedPlayer, fanLevel, drillLevel]);
 
@@ -91,6 +99,7 @@ export default function DrillsScreen() {
 
             {drills.map((d, i) => {
               const tc = d.type === 'Attack' ? theme.steelLight : d.type === 'Defence' ? '#86c5d6' : theme.hot;
+              const ic = INTENSITY_COLORS[d.intensity] ?? theme.inkGhost;
               const eff = Math.round(d.efficiency * 100);
               const condCost = d.conditionCost;
               const isZero = d.isZeroDrain;
@@ -106,6 +115,9 @@ export default function DrillsScreen() {
                     <MonoLabel size={9} style={{ minWidth: 18 }}>{String(i + 1).padStart(2, '0')}</MonoLabel>
                     <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: tc + '55' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
+                    </View>
+                    <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: ic + '55' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: ic }}>{d.intensity.toUpperCase()}</Text>
                     </View>
                     <Text style={{ flex: 1, fontSize: 14, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
                     {avgStatLabel && (
