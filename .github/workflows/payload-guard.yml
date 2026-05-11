@@ -8,30 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        # Pinned to v4.1.1
-        uses: actions/checkout@a5ac7e51b41094c7423fa3e1f3e612012404a596 
-
-      - name: PayloadGuard
-        # Pinned to the verified 40-character SHA
-        uses: PayloadGuard-PLG/payload-consequence-analyser@2bbd0c77c28dcd75548d4b933911f29028c91847
-        with:
-          analysis_depth: 'forensic'
-          fail_on_risky_diff: true
-name: PayloadGuard Analysis
-on:
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  forensic-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
         # Pinned to v4.1.1 (Full 40-character SHA)
         uses: actions/checkout@a5ac7e51b41094c7423fa3e1f3e612012404a596
 
       - name: PayloadGuard
-        # Pinned to your verified commit SHA
+        # Pinned to the verified commit SHA
         uses: PayloadGuard-PLG/payload-consequence-analyser@2bbd0c77c28dcd75548d4b933911f29028c91847
         with:
           analysis_depth: 'forensic'
