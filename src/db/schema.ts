@@ -41,6 +41,13 @@ export const squadPlanRuns = sqliteTable('squad_plan_runs', {
   createdAt: integer('created_at').notNull(),
 });
 
+export const drillPresets = sqliteTable('drill_presets', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  drillNames: text('drill_names').notNull(),  // JSON: string[] up to 6
+  createdAt: integer('created_at').notNull(),
+});
+
 export const drillSessions = sqliteTable('drill_sessions', {
   id: text('id').primaryKey(),
   playerId: text('player_id').notNull(),

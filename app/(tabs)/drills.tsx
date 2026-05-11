@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Modal } from 'react-native';
 import { useSquad } from '../../src/hooks/useSquad';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { getDrillRecommendations } from '../../src/logic/controller';
+import { drillPresetService } from '../../src/services/drillPresetService';
 import { theme } from '../../src/constants/theme';
 
 const INTENSITY_COLORS: Record<string, string> = {
@@ -21,6 +22,12 @@ export default function DrillsScreen() {
   const [fanLevel, setFanLevel] = useState(2);
   const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
 
+  // Preset mode
+  const [presetMode, setPresetMode] = useState(false);
+  const [presetSelection, setPresetSelection] = useState<string[]>([]);
+  const [presetName, setPresetName] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const drills = useMemo(() => {
@@ -29,10 +36,33 @@ export default function DrillsScreen() {
       .filter(d => d.intensity === drillLevel);
   }, [selectedPlayer, fanLevel, drillLevel]);
 
+  function togglePresetDrill(name: string) {
+    setPresetSelection(prev => {
+      if (prev.includes(name)) return prev.filter(n => n !== name);
+      if (prev.length >= 6) {
+        // drop the last one (lowest ROI, as drills are sorted by ROI)
+        return [...prev.slice(0, 5), name];
+      }
+      return [...prev, name];
+    });
+  }
+
+  function savePreset() {
+    if (!presetName.trim() || presetSelection.length === 0) return;
+    drillPresetService.save(presetName.trim(), presetSelection);
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setPresetMode(false);
+      setPresetSelection([]);
+      setPresetName('');
+      setSaveSuccess(false);
+    }, 800);
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader />
-      <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 30 }}>
+      <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: presetMode ? 120 : 30 }}>
 
         {squad.length > 1 && (
           <>
@@ -94,25 +124,53 @@ export default function DrillsScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <MonoLabel color={theme.steelLight}>RECOMMENDATIONS</MonoLabel>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-              <MonoLabel size={9}>SORT ROI ▼</MonoLabel>
+              {presetMode ? (
+                <>
+                  <MonoLabel size={9} color={theme.hot}>{presetSelection.length}/6 SELECTED</MonoLabel>
+                  <Pressable onPress={() => { setPresetMode(false); setPresetSelection([]); setPresetName(''); }} style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.hairline2 }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: theme.inkSec }}>CANCEL</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <MonoLabel size={9}>SORT ROI ▼</MonoLabel>
+                  <Pressable onPress={() => setPresetMode(true)} style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.steelLight + '88' }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: theme.steelLight }}>BUILD PRESET</Text>
+                  </Pressable>
+                </>
+              )}
             </View>
 
             {drills.map((d, i) => {
-              const tc = d.type === 'Attack' ? theme.steelLight : d.type === 'Defence' ? '#86c5d6' : theme.hot;
+              const tc = d.type === 'Attack' ? theme.steelLight : d.type === 'Defence' ? '#86c5d6' : d.type === 'Possession' ? '#a78bfa' : theme.hot;
               const ic = INTENSITY_COLORS[d.intensity] ?? theme.inkGhost;
               const eff = Math.round(d.efficiency * 100);
               const condCost = d.conditionCost;
               const isZero = d.isZeroDrain;
               const avgStat = (d as any).avgWhiteStatValue;
               const avgStatLabel = isFinite(avgStat) ? `AVG ${Math.round(avgStat)}` : null;
+              const isSelected = presetSelection.includes(d.name);
+              const selRank = presetSelection.indexOf(d.name) + 1;
+
               return (
-                <View key={d.name} style={{
-                  borderWidth: 1, borderColor: theme.hairline2,
+                <Pressable key={d.name} onPress={presetMode ? () => togglePresetDrill(d.name) : undefined} style={{
+                  borderWidth: 1, borderColor: presetMode && isSelected ? theme.hot : theme.hairline2,
                   borderTopWidth: i > 0 ? 0 : 1,
-                  backgroundColor: theme.surface, padding: 12, paddingHorizontal: 14,
+                  backgroundColor: presetMode && isSelected ? 'rgba(251,146,60,0.08)' : theme.surface,
+                  padding: 12, paddingHorizontal: 14,
                 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    <MonoLabel size={9} style={{ minWidth: 18 }}>{String(i + 1).padStart(2, '0')}</MonoLabel>
+                    {presetMode ? (
+                      <View style={{ width: 22, height: 22, borderWidth: 1, borderColor: isSelected ? theme.hot : theme.hairline2, alignItems: 'center', justifyContent: 'center', backgroundColor: isSelected ? theme.hot : 'transparent' }}>
+                        {isSelected ? (
+                          <Text style={{ fontFamily: theme.mono, fontSize: 10, fontWeight: '700', color: theme.bg }}>{selRank}</Text>
+                        ) : (
+                          <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkGhost }}>{i + 1}</Text>
+                        )}
+                      </View>
+                    ) : (
+                      <MonoLabel size={9} style={{ minWidth: 18 }}>{String(i + 1).padStart(2, '0')}</MonoLabel>
+                    )}
                     <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: tc + '55' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
                     </View>
@@ -158,12 +216,41 @@ export default function DrillsScreen() {
                       </View>
                     </View>
                   </View>
-                </View>
+                </Pressable>
               );
             })}
           </>
         )}
       </ScrollView>
+
+      {/* Preset save bar — floats at bottom when in preset mode */}
+      {presetMode && (
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 14, paddingHorizontal: 16, gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <MonoLabel size={9} color={theme.inkSec}>
+              {presetSelection.length === 0 ? 'TAP DRILLS ABOVE TO SELECT (MAX 6)' : presetSelection.join('  ·  ')}
+            </MonoLabel>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <TextInput
+              value={presetName}
+              onChangeText={setPresetName}
+              placeholder="PRESET NAME"
+              placeholderTextColor={theme.inkGhost}
+              style={{ flex: 1, backgroundColor: theme.surface3, borderWidth: 1, borderColor: theme.hairline2, fontFamily: theme.mono, fontSize: 12, letterSpacing: 1, color: theme.ink, paddingHorizontal: 12, paddingVertical: 10 }}
+            />
+            <Pressable
+              onPress={savePreset}
+              disabled={!presetName.trim() || presetSelection.length === 0}
+              style={{ paddingHorizontal: 18, paddingVertical: 10, backgroundColor: saveSuccess ? theme.pos : (presetName.trim() && presetSelection.length > 0 ? theme.ink : theme.surface2), borderWidth: 1, borderColor: saveSuccess ? theme.pos : (presetName.trim() && presetSelection.length > 0 ? theme.ink : theme.hairline2) }}
+            >
+              <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: saveSuccess ? theme.bg : (presetName.trim() && presetSelection.length > 0 ? theme.bg : theme.inkGhost) }}>
+                {saveSuccess ? 'SAVED ✓' : 'SAVE'}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

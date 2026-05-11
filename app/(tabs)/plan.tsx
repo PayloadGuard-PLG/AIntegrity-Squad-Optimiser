@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -13,6 +13,7 @@ import { calculateFixtureCycles, calculateTeamPlayPlan, calculateGreensBridge } 
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar } from '../../src/types/resources';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
+import { drillPresetService, DrillPreset } from '../../src/services/drillPresetService';
 import gameProfile from '../../profiles/game_2025.json';
 
 const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
@@ -84,6 +85,8 @@ export default function PlanScreen() {
   );
   const [section, setSection] = useState<Section>('drills');
   const [plan, setPlan] = useState<InvestmentPlan | null>(null);
+  const [showPresetPicker, setShowPresetPicker] = useState(false);
+  const [savedPresets, setSavedPresets] = useState<DrillPreset[]>([]);
   const [fixtureHours, setFixtureHours] = useState('');
   const [fixtureCooldown, setFixtureCooldown] = useState('60');
   const [teamPlayInputs, setTeamPlayInputs] = useState<Partial<Record<TeamPlayPillar, string>>>({});
@@ -309,9 +312,14 @@ export default function PlanScreen() {
                     </View>
                   </View>
                 ))}
-                <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
-                </Pressable>
+                <View style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, flexDirection: 'row' }}>
+                  <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ flex: 1, padding: 12, alignItems: 'center', backgroundColor: theme.surface, borderRightWidth: 1, borderRightColor: theme.hairline2 }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
+                  </Pressable>
+                  <Pressable onPress={() => { setSavedPresets(drillPresetService.getAll()); setShowPresetPicker(true); }} style={{ paddingHorizontal: 16, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: theme.hot }}>LOAD PRESET</Text>
+                  </Pressable>
+                </View>
               </View>
 
               {/* FIXTURE WINDOW card */}
@@ -550,6 +558,49 @@ export default function PlanScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Preset Picker Modal */}
+      <Modal visible={showPresetPicker} transparent animationType="slide" onRequestClose={() => setShowPresetPicker(false)}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.hairline2, maxHeight: '70%' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.hairline2 }}>
+              <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>LOAD PRESET</MonoLabel>
+              <Pressable onPress={() => setShowPresetPicker(false)} style={{ paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.hairline2 }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.inkSec }}>CLOSE</Text>
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={{ padding: 14, gap: 8 }}>
+              {savedPresets.length === 0 ? (
+                <View style={{ padding: 40, alignItems: 'center' }}>
+                  <MonoLabel color={theme.inkGhost}>NO SAVED PRESETS</MonoLabel>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.inkGhost, marginTop: 6, letterSpacing: 0.5, textAlign: 'center' }}>Build a preset on the Drills tab first.</Text>
+                </View>
+              ) : (
+                savedPresets.map(preset => (
+                  <Pressable key={preset.id} onPress={() => {
+                    const newRows: DrillSession[] = preset.drillNames.map(name => ({ drillName: name, sessionCount: 6, drillLevel: 'Very Easy' as DrillLevel }));
+                    setDrillRows(rows => [...rows.filter(r => r.drillName !== 'Touch Training' || rows.length > 1), ...newRows].slice(0, 12));
+                    invalidate();
+                    setShowPresetPicker(false);
+                  }} style={{ borderWidth: 1, borderColor: theme.hairline2, backgroundColor: theme.surface, padding: 12, paddingHorizontal: 14 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                      <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: theme.ink, fontFamily: theme.display }}>{preset.name}</Text>
+                      <MonoLabel size={9} color={theme.inkGhost}>{preset.drillNames.length} DRILLS</MonoLabel>
+                    </View>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+                      {preset.drillNames.map(n => (
+                        <View key={n} style={{ paddingHorizontal: 6, paddingVertical: 3, borderWidth: 1, borderColor: theme.hairline3 }}>
+                          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: theme.inkSec }}>{n}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </Pressable>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

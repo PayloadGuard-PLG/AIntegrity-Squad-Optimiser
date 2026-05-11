@@ -53,6 +53,8 @@ UPDATE \`players\` SET \`tier\` = 'T4' WHERE \`tier\` = 'Master';
 UPDATE \`players\` SET \`tier\` = 'T5' WHERE \`tier\` = 'Epic';
 UPDATE \`players\` SET \`tier\` = 'T6' WHERE \`tier\` = 'Legendary';`;
 
+const m0006 = `CREATE TABLE IF NOT EXISTS \`drill_presets\` (\n  \`id\` text PRIMARY KEY NOT NULL,\n  \`name\` text NOT NULL,\n  \`drill_names\` text NOT NULL,\n  \`created_at\` integer NOT NULL\n);`;
+
 export default {
   journal,
   migrations: {
@@ -62,5 +64,6 @@ export default {
     m0003,
     m0004,
     m0005,
+    m0006,
   },
 };

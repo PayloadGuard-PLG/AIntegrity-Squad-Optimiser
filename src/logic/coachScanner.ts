@@ -1,5 +1,4 @@
 import TextRecognition from '@react-native-ml-kit/text-recognition';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
@@ -36,19 +35,9 @@ export interface CoachScanResult {
 
 const TIMEOUT_MS = 5000;
 
-async function prepareImage(uri: string): Promise<string> {
-  try {
-    const r = await manipulateAsync(uri, [{ resize: { width: 1080 } }], { compress: 1, format: SaveFormat.JPEG });
-    return r.uri;
-  } catch {
-    return uri;
-  }
-}
-
 export async function scanCoachPreview(imageUri: string): Promise<CoachScanResult> {
-  const preparedUri = await prepareImage(imageUri);
   const result = await Promise.race([
-    TextRecognition.recognize(preparedUri),
+    TextRecognition.recognize(imageUri),
     new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error('ML Kit timed out')), TIMEOUT_MS)
     ),
