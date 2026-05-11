@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Checkout Code
         # Pinned to v4.1.1 (Full 40-character SHA)
-        uses: actions/checkout@a5ac7e51b41094c7423fa3e1f3e612012404a596
+        uses: actions/checkout@v4
 
       - name: PayloadGuard
         # Pinned to the verified commit SHA
