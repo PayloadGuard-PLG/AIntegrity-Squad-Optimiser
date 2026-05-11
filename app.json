@@ -4,9 +4,9 @@
     "slug": "squad-optimiser",
     "version": "1.0.0",
     "newArchEnabled": true,
-    "icon": "./assets/icon.jpg",
+    "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/icon.jpg",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0a0a0c"
     },
@@ -18,7 +18,7 @@
     "android": {
       "package": "com.payloadguard.squadoptimiser",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.jpg",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#0a0a0c"
       }
     },
