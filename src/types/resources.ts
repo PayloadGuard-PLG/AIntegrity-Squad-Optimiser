@@ -83,14 +83,7 @@ export interface ManagerProfile {
 
 // --- Tier system ---
 
-export type TierName =
-  | 'None'
-  | 'Rare'
-  | 'Elite'
-  | 'Stellar'
-  | 'Master'
-  | 'Epic'
-  | 'Legendary';
+export type TierName = 'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5' | 'T6';
 
 // --- Team Play ---
 

@@ -23,7 +23,12 @@ export interface PlayerCardScan {
 // Game UI labels that pass the name regex but are not player names
 const UI_BLOCKLIST = ['Squad', 'Contract', 'Overview', 'Skills', 'Stats', 'Training',
   'Playstyle', 'Celebrations', 'Trainer', 'Personal', 'Defence', 'Attack', 'Physical',
-  'Special', 'Ability', 'Team', 'None', 'Select', 'Player', 'Start'];
+  'Special', 'Ability', 'Team', 'None', 'Select', 'Player', 'Start',
+  'Goal Celebrations', 'Personal Trainer', 'Special Ability'];
+
+const TIER_NAME_MAP: Record<string, string> = {
+  None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+};
 
 const TIMEOUT_MS = 5000;
 
@@ -115,26 +120,36 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
   const foundRoles = new Set<string>();
   for (const t of tokens) {
-    const upper = t.text.toUpperCase();
-    if (roleSet.has(upper)) foundRoles.add(upper);
+    t.text.toUpperCase().split(/[\s,./|]+/).forEach(part => {
+      if (part.trim() && roleSet.has(part.trim())) foundRoles.add(part.trim());
+    });
   }
   const roles = KNOWN_ROLES.filter(r => foundRoles.has(r));
 
-  const tier = KNOWN_TIERS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
+  const rawTier = KNOWN_TIERS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
+  const tier = rawTier ? (TIER_NAME_MAP[rawTier] ?? rawTier) : undefined;
 
   const talent = KNOWN_TALENTS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
 
-  const nameBlock = result.blocks.find(b => {
+  const nameCandidates = result.blocks.filter(b => {
     const t = b.text.trim();
     return (
       t.length >= 3 &&
       /^[A-Z][a-z]/.test(t) &&
       !KNOWN_ROLES.includes(t.toUpperCase()) &&
       !KNOWN_TIERS.some(tier => t.toLowerCase() === tier.toLowerCase()) &&
-      !UI_BLOCKLIST.some(kw => t.toLowerCase() === kw.toLowerCase()) &&
+      !UI_BLOCKLIST.some(kw =>
+        kw.includes(' ')
+          ? t.toLowerCase().includes(kw.toLowerCase())
+          : t.toLowerCase() === kw.toLowerCase()
+      ) &&
       !/^\d+$/.test(t)
     );
   });
+  const nameBlock = nameCandidates.reduce<typeof nameCandidates[0] | undefined>(
+    (best, cur) => (!best || (cur.frame?.top ?? 999) < (best.frame?.top ?? 999)) ? cur : best,
+    undefined
+  );
   const name = nameBlock?.text.trim();
 
   const _debug = fullText.replace(/\n/g, ' | ').slice(0, 300);

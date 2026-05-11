@@ -113,7 +113,7 @@ export function applyTierBonusToStats(
   roleStatKeys: string[],
   targetTier: TierName,
   profile: GameProfile,
-  fromTier: TierName = 'None'
+  fromTier: TierName = 'T0'
 ): Record<string, number> {
   const totalAddition = profile.tierAttrAdditions[targetTier] ?? 0;
   const prevAddition  = profile.tierAttrAdditions[fromTier]   ?? 0;

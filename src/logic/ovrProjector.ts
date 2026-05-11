@@ -177,11 +177,11 @@ export function projectOvr(
       warnings.push(`Age ${player.age} — training multiplier ${ageMult.toFixed(2)}×. Gains are reduced.`);
     }
 
-    if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
-      const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+    if (targetTier && targetTier !== player.tier && targetTier !== 'T0') {
+      const ALL_TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
       const allRoleKeys = getAllStatKeys(player.role);
       const offRoleCount = Math.max(0, profile.totalAttributeCount - allRoleKeys.length);
-      const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'None'));
+      const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'T0'));
       const toIdx   = ALL_TIERS.indexOf(targetTier);
       for (let i = fromIdx + 1; i <= toIdx; i++) {
         const stepTier = ALL_TIERS[i] as TierName;
@@ -247,10 +247,10 @@ export function projectOvr(
   }
 
   // Step 2 — Tier upgrade(s): one step per intermediate tier, each with its incremental stat addition
-  if (targetTier && targetTier !== player.tier && targetTier !== 'None') {
-    const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+  if (targetTier && targetTier !== player.tier && targetTier !== 'T0') {
+    const ALL_TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
     const allRoleKeys = new Set(getAllStatKeys(player.role));
-    const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'None'));
+    const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'T0'));
     const toIdx   = ALL_TIERS.indexOf(targetTier);
     for (let i = fromIdx + 1; i <= toIdx; i++) {
       const stepTier = ALL_TIERS[i] as TierName;

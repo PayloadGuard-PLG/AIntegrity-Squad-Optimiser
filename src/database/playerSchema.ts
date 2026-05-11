@@ -25,7 +25,7 @@ export const INITIAL_PLAYER_STATE: Player = {
   role: ['ST'],
   age: 18,
   overall: 40,
-  tier: 'None',
+  tier: 'T0',
   talent: 'Normal',
   stats: {},
   isMutantCandidate: false,

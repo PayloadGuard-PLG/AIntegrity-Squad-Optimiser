@@ -23,13 +23,13 @@ export const theme = {
 } as const;
 
 export const TIER_COLORS: Record<string, string> = {
-  None:      '#6b7280',
-  Rare:      '#60a5fa',
-  Elite:     '#34d399',
-  Stellar:   '#22d3ee',
-  Master:    '#a78bfa',
-  Epic:      '#fb923c',
-  Legendary: '#fbbf24',
+  T0: '#6b7280',
+  T1: '#60a5fa',
+  T2: '#34d399',
+  T3: '#22d3ee',
+  T4: '#a78bfa',
+  T5: '#fb923c',
+  T6: '#fbbf24',
 };
 
 export function ovrColor(ovr: number): string {
