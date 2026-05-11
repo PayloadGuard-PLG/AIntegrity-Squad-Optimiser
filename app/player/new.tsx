@@ -75,7 +75,8 @@ const inputStyle = {
 
 export default function NewPlayerScreen() {
   const [name, setName] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [positionStates, setPositionStates] = useState<Record<string, 0 | 1 | 2>>({});
+  const selectedRoles = Object.entries(positionStates).filter(([, s]) => s === 2).map(([r]) => r);
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
   const [ovrIsAuto, setOvrIsAuto] = useState(false);
@@ -143,7 +144,7 @@ export default function NewPlayerScreen() {
         Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
       };
       if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
-      if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
+      if (data.roles && data.roles.length > 0) setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
 
       if (data.stats && Object.keys(data.stats).length > 0) {
         const inputs = Object.fromEntries(
@@ -168,19 +169,46 @@ export default function NewPlayerScreen() {
   function toggleRole(role: string | null) {
     if (!role) return;
     setRoleError('');
-    let next: string[];
-    if (selectedRoles.includes(role)) {
-      next = selectedRoles.filter(r => r !== role);
-    } else {
-      if (role === 'GK') { setSelectedRoles(['GK']); return; }
-      if (selectedRoles.includes('GK')) { setRoleError('GK CANNOT COMBINE'); return; }
-      next = [...selectedRoles, role];
-    }
-    if (next.length > 0 && !validateRoleAdjacency(next)) {
-      setRoleError('NOT ADJACENT');
+
+    const current = (positionStates[role] ?? 0) as 0 | 1 | 2;
+
+    // Active → off (deselect entirely)
+    if (current === 2) {
+      setPositionStates(prev => ({ ...prev, [role]: 0 }));
       return;
     }
-    setSelectedRoles(next);
+
+    // Off → partial, or partial → active
+    const next = (current + 1) as 1 | 2;
+
+    if (next === 2) {
+      // Activating — run all constraints
+      if (role === 'GK') {
+        if (Object.entries(positionStates).some(([r, s]) => r !== 'GK' && s === 2)) {
+          setRoleError('GK CANNOT COMBINE');
+          return;
+        }
+        // Demote any other active roles to partial so GK stands alone
+        setPositionStates(prev => {
+          const updated: Record<string, 0 | 1 | 2> = {};
+          for (const [r, s] of Object.entries(prev)) {
+            updated[r] = r === 'GK' ? 2 : (s === 2 ? 1 : s as 0 | 1);
+          }
+          updated['GK'] = 2;
+          return updated;
+        });
+        return;
+      }
+      if ((positionStates['GK'] ?? 0) === 2) {
+        setRoleError('GK CANNOT COMBINE');
+        return;
+      }
+      const newActive = [...selectedRoles, role];
+      if (newActive.length > 3) { setRoleError('MAX 3 ROLES'); return; }
+      if (!validateRoleAdjacency(newActive)) { setRoleError('NOT ADJACENT'); return; }
+    }
+
+    setPositionStates(prev => ({ ...prev, [role]: next }));
   }
 
   function save() {
@@ -274,12 +302,11 @@ export default function NewPlayerScreen() {
                         paddingHorizontal: 8, paddingVertical: 7,
                         borderBottomWidth: 1, borderBottomColor: white ? cc + '44' : theme.hairline,
                         borderLeftWidth: white ? 3 : 1,
-                        borderLeftColor: white ? cc : theme.hairline,
-                        backgroundColor: white ? cc + '1a' : 'transparent',
-                        opacity: white ? 1 : 0.38,
+                        borderLeftColor: white ? cc : theme.hairline2,
+                        backgroundColor: white ? cc + '1a' : cc + '0a',
                       }}>
-                        <MonoLabel size={7} color={white ? cc : theme.inkGhost}>{s}</MonoLabel>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: white ? '700' : '400', color: white ? theme.ink : theme.inkGhost, marginTop: 2 }}>
+                        <MonoLabel size={7} color={white ? cc : theme.inkMuted}>{s}</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: white ? '700' : '400', color: white ? theme.ink : theme.inkMuted, marginTop: 2 }}>
                           {statInputs[s]}
                         </Text>
                       </View>
@@ -335,7 +362,7 @@ export default function NewPlayerScreen() {
           {ROLE_GRID.map((row, ri) => (
             <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < ROLE_GRID.length - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
               {row.map((role, ci) => {
-                const sel = role !== null && selectedRoles.includes(role);
+                const st = (positionStates[role ?? ''] ?? 0) as 0 | 1 | 2;
                 return (
                   <Pressable
                     key={`${ri}-${ci}`}
@@ -343,13 +370,15 @@ export default function NewPlayerScreen() {
                     disabled={role === null}
                     style={{
                       flex: 1, paddingVertical: 13, alignItems: 'center',
-                      backgroundColor: sel ? theme.ink : 'transparent',
+                      backgroundColor: st === 2 ? theme.ink : st === 1 ? theme.surface3 : 'transparent',
                       borderRightWidth: ci < 3 ? 1 : 0, borderRightColor: theme.hairline,
                     }}
                   >
                     <Text style={{
                       fontFamily: theme.mono, fontSize: 11, letterSpacing: 1,
-                      color: role ? (sel ? theme.bg : theme.inkSec) : 'transparent',
+                      color: role
+                        ? (st === 2 ? theme.bg : st === 1 ? theme.inkSec : theme.hairline2)
+                        : 'transparent',
                     }}>{role ?? '·'}</Text>
                   </Pressable>
                 );
@@ -443,11 +472,10 @@ export default function NewPlayerScreen() {
                           borderBottomWidth: 1,
                           borderBottomColor: w ? cc + '44' : theme.hairline,
                           borderLeftWidth: w ? 3 : 1,
-                          borderLeftColor: w ? cc : theme.hairline,
-                          backgroundColor: w ? cc + '1a' : 'transparent',
-                          opacity: w ? 1 : 0.38,
+                          borderLeftColor: w ? cc : theme.hairline2,
+                          backgroundColor: w ? cc + '1a' : cc + '0a',
                         }}>
-                          <MonoLabel size={7} color={w ? cc : theme.inkGhost}>{s}</MonoLabel>
+                          <MonoLabel size={7} color={w ? cc : theme.inkMuted}>{s}</MonoLabel>
                           <TextInput
                             keyboardType="numeric"
                             value={statInputs[s] ?? ''}
@@ -457,8 +485,8 @@ export default function NewPlayerScreen() {
                               recomputeOvr(next);
                             }}
                             placeholder="—"
-                            placeholderTextColor={theme.inkGhost}
-                            style={{ padding: 0, marginTop: 2, color: w ? theme.ink : theme.inkGhost, fontSize: 14, fontFamily: theme.mono, fontWeight: w ? '700' : '400' }}
+                            placeholderTextColor={theme.inkMuted}
+                            style={{ padding: 0, marginTop: 2, color: w ? theme.ink : theme.inkMuted, fontSize: 14, fontFamily: theme.mono, fontWeight: w ? '700' : '400' }}
                           />
                         </View>
                       );
