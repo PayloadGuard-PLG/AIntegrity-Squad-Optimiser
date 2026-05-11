@@ -4,6 +4,117 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 15 — Tier Rename, Drill Intensity, Coach Scanner Fixes, Stats Grid, OCR Hardening
+**2026-05-11 — Session UHXEX (continued)**
+
+Branch: `fix/scan-grid-drills`
+
+### Shipped
+
+**Tier system renamed T0–T6 (internal codes replace game display names)**
+
+`TierName = 'T0'|'T1'|'T2'|'T3'|'T4'|'T5'|'T6'` — replaces None/Rare/Elite/Stellar/Master/Epic/Legendary throughout the codebase.
+
+| Old game name | New internal code | Colour |
+|---|---|---|
+| None | T0 | `#6b7280` grey |
+| Rare | T1 | `#60a5fa` blue |
+| Elite | T2 | `#34d399` green |
+| Stellar | T3 | `#22d3ee` cyan |
+| Master | T4 | `#a78bfa` purple |
+| Epic | T5 | `#fb923c` orange |
+| Legendary | T6 | `#fbbf24` gold |
+
+Cascaded through 20+ files: `src/types/resources.ts`, `src/constants/theme.ts` (TIER_COLORS keys), `profiles/game_2025.json` (tierAttrAdditions + tierPointsRequired keys), `src/utils/math.ts` (TIER_DATA array + getTierCost), `src/components/TierBadge.tsx`, `src/logic/ovrProjector.ts`, `app/(tabs)/plan.tsx`, `app/(tabs)/results.tsx`, `app/compare.tsx`, `app/(tabs)/coaches.tsx`, `app/player/[id].tsx`, `app/player/new.tsx`, `src/database/playerSchema.ts`, `src/logic/xpEngine.ts`, `tests/investment-test.ts`, `tests/storage-test.ts`.
+
+DB migration `drizzle/0005_tier_rename.sql` — UPDATE statements for each old→new mapping. Added as `m0005` in `drizzle/migrations.js` and journal entry in `drizzle/meta/_journal.json`.
+
+Runtime fallback in `src/services/playerService.ts` — `normaliseTier()` maps legacy DB rows (old game names) to T0–T6 silently. Both `fromRow()` return paths and snapshot field use it.
+
+Note: `src/logic/playerScanner.ts` `KNOWN_TIERS` still matches game display names (game card text), converted to T0–T6 via `TIER_NAME_MAP` before returning. Do not change KNOWN_TIERS to T0–T6 — the scanner reads game text.
+
+**Drill intensity field + filter**
+
+`DrillIntensity = 'Very Easy'|'Easy'|'Medium'|'Hard'|'Very Hard'` added to `Drill` interface in `src/database/drillDatabase.ts`. Each drill has a single fixed intensity matching the in-game difficulty level it appears at.
+
+`app/(tabs)/drills.tsx` — `useMemo` now filters `.filter(d => d.intensity === drillLevel)`. Only drills at the selected intensity are shown. Previously all drills showed regardless of level selected.
+
+`src/logic/controller.ts` — `intensity: drill.intensity` added to the return object so the tab can filter on it.
+
+**Drill renames (IP-safe)**
+
+| Old name | New name |
+|---|---|
+| Skill Drill (→ First Touch Play in S11) | Ball Control |
+| Piggy in the Middle | Porky in Centre |
+| Pass, Go & Shoot | Move & Finish |
+| Use Your Head | Head It |
+| Press the Play | Press Up |
+| Hold the Line | Hold Shape |
+
+Ball Control stats updated to `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']` (HANDOVER spec), baseLoss 0.75 (VE level), intensity `'Very Easy'`.
+
+**Add Player crash fix**
+
+`app/player/new.tsx` — `playerService.create(...)` wrapped in try/catch. `Alert.alert('SAVE FAILED', String(err))` shown on failure instead of silently crashing to home screen.
+
+**Stats entry grid — 3-column DEF/ATT/PHY layout**
+
+`app/player/new.tsx` — replaced 2-column paired stat grid with a 3-column DEF/ATT/PHY layout matching the game's own column organisation. Column headers use `COL_COLORS` (`#4A7FC1` / `#7C3AED` / `#C05621`). White stats get: column-coloured 2px left border, column colour label, bold full-brightness value, slight background tint. Grey stats get: dim left border, ghost label, muted light-weight value. Clear visual contrast between white (role-essential) and grey (secondary/non-role) entries.
+
+**Coach scanner — cross-column false positive fix (6→5 stats)**
+
+Root cause: game preview shows stats in 3 side-by-side columns (Defense / Attack / Physical). Different-column stats share the same Y row. When processing e.g. PASSING (col 2), old code collected all same-Y tokens including TACKLING's `+57-71` gain range from col 1.
+
+Fix in `src/logic/coachScanner.ts`: `rowTokens` filter now requires `t.left > tok.left`. Only tokens to the RIGHT of the current stat name are considered. Standard Defending now correctly detects 5 stats instead of 6.
+
+**Coach header detection — independent component matching**
+
+Old combined regex required type + category + multiplier on a single line. OCR can emit them on separate lines.
+
+Fix: three independent regexes each running against `fullText`. Type, category, and multiplier are detected independently. Combined header format no longer required.
+
+**Coach gains preserved on player select**
+
+`app/coach/capture.tsx` — `selectPlayer()` previously called `setGains({})`, wiping any pre-scanned gains. Removed. Gains survive player selection (comment: "gains intentionally NOT cleared — preserve scan state across player selection").
+
+**Multi-stat expand in capture screen**
+
+`expandedStat: string | null` → `expandedStats: Set<string>`. Multiple stats can be expanded simultaneously to view/edit their lo/hi gain range inputs. Previously only one could be open at a time.
+
+**"DETECTED — NOT IN ROLE" section**
+
+`app/coach/capture.tsx` — new `detectedExtras` useMemo identifies stats returned by the scanner that are not in `getAllStatKeys(player.role)`. These appear in an amber (`theme.hot`) "DETECTED — NOT IN ROLE" section below the main stat list. Example: a DEFENDING coach highlighting HEADING on a DL/ML/AML player — HEADING is not in `getAllStatKeys(['DL','ML','AML'])` but is captured by the scanner and surfaced here. Previously these were silently discarded.
+
+**CLAUDE.md created**
+
+Persistent documentation of game layout findings, OCR scanner design rules, tier mapping, drill system, and architecture notes. Survives context compaction.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F43 | Add Player crashes to home on SAVE (native crash) | try/catch around `playerService.create`; Alert shown on failure |
+| F44 | Coach scanner detected 6 stats for Standard Defending (should be 5) | `rowTokens` filter: `t.left > tok.left` — prevents cross-column gain range theft |
+| F45 | Coach capture "nothing detected" when header split across OCR lines | Independent type/category/multiplier matching against full text |
+| F46 | Coach scan gains cleared when switching player | Removed `setGains({})` from `selectPlayer()` |
+| F47 | Only one stat expandable at a time in capture | `expandedStat: string|null` → `expandedStats: Set<string>` |
+| F48 | HEADING scanned for DL/ML/AML coach but silently discarded | "DETECTED — NOT IN ROLE" amber section shows these stats |
+| F49 | OCR role token "DL ML AML" not split → only one role detected | `split(/[\s,./|]+/)` on each token before role set lookup |
+| F50 | "Goal Celebrations" sidebar picked up as player name | Compound phrase blocklist + topmost block selection by `frame.top` |
+| F51 | Stats entry grid 2-col paired — no DEF/ATT/PHY organisation | 3-col layout matching game column structure |
+| F52 | Drill level selector showed all drills regardless of selected intensity | `.filter(d => d.intensity === drillLevel)` in drills tab |
+| F53 | Drills used old/branded names (Skill Drill, Piggy in the Middle, etc.) | IP-safe rename applied in drillDatabase.ts |
+| F54 | Tier chips/labels used game display names (None, Stellar, etc.) | T0–T6 system with DB migration and runtime normaliseTier fallback |
+
+### Pending / Next Sprint
+
+- Partial player stats from scan: some player cards only yield 5–10 of 15 stats via OCR (not yet diagnosed)
+- "Viewing role addition whites" UI: adding a second/third role should visually show which stats upgrade from grey to white (progressive role building)
+- PR: `fix/scan-grid-drills` → `main`
+
+---
+
 ## Sprint 14 — Visual Consistency + OCR Role Fix + Merge to Main
 **2026-05-10 — Session UHXEX (late)**
 
