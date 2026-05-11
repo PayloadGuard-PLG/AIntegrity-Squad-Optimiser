@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "AIntegrity Squad Optimiser",
+    "slug": "squad-optimiser",
+    "version": "1.0.0",
+    "newArchEnabled": true,
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "android": {
+      "package": "com.payloadguard.squadoptimiser"
+    },
+    "ios": {
+      "bundleIdentifier": "com.payloadguard.squadoptimiser"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-updates",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Squad Optimiser to select coach screenshots from your photo library.",
+          "cameraPermission": "Allow Squad Optimiser to photograph the coach screen."
+        }
+      ]
+    ],
+    "updates": {
+      "url": "https://u.expo.dev/5e2319b8-dda7-4fbf-9fb4-5918d690d476"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5e2319b8-dda7-4fbf-9fb4-5918d690d476"
+      }
+    },
+    "owner": "sdarkvader"
+  }
+}

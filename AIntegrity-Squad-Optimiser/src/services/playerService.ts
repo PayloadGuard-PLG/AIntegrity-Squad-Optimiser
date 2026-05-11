@@ -1,0 +1,104 @@
+import { db } from '../db';
+import { players } from '../db/schema';
+import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid/non-secure';
+import { Player, PlayerSnapshot } from '../database/playerSchema';
+import { TierName, TalentTier } from '../types/resources';
+
+type PlayerRow = typeof players.$inferSelect;
+
+function toRow(p: Player): PlayerRow {
+  return {
+    id: p.id || nanoid(),
+    name: p.name,
+    roles: JSON.stringify(p.role),
+    age: p.age,
+    overall: p.overall,
+    tier: p.tier,
+    talent: p.talent ?? 'Normal',
+    stats: JSON.stringify(p.stats),
+    isMutantCandidate: p.isMutantCandidate,
+    snapshot: p.snapshot ? JSON.stringify(p.snapshot) : null,
+    createdAt: Date.now(),
+  };
+}
+
+function fromRow(row: PlayerRow): Player {
+  let snapshot: PlayerSnapshot | null = null;
+  try {
+    snapshot = row.snapshot ? JSON.parse(row.snapshot) as PlayerSnapshot : null;
+  } catch { /* ignore corrupt snapshot */ }
+
+  try {
+    return {
+      id: row.id,
+      name: row.name,
+      role: JSON.parse(row.roles) as string[],
+      age: row.age,
+      overall: row.overall,
+      tier: row.tier as TierName,
+      talent: (row.talent ?? 'Normal') as TalentTier,
+      stats: JSON.parse(row.stats) as Record<string, number>,
+      isMutantCandidate: Boolean(row.isMutantCandidate),
+      snapshot,
+    };
+  } catch {
+    return {
+      id: row.id,
+      name: row.name,
+      role: ['ST'],
+      age: row.age,
+      overall: row.overall,
+      tier: row.tier as TierName,
+      talent: 'Normal',
+      stats: {},
+      isMutantCandidate: false,
+      snapshot,
+    };
+  }
+}
+
+export const playerService = {
+  getAll(): Player[] {
+    return db.select().from(players).all().map(fromRow);
+  },
+
+  getById(id: string): Player | null {
+    const row = db.select().from(players).where(eq(players.id, id)).get();
+    return row ? fromRow(row) : null;
+  },
+
+  create(p: Omit<Player, 'id'>): string {
+    const row = toRow({ ...p, id: nanoid() });
+    db.insert(players).values(row).run();
+    return row.id;
+  },
+
+  update(p: Player): void {
+    const { id, ...rest } = toRow(p);
+    db.update(players).set(rest).where(eq(players.id, id)).run();
+  },
+
+  // Saves current stats/overall/tier as a snapshot, then applies new values.
+  // Replaces any existing snapshot (only one level of undo).
+  applyAndSnapshot(player: Player, updates: { stats: Record<string, number>; overall: number; tier: TierName }): void {
+    const snap: PlayerSnapshot = { stats: player.stats, overall: player.overall, tier: player.tier };
+    const updated: Player = { ...player, ...updates, snapshot: snap };
+    const { id, ...rest } = toRow(updated);
+    db.update(players).set(rest).where(eq(players.id, id)).run();
+  },
+
+  // Restores the player to the saved snapshot and clears it.
+  revertToSnapshot(id: string): void {
+    const player = playerService.getById(id);
+    if (!player?.snapshot) return;
+    const { stats, overall, tier } = player.snapshot;
+    const reverted: Player = { ...player, stats, overall, tier, snapshot: null };
+    const { id: pid, ...rest } = toRow(reverted);
+    db.update(players).set(rest).where(eq(players.id, pid)).run();
+  },
+
+  delete(id: string): void {
+    db.delete(players).where(eq(players.id, id)).run();
+  },
+};

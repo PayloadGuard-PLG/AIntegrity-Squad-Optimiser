@@ -1,0 +1,81 @@
+{
+  "version": "2025",
+  "xpCostTable": [
+    { "statMin": 0,   "statMax": 59,  "xpPer1Pct": 8 },
+    { "statMin": 60,  "statMax": 79,  "xpPer1Pct": 10 },
+    { "statMin": 80,  "statMax": 99,  "xpPer1Pct": 20 },
+    { "statMin": 100, "statMax": 119, "xpPer1Pct": 30 },
+    { "statMin": 120, "statMax": 139, "xpPer1Pct": 40 },
+    { "statMin": 140, "statMax": 159, "xpPer1Pct": 50 },
+    { "statMin": 160, "statMax": 179, "xpPer1Pct": 60 },
+    { "statMin": 180, "statMax": 199, "xpPer1Pct": 80 },
+    { "statMin": 200, "statMax": 219, "xpPer1Pct": 100 },
+    { "statMin": 220, "statMax": 239, "xpPer1Pct": 125 },
+    { "statMin": 240, "statMax": 259, "xpPer1Pct": 160 },
+    { "statMin": 260, "statMax": 279, "xpPer1Pct": 200 },
+    { "statMin": 280, "statMax": 339, "xpPer1Pct": 250 }
+  ],
+  "ageTable": {
+    "17": 1.10,
+    "18": 1.00,
+    "19": 0.90,
+    "20": 0.55,
+    "21": 0.40,
+    "22": 0.32,
+    "23": 0.28,
+    "24": 0.24,
+    "25": 0.22,
+    "26": 0.19,
+    "27": 0.16,
+    "28": 0.14,
+    "29": 0.12,
+    "30": 0.10
+  },
+  "talentMultipliers": {
+    "FT1": 1.5,
+    "FT2": 1.25,
+    "FT3": 1.1,
+    "Normal": 1.0,
+    "Slow": 0.7
+  },
+  "drillLevelMultipliers": {
+    "Very Easy": 1.0,
+    "Easy": 1.15,
+    "Medium": 1.3,
+    "Hard": 1.55,
+    "Very Hard": 1.7
+  },
+  "tierAttrAdditions": {
+    "None": 0,
+    "Rare": 10,
+    "Elite": 30,
+    "Stellar": 50,
+    "Master": 80,
+    "Epic": 120,
+    "Legendary": 160
+  },
+  "tierPointsRequired": {
+    "None": 0,
+    "Rare": 100,
+    "Elite": 90,
+    "Stellar": 50,
+    "Master": 25,
+    "Epic": 15,
+    "Legendary": 10
+  },
+  "fanClubCondReduction": [0.10, 0.15, 0.20, 0.25, 0.50],
+  "greyWeightMultiplier": 0.5,
+  "statCap": 340,
+  "rule180StatCap": 340,
+  "baseXpPerSession": 150,
+  "twoxAdMultiplier": 2.0,
+  "starDecayPerSession": 1.0,
+  "qualityOvrDivisor": 1,
+  "totalAttributeCount": 15,
+  "teamPlayDecayPerDay": 2,
+  "matchdayCoachMultiplier": 1.5,
+  "conditionCostPerDrill": 6,
+  "teamPlayFreeDrillsPerDay": 4,
+  "conditionPerGreen": 15,
+  "maxTrainingLevel": 111
+}
