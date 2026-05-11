@@ -2,6 +2,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { usePathname, router } from 'expo-router';
 import { theme } from '../constants/theme';
 import { MonoLabel } from './atoms/MonoLabel';
+import { useHelp } from './HelpModal';
 
 const TABS = [
   { id: 'squad',   label: 'SQUAD',   href: '/' },
@@ -20,6 +21,7 @@ interface Props {
 
 export function AppHeader({ title, subtitle, onBack }: Props) {
   const pathname = usePathname();
+  const { helpButton, helpModal } = useHelp();
   const showTabs = ['/', '/plan', '/drills', '/coaches', '/results', '/squad-plan'].includes(pathname);
 
   const routeTitle = pathname === '/' ? 'DOSSIER'
@@ -61,8 +63,10 @@ export function AppHeader({ title, subtitle, onBack }: Props) {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: theme.pos }} />
           <MonoLabel size={9}>LIVE</MonoLabel>
+          {helpButton}
         </View>
       </View>
+      {helpModal}
 
       {showTabs && (
         <ScrollView
