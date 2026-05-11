@@ -126,6 +126,29 @@ The drills tab filters to `d.intensity === drillLevel` — it does NOT weight by
 
 Touch Training trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`, intensity Very Easy, baseLoss 0.75.
 
+### Condition Drain Formula (calibrated from game screenshots)
+
+```
+actualLoss = baseLoss × intensityMultiplier × (1 - fanReduction / 100)
+```
+
+| Intensity | baseLoss | Multiplier | Drain L0 (−10%) | Drain L4 (−50%) |
+|---|---|---|---|---|
+| Very Easy | 0.75 | ×1 | 0.675% | **0.375% → ZERO DRAIN** |
+| Easy | 0.75 | ×2 | 1.35% | 0.75% |
+| Medium | 0.75 | ×3 | 2.025% | 1.125% |
+| Hard | 0.75 | ×4 | 2.70% | 1.50% |
+| Very Hard | 0.75 | ×5 | 3.375% | 1.875% |
+
+Fan club reductions: `{ L0: 10%, L1: 15%, L2: 20%, L3: 25%, L4: 50% }` — confirmed from screenshots.
+Zero-drain threshold: `actualLoss < 0.38` — only Very Easy at L4 (0.375%) qualifies.
+Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clamping needed.
+
+**Items needing further calibration** (marked UNCONFIRMED):
+- Age penalty on training rate — formula unknown
+- XP cost curve above stat 100 — only Infinity at ≥180 confirmed
+- Exact training rate multipliers for talent tiers beyond Normal/Slow
+
 ---
 
 ## Architecture Notes
@@ -134,5 +157,6 @@ Touch Training trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`
 - **180-rule**: stats at or above 180 yield `Infinity` XP cost — treated as hard cap
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
 - **Tier bonus = flat attribute addition** to each white stat (NOT a direct OVR boost)
-- **Condition (greens)**: restores condition only — zero OVR change
-- **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0005 (tier rename)
+- **Condition (greens)**: restores condition only — zero OVR change; +15% per green (UNCONFIRMED)
+- **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0006 (drill_presets)
+- **Drill Presets**: stored in `drill_presets` table; service at `src/services/drillPresetService.ts`
