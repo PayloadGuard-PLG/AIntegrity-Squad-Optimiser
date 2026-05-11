@@ -11,7 +11,7 @@ export function getRecommendedDrills(player: Player, fanClubLevel: number = 4, d
     const whiteStats = new Set(Object.keys(player.stats).filter(stat => isWhiteStat(player.role, stat)));
 
     return DRILL_LIST.map(drill => {
-        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drillLevel);
+        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drill.intensity);
         const isZeroDrain = actualLoss < 0.5;
         const whiteDrillStats = drill.stats.filter(s => whiteStats.has(s.toUpperCase()));
         const efficiency = drill.stats.length > 0 ? whiteDrillStats.length / drill.stats.length : 0;

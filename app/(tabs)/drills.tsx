@@ -56,7 +56,7 @@ export default function DrillsScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <MonoLabel color={theme.steelLight}>FAN CLUB</MonoLabel>
           <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-          {fanLevel === 4 && <MonoLabel size={9} color={theme.pos}>ZERO-DRAIN UNLOCKED</MonoLabel>}
+          {drills.some(d => d.isZeroDrain) && <MonoLabel size={9} color={theme.pos}>ZERO-DRAIN UNLOCKED</MonoLabel>}
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 18, borderWidth: 1, borderColor: theme.hairline2 }}>
           {[0, 1, 2, 3, 4].map(l => {
