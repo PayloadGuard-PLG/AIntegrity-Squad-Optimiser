@@ -112,15 +112,15 @@ console.log("\n[Test 8] Tier bonus = flat attribute addition, NOT OVR");
 
 const baseStats = { FINISHING: 100, SHOOTING: 100, DRIBBLING: 100 };
 const whiteKeys = ['FINISHING', 'SHOOTING', 'DRIBBLING'];
-const afterRare = applyTierBonusToStats(baseStats, whiteKeys, 'Rare', profile);
-assert("Rare adds +10 to each white stat",   afterRare['FINISHING'] === 110 && afterRare['SHOOTING'] === 110);
+const afterRare = applyTierBonusToStats(baseStats, whiteKeys, 'T1', profile);
+assert("T1 adds +10 to each white stat",   afterRare['FINISHING'] === 110 && afterRare['SHOOTING'] === 110);
 
-const afterStellar = applyTierBonusToStats(baseStats, whiteKeys, 'Stellar', profile);
-assert("Stellar adds +50 to each white stat", afterStellar['FINISHING'] === 150);
+const afterStellar = applyTierBonusToStats(baseStats, whiteKeys, 'T3', profile);
+assert("T3 adds +50 to each white stat", afterStellar['FINISHING'] === 150);
 
 // Cap enforcement
 const highStats = { STAT_A: 320 };
-const afterLegendary = applyTierBonusToStats(highStats, ['STAT_A'], 'Legendary', profile);
+const afterLegendary = applyTierBonusToStats(highStats, ['STAT_A'], 'T6', profile);
 assert("Tier addition is capped at statCap (340)", afterLegendary['STAT_A'] === 340,
   `got ${afterLegendary['STAT_A']}`);
 
@@ -151,7 +151,7 @@ const testPlayer: Player = {
   id: '1', name: 'Test Player', role: ['ST'],
   age: 18, overall: 100,   // consistent with stats at 100 and divisor=1
   stats: { FINISHING: 100, SHOOTING: 100, DRIBBLING: 100, PASSING: 100, POSITIONING: 100, HEADING: 100 },
-  isMutantCandidate: false, tier: 'None', talent: 'Normal',
+  isMutantCandidate: false, tier: 'T0', talent: 'Normal',
 };
 const planWithGreens = planPlayerInvestment(testPlayer, managerProfile, drillSessions, profile, null);
 const greensStep = planWithGreens.steps.find(s => s.action === 'condition');
@@ -173,16 +173,16 @@ const striker: Player = {
     HEADING: 100, STRENGTH: 100, SPEED: 100, CREATIVITY: 100, BRAVERY: 100,
     AGILITY: 100, FITNESS: 100, STAMINA: 100, TACKLING: 100, MARKING: 100,
   },
-  isMutantCandidate: true, tier: 'None', talent: 'Normal',
+  isMutantCandidate: true, tier: 'T0', talent: 'Normal',
 };
 const strikerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: { Stellar: 650 }, greens: 50, isPremiumSponsor: true,
+  style: 'PTW', tierPoints: { T3: 650 }, greens: 50, isPremiumSponsor: true,
   twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchdayCoachActive: false,
 };
 const strikerDrills: DrillSession[] = [
   { drillName: 'Skill Drill', sessionCount: 50, drillLevel: 'Very Easy' },
 ];
-const strikerPlan = planPlayerInvestment(striker, strikerProfile, strikerDrills, profile, 'Stellar');
+const strikerPlan = planPlayerInvestment(striker, strikerProfile, strikerDrills, profile, 'T3');
 console.log(`  Plan: ${strikerPlan.recommendation}`);
 assert("Plan finalOvr > currentOvr",    strikerPlan.finalOvr > strikerPlan.player.currentOvr);
 assert("Plan has drill step",           strikerPlan.steps.some(s => s.action === 'drill'));
@@ -204,7 +204,7 @@ const youngGK: Player = {
     THROWING: 80, KICKING: 80, PUNCHING: 80, 'AERIAL REACH': 80, FITNESS: 80,
     STRENGTH: 80, SPEED: 80, STAMINA: 80, BRAVERY: 80, CREATIVITY: 80,
   },
-  isMutantCandidate: false, tier: 'None', talent: 'Normal',
+  isMutantCandidate: false, tier: 'T0', talent: 'Normal',
 };
 const compDrills: DrillSession[] = [
   { drillName: 'Skill Drill', sessionCount: 20, drillLevel: 'Very Easy' },

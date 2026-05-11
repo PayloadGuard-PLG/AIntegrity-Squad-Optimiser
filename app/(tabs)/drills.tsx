@@ -17,7 +17,8 @@ export default function DrillsScreen() {
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
-    return getDrillRecommendations(selectedPlayer, fanLevel, drillLevel);
+    return getDrillRecommendations(selectedPlayer, fanLevel, drillLevel)
+      .filter(d => d.intensity === drillLevel);
   }, [selectedPlayer, fanLevel, drillLevel]);
 
   return (

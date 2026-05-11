@@ -15,7 +15,7 @@ import { GameProfile } from '../../src/types/resources';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
 
@@ -78,7 +78,7 @@ export default function NewPlayerScreen() {
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
   const [ovrIsAuto, setOvrIsAuto] = useState(false);
-  const [tier, setTier] = useState<TierName>('None');
+  const [tier, setTier] = useState<TierName>('T0');
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
@@ -128,7 +128,11 @@ export default function NewPlayerScreen() {
 
     if (data.name) setName(data.name);
     if (data.age) setAge(data.age.toString());
-    setTier((data.tier ?? 'None') as TierName);
+    const TIER_MAP: Record<string, TierName> = {
+      None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+      T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
+    };
+    setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
     if (data.talent) setTalent(data.talent as TalentTier);
     if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
 
@@ -181,17 +185,21 @@ export default function NewPlayerScreen() {
       if (!isNaN(v) && v > 0) statsObj[stat] = v;
     }
 
-    playerService.create({
-      name: name.trim(),
-      role: selectedRoles,
-      age: ageNum,
-      overall: ovrNum,
-      tier,
-      talent,
-      stats: statsObj,
-      isMutantCandidate: mutant,
-    });
-    router.back();
+    try {
+      playerService.create({
+        name: name.trim(),
+        role: selectedRoles,
+        age: ageNum,
+        overall: ovrNum,
+        tier,
+        talent,
+        stats: statsObj,
+        isMutantCandidate: mutant,
+      });
+      router.back();
+    } catch (err) {
+      Alert.alert('SAVE FAILED', String(err));
+    }
   }
 
   return (
@@ -401,23 +409,25 @@ export default function NewPlayerScreen() {
               <MonoLabel color={theme.steelLight}>STATS</MonoLabel>
               <MonoLabel size={9} color={theme.inkMuted}>· ● ESSENTIAL</MonoLabel>
             </View>
-            <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 24 }}>
-              {statList.map((stat, i) => {
-                const isRight = i % 2 === 1;
-                const isLastRow = i >= statList.length - 2;
-                if (isRight) return null;
-                const nextStat = statList[i + 1];
+            <View style={{ flexDirection: 'row', gap: 4, marginBottom: 24 }}>
+              {(['DEF', 'ATT', 'PHY'] as const).map(col => {
+                const cc = COL_COLORS[col];
+                const colStats = STAT_COLUMNS[col].filter(s => (statList as readonly string[]).includes(s));
                 return (
-                  <View key={stat} style={{ flexDirection: 'row', borderBottomWidth: isLastRow ? 0 : 1, borderBottomColor: theme.hairline }}>
-                    {[stat, nextStat].map((s, idx) => {
-                      if (!s) return <View key={idx} style={{ flex: 1 }} />;
+                  <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '66' }}>
+                    <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
+                      <MonoLabel size={8} color={cc}>{col}</MonoLabel>
+                    </View>
+                    {colStats.map(s => {
                       const w = isWhiteStat(selectedRoles, s);
                       return (
-                        <View key={s} style={{ flex: 1, padding: 10, borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                            <Text style={{ fontSize: 8, color: w ? theme.steelLight : theme.inkGhost }}>●</Text>
-                            <MonoLabel size={8} color={w ? theme.steelLight : theme.inkMuted}>{s}</MonoLabel>
-                          </View>
+                        <View key={s} style={{
+                          paddingHorizontal: 8, paddingVertical: 7,
+                          borderBottomWidth: 1, borderBottomColor: cc + '22',
+                          borderLeftWidth: 2, borderLeftColor: w ? cc : cc + '33',
+                          backgroundColor: w ? cc + '12' : 'transparent',
+                        }}>
+                          <MonoLabel size={7} color={w ? cc : theme.inkGhost}>{s}</MonoLabel>
                           <TextInput
                             keyboardType="numeric"
                             value={statInputs[s] ?? ''}
@@ -426,9 +436,9 @@ export default function NewPlayerScreen() {
                               setStatInputs(next);
                               recomputeOvr(next);
                             }}
-                            placeholder="0"
+                            placeholder="—"
                             placeholderTextColor={theme.inkGhost}
-                            style={{ backgroundColor: 'transparent', padding: 0, color: theme.ink, fontSize: 15, fontFamily: theme.display, fontWeight: '300' }}
+                            style={{ padding: 0, color: w ? theme.ink : theme.inkMuted, fontSize: 15, fontFamily: theme.display, fontWeight: w ? '700' : '300' }}
                           />
                         </View>
                       );

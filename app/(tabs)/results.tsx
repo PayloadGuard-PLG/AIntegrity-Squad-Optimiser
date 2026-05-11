@@ -18,9 +18,9 @@ const profile = gameProfileJson as unknown as GameProfile;
 // Academy coaches always run at Very Hard rate — no difficulty picker needed
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
-const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
-const TIER_COSTS: Record<TierName, number> = { None: 0, Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
-const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30, Stellar: 50, Master: 80, Epic: 120, Legendary: 160 };
+const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
+const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
+const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
 const CONDITION_PER_GREEN = 15;
 const CONDITION_PER_REST = 25; // rest pack restores ~25% condition
 
@@ -377,7 +377,7 @@ export default function ResultsScreen() {
               <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
                 <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>TIER UPGRADE</MonoLabel>
-                {player.tier && player.tier !== 'None' && (
+                {player.tier && player.tier !== 'T0' && (
                   <View style={{ paddingHorizontal: 7, paddingVertical: 3, borderWidth: 1, borderColor: TIER_COLORS[player.tier] ?? theme.hairline2 }}>
                     <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: TIER_COLORS[player.tier] ?? theme.inkSec }}>
                       NOW: {player.tier.toUpperCase()}

@@ -23,10 +23,19 @@ function toRow(p: Player): PlayerRow {
   };
 }
 
+const LEGACY_TIER_MAP: Record<string, TierName> = {
+  None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+};
+
+function normaliseTier(t: string): TierName {
+  return (LEGACY_TIER_MAP[t] ?? t) as TierName;
+}
+
 function fromRow(row: PlayerRow): Player {
   let snapshot: PlayerSnapshot | null = null;
   try {
-    snapshot = row.snapshot ? JSON.parse(row.snapshot) as PlayerSnapshot : null;
+    const raw = row.snapshot ? JSON.parse(row.snapshot) as PlayerSnapshot : null;
+    if (raw) snapshot = { ...raw, tier: normaliseTier(raw.tier as string) };
   } catch { /* ignore corrupt snapshot */ }
 
   try {
@@ -36,7 +45,7 @@ function fromRow(row: PlayerRow): Player {
       role: JSON.parse(row.roles) as string[],
       age: row.age,
       overall: row.overall,
-      tier: row.tier as TierName,
+      tier: normaliseTier(row.tier),
       talent: (row.talent ?? 'Normal') as TalentTier,
       stats: JSON.parse(row.stats) as Record<string, number>,
       isMutantCandidate: Boolean(row.isMutantCandidate),
@@ -49,7 +58,7 @@ function fromRow(row: PlayerRow): Player {
       role: ['ST'],
       age: row.age,
       overall: row.overall,
-      tier: row.tier as TierName,
+      tier: normaliseTier(row.tier),
       talent: 'Normal',
       stats: {},
       isMutantCandidate: false,

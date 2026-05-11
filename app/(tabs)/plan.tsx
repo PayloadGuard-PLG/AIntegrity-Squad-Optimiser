@@ -20,9 +20,9 @@ const TALENT_LABEL: Record<TalentTier, string> = {
   FT1: 'FT1 ×1.50', FT2: 'FT2 ×1.25', FT3: 'FT3 ×1.10', Normal: 'Normal ×1.00', Slow: 'Slow ×0.70',
 };
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
-const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
-const TIER_ADDITIONS: Record<TierName, number> = { None: 0, Rare: 10, Elite: 30, Stellar: 50, Master: 80, Epic: 120, Legendary: 160 };
-const TIER_COSTS: Record<TierName, number> = { None: 0, Rare: 100, Elite: 90, Stellar: 50, Master: 25, Epic: 15, Legendary: 10 };
+const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
+const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
+const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
 const DRILL_NAMES = DRILL_LIST.map(d => d.name);
 const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 'condition'];
 
@@ -119,8 +119,8 @@ export default function PlanScreen() {
   }
 
   function getBestAffordableTier(currentTier: TierName | undefined): TierName | null {
-    const ALL_TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
-    const fromIdx = Math.max(0, ALL_TIERS.indexOf((currentTier ?? 'None') as TierName));
+    const ALL_TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
+    const fromIdx = Math.max(0, ALL_TIERS.indexOf((currentTier ?? 'T0') as TierName));
     let best: TierName | null = null;
     for (let i = fromIdx + 1; i < ALL_TIERS.length; i++) {
       const t = ALL_TIERS[i];

@@ -45,6 +45,14 @@ const m0003 = `ALTER TABLE \`players\` ADD \`snapshot\` text DEFAULT NULL;`;
 
 const m0004 = `CREATE TABLE \`squad_plan_runs\` (\n  \`id\` text PRIMARY KEY NOT NULL,\n  \`player_id\` text NOT NULL,\n  \`label\` text DEFAULT NULL,\n  \`sessions\` integer NOT NULL,\n  \`selected_stats\` text NOT NULL,\n  \`ovr_before\` real NOT NULL,\n  \`ovr_after\` real NOT NULL,\n  \`gains\` text NOT NULL,\n  \`tier\` text DEFAULT NULL,\n  \`created_at\` integer NOT NULL\n);`;
 
+const m0005 = `UPDATE \`players\` SET \`tier\` = 'T0' WHERE \`tier\` = 'None';
+UPDATE \`players\` SET \`tier\` = 'T1' WHERE \`tier\` = 'Rare';
+UPDATE \`players\` SET \`tier\` = 'T2' WHERE \`tier\` = 'Elite';
+UPDATE \`players\` SET \`tier\` = 'T3' WHERE \`tier\` = 'Stellar';
+UPDATE \`players\` SET \`tier\` = 'T4' WHERE \`tier\` = 'Master';
+UPDATE \`players\` SET \`tier\` = 'T5' WHERE \`tier\` = 'Epic';
+UPDATE \`players\` SET \`tier\` = 'T6' WHERE \`tier\` = 'Legendary';`;
+
 export default {
   journal,
   migrations: {
@@ -53,5 +61,6 @@ export default {
     m0002,
     m0003,
     m0004,
+    m0005,
   },
 };

@@ -12,7 +12,7 @@ import { theme, ovrColor } from '../src/constants/theme';
 import gameProfile from '../profiles/game_2025.json';
 
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const TIER_ORDER: TierName[] = ['Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 
 const DEFAULT_DRILLS: DrillSession[] = [
   { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Medium' },
@@ -23,7 +23,7 @@ export default function CompareScreen() {
   const { squad } = useSquad();
   const [selectedIds, setSelectedIds] = useState<string[]>(squad.slice(0, 2).map(p => p.id));
   const [talent, setTalent] = useState<TalentTier>('FT1');
-  const [targetTier, setTargetTier] = useState<TierName | null>('Master');
+  const [targetTier, setTargetTier] = useState<TierName | null>('T4');
 
   function toggle(id: string) {
     setSelectedIds(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);

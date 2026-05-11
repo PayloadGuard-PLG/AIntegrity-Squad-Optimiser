@@ -8,7 +8,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
 
-const TIERS: TierName[] = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
+const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
 
@@ -67,7 +67,7 @@ export default function EditPlayerScreen() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>(['ST']);
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
-  const [tier, setTier] = useState<TierName>('None');
+  const [tier, setTier] = useState<TierName>('T0');
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');

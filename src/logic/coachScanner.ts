@@ -4,7 +4,6 @@ import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
 const Y_TOL = 18;
 const GAIN_RE = /\+(\d+)[–\-—](\d+)/;
-const OVR_BOOST_RE = /\+(\d+)[–\-—](\d+)/;
 
 export const COACH_TYPES    = ['Standard', 'Focused', 'Extensive'] as const;
 export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard'] as const;
@@ -52,18 +51,17 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     .map(e => ({ text: e.text.trim(), top: e.frame?.top ?? 0, left: e.frame?.left ?? 0 }))
     .filter(t => t.text.length > 0);
 
-  // Header: "Standard Defending ×20"
-  const headerRe = /\b(Standard|Focused|Extensive)\b[^\n]*\b(Attacking|Defending|Physical|Safeguard)\b[^\n]*[×xX]\s*(\d+)/i;
-  const headerMatch = headerRe.exec(fullText);
-  const coachType     = headerMatch ? (headerMatch[1] as CoachType)     : undefined;
-  const coachCategory = headerMatch ? (headerMatch[2] as CoachCategory) : undefined;
-  const multiplier    = headerMatch ? parseInt(headerMatch[3])           : undefined;
+  // Detect type, category, and multiplier independently — tolerates multi-line OCR output
+  const coachType     = (/\b(Standard|Focused|Extensive)\b/i.exec(fullText))?.[1] as CoachType | undefined;
+  const coachCategory = (/\b(Attacking|Defending|Physical|Safeguard)\b/i.exec(fullText))?.[1] as CoachCategory | undefined;
+  const multMatch     = /[×xX]\s*(\d+)/i.exec(fullText);
+  const multiplier    = multMatch ? parseInt(multMatch[1]) : undefined;
 
   const ovrMatch  = /\bOVR\b[^\d]*(\d{2,3})/i.exec(fullText) ?? /(\d{2,3})\s*OVR/i.exec(fullText);
   const ovrBefore = ovrMatch ? parseInt(ovrMatch[1]) : undefined;
 
   const textAfterOvr = ovrMatch ? fullText.slice(ovrMatch.index + ovrMatch[0].length) : fullText;
-  const boostMatch   = OVR_BOOST_RE.exec(textAfterOvr);
+  const boostMatch   = GAIN_RE.exec(textAfterOvr);
   const ovrBoostLo   = boostMatch ? parseInt(boostMatch[1]) : undefined;
   const ovrBoostHi   = boostMatch ? parseInt(boostMatch[2]) : undefined;
 
@@ -77,12 +75,16 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     const t = b.text.trim();
     return (
       t.length >= 3 && /^[A-Z][a-z]/.test(t) && !/^\d+$/.test(t) &&
-      !['Standard', 'Focused', 'Extensive', 'Attacking', 'Defending', 'Physical', 'Safeguard'].includes(t)
+      !['Standard', 'Focused', 'Extensive', 'Attacking', 'Defending', 'Physical', 'Safeguard',
+        'Select', 'Training', 'Session', 'Start', 'Reward'].some(w => t.toLowerCase().includes(w.toLowerCase()))
     );
   });
   const playerName = nameBlock?.text.trim();
 
-  // Stat rows — only rows with a gain range (+lo–hi) are highlighted stats
+  // Stat rows: find stat names, then look ONLY to the right of the stat name for gain ranges.
+  // The game shows 3 columns side by side (Defense / Attack / Physical). Stats in different
+  // columns share the same Y row. Restricting to t.left > tok.left prevents picking up a
+  // gain range from column 1 (e.g. Tackling +57-71) when processing a column 2 stat (Passing).
   const used = new Set<number>();
   const stats: StatCapture[] = [];
 
@@ -107,23 +109,27 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
 
     if (!statName) continue;
 
+    // Only include tokens on the same row AND to the right of this stat name.
+    // This prevents cross-column false positives in the 3-column game layout.
     const rowTokens = tokens.filter((t, idx) =>
-      !consumed.includes(idx) && Math.abs(t.top - tok.top) < Y_TOL
+      !consumed.includes(idx) &&
+      Math.abs(t.top - tok.top) < Y_TOL &&
+      t.left > tok.left
     );
     const rowText = rowTokens.map(t => t.text).join(' ');
 
     const gainMatch = GAIN_RE.exec(rowText);
     if (gainMatch) {
-      const rowNums = rowTokens
-        .map(t => parseInt(t.text, 10))
-        .filter(n => !isNaN(n) && n > 0 && n <= 340);
-      const statBefore = rowNums[0] ?? 0;
-      stats.push({
-        statName,
-        statBefore,
-        gainLo: parseInt(gainMatch[1]),
-        gainHi: parseInt(gainMatch[2]),
-      });
+      const lo = parseInt(gainMatch[1]);
+      const hi = parseInt(gainMatch[2]);
+      // Sanity check: gain values should be plausible (1-150 range, lo <= hi)
+      if (lo > 0 && hi > 0 && hi >= lo && hi <= 150) {
+        const rowNums = rowTokens
+          .map(t => parseInt(t.text, 10))
+          .filter(n => !isNaN(n) && n > 0 && n <= 340);
+        const statBefore = rowNums[0] ?? 0;
+        stats.push({ statName, statBefore, gainLo: lo, gainHi: hi });
+      }
     }
 
     consumed.forEach(idx => used.add(idx));

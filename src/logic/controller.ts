@@ -23,6 +23,7 @@ export function getRecommendedDrills(player: Player, fanClubLevel: number = 4, d
         return {
             name: drill.name,
             type: drill.type,
+            intensity: drill.intensity,
             efficiency,
             conditionCost,
             isZeroDrain,

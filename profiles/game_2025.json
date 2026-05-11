@@ -46,22 +46,22 @@
     "Very Hard": 1.7
   },
   "tierAttrAdditions": {
-    "None": 0,
-    "Rare": 10,
-    "Elite": 30,
-    "Stellar": 50,
-    "Master": 80,
-    "Epic": 120,
-    "Legendary": 160
+    "T0": 0,
+    "T1": 10,
+    "T2": 30,
+    "T3": 50,
+    "T4": 80,
+    "T5": 120,
+    "T6": 160
   },
   "tierPointsRequired": {
-    "None": 0,
-    "Rare": 100,
-    "Elite": 90,
-    "Stellar": 50,
-    "Master": 25,
-    "Epic": 15,
-    "Legendary": 10
+    "T0": 0,
+    "T1": 100,
+    "T2": 90,
+    "T3": 50,
+    "T4": 25,
+    "T5": 15,
+    "T6": 10
   },
   "fanClubCondReduction": [0.10, 0.15, 0.20, 0.25, 0.50],
   "greyWeightMultiplier": 0.5,
