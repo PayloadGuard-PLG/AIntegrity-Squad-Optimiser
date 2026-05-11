@@ -53,11 +53,11 @@ export default function CoachCaptureScreen() {
   // stat values and gain ranges — keyed by stat name
   const [statValues, setStatValues] = useState<Record<string, string>>({});
   const [gains, setGains] = useState<Record<string, GainEntry>>({});
-  const [expandedStat, setExpandedStat] = useState<string | null>(null);
 
   const [saved, setSaved] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
+  const [expandedStats, setExpandedStats] = useState<Set<string>>(new Set());
 
   const player: Player | null = squad.find(p => p.id === selectedPlayerId) ?? null;
 
@@ -68,6 +68,12 @@ export default function CoachCaptureScreen() {
     const g = all.filter(s => !w.includes(s));
     return { white: w, grey: g };
   }, [player]);
+
+  // Stats detected by scan that aren't in this player's role (e.g. HEADING for DL/ML/AML)
+  const detectedExtras = useMemo(() => {
+    const detected = Object.keys(gains).filter(s => gains[s].lo || gains[s].hi);
+    return detected.filter(s => !white.includes(s) && !grey.includes(s));
+  }, [gains, white, grey]);
 
   async function scanFromUri(uri: string) {
     setIsScanning(true);
@@ -127,9 +133,9 @@ export default function CoachCaptureScreen() {
       vals[k] = Math.round(v).toString();
     }
     setStatValues(vals);
-    setGains({});
-    setExpandedStat(null);
+    setExpandedStats(new Set());
     setSaved(false);
+    // gains intentionally NOT cleared — preserves any pre-scanned coach gain ranges
   }
 
   const ovrBefore = parseFloat(ovrInput) || 0;
@@ -183,7 +189,7 @@ export default function CoachCaptureScreen() {
   }
 
   function renderStatRow(stat: string, isWhite: boolean) {
-    const expanded = expandedStat === stat;
+    const expanded = expandedStats.has(stat);
     const g = gains[stat] ?? { lo: '', hi: '' };
     const hasGain = g.lo || g.hi;
     const cc = statColor(stat);
@@ -191,7 +197,7 @@ export default function CoachCaptureScreen() {
 
     return (
       <View key={stat} style={{ borderBottomWidth: 1, borderBottomColor: theme.hairline, borderLeftWidth: 2, borderLeftColor: isWhite ? cc : cc + '44' }}>
-        <Pressable onPress={() => setExpandedStat(expanded ? null : stat)}
+        <Pressable onPress={() => setExpandedStats(prev => { const next = new Set(prev); next.has(stat) ? next.delete(stat) : next.add(stat); return next; })}
           style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12 }}>
           <View style={{ width: 8, height: 8, backgroundColor: hasGain ? cc : 'transparent', borderWidth: 1, borderColor: cc + '66', marginRight: 10 }} />
           <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 0.8, color: hasGain ? cc : labelColor, flex: 1 }}>{stat}</Text>
@@ -248,7 +254,7 @@ export default function CoachCaptureScreen() {
       <AppHeader onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
 
-        {/* 0. SCREENSHOT SCAN — no image displayed */}
+        {/* 0. SCREENSHOT SCAN */}
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
           <View style={{ flexDirection: 'row' }}>
             <Pressable onPress={pickFromCamera} disabled={isScanning}
@@ -368,7 +374,6 @@ export default function CoachCaptureScreen() {
             </View>
           </View>
 
-          {/* OVR boost preview */}
           {(ovrBoostLo != null || ovrBoostHi != null) && (
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
               <View style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: theme.pos + '55', backgroundColor: theme.pos + '0d', alignItems: 'center' }}>
@@ -416,6 +421,16 @@ export default function CoachCaptureScreen() {
                   <MonoLabel size={8} color={theme.inkMuted}>GREY — SECONDARY / NON-ROLE</MonoLabel>
                 </View>
                 {grey.map(stat => renderStatRow(stat, false))}
+              </>
+            )}
+
+            {detectedExtras.length > 0 && (
+              <>
+                <View style={{ paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <MonoLabel size={8} color={theme.hot}>DETECTED — NOT IN ROLE</MonoLabel>
+                  <MonoLabel size={7} color={theme.inkGhost}>gains counted at grey rate</MonoLabel>
+                </View>
+                {detectedExtras.map(stat => renderStatRow(stat, false))}
               </>
             )}
           </View>
