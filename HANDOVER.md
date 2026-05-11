@@ -10,7 +10,7 @@
 
 React Native / Expo SDK 53 app (also runs in browser). **6 tabs:** SQUAD · PLAN · DRILLS · COACHES · SQUAD PLAN · RESULTS.
 
-All tabs functional. Engine calibrated against real in-game data. OTA pipeline live.
+All tabs functional. Engine calibrated against empirical session data. OTA pipeline live.
 
 ### What works
 

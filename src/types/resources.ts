@@ -24,7 +24,7 @@ export interface GameProfile {
   qualityOvrDivisor: number;
   totalAttributeCount: number;
   teamPlayDecayPerDay: number;
-  matchdayCoachMultiplier: number;
+  matchAdvisorMultiplier: number;
   conditionCostPerDrill: number;
   teamPlayFreeDrillsPerDay: number;
   conditionPerGreen: number;
@@ -77,7 +77,7 @@ export interface ManagerProfile {
   twoxAdActive: boolean;
   talentTier: TalentTier;
   drillLevel: DrillLevel;
-  matchdayCoachActive: boolean;
+  matchAdvisorActive: boolean;
   teamPlayPillars?: Partial<Record<TeamPlayPillar, number>>;
 }
 
@@ -93,7 +93,7 @@ export interface TeamPlayPlan {
   pillars: Partial<Record<TeamPlayPillar, number>>;
   decayPerDay: number;
   freeDrillsNeeded: number;
-  matchdayCoachCoversDecay: boolean;
+  matchAdvisorCoversDecay: boolean;
   recommendation: string;
 }
 

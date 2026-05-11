@@ -29,7 +29,7 @@ const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 
 type Section = 'drills' | 'resources' | 'tier' | 'teamplay';
 
 function newDrill(): DrillSession {
-  return { drillName: 'Skill Drill', sessionCount: 6, drillLevel: 'Medium' };
+  return { drillName: 'Touch Training', sessionCount: 6, drillLevel: 'Very Easy' };
 }
 
 function StepRail({ steps }: { steps: InvestmentStep[] }) {
@@ -76,7 +76,7 @@ export default function PlanScreen() {
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [greens, setGreens] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
-  const [matchdayCoachActive, setMatchdayCoachActive] = useState(false);
+  const [matchAdvisorActive, setMatchAdvisorActive] = useState(false);
   const [targetTier, setTargetTier] = useState<TierName | null>(null);
   const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
     Object.fromEntries(TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : '']))
@@ -103,8 +103,8 @@ export default function PlanScreen() {
       TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
     ) as Partial<Record<TeamPlayPillar, number>>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return calculateTeamPlayPlan(pillars, matchdayCoachActive, gameProfile as any);
-  }, [teamPlayInputs, matchdayCoachActive]);
+    return calculateTeamPlayPlan(pillars, matchAdvisorActive, gameProfile as any);
+  }, [teamPlayInputs, matchAdvisorActive]);
 
   const greensBridge = useMemo(() => {
     if (!fixtureWindow || greens === 0) return null;
@@ -142,7 +142,7 @@ export default function PlanScreen() {
       style,
       tierPoints,
       greens, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
-      matchdayCoachActive,
+      matchAdvisorActive,
       teamPlayPillars: Object.fromEntries(
         TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
       ) as Partial<Record<TeamPlayPillar, number>>,
@@ -412,11 +412,11 @@ export default function PlanScreen() {
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: isPremiumSponsor ? theme.hot : theme.ink }}>PREMIUM SPONSOR</Text>
               </Pressable>
 
-              {/* MATCHDAY COACH toggle */}
-              <Pressable onPress={() => { setMatchdayCoachActive(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: matchdayCoachActive ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
-                <View style={{ width: 16, height: 16, backgroundColor: matchdayCoachActive ? theme.hot : 'transparent', borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot : theme.hairline3 }} />
+              {/* MATCH ADVISOR toggle */}
+              <Pressable onPress={() => { setMatchAdvisorActive(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: matchAdvisorActive ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: matchAdvisorActive ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
+                <View style={{ width: 16, height: 16, backgroundColor: matchAdvisorActive ? theme.hot : 'transparent', borderWidth: 1, borderColor: matchAdvisorActive ? theme.hot : theme.hairline3 }} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: matchdayCoachActive ? theme.hot : theme.ink }}>MATCHDAY COACH</Text>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: matchAdvisorActive ? theme.hot : theme.ink }}>MATCH ADVISOR</Text>
                   <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkSec, marginTop: 2, letterSpacing: 0.5 }}>PREMIUM · ALL DRILLS ADVANCE TEAM PLAY</Text>
                 </View>
               </Pressable>
@@ -490,11 +490,11 @@ export default function PlanScreen() {
               </View>
 
               {/* TEAM PLAY PLAN card */}
-              <View style={{ borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot + '88' : theme.hairline2, marginBottom: 10 }}>
+              <View style={{ borderWidth: 1, borderColor: matchAdvisorActive ? theme.hot + '88' : theme.hairline2, marginBottom: 10 }}>
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 3, height: 12, backgroundColor: matchdayCoachActive ? theme.hot : theme.steelLight, marginRight: 8 }} />
+                  <View style={{ width: 3, height: 12, backgroundColor: matchAdvisorActive ? theme.hot : theme.steelLight, marginRight: 8 }} />
                   <MonoLabel size={10} color={theme.steelLight}>MAINTENANCE PLAN</MonoLabel>
-                  {matchdayCoachActive && (
+                  {matchAdvisorActive && (
                     <>
                       <View style={{ flex: 1 }} />
                       <MonoLabel size={9} color={theme.hot}>COACH ACTIVE</MonoLabel>

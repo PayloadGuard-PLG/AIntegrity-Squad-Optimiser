@@ -96,9 +96,9 @@ export function statsToQualityPct(
   return sum / profile.totalAttributeCount;
 }
 
-/** OVR = Quality% / qualityOvrDivisor */
+/** OVR = floor(Quality% / qualityOvrDivisor) — engine truncates, not rounds */
 export function qualityPctToOvr(qualityPct: number, profile: GameProfile): number {
-  return Number((qualityPct / profile.qualityOvrDivisor).toFixed(1));
+  return Math.floor(qualityPct / profile.qualityOvrDivisor);
 }
 
 /**

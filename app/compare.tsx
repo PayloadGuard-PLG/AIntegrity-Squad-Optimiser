@@ -35,7 +35,7 @@ export default function CompareScreen() {
     const profile = {
       style: 'FTP' as const,
       tierPoints: {} as Partial<Record<TierName, number>>,
-      greens: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const, matchdayCoachActive: false,
+      greens: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const, matchAdvisorActive: false,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return compareInvestmentScenarios(players, profile, DEFAULT_DRILLS, gameProfile as any, targetTier);

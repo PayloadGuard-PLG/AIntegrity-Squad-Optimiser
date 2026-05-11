@@ -177,7 +177,10 @@ export default function CoachesScreen() {
       const scan = await scanCoachPreview(picked.assets[0].uri);
       const parts: string[] = [];
       if (scan.multiplier) { setSessions(String(scan.multiplier)); parts.push(`×${scan.multiplier}`); }
-      if (scan.stats.length > 0) parts.push(`${scan.stats.length} stats`);
+      if (scan.stats.length > 0) {
+        parts.push(`${scan.stats.length} stats`);
+        setSelectedStats(new Set(scan.stats.map(s => s.statName)));
+      }
       setScanStatus(parts.length > 0 ? `SCANNED: ${parts.join(' · ')}` : 'NOTHING DETECTED');
     } catch {
       setScanStatus('SCAN FAILED');

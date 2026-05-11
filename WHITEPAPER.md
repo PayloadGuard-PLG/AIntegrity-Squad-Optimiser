@@ -243,7 +243,7 @@ Condition loss is **level-based, not drill-specific**. Every drill shares the sa
 conditionLoss = baseLoss × COND_LEVEL_MULTIPLIERS[drillLevel] × (1 − fanClubReduction)
 ```
 
-**Condition level multipliers (`COND_LEVEL_MULTIPLIERS`) — confirmed from in-game screenshots:**
+**Condition level multipliers (`COND_LEVEL_MULTIPLIERS`) — confirmed from confirmed screenshots:**
 
 | Drill level | Multiplier |
 |---|---|
@@ -263,7 +263,7 @@ conditionLoss = baseLoss × COND_LEVEL_MULTIPLIERS[drillLevel] × (1 − fanClub
 | L3 | −25% | 0.75 |
 | L4 | −50% | 0.50 |
 
-**Verification (all values match in-game observations):**
+**Verification (all values match confirmed observations):**
 
 | Level | Fan Club | Formula | Result | Observed |
 |---|---|---|---|---|
@@ -308,7 +308,7 @@ Four pillars, each with its own current score, cap, and level (1–10). Cap incr
 | Condition | 16 | 16 | 3/10 | +15% | ≥ 8 | ANY (Physical & Mental drills) |
 | **Total** | **76** | **76** | — | — | — | — |
 
-**Ad TV boost:** Attack shows 18+1 from Ad TV (match-day only, does not persist between sessions).
+**Reward Channel boost:** Attack shows 18+1 from Reward Channel (match-day only, does not persist between sessions).
 
 **Daily decay:** All four pillar scores decrease by 2 or more per day. Decay applies at the daily server reset.
 
@@ -329,25 +329,25 @@ Four free teamplay training drills are available daily, accessible by watching a
 
 **Effective free daily boost:** 4 drills × base multiplier — sufficient to offset the ~2-point daily decay if used consistently.
 
-### 6.3 Matchday Coach (premium)
+### 6.3 Match Advisor (premium)
 
-The Matchday Coach grants **+150% Teamplay multiplier on all training sessions** — not just the 4 free teamplay drills. Duration: 7 days from activation. Also purchasable as a 1-day version for 25 tokens at any time. Source: premium sponsor milestone rewards.
+The Match Advisor grants **+150% Teamplay multiplier on all training sessions** — not just the 4 free teamplay drills. Duration: 7 days from activation. Also purchasable as a 1-day version for 25 tokens at any time. Source: premium sponsor milestone rewards.
 
 | Boost type | Scope | Duration | Cost |
 |---|---|---|---|
 | 4 free ad drills (2×–4× mult) | Teamplay drills only | Daily | Free |
-| Matchday Coach (+150%) | All training sessions | 7 days | Premium milestone |
-| Matchday Coach (+150%) | All training sessions | 1 day | 25 tokens |
+| Match Advisor (+150%) | All training sessions | 7 days | Premium milestone |
+| Match Advisor (+150%) | All training sessions | 1 day | 25 tokens |
 
-The Matchday Coach applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
+The Match Advisor applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
 
-**Confirmed observed effect (2026-05-08):** 41 × Ball Control Very Easy with Matchday Coach active → Attack pillar +7 above its current level cap (L4 cap = 18, reached 25 effective). Matchday Coach can temporarily push pillars above their level cap. This excess above cap is not retained permanently — it represents form gained from training that the pillar level ceiling does not limit.
+**Confirmed observed effect (2026-05-08):** 41 × Ball Control Very Easy with Match Advisor active → Attack pillar +7 above its current level cap (L4 cap = 18, reached 25 effective). Match Advisor can temporarily push pillars above their level cap. This excess above cap is not retained permanently — it represents form gained from training that the pillar level ceiling does not limit.
 
 **Variety penalty:** The game warns "Training today lacked variety. Different intensities and types in drills enhance teamplay impact." Repeating the same drill across all 41 sessions reduces per-session teamplay efficiency. Rotating drills or mixing intensities maximises pillar gain rate.
 
-### 6.4 Ad TV — daily reward track
+### 6.4 Reward Channel — daily reward track
 
-The Ad TV (Top Eleven TV) is a sequential reward track completed by watching video ads. **Progress resets every 24 hours.** All boosts are match-day only and do not influence training.
+The Reward Channel (Reward Channel) is a sequential reward track completed by watching video ads. **Progress resets every 24 hours.** All boosts are match-day only and do not influence training.
 
 **Reward track (in order):**
 
@@ -356,12 +356,12 @@ The Ad TV (Top Eleven TV) is a sequential reward track completed by watching vid
 | 1 | Daily Appearance | Daily login reward bundle |
 | 2 | Special Sponsor | +5 sponsor points · completes "Video Master" sponsor task |
 | 3 | Playbook | 1 random Basic Playbook drill · completes Playbook shop videos |
-| 4 | Matchday Coach (2×) | Limited training run with 2× teamplay multiplier |
+| 4 | Match Advisor (2×) | Limited training run with 2× teamplay multiplier |
 | 5 (Milestone) | Teamplay Form Boost: Random | Applied to all matches until end of season day |
-| Between 5–10 | Mourinho Support (+2%) | +2% Possession before a scheduled fixture · requires 3 watches |
-| 10 (Milestone) | Special Ability Boost | All players' Special Abilities boosted for all matches today |
+| Between 5–10 | Advisor Bonus (+2%) | +2% Possession before a scheduled fixture · requires 3 watches |
+| 10 (Milestone) | Signature Boost | All players' Special Abilities boosted for all matches today |
 
-**Matches to unlock Mourinho Support:** Watch an ad before each of 3 fixtures ("GO TO FIXTURES"). +2% Possession for that match. Number of fixtures available depends on how many competitions you're active in: League + Association (clan of up to 6) + Friendly Championship + accepted Friend Friendlies = 1–6 matches per day.
+**Matches to unlock Advisor Bonus:** Watch an ad before each of 3 fixtures ("GO TO FIXTURES"). +2% Possession for that match. Number of fixtures available depends on how many competitions you're active in: League + Association (clan of up to 6) + Friendly Championship + accepted Friend Friendlies = 1–6 matches per day.
 
 **Teamplay Form Boost — exact probabilities (confirmed from UI):**
 
@@ -377,9 +377,9 @@ Same distribution applied independently to each of the 4 pillars per draw. You a
 
 Since 4 pillars × 25% = 100%, every draw guarantees a boost on exactly one pillar. Expected boost value: **~+2.14** on the selected pillar.
 
-**Special Ability Boost:** All players' Special Abilities enhanced for all matches until end of season day. Does not affect training.
+**Signature Boost:** All players' Special Abilities enhanced for all matches until end of season day. Does not affect training.
 
-**Associations (clans):** Groups of up to 6 players. Association matches count toward fixture availability for Mourinho Support watches.
+**Associations (clans):** Groups of up to 6 players. Association matches count toward fixture availability for Advisor Bonus watches.
 
 ### 6.5 Training Level and Drill Quality
 
@@ -400,7 +400,7 @@ Training Level is a separate progression track from individual player OVR. It is
 |---|---|
 | FTP | 4 free daily drills (watch ads) to hold pillars above decay baseline |
 | Premium (no coach) | Same as FTP + faster condition cooldown = more training cycles available |
-| Premium (Matchday Coach active) | All individual player drills also advance teamplay — no separate maintenance needed for 7 days |
+| Premium (Match Advisor active) | All individual player drills also advance teamplay — no separate maintenance needed for 7 days |
 
 ---
 
@@ -420,7 +420,7 @@ This strategy compounds three mechanics simultaneously:
 
 ### Squad-wide effect
 5. **Train across the whole squad** — the aggregate XP flowing through all 11+ players means more integer thresholds crossed per day than single-player projection suggests. Each player's white stats accumulate fractionally; when a crossing fires, it feeds into OVR for that player. Across the squad, crossings happen constantly.
-6. **Role opening** — as stats hit new thresholds, adjacent roles unlock. This widens available drilling options and enables Matchday Coach to cover a broader teamplay pillar set.
+6. **Role opening** — as stats hit new thresholds, adjacent roles unlock. This widens available drilling options and enables Match Advisor to cover a broader teamplay pillar set.
 
 ### Season yield
 ~+7 OVR is the observed aggregate for this approach. Individual player gains are smaller (fractional each cycle); the season total comes from hundreds of crossings across all players.
@@ -559,7 +559,7 @@ interface InvestmentPlan {
 | Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
 | Role OCR | Sprint 14: switched from full-text `\bROLE\b` regex to token-exact match. Eliminates false positives from partial word matches. Remaining gap: if the screenshot crops the role badge area entirely, zero roles are detected — currently the scan returns `undefined` (no roles set). Future fix: preserve the existing role selection when scan returns no roles. |
 | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
-| Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Matchday Coach multiplier, and ADVANCE costs are out of scope for current OVR projection. |
+| Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Match Advisor multiplier, and ADVANCE costs are out of scope for current OVR projection. |
 | Star decay curve | `starDecayPerSession = 1.0` (no decay). Confirmed near-linear from real data. |
 | Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output. |
 | Formation/synergy | Not modelled. |
@@ -572,7 +572,7 @@ interface InvestmentPlan {
 
 ### 14.1 Player Card Scanner (`src/logic/playerScanner.ts`)
 
-Scans a screenshot of a player's in-game card and extracts:
+Scans a screenshot of a player's confirmed card and extracts:
 - All 15 stats + their values
 - OVR, age, name, roles, tier, talent
 
@@ -604,7 +604,7 @@ for (const t of tokens) {
 
 ### 14.2 Coach Preview Scanner (`src/logic/coachScanner.ts`)
 
-Scans a screenshot of the in-game coach assignment preview and extracts:
+Scans a screenshot of the confirmed coach assignment preview and extracts:
 - Coach type (Standard / Focused / Extensive), category (Attacking / Defending / Physical / Safeguard), multiplier (×N) from a header line
 - Per-highlighted-stat gain ranges (`+lo–hi`) — only rows that contain a gain range pattern are captured
 
@@ -628,7 +628,7 @@ Only tokens on the same baseline as a recognised stat name are scanned for the g
 | 0.4 | Sprint 6 | Extended XP cost table to stat 339; baseXpPerSession budget multiplier; Direction B UI; OVR display delta fix |
 | 0.5 | Sprint 7 | Drill level selector in Drills tab; talent multiplier labels; zero-drain detection at L4+VE |
 | 0.6 | Sprint 8 | Coaches tab (SESSION SIMULATOR); fractional XP model; ROI-based drill sort; GK role constraints confirmed; smarter skip warnings |
-| 0.7 | Sprints 9–10 | RESULTS tab; tier bonus applied to all 15 stats (fix); talent on player card; apply-gains write-back; GK stat grid complete; OVR truncation confirmed; Expo Web; Matchday Coach + teamplay data logged |
+| 0.7 | Sprints 9–10 | RESULTS tab; tier bonus applied to all 15 stats (fix); talent on player card; apply-gains write-back; GK stat grid complete; OVR truncation confirmed; Expo Web; Match Advisor + teamplay data logged |
 | 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; First Touch Play rename; Piggy in the Middle AGGRESSION |
 | 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
 | 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
@@ -683,7 +683,7 @@ This convention is implemented via a `statColor(stat)` helper and `STAT_COLS`/`C
 
 ### 13.4 COACH SESSION CAPTURE (`/coach/capture`)
 
-`app/coach/capture.tsx` — calibration data logger. Lets the user enter what the in-game coach preview shows (per-stat gain ranges) and saves the data for reference.
+`app/coach/capture.tsx` — calibration data logger. Lets the user enter what the confirmed coach preview shows (per-stat gain ranges) and saves the data for reference.
 
 **Sections:**
 1. **Coach Type** — TYPE (STANDARD / FOCUSED / EXTENSIVE) + CATEGORY (ATTACKING / DEFENDING / PHYSICAL / SAFEGUARD) + MULTIPLIER ×N

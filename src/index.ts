@@ -136,7 +136,7 @@ async function startApp() {
         ? talentInput.trim() : 'Normal') as TalentTier,
       drillLevel: (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelInput.trim())
         ? levelInput.trim() : 'Very Easy') as DrillLevel,
-      matchdayCoachActive: false,
+      matchAdvisorActive: false,
     };
 
     const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
@@ -182,7 +182,7 @@ async function startApp() {
         ? talentInput.trim() : 'Normal') as TalentTier,
       drillLevel: (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelInput.trim())
         ? levelInput.trim() : 'Very Easy') as DrillLevel,
-      matchdayCoachActive: false,
+      matchAdvisorActive: false,
     };
 
     const comparison = compareInvestmentScenarios(selectedPlayers, profile, drillSessions, gameProfile, targetTier);

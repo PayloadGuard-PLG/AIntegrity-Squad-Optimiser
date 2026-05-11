@@ -11,19 +11,19 @@ export function calculateFixtureCycles(
 
 export function calculateTeamPlayPlan(
   pillars: Partial<Record<TeamPlayPillar, number>>,
-  matchdayCoachActive: boolean,
+  matchAdvisorActive: boolean,
   profile: GameProfile
 ): TeamPlayPlan {
-  const freeDrillsNeeded = matchdayCoachActive ? 0 : profile.teamPlayFreeDrillsPerDay;
-  const matchdayCoachCoversDecay = matchdayCoachActive;
-  const recommendation = matchdayCoachActive
-    ? 'Matchday Coach active — all drill sessions advance team play. No separate maintenance drills needed.'
-    : `Watch ${profile.teamPlayFreeDrillsPerDay} Top Eleven TV ads daily to run free team play drills and offset the ${profile.teamPlayDecayPerDay}-point daily decay per pillar.`;
+  const freeDrillsNeeded = matchAdvisorActive ? 0 : profile.teamPlayFreeDrillsPerDay;
+  const matchAdvisorCoversDecay = matchAdvisorActive;
+  const recommendation = matchAdvisorActive
+    ? 'Match Advisor active — all drill sessions advance team play. No separate maintenance drills needed.'
+    : `Watch ${profile.teamPlayFreeDrillsPerDay} Reward Channel videos daily to run free team play drills and offset the ${profile.teamPlayDecayPerDay}-point daily decay per pillar.`;
   return {
     pillars,
     decayPerDay: profile.teamPlayDecayPerDay,
     freeDrillsNeeded,
-    matchdayCoachCoversDecay,
+    matchAdvisorCoversDecay,
     recommendation,
   };
 }

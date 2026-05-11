@@ -7,7 +7,7 @@ Persistent findings from game-play analysis and OCR debugging. Read this before 
 ## Game Layout: Coach Preview Screen
 
 ### Stat Grid — 3-Column Layout
-The in-game coach preview shows stats in **3 side-by-side columns**:
+The coach preview shows stats in **3 side-by-side columns**:
 
 ```
 DEFENSE          ATTACK           PHYSICAL & MENTAL
@@ -113,34 +113,24 @@ The scanner captures it correctly; the UI shows it in a "DETECTED — NOT IN ROL
 ## Drill System
 
 ### Intensity Levels (Fixed Per Drill)
-Each drill has one fixed `DrillIntensity` level matching the in-game difficulty selector.
+Each drill has one fixed `DrillIntensity` level per drill.
 The drills tab filters to `d.intensity === drillLevel` — it does NOT weight by intensity.
 
 | Intensity | Drills |
 |---|---|
-| Very Easy | Ball Control, Video Analysis, Warm-Up |
-| Easy | Shooting Technique, Set-Piece Delivery, Slalom Dribble, 1-on-1 Finishing, Head It, Porky in Centre, Defensive Line, Defending Crosses, Hold Shape, Hurdles, Stretch, Carioca with Ladders, Hurdle Jumps |
-| Medium | Move & Finish, Press Up, Stop the Attacker, Sprints, Shuttle Runs |
-| Hard | Wing Play, Fast Counter-Attacks, Long Run |
-| Very Hard | Gym |
+| Very Easy | Touch Training, Tactical Review, Activation |
+| Easy | Target Practice, Dead Ball Practice, Cone Weave, Solo Finish, Aerial Work, Porky in Centre, Back Line Drill, Box Clearance, Compact Block, Hurdle Work, Flexibility Session, Footwork Ladder, Plyometrics |
+| Medium | Run & Strike, Pressure Trap, Challenge Drill, Speed Work, Interval Runs |
+| Hard | Wide Channel, Break Away, Endurance Loop |
+| Very Hard | Weight Room |
 
-### Drill Renames (IP-Safe)
-| Original name | Current name | Notes |
-|---|---|---|
-| Skill Drill | Ball Control | Renamed to First Touch Play (Sprint 11), then to Ball Control (Sprint 15, user confirmed) |
-| Piggy in the Middle | Porky in Centre | User explicitly confirmed this style |
-| Pass, Go & Shoot | Move & Finish | |
-| Use Your Head | Head It | |
-| Press the Play | Press Up | |
-| Hold the Line | Hold Shape | |
-
-Ball Control trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`, intensity Very Easy, baseLoss 0.75.
+Touch Training trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`, intensity Very Easy, baseLoss 0.75.
 
 ---
 
 ## Architecture Notes
 
-- **OVR formula**: `qualityPct / divisor` where divisor=1 in current game profile
+- **OVR formula**: `Math.floor(qualityPct / divisor)` where divisor=1 in current profile
 - **180-rule**: stats at or above 180 yield `Infinity` XP cost — treated as hard cap
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
 - **Tier bonus = flat attribute addition** to each white stat (NOT a direct OVR boost)

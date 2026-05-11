@@ -99,7 +99,10 @@ export default function NewPlayerScreen() {
       if (!isNaN(n) && n > 0) statsObj[k] = n;
     }
     if (Object.keys(statsObj).length >= 10) {
-      const fakePlayer = { stats: statsObj, overall: 0, role: ['ST'] } as any;
+      const enteredVals = Object.values(statsObj);
+      const mean = Math.floor(enteredVals.reduce((a, b) => a + b, 0) / enteredVals.length);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fakePlayer = { stats: statsObj, overall: mean, role: selectedRoles.length > 0 ? selectedRoles : ['ST'] } as any;
       const auto = computeOvrFromStats(fakePlayer, profile);
       setOverall(auto.toFixed(1));
       setOvrIsAuto(true);

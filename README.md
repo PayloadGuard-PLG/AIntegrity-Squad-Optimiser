@@ -171,7 +171,7 @@ npx expo export -p web
 | [`DEVLOG.md`](./DEVLOG.md) | Sprint-by-sprint build history — what shipped, what broke, what's next |
 | [`HANDOVER.md`](./HANDOVER.md) | Agent handover brief — current state, open items, key file map, engine reference |
 | [`KNOWN_ISSUES.md`](./KNOWN_ISSUES.md) | Open bugs + resolved issue log |
-| [`data/CALIBRATION_LOG.md`](./data/CALIBRATION_LOG.md) | Raw in-game data used to validate the engine |
+| [`data/CALIBRATION_LOG.md`](./data/CALIBRATION_LOG.md) | Calibration data used to validate the engine |
 
 ---
 

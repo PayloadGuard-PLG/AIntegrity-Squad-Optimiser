@@ -35,7 +35,7 @@ Note: `src/logic/playerScanner.ts` `KNOWN_TIERS` still matches game display name
 
 **Drill intensity field + filter**
 
-`DrillIntensity = 'Very Easy'|'Easy'|'Medium'|'Hard'|'Very Hard'` added to `Drill` interface in `src/database/drillDatabase.ts`. Each drill has a single fixed intensity matching the in-game difficulty level it appears at.
+`DrillIntensity = 'Very Easy'|'Easy'|'Medium'|'Hard'|'Very Hard'` added to `Drill` interface in `src/database/drillDatabase.ts`. Each drill has a single fixed intensity matching the confirmed difficulty level it appears at.
 
 `app/(tabs)/drills.tsx` — `useMemo` now filters `.filter(d => d.intensity === drillLevel)`. Only drills at the selected intensity are shown. Previously all drills showed regardless of level selected.
 
@@ -269,7 +269,7 @@ DB migration `0003_player_snapshot.sql`: `ALTER TABLE players ADD snapshot text 
 
 ### Shipped
 
-**Condition formula corrected — confirmed from in-game screenshots**
+**Condition formula corrected — confirmed from confirmed screenshots**
 
 `src/utils/conditionEngine.ts` — complete rewrite of condition loss calculation:
 
@@ -281,7 +281,7 @@ DB migration `0003_player_snapshot.sql`: `ALTER TABLE players ADD snapshot text 
 
 `src/database/drillDatabase.ts` — replaced all individual `baseLoss` values with the universal constant `BASE_LOSS = 0.75`. Condition cost is determined entirely by difficulty level and fan club level, not by which specific drill is used.
 
-Verification from in-game screenshots:
+Verification from confirmed screenshots:
 
 | Drill | Level | Fan Club | Formula | Observed |
 |---|---|---|---|---|
@@ -341,20 +341,20 @@ Removed the `× 6` multiplier hack (`conditionCost = actualLoss * 6` → `condit
 
 **Ball Control ×41 squad session logged (calibration)**
 
-`data/CALIBRATION_LOG.md` — section 6 entry: 31 players × 41 × Ball Control Very Easy at Fan Club L4 with Matchday Coach active.
+`data/CALIBRATION_LOG.md` — section 6 entry: 31 players × 41 × Ball Control Very Easy at Fan Club L4 with Match Advisor active.
 
 Key findings:
 - Condition per session: **−0.38%** confirmed from drill selection screen (not 0%)
 - `baseLoss 0.75% × 0.5 (L4) = 0.375% ≈ 0.38%` — formula validates
 - Zero-drain **revised**: Ball Control VE+L4 = 0.38% (not zero). Zero drain is difficulty-level-based, not universal. Underlying bug identified (fix shipped Sprint 11)
 
-**Matchday Coach mechanics confirmed**
+**Match Advisor mechanics confirmed**
 
 - Source: premium sponsor milestone reward. Also purchasable: 1-day = 25 tokens
 - Effect: **+150% teamplay multiplier on ALL training sessions** (not just 4 free drills)
 - Duration: 7 days from activation
 - Observed: 41 × Ball Control VE → Attack pillar +7 above its L4 cap (18 → 25 effective)
-- Matchday Coach can push pillars **above their level cap** temporarily
+- Match Advisor can push pillars **above their level cap** temporarily
 - Variety penalty: repeating same drill reduces teamplay gain rate; game warns "Training today lacked variety"
 - Training XP yield confirmed separate from stat-gain XP
 
@@ -369,9 +369,9 @@ Key findings:
 | Possession | 5/10 | 20 | level × 2 + 10 ✓ |
 | Condition | 3/10 | 16 | level × 2 + 10 ✓ |
 
-**Ad TV full reward track confirmed**
+**Reward Channel full reward track confirmed**
 
-All 10 Ad TV steps mapped: Daily Appearance → Special Sponsor → Playbook → Matchday Coach (2×) → Teamplay Form Boost (milestone) → Mourinho Support × 3 → Special Ability Boost (milestone).
+All 10 Reward Channel steps mapped: Daily Appearance → Special Sponsor → Playbook → Match Advisor (2×) → Teamplay Form Boost (milestone) → Advisor Bonus × 3 → Special Ability Boost (milestone).
 
 Teamplay Form Boost probabilities per pillar (same for all 4):
 - +1: 7% · +2: 10% · +3: 5.5% · +4: 2.5% = 25% per pillar = 1 hit guaranteed per draw

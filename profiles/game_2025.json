@@ -73,7 +73,7 @@
   "qualityOvrDivisor": 1,
   "totalAttributeCount": 15,
   "teamPlayDecayPerDay": 2,
-  "matchdayCoachMultiplier": 1.5,
+  "matchAdvisorMultiplier": 1.5,
   "conditionCostPerDrill": 6,
   "teamPlayFreeDrillsPerDay": 4,
   "conditionPerGreen": 15,
