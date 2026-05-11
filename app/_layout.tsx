@@ -1,10 +1,12 @@
 import { Stack } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
-import { useDbMigration } from '../src/db';
+import { useDbMigration, ensureSnapshotColumn } from '../src/db';
 import { ManagerProvider } from '../src/context/ManagerContext';
 
 export default function RootLayout() {
   const { success, error } = useDbMigration();
+
+  if (success) ensureSnapshotColumn();
 
   if (!success) {
     if (error) console.error('Migration error:', error);

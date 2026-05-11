@@ -37,7 +37,7 @@ type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number
 export default function CoachesScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedId = manager.selectedPlayerId;
   const [sessions, setSessions] = useState('');
   const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<ProjectionResult | null>(null);
@@ -99,13 +99,13 @@ export default function CoachesScreen() {
   }, [player]);
 
   const selectPlayer = useCallback((id: string) => {
-    setSelectedId(id);
+    manager.setSelectedPlayerId(id);
     const p = squad.find(s => s.id === id);
     setSelectedStats(p ? new Set(getWhiteStatKeys(p.role)) : new Set());
     setResult(null);
     setSelectedTier(null);
     setSaveConfirmed(false);
-  }, [squad]);
+  }, [squad, manager]);
 
   const toggleStat = useCallback((stat: string) => {
     setSelectedStats(prev => {

@@ -123,7 +123,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
   const foundRoles = new Set<string>();
   for (const t of tokens) {
-    t.text.toUpperCase().split(/[\s,./|]+/).forEach(part => {
+    t.text.toUpperCase().split(/[\s,./|·•·]+/).forEach(part => {
       if (part.trim() && roleSet.has(part.trim())) foundRoles.add(part.trim());
     });
   }

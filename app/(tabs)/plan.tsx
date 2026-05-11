@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Alert, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
@@ -70,8 +70,9 @@ function StepRail({ steps }: { steps: InvestmentStep[] }) {
 export default function PlanScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [drillRows, setDrillRows] = useState<DrillSession[]>([newDrill()]);
+  const selectedId = manager.selectedPlayerId;
+  const setSelectedId = (id: string | null) => { manager.setSelectedPlayerId(id); invalidate(); };
+  const [drillRows, setDrillRows] = useState<DrillSession[]>([]);
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [twoxAd, setTwoxAd] = useState(false);
@@ -94,6 +95,9 @@ export default function PlanScreen() {
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   function invalidate() { setPlan(null); }
+
+  // Invalidate projection when player changes from another tab
+  useEffect(() => { setPlan(null); }, [selectedId]);
 
   const fixtureWindow = useMemo(() => {
     const h = parseFloat(fixtureHours);
@@ -191,7 +195,7 @@ export default function PlanScreen() {
             {squad.map(p => {
               const sel = p.id === selectedId;
               return (
-                <Pressable key={p.id} onPress={() => { setSelectedId(p.id); invalidate(); }} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
+                <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
                   <Text style={{ fontSize: 12, color: sel ? theme.ink : theme.inkMuted, fontWeight: sel ? '600' : '400', fontFamily: theme.display, marginBottom: 2 }}>{p.name}</Text>
                   <MonoLabel size={8}>{p.overall} · {p.role[0]}</MonoLabel>
                 </Pressable>

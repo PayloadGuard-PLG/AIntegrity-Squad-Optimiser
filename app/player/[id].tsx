@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
 import { validateRoleAdjacency, isWhiteStat } from '../../src/utils/roleWeights';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
+import { useScanner } from '../../src/hooks/useScanner';
+import { computeOvrFromStats } from '../../src/logic/ovrProjector';
+import gameProfileJson from '../../profiles/game_2025.json';
+import { GameProfile } from '../../src/types/resources';
+
+const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
@@ -70,6 +77,10 @@ export default function EditPlayerScreen() {
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
   const [snapshot, setSnapshot] = useState<import('../../src/database/playerSchema').PlayerSnapshot | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [scanMsg, setScanMsg] = useState('');
+  const [scanOk, setScanOk] = useState(false);
+
+  const { scanPlayerScreenshot, isScanning } = useScanner();
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS : OUTFIELD_STATS;
@@ -107,6 +118,51 @@ export default function EditPlayerScreen() {
       return;
     }
     setSelectedRoles(next);
+  }
+
+  async function rescanStats(from: 'gallery' | 'camera') {
+    try {
+      let result: ImagePicker.ImagePickerResult;
+      if (from === 'camera') {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
+        result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
+      } else {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+        result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      }
+      if (result.canceled || !result.assets?.[0]?.uri) return;
+
+      setScanOk(false);
+      setScanMsg('');
+      const data = await scanPlayerScreenshot(result.assets[0].uri);
+      if (!data) return;
+
+      if (data.stats && Object.keys(data.stats).length > 0) {
+        const updated = { ...statInputs, ...Object.fromEntries(
+          Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
+        )};
+        setStatInputs(updated);
+        // Auto-recompute OVR from merged stats
+        const statsObj: Record<string, number> = {};
+        for (const [k, v] of Object.entries(updated)) {
+          const n = parseFloat(v);
+          if (!isNaN(n) && n > 0) statsObj[k] = n;
+        }
+        if (Object.keys(statsObj).length >= 10) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const fakePlayer = { stats: statsObj, overall: parseFloat(overall) || 100, role: selectedRoles.length > 0 ? selectedRoles : ['ST'] } as any;
+          setOverall(computeOvrFromStats(fakePlayer, profile).toFixed(1));
+        }
+        setScanMsg(`${Object.keys(data.stats).length} STATS UPDATED — REVIEW AND SAVE`);
+        setScanOk(true);
+      } else {
+        setScanMsg('NO STATS DETECTED — TRY A CLEARER SCREENSHOT');
+      }
+    } catch {
+      setScanMsg('SCAN ERROR — TRY AGAIN');
+    }
   }
 
   function save() {
@@ -314,6 +370,25 @@ export default function EditPlayerScreen() {
           </Text>
         </Pressable>
 
+        {/* RESCAN STATS */}
+        <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>UPDATE STATS</MonoLabel>
+        <Pressable onPress={() => rescanStats('gallery')} disabled={isScanning}
+          style={{ borderWidth: 1, borderColor: theme.steelLight, padding: 12, alignItems: 'center', marginBottom: 6, backgroundColor: theme.surface2 }}>
+          {isScanning
+            ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><ActivityIndicator color={theme.steelLight} size="small" /><Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>SCANNING...</Text></View>
+            : <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>◎ SCAN UPDATED PLAYER CARD</Text>
+          }
+        </Pressable>
+        <Pressable onPress={() => rescanStats('camera')} disabled={isScanning}
+          style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, alignItems: 'center', marginBottom: 10 }}>
+          <MonoLabel size={9} color={theme.inkMuted}>◉ USE CAMERA</MonoLabel>
+        </Pressable>
+        {scanMsg !== '' && (
+          <View style={{ padding: 10, borderWidth: 1, borderColor: (scanOk ? theme.pos : theme.neg) + '55', backgroundColor: (scanOk ? theme.pos : theme.neg) + '0d', marginBottom: 12 }}>
+            <MonoLabel size={9} color={scanOk ? theme.pos : theme.neg}>{scanMsg}</MonoLabel>
+          </View>
+        )}
+
         {/* STATS GRID — DEF / ATT / PHY */}
         {selectedRoles.length > 0 && (
           <>
@@ -336,20 +411,19 @@ export default function EditPlayerScreen() {
                           borderBottomWidth: 1,
                           borderBottomColor: w ? cc + '44' : theme.hairline,
                           borderLeftWidth: w ? 3 : 1,
-                          borderLeftColor: w ? cc : theme.hairline,
-                          backgroundColor: w ? cc + '1a' : 'transparent',
-                          opacity: w ? 1 : 0.38,
+                          borderLeftColor: w ? cc : theme.hairline2,
+                          backgroundColor: w ? cc + '1a' : cc + '0a',
                         }}>
-                          <MonoLabel size={7} color={w ? cc : theme.inkGhost}>{s}</MonoLabel>
+                          <MonoLabel size={7} color={w ? cc : theme.inkMuted}>{s}</MonoLabel>
                           <TextInput
                             keyboardType="numeric"
                             value={statInputs[s] ?? ''}
                             onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v }))}
                             placeholder="—"
-                            placeholderTextColor={theme.inkGhost}
+                            placeholderTextColor={theme.inkMuted}
                             style={{
                               padding: 0, marginTop: 2,
-                              color: w ? theme.ink : theme.inkGhost,
+                              color: w ? theme.ink : theme.inkMuted,
                               fontSize: 14, fontFamily: theme.mono,
                               fontWeight: w ? '700' : '400',
                             }}

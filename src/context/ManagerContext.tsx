@@ -11,6 +11,8 @@ type ManagerCtx = ManagerProfile & {
   setTalentTier: (t: TalentTier) => void;
   setDrillLevel: (d: DrillLevel) => void;
   toggleMatchAdvisor: () => void;
+  selectedPlayerId: string | null;
+  setSelectedPlayerId: (id: string | null) => void;
 };
 
 const ManagerContext = createContext<ManagerCtx | null>(null);
@@ -25,11 +27,13 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [talentTier, setTalentTier] = useState<TalentTier>('Normal');
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [matchAdvisorActive, setMatchAdvisorActive] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   return (
     <ManagerContext.Provider value={{
       style, tierPoints, greens, isPremiumSponsor, storeBudget,
       twoxAdActive, talentTier, drillLevel, matchAdvisorActive,
+      selectedPlayerId, setSelectedPlayerId,
       setStyle,
       setTierPoints,
       setGreens,

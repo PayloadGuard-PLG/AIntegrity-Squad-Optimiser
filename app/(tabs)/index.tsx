@@ -2,6 +2,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { useSquad } from '../../src/hooks/useSquad';
+import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { CornerBrackets } from '../../src/components/atoms/CornerBrackets';
@@ -27,8 +28,9 @@ function OvrBadge({ ovr }: { ovr: number }) {
 }
 
 function PlayerRow({ player, index }: { player: Player; index: number }) {
+  const manager = useManager();
   return (
-    <Pressable onPress={() => router.push(`/player/${player.id}`)} style={{
+    <Pressable onPress={() => { manager.setSelectedPlayerId(player.id); router.push(`/player/${player.id}`); }} style={{
       backgroundColor: theme.surface,
       borderWidth: 1, borderColor: theme.hairline,
       borderTopWidth: index > 0 ? 0 : 1,
