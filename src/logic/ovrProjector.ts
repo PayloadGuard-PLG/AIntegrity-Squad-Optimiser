@@ -180,7 +180,6 @@ export function projectOvr(
     if (targetTier && targetTier !== player.tier && targetTier !== 'T0') {
       const ALL_TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
       const allRoleKeys = getAllStatKeys(player.role);
-      const offRoleCount = Math.max(0, profile.totalAttributeCount - allRoleKeys.length);
       const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'T0'));
       const toIdx   = ALL_TIERS.indexOf(targetTier);
       for (let i = fromIdx + 1; i <= toIdx; i++) {
@@ -188,12 +187,12 @@ export function projectOvr(
         const prevTier = ALL_TIERS[i - 1] as TierName;
         const inc  = (profile.tierAttrAdditions[stepTier] ?? 0) - (profile.tierAttrAdditions[prevTier] ?? 0);
         const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
-        const tierOvrGain = Number(((inc * allRoleKeys.length + offRoleCount) / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
+        const tierOvrGain = Number(((inc * allRoleKeys.length) / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
         const ovrBefore = currentOvr;
         currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
         steps.push({
           action: 'tier',
-          description: `Tier → ${stepTier} (+${inc} per role attr × ${allRoleKeys.length} stats, off-role +1)`,
+          description: `Tier → ${stepTier} (+${inc} per key attr × ${allRoleKeys.length} stats)`,
           ovrBefore,
           ovrAfter: currentOvr,
           resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,
@@ -219,7 +218,19 @@ export function projectOvr(
   let currentStats = { ...player.stats };
   let currentOvr = computeOvrFromStats(player, profile);
 
-  if (sessions.length > 0) {
+  // Training lock: base OVR = total OVR minus the tier's OVR contribution.
+  // When base OVR >= maxBaseOvr (180), drills and academy coaches have no effect.
+  const tierBonus = profile.tierAttrAdditions[(player.tier as TierName) ?? 'T0'] ?? 0;
+  const keyCount  = getAllStatKeys(player.role).length;
+  const tierOvrContrib = Math.floor(tierBonus * keyCount / profile.totalAttributeCount);
+  const baseOvr = currentOvr - tierOvrContrib;
+  const trainingLocked = baseOvr >= (profile.maxBaseOvr ?? 180);
+
+  if (trainingLocked && sessions.length > 0) {
+    warnings.push(`Base OVR ${baseOvr} has reached the training cap (${profile.maxBaseOvr ?? 180}). Drills have no effect — tier upgrades and in-game bonuses still apply.`);
+  }
+
+  if (sessions.length > 0 && !trainingLocked) {
     const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr, skippedDrills } =
       applyDrillSessionsToStats({ ...player, stats: currentStats }, sessions, talentTier, twoxAdActive, profile);
     steps.push(...drillSteps);
@@ -234,7 +245,7 @@ export function projectOvr(
         warnings.push(`${skip.name}: no stats applicable to this role (${skip.irrelevantStats.join(', ')}).`);
       }
     }
-  } else {
+  } else if (sessions.length === 0) {
     warnings.push('No drill sessions — add drills to project OVR growth.');
   }
 
@@ -259,13 +270,11 @@ export function projectOvr(
       const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
       const ovrBefore = currentOvr;
 
-      // Role stats (white+grey) get full increment; off-role stats get +1
+      // Role stats (white+grey) get full increment; off-role stats are unchanged
       const newStats = { ...currentStats };
       for (const key of Object.keys(newStats)) {
         if (allRoleKeys.has(key)) {
           newStats[key] = Math.min(newStats[key] + inc, profile.statCap);
-        } else {
-          newStats[key] = Math.min(newStats[key] + 1, profile.statCap);
         }
       }
       currentStats = newStats;
@@ -273,7 +282,7 @@ export function projectOvr(
       const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
       steps.push({
         action: 'tier',
-        description: `Tier → ${stepTier} (+${inc} per role attr × ${allRoleKeys.size} stats, off-role +1)`,
+        description: `Tier → ${stepTier} (+${inc} per key attr × ${allRoleKeys.size} stats)`,
         ovrBefore,
         ovrAfter: newOvr,
         resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,

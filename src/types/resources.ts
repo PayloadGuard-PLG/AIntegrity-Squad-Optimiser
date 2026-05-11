@@ -17,7 +17,7 @@ export interface GameProfile {
   fanClubCondReduction: number[];
   greyWeightMultiplier: number;
   statCap: number;
-  rule180StatCap: number;
+  maxBaseOvr: number;
   baseXpPerSession: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;

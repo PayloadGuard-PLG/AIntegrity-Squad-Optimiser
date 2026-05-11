@@ -124,7 +124,7 @@
   ],
   "greyWeightMultiplier": 0.5,
   "statCap": 340,
-  "rule180StatCap": 340,
+  "maxBaseOvr": 180,
   "baseXpPerSession": 150,
   "twoxAdMultiplier": 2.0,
   "starDecayPerSession": 1.0,

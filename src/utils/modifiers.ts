@@ -7,6 +7,6 @@ export function calculateDrillConditionCost(drillIntensity: keyof typeof DRILL_B
   const chantModifier = 1 - (Math.min(chants, 5) * 0.03); // Max 15% reduction from 5 chants [cite: 35, 73]
   
   const rawCost = baseCost * fanModifier * chantModifier;
-  // AIntegrity Protocol: If cost < 0.50, it yields zero drain [cite: 31, 76, 108]
-  return rawCost < 0.50 ? 0.00 : Number(rawCost.toFixed(2));
+  // Zero-drain threshold: < 0.38 (only Very Easy at fan club L4 qualifies: 0.375%)
+  return rawCost < 0.38 ? 0.00 : Number(rawCost.toFixed(2));
 }

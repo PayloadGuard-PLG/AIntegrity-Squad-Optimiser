@@ -153,10 +153,38 @@ Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clampin
 
 ## Architecture Notes
 
-- **OVR formula**: `Math.floor(qualityPct / divisor)` where divisor=1 in current profile
-- **180-rule**: stats at or above 180 yield `Infinity` XP cost — treated as hard cap
+### OVR Formula (confirmed from live game data)
+
+OVR is computed in two parts and added:
+```
+base_quality   = min(180, floor(sum_of_base_stats / 15))
+tier_contrib   = floor(tier_bonus × key_stat_count / 15)
+total_OVR      = base_quality + tier_contrib
+```
+
+The game UI displays this split explicitly (e.g. "290 OVR = 152 + 138 Tier increase").
+In code: `floor(sum_of_all_stats / 15)` produces the same result because tier bonuses are
+baked into stats — the two representations are equivalent.
+
+### 180-Rule (training lock)
+
+**The 180 refers to BASE OVR (star quality), not individual stat values.**
+
+- Stars/quality max = **180** (10 stars). Displayed as "Maximum star quality is 180."
+- When base OVR ≥ 180: training via drills and academy coaches is **fully locked** (TRAIN button absent, MAX STARS shown)
+- Tier bonuses push total OVR well beyond 180 — this is expected and normal (e.g. Neri at 290)
+- When seasonal decay drops base OVR below 180, training resumes
+- Individual stats CAN exceed 180 (Shooting 436, Finishing 446 seen in data) — the cap is on the average
+
+Enforced in `src/logic/ovrProjector.ts`: `projectOvr()` checks base OVR before drill simulation.
+The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
+
+### Other Notes
+
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
-- **Tier bonus = flat attribute addition** to each white stat (NOT a direct OVR boost)
-- **Condition (greens)**: restores condition only — zero OVR change; +15% per green (UNCONFIRMED)
+- **Tier bonus** applies to ALL key (role) attributes only — off-role stats receive 0 (confirmed from game data)
+- **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
+- **Condition (greens)**: restores condition only — zero OVR change; +15% per green (confirmed)
+- **Seasonal decay**: ~20% base OVR drop per season (unmodeled — affects base quality, not tier)
 - **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0006 (drill_presets)
 - **Drill Presets**: stored in `drill_presets` table; service at `src/services/drillPresetService.ts`
