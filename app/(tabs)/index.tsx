@@ -8,9 +8,9 @@ import { CornerBrackets } from '../../src/components/atoms/CornerBrackets';
 import { theme, TIER_COLORS, ovrColor } from '../../src/constants/theme';
 import { Player } from '../../src/database/playerSchema';
 
-const TIER_ORDER = ['None', 'Rare', 'Elite', 'Stellar', 'Master', 'Epic', 'Legendary'];
-const TALENT_TIERS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const TALENT_COLORS: Record<string, string> = { FT1: '#9eb0d4', FT2: '#7d8ba8', FT3: '#5b6b8a', Normal: '#3a3a40', Slow: '#c4756a' };
+const TIER_ORDER = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
+const TALENT_TIERS = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
+const TALENT_COLORS: Record<string, string> = { Fastest: '#9eb0d4', Fast: '#7d8ba8', Average: '#5b6b8a', Normal: '#3a3a40', Slow: '#c4756a' };
 
 function OvrBadge({ ovr }: { ovr: number }) {
   const c = ovrColor(ovr);
@@ -84,9 +84,9 @@ export default function SquadScreen() {
       avgOvr: Math.round(squad.reduce((a, p) => a + p.overall, 0) / squad.length),
       avgAge: (squad.reduce((a, p) => a + p.age, 0) / squad.length).toFixed(1),
       mutants: squad.filter(p => p.isMutantCandidate).length,
-      ft1: talentCounts.FT1 || 0,
+      fastest: (talentCounts.Fastest || 0) + (talentCounts.FT1 || 0),
       under20: squad.filter(p => p.age < 20).length,
-      eliteUp: squad.filter(p => ['Stellar', 'Master', 'Epic', 'Legendary'].includes(p.tier ?? '')).length,
+      eliteUp: squad.filter(p => ['T3', 'T4', 'T5', 'T6'].includes(p.tier ?? '')).length,
       talentCounts, tierCounts,
     };
   }, [squad]);
@@ -165,7 +165,7 @@ export default function SquadScreen() {
                   <View style={{ marginBottom: 12 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                       <MonoLabel size={8}>TALENT MIX</MonoLabel>
-                      <MonoLabel size={8}>{summary.ft1} FT1 · {summary.under20} U20</MonoLabel>
+                      <MonoLabel size={8}>{summary.fastest} ×1.5 · {summary.under20} U20</MonoLabel>
                     </View>
                     <View style={{ flexDirection: 'row', height: 6, backgroundColor: theme.surface3, gap: 1 }}>
                       {TALENT_TIERS.map(t => {

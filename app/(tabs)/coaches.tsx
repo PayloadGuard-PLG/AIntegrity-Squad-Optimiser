@@ -22,7 +22,7 @@ const profile = gameProfileJson as unknown as GameProfile;
 
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = {
-  FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW',
+  Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
 };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };

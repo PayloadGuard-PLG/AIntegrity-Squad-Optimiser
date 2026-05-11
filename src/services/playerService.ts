@@ -27,8 +27,16 @@ const LEGACY_TIER_MAP: Record<string, TierName> = {
   None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
 };
 
+const LEGACY_TALENT_MAP: Record<string, TalentTier> = {
+  FT1: 'Fastest', FT2: 'Fast', FT3: 'Average',
+};
+
 function normaliseTier(t: string): TierName {
   return (LEGACY_TIER_MAP[t] ?? t) as TierName;
+}
+
+function normaliseTalent(t: string): TalentTier {
+  return (LEGACY_TALENT_MAP[t] ?? t) as TalentTier;
 }
 
 function fromRow(row: PlayerRow): Player {
@@ -46,7 +54,7 @@ function fromRow(row: PlayerRow): Player {
       age: row.age,
       overall: row.overall,
       tier: normaliseTier(row.tier),
-      talent: (row.talent ?? 'Normal') as TalentTier,
+      talent: normaliseTalent(row.talent ?? 'Normal'),
       stats: JSON.parse(row.stats) as Record<string, number>,
       isMutantCandidate: Boolean(row.isMutantCandidate),
       snapshot,

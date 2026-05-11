@@ -32,7 +32,7 @@ export interface GameProfile {
 
 // --- Talent & drill levels ---
 
-export type TalentTier = 'FT1' | 'FT2' | 'FT3' | 'Normal' | 'Slow';
+export type TalentTier = 'Fastest' | 'Fast' | 'Average' | 'Normal' | 'Slow';
 export type DrillLevel = 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard';
 
 // --- Drill session (replaces coach card as the training unit) ---

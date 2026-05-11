@@ -65,11 +65,11 @@ assert("grey costs 2× more XP than white (0.5 multiplier)", Math.abs(xpGrey / x
 console.log("\n[Test 4] Talent tier multipliers");
 
 const xpNormal = xpNeededFor1Pct(100, 18, 0, 'Normal', true, false, 1.0, profile);
-const xpFT1    = xpNeededFor1Pct(100, 18, 0, 'FT1',    true, false, 1.0, profile);
+const xpFT1    = xpNeededFor1Pct(100, 18, 0, 'Fastest',    true, false, 1.0, profile);
 const xpSlow   = xpNeededFor1Pct(100, 18, 0, 'Slow',   true, false, 1.0, profile);
-assert("FT1 costs less XP than Normal",  xpFT1 < xpNormal,    `FT1=${xpFT1.toFixed(2)}, Normal=${xpNormal.toFixed(2)}`);
+assert("Fastest costs less XP than Normal",  xpFT1 < xpNormal,    `Fastest=${xpFT1.toFixed(2)}, Normal=${xpNormal.toFixed(2)}`);
 assert("Slow costs more XP than Normal", xpSlow > xpNormal,   `Slow=${xpSlow.toFixed(2)}, Normal=${xpNormal.toFixed(2)}`);
-assert("FT1/Normal ratio ≈ 1/1.5",       Math.abs(xpFT1 / xpNormal - 1/1.5) < 0.01);
+assert("Fastest/Normal ratio ≈ 1/1.5",       Math.abs(xpFT1 / xpNormal - 1/1.5) < 0.01);
 assert("Slow/Normal ratio ≈ 1/0.7",      Math.abs(xpSlow / xpNormal - 1/0.7) < 0.01);
 
 // ============================================================

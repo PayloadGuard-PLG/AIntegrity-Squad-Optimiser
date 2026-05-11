@@ -227,7 +227,7 @@ ScrollView
 **PLAYER ATTRIBUTES section:**
 - Label: `PLAYER ATTRIBUTES`
 - Sub-label: `TALENT`
-- Talent chips: `FT1 | FT2 | FT3 | Normal | Slow` — active bg `ACCENT`, text white; inactive bg `BG_CARD`, text `TEXT_SECONDARY`
+- Talent chips: `Fastest | Fast | Average | Normal | Slow` — active bg `ACCENT`, text white; inactive bg `BG_CARD`, text `TEXT_SECONDARY`
 - Source of truth: `TalentTier` type + `gameProfile.talentMultipliers` keys
 
 **DRILL SESSIONS section:**
@@ -541,7 +541,7 @@ Every place a number from `profiles/game_2025.json` appears in the UI.
 
 | UI | Source |
 |---|---|
-| Chip labels: `FT1 FT2 FT3 Normal Slow` | `Object.keys(gameProfile.talentMultipliers)` |
+| Chip labels: `Fastest Fast Average Normal Slow` | `Object.keys(gameProfile.talentMultipliers)` |
 | Tooltip / sub-label multiplier | `gameProfile.talentMultipliers[tier]` |
 
 **To add a new talent tier:** Add key to `talentMultipliers` in `game_2025.json` + add to `TalentTier` type in `resources.ts`. Chips auto-render from `TALENT_TIERS` array — update that constant in plan.tsx and compare.tsx.

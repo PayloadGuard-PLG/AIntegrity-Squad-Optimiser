@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -15,10 +15,11 @@ import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, Investmen
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import gameProfile from '../../profiles/game_2025.json';
 
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = {
-  FT1: 'FT1 ×1.50', FT2: 'FT2 ×1.25', FT3: 'FT3 ×1.10', Normal: 'Normal ×1.00', Slow: 'Slow ×0.70',
+  Fastest: 'Fastest ×1.5', Fast: 'Fast ×1.25', Average: 'Average ×1.1', Normal: 'Normal ×1.0', Slow: 'Slow ×0.7',
 };
+const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — learns 50% faster than normal\nFast ×1.25 — learns 25% faster\nAverage ×1.1 — learns 10% faster\nNormal ×1.0 — standard rate\nSlow ×0.7 — learns 30% slower\n\nDetected automatically from player card scan. Age reduces training rate separately.';
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
@@ -247,7 +248,10 @@ export default function PlanScreen() {
               <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
-                  <MonoLabel size={10} color={theme.steelLight}>TALENT</MonoLabel>
+                  <MonoLabel size={10} color={theme.steelLight}>TRAINING RATE</MonoLabel>
+                  <Pressable onPress={() => Alert.alert('Training Rate', TALENT_INFO)} style={{ marginLeft: 8, width: 16, height: 16, borderRadius: 8, borderWidth: 1, borderColor: theme.steelLight, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.steelLight }}>?</Text>
+                  </Pressable>
                 </View>
                 <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                   {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => { setTalent(t); invalidate(); }}>{TALENT_LABEL[t]}</Chip>)}

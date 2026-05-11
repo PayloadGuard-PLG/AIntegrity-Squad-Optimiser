@@ -693,13 +693,13 @@ With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white
 
 **Talent tier labels now show multiplier**
 
-`app/(tabs)/plan.tsx`: TALENT chips relabelled — "FT2" → "FT2 ×1.25" etc. No ambiguity about what each tier means.
+`app/(tabs)/plan.tsx`: TALENT chips relabelled — "Fast" → "Fast ×1.25" etc. No ambiguity about what each tier means.
 
 | Tier | Label | Multiplier |
 |---|---|---|
-| FT1 | FT1 ×1.50 | 1.50 |
-| FT2 | FT2 ×1.25 | 1.25 |
-| FT3 | FT3 ×1.10 | 1.10 |
+| Fastest | Fastest ×1.50 | 1.50 |
+| Fast | Fast ×1.25 | 1.25 |
+| Average | Average ×1.10 | 1.10 |
 | Normal | Normal ×1.00 | 1.00 |
 | Slow | Slow ×0.70 | 0.70 |
 
@@ -719,7 +719,7 @@ With `baseXpPerSession = 150`: 6 sessions × 150 = 900 XP budget. Stat-241 white
 |---|---|
 | F17 | "Slow trainer" warning mislabelled talent as Slow — now shows age multiplier |
 | F18 | Zero-drain never triggered — L4+Very Easy now correctly returns 0% condition cost |
-| F19 | FT1/FT2/FT3 labels opaque — now show XP multiplier inline |
+| F19 | Fastest/Fast/Average labels opaque — now show XP multiplier inline |
 | F20 | Drills tab had no drill level input — selector added, feeds zero-drain logic |
 
 **GHA workflow fix**

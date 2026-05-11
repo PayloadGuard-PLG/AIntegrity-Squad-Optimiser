@@ -4,6 +4,20 @@ import { players } from '../db/schema';
 import { Player } from '../database/playerSchema';
 import { TierName, TalentTier } from '../types/resources';
 
+const LEGACY_TIER_MAP: Record<string, TierName> = {
+  None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+};
+const LEGACY_TALENT_MAP: Record<string, TalentTier> = {
+  FT1: 'Fastest', FT2: 'Fast', FT3: 'Average',
+};
+
+function normaliseTier(t: string): TierName {
+  return (LEGACY_TIER_MAP[t] ?? t) as TierName;
+}
+function normaliseTalent(t: string): TalentTier {
+  return (LEGACY_TALENT_MAP[t] ?? t) as TalentTier;
+}
+
 export function useSquad(): { squad: Player[]; error: Error | undefined } {
   const { data: rows = [], error } = useLiveQuery(db.select().from(players));
 
@@ -15,8 +29,8 @@ export function useSquad(): { squad: Player[]; error: Error | undefined } {
         role: JSON.parse(row.roles) as string[],
         age: row.age,
         overall: row.overall,
-        tier: row.tier as TierName,
-        talent: (row.talent ?? 'Normal') as TalentTier,
+        tier: normaliseTier(row.tier),
+        talent: normaliseTalent(row.talent ?? 'Normal'),
         stats: JSON.parse(row.stats) as Record<string, number>,
         isMutantCandidate: Boolean(row.isMutantCandidate),
       };
@@ -27,7 +41,7 @@ export function useSquad(): { squad: Player[]; error: Error | undefined } {
         role: ['ST'],
         age: row.age,
         overall: row.overall,
-        tier: row.tier as TierName,
+        tier: normaliseTier(row.tier),
         talent: 'Normal' as TalentTier,
         stats: {},
         isMutantCandidate: false,

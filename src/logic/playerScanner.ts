@@ -5,6 +5,9 @@ const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
 const KNOWN_ROLES = ['GK', 'DC', 'DL', 'DR', 'DMC', 'MC', 'ML', 'MR', 'AMC', 'AML', 'AMR', 'ST'];
 const KNOWN_TIERS = ['Legendary', 'Epic', 'Master', 'Stellar', 'Elite', 'Rare'];
 const KNOWN_TALENTS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const TALENT_NAME_MAP: Record<string, string> = {
+  FT1: 'Fastest', FT2: 'Fast', FT3: 'Average',
+};
 
 const Y_TOL = 28;   // px — tolerance for same-row Y-baseline grouping
 const Y_BELOW = 65; // px — tolerance for value directly below stat label
@@ -129,7 +132,8 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   const rawTier = KNOWN_TIERS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
   const tier = rawTier ? (TIER_NAME_MAP[rawTier] ?? rawTier) : undefined;
 
-  const talent = KNOWN_TALENTS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
+  const rawTalent = KNOWN_TALENTS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
+  const talent = rawTalent ? (TALENT_NAME_MAP[rawTalent] ?? rawTalent) : undefined;
 
   const nameCandidates = result.blocks.filter(b => {
     const t = b.text.trim();

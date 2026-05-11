@@ -130,9 +130,9 @@ Costs increase with stat value. Top-level players (stats 180–250) still train 
 
 | Talent | Multiplier |
 |---|---|
-| FT1 | 1.50 |
-| FT2 | 1.25 |
-| FT3 | 1.10 |
+| Fastest | 1.50 |
+| Fast | 1.25 |
+| Average | 1.10 |
 | Normal | 1.00 |
 | Slow | 0.70 |
 
@@ -600,7 +600,7 @@ for (const t of tokens) {
 - Exclude: known roles, known tiers, a UI blocklist (`Squad`, `Contract`, `Overview`, `Skills`, `Stats`, `Training`, `Playstyle`, `Celebrations`, `Trainer`, `Personal`, `Defence`, `Attack`, `Physical`, `Special`, `Ability`, `Team`, `None`, `Select`, `Player`, `Start`)
 - This avoids reading game UI labels as player names
 
-**Tier/talent:** Full-text regex for known tier names (`Legendary`, `Epic`, `Master`, `Stellar`, `Elite`, `Rare`) and talent tokens (`FT1`, `FT2`, `FT3`, `Normal`, `Slow`). `None` is NOT in the tier list — absence of a tier token → `undefined` → UI defaults to `None`.
+**Tier/talent:** Full-text regex for known tier names (`Legendary`, `Epic`, `Master`, `Stellar`, `Elite`, `Rare`) and talent tokens (`Fastest`, `Fast`, `Average`, `Normal`, `Slow`). `None` is NOT in the tier list — absence of a tier token → `undefined` → UI defaults to `None`.
 
 ### 14.2 Coach Preview Scanner (`src/logic/coachScanner.ts`)
 

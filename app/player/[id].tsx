@@ -9,8 +9,9 @@ import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
+const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — +50% vs normal\nFast ×1.25 — +25%\nAverage ×1.1 — +10%\nNormal ×1.0 — baseline\nSlow ×0.7 — -30%\n\nDetected automatically from player card scan.';
 
 const ROLE_GRID = [
   [null, 'DR', 'DC', 'DL'],
@@ -277,7 +278,12 @@ export default function EditPlayerScreen() {
 
         {/* TALENT */}
         <View style={{ marginBottom: 20 }}>
-          <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>TALENT TIER</MonoLabel>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MonoLabel color={theme.steelLight}>TRAINING RATE</MonoLabel>
+            <Pressable onPress={() => Alert.alert('Training Rate', TALENT_INFO)} style={{ marginLeft: 8, width: 16, height: 16, borderRadius: 8, borderWidth: 1, borderColor: theme.steelLight, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.steelLight }}>?</Text>
+            </Pressable>
+          </View>
           <View style={{ flexDirection: 'row', gap: 5 }}>
             {TALENT_TIERS.map(t => {
               const sel = talent === t;

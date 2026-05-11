@@ -26,7 +26,7 @@ export interface CoachScanResult {
   multiplier?: number;
   playerName?: string;
   playerAge?: number;
-  talentTier?: TalentOption;
+  talentTier?: string;
   ovrBefore?: number;
   ovrBoostLo?: number;
   ovrBoostHi?: number;
@@ -69,7 +69,8 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   const playerAge = ageMatch ? parseInt(ageMatch[1]) : undefined;
 
   const talentMatch = /\b(FT1|FT2|FT3|Normal|Slow)\b/i.exec(fullText);
-  const talentTier  = talentMatch ? (talentMatch[1] as TalentOption) : undefined;
+  const TALENT_MAP: Record<string, string> = { FT1: 'Fastest', FT2: 'Fast', FT3: 'Average' };
+  const talentTier  = talentMatch ? (TALENT_MAP[talentMatch[1]] ?? talentMatch[1]) : undefined;
 
   const nameBlock = result.blocks.find(b => {
     const t = b.text.trim();

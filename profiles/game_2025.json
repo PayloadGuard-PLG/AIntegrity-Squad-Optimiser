@@ -1,26 +1,78 @@
 {
   "version": "2025",
   "xpCostTable": [
-    { "statMin": 0,   "statMax": 59,  "xpPer1Pct": 8 },
-    { "statMin": 60,  "statMax": 79,  "xpPer1Pct": 10 },
-    { "statMin": 80,  "statMax": 99,  "xpPer1Pct": 20 },
-    { "statMin": 100, "statMax": 119, "xpPer1Pct": 30 },
-    { "statMin": 120, "statMax": 139, "xpPer1Pct": 40 },
-    { "statMin": 140, "statMax": 159, "xpPer1Pct": 50 },
-    { "statMin": 160, "statMax": 179, "xpPer1Pct": 60 },
-    { "statMin": 180, "statMax": 199, "xpPer1Pct": 80 },
-    { "statMin": 200, "statMax": 219, "xpPer1Pct": 100 },
-    { "statMin": 220, "statMax": 239, "xpPer1Pct": 125 },
-    { "statMin": 240, "statMax": 259, "xpPer1Pct": 160 },
-    { "statMin": 260, "statMax": 279, "xpPer1Pct": 200 },
-    { "statMin": 280, "statMax": 339, "xpPer1Pct": 250 }
+    {
+      "statMin": 0,
+      "statMax": 59,
+      "xpPer1Pct": 8
+    },
+    {
+      "statMin": 60,
+      "statMax": 79,
+      "xpPer1Pct": 10
+    },
+    {
+      "statMin": 80,
+      "statMax": 99,
+      "xpPer1Pct": 20
+    },
+    {
+      "statMin": 100,
+      "statMax": 119,
+      "xpPer1Pct": 30
+    },
+    {
+      "statMin": 120,
+      "statMax": 139,
+      "xpPer1Pct": 40
+    },
+    {
+      "statMin": 140,
+      "statMax": 159,
+      "xpPer1Pct": 50
+    },
+    {
+      "statMin": 160,
+      "statMax": 179,
+      "xpPer1Pct": 60
+    },
+    {
+      "statMin": 180,
+      "statMax": 199,
+      "xpPer1Pct": 80
+    },
+    {
+      "statMin": 200,
+      "statMax": 219,
+      "xpPer1Pct": 100
+    },
+    {
+      "statMin": 220,
+      "statMax": 239,
+      "xpPer1Pct": 125
+    },
+    {
+      "statMin": 240,
+      "statMax": 259,
+      "xpPer1Pct": 160
+    },
+    {
+      "statMin": 260,
+      "statMax": 279,
+      "xpPer1Pct": 200
+    },
+    {
+      "statMin": 280,
+      "statMax": 339,
+      "xpPer1Pct": 250
+    }
   ],
   "ageTable": {
-    "17": 1.10,
-    "18": 1.00,
-    "19": 0.90,
+    "17": 1.1,
+    "18": 1.0,
+    "19": 0.9,
     "20": 0.55,
-    "21": 0.40,
+    "21": 0.4,
     "22": 0.32,
     "23": 0.28,
     "24": 0.24,
@@ -29,12 +81,12 @@
     "27": 0.16,
     "28": 0.14,
     "29": 0.12,
-    "30": 0.10
+    "30": 0.1
   },
   "talentMultipliers": {
-    "FT1": 1.5,
-    "FT2": 1.25,
-    "FT3": 1.1,
+    "Fastest": 1.5,
+    "Fast": 1.25,
+    "Average": 1.1,
     "Normal": 1.0,
     "Slow": 0.7
   },
@@ -63,7 +115,13 @@
     "T5": 15,
     "T6": 10
   },
-  "fanClubCondReduction": [0.10, 0.15, 0.20, 0.25, 0.50],
+  "fanClubCondReduction": [
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.5
+  ],
   "greyWeightMultiplier": 0.5,
   "statCap": 340,
   "rule180StatCap": 340,

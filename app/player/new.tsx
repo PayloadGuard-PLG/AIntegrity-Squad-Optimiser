@@ -16,8 +16,9 @@ import { GameProfile } from '../../src/types/resources';
 const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
+const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — +50% vs normal\nFast ×1.25 — +25%\nAverage ×1.1 — +10%\nNormal ×1.0 — baseline\nSlow ×0.7 — -30%\n\nDetected automatically from player card scan.';
 
 const ROLE_GRID = [
   [null, 'DR', 'DC', 'DL'],
@@ -110,49 +111,57 @@ export default function NewPlayerScreen() {
   }
 
   async function pickAndScan(from: 'camera' | 'gallery') {
-    let result: ImagePicker.ImagePickerResult;
-    if (from === 'camera') {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
-      result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
-    } else {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
-    }
-    if (result.canceled || !result.assets[0]) return;
+    try {
+      let result: ImagePicker.ImagePickerResult;
+      if (from === 'camera') {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
+        result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
+      } else {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+        result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      }
+      if (result.canceled || !result.assets?.[0]?.uri) return;
 
-    const uri = result.assets[0].uri;
-    setScanned(false);
-    setScanMsg('');
+      const uri = result.assets[0].uri;
+      setScanned(false);
+      setScanMsg('');
 
-    const data = await scanPlayerScreenshot(uri);
-    if (!data) return;
+      const data = await scanPlayerScreenshot(uri);
+      if (!data) return;
 
-    if (data.name) setName(data.name);
-    if (data.age) setAge(data.age.toString());
-    const TIER_MAP: Record<string, TierName> = {
-      None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
-      T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
-    };
-    setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
-    if (data.talent) setTalent(data.talent as TalentTier);
-    if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
+      if (data.name) setName(data.name);
+      if (data.age) setAge(data.age.toString());
+      const TIER_MAP: Record<string, TierName> = {
+        None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+        T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
+      };
+      setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
+      const TALENT_MAP: Record<string, TalentTier> = {
+        FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
+        Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
+      };
+      if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
+      if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
 
-    if (data.stats && Object.keys(data.stats).length > 0) {
-      const inputs = Object.fromEntries(
-        Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
-      );
-      setStatInputs(inputs);
-      recomputeOvr(inputs);
-      setScanned(true);
-      setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
-    } else if (data.overall) {
-      setOverall(data.overall.toString());
-      setOvrIsAuto(false);
-      setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
-    } else {
-      setScanMsg('NO STATS FOUND — TRY A CLEARER SCREENSHOT.');
+      if (data.stats && Object.keys(data.stats).length > 0) {
+        const inputs = Object.fromEntries(
+          Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
+        );
+        setStatInputs(inputs);
+        recomputeOvr(inputs);
+        setScanned(true);
+        setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
+      } else if (data.overall) {
+        setOverall(data.overall.toString());
+        setOvrIsAuto(false);
+        setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
+      } else {
+        setScanMsg('NO STATS FOUND — TRY A CLEARER SCREENSHOT.');
+      }
+    } catch (err) {
+      setScanMsg('SCAN ERROR — TRY AGAIN.');
     }
   }
 
@@ -213,7 +222,7 @@ export default function NewPlayerScreen() {
         {/* STAT PROFILE — scan section */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>STAT PROFILE</MonoLabel>
-          <MonoLabel size={8} color={theme.inkGhost}>FROM GAME CARD · ● WHITE</MonoLabel>
+          <MonoLabel size={8} color={theme.inkGhost}>FROM SCREENSHOT · ● WHITE</MonoLabel>
         </View>
 
         <Pressable onPress={() => pickAndScan('gallery')}
@@ -373,7 +382,12 @@ export default function NewPlayerScreen() {
 
         {/* TALENT */}
         <View style={{ marginBottom: 20 }}>
-          <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>TALENT TIER</MonoLabel>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MonoLabel color={theme.steelLight}>TRAINING RATE</MonoLabel>
+            <Pressable onPress={() => Alert.alert('Training Rate', TALENT_INFO)} style={{ marginLeft: 8, width: 16, height: 16, borderRadius: 8, borderWidth: 1, borderColor: theme.steelLight, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.steelLight }}>?</Text>
+            </Pressable>
+          </View>
           <View style={{ flexDirection: 'row', gap: 5 }}>
             {TALENT_TIERS.map(t => {
               const sel = talent === t;

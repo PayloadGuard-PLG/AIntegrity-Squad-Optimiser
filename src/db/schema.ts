@@ -47,7 +47,7 @@ export const drillSessions = sqliteTable('drill_sessions', {
   drillName: text('drill_name').notNull(),
   sessionCount: integer('session_count').notNull().default(1),
   drillLevel: text('drill_level').notNull().default('Very Easy'),  // unused — reserved for future session logging
-  talentTier: text('talent_tier').notNull().default('Normal'),    // FT1|FT2|FT3|Normal|Slow
+  talentTier: text('talent_tier').notNull().default('Normal'),    // Fastest|Fast|Average|Normal|Slow
   twoxAd: integer('twox_ad', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at').notNull(),
 });
