@@ -1,4 +1,5 @@
 import TextRecognition from '@react-native-ml-kit/text-recognition';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
@@ -35,9 +36,23 @@ const TIER_NAME_MAP: Record<string, string> = {
 
 const TIMEOUT_MS = 5000;
 
+async function prepareImage(uri: string): Promise<string> {
+  try {
+    const processed = await manipulateAsync(
+      uri,
+      [{ resize: { width: 1080 } }],
+      { compress: 1, format: SaveFormat.JPEG },
+    );
+    return processed.uri;
+  } catch {
+    return uri;
+  }
+}
+
 export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> {
+  const preparedUri = await prepareImage(imageUri);
   const result = await Promise.race([
-    TextRecognition.recognize(imageUri),
+    TextRecognition.recognize(preparedUri),
     new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error('ML Kit timed out — New Architecture may be incompatible. Rebuild with newArchEnabled:false.')), TIMEOUT_MS)
     ),
