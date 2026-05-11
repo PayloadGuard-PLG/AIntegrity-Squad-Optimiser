@@ -39,17 +39,12 @@ const GK_STATS = [
   'AERIAL REACH',  'FITNESS',
 ];
 
-const STAT_COLS = {
-  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
-  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
-  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+const COL_SETS: Record<string, string[]> = {
+  DEF: ['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION'],
+  ATT: ['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION'],
+  PHY: ['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY'],
 };
 const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
-function statColor(stat: string): string {
-  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
-  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
-  return COL_COLORS.PHY;
-}
 
 const inputStyle = {
   backgroundColor: theme.surface,
@@ -319,43 +314,44 @@ export default function EditPlayerScreen() {
           </Text>
         </Pressable>
 
-        {/* STATS GRID */}
+        {/* STATS GRID — DEF / ATT / PHY */}
         {selectedRoles.length > 0 && (
           <>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <MonoLabel color={theme.steelLight}>STATS</MonoLabel>
-              <MonoLabel size={9} color={theme.inkMuted}>· ● ESSENTIAL</MonoLabel>
-            </View>
-            <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 24 }}>
-              {statList.map((stat, i) => {
-                const isRight = i % 2 === 1;
-                const isLastRow = i >= statList.length - 2;
-                if (isRight) return null;
-                const nextStat = statList[i + 1];
+            <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>STATS</MonoLabel>
+            <View style={{ flexDirection: 'row', gap: 4, marginBottom: 24 }}>
+              {(['DEF', 'ATT', 'PHY'] as const).map(col => {
+                const cc = COL_COLORS[col];
+                const colStats = COL_SETS[col].filter(s => statList.includes(s));
+                if (colStats.length === 0) return null;
                 return (
-                  <View key={stat} style={{ flexDirection: 'row', borderBottomWidth: isLastRow ? 0 : 1, borderBottomColor: theme.hairline }}>
-                    {[stat, nextStat].map((s, idx) => {
-                      if (!s) return <View key={idx} style={{ flex: 1 }} />;
+                  <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '55' }}>
+                    <View style={{ paddingVertical: 6, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
+                      <MonoLabel size={8} color={cc}>{col}</MonoLabel>
+                    </View>
+                    {colStats.map(s => {
                       const w = isWhiteStat(selectedRoles, s);
-                      const cc = statColor(s);
                       return (
                         <View key={s} style={{
-                          flex: 1, padding: 10,
-                          borderRightWidth: idx === 0 ? 1 : 0, borderRightColor: theme.hairline,
-                          borderLeftWidth: 2, borderLeftColor: w ? cc : cc + '44',
+                          paddingHorizontal: 8, paddingVertical: 7,
+                          borderBottomWidth: 1,
+                          borderBottomColor: w ? cc + '44' : theme.hairline,
+                          borderLeftWidth: w ? 3 : 1,
+                          borderLeftColor: w ? cc : theme.hairline,
+                          backgroundColor: w ? cc + '1a' : 'transparent',
+                          opacity: w ? 1 : 0.38,
                         }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                            <MonoLabel size={8} color={w ? cc : theme.inkMuted}>{s}</MonoLabel>
-                          </View>
+                          <MonoLabel size={7} color={w ? cc : theme.inkGhost}>{s}</MonoLabel>
                           <TextInput
                             keyboardType="numeric"
                             value={statInputs[s] ?? ''}
                             onChangeText={v => setStatInputs(prev => ({ ...prev, [s]: v }))}
-                            placeholder="0"
+                            placeholder="—"
                             placeholderTextColor={theme.inkGhost}
                             style={{
-                              backgroundColor: 'transparent', padding: 0,
-                              color: theme.ink, fontSize: 15, fontFamily: theme.display, fontWeight: '300',
+                              padding: 0, marginTop: 2,
+                              color: w ? theme.ink : theme.inkGhost,
+                              fontSize: 14, fontFamily: theme.mono,
+                              fontWeight: w ? '700' : '400',
                             }}
                           />
                         </View>

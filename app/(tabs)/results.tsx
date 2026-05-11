@@ -7,6 +7,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
+import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct, applyTierBonusToStats } from '../../src/logic/xpEngine';
 import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
@@ -297,67 +298,14 @@ export default function ResultsScreen() {
                     <MonoLabel size={8} color={theme.inkGhost}>ACADEMY</MonoLabel>
                   </View>
 
-                  {/* Stat picker — white */}
-                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 5 }}>WHITE STATS</MonoLabel>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                    {white.map(stat => {
-                      const hasVal = stat in player.stats;
-                      const sel = sess.stats.includes(stat);
-                      return (
-                        <Pressable key={stat} onPress={() => toggleSessionStat(sess.id, stat)}
-                          style={{
-                            paddingHorizontal: 7, paddingVertical: 5,
-                            borderWidth: 1,
-                            borderColor: sel ? theme.steelLight : (hasVal ? theme.hairline2 : theme.hairline),
-                            backgroundColor: sel ? theme.steelLight + '1a' : 'transparent',
-                            opacity: hasVal ? 1 : 0.4,
-                            flexDirection: 'row', alignItems: 'center', gap: 4,
-                          }}>
-                          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.5, color: sel ? theme.steelLight : (hasVal ? theme.inkSec : theme.inkGhost) }}>
-                            {stat}
-                          </Text>
-                          {hasVal && (
-                            <Text style={{ fontFamily: theme.mono, fontSize: 9, fontWeight: '700', color: sel ? theme.steelLight : theme.inkMuted }}>
-                              {Math.round(player.stats[stat])}
-                            </Text>
-                          )}
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-
-                  {/* Grey stats */}
-                  {grey.length > 0 && (
-                    <>
-                      <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 5 }}>GREY STATS</MonoLabel>
-                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
-                        {grey.map(stat => {
-                          const hasVal = stat in player.stats;
-                          const sel = sess.stats.includes(stat);
-                          return (
-                            <Pressable key={stat} onPress={() => toggleSessionStat(sess.id, stat)}
-                              style={{
-                                paddingHorizontal: 7, paddingVertical: 5,
-                                borderWidth: 1,
-                                borderColor: sel ? theme.inkMuted : theme.hairline,
-                                backgroundColor: sel ? theme.inkMuted + '18' : 'transparent',
-                                opacity: hasVal ? 0.75 : 0.35,
-                                flexDirection: 'row', alignItems: 'center', gap: 4,
-                              }}>
-                              <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.5, color: sel ? theme.inkSec : theme.inkMuted }}>
-                                {stat}
-                              </Text>
-                              {hasVal && (
-                                <Text style={{ fontFamily: theme.mono, fontSize: 9, fontWeight: '700', color: sel ? theme.inkSec : theme.inkGhost }}>
-                                  {Math.round(player.stats[stat])}
-                                </Text>
-                              )}
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                    </>
-                  )}
+                  {/* Stat picker — 3-col grid */}
+                  <StatGrid3Col
+                    statKeys={[...white, ...grey]}
+                    roles={player.role}
+                    values={player.stats}
+                    selected={new Set(sess.stats)}
+                    onToggle={stat => toggleSessionStat(sess.id, stat)}
+                  />
 
                   {/* Summary chip */}
                   {sess.stats.length > 0 && (

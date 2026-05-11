@@ -271,12 +271,15 @@ export default function NewPlayerScreen() {
                     const white = isWhiteStat(selectedRoles, s);
                     return (
                       <View key={s} style={{
-                        paddingHorizontal: 8, paddingVertical: 6,
-                        borderBottomWidth: 1, borderBottomColor: cc + '33',
-                        borderLeftWidth: 2, borderLeftColor: white ? cc : 'transparent',
+                        paddingHorizontal: 8, paddingVertical: 7,
+                        borderBottomWidth: 1, borderBottomColor: white ? cc + '44' : theme.hairline,
+                        borderLeftWidth: white ? 3 : 1,
+                        borderLeftColor: white ? cc : theme.hairline,
+                        backgroundColor: white ? cc + '1a' : 'transparent',
+                        opacity: white ? 1 : 0.38,
                       }}>
-                        <MonoLabel size={7} color={white ? theme.steelLight : theme.inkGhost}>{s}</MonoLabel>
-                        <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: white ? theme.ink : theme.inkMuted }}>
+                        <MonoLabel size={7} color={white ? cc : theme.inkGhost}>{s}</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: white ? '700' : '400', color: white ? theme.ink : theme.inkGhost, marginTop: 2 }}>
                           {statInputs[s]}
                         </Text>
                       </View>
@@ -422,17 +425,14 @@ export default function NewPlayerScreen() {
         {/* STATS GRID */}
         {selectedRoles.length > 0 && (
           <>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <MonoLabel color={theme.steelLight}>STATS</MonoLabel>
-              <MonoLabel size={9} color={theme.inkMuted}>· ● ESSENTIAL</MonoLabel>
-            </View>
+            <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>STATS</MonoLabel>
             <View style={{ flexDirection: 'row', gap: 4, marginBottom: 24 }}>
               {(['DEF', 'ATT', 'PHY'] as const).map(col => {
                 const cc = COL_COLORS[col];
                 const colStats = STAT_COLUMNS[col].filter(s => (statList as readonly string[]).includes(s));
                 return (
-                  <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '66' }}>
-                    <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
+                  <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '55' }}>
+                    <View style={{ paddingVertical: 6, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
                       <MonoLabel size={8} color={cc}>{col}</MonoLabel>
                     </View>
                     {colStats.map(s => {
@@ -440,9 +440,12 @@ export default function NewPlayerScreen() {
                       return (
                         <View key={s} style={{
                           paddingHorizontal: 8, paddingVertical: 7,
-                          borderBottomWidth: 1, borderBottomColor: cc + '22',
-                          borderLeftWidth: 2, borderLeftColor: w ? cc : cc + '33',
-                          backgroundColor: w ? cc + '12' : 'transparent',
+                          borderBottomWidth: 1,
+                          borderBottomColor: w ? cc + '44' : theme.hairline,
+                          borderLeftWidth: w ? 3 : 1,
+                          borderLeftColor: w ? cc : theme.hairline,
+                          backgroundColor: w ? cc + '1a' : 'transparent',
+                          opacity: w ? 1 : 0.38,
                         }}>
                           <MonoLabel size={7} color={w ? cc : theme.inkGhost}>{s}</MonoLabel>
                           <TextInput
@@ -455,7 +458,7 @@ export default function NewPlayerScreen() {
                             }}
                             placeholder="—"
                             placeholderTextColor={theme.inkGhost}
-                            style={{ padding: 0, color: w ? theme.ink : theme.inkMuted, fontSize: 15, fontFamily: theme.display, fontWeight: w ? '700' : '300' }}
+                            style={{ padding: 0, marginTop: 2, color: w ? theme.ink : theme.inkGhost, fontSize: 14, fontFamily: theme.mono, fontWeight: w ? '700' : '400' }}
                           />
                         </View>
                       );
