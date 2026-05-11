@@ -42,10 +42,10 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
       setTimeout(() => reject(new Error('ML Kit timed out')), TIMEOUT_MS)
     ),
   ]);
-  const fullText = result.text;
+  const fullText = result.text ?? '';
 
   type Token = { text: string; top: number; left: number };
-  const tokens: Token[] = result.blocks
+  const tokens: Token[] = (result.blocks ?? [])
     .flatMap(b => b.lines)
     .flatMap(l => l.elements)
     .map(e => ({ text: e.text.trim(), top: e.frame?.top ?? 0, left: e.frame?.left ?? 0 }))

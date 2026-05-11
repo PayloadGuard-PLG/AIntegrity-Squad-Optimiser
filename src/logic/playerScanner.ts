@@ -44,7 +44,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   ]);
 
   type Token = { text: string; top: number; left: number };
-  const tokens: Token[] = result.blocks
+  const tokens: Token[] = (result.blocks ?? [])
     .flatMap(b => b.lines)
     .flatMap(l => l.elements)
     .map(e => ({
@@ -54,7 +54,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     }))
     .filter(t => t.text.length > 0);
 
-  const fullText = result.text;
+  const fullText = result.text ?? '';
   const stats: Record<string, number> = {};
 
   const used = new Set<number>();
