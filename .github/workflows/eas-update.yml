@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/continue-development-uXA5D
-      - claude/continue-session-UHXEX
 
 jobs:
   update:
