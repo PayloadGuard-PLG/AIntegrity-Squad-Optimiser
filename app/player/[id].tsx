@@ -3,7 +3,7 @@ import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator 
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
-import { validateRoleAdjacency, isWhiteStat } from '../../src/utils/roleWeights';
+import { validateRoleAdjacency, isWhiteStat, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS, COL_COLORS } from '../../src/utils/roleWeights';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
@@ -26,32 +26,6 @@ const ROLE_GRID = [
   [null, 'AMR', 'AMC', 'AML'],
   [null, null, 'ST', null],
 ];
-
-const OUTFIELD_STATS = [
-  'SHOOTING',    'PASSING',
-  'CROSSING',    'DRIBBLING',
-  'FINISHING',   'HEADING',
-  'TACKLING',    'MARKING',
-  'POSITIONING', 'BRAVERY',
-  'AGGRESSION',  'STRENGTH',
-  'SPEED',       'FITNESS',
-  'CREATIVITY',
-];
-
-const GK_STATS = [
-  'REFLEXES',      'AGILITY',
-  'ANTICIPATION',  'RUSHING OUT',
-  'COMMUNICATION', 'THROWING',
-  'KICKING',       'PUNCHING',
-  'AERIAL REACH',  'FITNESS',
-];
-
-const COL_SETS: Record<string, string[]> = {
-  DEF: ['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION'],
-  ATT: ['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION'],
-  PHY: ['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY'],
-};
-const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
 
 const inputStyle = {
   backgroundColor: theme.surface,
@@ -83,7 +57,7 @@ export default function EditPlayerScreen() {
   const { scanPlayerScreenshot, isScanning } = useScanner();
 
   const isGK = selectedRoles.includes('GK');
-  const statList = isGK ? GK_STATS : OUTFIELD_STATS;
+  const statList = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
 
   useEffect(() => {
     if (!id) return;
@@ -385,7 +359,7 @@ export default function EditPlayerScreen() {
             <View style={{ flexDirection: 'row', gap: 4, marginBottom: 24 }}>
               {(['DEF', 'ATT', 'PHY'] as const).map(col => {
                 const cc = COL_COLORS[col];
-                const colStats = COL_SETS[col].filter(s => statList.includes(s));
+                const colStats = STAT_COLUMNS[col].filter(s => (statList as readonly string[]).includes(s));
                 if (colStats.length === 0) return null;
                 return (
                   <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '55' }}>
