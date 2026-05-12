@@ -140,7 +140,7 @@ export function applyDrillSessionsToStats(
  * Full OVR projection chain:
  *   1. Drill sessions (always first — drills before tier)
  *   2. Tier upgrade (flat per-white-attr addition → recompute Quality% → OVR)
- *   3. Greens (informational only — condition restore, NOT OVR)
+ *   3. Restorers (informational only — condition restore, NOT OVR)
  */
 export function projectOvr(
   player: Player,
@@ -148,7 +148,7 @@ export function projectOvr(
   talentTier: TalentTier,
   drillLevel: DrillLevel,
   targetTier: TierName | null,
-  greens: number,
+  restorers: number,
   twoxAdActive: boolean,
   profile: GameProfile
 ): { steps: InvestmentStep[]; finalOvr: number; warnings: string[] } {
@@ -200,14 +200,14 @@ export function projectOvr(
       }
     }
 
-    if (greens > 0) {
-      const condPct = Math.min(greens * 15, 100);
+    if (restorers > 0) {
+      const condPct = Math.min(restorers * 15, 100);
       steps.push({
         action: 'condition',
-        description: `${greens} greens → +${condPct}% condition restored`,
+        description: `${restorers} restorers → +${condPct}% condition restored`,
         ovrBefore: currentOvr,
         ovrAfter: currentOvr,
-        resourcesUsed: `${greens} greens`,
+        resourcesUsed: `${restorers} restorers`,
       });
     }
 
@@ -291,15 +291,15 @@ export function projectOvr(
     }
   }
 
-  // Step 3 — Greens (condition restore — no OVR change)
-  if (greens > 0) {
-    const condPct = Math.min(greens * 15, 100);
+  // Step 3 — Restorers (condition restore — no OVR change)
+  if (restorers > 0) {
+    const condPct = Math.min(restorers * 15, 100);
     steps.push({
       action: 'condition',
-      description: `${greens} greens → +${condPct}% condition restored`,
+      description: `${restorers} restorers → +${condPct}% condition restored`,
       ovrBefore: currentOvr,
       ovrAfter: currentOvr,
-      resourcesUsed: `${greens} greens`,
+      resourcesUsed: `${restorers} restorers`,
     });
   }
 

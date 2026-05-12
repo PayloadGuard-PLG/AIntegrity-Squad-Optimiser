@@ -119,12 +119,12 @@ The drills tab filters to `d.intensity === drillLevel` — it does NOT weight by
 | Intensity | Drills |
 |---|---|
 | Very Easy | Touch Training, Tactical Review, Activation |
-| Easy | Target Practice, Dead Ball Practice, Cone Weave, Solo Finish, Aerial Work, Porky in Centre, Back Line Drill, Box Clearance, Compact Block, Hurdle Work, Flexibility Session, Footwork Ladder, Plyometrics |
-| Medium | Run & Strike, Pressure Trap, Challenge Drill, Speed Work, Interval Runs |
-| Hard | Wide Channel, Break Away, Endurance Loop |
-| Very Hard | Weight Room |
+| Easy | Run & Strike, Solo Finish, Aerial Work, Touch and Go, Porky in Centre, First Touch, Back Line Drill, Compact Block, Head Drill, Flexibility Session, Footwork Ladder |
+| Medium | Target Practice, Dead Ball Practice, Endurance Loop, Wide Switch, Channel Hold, Physical Duel, Build-Up Play (Hard), Pressure Trap, Challenge Drill, Box Clearance, Win the Ball, Line Hold, Cross Defence |
+| Hard | Wide Channel, Cone Weave, High Press, GK Protocol, Hurdle Work, Interval Runs, Plyometrics, Shuttle Run |
+| Very Hard | Break Away, Attack Blueprint, Defence Blueprint, Weight Room, Speed Work |
 
-Touch Training trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`, intensity Very Easy, baseLoss 0.75.
+Touch Training trains: `['HEADING', 'CREATIVITY', 'CONCENTRATION', 'DRIBBLING']`, intensity Very Easy, baseLoss 0.75.
 
 ### Condition Drain Formula (calibrated from game screenshots)
 
@@ -184,7 +184,58 @@ The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
 - **Tier bonus** applies to ALL key (role) attributes only — off-role stats receive 0 (confirmed from game data)
 - **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
-- **Condition (greens)**: restores condition only — zero OVR change; +15% per green (confirmed)
+- **Condition (restorers)**: restores condition only — zero OVR change; +15% per restorer (confirmed)
 - **Seasonal decay**: ~20% base OVR drop per season (unmodeled — affects base quality, not tier)
 - **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0006 (drill_presets)
 - **Drill Presets**: stored in `drill_presets` table; service at `src/services/drillPresetService.ts`
+
+---
+
+## IP-Agnostic Naming (keep it this way)
+
+The codebase is scrubbed of source-game IP. Do not reintroduce these terms:
+
+| Source-game term | Use instead |
+|---|---|
+| Greens / green (the item) | restorers / restorer |
+| Rest packs | recovery kits |
+| Ball Control (drill) | Touch Training |
+| Skill Drill | Touch Training |
+| First Touch Play (drill) | First Touch |
+| Piggy in the Middle | Porky in Centre |
+| Video Analysis (drill) | Tactical Review |
+| 1-on-1 Finishing | Solo Finish |
+| Pass, Go and Shoot! | Run & Strike |
+| Set-Piece Delivery | Dead Ball Practice |
+| Shooting Technique | Target Practice |
+| Slalom Dribble | Cone Weave |
+| Wing Play | Wide Channel |
+| Fast Counter-Attack | Break Away |
+| Rapid Side Switch | Wide Switch |
+| Stay in Lane | Channel Hold |
+| Contact Play | Physical Duel |
+| Passes Before Shot | Build-Up Play |
+| Use Your Head (drill) | Head Drill |
+| Hold The Line | Line Hold |
+| Defending Crosses | Cross Defence |
+| Stop The Attacker | Win the Ball |
+| Press The Play | High Press |
+| Goalkeeper Training (drill) | GK Protocol |
+| Warm-Up (drill) | Activation |
+| Stretch (drill) | Flexibility Session |
+| Carioca with Ladders | Footwork Ladder |
+| Long Run (drill) | Endurance Loop |
+| Shuttle Runs | Shuttle Run |
+| Hurdle Jumps | Hurdle Work |
+| Gym (drill) | Weight Room |
+| Sprint (drill) | Speed Work |
+| EliteChest | PremiumChest |
+| Nordeus / Top Eleven / T11 | (omit — never reference the source game) |
+
+Match Advisor is OK to keep — it's a generic descriptor, not a protected name.
+
+Colour names (`green`, `amber`, `red`) in UI styling are fine — they describe pixels, not items.
+
+When adding new features, choose generic football-management vocabulary. Run
+`git grep -niE '\bgreens\b|skill drill|nordeus|top eleven|elitechest'` before
+committing to verify nothing crept back in.

@@ -8,7 +8,7 @@ Built with React Native / Expo SDK 53. Deployed via EAS OTA — no app store sub
 
 ## What It Does
 
-You have coaches, tier points, greens, and a budget. You have a squad. You want a deterministic answer before committing anything.
+You have coaches, tier points, restorers, and a budget. You have a squad. You want a deterministic answer before committing anything.
 
 The engine models each player's age, role, stat profile, talent tier, and current stat values — then projects an exact OVR outcome for any combination of coaching sessions, tier upgrade, and condition resources. All calculations are on-device. No accounts, no servers, no API calls.
 
@@ -19,11 +19,11 @@ The engine models each player's age, role, stat profile, talent tier, and curren
 | Tab | Purpose |
 |---|---|
 | **SQUAD** | All players — OVR, role, age, tier. Tap to edit. Scan a player card screenshot to auto-fill stats. One-step revert if you apply gains by mistake. |
-| **PLAN** | Configure drills + tier + greens for a player → step-by-step OVR projection with per-resource gain breakdown. |
+| **PLAN** | Configure drills + tier + restorers for a player → step-by-step OVR projection with per-resource gain breakdown. |
 | **DRILLS** | All 25 drills ranked by ROI (lowest white stat value first = cheapest XP). Fan Club level selector. Zero-drain detection at L4 + Very Easy. |
 | **COACHES** | Select which stats a coaching block covers, enter session count (×N) → exact per-stat gains and OVR delta. Scan a coach preview screenshot to auto-fill. Tier upgrade card shows combined OVR. |
 | **SQUAD PLAN** | Saved history of coaching projections per player — OVR before/after, stat gains, session count, tier, date. |
-| **RESULTS** | Full OVR chain: multiple coaching blocks + tier upgrades + greens in one sequential plan. Apply the full plan to a player card in one tap. |
+| **RESULTS** | Full OVR chain: multiple coaching blocks + tier upgrades + restorers in one sequential plan. Apply the full plan to a player card in one tap. |
 
 ---
 
@@ -38,7 +38,7 @@ All scanning uses **ML Kit on-device text recognition** (`@react-native-ml-kit/t
 ## Engine Overview
 
 ```
-Coaching Sessions  →  Tier Upgrade  →  Greens (condition only)
+Coaching Sessions  →  Tier Upgrade  →  Restorers (condition only)
 ```
 
 **Drills-first rule:** Always run coaching before tier upgrade. Tier raises base stat values permanently — drilling afterwards costs more XP per gain. Drills first maximises total gain per resource unit.
@@ -80,11 +80,11 @@ Stats are grouped into three columns — **DEF** (blue `#4A7FC1`), **ATT** (purp
 ```
 app/(tabs)/
 ├── index.tsx          — Squad list
-├── plan.tsx           — Investment projection (drills + tier + greens)
+├── plan.tsx           — Investment projection (drills + tier + restorers)
 ├── drills.tsx         — Drill recommendations ranked by ROI
 ├── coaches.tsx        — Coach session simulator (stat selector, OVR output, SAVE RUN)
 ├── squad-plan.tsx     — Saved projection history per player
-└── results.tsx        — Full OVR chain (multi-block + tier + greens)
+└── results.tsx        — Full OVR chain (multi-block + tier + restorers)
 
 app/
 ├── player/new.tsx     — Add player (OCR scan + manual entry)

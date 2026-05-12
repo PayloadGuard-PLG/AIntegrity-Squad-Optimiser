@@ -134,6 +134,6 @@
   "matchAdvisorMultiplier": 1.5,
   "conditionCostPerDrill": 6,
   "teamPlayFreeDrillsPerDay": 4,
-  "conditionPerGreen": 15,
+  "conditionPerRestorer": 15,
   "maxTrainingLevel": 111
 }

@@ -136,15 +136,15 @@ assert("100 sessions yields more than 10 sessions",  gain100Sessions > gain10Ses
 assert("Stat at 180% yields 0 gain (180-rule)",      estimateStatGainPct(50, 180, 18, 0, 'Normal', true, false, 1.0, profile) === 0);
 
 // ============================================================
-// [Test Group 10] Greens = condition restore, NOT OVR
+// [Test Group 10] Restorers = condition restore, NOT OVR
 // ============================================================
-console.log("\n[Test 10] Greens step produces zero OVR change");
+console.log("\n[Test 10] Restorers step produces zero OVR change");
 
 const drillSessions: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Very Easy' }
+  { drillName: 'Touch Training', sessionCount: 5, drillLevel: 'Very Easy' }
 ];
 const managerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: {}, greens: 50, isPremiumSponsor: false,
+  style: 'PTW', tierPoints: {}, restorers: 50, isPremiumSponsor: false,
   twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchAdvisorActive: false,
 };
 const testPlayer: Player = {
@@ -155,14 +155,14 @@ const testPlayer: Player = {
 };
 const planWithGreens = planPlayerInvestment(testPlayer, managerProfile, drillSessions, profile, null);
 const greensStep = planWithGreens.steps.find(s => s.action === 'condition');
-assert("Greens step exists when greens > 0",          greensStep !== undefined);
-assert("Greens step OVR before === OVR after (no OVR gain)", greensStep ? greensStep.ovrBefore === greensStep.ovrAfter : false,
+assert("Restorers step exists when restorers > 0",          greensStep !== undefined);
+assert("Restorers step OVR before === OVR after (no OVR gain)", greensStep ? greensStep.ovrBefore === greensStep.ovrAfter : false,
   greensStep ? `before=${greensStep.ovrBefore}, after=${greensStep.ovrAfter}` : 'no step found');
 
 // ============================================================
 // [Test Group 11] Investment plan end-to-end
 // ============================================================
-console.log("\n[Test 11] Investment plan — young striker, Skill Drill ×20 → Stellar");
+console.log("\n[Test 11] Investment plan — young striker, Touch Training ×20 → Stellar");
 
 // All 15 stats at 100 → Quality% = 100 → OVR = 25
 const striker: Player = {
@@ -176,11 +176,11 @@ const striker: Player = {
   isMutantCandidate: true, tier: 'T0', talent: 'Normal',
 };
 const strikerProfile: ManagerProfile = {
-  style: 'PTW', tierPoints: { T3: 650 }, greens: 50, isPremiumSponsor: true,
+  style: 'PTW', tierPoints: { T3: 650 }, restorers: 50, isPremiumSponsor: true,
   twoxAdActive: false, talentTier: 'Normal', drillLevel: 'Very Easy', matchAdvisorActive: false,
 };
 const strikerDrills: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 50, drillLevel: 'Very Easy' },
+  { drillName: 'Touch Training', sessionCount: 50, drillLevel: 'Very Easy' },
 ];
 const strikerPlan = planPlayerInvestment(striker, strikerProfile, strikerDrills, profile, 'T3');
 console.log(`  Plan: ${strikerPlan.recommendation}`);
@@ -207,7 +207,7 @@ const youngGK: Player = {
   isMutantCandidate: false, tier: 'T0', talent: 'Normal',
 };
 const compDrills: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 20, drillLevel: 'Very Easy' },
+  { drillName: 'Touch Training', sessionCount: 20, drillLevel: 'Very Easy' },
 ];
 const comparison = compareInvestmentScenarios([striker, youngGK], strikerProfile, compDrills, profile, null);
 assert("Comparison has 2 results",            comparison.results.length === 2);

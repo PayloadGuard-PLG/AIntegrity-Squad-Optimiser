@@ -118,7 +118,7 @@ async function startApp() {
     const drillSessions = await collectDrillSessions();
     const tierInput = await ask("Target tier (None/Rare/Elite/Stellar/Master/Epic/Legendary) or blank to skip: ");
     const tierPointsStr = await ask("Available tier points: ");
-    const greensStr = await ask("Available greens: ");
+    const restorersStr = await ask("Available restorers: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
     const talentInput = await ask("Player talent (Fastest/Fast/Average/Normal/Slow) [Normal]: ");
     const levelInput = await ask("Drill level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
@@ -129,7 +129,7 @@ async function startApp() {
     const profile: ManagerProfile = {
       style: ((styleInput.trim() || 'PTW') as ManagerStyle),
       tierPoints: targetTier ? { [targetTier]: parseInt(tierPointsStr, 10) || 0 } : {},
-      greens: parseInt(greensStr, 10) || 0,
+      restorers: parseInt(restorersStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
       twoxAdActive: adInput.toLowerCase() === 'y',
       talentTier: (['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'FT1', 'FT2', 'FT3'].includes(talentInput.trim())
@@ -165,7 +165,7 @@ async function startApp() {
     const drillSessions = await collectDrillSessions();
     const tierInput = await ask("Target tier (or blank): ");
     const tierPointsStr = await ask("Tier points: ");
-    const greensStr = await ask("Greens: ");
+    const restorersStr = await ask("Restorers: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
     const talentInput = await ask("Player talent (Fastest/Fast/Average/Normal/Slow) [Normal]: ");
     const levelInput = await ask("Drill level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
@@ -175,7 +175,7 @@ async function startApp() {
     const profile: ManagerProfile = {
       style: ((styleInput.trim() || 'PTW') as ManagerStyle),
       tierPoints: targetTier ? { [targetTier]: parseInt(tierPointsStr, 10) || 0 } : {},
-      greens: parseInt(greensStr, 10) || 0,
+      restorers: parseInt(restorersStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
       twoxAdActive: false,
       talentTier: (['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'FT1', 'FT2', 'FT3'].includes(talentInput.trim())

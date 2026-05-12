@@ -1,7 +1,7 @@
 /**
  * Mutant Projection Engine
  * Calculates player OVR from drill training and tier upgrade.
- * Greens restore condition only — they do not affect OVR.
+ * Restorers restore condition only — they do not affect OVR.
  */
 export function calculateMutantProjection(
   baseOvr: number,

@@ -9,6 +9,21 @@ export const GK_STATS = [
   'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION',
 ] as const;
 
+// All 15 stats shown on a GK player form: 10 essentials + 5 secondaries.
+export const GK_STATS_ALL = [
+  ...GK_STATS,
+  'FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY',
+] as const;
+
+// DEF / ATT / PHY column groupings for the stat grid display.
+export const STAT_COLUMNS = {
+  DEF: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'],
+  ATT: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION'],
+  PHY: ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
+} as const;
+
+export const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+
 export const ADJACENCY_MAP: Record<string, string[]> = {
   'GK':  [],
   'DC':  ['DL', 'DR', 'DMC'],

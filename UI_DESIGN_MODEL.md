@@ -213,7 +213,7 @@ ScrollView
   [PLAYER ATTRIBUTES]        ← Talent tier chips
   [DRILL SESSIONS]           ← DrillSessionRow list + Add Drill
   [TRAINING SETTINGS]        ← Default level chips + 2× Ad toggle
-  [RESOURCES]                ← Style chips + Greens + Premium Sponsor + Tier Upgrade rows
+  [RESOURCES]                ← Style chips + Restorers + Premium Sponsor + Tier Upgrade rows
   [Project OVR button]
   [Compare link]
   [PROJECTION results]       ← InvestmentStepTable + warnings
@@ -243,7 +243,7 @@ ScrollView
 **RESOURCES section:**
 - Sub-label: `STYLE`
 - Style chips: `FTP | Hybrid | PTW`
-- Sub-label: `GREENS`
+- Sub-label: `RESTORERS`
 - Single TextInput, numeric
 - Premium Sponsor toggle row: amber checkbox
 - Sub-label: `TIER UPGRADE — tap to select target`
@@ -285,7 +285,7 @@ style: ManagerStyle           // 'FTP' | 'Hybrid' | 'PTW'
 talentTier: TalentTier
 drillLevel: DrillLevel
 tierPointInputs: Partial<Record<TierName, string>>
-greens: string
+restorers: string
 isPremiumSponsor: boolean
 twoxAd: boolean
 targetTier: TierName | null
@@ -320,7 +320,7 @@ ScrollView
 **DrillTable row:**
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  [ATTACK]  Skill Drill         [Zero Drain ✓]            │
+│  [ATTACK]  Touch Training         [Zero Drain ✓]            │
 │  CREATIVITY · DRIBBLING · PASSING                        │
 │  Efficiency: 67%     Condition: 0.00%                    │
 └──────────────────────────────────────────────────────────┘
@@ -356,7 +356,7 @@ ScrollView
   [TALENT (SHARED)]              ← talent tier chips
   [SHARED DRILL SESSIONS]        ← DrillSessionRow list
   [TRAINING SETTINGS]            ← drill level + 2× Ad
-  [RESOURCES]                    ← style chips + greens + tier upgrade rows
+  [RESOURCES]                    ← style chips + restorers + tier upgrade rows
   [Compare button]
   [RESULTS]                      ← recommendation box + ranked player rows
 ```
@@ -625,7 +625,7 @@ These flow from `gameProfile` into `planPlayerInvestment` / `compareInvestmentSc
 
 ### Global state (ManagerContext)
 
-`src/context/ManagerContext.tsx` holds: `style`, `tierPoints`, `greens`, `isPremiumSponsor`, `storeBudget`, `twoxAdActive`, `talentTier`, `drillLevel`.
+`src/context/ManagerContext.tsx` holds: `style`, `tierPoints`, `restorers`, `isPremiumSponsor`, `storeBudget`, `twoxAdActive`, `talentTier`, `drillLevel`.
 
 **Currently unused by Plan/Compare screens** — they manage their own local copies of these values. Two options going forward:
 - **Option A (current):** Keep per-screen local state; context is available for cross-screen persistence if needed

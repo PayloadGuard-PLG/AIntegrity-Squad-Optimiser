@@ -45,14 +45,14 @@ Note: `src/logic/playerScanner.ts` `KNOWN_TIERS` still matches game display name
 
 | Old name | New name |
 |---|---|
-| Skill Drill (→ First Touch Play in S11) | Ball Control |
-| Piggy in the Middle | Porky in Centre |
+| Touch Training (→ Touch Training in S11) | Touch Training |
+| Porky in Centre | Porky in Centre |
 | Pass, Go & Shoot | Move & Finish |
 | Use Your Head | Head It |
 | Press the Play | Press Up |
 | Hold the Line | Hold Shape |
 
-Ball Control stats updated to `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']` (HANDOVER spec), baseLoss 0.75 (VE level), intensity `'Very Easy'`.
+Touch Training stats updated to `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']` (HANDOVER spec), baseLoss 0.75 (VE level), intensity `'Very Easy'`.
 
 **Add Player crash fix**
 
@@ -104,7 +104,7 @@ Persistent documentation of game layout findings, OCR scanner design rules, tier
 | F50 | "Goal Celebrations" sidebar picked up as player name | Compound phrase blocklist + topmost block selection by `frame.top` |
 | F51 | Stats entry grid 2-col paired — no DEF/ATT/PHY organisation | 3-col layout matching game column structure |
 | F52 | Drill level selector showed all drills regardless of selected intensity | `.filter(d => d.intensity === drillLevel)` in drills tab |
-| F53 | Drills used old/branded names (Skill Drill, Piggy in the Middle, etc.) | IP-safe rename applied in drillDatabase.ts |
+| F53 | Drills used old/branded names (Touch Training, Porky in Centre, etc.) | IP-safe rename applied in drillDatabase.ts |
 | F54 | Tier chips/labels used game display names (None, Stellar, etc.) | T0–T6 system with DB migration and runtime normaliseTier fallback |
 
 ### Pending / Next Sprint
@@ -260,7 +260,7 @@ DB migration `0003_player_snapshot.sql`: `ALTER TABLE players ADD snapshot text 
 
 - Beta testing results (user session tonight/tomorrow) — expect label cleanup, navigation gaps, UI polish
 - Validate condition formula at Easy and Medium difficulty (only VH and VE cross-checked)
-- Add Ball Control drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
+- Add Touch Training drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
 
 ---
 
@@ -304,8 +304,8 @@ Removed the `× 6` multiplier hack (`conditionCost = actualLoss * 6` → `condit
 
 | Drill | Change |
 |---|---|
-| Skill Drill | Renamed → First Touch Play (confirmed from game) |
-| Piggy in the Middle | Added AGGRESSION to stat list |
+| Touch Training | Renamed → Touch Training (confirmed from game) |
+| Porky in Centre | Added AGGRESSION to stat list |
 | Long Run, Stretch, Shuttle Runs | Removed STAMINA (not in any role's white/grey list) |
 
 ### Bugs Fixed This Sprint
@@ -320,7 +320,7 @@ Removed the `× 6` multiplier hack (`conditionCost = actualLoss * 6` → `condit
 ### Next Sprint Targets
 
 - Validate condition formula with more drill/level/fan combinations (user to provide screenshots at Easy, Medium, Hard levels)
-- Add Ball Control drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
+- Add Touch Training drill to DRILL_LIST (missing: trains Concentration, Dribbling, Heading, Creativity — type TBC)
 - Premium sponsor condition cooldown modelling
 
 ---
@@ -339,21 +339,21 @@ Removed the `× 6` multiplier hack (`conditionCost = actualLoss * 6` → `condit
 - App now runs in-browser via `npx expo start --web` (no native binary required)
 - README updated with web setup guide (`docs: add web setup guide to README`)
 
-**Ball Control ×41 squad session logged (calibration)**
+**Touch Training ×41 squad session logged (calibration)**
 
-`data/CALIBRATION_LOG.md` — section 6 entry: 31 players × 41 × Ball Control Very Easy at Fan Club L4 with Match Advisor active.
+`data/CALIBRATION_LOG.md` — section 6 entry: 31 players × 41 × Touch Training Very Easy at Fan Club L4 with Match Advisor active.
 
 Key findings:
 - Condition per session: **−0.38%** confirmed from drill selection screen (not 0%)
 - `baseLoss 0.75% × 0.5 (L4) = 0.375% ≈ 0.38%` — formula validates
-- Zero-drain **revised**: Ball Control VE+L4 = 0.38% (not zero). Zero drain is difficulty-level-based, not universal. Underlying bug identified (fix shipped Sprint 11)
+- Zero-drain **revised**: Touch Training VE+L4 = 0.38% (not zero). Zero drain is difficulty-level-based, not universal. Underlying bug identified (fix shipped Sprint 11)
 
 **Match Advisor mechanics confirmed**
 
 - Source: premium sponsor milestone reward. Also purchasable: 1-day = 25 tokens
 - Effect: **+150% teamplay multiplier on ALL training sessions** (not just 4 free drills)
 - Duration: 7 days from activation
-- Observed: 41 × Ball Control VE → Attack pillar +7 above its L4 cap (18 → 25 effective)
+- Observed: 41 × Touch Training VE → Attack pillar +7 above its L4 cap (18 → 25 effective)
 - Match Advisor can push pillars **above their level cap** temporarily
 - Variety penalty: repeating same drill reduces teamplay gain rate; game warns "Training today lacked variety"
 - Training XP yield confirmed separate from stat-gain XP
@@ -414,7 +414,7 @@ Teamplay Form Boost probabilities per pillar (same for all 4):
 
 **RESULTS tab — 5-tab navigation**
 
-`app/(tabs)/results.tsx` (new, 525 lines) — combined multi-session OVR projection hub. Stacks multiple coaching blocks + tier upgrade + greens + rest packs into a single sequential OVR chain projection. Each step shows OVR before → after.
+`app/(tabs)/results.tsx` (new, 525 lines) — combined multi-session OVR projection hub. Stacks multiple coaching blocks + tier upgrade + restorers + recovery kits into a single sequential OVR chain projection. Each step shows OVR before → after.
 
 `src/components/AppHeader.tsx` + `app/(tabs)/_layout.tsx` — 5-tab navigation. AppHeader now uses a horizontal scroll row to accommodate SQUAD · PLAN · DRILLS · COACHES · RESULTS.
 
@@ -484,7 +484,7 @@ Sutters GK: sum of all 15 stats = 2,844. 2,844 ÷ 15 = 189.6 → game displays *
 
 ### Next Sprint Targets
 
-- Ball Control ×41 session data logging (in progress, user running session)
+- Touch Training ×41 session data logging (in progress, user running session)
 - Condition loss formula investigation (zero-drain showing incorrectly for all VE drills at L4)
 - Coaching calibration: user to supply scenario data (Standard Attacking, Standard Safeguard, etc.)
 
@@ -563,9 +563,9 @@ Previously all skipped drills showed a generic "Stats missing" warning regardles
 
 New helper: `getAllStatKeys(roles)` in `src/utils/roleWeights.ts` — returns union of white + grey stats for a role, used for categorisation.
 
-**TextInput controls for greens and sessions**
+**TextInput controls for restorers and sessions**
 
-`app/(tabs)/plan.tsx` — replaced +/− stepper buttons with free-entry TextInput for both greens count and per-drill session count. Easier to enter ×30, ×59, etc.
+`app/(tabs)/plan.tsx` — replaced +/− stepper buttons with free-entry TextInput for both restorers count and per-drill session count. Easier to enter ×30, ×59, etc.
 
 **Auto-tier selection**
 
@@ -632,7 +632,7 @@ Full UI redesign to "Operator" aesthetic: pitch-black background, gunmetal navy 
 
 **Plan tab config section redesign**
 
-`app/(tabs)/plan.tsx` — each configuration group (TALENT, DRILL LEVEL, SESSIONS, GREENS, TIER) rebuilt as a bordered card: dark header row with steelLight accent stripe, content below within the same border. Section tabs (PLAN / STEPS / WARNINGS) changed from text links to full-width ink-fill button bar. All param setters now call `invalidate()` → `setPlan(null)` to clear stale projections before any re-run.
+`app/(tabs)/plan.tsx` — each configuration group (TALENT, DRILL LEVEL, SESSIONS, RESTORERS, TIER) rebuilt as a bordered card: dark header row with steelLight accent stripe, content below within the same border. Section tabs (PLAN / STEPS / WARNINGS) changed from text links to full-width ink-fill button bar. All param setters now call `invalidate()` → `setPlan(null)` to clear stale projections before any re-run.
 
 **OvrMovement: pure-RN rewrite (critical)**
 
@@ -773,7 +773,7 @@ Push from Termux → CI picks up within ~1 min → EAS OTA bundle → app update
 
 **Drill database: isBase flag**
 
-`src/database/drillDatabase.ts`: `isBase: boolean` added to `Drill` interface. Core daily drills (Skill Drill, Gym, Sprints, Juggling, etc.) marked `isBase: true`. Event/lab drills (Set-Piece Delivery, Warm-Up, Carioca, etc.) marked `isBase: false`.
+`src/database/drillDatabase.ts`: `isBase: boolean` added to `Drill` interface. Core daily drills (Touch Training, Gym, Sprints, Juggling, etc.) marked `isBase: true`. Event/lab drills (Set-Piece Delivery, Warm-Up, Carioca, etc.) marked `isBase: false`.
 
 **Tier system corrections**
 
@@ -841,8 +841,8 @@ Research confirmed the entire formula engine was built on wrong game mechanics. 
 | `src/utils/coachMath.ts` | Removed coach-multiplier model; profile-driven `getAgeFactor`, `getStatXpCost`, `getGreyMultiplier`; deprecated shim kept for backward compat |
 | `src/utils/math.ts` | `TIER_DATA.bonus` → `TIER_DATA.attrAddition` (flat per-white-stat, not OVR); removed `calculateDecay` |
 | `src/utils/roleWeights.ts` | Fixed `isEssentialGain` — was returning true for secondary (grey) stats; now essential-only; added `getWhiteStatKeys`; grey weight = 0.5 |
-| `src/logic/ovrProjector.ts` | Rewritten — drill sessions → per-stat XP → Quality%/4 → OVR; tier as flat attr addition; greens = condition restore step only |
-| `src/logic/mutantEngine.ts` | Removed greens-as-OVR; greens are condition, not OVR |
+| `src/logic/ovrProjector.ts` | Rewritten — drill sessions → per-stat XP → Quality%/4 → OVR; tier as flat attr addition; restorers = condition restore step only |
+| `src/logic/mutantEngine.ts` | Removed restorers-as-OVR; restorers are condition, not OVR |
 | `src/logic/investmentEngine.ts` | New signature: `DrillSession[]` + `GameProfile`; added `compareInvestmentScenarios` |
 | `src/logic/scenarioComparator.ts` | Updated to new engine signature |
 | `src/context/ManagerContext.tsx` | Added `twoxAdActive`, `talentTier`, `drillLevel` state; removed `coaches` |
@@ -851,7 +851,7 @@ Research confirmed the entire formula engine was built on wrong game mechanics. 
 | `app/(tabs)/plan.tsx` | Replaced "Add Coach" with "Add Drill"; added talent tier picker and 2× Ad toggle |
 | `app/compare.tsx` | Same drill input replacement |
 | `src/index.ts` | CLI updated to drill session workflow |
-| `tests/investment-test.ts` | Full rewrite — 40 tests covering 180-rule, cap, age, talent, grey weight, tier delta, greens model, end-to-end plan |
+| `tests/investment-test.ts` | Full rewrite — 40 tests covering 180-rule, cap, age, talent, grey weight, tier delta, restorers model, end-to-end plan |
 | `tsconfig.json` | Added `resolveJsonModule: true` |
 
 ### Key decisions
@@ -862,7 +862,7 @@ Research confirmed the entire formula engine was built on wrong game mechanics. 
 
 **Tier bonus = attribute addition.** Previous code added a flat OVR number on tier up. Correct model: `+X per white attribute → recalculate Quality% → recalculate OVR`. Stellar on a 6-white-stat player at 100% each = +50×6/15 = +20 Quality% = +5 OVR.
 
-**Greens = 15% condition restore.** Removed from OVR projection entirely; shown as informational `condition` step.
+**Restorers = 15% condition restore.** Removed from OVR projection entirely; shown as informational `condition` step.
 
 **Grey weight = 0.5 (was 0.1).** Secondary stats contribute half the XP efficiency of white stats.
 
@@ -967,7 +967,7 @@ Full React Native / Expo mobile UI. App now runs on device — zero CLI required
 | File | Change |
 |---|---|
 | `src/types/resources.ts` | New — `Coach`, `ManagerProfile`, `InvestmentPlan`, `ScenarioComparison` types |
-| `src/logic/ovrProjector.ts` | New — step-by-step OVR chain (coaches → tier → greens) |
+| `src/logic/ovrProjector.ts` | New — step-by-step OVR chain (coaches → tier → restorers) |
 | `src/logic/investmentEngine.ts` | New — style-filtered planning + recommendation text |
 | `src/logic/scenarioComparator.ts` | New — multi-player ranking for shared resource pool |
 | `src/utils/coachMath.ts` | Rewritten — calibrated piecewise gain table, age factor, seminar bonus |
@@ -984,7 +984,7 @@ Step 1  Attacking ×30      120.0 → 130.3   +10.3   FREE
 Step 2  Defending ×40      130.3 → 140.2   +9.9    FREE
 Step 3  Physical ×28       140.2 → 152.0   +11.8   FREE
 Step 4  Tier → Stellar     152.0 → 202.0   +50.0   600 tier pts
-Step 5  100 greens (×1.3)  202.0 → 210.7   +8.7    100 greens
+Step 5  100 restorers (×1.3)  202.0 → 210.7   +8.7    100 restorers
 Final: 210.7   Gain: +90.7
 
 Scenario comparison:
