@@ -17,14 +17,14 @@ export interface GameProfile {
   fanClubCondReduction: number[];
   greyWeightMultiplier: number;
   statCap: number;
-  rule180StatCap: number;
+  maxBaseOvr: number;
   baseXpPerSession: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
   qualityOvrDivisor: number;
   totalAttributeCount: number;
   teamPlayDecayPerDay: number;
-  matchdayCoachMultiplier: number;
+  matchAdvisorMultiplier: number;
   conditionCostPerDrill: number;
   teamPlayFreeDrillsPerDay: number;
   conditionPerGreen: number;
@@ -32,7 +32,7 @@ export interface GameProfile {
 
 // --- Talent & drill levels ---
 
-export type TalentTier = 'FT1' | 'FT2' | 'FT3' | 'Normal' | 'Slow';
+export type TalentTier = 'Fastest' | 'Fast' | 'Average' | 'Normal' | 'Slow';
 export type DrillLevel = 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard';
 
 // --- Drill session (replaces coach card as the training unit) ---
@@ -77,13 +77,15 @@ export interface ManagerProfile {
   twoxAdActive: boolean;
   talentTier: TalentTier;
   drillLevel: DrillLevel;
-  matchdayCoachActive: boolean;
+  matchAdvisorActive: boolean;
   teamPlayPillars?: Partial<Record<TeamPlayPillar, number>>;
 }
 
 // --- Tier system ---
 
 export type TierName = 'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5' | 'T6';
+
+export type FanLevel = 0 | 1 | 2 | 3 | 4;
 
 // --- Team Play ---
 
@@ -93,7 +95,7 @@ export interface TeamPlayPlan {
   pillars: Partial<Record<TeamPlayPillar, number>>;
   decayPerDay: number;
   freeDrillsNeeded: number;
-  matchdayCoachCoversDecay: boolean;
+  matchAdvisorCoversDecay: boolean;
   recommendation: string;
 }
 

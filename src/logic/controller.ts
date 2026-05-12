@@ -1,21 +1,23 @@
-import { isWhiteStat, validateRoleAdjacency } from '../utils/roleWeights';
+import { isWhiteStat, validateRoleAdjacency, getWhiteStatKeys } from '../utils/roleWeights';
 import { DRILL_LIST } from '../database/drillDatabase';
 import { calculateActualLoss } from '../utils/conditionEngine';
 import { Player } from '../database/playerSchema';
+import { FanLevel } from '../types/resources';
 
-export function getRecommendedDrills(player: Player, fanClubLevel: number = 4, drillLevel: string = 'Very Easy') {
+export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4) {
     if (!validateRoleAdjacency(player.role)) {
         throw new Error(`Invalid combination: Roles must be adjacent.`);
     }
 
-    const whiteStats = new Set(Object.keys(player.stats).filter(stat => isWhiteStat(player.role, stat)));
+    const whiteStats = new Set(getWhiteStatKeys(player.role));
 
     return DRILL_LIST.map(drill => {
-        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drillLevel);
-        const isZeroDrain = actualLoss < 0.5;
+        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drill.intensity);
+        const isZeroDrain = actualLoss < 0.38;
         const whiteDrillStats = drill.stats.filter(s => whiteStats.has(s.toUpperCase()));
         const efficiency = drill.stats.length > 0 ? whiteDrillStats.length / drill.stats.length : 0;
         const conditionCost = isZeroDrain ? 0 : actualLoss;
+        const roi = conditionCost === 0 ? efficiency * 1000 : efficiency / conditionCost;
 
         const vals = whiteDrillStats.map(s => player.stats[s]).filter((v): v is number => v !== undefined);
         const avgWhiteStatValue = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : Infinity;
@@ -27,15 +29,13 @@ export function getRecommendedDrills(player: Player, fanClubLevel: number = 4, d
             efficiency,
             conditionCost,
             isZeroDrain,
+            roi,
             avgWhiteStatValue,
             statsHit: drill.stats,
             whiteHits: drill.stats.map(stat => ({ stat, white: whiteStats.has(stat.toUpperCase()) })),
         };
     })
-    .sort((a, b) => {
-        if (a.avgWhiteStatValue !== b.avgWhiteStatValue) return a.avgWhiteStatValue - b.avgWhiteStatValue;
-        return b.efficiency - a.efficiency;
-    });
+    .sort((a, b) => b.roi - a.roi);
 }
 
 // Aliases for backward compatibility with existing tests

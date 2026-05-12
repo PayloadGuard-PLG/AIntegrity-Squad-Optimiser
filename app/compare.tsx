@@ -11,7 +11,7 @@ import { DrillSession, TalentTier, TierName } from '../src/types/resources';
 import { theme, ovrColor } from '../src/constants/theme';
 import gameProfile from '../profiles/game_2025.json';
 
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 
 const DEFAULT_DRILLS: DrillSession[] = [
@@ -22,7 +22,7 @@ const DEFAULT_DRILLS: DrillSession[] = [
 export default function CompareScreen() {
   const { squad } = useSquad();
   const [selectedIds, setSelectedIds] = useState<string[]>(squad.slice(0, 2).map(p => p.id));
-  const [talent, setTalent] = useState<TalentTier>('FT1');
+  const [talent, setTalent] = useState<TalentTier>('Fastest');
   const [targetTier, setTargetTier] = useState<TierName | null>('T4');
 
   function toggle(id: string) {
@@ -35,7 +35,7 @@ export default function CompareScreen() {
     const profile = {
       style: 'FTP' as const,
       tierPoints: {} as Partial<Record<TierName, number>>,
-      greens: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const, matchdayCoachActive: false,
+      greens: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const, matchAdvisorActive: false,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return compareInvestmentScenarios(players, profile, DEFAULT_DRILLS, gameProfile as any, targetTier);

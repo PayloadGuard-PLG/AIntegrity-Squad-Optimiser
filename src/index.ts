@@ -120,7 +120,7 @@ async function startApp() {
     const tierPointsStr = await ask("Available tier points: ");
     const greensStr = await ask("Available greens: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
-    const talentInput = await ask("Player talent (FT1/FT2/FT3/Normal/Slow) [Normal]: ");
+    const talentInput = await ask("Player talent (Fastest/Fast/Average/Normal/Slow) [Normal]: ");
     const levelInput = await ask("Drill level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
     const adInput = await ask("2× Ad active this session? (y/n) [n]: ");
     const sponsorInput = await ask("Premium sponsor? (y/n) [n]: ");
@@ -132,11 +132,11 @@ async function startApp() {
       greens: parseInt(greensStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
       twoxAdActive: adInput.toLowerCase() === 'y',
-      talentTier: (['FT1', 'FT2', 'FT3', 'Normal', 'Slow'].includes(talentInput.trim())
+      talentTier: (['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'FT1', 'FT2', 'FT3'].includes(talentInput.trim())
         ? talentInput.trim() : 'Normal') as TalentTier,
       drillLevel: (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelInput.trim())
         ? levelInput.trim() : 'Very Easy') as DrillLevel,
-      matchdayCoachActive: false,
+      matchAdvisorActive: false,
     };
 
     const plan = planPlayerInvestment(player, profile, drillSessions, gameProfile, targetTier);
@@ -167,7 +167,7 @@ async function startApp() {
     const tierPointsStr = await ask("Tier points: ");
     const greensStr = await ask("Greens: ");
     const styleInput = await ask("Manager style (FTP/Hybrid/PTW) [PTW]: ");
-    const talentInput = await ask("Player talent (FT1/FT2/FT3/Normal/Slow) [Normal]: ");
+    const talentInput = await ask("Player talent (Fastest/Fast/Average/Normal/Slow) [Normal]: ");
     const levelInput = await ask("Drill level (Very Easy/Easy/Medium/Hard/Very Hard) [Very Easy]: ");
     const sponsorInput = await ask("Premium sponsor? (y/n) [n]: ");
 
@@ -178,11 +178,11 @@ async function startApp() {
       greens: parseInt(greensStr, 10) || 0,
       isPremiumSponsor: sponsorInput.toLowerCase() === 'y',
       twoxAdActive: false,
-      talentTier: (['FT1', 'FT2', 'FT3', 'Normal', 'Slow'].includes(talentInput.trim())
+      talentTier: (['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'FT1', 'FT2', 'FT3'].includes(talentInput.trim())
         ? talentInput.trim() : 'Normal') as TalentTier,
       drillLevel: (['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].includes(levelInput.trim())
         ? levelInput.trim() : 'Very Easy') as DrillLevel,
-      matchdayCoachActive: false,
+      matchAdvisorActive: false,
     };
 
     const comparison = compareInvestmentScenarios(selectedPlayers, profile, drillSessions, gameProfile, targetTier);

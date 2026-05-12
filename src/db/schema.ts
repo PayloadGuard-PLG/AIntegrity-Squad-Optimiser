@@ -6,7 +6,7 @@ export const players = sqliteTable('players', {
   roles: text('roles').notNull().default('["ST"]'),        // JSON: string[]
   age: integer('age').notNull(),
   overall: real('overall').notNull(),
-  tier: text('tier').notNull().default('None'),
+  tier: text('tier').notNull().default('T0'),
   stats: text('stats').notNull().default('{}'),             // JSON: Record<string, number>
   talent: text('talent').notNull().default('Normal'),
   isMutantCandidate: integer('is_mutant_candidate', { mode: 'boolean' }).notNull().default(false),
@@ -41,13 +41,20 @@ export const squadPlanRuns = sqliteTable('squad_plan_runs', {
   createdAt: integer('created_at').notNull(),
 });
 
+export const drillPresets = sqliteTable('drill_presets', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  drillNames: text('drill_names').notNull(),  // JSON: string[] up to 6
+  createdAt: integer('created_at').notNull(),
+});
+
 export const drillSessions = sqliteTable('drill_sessions', {
   id: text('id').primaryKey(),
   playerId: text('player_id').notNull(),
   drillName: text('drill_name').notNull(),
   sessionCount: integer('session_count').notNull().default(1),
-  drillLevel: text('drill_level').notNull().default('Amateur'),   // Amateur|Semi-Pro|Pro|World Class
-  talentTier: text('talent_tier').notNull().default('Normal'),    // FT1|FT2|FT3|Normal|Slow
+  drillLevel: text('drill_level').notNull().default('Very Easy'),  // unused — reserved for future session logging
+  talentTier: text('talent_tier').notNull().default('Normal'),    // Fastest|Fast|Average|Normal|Slow
   twoxAd: integer('twox_ad', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at').notNull(),
 });

@@ -29,8 +29,20 @@ function statColor(stat: string): string {
   return COL_COLORS.PHY;
 }
 
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
+// Ordered stat lists per column for outfield vs GK (matches game 3-col layout)
+const OUTFIELD_COL = {
+  DEF: ['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY'],
+  ATT: ['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING'],
+  PHY: ['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY'],
+} as const;
+const GK_COL = {
+  DEF: ['REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION'],
+  ATT: ['THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION'],
+  PHY: ['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY'],
+} as const;
+
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
 
 const COACH_TYPES = ['STANDARD', 'FOCUSED', 'EXTENSIVE'];
 const COACH_CATEGORIES = ['ATTACKING', 'DEFENDING', 'PHYSICAL', 'SAFEGUARD'];
@@ -188,67 +200,6 @@ export default function CoachCaptureScreen() {
     setSaved(true);
   }
 
-  function renderStatRow(stat: string, isWhite: boolean) {
-    const expanded = expandedStats.has(stat);
-    const g = gains[stat] ?? { lo: '', hi: '' };
-    const hasGain = g.lo || g.hi;
-    const cc = statColor(stat);
-    const labelColor = isWhite ? cc : theme.inkMuted;
-
-    return (
-      <View key={stat} style={{ borderBottomWidth: 1, borderBottomColor: theme.hairline, borderLeftWidth: 2, borderLeftColor: isWhite ? cc : cc + '44' }}>
-        <Pressable onPress={() => setExpandedStats(prev => { const next = new Set(prev); next.has(stat) ? next.delete(stat) : next.add(stat); return next; })}
-          style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12 }}>
-          <View style={{ width: 8, height: 8, backgroundColor: hasGain ? cc : 'transparent', borderWidth: 1, borderColor: cc + '66', marginRight: 10 }} />
-          <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 0.8, color: hasGain ? cc : labelColor, flex: 1 }}>{stat}</Text>
-          {hasGain ? (
-            <MonoLabel size={9} color={cc}>+{g.lo}–{g.hi}</MonoLabel>
-          ) : (
-            <MonoLabel size={9} color={theme.inkGhost}>TAP</MonoLabel>
-          )}
-        </Pressable>
-
-        {expanded && (
-          <View style={{ flexDirection: 'row', gap: 8, padding: 12, paddingTop: 4, backgroundColor: theme.surface2 }}>
-            <View style={{ flex: 1 }}>
-              <MonoLabel size={8} style={{ marginBottom: 4 }}>CURRENT</MonoLabel>
-              <TextInput
-                keyboardType="numeric"
-                value={statValues[stat] ?? ''}
-                onChangeText={v => setStatValues(prev => ({ ...prev, [stat]: v }))}
-                placeholder="0"
-                placeholderTextColor={theme.inkGhost}
-                style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.ink, borderWidth: 1, borderColor: theme.hairline2, padding: 8, textAlign: 'center' }}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 4 }}>+GAIN LO</MonoLabel>
-              <TextInput
-                keyboardType="numeric"
-                value={g.lo}
-                onChangeText={v => setGains(prev => ({ ...prev, [stat]: { ...prev[stat] ?? { lo: '', hi: '' }, lo: v } }))}
-                placeholder="0"
-                placeholderTextColor={theme.inkGhost}
-                style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.pos, borderWidth: 1, borderColor: theme.pos + '55', padding: 8, textAlign: 'center' }}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 4 }}>+GAIN HI</MonoLabel>
-              <TextInput
-                keyboardType="numeric"
-                value={g.hi}
-                onChangeText={v => setGains(prev => ({ ...prev, [stat]: { ...prev[stat] ?? { lo: '', hi: '' }, hi: v } }))}
-                placeholder="0"
-                placeholderTextColor={theme.inkGhost}
-                style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.pos, borderWidth: 1, borderColor: theme.pos + '55', padding: 8, textAlign: 'center' }}
-              />
-            </View>
-          </View>
-        )}
-      </View>
-    );
-  }
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader onBack={() => router.back()} />
@@ -256,18 +207,12 @@ export default function CoachCaptureScreen() {
 
         {/* 0. SCREENSHOT SCAN */}
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Pressable onPress={pickFromCamera} disabled={isScanning}
-              style={{ flex: 1, padding: 16, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>◉</Text>
-              <MonoLabel size={9} color={theme.steelLight}>CAMERA</MonoLabel>
-            </Pressable>
-            <Pressable onPress={pickFromGallery} disabled={isScanning}
-              style={{ flex: 1, padding: 16, alignItems: 'center' }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>⊞</Text>
-              <MonoLabel size={9} color={theme.steelLight}>GALLERY</MonoLabel>
-            </Pressable>
-          </View>
+          <Pressable onPress={pickFromGallery} disabled={isScanning}
+            style={{ padding: 18, alignItems: 'center' }}>
+            <Text style={{ fontFamily: theme.mono, fontSize: 22, color: theme.steelLight, marginBottom: 6 }}>⊞</Text>
+            <MonoLabel size={10} color={theme.steelLight}>SCAN COACH SCREENSHOT</MonoLabel>
+            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>Select from photo library</MonoLabel>
+          </Pressable>
           {isScanning && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderTopWidth: 1, borderTopColor: theme.hairline }}>
               <ActivityIndicator size="small" color={theme.steelLight} />
@@ -398,43 +343,101 @@ export default function CoachCaptureScreen() {
           </View>
         </View>
 
-        {/* 3. HIGHLIGHTED STATS */}
-        {(white.length > 0 || grey.length > 0) && (
-          <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-            <View style={{ padding: 14, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2 }}>
-              <MonoLabel color={theme.steelLight} style={{ marginBottom: 4 }}>HIGHLIGHTED STATS</MonoLabel>
-              <MonoLabel size={8} color={theme.inkGhost}>TAP EACH STAT SHOWN WITH A GAIN RANGE ON THE PREVIEW SCREEN</MonoLabel>
+        {/* 3. STAT COVERAGE — 3-col table (matches game layout) */}
+        {player && (() => {
+          const isGK = player.role.includes('GK');
+          const colDef = isGK ? GK_COL : OUTFIELD_COL;
+          return (
+            <View style={{ marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <MonoLabel color={theme.steelLight}>STAT COVERAGE</MonoLabel>
+                <MonoLabel size={8} color={theme.inkGhost}>HIGHLIGHTED = ESSENTIAL · DIM = SECONDARY</MonoLabel>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                {(['DEF', 'ATT', 'PHY'] as const).map(col => {
+                  const cc = COL_COLORS[col];
+                  const colStats = colDef[col] as readonly string[];
+                  return (
+                    <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '55' }}>
+                      <View style={{ paddingVertical: 6, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
+                        <MonoLabel size={8} color={cc}>{col}</MonoLabel>
+                      </View>
+                      {colStats.map(s => {
+                        const isW = white.includes(s);
+                        const isG = grey.includes(s);
+                        const g = gains[s];
+                        const hasGain = !!(g?.lo || g?.hi);
+                        return (
+                          <Pressable key={s}
+                            onPress={() => setExpandedStats(prev => { const n = new Set(prev); n.has(s) ? n.delete(s) : n.add(s); return n; })}
+                            style={{
+                              paddingHorizontal: 8, paddingVertical: 7,
+                              borderBottomWidth: 1, borderBottomColor: theme.hairline,
+                              borderLeftWidth: hasGain && isW ? 3 : 0,
+                              borderLeftColor: cc,
+                              backgroundColor: hasGain ? (isW ? cc + '1a' : cc + '0a') : 'transparent',
+                            }}>
+                            <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.5, color: hasGain ? (isW ? cc : isG ? theme.inkMuted : theme.inkGhost) : theme.hairline2 }} numberOfLines={1}>{s}</Text>
+                            {hasGain ? (
+                              <>
+                                <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: isW ? '700' : '400', color: isW ? theme.ink : theme.inkMuted, marginTop: 1 }}>
+                                  +{g?.lo}–{g?.hi}
+                                </Text>
+                                {!isW && (
+                                  <Text style={{ fontFamily: theme.mono, fontSize: 7, color: theme.inkGhost, marginTop: 1 }}>×0.5</Text>
+                                )}
+                              </>
+                            ) : (
+                              <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.hairline2, marginTop: 2 }}>—</Text>
+                            )}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* Expanded manual-entry panel for tapped stat */}
+              {expandedStats.size > 0 && (
+                <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginTop: 6, padding: 12, backgroundColor: theme.surface2 }}>
+                  {[...expandedStats].map(stat => {
+                    const g = gains[stat] ?? { lo: '', hi: '' };
+                    const cc = statColor(stat);
+                    return (
+                      <View key={stat} style={{ marginBottom: 10 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                          <MonoLabel size={9} color={cc}>{stat}</MonoLabel>
+                          <Pressable onPress={() => setExpandedStats(prev => { const n = new Set(prev); n.delete(stat); return n; })}>
+                            <MonoLabel size={9} color={theme.inkGhost}>✕</MonoLabel>
+                          </Pressable>
+                        </View>
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                          <View style={{ flex: 1 }}>
+                            <MonoLabel size={8} style={{ marginBottom: 4 }}>CURRENT</MonoLabel>
+                            <TextInput keyboardType="numeric" value={statValues[stat] ?? ''} onChangeText={v => setStatValues(prev => ({ ...prev, [stat]: v }))} placeholder="0" placeholderTextColor={theme.inkGhost}
+                              style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.ink, borderWidth: 1, borderColor: theme.hairline2, padding: 8, textAlign: 'center' }} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 4 }}>+LO</MonoLabel>
+                            <TextInput keyboardType="numeric" value={g.lo} onChangeText={v => setGains(prev => ({ ...prev, [stat]: { ...(prev[stat] ?? { lo: '', hi: '' }), lo: v } }))} placeholder="0" placeholderTextColor={theme.inkGhost}
+                              style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.pos, borderWidth: 1, borderColor: theme.pos + '55', padding: 8, textAlign: 'center' }} />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 4 }}>+HI</MonoLabel>
+                            <TextInput keyboardType="numeric" value={g.hi} onChangeText={v => setGains(prev => ({ ...prev, [stat]: { ...(prev[stat] ?? { lo: '', hi: '' }), hi: v } }))} placeholder="0" placeholderTextColor={theme.inkGhost}
+                              style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.pos, borderWidth: 1, borderColor: theme.pos + '55', padding: 8, textAlign: 'center' }} />
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
             </View>
-
-            {white.length > 0 && (
-              <>
-                <View style={{ paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 }}>
-                  <MonoLabel size={8} color={theme.steelLight}>WHITE — ESSENTIAL</MonoLabel>
-                </View>
-                {white.map(stat => renderStatRow(stat, true))}
-              </>
-            )}
-
-            {grey.length > 0 && (
-              <>
-                <View style={{ paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4 }}>
-                  <MonoLabel size={8} color={theme.inkMuted}>GREY — SECONDARY / NON-ROLE</MonoLabel>
-                </View>
-                {grey.map(stat => renderStatRow(stat, false))}
-              </>
-            )}
-
-            {detectedExtras.length > 0 && (
-              <>
-                <View style={{ paddingHorizontal: 12, paddingTop: 10, paddingBottom: 4, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <MonoLabel size={8} color={theme.hot}>DETECTED — NOT IN ROLE</MonoLabel>
-                  <MonoLabel size={7} color={theme.inkGhost}>gains counted at grey rate</MonoLabel>
-                </View>
-                {detectedExtras.map(stat => renderStatRow(stat, false))}
-              </>
-            )}
-          </View>
-        )}
+          );
+        })()}
 
         {/* 4. ACTIONS */}
         <View style={{ gap: 8 }}>

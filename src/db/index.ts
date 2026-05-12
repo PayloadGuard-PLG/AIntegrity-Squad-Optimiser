@@ -15,6 +15,11 @@ export const expoDb = openDatabaseSync('squadoptimiser.db', {
 export const db = drizzle(expoDb, { schema });
 
 // Add this function to manage the Alntegrity local vault initialization
-export const useDbMigration = () => { 
-  return useMigrations(db, migrations); 
+export const useDbMigration = () => {
+  return useMigrations(db, migrations);
 };
+
+// Idempotent column guard — catches devices where m0003 was skipped
+export function ensureSnapshotColumn() {
+  try { expoDb.execSync('ALTER TABLE players ADD COLUMN snapshot text DEFAULT NULL;'); } catch {}
+}

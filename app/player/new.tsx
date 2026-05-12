@@ -16,8 +16,9 @@ import { GameProfile } from '../../src/types/resources';
 const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW' };
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
+const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — +50% vs normal\nFast ×1.25 — +25%\nAverage ×1.1 — +10%\nNormal ×1.0 — baseline\nSlow ×0.7 — -30%\n\nDetected automatically from player card scan.';
 
 const ROLE_GRID = [
   [null, 'DR', 'DC', 'DL'],
@@ -74,7 +75,8 @@ const inputStyle = {
 
 export default function NewPlayerScreen() {
   const [name, setName] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [positionStates, setPositionStates] = useState<Record<string, 0 | 1 | 2>>({});
+  const selectedRoles = Object.entries(positionStates).filter(([, s]) => s === 2).map(([r]) => r);
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
   const [ovrIsAuto, setOvrIsAuto] = useState(false);
@@ -99,76 +101,107 @@ export default function NewPlayerScreen() {
       if (!isNaN(n) && n > 0) statsObj[k] = n;
     }
     if (Object.keys(statsObj).length >= 10) {
-      const fakePlayer = { stats: statsObj, overall: 0, role: ['ST'] } as any;
+      const enteredVals = Object.values(statsObj);
+      const mean = Math.floor(enteredVals.reduce((a, b) => a + b, 0) / enteredVals.length);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fakePlayer = { stats: statsObj, overall: mean, role: selectedRoles.length > 0 ? selectedRoles : ['ST'] } as any;
       const auto = computeOvrFromStats(fakePlayer, profile);
       setOverall(auto.toFixed(1));
       setOvrIsAuto(true);
     }
   }
 
-  async function pickAndScan(from: 'camera' | 'gallery') {
-    let result: ImagePicker.ImagePickerResult;
-    if (from === 'camera') {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
-      result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
-    } else {
+  async function pickAndScan() {
+    try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-      result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
-    }
-    if (result.canceled || !result.assets[0]) return;
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      if (result.canceled || !result.assets?.[0]?.uri) return;
 
-    const uri = result.assets[0].uri;
-    setScanned(false);
-    setScanMsg('');
+      const uri = result.assets[0].uri;
+      setScanned(false);
+      setScanMsg('');
 
-    const data = await scanPlayerScreenshot(uri);
-    if (!data) return;
+      const data = await scanPlayerScreenshot(uri);
+      if (!data) return;
 
-    if (data.name) setName(data.name);
-    if (data.age) setAge(data.age.toString());
-    const TIER_MAP: Record<string, TierName> = {
-      None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
-      T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
-    };
-    setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
-    if (data.talent) setTalent(data.talent as TalentTier);
-    if (data.roles && data.roles.length > 0) setSelectedRoles(data.roles);
+      if (data.name) setName(data.name);
+      if (data.age) setAge(data.age.toString());
+      const TIER_MAP: Record<string, TierName> = {
+        None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+        T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
+      };
+      setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
+      const TALENT_MAP: Record<string, TalentTier> = {
+        FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
+        Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
+      };
+      if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
+      if (data.roles && data.roles.length > 0) setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
 
-    if (data.stats && Object.keys(data.stats).length > 0) {
-      const inputs = Object.fromEntries(
-        Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
-      );
-      setStatInputs(inputs);
-      recomputeOvr(inputs);
-      setScanned(true);
-      setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
-    } else if (data.overall) {
-      setOverall(data.overall.toString());
-      setOvrIsAuto(false);
-      setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
-    } else {
-      setScanMsg('NO STATS FOUND — TRY A CLEARER SCREENSHOT.');
+      if (data.stats && Object.keys(data.stats).length > 0) {
+        const inputs = Object.fromEntries(
+          Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
+        );
+        setStatInputs(inputs);
+        recomputeOvr(inputs);
+        setScanned(true);
+        setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
+      } else if (data.overall) {
+        setOverall(data.overall.toString());
+        setOvrIsAuto(false);
+        setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
+      } else {
+        setScanMsg('NO STATS FOUND — TRY A CLEARER SCREENSHOT.');
+      }
+    } catch (err) {
+      setScanMsg('SCAN ERROR — TRY AGAIN.');
     }
   }
 
   function toggleRole(role: string | null) {
     if (!role) return;
     setRoleError('');
-    let next: string[];
-    if (selectedRoles.includes(role)) {
-      next = selectedRoles.filter(r => r !== role);
-    } else {
-      if (role === 'GK') { setSelectedRoles(['GK']); return; }
-      if (selectedRoles.includes('GK')) { setRoleError('GK CANNOT COMBINE'); return; }
-      next = [...selectedRoles, role];
-    }
-    if (next.length > 0 && !validateRoleAdjacency(next)) {
-      setRoleError('NOT ADJACENT');
+
+    const current = (positionStates[role] ?? 0) as 0 | 1 | 2;
+
+    // Active → off (deselect entirely)
+    if (current === 2) {
+      setPositionStates(prev => ({ ...prev, [role]: 0 }));
       return;
     }
-    setSelectedRoles(next);
+
+    // Off → partial, or partial → active
+    const next = (current + 1) as 1 | 2;
+
+    if (next === 2) {
+      // Activating — run all constraints
+      if (role === 'GK') {
+        if (Object.entries(positionStates).some(([r, s]) => r !== 'GK' && s === 2)) {
+          setRoleError('GK CANNOT COMBINE');
+          return;
+        }
+        // Demote any other active roles to partial so GK stands alone
+        setPositionStates(prev => {
+          const updated: Record<string, 0 | 1 | 2> = {};
+          for (const [r, s] of Object.entries(prev)) {
+            updated[r] = r === 'GK' ? 2 : (s === 2 ? 1 : s as 0 | 1);
+          }
+          updated['GK'] = 2;
+          return updated;
+        });
+        return;
+      }
+      if ((positionStates['GK'] ?? 0) === 2) {
+        setRoleError('GK CANNOT COMBINE');
+        return;
+      }
+      const newActive = [...selectedRoles, role];
+      if (newActive.length > 3) { setRoleError('MAX 3 ROLES'); return; }
+      if (!validateRoleAdjacency(newActive)) { setRoleError('NOT ADJACENT'); return; }
+    }
+
+    setPositionStates(prev => ({ ...prev, [role]: next }));
   }
 
   function save() {
@@ -210,28 +243,24 @@ export default function NewPlayerScreen() {
         {/* STAT PROFILE — scan section */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>STAT PROFILE</MonoLabel>
-          <MonoLabel size={8} color={theme.inkGhost}>FROM GAME CARD · ● WHITE</MonoLabel>
+          <MonoLabel size={8} color={theme.inkGhost}>FROM SCREENSHOT · ● WHITE</MonoLabel>
         </View>
 
-        <Pressable onPress={() => pickAndScan('gallery')}
+        <Pressable onPress={pickAndScan}
           disabled={isScanning}
-          style={{ borderWidth: 1, borderColor: theme.steelLight, padding: 14, alignItems: 'center', marginBottom: 8, backgroundColor: theme.surface2 }}>
+          style={{ borderWidth: 1, borderColor: theme.steelLight, padding: 18, alignItems: 'center', marginBottom: 12, backgroundColor: theme.surface2 }}>
           {isScanning ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <ActivityIndicator color={theme.steelLight} size="small" />
               <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>SCANNING...</Text>
             </View>
           ) : (
-            <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>
-              ◎ SCAN PLAYER CARD SCREENSHOT
-            </Text>
+            <>
+              <Text style={{ fontFamily: theme.mono, fontSize: 22, color: theme.steelLight, marginBottom: 6 }}>⊞</Text>
+              <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 1.5, color: theme.steelLight, fontWeight: '700' }}>SCAN PLAYER CARD</Text>
+              <MonoLabel size={9} color={theme.inkGhost} style={{ marginTop: 4 }}>Import stats automatically from a screenshot</MonoLabel>
+            </>
           )}
-        </Pressable>
-
-        {/* Camera option */}
-        <Pressable onPress={() => pickAndScan('camera')} disabled={isScanning}
-          style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, alignItems: 'center', marginBottom: 12 }}>
-          <MonoLabel size={9} color={theme.inkMuted}>◉ USE CAMERA</MonoLabel>
         </Pressable>
 
         {scanMsg !== '' && (
@@ -259,12 +288,14 @@ export default function NewPlayerScreen() {
                     const white = isWhiteStat(selectedRoles, s);
                     return (
                       <View key={s} style={{
-                        paddingHorizontal: 8, paddingVertical: 6,
-                        borderBottomWidth: 1, borderBottomColor: cc + '33',
-                        borderLeftWidth: 2, borderLeftColor: white ? cc : 'transparent',
+                        paddingHorizontal: 8, paddingVertical: 7,
+                        borderBottomWidth: 1, borderBottomColor: white ? cc + '44' : theme.hairline,
+                        borderLeftWidth: white ? 3 : 1,
+                        borderLeftColor: white ? cc : theme.hairline2,
+                        backgroundColor: white ? cc + '1a' : cc + '0a',
                       }}>
-                        <MonoLabel size={7} color={white ? theme.steelLight : theme.inkGhost}>{s}</MonoLabel>
-                        <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: white ? theme.ink : theme.inkMuted }}>
+                        <MonoLabel size={7} color={white ? cc : theme.inkMuted}>{s}</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: white ? '700' : '400', color: white ? theme.ink : theme.inkMuted, marginTop: 2 }}>
                           {statInputs[s]}
                         </Text>
                       </View>
@@ -320,7 +351,7 @@ export default function NewPlayerScreen() {
           {ROLE_GRID.map((row, ri) => (
             <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < ROLE_GRID.length - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
               {row.map((role, ci) => {
-                const sel = role !== null && selectedRoles.includes(role);
+                const st = (positionStates[role ?? ''] ?? 0) as 0 | 1 | 2;
                 return (
                   <Pressable
                     key={`${ri}-${ci}`}
@@ -328,13 +359,15 @@ export default function NewPlayerScreen() {
                     disabled={role === null}
                     style={{
                       flex: 1, paddingVertical: 13, alignItems: 'center',
-                      backgroundColor: sel ? theme.ink : 'transparent',
+                      backgroundColor: st === 2 ? theme.ink : st === 1 ? theme.surface3 : 'transparent',
                       borderRightWidth: ci < 3 ? 1 : 0, borderRightColor: theme.hairline,
                     }}
                   >
                     <Text style={{
                       fontFamily: theme.mono, fontSize: 11, letterSpacing: 1,
-                      color: role ? (sel ? theme.bg : theme.inkSec) : 'transparent',
+                      color: role
+                        ? (st === 2 ? theme.bg : st === 1 ? theme.inkSec : theme.hairline2)
+                        : 'transparent',
                     }}>{role ?? '·'}</Text>
                   </Pressable>
                 );
@@ -370,7 +403,12 @@ export default function NewPlayerScreen() {
 
         {/* TALENT */}
         <View style={{ marginBottom: 20 }}>
-          <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>TALENT TIER</MonoLabel>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <MonoLabel color={theme.steelLight}>TRAINING RATE</MonoLabel>
+            <Pressable onPress={() => Alert.alert('Training Rate', TALENT_INFO)} style={{ marginLeft: 8, width: 16, height: 16, borderRadius: 8, borderWidth: 1, borderColor: theme.steelLight, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.steelLight }}>?</Text>
+            </Pressable>
+          </View>
           <View style={{ flexDirection: 'row', gap: 5 }}>
             {TALENT_TIERS.map(t => {
               const sel = talent === t;
@@ -405,17 +443,14 @@ export default function NewPlayerScreen() {
         {/* STATS GRID */}
         {selectedRoles.length > 0 && (
           <>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <MonoLabel color={theme.steelLight}>STATS</MonoLabel>
-              <MonoLabel size={9} color={theme.inkMuted}>· ● ESSENTIAL</MonoLabel>
-            </View>
+            <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>STATS</MonoLabel>
             <View style={{ flexDirection: 'row', gap: 4, marginBottom: 24 }}>
               {(['DEF', 'ATT', 'PHY'] as const).map(col => {
                 const cc = COL_COLORS[col];
                 const colStats = STAT_COLUMNS[col].filter(s => (statList as readonly string[]).includes(s));
                 return (
-                  <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '66' }}>
-                    <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
+                  <View key={col} style={{ flex: 1, borderWidth: 1, borderColor: cc + '55' }}>
+                    <View style={{ paddingVertical: 6, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
                       <MonoLabel size={8} color={cc}>{col}</MonoLabel>
                     </View>
                     {colStats.map(s => {
@@ -423,11 +458,13 @@ export default function NewPlayerScreen() {
                       return (
                         <View key={s} style={{
                           paddingHorizontal: 8, paddingVertical: 7,
-                          borderBottomWidth: 1, borderBottomColor: cc + '22',
-                          borderLeftWidth: 2, borderLeftColor: w ? cc : cc + '33',
-                          backgroundColor: w ? cc + '12' : 'transparent',
+                          borderBottomWidth: 1,
+                          borderBottomColor: w ? cc + '44' : theme.hairline,
+                          borderLeftWidth: w ? 3 : 1,
+                          borderLeftColor: w ? cc : theme.hairline2,
+                          backgroundColor: w ? cc + '1a' : cc + '0a',
                         }}>
-                          <MonoLabel size={7} color={w ? cc : theme.inkGhost}>{s}</MonoLabel>
+                          <MonoLabel size={7} color={w ? cc : theme.inkMuted}>{s}</MonoLabel>
                           <TextInput
                             keyboardType="numeric"
                             value={statInputs[s] ?? ''}
@@ -437,8 +474,8 @@ export default function NewPlayerScreen() {
                               recomputeOvr(next);
                             }}
                             placeholder="—"
-                            placeholderTextColor={theme.inkGhost}
-                            style={{ padding: 0, color: w ? theme.ink : theme.inkMuted, fontSize: 15, fontFamily: theme.display, fontWeight: w ? '700' : '300' }}
+                            placeholderTextColor={theme.inkMuted}
+                            style={{ padding: 0, marginTop: 2, color: w ? theme.ink : theme.inkMuted, fontSize: 14, fontFamily: theme.mono, fontWeight: w ? '700' : '400' }}
                           />
                         </View>
                       );

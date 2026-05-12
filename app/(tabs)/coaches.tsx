@@ -10,6 +10,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { isWhiteStat, getAllStatKeys, getWhiteStatKeys } from '../../src/utils/roleWeights';
+import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import { applyTierBonusToStats } from '../../src/logic/xpEngine';
@@ -22,7 +23,7 @@ const profile = gameProfileJson as unknown as GameProfile;
 
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = {
-  FT1: 'FT1', FT2: 'FT2', FT3: 'FT3', Normal: 'NORM', Slow: 'SLOW',
+  Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
 };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
@@ -31,120 +32,12 @@ const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
 
-const STAT_COLS = {
-  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
-  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
-  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
-};
-const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
-function statColor(stat: string): string {
-  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
-  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
-  return COL_COLORS.PHY;
-}
 
-function ResultGrid({ gains, white, grey }: {
-  gains: StatGain[];
-  white: string[];
-  grey: string[];
-}) {
-  const gainMap = Object.fromEntries(gains.map(g => [g.stat, g]));
-
-  function renderSection(stats: string[], isWhite: boolean) {
-    const relevant = stats.filter(s => gainMap[s]);
-    if (relevant.length === 0) return null;
-    const rows: string[][] = [];
-    for (let i = 0; i < relevant.length; i += 3) rows.push(relevant.slice(i, i + 3));
-    return (
-      <>
-        {rows.map((row, ri) => (
-          <View key={ri} style={{ flexDirection: 'row', gap: 5, marginBottom: 5 }}>
-            {row.map(stat => {
-              const g = gainMap[stat];
-              const cc = statColor(stat);
-              return (
-                <View key={stat} style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: cc + '55', borderLeftWidth: 2, borderLeftColor: cc, backgroundColor: theme.surface, alignItems: 'center' }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.5, color: isWhite ? cc : theme.inkMuted, textAlign: 'center', marginBottom: 2 }}>{stat}</Text>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkGhost }}>{Math.round(g.from)}</Text>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>+{g.gain}</Text>
-                </View>
-              );
-            })}
-            {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, i) => <View key={i} style={{ flex: 1 }} />)}
-          </View>
-        ))}
-      </>
-    );
-  }
-
-  const whiteSection = renderSection(white, true);
-  const greySection  = renderSection(grey, false);
-  return (
-    <>
-      {whiteSection}
-      {greySection && (
-        <>
-          <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 10, marginBottom: 6 }}>GREY — SECONDARY / NON-ROLE</MonoLabel>
-          {greySection}
-        </>
-      )}
-    </>
-  );
-}
-
-function StatGrid({ stats, player, selectedStats, onToggle, isWhiteSection }: {
-  stats: string[];
-  player: { role: string[]; stats: Record<string, number> };
-  selectedStats: Set<string>;
-  onToggle: (stat: string) => void;
-  isWhiteSection: boolean;
-}) {
-  const rows: string[][] = [];
-  for (let i = 0; i < stats.length; i += 3) {
-    rows.push(stats.slice(i, i + 3));
-  }
-  return (
-    <>
-      {rows.map((row, ri) => (
-        <View key={ri} style={{ flexDirection: 'row', gap: 5, marginBottom: 5 }}>
-          {row.map(stat => {
-            const hasValue = stat in player.stats;
-            const sel = selectedStats.has(stat);
-            const cc = statColor(stat);
-            return (
-              <Pressable key={stat} onPress={() => onToggle(stat)}
-                style={{
-                  flex: 1, paddingHorizontal: 6, paddingVertical: 8,
-                  borderWidth: 1,
-                  borderColor: sel ? cc : (hasValue ? theme.hairline2 : theme.hairline),
-                  borderLeftWidth: 2,
-                  borderLeftColor: sel ? cc : cc + '55',
-                  backgroundColor: sel ? cc + '1a' : 'transparent',
-                  opacity: hasValue ? 1 : (isWhiteSection ? 0.4 : 0.35),
-                  alignItems: 'center',
-                }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 0.6, color: sel ? cc : (hasValue ? theme.inkSec : theme.inkGhost), textAlign: 'center', marginBottom: 3 }}>
-                  {stat}
-                </Text>
-                <Text style={{ fontFamily: theme.mono, fontSize: 12, fontWeight: '700', color: sel ? cc : (hasValue ? theme.ink : theme.inkGhost) }}>
-                  {hasValue ? Math.round(player.stats[stat]) : '—'}
-                </Text>
-              </Pressable>
-            );
-          })}
-          {row.length < 3 && Array.from({ length: 3 - row.length }).map((_, i) => (
-            <View key={`pad-${i}`} style={{ flex: 1 }} />
-          ))}
-        </View>
-      ))}
-    </>
-  );
-}
 
 export default function CoachesScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedId = manager.selectedPlayerId;
   const [sessions, setSessions] = useState('');
   const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<ProjectionResult | null>(null);
@@ -177,7 +70,10 @@ export default function CoachesScreen() {
       const scan = await scanCoachPreview(picked.assets[0].uri);
       const parts: string[] = [];
       if (scan.multiplier) { setSessions(String(scan.multiplier)); parts.push(`×${scan.multiplier}`); }
-      if (scan.stats.length > 0) parts.push(`${scan.stats.length} stats`);
+      if (scan.stats.length > 0) {
+        parts.push(`${scan.stats.length} stats`);
+        setSelectedStats(new Set(scan.stats.map(s => s.statName)));
+      }
       setScanStatus(parts.length > 0 ? `SCANNED: ${parts.join(' · ')}` : 'NOTHING DETECTED');
     } catch {
       setScanStatus('SCAN FAILED');
@@ -203,13 +99,13 @@ export default function CoachesScreen() {
   }, [player]);
 
   const selectPlayer = useCallback((id: string) => {
-    setSelectedId(id);
+    manager.setSelectedPlayerId(id);
     const p = squad.find(s => s.id === id);
     setSelectedStats(p ? new Set(getWhiteStatKeys(p.role)) : new Set());
     setResult(null);
     setSelectedTier(null);
     setSaveConfirmed(false);
-  }, [squad]);
+  }, [squad, manager]);
 
   const toggleStat = useCallback((stat: string) => {
     setSelectedStats(prev => {
@@ -374,24 +270,21 @@ export default function CoachesScreen() {
                 )}
               </View>
 
-              {/* White stats — 3-column grid */}
-              <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>WHITE — ESSENTIAL (+1.0 XP)</MonoLabel>
-              <StatGrid stats={white} player={player} selectedStats={selectedStats} onToggle={toggleStat} isWhiteSection={true} />
-
-              {/* Grey stats — 3-column grid */}
-              {grey.length > 0 && (
-                <>
-                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 12, marginBottom: 8 }}>GREY — SECONDARY / NON-ROLE (+0.5 XP)</MonoLabel>
-                  <StatGrid stats={grey} player={player} selectedStats={selectedStats} onToggle={toggleStat} isWhiteSection={false} />
-                </>
-              )}
+              <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>HIGHLIGHTED = ESSENTIAL · DIM = SECONDARY</MonoLabel>
+              <StatGrid3Col
+                statKeys={[...white, ...grey]}
+                roles={player.role}
+                values={player.stats}
+                selected={selectedStats}
+                onToggle={toggleStat}
+              />
             </View>
 
             {/* Project + Scan buttons */}
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
               <Pressable onPress={runProjection}
-                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.ink : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.surface2 : 'transparent' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: selectedStats.size > 0 ? theme.ink : theme.inkGhost }}>
+                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.steelLight : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.steelLight : 'transparent' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: selectedStats.size > 0 ? theme.bg : theme.inkGhost }}>
                   ▶ PROJECT
                 </Text>
               </Pressable>
@@ -451,9 +344,14 @@ export default function CoachesScreen() {
                     </View>
                   )}
 
-                  {/* Per-stat breakdown — grid layout */}
+                  {/* Per-stat breakdown — 3-col grid */}
                   {result.gains.length > 0 ? (
-                    <ResultGrid gains={result.gains} white={white} grey={grey} />
+                    <StatGrid3Col
+                      statKeys={result.gains.map(g => g.stat)}
+                      roles={player.role}
+                      values={Object.fromEntries(result.gains.map(g => [g.stat, g.from]))}
+                      gains={Object.fromEntries(result.gains.map(g => [g.stat, g.gain]))}
+                    />
                   ) : (
                     <View style={{ paddingVertical: 12, alignItems: 'center' }}>
                       <MonoLabel color={theme.inkGhost}>NO GAINS — ENTER STAT VALUES ON PLAYER PROFILE</MonoLabel>

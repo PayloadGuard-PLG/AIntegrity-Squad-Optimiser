@@ -33,7 +33,7 @@
 |---|---|---|
 | F17 | Warning said "Slow trainer (age X)" for all ages ≥20 | `ovrProjector.ts`: now shows actual age multiplier ("Age 21 — multiplier 0.40×"); separate Slow talent warning added |
 | F18 | Zero-drain never triggered at L4 | `controller.ts`: `isZeroDrain = fanClubLevel === 4 && drillLevel === 'Very Easy'` — L4+Very Easy now returns 0% |
-| F19 | FT1/FT2/FT3 talent labels were opaque | `plan.tsx`: chips now show "FT2 ×1.25" etc. |
+| F19 | Fastest/Fast/Average talent labels were opaque | `plan.tsx`: chips now show "Fast ×1.25" etc. |
 | F20 | Drills tab had no drill level input | `drills.tsx`: drill level selector added; feeds zero-drain and condition cost display |
 | F21 | OTA push failed on multi-line commit messages | `.github/workflows/eas-update.yml`: message via env var, not inline template |
 

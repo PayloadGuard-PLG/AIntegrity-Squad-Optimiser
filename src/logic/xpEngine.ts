@@ -2,10 +2,11 @@ import { GameProfile, TalentTier, TierName } from '../types/resources';
 
 /**
  * Returns the XP cost per 1% stat gain at a given stat value.
- * Returns Infinity when statValue >= profile.rule180StatCap (180-rule).
+ * Returns Infinity when no table entry matches (stat is beyond all defined ranges).
+ * Training lock (base OVR >= maxBaseOvr) is enforced at the player level in projectOvr,
+ * not here — individual stats above 180 are valid when a tier bonus carried them there.
  */
 export function xpBaseForStat(statValue: number, profile: GameProfile): number {
-  if (statValue >= profile.rule180StatCap) return Infinity;
   for (const entry of profile.xpCostTable) {
     if (statValue >= entry.statMin && statValue <= entry.statMax) {
       return entry.xpPer1Pct === -1 ? Infinity : entry.xpPer1Pct;
@@ -96,14 +97,16 @@ export function statsToQualityPct(
   return sum / profile.totalAttributeCount;
 }
 
-/** OVR = Quality% / qualityOvrDivisor */
+/** OVR = floor(Quality% / qualityOvrDivisor) — engine truncates, not rounds */
 export function qualityPctToOvr(qualityPct: number, profile: GameProfile): number {
-  return Number((qualityPct / profile.qualityOvrDivisor).toFixed(1));
+  return Math.floor(qualityPct / profile.qualityOvrDivisor);
 }
 
 /**
  * Applies a tier upgrade by adding the INCREMENTAL bonus to role stats (white+grey).
- * Off-role stats (present in player's stats but not in roleStatKeys) get a flat +1.
+ * Off-role stats receive NO change — the game description says "all key attributes"
+ * and this is confirmed from live screenshots (Heading + Strength stayed flat for
+ * a DL/ML/AML player going Elite→Stellar).
  * The incremental is: tierAttrAdditions[targetTier] - tierAttrAdditions[fromTier].
  * Pass fromTier = player's current tier so only the net gain is applied.
  * Returns a new stats object (does not mutate input).
@@ -125,10 +128,8 @@ export function applyTierBonusToStats(
   for (const key of Object.keys(updated)) {
     if (roleSet.has(key)) {
       updated[key] = Math.min(updated[key] + increment, profile.statCap);
-    } else {
-      // off-role stat: game applies flat +1 per tier upgrade
-      updated[key] = Math.min(updated[key] + 1, profile.statCap);
     }
+    // off-role stats: unchanged — tier bonus applies to key attributes only
   }
   return updated;
 }

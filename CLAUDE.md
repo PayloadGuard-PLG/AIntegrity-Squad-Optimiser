@@ -7,7 +7,7 @@ Persistent findings from game-play analysis and OCR debugging. Read this before 
 ## Game Layout: Coach Preview Screen
 
 ### Stat Grid — 3-Column Layout
-The in-game coach preview shows stats in **3 side-by-side columns**:
+The coach preview shows stats in **3 side-by-side columns**:
 
 ```
 DEFENSE          ATTACK           PHYSICAL & MENTAL
@@ -113,36 +113,78 @@ The scanner captures it correctly; the UI shows it in a "DETECTED — NOT IN ROL
 ## Drill System
 
 ### Intensity Levels (Fixed Per Drill)
-Each drill has one fixed `DrillIntensity` level matching the in-game difficulty selector.
+Each drill has one fixed `DrillIntensity` level per drill.
 The drills tab filters to `d.intensity === drillLevel` — it does NOT weight by intensity.
 
 | Intensity | Drills |
 |---|---|
-| Very Easy | Ball Control, Video Analysis, Warm-Up |
-| Easy | Shooting Technique, Set-Piece Delivery, Slalom Dribble, 1-on-1 Finishing, Head It, Porky in Centre, Defensive Line, Defending Crosses, Hold Shape, Hurdles, Stretch, Carioca with Ladders, Hurdle Jumps |
-| Medium | Move & Finish, Press Up, Stop the Attacker, Sprints, Shuttle Runs |
-| Hard | Wing Play, Fast Counter-Attacks, Long Run |
-| Very Hard | Gym |
+| Very Easy | Touch Training, Tactical Review, Activation |
+| Easy | Target Practice, Dead Ball Practice, Cone Weave, Solo Finish, Aerial Work, Porky in Centre, Back Line Drill, Box Clearance, Compact Block, Hurdle Work, Flexibility Session, Footwork Ladder, Plyometrics |
+| Medium | Run & Strike, Pressure Trap, Challenge Drill, Speed Work, Interval Runs |
+| Hard | Wide Channel, Break Away, Endurance Loop |
+| Very Hard | Weight Room |
 
-### Drill Renames (IP-Safe)
-| Original name | Current name | Notes |
-|---|---|---|
-| Skill Drill | Ball Control | Renamed to First Touch Play (Sprint 11), then to Ball Control (Sprint 15, user confirmed) |
-| Piggy in the Middle | Porky in Centre | User explicitly confirmed this style |
-| Pass, Go & Shoot | Move & Finish | |
-| Use Your Head | Head It | |
-| Press the Play | Press Up | |
-| Hold the Line | Hold Shape | |
+Touch Training trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`, intensity Very Easy, baseLoss 0.75.
 
-Ball Control trains: `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']`, intensity Very Easy, baseLoss 0.75.
+### Condition Drain Formula (calibrated from game screenshots)
+
+```
+actualLoss = baseLoss × intensityMultiplier × (1 - fanReduction / 100)
+```
+
+| Intensity | baseLoss | Multiplier | Drain L0 (−10%) | Drain L4 (−50%) |
+|---|---|---|---|---|
+| Very Easy | 0.75 | ×1 | 0.675% | **0.375% → ZERO DRAIN** |
+| Easy | 0.75 | ×2 | 1.35% | 0.75% |
+| Medium | 0.75 | ×3 | 2.025% | 1.125% |
+| Hard | 0.75 | ×4 | 2.70% | 1.50% |
+| Very Hard | 0.75 | ×5 | 3.375% | 1.875% |
+
+Fan club reductions: `{ L0: 10%, L1: 15%, L2: 20%, L3: 25%, L4: 50% }` — confirmed from screenshots.
+Zero-drain threshold: `actualLoss < 0.38` — only Very Easy at L4 (0.375%) qualifies.
+Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clamping needed.
+
+**Items needing further calibration** (marked UNCONFIRMED):
+- Age penalty on training rate — formula unknown
+- XP cost curve above stat 100 — only Infinity at ≥180 confirmed
+- Exact training rate multipliers for talent tiers beyond Normal/Slow
 
 ---
 
 ## Architecture Notes
 
-- **OVR formula**: `qualityPct / divisor` where divisor=1 in current game profile
-- **180-rule**: stats at or above 180 yield `Infinity` XP cost — treated as hard cap
+### OVR Formula (confirmed from live game data)
+
+OVR is computed in two parts and added:
+```
+base_quality   = min(180, floor(sum_of_base_stats / 15))
+tier_contrib   = floor(tier_bonus × key_stat_count / 15)
+total_OVR      = base_quality + tier_contrib
+```
+
+The game UI displays this split explicitly (e.g. "290 OVR = 152 + 138 Tier increase").
+In code: `floor(sum_of_all_stats / 15)` produces the same result because tier bonuses are
+baked into stats — the two representations are equivalent.
+
+### 180-Rule (training lock)
+
+**The 180 refers to BASE OVR (star quality), not individual stat values.**
+
+- Stars/quality max = **180** (10 stars). Displayed as "Maximum star quality is 180."
+- When base OVR ≥ 180: training via drills and academy coaches is **fully locked** (TRAIN button absent, MAX STARS shown)
+- Tier bonuses push total OVR well beyond 180 — this is expected and normal (e.g. Neri at 290)
+- When seasonal decay drops base OVR below 180, training resumes
+- Individual stats CAN exceed 180 (Shooting 436, Finishing 446 seen in data) — the cap is on the average
+
+Enforced in `src/logic/ovrProjector.ts`: `projectOvr()` checks base OVR before drill simulation.
+The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
+
+### Other Notes
+
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
-- **Tier bonus = flat attribute addition** to each white stat (NOT a direct OVR boost)
-- **Condition (greens)**: restores condition only — zero OVR change
-- **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0005 (tier rename)
+- **Tier bonus** applies to ALL key (role) attributes only — off-role stats receive 0 (confirmed from game data)
+- **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
+- **Condition (greens)**: restores condition only — zero OVR change; +15% per green (confirmed)
+- **Seasonal decay**: ~20% base OVR drop per season (unmodeled — affects base quality, not tier)
+- **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0006 (drill_presets)
+- **Drill Presets**: stored in `drill_presets` table; service at `src/services/drillPresetService.ts`

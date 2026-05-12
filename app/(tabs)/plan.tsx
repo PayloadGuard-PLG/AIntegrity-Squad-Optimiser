@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import { useState, useMemo, useEffect } from 'react';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -13,12 +13,14 @@ import { calculateFixtureCycles, calculateTeamPlayPlan, calculateGreensBridge } 
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar } from '../../src/types/resources';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
+import { drillPresetService, DrillPreset } from '../../src/services/drillPresetService';
 import gameProfile from '../../profiles/game_2025.json';
 
-const TALENT_TIERS: TalentTier[] = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
 const TALENT_LABEL: Record<TalentTier, string> = {
-  FT1: 'FT1 ×1.50', FT2: 'FT2 ×1.25', FT3: 'FT3 ×1.10', Normal: 'Normal ×1.00', Slow: 'Slow ×0.70',
+  Fastest: 'Fastest ×1.5', Fast: 'Fast ×1.25', Average: 'Average ×1.1', Normal: 'Normal ×1.0', Slow: 'Slow ×0.7',
 };
+const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — learns 50% faster than normal\nFast ×1.25 — learns 25% faster\nAverage ×1.1 — learns 10% faster\nNormal ×1.0 — standard rate\nSlow ×0.7 — learns 30% slower\n\nDetected automatically from player card scan. Age reduces training rate separately.';
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
@@ -29,7 +31,7 @@ const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 
 type Section = 'drills' | 'resources' | 'tier' | 'teamplay';
 
 function newDrill(): DrillSession {
-  return { drillName: 'Skill Drill', sessionCount: 6, drillLevel: 'Medium' };
+  return { drillName: 'Touch Training', sessionCount: 6, drillLevel: 'Very Easy' };
 }
 
 function StepRail({ steps }: { steps: InvestmentStep[] }) {
@@ -68,21 +70,24 @@ function StepRail({ steps }: { steps: InvestmentStep[] }) {
 export default function PlanScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [drillRows, setDrillRows] = useState<DrillSession[]>([newDrill()]);
+  const selectedId = manager.selectedPlayerId;
+  const setSelectedId = (id: string | null) => { manager.setSelectedPlayerId(id); invalidate(); };
+  const [drillRows, setDrillRows] = useState<DrillSession[]>([]);
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [twoxAd, setTwoxAd] = useState(false);
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [greens, setGreens] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
-  const [matchdayCoachActive, setMatchdayCoachActive] = useState(false);
+  const [matchAdvisorActive, setMatchAdvisorActive] = useState(false);
   const [targetTier, setTargetTier] = useState<TierName | null>(null);
   const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
     Object.fromEntries(TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : '']))
   );
   const [section, setSection] = useState<Section>('drills');
   const [plan, setPlan] = useState<InvestmentPlan | null>(null);
+  const [showPresetPicker, setShowPresetPicker] = useState(false);
+  const [savedPresets, setSavedPresets] = useState<DrillPreset[]>([]);
   const [fixtureHours, setFixtureHours] = useState('');
   const [fixtureCooldown, setFixtureCooldown] = useState('60');
   const [teamPlayInputs, setTeamPlayInputs] = useState<Partial<Record<TeamPlayPillar, string>>>({});
@@ -90,6 +95,9 @@ export default function PlanScreen() {
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   function invalidate() { setPlan(null); }
+
+  // Invalidate projection when player changes from another tab
+  useEffect(() => { setPlan(null); }, [selectedId]);
 
   const fixtureWindow = useMemo(() => {
     const h = parseFloat(fixtureHours);
@@ -103,8 +111,8 @@ export default function PlanScreen() {
       TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
     ) as Partial<Record<TeamPlayPillar, number>>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return calculateTeamPlayPlan(pillars, matchdayCoachActive, gameProfile as any);
-  }, [teamPlayInputs, matchdayCoachActive]);
+    return calculateTeamPlayPlan(pillars, matchAdvisorActive, gameProfile as any);
+  }, [teamPlayInputs, matchAdvisorActive]);
 
   const greensBridge = useMemo(() => {
     if (!fixtureWindow || greens === 0) return null;
@@ -142,7 +150,7 @@ export default function PlanScreen() {
       style,
       tierPoints,
       greens, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
-      matchdayCoachActive,
+      matchAdvisorActive,
       teamPlayPillars: Object.fromEntries(
         TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
       ) as Partial<Record<TeamPlayPillar, number>>,
@@ -187,7 +195,7 @@ export default function PlanScreen() {
             {squad.map(p => {
               const sel = p.id === selectedId;
               return (
-                <Pressable key={p.id} onPress={() => { setSelectedId(p.id); invalidate(); }} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
+                <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
                   <Text style={{ fontSize: 12, color: sel ? theme.ink : theme.inkMuted, fontWeight: sel ? '600' : '400', fontFamily: theme.display, marginBottom: 2 }}>{p.name}</Text>
                   <MonoLabel size={8}>{p.overall} · {p.role[0]}</MonoLabel>
                 </Pressable>
@@ -223,6 +231,12 @@ export default function PlanScreen() {
           </View>
         )}
 
+        <View style={{ marginVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 }}>
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline2 }} />
+          <MonoLabel size={8} color={theme.inkGhost}>PROJECTION OUTPUT</MonoLabel>
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline2 }} />
+        </View>
+
         <View style={{ padding: 16, paddingBottom: 0 }}>
 
           {/* Section tab bar — 4 tabs */}
@@ -247,7 +261,10 @@ export default function PlanScreen() {
               <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
-                  <MonoLabel size={10} color={theme.steelLight}>TALENT</MonoLabel>
+                  <MonoLabel size={10} color={theme.steelLight}>TRAINING RATE</MonoLabel>
+                  <Pressable onPress={() => Alert.alert('Training Rate', TALENT_INFO)} style={{ marginLeft: 8, width: 16, height: 16, borderRadius: 8, borderWidth: 1, borderColor: theme.steelLight, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.steelLight }}>?</Text>
+                  </Pressable>
                 </View>
                 <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                   {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => { setTalent(t); invalidate(); }}>{TALENT_LABEL[t]}</Chip>)}
@@ -305,9 +322,14 @@ export default function PlanScreen() {
                     </View>
                   </View>
                 ))}
-                <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
-                </Pressable>
+                <View style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, flexDirection: 'row' }}>
+                  <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ flex: 1, padding: 12, alignItems: 'center', backgroundColor: theme.surface, borderRightWidth: 1, borderRightColor: theme.hairline2 }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
+                  </Pressable>
+                  <Pressable onPress={() => { setSavedPresets(drillPresetService.getAll()); setShowPresetPicker(true); }} style={{ paddingHorizontal: 16, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: theme.hot }}>LOAD PRESET</Text>
+                  </Pressable>
+                </View>
               </View>
 
               {/* FIXTURE WINDOW card */}
@@ -412,11 +434,11 @@ export default function PlanScreen() {
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: isPremiumSponsor ? theme.hot : theme.ink }}>PREMIUM SPONSOR</Text>
               </Pressable>
 
-              {/* MATCHDAY COACH toggle */}
-              <Pressable onPress={() => { setMatchdayCoachActive(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: matchdayCoachActive ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
-                <View style={{ width: 16, height: 16, backgroundColor: matchdayCoachActive ? theme.hot : 'transparent', borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot : theme.hairline3 }} />
+              {/* MATCH ADVISOR toggle */}
+              <Pressable onPress={() => { setMatchAdvisorActive(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: matchAdvisorActive ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: matchAdvisorActive ? theme.hot : theme.hairline2, padding: 14, paddingHorizontal: 14 }}>
+                <View style={{ width: 16, height: 16, backgroundColor: matchAdvisorActive ? theme.hot : 'transparent', borderWidth: 1, borderColor: matchAdvisorActive ? theme.hot : theme.hairline3 }} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: matchdayCoachActive ? theme.hot : theme.ink }}>MATCHDAY COACH</Text>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: matchAdvisorActive ? theme.hot : theme.ink }}>MATCH ADVISOR</Text>
                   <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkSec, marginTop: 2, letterSpacing: 0.5 }}>PREMIUM · ALL DRILLS ADVANCE TEAM PLAY</Text>
                 </View>
               </Pressable>
@@ -490,11 +512,11 @@ export default function PlanScreen() {
               </View>
 
               {/* TEAM PLAY PLAN card */}
-              <View style={{ borderWidth: 1, borderColor: matchdayCoachActive ? theme.hot + '88' : theme.hairline2, marginBottom: 10 }}>
+              <View style={{ borderWidth: 1, borderColor: matchAdvisorActive ? theme.hot + '88' : theme.hairline2, marginBottom: 10 }}>
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 3, height: 12, backgroundColor: matchdayCoachActive ? theme.hot : theme.steelLight, marginRight: 8 }} />
+                  <View style={{ width: 3, height: 12, backgroundColor: matchAdvisorActive ? theme.hot : theme.steelLight, marginRight: 8 }} />
                   <MonoLabel size={10} color={theme.steelLight}>MAINTENANCE PLAN</MonoLabel>
-                  {matchdayCoachActive && (
+                  {matchAdvisorActive && (
                     <>
                       <View style={{ flex: 1 }} />
                       <MonoLabel size={9} color={theme.hot}>COACH ACTIVE</MonoLabel>
@@ -546,6 +568,49 @@ export default function PlanScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Preset Picker Modal */}
+      <Modal visible={showPresetPicker} transparent animationType="slide" onRequestClose={() => setShowPresetPicker(false)}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.hairline2, maxHeight: '70%' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.hairline2 }}>
+              <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>LOAD PRESET</MonoLabel>
+              <Pressable onPress={() => setShowPresetPicker(false)} style={{ paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.hairline2 }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.inkSec }}>CLOSE</Text>
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={{ padding: 14, gap: 8 }}>
+              {savedPresets.length === 0 ? (
+                <View style={{ padding: 40, alignItems: 'center' }}>
+                  <MonoLabel color={theme.inkGhost}>NO SAVED PRESETS</MonoLabel>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.inkGhost, marginTop: 6, letterSpacing: 0.5, textAlign: 'center' }}>Build a preset on the Drills tab first.</Text>
+                </View>
+              ) : (
+                savedPresets.map(preset => (
+                  <Pressable key={preset.id} onPress={() => {
+                    const newRows: DrillSession[] = preset.drillNames.map(name => ({ drillName: name, sessionCount: 6, drillLevel: 'Very Easy' as DrillLevel }));
+                    setDrillRows(rows => [...rows.filter(r => r.drillName !== 'Touch Training' || rows.length > 1), ...newRows].slice(0, 12));
+                    invalidate();
+                    setShowPresetPicker(false);
+                  }} style={{ borderWidth: 1, borderColor: theme.hairline2, backgroundColor: theme.surface, padding: 12, paddingHorizontal: 14 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                      <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: theme.ink, fontFamily: theme.display }}>{preset.name}</Text>
+                      <MonoLabel size={9} color={theme.inkGhost}>{preset.drillNames.length} DRILLS</MonoLabel>
+                    </View>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+                      {preset.drillNames.map(n => (
+                        <View key={n} style={{ paddingHorizontal: 6, paddingVertical: 3, borderWidth: 1, borderColor: theme.hairline3 }}>
+                          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: theme.inkSec }}>{n}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </Pressable>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
