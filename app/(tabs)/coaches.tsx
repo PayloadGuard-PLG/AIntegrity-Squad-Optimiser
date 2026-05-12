@@ -283,8 +283,8 @@ export default function CoachesScreen() {
             {/* Project + Scan buttons */}
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
               <Pressable onPress={runProjection}
-                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.ink : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.surface2 : 'transparent' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: selectedStats.size > 0 ? theme.ink : theme.inkGhost }}>
+                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.steelLight : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.steelLight : 'transparent' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: selectedStats.size > 0 ? theme.bg : theme.inkGhost }}>
                   ▶ PROJECT
                 </Text>
               </Pressable>

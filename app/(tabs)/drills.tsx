@@ -7,6 +7,7 @@ import { Chip } from '../../src/components/atoms/Chip';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { theme } from '../../src/constants/theme';
+import { FanLevel } from '../../src/types/resources';
 
 const INTENSITY_COLORS: Record<string, string> = {
   'Very Easy': '#34d399',
@@ -19,7 +20,7 @@ const INTENSITY_COLORS: Record<string, string> = {
 export default function DrillsScreen() {
   const { squad } = useSquad();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [fanLevel, setFanLevel] = useState(2);
+  const [fanLevel, setFanLevel] = useState<FanLevel>(2);
   const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
 
   // Preset mode
@@ -97,7 +98,7 @@ export default function DrillsScreen() {
           {drills.some(d => d.isZeroDrain) && <MonoLabel size={9} color={theme.pos}>ZERO-DRAIN UNLOCKED</MonoLabel>}
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 18, borderWidth: 1, borderColor: theme.hairline2 }}>
-          {[0, 1, 2, 3, 4].map(l => {
+          {([0, 1, 2, 3, 4] as FanLevel[]).map(l => {
             const sel = fanLevel === l;
             return (
               <Pressable key={l} onPress={() => setFanLevel(l)} style={{
@@ -159,6 +160,7 @@ export default function DrillsScreen() {
                   backgroundColor: presetMode && isSelected ? 'rgba(251,146,60,0.08)' : theme.surface,
                   padding: 12, paddingHorizontal: 14,
                 }}>
+                  {/* Row 1: index · type · intensity · name · EFF · COND */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     {presetMode ? (
                       <View style={{ width: 22, height: 22, borderWidth: 1, borderColor: isSelected ? theme.hot : theme.hairline2, alignItems: 'center', justifyContent: 'center', backgroundColor: isSelected ? theme.hot : 'transparent' }}>
@@ -174,47 +176,33 @@ export default function DrillsScreen() {
                     <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: tc + '55' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
                     </View>
-                    <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: ic + '55' }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: ic }}>{d.intensity.toUpperCase()}</Text>
-                    </View>
-                    <Text style={{ flex: 1, fontSize: 14, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
-                    {avgStatLabel && (
-                      <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkGhost }}>{avgStatLabel}</Text>
-                    )}
-                    {isZero && (
-                      <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: theme.pos + '55' }}>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.pos }}>ZERO·DRAIN</Text>
+                    <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
+                    {/* Efficiency — primary metric */}
+                    <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{eff}%</Text>
+                    <MonoLabel size={8} color={theme.inkGhost}>EFF</MonoLabel>
+                    {/* Condition cost */}
+                    {isZero ? (
+                      <View style={{ paddingHorizontal: 5, paddingVertical: 2, borderWidth: 1, borderColor: theme.pos + '66', backgroundColor: theme.pos + '12' }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.pos }}>0·DRAIN</Text>
                       </View>
+                    ) : (
+                      <>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: condCost < 2 ? theme.hot : theme.neg }}>{condCost.toFixed(2)}%</Text>
+                        <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>
+                      </>
                     )}
                   </View>
 
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                  {/* Row 2: stat chips — secondary info */}
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
                     {d.whiteHits.map(({ stat, white }) => (
-                      <Text key={stat} style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: white ? theme.steelLight : theme.inkGhost }}>
+                      <Text key={stat} style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 0.6, color: white ? theme.steelLight : theme.inkGhost }}>
                         {white ? '●' : '○'} {stat}
                       </Text>
                     ))}
-                  </View>
-
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <MonoLabel size={9}>EFFICIENCY</MonoLabel>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '600', color: theme.pos }}>{eff}%</Text>
-                      </View>
-                      <View style={{ height: 3, backgroundColor: theme.surface3 }}>
-                        <View style={{ width: `${eff}%` as any, height: '100%', backgroundColor: theme.pos }} />
-                      </View>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <MonoLabel size={9}>COND·LOSS</MonoLabel>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '600', color: condCost === 0 ? theme.pos : condCost < 2 ? theme.hot : theme.neg }}>{condCost.toFixed(2)}%</Text>
-                      </View>
-                      <View style={{ height: 3, backgroundColor: theme.surface3 }}>
-                        <View style={{ width: `${Math.min(100, condCost * 20)}%` as any, height: '100%', backgroundColor: condCost === 0 ? theme.pos : condCost < 2 ? theme.hot : theme.neg }} />
-                      </View>
-                    </View>
+                    {avgStatLabel && (
+                      <Text style={{ fontFamily: theme.mono, fontSize: 8, color: theme.inkGhost, marginLeft: 4 }}>{avgStatLabel}</Text>
+                    )}
                   </View>
                 </Pressable>
               );

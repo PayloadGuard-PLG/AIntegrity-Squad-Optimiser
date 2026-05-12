@@ -11,6 +11,7 @@
     "test": "tsx tests/drill-logic-test.ts",
     "test:storage": "tsx tests/storage-test.ts",
     "test:logic": "tsx tests/logic-test.ts",
+    "test:engine": "tsx tests/engine-test.ts",
     "db:generate": "drizzle-kit generate",
     "typecheck": "tsc --noEmit"
   },

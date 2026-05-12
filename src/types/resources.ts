@@ -85,6 +85,8 @@ export interface ManagerProfile {
 
 export type TierName = 'T0' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5' | 'T6';
 
+export type FanLevel = 0 | 1 | 2 | 3 | 4;
+
 // --- Team Play ---
 
 export type TeamPlayPillar = 'attack' | 'defence' | 'possession' | 'condition';

@@ -120,18 +120,11 @@ export default function EditPlayerScreen() {
     setSelectedRoles(next);
   }
 
-  async function rescanStats(from: 'gallery' | 'camera') {
+  async function rescanStats(_from: 'gallery') {
     try {
-      let result: ImagePicker.ImagePickerResult;
-      if (from === 'camera') {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
-        result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
-      } else {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-        result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-      }
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
       if (result.canceled || !result.assets?.[0]?.uri) return;
 
       setScanOk(false);
@@ -378,10 +371,6 @@ export default function EditPlayerScreen() {
             ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><ActivityIndicator color={theme.steelLight} size="small" /><Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>SCANNING...</Text></View>
             : <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>◎ SCAN UPDATED PLAYER CARD</Text>
           }
-        </Pressable>
-        <Pressable onPress={() => rescanStats('camera')} disabled={isScanning}
-          style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, alignItems: 'center', marginBottom: 10 }}>
-          <MonoLabel size={9} color={theme.inkMuted}>◉ USE CAMERA</MonoLabel>
         </Pressable>
         {scanMsg !== '' && (
           <View style={{ padding: 10, borderWidth: 1, borderColor: (scanOk ? theme.pos : theme.neg) + '55', backgroundColor: (scanOk ? theme.pos : theme.neg) + '0d', marginBottom: 12 }}>

@@ -231,6 +231,12 @@ export default function PlanScreen() {
           </View>
         )}
 
+        <View style={{ marginVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 }}>
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline2 }} />
+          <MonoLabel size={8} color={theme.inkGhost}>PROJECTION OUTPUT</MonoLabel>
+          <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline2 }} />
+        </View>
+
         <View style={{ padding: 16, paddingBottom: 0 }}>
 
           {/* Section tab bar — 4 tabs */}

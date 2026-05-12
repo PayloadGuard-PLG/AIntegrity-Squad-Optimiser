@@ -2,8 +2,9 @@ import { isWhiteStat, validateRoleAdjacency, getWhiteStatKeys } from '../utils/r
 import { DRILL_LIST } from '../database/drillDatabase';
 import { calculateActualLoss } from '../utils/conditionEngine';
 import { Player } from '../database/playerSchema';
+import { FanLevel } from '../types/resources';
 
-export function getRecommendedDrills(player: Player, fanClubLevel: number = 4) {
+export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4) {
     if (!validateRoleAdjacency(player.role)) {
         throw new Error(`Invalid combination: Roles must be adjacent.`);
     }

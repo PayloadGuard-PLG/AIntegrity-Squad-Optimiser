@@ -111,18 +111,11 @@ export default function NewPlayerScreen() {
     }
   }
 
-  async function pickAndScan(from: 'camera' | 'gallery') {
+  async function pickAndScan() {
     try {
-      let result: ImagePicker.ImagePickerResult;
-      if (from === 'camera') {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') { Alert.alert('Permission required', 'Allow camera access in settings.'); return; }
-        result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8 });
-      } else {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-        result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-      }
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
       if (result.canceled || !result.assets?.[0]?.uri) return;
 
       const uri = result.assets[0].uri;
@@ -253,25 +246,21 @@ export default function NewPlayerScreen() {
           <MonoLabel size={8} color={theme.inkGhost}>FROM SCREENSHOT · ● WHITE</MonoLabel>
         </View>
 
-        <Pressable onPress={() => pickAndScan('gallery')}
+        <Pressable onPress={pickAndScan}
           disabled={isScanning}
-          style={{ borderWidth: 1, borderColor: theme.steelLight, padding: 14, alignItems: 'center', marginBottom: 8, backgroundColor: theme.surface2 }}>
+          style={{ borderWidth: 1, borderColor: theme.steelLight, padding: 18, alignItems: 'center', marginBottom: 12, backgroundColor: theme.surface2 }}>
           {isScanning ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <ActivityIndicator color={theme.steelLight} size="small" />
               <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>SCANNING...</Text>
             </View>
           ) : (
-            <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>
-              ◎ SCAN PLAYER CARD SCREENSHOT
-            </Text>
+            <>
+              <Text style={{ fontFamily: theme.mono, fontSize: 22, color: theme.steelLight, marginBottom: 6 }}>⊞</Text>
+              <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 1.5, color: theme.steelLight, fontWeight: '700' }}>SCAN PLAYER CARD</Text>
+              <MonoLabel size={9} color={theme.inkGhost} style={{ marginTop: 4 }}>Import stats automatically from a screenshot</MonoLabel>
+            </>
           )}
-        </Pressable>
-
-        {/* Camera option */}
-        <Pressable onPress={() => pickAndScan('camera')} disabled={isScanning}
-          style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, alignItems: 'center', marginBottom: 12 }}>
-          <MonoLabel size={9} color={theme.inkMuted}>◉ USE CAMERA</MonoLabel>
         </Pressable>
 
         {scanMsg !== '' && (

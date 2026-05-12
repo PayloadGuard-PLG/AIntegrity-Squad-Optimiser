@@ -207,18 +207,12 @@ export default function CoachCaptureScreen() {
 
         {/* 0. SCREENSHOT SCAN */}
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Pressable onPress={pickFromCamera} disabled={isScanning}
-              style={{ flex: 1, padding: 16, alignItems: 'center', borderRightWidth: 1, borderRightColor: theme.hairline }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>◉</Text>
-              <MonoLabel size={9} color={theme.steelLight}>CAMERA</MonoLabel>
-            </Pressable>
-            <Pressable onPress={pickFromGallery} disabled={isScanning}
-              style={{ flex: 1, padding: 16, alignItems: 'center' }}>
-              <Text style={{ fontFamily: theme.mono, fontSize: 18, color: theme.steelLight, marginBottom: 4 }}>⊞</Text>
-              <MonoLabel size={9} color={theme.steelLight}>GALLERY</MonoLabel>
-            </Pressable>
-          </View>
+          <Pressable onPress={pickFromGallery} disabled={isScanning}
+            style={{ padding: 18, alignItems: 'center' }}>
+            <Text style={{ fontFamily: theme.mono, fontSize: 22, color: theme.steelLight, marginBottom: 6 }}>⊞</Text>
+            <MonoLabel size={10} color={theme.steelLight}>SCAN COACH SCREENSHOT</MonoLabel>
+            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>Select from photo library</MonoLabel>
+          </Pressable>
           {isScanning && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderTopWidth: 1, borderTopColor: theme.hairline }}>
               <ActivityIndicator size="small" color={theme.steelLight} />

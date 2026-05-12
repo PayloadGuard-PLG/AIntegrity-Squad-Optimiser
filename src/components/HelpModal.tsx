@@ -30,7 +30,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'What is a tier?',
-    a: 'Tiers (T0–T6) represent quality levels for players. Higher tiers add a flat bonus to white stats and reduce XP costs. T0 = base, T6 = Legendary.',
+    a: 'Tiers (T0–T6) represent quality levels for players. Higher tiers add a flat attribute bonus to all role-relevant stats. T0 = base quality, T6 = maximum quality.',
   },
   {
     q: 'What is ROI in the drill list?',
