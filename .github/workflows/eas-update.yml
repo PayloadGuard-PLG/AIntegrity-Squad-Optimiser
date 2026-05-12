@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/continue-development-uXA5D
-      - claude/continue-session-UHXEX
 
 jobs:
   update:
@@ -26,7 +24,7 @@ jobs:
         run: npm ci
 
       - name: Push OTA update
-        run: npx eas-cli update --branch preview --message "$COMMIT_MSG" --non-interactive
+        run: npx eas-cli update --branch preview --platform android --message "$COMMIT_MSG" --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
