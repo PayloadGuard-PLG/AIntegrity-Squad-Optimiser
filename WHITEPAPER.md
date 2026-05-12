@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 1.1 — Sprint 14**
+**Version 1.2 — Sprint 16**
 
 ---
 
@@ -162,25 +162,20 @@ No star decay is applied (`starDecayPerSession = 1.0`). Real training data (Stan
 
 ## 4. Tier Upgrade Model
 
-Tier upgrades are applied after all drills. The bonus is a flat attribute addition per **role stat** (white + grey); off-role stats (present in a player's 15-stat grid but outside their role's essential+secondary list) receive a flat +1. OVR is recalculated from all 15 updated values.
+Tier upgrades are applied after all drills. The bonus is a flat attribute addition per **white (essential) stat** only. Grey role stats and off-role stats receive no tier increment. OVR is recalculated from all 15 updated values.
 
 ```
-roleStats = getAllStatKeys(player.role)   // white ∪ grey for all player roles
+whiteStats = getWhiteStatKeys(player.role)   // essential stats for all player roles
 
 for each stat in player.stats:
-    if stat in roleStats:
+    if stat in whiteStats:
         stat += tierAttrAddition[targetTier] - tierAttrAddition[fromTier]
-        stat = min(stat, statCap)    // statCap = 340
-    else:
-        stat += 1                    // off-role: flat +1 per tier step
+        stat = min(stat, statCap)
 
 OVR = floor(mean(all 15 updated stats))
 ```
 
-**Confirmed from Ricky Grant Elite→Stellar reality check (2026-05-09):**
-- 13 role stats: each +20 (Elite→Stellar increment = 50−30 = +20)
-- HEADING and STRENGTH (off-role for DL): each +1
-- Predicted OVR 175 matched game exactly.
+**Confirmed from direct game observation (Sprint 16).** Earlier Sprint 12 calibration claimed role stats (white+grey) received the full increment based on Ricky Grant Elite→Stellar data; that interpretation has been superseded.
 
 ### 4.1 Tier attribute additions and point costs
 
@@ -199,10 +194,10 @@ Each tier type has its own independent point pool. Rare points, Elite points, St
 
 ### 4.2 OVR gain estimation (example)
 
-Stellar upgrade on a striker (6 white + 3 grey = 9 role stats, 6 off-role), each role stat at 100, off-role at 80:
-- Role stats: +50 each → 150 (below 340 cap ✓)
-- Off-role stats: +1 each → 81
-- OVR delta: (50 × 9 + 1 × 6) / 15 = 456/15 = +30.4 OVR
+Stellar upgrade on a striker (6 white stats: FINISHING, SHOOTING, DRIBBLING, PASSING, POSITIONING, HEADING), each white stat at 100:
+- White stats: +50 each → 150 (below cap ✓)
+- Grey + off-role stats: unchanged
+- OVR delta: (50 × 6) / 15 = 300/15 = +20.0 OVR
 
 ---
 
@@ -554,7 +549,7 @@ interface InvestmentPlan {
 | Drill XP baseline | `baseXpPerSession = 150` confirmed from Standard Attacking ×30 (age 18, Normal talent). Validate for other intensities/ages with CALIBRATION_LOG data. |
 | GK white stat list | Confirmed Sprint 8: 10 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION) + 5 grey. |
 | GK stat entry UI | Fixed Sprint 9: GK_STATS grid 10 → 15; all confirmed from Sutters card. |
-| Tier bonus scope | Confirmed Sprint 12: role stats (white+grey via `getAllStatKeys`) get full increment; off-role stats get +1 flat. Validated Ricky Grant Elite→Stellar — engine OVR 175 matched game exactly. |
+| Tier bonus scope | Confirmed Sprint 16 (direct game observation): white (essential) stats only get the tier increment — grey role stats and off-role stats receive 0. Sprint 12 calibration (role stats white+grey) superseded. |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
 | Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
 | Role OCR | Sprint 14: switched from full-text `\bROLE\b` regex to token-exact match. Eliminates false positives from partial word matches. Remaining gap: if the screenshot crops the role badge area entirely, zero roles are detected — currently the scan returns `undefined` (no roles set). Future fix: preserve the existing role selection when scan returns no roles. |
@@ -581,24 +576,17 @@ Scans a screenshot of a player's confirmed card and extracts:
 1. ML Kit returns a list of `Block → Line → Element` tokens, each with a bounding box (`frame.top`, `frame.left`).
 2. Tokens are flattened to a list of `{ text, top, left }`.
 3. For each token, check if `text.toUpperCase()` is a known stat name (single word) or if the next token completes a two-word stat (e.g. `RUSHING OUT`). Two-word match requires both tokens to be within `Y_TOL = 28px` vertically.
-4. For each matched stat name, look for numbers to its RIGHT on the same baseline (within `Y_TOL`). Take the leftmost valid number (1–340). Fallback: look directly below the label (within `Y_BELOW = 65px`, within 100px horizontally).
+4. For each matched stat name, look for numbers to its RIGHT on the same baseline using `Y_TOL_VAL = 20px` (tighter than `Y_TOL = 28px` to exclude section-header totals such as `DEFENCE 173`). Take the leftmost valid number (1–500). Fallback: look directly below the label (within `Y_BELOW = 40px`, within 100px horizontally).
 
-**Role detection (token-exact matching, Sprint 14):**
+**Role detection (Sprint 16):**
 
-Roles are matched by exact token equality — each ML Kit element is already a whitespace-separated unit, so `token.text.toUpperCase() === 'DC'` will not false-positive on "DRILLS", "ACADEMY", etc. Prior approach used `\bROLE\b` regex against the full text string, which caused false positives.
-
-```typescript
-const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
-const foundRoles = new Set<string>();
-for (const t of tokens) {
-  if (roleSet.has(t.text.toUpperCase())) foundRoles.add(t.text.toUpperCase());
-}
-```
+Roles are matched by splitting each token on whitespace and badge punctuation (`[\s,./|·•·()\[\]<>:]+`), then checking the result against `KNOWN_ROLES`. A `fullText` regex backup (`/\b(GK|DC|DL|...)\b/gi`) catches cases where badge OCR garbles token boundaries.
 
 **Name heuristic:**
 - Find the first OCR block whose text starts with a capital letter followed by a lowercase letter (`/^[A-Z][a-z]/`)
-- Exclude: known roles, known tiers, a UI blocklist (`Squad`, `Contract`, `Overview`, `Skills`, `Stats`, `Training`, `Playstyle`, `Celebrations`, `Trainer`, `Personal`, `Defence`, `Attack`, `Physical`, `Special`, `Ability`, `Team`, `None`, `Select`, `Player`, `Start`)
-- This avoids reading game UI labels as player names
+- Exclude: known roles, known tiers, UI blocklist (`Squad`, `Contract`, `Overview`, `Skills`, `Stats`, `Training`, `Playstyle`, `Celebrations`, `Trainer`, `Personal`, `Defence`, `Attack`, `Physical`, `Goalkeeping`, `Safeguard`, `Special`, `Ability`, `Team`, `None`, `Select`, `Player`, `Start`, `Reward`)
+- Exclude: any block whose text starts with a digit (`/^\d/.test()`) — prevents squad number from being read as name
+- This avoids reading game UI labels or squad numbers as player names
 
 **Tier/talent:** Full-text regex for known tier names (`Legendary`, `Epic`, `Master`, `Stellar`, `Elite`, `Rare`) and talent tokens (`Fastest`, `Fast`, `Average`, `Normal`, `Slow`). `None` is NOT in the tier list — absence of a tier token → `undefined` → UI defaults to `None`.
 
@@ -610,7 +598,7 @@ Scans a screenshot of the confirmed coach assignment preview and extracts:
 
 **Gain range detection:**
 
-The game highlights affected stats with a `+lo–hi` gain range indicator. The scanner uses `GAIN_RE = /\+(\d+)[–\-—](\d+)/` — three dash variants (en-dash, hyphen, em-dash) because OCR frequently misclassifies dash characters.
+The game highlights affected stats with a `+lo–hi` gain range indicator. The scanner uses `GAIN_RE = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/` — allows spaces around the dash because OCR often emits `+57 – 71`. Three dash variants (en-dash, hyphen, em-dash) are matched. Sanity cap: `hi <= 300`.
 
 Only tokens on the same baseline as a recognised stat name are scanned for the gain range. This prevents false matches from other on-screen numbers.
 
@@ -633,6 +621,7 @@ Only tokens on the same baseline as a recognised stat name are scanned for the g
 | 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
 | 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
 | 1.1 | Sprint 14 | Consistent DEF/ATT/PHY column colour scheme across all stat surfaces. Role OCR switched to token-exact matching. PR #4 merged to main; main is now source of truth. |
+| 1.2 | Sprints 15–16 | Tier rename T0–T6. Drill intensity field + filter. Coach OCR hardened (Y_TOL, GAIN_RE spaces, hi cap). Tier bonus corrected to white stats only. Grey stat visibility fix. Player scanner: split Y tolerances, cap 500, role detection backup, name digit filter. EAS workflow android-only/main-only. |
 
 ---
 
@@ -655,7 +644,7 @@ Output: per-stat gains (float), OVR before/after banner, optional TIER UPGRADE c
 
 **APPLY TO PLAYER CARD** writes post-coach stats + updated OVR (+ tier if selected) back to the player's DB record.
 
-**→ CAPTURE** button in the header navigates to the Coach Session Capture screen for logging raw game data.
+The Coach Session Capture screen (`/coach/capture`) is accessible for logging raw game data.
 
 ### 13.2 FULL PLAN (Results tab)
 

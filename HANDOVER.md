@@ -1,8 +1,8 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
-**Branch:** `main` (PR #4 merged 2026-05-10)
-**As of:** Sprint 14 — 2026-05-10 (Session UHXEX late)
-**Deploy:** Create a new branch from `main`, push, PR back. EAS OTA auto-fires on merge.
+**Branch:** `main` (PRs #19–21 merged 2026-05-12)
+**As of:** Sprint 16 — 2026-05-12 (Session CAQUS)
+**Deploy:** Create a new branch from `main`, push, PR back. EAS OTA auto-fires on merge to `main` (Android only).
 
 ---
 
@@ -16,7 +16,7 @@ All tabs functional. Engine calibrated against empirical session data. OTA pipel
 
 - **SQUAD tab** — player list, tap → edit/delete, OVR badge, tier/age/role display, snapshot revert banner
 - **SQUAD PLAN tab** — per-player history of saved coaching projections. OVR before/after, stat gains, session count, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
-- **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Access via `→ CAPTURE` button in Coaches tab. Squad auto-fill copies stats/OVR/talent from player card. Per-stat lo/hi gain entry (tap to expand). Live OVR boost preview. Saves to Squad Plan.
+- **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Navigate to it via the PROJECT button after a coach scan, or directly from the app. Squad auto-fill copies stats/OVR/talent from player card. Per-stat lo/hi gain entry (tap to expand). Live OVR boost preview. Saves to Squad Plan.
 - **COACHES tab** — 3-col stat selector grid (white/grey sections), ×N sessions input, intensity locked to Very Hard, talent read from player card. SCAN button scans a coach preview screenshot and pre-fills session count. Per-stat gain projection + OVR delta. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back. SAVE RUN persists to Squad Plan.
 - **PLAN tab** — select player, configure drills + tier + restorers → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
 - **DRILLS tab** — all 25 drills for all players (no role filter). ROI sort (lowest white stat = cheapest XP). Fan Club L0–L4 selector. Zero-drain detection (VE+L4 = 0.375%). Condition cost per drill.
@@ -59,7 +59,7 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 | # | Area | Task | Priority |
 |---|---|---|---|
 | 1 | OCR — roles | Token-exact matching is now in place. Still possible to get zero roles if the screenshot crops the role badges. Add a fallback: if no roles detected, keep the previously selected roles (don't wipe them). | Medium |
-| 2 | Touch Training drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity. Type TBC (possibly Attack). Add when confirmed from game. | Medium |
+| 2 | Touch Training drill | In `DRILL_LIST` as of Sprint 15. Stats: `['CONCENTRATION','DRIBBLING','HEADING','CREATIVITY']`, intensity Very Easy, baseLoss 0.75. Type TBC. | Resolved |
 | 3 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
 | 4 | Coach Capture → real calibration | The Capture screen is built but gains entered there don't update `game_2025.json` or the XP engine. Future: use captured lo/hi to back-solve actual XP budget and validate against model. | Low |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Low |
@@ -80,7 +80,7 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 | `src/logic/ovrProjector.ts` | `computeOvrFromStats`, `computeOvrWithPadding`, `applyDrillSessionsToStats`, `projectOvr` |
 | `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort, condition costs |
 | `src/utils/roleWeights.ts` | `ROLE_CONSTRAINTS`, `isWhiteStat`, `getWhiteStatKeys`, `getAllStatKeys`, `OUTFIELD_STATS`, `GK_STATS` |
-| `src/logic/playerScanner.ts` | **⚠ CRITICAL** — on-device ML Kit OCR. Token-exact role matching. Y-baseline stat pairing. No API calls. |
+| `src/logic/playerScanner.ts` | **⚠ CRITICAL** — on-device ML Kit OCR. `Y_TOL=28` (stat names), `Y_TOL_VAL=20` (values), `Y_BELOW=40`, cap 500. Role detection: token split + fullText regex backup. Name filter rejects digit-prefixed blocks. No API calls. |
 | `src/logic/coachScanner.ts` | OCR for coach preview screenshots — type/category/multiplier from header; per-stat gain ranges from highlighted rows |
 | `src/logic/pickImage.ts` | Gallery/camera picker wrapper; shared `picker.active` flag |
 | `src/hooks/useScanner.ts` | React hook wrapping `scanPlayerCard` |
@@ -146,7 +146,7 @@ COND_LEVEL_MULTIPLIERS: VE=1, Easy=2, Medium=3, Hard=4, VH=5
 ### Age multipliers
 17=1.10, 18=1.00, 19=0.90, 20=0.55, 21=0.40, 22=0.32, 23=0.28, 24=0.24, 25=0.22, 26=0.19, 27=0.16, 28=0.14, 29=0.12, 30+=0.10
 
-### Tier attribute additions (per stat, applied to ALL 15 stats)
+### Tier attribute additions (per stat, applied to WHITE/essential stats only)
 None=0, Rare=+10, Elite=+30, Stellar=+50, Master=+80, Epic=+120, Legendary=+160
 
 ### Tier points to upgrade
@@ -174,7 +174,7 @@ DR:  same as DL
 
 **OVR formula:** `floor(mean(all 15 stats))` — confirmed from Sutters GK (sum 2,844 ÷ 15 = 189.6 → displays 189).
 
-**Tier bonus:** Applied to all 15 stats. Role stats (getAllStatKeys) get full increment; off-role get +1 flat. Confirmed from Ricky Grant ELITE→STELLAR (OVR 175 matched engine exactly).
+**Tier bonus:** Applied to WHITE (essential) stats only — grey role stats and off-role stats receive 0. Confirmed from direct game observation (Sprint 16). Earlier Sprint 12 calibration claimed role stats (white+grey); that has been superseded.
 
 **Zero-drain:** VE + L4 = 0.375% → shown as 0%. Only this combination.
 
