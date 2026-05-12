@@ -4,6 +4,75 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 16 — Tier White-Only Fix, Scanner Hardening, Grey Visibility, EAS Cleanup
+**2026-05-12 — Session CAQUS**
+
+Branch: `claude/continue-development-CAQUS` → merged to `main` (PRs #19–21)
+
+### Shipped
+
+**Tier bonus corrected to white (essential) stats only**
+
+Sprint 12's `getAllStatKeys` (white+grey) change reversed. Tier upgrades apply to white (essential) stats only — grey role stats and off-role stats receive no increment. Confirmed from direct game observation.
+
+- `src/logic/ovrProjector.ts` — both tier loops use `getWhiteStatKeys`; `keyCount` uses white stat count; `getAllStatKeys` retained in import for drill role-check (drills train all role stats)
+- `app/(tabs)/coaches.tsx` — `tierOvr()` and `applyGains()` use `getWhiteStatKeys`
+- `CLAUDE.md` — tier rule corrected
+
+**Tier label shows step increment**
+
+`app/(tabs)/coaches.tsx` and `app/(tabs)/plan.tsx` now show per-step gain (e.g. `+20 / WHITE STAT` for T3) not cumulative total from T0 (e.g. `+50 / STAT`). Added `TIER_INCREMENTS: { T0:0, T1:10, T2:20, T3:20, T4:30, T5:40, T6:40 }`.
+
+**Coach OCR hardened** (`src/logic/coachScanner.ts`)
+
+- `Y_TOL` 18 → 25
+- `GAIN_RE` allows spaces: `/\+\s*(\d+)\s*[–\-—]\s*(\d+)/`
+- Sanity cap `hi <= 150` → `hi <= 300`
+
+**Duplicate CAPTURE button removed from Coaches tab**
+
+`→ CAPTURE` Pressable removed from COACH CONFIG header. `⊕ SCAN` is the only scan entry on this tab.
+
+**White stats auto-seeded on player load**
+
+`app/(tabs)/coaches.tsx` — `useRef`-guarded `useEffect` seeds `selectedStats` with the player's white stats when player first resolves.
+
+**Grey stat visibility** (`src/components/StatGrid3Col.tsx`)
+
+- `opacity` removed from grey cell style (was 0.38)
+- `inkGhost` → `inkMuted` for grey stat names and values
+- Grey left border `hairline` → `hairline2`
+
+**Player card scanner hardened** (`src/logic/playerScanner.ts`)
+
+- Split tolerances: `Y_TOL = 28` (two-word stat names) vs `Y_TOL_VAL = 20` (value lookup) — prevents section-header totals from being read as stat values
+- `Y_BELOW` 65 → 40
+- Stat cap 340 → 500 (captures boosted stats on high-tier players)
+- Name filter: `/^\d+$/` → `/^\d/` — rejects digit-prefixed blocks (squad numbers)
+- `UI_BLOCKLIST` expanded: `'Goalkeeping'`, `'Safeguard'`, `'Reward'`
+- Role detection: extended split separators; `fullText` regex backup for badge OCR edge cases
+
+**EAS update workflow** (`.github/workflows/eas-update.yml`)
+
+- Triggers on `main` only
+- `--platform android` — no iOS target
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F55 | Tier bonus on grey + off-role stats — OVR over-projected | `getWhiteStatKeys` in all tier calculations |
+| F56 | Tier label showed cumulative total not step increment | `TIER_INCREMENTS` constant; label updated |
+| F57 | Coach OCR gain ranges not detected (spaces, low cap) | `GAIN_RE` spaces, `hi <= 300` |
+| F58 | Duplicate CAPTURE button on Coaches tab header | Removed `→ CAPTURE` Pressable |
+| F59 | Grey stats near-invisible | Opacity removed, `inkGhost` → `inkMuted` |
+| F60 | PHY values wrong — section header totals picked up | `Y_TOL_VAL = 20` for value lookup |
+| F61 | Player number picked up as name | `/^\d/.test()` filter |
+| F62 | GK/AMC roles not detected on player card scan | Extended separators + `fullText` regex backup |
+| F63 | EAS update triggering on dead branches, building iOS bundle | `main`-only trigger, `--platform android` |
+
+---
+
 ## Sprint 15 — Tier Rename, Drill Intensity, Coach Scanner Fixes, Stats Grid, OCR Hardening
 **2026-05-11 — Session UHXEX (continued)**
 
@@ -227,19 +296,9 @@ New `SQUAD PLAN` tab added to the main nav. Displays all saved projection runs g
 
 ### Shipped
 
-**Tier bonus now correctly applied to role stats (white + grey), off-role gets +1**
+**Tier bonus applied to role stats (superseded by Sprint 16)**
 
-Reality-checked against Ricky Grant Elite→Stellar:
-- Role stats (getAllStatKeys: white + grey union) → receive the full tier increment
-- Off-role stats present in the player's stat dict → receive a flat +1 per tier step
-
-Previously `applyTierBonusToStats` only applied the increment to white stats. Grey stats (e.g. HEADING for a DC secondary role) received nothing. Off-role stats (e.g. STRENGTH, HEADING for a DL-only player) also received nothing, resulting in OVR over-prediction.
-
-Fixed in:
-- `src/logic/xpEngine.ts` — `applyTierBonusToStats` now iterates all keys in the stats dict: role keys get `+inc`, others get `+1`
-- `src/logic/ovrProjector.ts` — both the stat-entry path (direct loop) and the no-stats analytical path updated
-- `app/(tabs)/coaches.tsx` — tier preview + apply now pass `getAllStatKeys` instead of `getWhiteStatKeys`
-- `app/(tabs)/results.tsx` — same
+See Sprint 16: this was subsequently corrected — tier bonus applies to white (essential) stats only, confirmed from direct game observation. The Sprint 12 implementation used `getAllStatKeys` (white+grey); Sprint 16 reverts to `getWhiteStatKeys`.
 
 **Player snapshot + one-step revert**
 
@@ -449,16 +508,9 @@ DB migration `drizzle/0002_player_talent.sql` — `ALTER TABLE players ADD COLUM
 
 Confirmed from Sutters GK card (all 15 visible in screenshot).
 
-**Tier chain fix — bonus applies to all 15 stats**
+**Tier chain fix — bonus applies to all role stats (superseded by Sprint 16)**
 
-`src/logic/ovrProjector.ts` + `app/(tabs)/coaches.tsx` + `app/(tabs)/results.tsx`: `getWhiteStatKeys` → `getAllStatKeys` in all `applyTierBonusToStats` calls.
-
-Confirmed from Ricky Grant ELITE→STELLAR upgrade: 13 of 15 stats gained +20 each (2 already at cap). Game applies tier attribute additions to **all stats** (white + grey), not just essentials. Previous behaviour:
-
-| Role | White stats | Old OVR per STELLAR | Correct OVR per STELLAR |
-|---|---|---|---|
-| DL / ML / AML | 4–5 | +12 | +17 |
-| GK | 10 | +35 | ~+50 |
+`src/logic/ovrProjector.ts` + `app/(tabs)/coaches.tsx` + `app/(tabs)/results.tsx`: `getWhiteStatKeys` → `getAllStatKeys` in all `applyTierBonusToStats` calls. See Sprint 16: this was subsequently reversed — tier bonus applies to white (essential) stats only, confirmed from direct game observation.
 
 **OVR formula — truncation confirmed**
 
@@ -977,7 +1029,7 @@ Full React Native / Expo mobile UI. App now runs on device — zero CLI required
 | `.gitignore` | New |
 | `package-lock.json` | Added |
 
-**Sample test output (18yo, OVR 120 striker, Elite Chest coaches → Stellar):**
+**Sample test output (18yo, OVR 120 striker, PremiumChest coaches → Stellar):**
 
 ```
 Step 1  Attacking ×30      120.0 → 130.3   +10.3   FREE
@@ -1036,7 +1088,7 @@ Project skeleton, build tooling, and all pre-existing logic brought to a working
 - Coach multiplier: the ×N number IS the multiplier fed to `calculateDynamicGain` ✓
 - Hard stat cap: at maximum stat value, session gain = exactly 0 ✓
 - Age drop-off: gains fall sharply between age 18 and 20; plateau after ~25 ✓
-- Premium sponsor path: Elite Chest unlocks higher-multiplier coach cards ✓
+- Premium sponsor path: PremiumChest unlocks higher-multiplier coach cards ✓
 
 **Tests passing after Sprint 1:**
 - `tests/drill-logic-test.ts` ✓
