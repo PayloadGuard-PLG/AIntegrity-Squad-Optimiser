@@ -83,7 +83,7 @@ adMult     = 2.0 if twoxAdActive else 1.0
 xpCost = base / (ageMult × talentMult × greyMult × adMult × drillLevelMult)
 ```
 
-The engine iterates 1% at a time from the current stat value, subtracting `xpCost` from the budget, until the budget is exhausted or `statCap` (340) is reached. Sub-integer progress banks as a fractional carry.
+The engine iterates 1% at a time from the current stat value, subtracting `xpCost` from the budget, until the budget is exhausted. Sub-integer progress banks as a fractional carry.
 
 ### 3.3 XP cost table
 
@@ -170,7 +170,6 @@ whiteStats = getWhiteStatKeys(player.role)   // essential stats for all player r
 for each stat in player.stats:
     if stat in whiteStats:
         stat += tierAttrAddition[targetTier] - tierAttrAddition[fromTier]
-        stat = min(stat, statCap)
 
 OVR = floor(mean(all 15 updated stats))
 ```

@@ -73,7 +73,7 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 
 | File | Purpose |
 |---|---|
-| `profiles/game_2025.json` | ALL game constants — XP table, age/talent multipliers, statCap=340, baseXpPerSession=150, drillLevelMultipliers (XP only), tierAttrAdditions |
+| `profiles/game_2025.json` | ALL game constants — XP table, age/talent multipliers, statCap=9999 (inert sentinel; real gate is maxBaseOvr=180), baseXpPerSession=150, drillLevelMultipliers (XP only), tierAttrAdditions |
 | `src/utils/conditionEngine.ts` | Condition model — `COND_LEVEL_MULTIPLIERS` (VE×1→VH×5), `FAN_CLUB_REDUCTIONS`, `calculateActualLoss` |
 | `src/types/resources.ts` | All TypeScript interfaces: GameProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
 | `src/logic/xpEngine.ts` | XP math: `estimateStatGainPct` (fractional float), `applyTierBonusToStats` |

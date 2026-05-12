@@ -103,10 +103,8 @@ export function qualityPctToOvr(qualityPct: number, profile: GameProfile): numbe
 }
 
 /**
- * Applies a tier upgrade by adding the INCREMENTAL bonus to role stats (white+grey).
- * Off-role stats receive NO change — the game description says "all key attributes"
- * and this is confirmed from live screenshots (Heading + Strength stayed flat for
- * a DL/ML/AML player going Elite→Stellar).
+ * Applies a tier upgrade by adding the INCREMENTAL bonus to white (essential) stats only.
+ * Grey role stats and off-role stats receive NO change — confirmed from direct game observation.
  * The incremental is: tierAttrAdditions[targetTier] - tierAttrAdditions[fromTier].
  * Pass fromTier = player's current tier so only the net gain is applied.
  * Returns a new stats object (does not mutate input).
