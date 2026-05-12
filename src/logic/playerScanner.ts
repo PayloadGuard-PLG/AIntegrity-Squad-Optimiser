@@ -9,8 +9,9 @@ const TALENT_NAME_MAP: Record<string, string> = {
   FT1: 'Fastest', FT2: 'Fast', FT3: 'Average',
 };
 
-const Y_TOL = 28;   // px — tolerance for same-row Y-baseline grouping
-const Y_BELOW = 65; // px — tolerance for value directly below stat label
+const Y_TOL = 28;     // px — two-word stat name detection (RUSHING OUT, AERIAL REACH)
+const Y_TOL_VAL = 20; // px — value lookup (tighter: excludes section-header row numbers)
+const Y_BELOW = 40;   // px — below-fallback for value directly below stat label
 
 export interface PlayerCardScan {
   name?: string;
@@ -26,8 +27,8 @@ export interface PlayerCardScan {
 // Game UI labels that pass the name regex but are not player names
 const UI_BLOCKLIST = ['Squad', 'Contract', 'Overview', 'Skills', 'Stats', 'Training',
   'Playstyle', 'Celebrations', 'Trainer', 'Personal', 'Defence', 'Attack', 'Physical',
-  'Special', 'Ability', 'Team', 'None', 'Select', 'Player', 'Start',
-  'Goal Celebrations', 'Personal Trainer', 'Special Ability'];
+  'Goalkeeping', 'Safeguard', 'Special', 'Ability', 'Team', 'None', 'Select', 'Player',
+  'Start', 'Reward', 'Goal Celebrations', 'Personal Trainer', 'Special Ability'];
 
 const TIER_NAME_MAP: Record<string, string> = {
   None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
@@ -82,15 +83,16 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     if (!statName) continue;
 
     // Find closest number to the RIGHT on the same baseline.
-    // The game shows 3 stat columns side by side, so each row has 3 names and 3 values.
+    // Use Y_TOL_VAL (tighter than Y_TOL) to exclude section-header row totals
+    // (e.g. "DEFENCE 173") which share a close Y with the first stat row.
     const sameRow = tokens.filter((t, idx) =>
-      !consumed.includes(idx) && Math.abs(t.top - tok.top) < Y_TOL
+      !consumed.includes(idx) && Math.abs(t.top - tok.top) < Y_TOL_VAL
     );
     const rightNums = sameRow
       .filter(t => t.left > tok.left)
       .sort((a, b) => a.left - b.left)
       .map(t => parseInt(t.text, 10))
-      .filter(n => !isNaN(n) && n > 0 && n <= 340);
+      .filter(n => !isNaN(n) && n > 0 && n <= 500);
 
     if (rightNums.length > 0) {
       stats[statName] = rightNums[0];
@@ -105,7 +107,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
         )
         .sort((a, b) => a.top - b.top)
         .map(t => parseInt(t.text, 10))
-        .filter(n => !isNaN(n) && n > 0 && n <= 340);
+        .filter(n => !isNaN(n) && n > 0 && n <= 500);
       if (belowNums.length > 0) stats[statName] = belowNums[0];
     }
     consumed.forEach(idx => used.add(idx));
@@ -119,13 +121,20 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     ?? /\b(\d{2})\s*(?:yr|years?)\b/i.exec(fullText);
   const age = ageMatch ? parseInt(ageMatch[1]) : undefined;
 
-  // Match roles by exact token equality (avoids partial-word false positives like "DR" in "DRILLS")
+  // Match roles — split on whitespace and badge punctuation, plus fullText regex backup
   const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
   const foundRoles = new Set<string>();
   for (const t of tokens) {
-    t.text.toUpperCase().split(/[\s,./|·•·]+/).forEach(part => {
-      if (part.trim() && roleSet.has(part.trim())) foundRoles.add(part.trim());
+    t.text.toUpperCase().split(/[\s,./|·•·()\[\]<>:]+/).forEach(part => {
+      const p = part.trim();
+      if (p && roleSet.has(p)) foundRoles.add(p);
     });
+  }
+  // fullText regex backup handles cases where badge OCR garbles token boundaries
+  const roleRegex = /\b(GK|DC|DL|DR|DMC|MC|ML|MR|AMC|AML|AMR|ST)\b/gi;
+  let roleMatch: RegExpExecArray | null;
+  while ((roleMatch = roleRegex.exec(fullText)) !== null) {
+    foundRoles.add(roleMatch[1].toUpperCase());
   }
   const roles = KNOWN_ROLES.filter(r => foundRoles.has(r));
 
@@ -147,7 +156,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
           ? t.toLowerCase().includes(kw.toLowerCase())
           : t.toLowerCase() === kw.toLowerCase()
       ) &&
-      !/^\d+$/.test(t)
+      !/^\d/.test(t)
     );
   });
   const nameBlock = nameCandidates.reduce<typeof nameCandidates[0] | undefined>(
