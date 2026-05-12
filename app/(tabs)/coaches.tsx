@@ -163,8 +163,7 @@ export default function CoachesScreen() {
 
   function tierOvr(tier: TierName): number | null {
     if (!player || !result) return null;
-    const roleKeys = getAllStatKeys(player.role);
-    const afterTierStats = applyTierBonusToStats(result.postCoachStats, roleKeys, tier, profile, player.tier);
+    const afterTierStats = applyTierBonusToStats(result.postCoachStats, getWhiteStatKeys(player.role), tier, profile, player.tier);
     return computeOvrWithPadding(afterTierStats, player.overall, profile);
   }
 
@@ -179,7 +178,7 @@ export default function CoachesScreen() {
     let newTier = player.tier;
     let newOvr = result.ovrAfter;
     if (selectedTier && combinedOvr != null) {
-      newStats = applyTierBonusToStats(newStats, getAllStatKeys(player.role), selectedTier, profile, player.tier);
+      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile, player.tier);
       newTier = selectedTier;
       newOvr = combinedOvr;
     }
@@ -413,7 +412,7 @@ export default function CoachesScreen() {
                                 {t}
                               </Text>
                               <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>
-                                +{TIER_ADDITIONS[t]} / ROLE STAT · NEED {cost} PTS
+                                +{TIER_INCREMENTS[t]} / WHITE STAT · NEED {cost} PTS
                               </MonoLabel>
                               <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost }}>
                                 {canAfford ? '✓' : '·'}

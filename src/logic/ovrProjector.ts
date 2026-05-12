@@ -179,7 +179,7 @@ export function projectOvr(
 
     if (targetTier && targetTier !== player.tier && targetTier !== 'T0') {
       const ALL_TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-      const allRoleKeys = getAllStatKeys(player.role);
+      const whiteKeys = getWhiteStatKeys(player.role);
       const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'T0'));
       const toIdx   = ALL_TIERS.indexOf(targetTier);
       for (let i = fromIdx + 1; i <= toIdx; i++) {
@@ -187,12 +187,12 @@ export function projectOvr(
         const prevTier = ALL_TIERS[i - 1] as TierName;
         const inc  = (profile.tierAttrAdditions[stepTier] ?? 0) - (profile.tierAttrAdditions[prevTier] ?? 0);
         const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
-        const tierOvrGain = Number(((inc * allRoleKeys.length) / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
+        const tierOvrGain = Number(((inc * whiteKeys.length) / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
         const ovrBefore = currentOvr;
         currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
         steps.push({
           action: 'tier',
-          description: `Tier → ${stepTier} (+${inc} per key attr × ${allRoleKeys.length} stats)`,
+          description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeys.length} stats)`,
           ovrBefore,
           ovrAfter: currentOvr,
           resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,
@@ -221,7 +221,7 @@ export function projectOvr(
   // Training lock: base OVR = total OVR minus the tier's OVR contribution.
   // When base OVR >= maxBaseOvr (180), drills and academy coaches have no effect.
   const tierBonus = profile.tierAttrAdditions[(player.tier as TierName) ?? 'T0'] ?? 0;
-  const keyCount  = getAllStatKeys(player.role).length;
+  const keyCount  = getWhiteStatKeys(player.role).length;
   const tierOvrContrib = Math.floor(tierBonus * keyCount / profile.totalAttributeCount);
   const baseOvr = currentOvr - tierOvrContrib;
   const trainingLocked = baseOvr >= (profile.maxBaseOvr ?? 180);
@@ -260,7 +260,7 @@ export function projectOvr(
   // Step 2 — Tier upgrade(s): one step per intermediate tier, each with its incremental stat addition
   if (targetTier && targetTier !== player.tier && targetTier !== 'T0') {
     const ALL_TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-    const allRoleKeys = new Set(getAllStatKeys(player.role));
+    const whiteKeySet = new Set(getWhiteStatKeys(player.role));
     const fromIdx = Math.max(0, ALL_TIERS.indexOf((player.tier as TierName) || 'T0'));
     const toIdx   = ALL_TIERS.indexOf(targetTier);
     for (let i = fromIdx + 1; i <= toIdx; i++) {
@@ -270,10 +270,10 @@ export function projectOvr(
       const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
       const ovrBefore = currentOvr;
 
-      // Role stats (white+grey) get full increment; off-role stats are unchanged
+      // White (essential) stats only get the tier increment; grey and off-role stats unchanged
       const newStats = { ...currentStats };
       for (const key of Object.keys(newStats)) {
-        if (allRoleKeys.has(key)) {
+        if (whiteKeySet.has(key)) {
           newStats[key] = Math.min(newStats[key] + inc, profile.statCap);
         }
       }
@@ -282,7 +282,7 @@ export function projectOvr(
       const newOvr = computeOvrWithPadding(currentStats, player.overall, profile);
       steps.push({
         action: 'tier',
-        description: `Tier → ${stepTier} (+${inc} per key attr × ${allRoleKeys.size} stats)`,
+        description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeySet.size} stats)`,
         ovrBefore,
         ovrAfter: newOvr,
         resourcesUsed: `${cost} ${stepTier.toLowerCase()} tier points`,

@@ -24,6 +24,7 @@ const TALENT_INFO = 'Training rate multiplier — how quickly this player gains 
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
+const TIER_INCREMENTS: Record<TierName, number> = { T0: 0, T1: 10, T2: 20, T3: 20, T4: 30, T5: 40, T6: 40 };
 const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
 const DRILL_NAMES = DRILL_LIST.map(d => d.name);
 const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 'condition'];
@@ -463,7 +464,7 @@ export default function PlanScreen() {
                       <View style={{ flex: 1, padding: 12, paddingHorizontal: 14 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                           <Text style={{ fontFamily: theme.display, fontSize: 15, fontWeight: '700', color: c, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t}</Text>
-                          <MonoLabel size={9} color={theme.inkSec}>+{TIER_ADDITIONS[t]} / STAT</MonoLabel>
+                          <MonoLabel size={9} color={theme.inkSec}>+{TIER_INCREMENTS[t]} / WHITE STAT</MonoLabel>
                           <View style={{ flex: 1 }} />
                           <Text style={{ fontSize: 20, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost }}>{canAfford ? '✓' : '·'}</Text>
                         </View>
