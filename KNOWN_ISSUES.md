@@ -64,6 +64,6 @@
 |---|---|---|
 | F1 | OVR formula wrong model | Replaced coach-card multiplier model with XP-based drill session engine |
 | F2 | Tier bonus as flat OVR | Corrected to flat attr addition per white stat → recalculate OVR |
-| F3 | Greens counted as OVR gain | Corrected to condition restore only (15% per green, no OVR change) |
+| F3 | Restorers counted as OVR gain | Corrected to condition restore only (15% per restorer, no OVR change) |
 | F4 | Grey weight 0.1 | Corrected to 0.5 per verified game mechanic |
 | F5 | 180-rule missing from engine | Implemented: stat ≥ 180% previously returned Infinity XP cost (later extended in Sprint 6 to full stat range) |

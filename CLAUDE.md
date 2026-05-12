@@ -184,7 +184,30 @@ The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
 - **Tier bonus** applies to ALL key (role) attributes only — off-role stats receive 0 (confirmed from game data)
 - **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
-- **Condition (greens)**: restores condition only — zero OVR change; +15% per green (confirmed)
+- **Condition (restorers)**: restores condition only — zero OVR change; +15% per restorer (confirmed)
 - **Seasonal decay**: ~20% base OVR drop per season (unmodeled — affects base quality, not tier)
 - **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0006 (drill_presets)
 - **Drill Presets**: stored in `drill_presets` table; service at `src/services/drillPresetService.ts`
+
+---
+
+## IP-Agnostic Naming (keep it this way)
+
+The codebase is scrubbed of source-game IP. Do not reintroduce these terms:
+
+| Source-game term | Use instead |
+|---|---|
+| Greens / green (the item) | restorers / restorer |
+| Rest packs | recovery kits |
+| Skill Drill / First Touch Play / Ball Control | Touch Training |
+| Piggy in the Middle | Porky in Centre |
+| EliteChest | PremiumChest |
+| Nordeus / Top Eleven / T11 | (omit — never reference the source game) |
+
+Match Advisor is OK to keep — it's a generic descriptor, not a protected name.
+
+Colour names (`green`, `amber`, `red`) in UI styling are fine — they describe pixels, not items.
+
+When adding new features, choose generic football-management vocabulary. Run
+`git grep -niE '\bgreens\b|skill drill|nordeus|top eleven|elitechest'` before
+committing to verify nothing crept back in.

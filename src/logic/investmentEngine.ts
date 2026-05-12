@@ -35,7 +35,7 @@ export function planPlayerInvestment(
     profile.talentTier,
     profile.drillLevel,
     targetTier,
-    profile.greens,
+    profile.restorers,
     profile.twoxAdActive,
     gameProfile
   );
@@ -52,16 +52,16 @@ export function planPlayerInvestment(
     : 'none';
 
   const tierSummary = targetTier ? ` → ${targetTier} tier` : '';
-  const greenSummary = profile.greens > 0 ? ` + ${profile.greens} greens (condition)` : '';
+  const restorerSummary = profile.restorers > 0 ? ` + ${profile.restorers} restorers (condition)` : '';
 
   const recommendation =
-    `Run drills first (${drillSummary})${tierSummary}${greenSummary}. ` +
+    `Run drills first (${drillSummary})${tierSummary}${restorerSummary}. ` +
     `Projected OVR: ${currentOvr.toFixed(0)} → ${finalOvr} (+${totalOvrGain}).`;
 
   const resourceLines = [
     drillSessions.length > 0 ? `${drillSessions.reduce((s, d) => s + d.sessionCount, 0)} sessions` : null,
     targetTier ? `${profile.tierPoints?.[targetTier] ?? 0}/${getTierCost(targetTier)} ${targetTier} pts` : null,
-    profile.greens > 0 ? `${profile.greens} greens` : null,
+    profile.restorers > 0 ? `${profile.restorers} restorers` : null,
   ].filter(Boolean);
 
   return {

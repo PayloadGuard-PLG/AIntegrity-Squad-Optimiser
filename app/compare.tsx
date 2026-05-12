@@ -15,7 +15,7 @@ const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slo
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 
 const DEFAULT_DRILLS: DrillSession[] = [
-  { drillName: 'Skill Drill', sessionCount: 5, drillLevel: 'Medium' },
+  { drillName: 'Touch Training', sessionCount: 5, drillLevel: 'Medium' },
   { drillName: 'Stamina Run', sessionCount: 3, drillLevel: 'Medium' },
 ];
 
@@ -35,7 +35,7 @@ export default function CompareScreen() {
     const profile = {
       style: 'FTP' as const,
       tierPoints: {} as Partial<Record<TierName, number>>,
-      greens: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const, matchAdvisorActive: false,
+      restorers: 0, isPremiumSponsor: false, twoxAdActive: false, talentTier: talent, drillLevel: 'Medium' as const, matchAdvisorActive: false,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return compareInvestmentScenarios(players, profile, DEFAULT_DRILLS, gameProfile as any, targetTier);

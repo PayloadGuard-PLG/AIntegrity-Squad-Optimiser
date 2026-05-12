@@ -9,7 +9,7 @@ import { Chip } from '../../src/components/atoms/Chip';
 import { OvrMovement } from '../../src/components/atoms/OvrMovement';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
-import { calculateFixtureCycles, calculateTeamPlayPlan, calculateGreensBridge } from '../../src/logic/fixtureEngine';
+import { calculateFixtureCycles, calculateTeamPlayPlan, calculateRestorersBridge } from '../../src/logic/fixtureEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar } from '../../src/types/resources';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
@@ -77,7 +77,7 @@ export default function PlanScreen() {
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
   const [twoxAd, setTwoxAd] = useState(false);
   const [style, setStyle] = useState<ManagerStyle>('FTP');
-  const [greens, setGreens] = useState(0);
+  const [restorers, setRestorers] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
   const [matchAdvisorActive, setMatchAdvisorActive] = useState(false);
   const [targetTier, setTargetTier] = useState<TierName | null>(null);
@@ -114,11 +114,11 @@ export default function PlanScreen() {
     return calculateTeamPlayPlan(pillars, matchAdvisorActive, gameProfile as any);
   }, [teamPlayInputs, matchAdvisorActive]);
 
-  const greensBridge = useMemo(() => {
-    if (!fixtureWindow || greens === 0) return null;
+  const restorersBridge = useMemo(() => {
+    if (!fixtureWindow || restorers === 0) return null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return calculateGreensBridge(greens, fixtureWindow.cycles, gameProfile as any);
-  }, [fixtureWindow, greens]);
+    return calculateRestorersBridge(restorers, fixtureWindow.cycles, gameProfile as any);
+  }, [fixtureWindow, restorers]);
 
   function applyFixtureCycles() {
     if (!fixtureWindow || fixtureWindow.cycles <= 0) return;
@@ -149,7 +149,7 @@ export default function PlanScreen() {
     const managerProfile = {
       style,
       tierPoints,
-      greens, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
+      restorers, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
       matchAdvisorActive,
       teamPlayPillars: Object.fromEntries(
         TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
@@ -393,19 +393,19 @@ export default function PlanScreen() {
                 </View>
               </View>
 
-              {/* GREENS card */}
+              {/* RESTORERS card */}
               <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
-                  <MonoLabel size={10} color={theme.steelLight}>GREENS</MonoLabel>
+                  <MonoLabel size={10} color={theme.steelLight}>RESTORERS</MonoLabel>
                   <View style={{ flex: 1 }} />
-                  <MonoLabel size={10} color={theme.pos}>+{Math.min(100, greens * 15)}% COND</MonoLabel>
+                  <MonoLabel size={10} color={theme.pos}>+{Math.min(100, restorers * 15)}% COND</MonoLabel>
                 </View>
                 <View style={{ paddingHorizontal: 14, paddingVertical: 10 }}>
                   <TextInput
                     keyboardType="numeric"
-                    value={greens === 0 ? '' : String(greens)}
-                    onChangeText={v => { setGreens(parseInt(v, 10) || 0); invalidate(); }}
+                    value={restorers === 0 ? '' : String(restorers)}
+                    onChangeText={v => { setRestorers(parseInt(v, 10) || 0); invalidate(); }}
                     placeholder="0"
                     placeholderTextColor={theme.inkGhost}
                     style={{ fontFamily: theme.mono, fontSize: 28, fontWeight: '700', color: theme.ink, textAlign: 'center' }}
@@ -413,17 +413,17 @@ export default function PlanScreen() {
                 </View>
               </View>
 
-              {/* GREENS BRIDGE — shown when fixture window is set and greens > 0 */}
-              {greensBridge && (
-                <View style={{ borderWidth: 1, borderColor: greensBridge.worthwhile ? theme.pos + '88' : theme.hairline2, marginBottom: 10 }}>
+              {/* RESTORERS BRIDGE — shown when fixture window is set and restorers > 0 */}
+              {restorersBridge && (
+                <View style={{ borderWidth: 1, borderColor: restorersBridge.worthwhile ? theme.pos + '88' : theme.hairline2, marginBottom: 10 }}>
                   <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
-                    <MonoLabel size={10} color={theme.steelLight}>GREENS BRIDGE</MonoLabel>
+                    <MonoLabel size={10} color={theme.steelLight}>RESTORERS BRIDGE</MonoLabel>
                     <View style={{ flex: 1 }} />
-                    {greensBridge.worthwhile && <MonoLabel size={9} color={theme.pos}>+{greensBridge.additionalCycles} CYCLES</MonoLabel>}
+                    {restorersBridge.worthwhile && <MonoLabel size={9} color={theme.pos}>+{restorersBridge.additionalCycles} CYCLES</MonoLabel>}
                   </View>
                   <View style={{ padding: 12 }}>
-                    <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{greensBridge.note}</Text>
+                    <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{restorersBridge.note}</Text>
                   </View>
                 </View>
               )}
@@ -539,16 +539,16 @@ export default function PlanScreen() {
                 </View>
               </View>
 
-              {fixtureWindow && greensBridge && (
-                <View style={{ borderWidth: 1, borderColor: greensBridge.worthwhile ? theme.pos + '88' : theme.hairline2, marginBottom: 10 }}>
+              {fixtureWindow && restorersBridge && (
+                <View style={{ borderWidth: 1, borderColor: restorersBridge.worthwhile ? theme.pos + '88' : theme.hairline2, marginBottom: 10 }}>
                   <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                     <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
-                    <MonoLabel size={10} color={theme.steelLight}>GREENS BRIDGE</MonoLabel>
+                    <MonoLabel size={10} color={theme.steelLight}>RESTORERS BRIDGE</MonoLabel>
                     <View style={{ flex: 1 }} />
-                    {greensBridge.worthwhile && <MonoLabel size={9} color={theme.pos}>+{greensBridge.additionalCycles} EXTRA CYCLES</MonoLabel>}
+                    {restorersBridge.worthwhile && <MonoLabel size={9} color={theme.pos}>+{restorersBridge.additionalCycles} EXTRA CYCLES</MonoLabel>}
                   </View>
                   <View style={{ padding: 12 }}>
-                    <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{greensBridge.note}</Text>
+                    <Text style={{ fontSize: 12, color: theme.inkSec, lineHeight: 18 }}>{restorersBridge.note}</Text>
                   </View>
                 </View>
               )}

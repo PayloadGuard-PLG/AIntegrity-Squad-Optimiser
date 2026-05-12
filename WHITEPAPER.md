@@ -17,12 +17,12 @@ This document describes the underlying models, calibration methodology, data str
 The OVR projection pipeline has three stages, applied in strict order:
 
 ```
-Drill Sessions  →  Tier Upgrade  →  Greens (condition)
+Drill Sessions  →  Tier Upgrade  →  Restorers (condition)
 ```
 
 **Drills-first rule:** Drills must be run before tier upgrade. Tier upgrade raises the base value of white stats permanently — any drills run afterwards train from a higher baseline where XP costs are greater. Running drills first maximises total gain per resource unit.
 
-**Greens are not OVR.** Greens restore condition (15% per green). They appear as an informational step in the plan but produce zero OVR change.
+**Restorers are not OVR.** Restorers restore condition (15% per restorer). They appear as an informational step in the plan but produce zero OVR change.
 
 ---
 
@@ -206,17 +206,17 @@ Stellar upgrade on a striker (6 white + 3 grey = 9 role stats, 6 off-role), each
 
 ---
 
-## 5. Condition Model (Greens)
+## 5. Condition Model (Restorers)
 
-Greens restore condition. They do **not** increase OVR.
+Restorers restore condition. They do **not** increase OVR.
 
 ```
-conditionRestored = min(greens × 15%, 100%)
+conditionRestored = min(restorers × 15%, 100%)
 ```
 
-Greens appear as an informational `condition` step in the plan with `ovrBefore === ovrAfter`.
+Restorers appear as an informational `condition` step in the plan with `ovrBefore === ovrAfter`.
 
-**Cooldown timer:** The Training Centre has a real-time condition recovery timer. Once it expires, condition returns to ~99%. This is not modelled in the engine — the plan outputs total greens required without scheduling across cooldown windows.
+**Cooldown timer:** The Training Centre has a real-time condition recovery timer. Once it expires, condition returns to ~99%. This is not modelled in the engine — the plan outputs total restorers required without scheduling across cooldown windows.
 
 **Optimal drill cadence (timer-based strategy):** Once condition hits ~99% (timer expired), run drills immediately rather than waiting for the final 1%. Each drill costs ~6% condition. The number of full training cycles available before the next fixture determines total investable XP:
 
@@ -341,7 +341,7 @@ The Match Advisor grants **+150% Teamplay multiplier on all training sessions** 
 
 The Match Advisor applies to every drill a player runs, meaning normal individual-player training sessions simultaneously advance teamplay pillars.
 
-**Confirmed observed effect (2026-05-08):** 41 × Ball Control Very Easy with Match Advisor active → Attack pillar +7 above its current level cap (L4 cap = 18, reached 25 effective). Match Advisor can temporarily push pillars above their level cap. This excess above cap is not retained permanently — it represents form gained from training that the pillar level ceiling does not limit.
+**Confirmed observed effect (2026-05-08):** 41 × Touch Training Very Easy with Match Advisor active → Attack pillar +7 above its current level cap (L4 cap = 18, reached 25 effective). Match Advisor can temporarily push pillars above their level cap. This excess above cap is not retained permanently — it represents form gained from training that the pillar level ceiling does not limit.
 
 **Variety penalty:** The game warns "Training today lacked variety. Different intensities and types in drills enhance teamplay impact." Repeating the same drill across all 41 sessions reduces per-session teamplay efficiency. Rotating drills or mixing intensities maximises pillar gain rate.
 
@@ -390,7 +390,7 @@ Training Level is a separate progression track from individual player OVR. It is
 - Training XP at Level 111: **1,855,042** (displayed as accumulated total at max)
 - Each level up unlocks a new drill or improves an existing one
 - Drill quality tiers (e.g. "World-class, +35 Training effect") are determined by Training Level unlocks applied to that drill
-- The `+35 Training effect` on Ball Control at World-class quality affects Training XP yield per session, not stat-gain XP — it does not affect the stat gain model
+- The `+35 Training effect` on Touch Training at World-class quality affects Training XP yield per session, not stat-gain XP — it does not affect the stat gain model
 
 **Training XP vs stat-gain XP:** These are entirely separate systems. Training XP fills the level bar and unlocks drills. Stat-gain XP (modelled as `baseXpPerSession × multipliers`) drives actual player stat improvements. The two numbers do not interact.
 
@@ -522,7 +522,7 @@ interface DrillSession {
 interface ManagerProfile {
   style: ManagerStyle;     // 'FTP' | 'Hybrid' | 'PTW'
   tierPoints: Partial<Record<TierName, number>>;  // Per-tier separate balances
-  greens: number;
+  restorers: number;
   isPremiumSponsor: boolean;
   storeBudget?: number;    // Hybrid only
   twoxAdActive: boolean;
@@ -558,7 +558,7 @@ interface InvestmentPlan {
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
 | Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
 | Role OCR | Sprint 14: switched from full-text `\bROLE\b` regex to token-exact match. Eliminates false positives from partial word matches. Remaining gap: if the screenshot crops the role badge area entirely, zero roles are detected — currently the scan returns `undefined` (no roles set). Future fix: preserve the existing role selection when scan returns no roles. |
-| Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
+| Touch Training drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
 | Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Match Advisor multiplier, and ADVANCE costs are out of scope for current OVR projection. |
 | Star decay curve | `starDecayPerSession = 1.0` (no decay). Confirmed near-linear from real data. |
 | Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output. |
@@ -629,7 +629,7 @@ Only tokens on the same baseline as a recognised stat name are scanned for the g
 | 0.5 | Sprint 7 | Drill level selector in Drills tab; talent multiplier labels; zero-drain detection at L4+VE |
 | 0.6 | Sprint 8 | Coaches tab (SESSION SIMULATOR); fractional XP model; ROI-based drill sort; GK role constraints confirmed; smarter skip warnings |
 | 0.7 | Sprints 9–10 | RESULTS tab; tier bonus applied to all 15 stats (fix); talent on player card; apply-gains write-back; GK stat grid complete; OVR truncation confirmed; Expo Web; Match Advisor + teamplay data logged |
-| 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; First Touch Play rename; Piggy in the Middle AGGRESSION |
+| 0.8 | Sprint 11 | Condition formula overhaul (universal baseLoss=0.75, COND_LEVEL_MULTIPLIERS VE×1→VH×5); all drills visible for all roles; Touch Training rename; Porky in Centre AGGRESSION |
 | 0.9 | Sprint 12 | Tier bonus corrected: role stats (white+grey) get full increment, off-role get +1 flat. Player snapshot + one-step revert from edit screen. |
 | 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
 | 1.1 | Sprint 14 | Consistent DEF/ATT/PHY column colour scheme across all stat surfaces. Role OCR switched to token-exact matching. PR #4 merged to main; main is now source of truth. |
@@ -659,7 +659,7 @@ Output: per-stat gains (float), OVR before/after banner, optional TIER UPGRADE c
 
 ### 13.2 FULL PLAN (Results tab)
 
-`app/(tabs)/results.tsx` — chains multiple coaching sessions + tier upgrades + greens + rest packs into a single sequential OVR projection. Each step shows OVR before → after. Gives the manager a complete end-to-end roadmap: drill blocks → Epic upgrade → Legendary upgrade → condition restore.
+`app/(tabs)/results.tsx` — chains multiple coaching sessions + tier upgrades + restorers + recovery kits into a single sequential OVR projection. Each step shows OVR before → after. Gives the manager a complete end-to-end roadmap: drill blocks → Epic upgrade → Legendary upgrade → condition restore.
 
 **APPLY FULL PLAN TO CARD** writes the final stats, OVR, and tier back to the player record in one tap.
 

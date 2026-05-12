@@ -4,7 +4,7 @@ import { InvestmentStep } from '../types/resources';
 const ACTION_COLOURS: Record<string, string> = {
   coach:  '#6366f1',
   tier:   '#22d3ee',
-  greens: '#22c55e',
+  restorers: '#22c55e',
 };
 
 interface Props {

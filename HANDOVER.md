@@ -18,9 +18,9 @@ All tabs functional. Engine calibrated against empirical session data. OTA pipel
 - **SQUAD PLAN tab** — per-player history of saved coaching projections. OVR before/after, stat gains, session count, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
 - **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Access via `→ CAPTURE` button in Coaches tab. Squad auto-fill copies stats/OVR/talent from player card. Per-stat lo/hi gain entry (tap to expand). Live OVR boost preview. Saves to Squad Plan.
 - **COACHES tab** — 3-col stat selector grid (white/grey sections), ×N sessions input, intensity locked to Very Hard, talent read from player card. SCAN button scans a coach preview screenshot and pre-fills session count. Per-stat gain projection + OVR delta. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back. SAVE RUN persists to Squad Plan.
-- **PLAN tab** — select player, configure drills + tier + greens → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
+- **PLAN tab** — select player, configure drills + tier + restorers → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
 - **DRILLS tab** — all 25 drills for all players (no role filter). ROI sort (lowest white stat = cheapest XP). Fan Club L0–L4 selector. Zero-drain detection (VE+L4 = 0.375%). Condition cost per drill.
-- **RESULTS tab** — chains multiple coaching blocks + tier + greens into a full OVR plan. APPLY FULL PLAN TO CARD write-back.
+- **RESULTS tab** — chains multiple coaching blocks + tier + restorers into a full OVR plan. APPLY FULL PLAN TO CARD write-back.
 - **Add Player** (`/player/new`) — SCAN PLAYER CARD screenshot button (ML Kit OCR, no API). 3-col DEF/ATT/PHY scan preview. Role picker, stat grid, tier, talent, save.
 - **Edit Player** (`/player/[id]`) — same as add + load existing + delete + snapshot revert.
 
@@ -59,7 +59,7 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 | # | Area | Task | Priority |
 |---|---|---|---|
 | 1 | OCR — roles | Token-exact matching is now in place. Still possible to get zero roles if the screenshot crops the role badges. Add a fallback: if no roles detected, keep the previously selected roles (don't wipe them). | Medium |
-| 2 | Ball Control drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity. Type TBC (possibly Attack). Add when confirmed from game. | Medium |
+| 2 | Touch Training drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity. Type TBC (possibly Attack). Add when confirmed from game. | Medium |
 | 3 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
 | 4 | Coach Capture → real calibration | The Capture screen is built but gains entered there don't update `game_2025.json` or the XP engine. Future: use captured lo/hi to back-solve actual XP budget and validate against model. | Low |
 | 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Low |
@@ -178,7 +178,7 @@ DR:  same as DL
 
 **Zero-drain:** VE + L4 = 0.375% → shown as 0%. Only this combination.
 
-**Condition per green:** 15%.
+**Condition per restorer:** 15%.
 
 **Fan Club condition reduction:** L0=10%, L1=15%, L2=20%, L3=25%, L4=50%.
 

@@ -27,7 +27,7 @@ export interface GameProfile {
   matchAdvisorMultiplier: number;
   conditionCostPerDrill: number;
   teamPlayFreeDrillsPerDay: number;
-  conditionPerGreen: number;
+  conditionPerRestorer: number;
 }
 
 // --- Talent & drill levels ---
@@ -60,7 +60,7 @@ export interface Coach { // legacy — DB schema keeps this table
   multiplier: number;
   attributes: string[];
   durationDays: number;
-  source: 'Academy' | 'EliteChest' | 'Store' | 'Other';
+  source: 'Academy' | 'PremiumChest' | 'Store' | 'Other';
   cost: CoachCost;
 }
 
@@ -71,7 +71,7 @@ export type ManagerStyle = 'FTP' | 'Hybrid' | 'PTW';
 export interface ManagerProfile {
   style: ManagerStyle;
   tierPoints: Partial<Record<TierName, number>>;
-  greens: number;
+  restorers: number;
   isPremiumSponsor: boolean;
   storeBudget?: number;
   twoxAdActive: boolean;
@@ -105,7 +105,7 @@ export interface FixtureWindow {
 }
 
 export interface GreensBridgeSuggestion {
-  greensNeeded: number;
+  restorersNeeded: number;
   additionalCycles: number;
   worthwhile: boolean;
   note: string;

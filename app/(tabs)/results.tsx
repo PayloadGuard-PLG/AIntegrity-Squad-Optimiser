@@ -22,8 +22,8 @@ const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
 const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
-const CONDITION_PER_GREEN = 15;
-const CONDITION_PER_REST = 25; // rest pack restores ~25% condition
+const CONDITION_PER_RESTORER = 15;
+const CONDITION_PER_RECOVERY = 25; // recovery kit restores ~25% condition
 
 type SessionEntry = {
   id: string;
@@ -52,7 +52,7 @@ export default function ResultsScreen() {
   const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
     Object.fromEntries(TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : '']))
   );
-  const [greens, setGreens] = useState('');
+  const [restorers, setRestorers] = useState('');
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
   const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
@@ -159,12 +159,12 @@ export default function ResultsScreen() {
       currentOvr = ovrAfter;
     }
 
-    // 3. Greens — condition restore (informational)
-    const greenCount = parseInt(greens, 10) || 0;
-    if (greenCount > 0) {
-      const condPct = Math.min(greenCount * CONDITION_PER_GREEN, 100);
+    // 3. Restorers — condition restore (informational)
+    const restorerCount = parseInt(restorers, 10) || 0;
+    if (restorerCount > 0) {
+      const condPct = Math.min(restorerCount * CONDITION_PER_RESTORER, 100);
       steps.push({
-        label: `GREENS ×${greenCount} → +${condPct}% CONDITION`,
+        label: `RESTORERS ×${restorerCount} → +${condPct}% CONDITION`,
         ovrBefore: currentOvr,
         ovrAfter: currentOvr,
         detail: 'condition restore — no OVR change',
@@ -172,12 +172,12 @@ export default function ResultsScreen() {
       });
     }
 
-    // 4. Rest packs — condition restore (informational)
-    const restCount = parseInt(restPacks, 10) || 0;
-    if (restCount > 0) {
-      const condPct = Math.min(restCount * CONDITION_PER_REST, 100);
+    // 4. Recovery kits — condition restore (informational)
+    const recoveryCount = parseInt(restPacks, 10) || 0;
+    if (recoveryCount > 0) {
+      const condPct = Math.min(recoveryCount * CONDITION_PER_RECOVERY, 100);
       steps.push({
-        label: `REST PACKS ×${restCount} → +${condPct}% CONDITION`,
+        label: `RECOVERY KITS ×${recoveryCount} → +${condPct}% CONDITION`,
         ovrBefore: currentOvr,
         ovrAfter: currentOvr,
         detail: 'enables additional training sessions',
@@ -385,28 +385,28 @@ export default function ResultsScreen() {
               )}
             </View>
 
-            {/* Condition — greens + rest packs */}
+            {/* Condition — restorers + recovery kits */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
                 <MonoLabel size={10} color={theme.steelLight}>CONDITION RESTORE</MonoLabel>
               </View>
               <View style={{ flexDirection: 'row' }}>
-                {/* Greens */}
+                {/* Restorers */}
                 <View style={{ flex: 1, padding: 12, borderRightWidth: 1, borderRightColor: theme.hairline2 }}>
-                  <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>GREENS (+{CONDITION_PER_GREEN}% EA)</MonoLabel>
+                  <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>RESTORERS (+{CONDITION_PER_RESTORER}% EA)</MonoLabel>
                   <TextInput
                     keyboardType="numeric"
-                    value={greens}
-                    onChangeText={v => { setGreens(v.replace(/[^0-9]/g, '')); setResult(null); }}
+                    value={restorers}
+                    onChangeText={v => { setRestorers(v.replace(/[^0-9]/g, '')); setResult(null); }}
                     placeholder="0"
                     placeholderTextColor={theme.inkGhost}
                     style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '700', color: theme.ink, borderWidth: 1, borderColor: theme.hairline2, padding: 8, textAlign: 'center' }}
                   />
                 </View>
-                {/* Rest packs */}
+                {/* Recovery kits */}
                 <View style={{ flex: 1, padding: 12 }}>
-                  <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>REST PACKS (+{CONDITION_PER_REST}% EA)</MonoLabel>
+                  <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>RECOVERY KITS (+{CONDITION_PER_RECOVERY}% EA)</MonoLabel>
                   <TextInput
                     keyboardType="numeric"
                     value={restPacks}

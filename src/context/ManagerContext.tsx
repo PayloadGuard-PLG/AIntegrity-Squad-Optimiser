@@ -4,7 +4,7 @@ import { ManagerProfile, ManagerStyle, TalentTier, DrillLevel } from '../types/r
 type ManagerCtx = ManagerProfile & {
   setStyle: (s: ManagerStyle) => void;
   setTierPoints: (t: Partial<Record<import('../types/resources').TierName, number>>) => void;
-  setGreens: (n: number) => void;
+  setRestorers: (n: number) => void;
   setStoreBudget: (n: number | undefined) => void;
   togglePremiumSponsor: () => void;
   toggleTwoxAd: () => void;
@@ -20,7 +20,7 @@ const ManagerContext = createContext<ManagerCtx | null>(null);
 export function ManagerProvider({ children }: { children: React.ReactNode }) {
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [tierPoints, setTierPoints] = useState<Partial<Record<import('../types/resources').TierName, number>>>({});
-  const [greens, setGreens] = useState(0);
+  const [restorers, setRestorers] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
   const [storeBudget, setStoreBudget] = useState<number | undefined>(undefined);
   const [twoxAdActive, setTwoxAdActive] = useState(false);
@@ -31,12 +31,12 @@ export function ManagerProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ManagerContext.Provider value={{
-      style, tierPoints, greens, isPremiumSponsor, storeBudget,
+      style, tierPoints, restorers, isPremiumSponsor, storeBudget,
       twoxAdActive, talentTier, drillLevel, matchAdvisorActive,
       selectedPlayerId, setSelectedPlayerId,
       setStyle,
       setTierPoints,
-      setGreens,
+      setRestorers,
       setStoreBudget,
       togglePremiumSponsor: () => setIsPremiumSponsor(v => !v),
       toggleTwoxAd: () => setTwoxAdActive(v => !v),

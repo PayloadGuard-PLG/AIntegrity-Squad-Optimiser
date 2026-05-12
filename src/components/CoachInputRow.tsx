@@ -2,7 +2,7 @@ import { View, Text, TextInput, Pressable } from 'react-native';
 import { Coach } from '../types/resources';
 
 const COACH_TYPES: Coach['type'][] = ['Attacking', 'Defending', 'Physical', 'Mixed', 'Focused'];
-const SOURCES: Coach['source'][] = ['Academy', 'EliteChest', 'Store', 'Other'];
+const SOURCES: Coach['source'][] = ['Academy', 'PremiumChest', 'Store', 'Other'];
 
 const DEFAULT_ATTRS: Record<string, string[]> = {
   Attacking: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
@@ -37,7 +37,7 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 }
 
 export function CoachInputRow({ value, onChange, onRemove }: Props) {
-  const isFree = !value.source || value.source === 'Academy' || value.source === 'EliteChest';
+  const isFree = !value.source || value.source === 'Academy' || value.source === 'PremiumChest';
 
   function setType(type: Coach['type']) {
     onChange({ ...value, type, attributes: DEFAULT_ATTRS[type] ?? [] });
