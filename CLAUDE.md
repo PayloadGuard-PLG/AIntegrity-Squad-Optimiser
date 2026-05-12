@@ -182,7 +182,7 @@ The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
 ### Other Notes
 
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
-- **Tier bonus** applies to ALL key (role) attributes only — off-role stats receive 0 (confirmed from game data)
+- **Tier bonus** applies to WHITE (essential) stats only — grey role stats and off-role stats receive 0 (confirmed from direct game observation)
 - **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
 - **Condition (restorers)**: restores condition only — zero OVR change; +15% per restorer (confirmed)
 - **Seasonal decay**: ~20% base OVR drop per season (unmodeled — affects base quality, not tier)

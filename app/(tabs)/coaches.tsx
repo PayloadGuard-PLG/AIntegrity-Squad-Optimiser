@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -28,6 +28,8 @@ const TALENT_LABEL: Record<TalentTier, string> = {
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
 const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
+// Step increment per tier (gain when buying this specific tier step)
+const TIER_INCREMENTS: Record<TierName, number> = { T0: 0, T1: 10, T2: 20, T3: 20, T4: 30, T5: 40, T6: 40 };
 
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
@@ -58,6 +60,18 @@ export default function CoachesScreen() {
     if (incomingPlayerId) selectPlayer(incomingPlayerId);
     if (incomingSessions) setSessions(incomingSessions);
   }, [incomingPlayerId, incomingSessions]);
+
+  // Auto-seed white stats when player resolves (covers single-player auto-select case)
+  const seededPlayerIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!player) return;
+    if (player.id === seededPlayerIdRef.current) return;
+    seededPlayerIdRef.current = player.id;
+    setSelectedStats(new Set(getWhiteStatKeys(player.role)));
+    setResult(null);
+    setSelectedTier(null);
+    setSaveConfirmed(false);
+  }, [player?.id]);
 
   async function scanCoach() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -149,8 +163,7 @@ export default function CoachesScreen() {
 
   function tierOvr(tier: TierName): number | null {
     if (!player || !result) return null;
-    const roleKeys = getAllStatKeys(player.role);
-    const afterTierStats = applyTierBonusToStats(result.postCoachStats, roleKeys, tier, profile, player.tier);
+    const afterTierStats = applyTierBonusToStats(result.postCoachStats, getWhiteStatKeys(player.role), tier, profile, player.tier);
     return computeOvrWithPadding(afterTierStats, player.overall, profile);
   }
 
@@ -165,7 +178,7 @@ export default function CoachesScreen() {
     let newTier = player.tier;
     let newOvr = result.ovrAfter;
     if (selectedTier && combinedOvr != null) {
-      newStats = applyTierBonusToStats(newStats, getAllStatKeys(player.role), selectedTier, profile, player.tier);
+      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile, player.tier);
       newTier = selectedTier;
       newOvr = combinedOvr;
     }
@@ -219,10 +232,6 @@ export default function CoachesScreen() {
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                 <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>COACH CONFIG</MonoLabel>
-                <Pressable onPress={() => router.push('/coach/capture' as any)}
-                  style={{ paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: theme.steelLight + '66' }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: theme.steelLight }}>→ CAPTURE</Text>
-                </Pressable>
               </View>
 
               {/* Sessions */}
@@ -403,7 +412,7 @@ export default function CoachesScreen() {
                                 {t}
                               </Text>
                               <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>
-                                +{TIER_ADDITIONS[t]} / ROLE STAT · NEED {cost} PTS
+                                +{TIER_INCREMENTS[t]} / WHITE STAT · NEED {cost} PTS
                               </MonoLabel>
                               <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost }}>
                                 {canAfford ? '✓' : '·'}

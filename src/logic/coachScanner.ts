@@ -2,8 +2,8 @@ import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
-const Y_TOL = 18;
-const GAIN_RE = /\+(\d+)[–\-—](\d+)/;
+const Y_TOL = 25;
+const GAIN_RE = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;
 
 export const COACH_TYPES    = ['Standard', 'Focused', 'Extensive'] as const;
 export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard'] as const;
@@ -124,7 +124,7 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
       const lo = parseInt(gainMatch[1]);
       const hi = parseInt(gainMatch[2]);
       // Sanity check: gain values should be plausible (1-150 range, lo <= hi)
-      if (lo > 0 && hi > 0 && hi >= lo && hi <= 150) {
+      if (lo > 0 && hi > 0 && hi >= lo && hi <= 300) {
         const rowNums = rowTokens
           .map(t => parseInt(t.text, 10))
           .filter(n => !isNaN(n) && n > 0 && n <= 340);

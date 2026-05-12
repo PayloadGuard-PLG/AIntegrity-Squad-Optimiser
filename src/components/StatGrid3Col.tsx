@@ -49,16 +49,15 @@ export function StatGrid3Col({ statKeys, roles, values = {}, gains, selected, on
                 borderBottomWidth: 1,
                 borderBottomColor: white ? cc + '44' : theme.hairline,
                 borderLeftWidth: white ? 3 : 1,
-                borderLeftColor: white ? cc : theme.hairline,
+                borderLeftColor: white ? cc : theme.hairline2,
                 backgroundColor: white
                   ? (sel ? cc + '2a' : cc + '1a')
                   : (sel ? (theme.inkMuted + '18') : 'transparent'),
-                opacity: white ? 1 : (sel ? 0.7 : 0.38),
               };
 
               const inner = (
                 <>
-                  <MonoLabel size={7} color={white ? cc : theme.inkGhost}>{stat}</MonoLabel>
+                  <MonoLabel size={7} color={white ? cc : theme.inkMuted}>{stat}</MonoLabel>
                   {gain !== undefined ? (
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkMuted }}>
@@ -73,7 +72,7 @@ export function StatGrid3Col({ statKeys, roles, values = {}, gains, selected, on
                       fontFamily: theme.mono,
                       fontSize: 13,
                       fontWeight: white ? '700' : '400',
-                      color: white ? (hasVal ? theme.ink : theme.inkGhost) : theme.inkGhost,
+                      color: white ? (hasVal ? theme.ink : theme.inkMuted) : theme.inkMuted,
                       marginTop: 2,
                     }}>
                       {hasVal ? Math.round(val) : '—'}
