@@ -20,9 +20,9 @@ const profile = gameProfileJson as unknown as GameProfile;
 const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
-const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
-const CONDITION_PER_RESTORER = 15;
+const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
+const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
+const CONDITION_PER_RESTORER: number = profile.conditionPerRestorer;
 const CONDITION_PER_RECOVERY = 25; // recovery kit restores ~25% condition
 
 type SessionEntry = {

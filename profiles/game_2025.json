@@ -122,6 +122,24 @@
     0.25,
     0.5
   ],
+  "tierIncrements": {
+    "T0": 0,
+    "T1": 10,
+    "T2": 20,
+    "T3": 20,
+    "T4": 30,
+    "T5": 40,
+    "T6": 40
+  },
+  "condLevelMultipliers": {
+    "Very Easy": 1,
+    "Easy": 2,
+    "Medium": 3,
+    "Hard": 4,
+    "Very Hard": 5
+  },
+  "baseLossPerDrill": 0.75,
+  "zeroDrainThreshold": 0.38,
   "greyWeightMultiplier": 0.5,
   "statCap": 9999,
   "maxBaseOvr": 180,
@@ -132,7 +150,6 @@
   "totalAttributeCount": 15,
   "teamPlayDecayPerDay": 2,
   "matchAdvisorMultiplier": 1.5,
-  "conditionCostPerDrill": 6,
   "teamPlayFreeDrillsPerDay": 4,
   "conditionPerRestorer": 15,
   "maxTrainingLevel": 111

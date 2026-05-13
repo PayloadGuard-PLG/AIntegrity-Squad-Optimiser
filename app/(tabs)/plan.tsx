@@ -11,7 +11,7 @@ import { planPlayerInvestment } from '../../src/logic/investmentEngine';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import { calculateFixtureCycles, calculateTeamPlayPlan, calculateRestorersBridge } from '../../src/logic/fixtureEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
-import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar } from '../../src/types/resources';
+import { DrillSession, DrillLevel, TalentTier, ManagerStyle, TierName, InvestmentPlan, InvestmentStep, TeamPlayPillar, GameProfile } from '../../src/types/resources';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { drillPresetService, DrillPreset } from '../../src/services/drillPresetService';
 import gameProfile from '../../profiles/game_2025.json';
@@ -23,9 +23,10 @@ const TALENT_LABEL: Record<TalentTier, string> = {
 const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — learns 50% faster than normal\nFast ×1.25 — learns 25% faster\nAverage ×1.1 — learns 10% faster\nNormal ×1.0 — standard rate\nSlow ×0.7 — learns 30% slower\n\nDetected automatically from player card scan. Age reduces training rate separately.';
 const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
-const TIER_INCREMENTS: Record<TierName, number> = { T0: 0, T1: 10, T2: 20, T3: 20, T4: 30, T5: 40, T6: 40 };
-const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
+const _profile = gameProfile as unknown as GameProfile;
+const TIER_ADDITIONS: Record<TierName, number> = _profile.tierAttrAdditions as Record<TierName, number>;
+const TIER_INCREMENTS: Record<TierName, number> = _profile.tierIncrements as Record<TierName, number>;
+const TIER_COSTS: Record<TierName, number> = _profile.tierPointsRequired as Record<TierName, number>;
 const DRILL_NAMES = DRILL_LIST.map(d => d.name);
 const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 'condition'];
 

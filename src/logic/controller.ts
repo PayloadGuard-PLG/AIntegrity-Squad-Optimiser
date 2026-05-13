@@ -2,7 +2,10 @@ import { isWhiteStat, validateRoleAdjacency, getWhiteStatKeys } from '../utils/r
 import { DRILL_LIST } from '../database/drillDatabase';
 import { calculateActualLoss } from '../utils/conditionEngine';
 import { Player } from '../database/playerSchema';
-import { FanLevel } from '../types/resources';
+import { FanLevel, GameProfile } from '../types/resources';
+import gameProfileJson from '../../profiles/game_2025.json';
+
+const profile = gameProfileJson as unknown as GameProfile;
 
 export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4) {
     if (!validateRoleAdjacency(player.role)) {
@@ -13,7 +16,7 @@ export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4)
 
     return DRILL_LIST.map(drill => {
         const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drill.intensity);
-        const isZeroDrain = actualLoss < 0.38;
+        const isZeroDrain = actualLoss < profile.zeroDrainThreshold;
         const whiteDrillStats = drill.stats.filter(s => whiteStats.has(s.toUpperCase()));
         const efficiency = drill.stats.length > 0 ? whiteDrillStats.length / drill.stats.length : 0;
         const conditionCost = isZeroDrain ? 0 : actualLoss;
