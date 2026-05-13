@@ -4,6 +4,66 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 17 — Role Stat Baselines Audit, DMC Role Grid, Crossover Whites
+**2026-05-13 — Session CAQUS (continued)**
+
+Branch: `claude/continue-development-CAQUS` → PR pending merge to `main`
+
+### Shipped
+
+**All 13 role stat baselines verified and corrected**
+
+Every outfield role in `src/utils/roleWeights.ts` `ROLE_CONSTRAINTS` now maps exactly 15 stats (essential + secondary = 15). Previously all roles had fewer than 15 stats total, causing incorrect white/grey classification throughout the OVR projector, coach planner, and stat grid rendering.
+
+Verified baseline corrections applied (white count → grey count):
+
+| Role | White | Grey | Key changes from previous |
+|---|---|---|---|
+| ST | 9 | 6 | STRENGTH, SPEED, CREATIVITY added as white; FITNESS, AGGRESSION confirmed grey |
+| GK | 7 | 8 | FITNESS white only; AGILITY, THROWING, PUNCHING, CONCENTRATION moved to grey |
+| AMC | 8 | 7 | HEADING white; FITNESS, SPEED confirmed; POSITIONING, BRAVERY confirmed grey |
+| AML | 8 | 7 | All DEF stats grey; FITNESS, SPEED white; HEADING, BRAVERY confirmed grey |
+| AMR | 8 | 7 | Same as AML (confirmed identical) |
+| ML | 7 | 8 | POSITIONING white; SHOOTING, FINISHING, HEADING, BRAVERY, STRENGTH, AGGRESSION grey |
+| MR | 7 | 8 | Same as ML (confirmed identical) |
+| MC | 10 | 5 | TACKLING, MARKING, BRAVERY, STRENGTH now white; HEADING, AGGRESSION grey |
+| DMC | 10 | 5 | All DEF stats white; PASSING, FITNESS, STRENGTH, AGGRESSION, CREATIVITY white; SPEED grey |
+| DC | 5 | 10 | Only POSITIONING, HEADING, FITNESS, STRENGTH, AGGRESSION white — 10 grey |
+| DL | 8 | 7 | CROSSING white; HEADING, PASSING, DRIBBLING, SHOOTING, FINISHING, STRENGTH, CREATIVITY grey |
+| DR | 8 | 7 | Same as DL (confirmed identical) |
+
+**DMC added to role selection grid**
+
+`app/player/new.tsx` and `app/player/[id].tsx` — ROLE_GRID restructured from 4×4 (omitting DMC) to 6×3 matching the game's own layout:
+
+```
+Row 1:  [null,  ST,   null]
+Row 2:  [AML,   AMC,  AMR ]
+Row 3:  [ML,    MC,   MR  ]
+Row 4:  [null,  DMC,  null]
+Row 5:  [DL,    DC,   DR  ]
+Row 6:  [null,  GK,   null]
+```
+
+Border-right guard updated from `ci < 3` to `ci < 2` in both files (3-column grid has 2 interior borders, not 3).
+
+**`ROLE_CROSSOVER_WHITES` export added**
+
+`src/utils/roleWeights.ts` — new computed IIFE export. For each primary role R1 and each role R2 adjacent to it, lists the stats that become white when R2 is added to a player who already has R1 (i.e. `ROLE_CONSTRAINTS[R2].essential − ROLE_CONSTRAINTS[R1].essential`). GK excluded. Usage: `ROLE_CROSSOVER_WHITES['ST']['AMC']` → `['FITNESS']`.
+
+Always in sync with `ROLE_CONSTRAINTS` — no duplication risk.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F64 | Role stat baselines incomplete — all roles had < 15 stats mapped | All 13 roles audited and corrected to exactly 15 stats each |
+| F65 | DMC absent from role selection grid — could not be added to any player | ROLE_GRID restructured to 6×3 matching game layout |
+| F66 | GK had 10 white / 0 true grey — AGILITY, THROWING etc counted as essential | GK corrected: 7 white (core + FITNESS) + 8 grey |
+| F67 | border-right guard still used 4-column logic after grid became 3-column | `ci < 3` → `ci < 2` in both player screens |
+
+---
+
 ## Sprint 16 — Tier White-Only Fix, Scanner Hardening, Grey Visibility, EAS Cleanup
 **2026-05-12 — Session CAQUS**
 
