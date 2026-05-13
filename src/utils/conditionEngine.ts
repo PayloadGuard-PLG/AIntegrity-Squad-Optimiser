@@ -1,22 +1,22 @@
-export const FAN_CLUB_REDUCTIONS: Record<number, number> = {
-    0: 10, 1: 15, 2: 20, 3: 25, 4: 50
-};
+import gameProfileJson from '../../profiles/game_2025.json';
+import { GameProfile } from '../types/resources';
 
-// Condition drain multiplier per difficulty level.
-// Separate from XP drillLevelMultipliers in profile.
-export const COND_LEVEL_MULTIPLIERS: Record<string, number> = {
-    'Very Easy': 1,
-    'Easy':      2,
-    'Medium':    3,
-    'Hard':      4,
-    'Very Hard': 5,
-};
+const profile = gameProfileJson as unknown as GameProfile;
+
+// Condition drain multipliers per drill difficulty — loaded from profile.
+// These are SEPARATE from profile.drillLevelMultipliers (which scale XP gain only).
+// Formula: conditionLoss = baseLossPerDrill × condLevelMultipliers[level] × (1 − fanClubCondReduction[fanLevel])
+export const COND_LEVEL_MULTIPLIERS: Record<string, number> = profile.condLevelMultipliers;
+
+// Fan club condition retention fractions (1 − reduction) — loaded from profile.
+// Index = fan club level (0–4). Values are fractions: 0.9, 0.85, 0.8, 0.75, 0.5.
+const FAN_RETENTION: number[] = profile.fanClubCondReduction.map(r => 1 - r);
 
 // Returns per-drill condition loss %.
-// baseLoss = 0.75 (universal for all drills) × difficulty mult × fan club retention.
-// Very Easy + L4 fan club → 0.375 → isZeroDrain.
+// baseLoss = profile.baseLossPerDrill (0.75) × difficulty multiplier × fan club retention.
+// Very Easy + L4 → 0.375% → below zeroDrainThreshold → isZeroDrain.
 export function calculateActualLoss(baseLoss: number, fanLevel: number, drillLevel: string = 'Very Easy'): number {
-    const reduction = FAN_CLUB_REDUCTIONS[fanLevel] ?? 0;
+    const retention = FAN_RETENTION[fanLevel] ?? 1;
     const diffMult  = COND_LEVEL_MULTIPLIERS[drillLevel] ?? 1;
-    return baseLoss * diffMult * ((100 - reduction) / 100);
+    return baseLoss * diffMult * retention;
 }

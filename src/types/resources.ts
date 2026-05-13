@@ -11,23 +11,39 @@ export interface GameProfile {
   xpCostTable: XpCostEntry[];
   ageTable: Record<string, number>;
   talentMultipliers: Record<string, number>;
+  /** XP gain multipliers per drill difficulty (stat training) */
   drillLevelMultipliers: Record<string, number>;
+  /** Cumulative attribute addition per tier (from T0 baseline) */
   tierAttrAdditions: Record<string, number>;
+  /** Per-step tier increment (e.g. T1→T2 = +20 per white stat) */
+  tierIncrements: Record<string, number>;
   tierPointsRequired: Record<string, number>;
+  /** Fraction of condition loss removed per fan club level (index = level) */
   fanClubCondReduction: number[];
+  /** Condition drain multiplier per drill difficulty (separate from XP multipliers) */
+  condLevelMultipliers: Record<string, number>;
+  /** Base condition % lost per drill before level/fan modifiers */
+  baseLossPerDrill: number;
+  /** conditionLoss values below this threshold display as 0% in-game */
+  zeroDrainThreshold: number;
+  /** Grey (secondary) stats train at this fraction of white XP efficiency */
   greyWeightMultiplier: number;
   statCap: number;
+  /** Training locks when base OVR (floor of stat mean) reaches this value */
   maxBaseOvr: number;
+  /** XP units awarded per coaching/drill session before multipliers */
   baseXpPerSession: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
+  /** OVR = floor(sum / totalAttributeCount) */
   qualityOvrDivisor: number;
   totalAttributeCount: number;
   teamPlayDecayPerDay: number;
   matchAdvisorMultiplier: number;
-  conditionCostPerDrill: number;
   teamPlayFreeDrillsPerDay: number;
+  /** Condition % restored per restorer item */
   conditionPerRestorer: number;
+  maxTrainingLevel: number;
 }
 
 // --- Talent & drill levels ---

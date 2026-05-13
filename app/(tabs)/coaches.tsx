@@ -26,10 +26,9 @@ const TALENT_LABEL: Record<TalentTier, string> = {
   Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
 };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TIER_COSTS: Record<TierName, number> = { T0: 0, T1: 100, T2: 90, T3: 50, T4: 25, T5: 15, T6: 10 };
-const TIER_ADDITIONS: Record<TierName, number> = { T0: 0, T1: 10, T2: 30, T3: 50, T4: 80, T5: 120, T6: 160 };
-// Step increment per tier (gain when buying this specific tier step)
-const TIER_INCREMENTS: Record<TierName, number> = { T0: 0, T1: 10, T2: 20, T3: 20, T4: 30, T5: 40, T6: 40 };
+const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
+const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
+const TIER_INCREMENTS: Record<TierName, number> = profile.tierIncrements as Record<TierName, number>;
 
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
