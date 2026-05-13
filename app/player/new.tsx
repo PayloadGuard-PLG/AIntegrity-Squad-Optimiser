@@ -139,37 +139,36 @@ export default function NewPlayerScreen() {
 
     const current = (positionStates[role] ?? 0) as 0 | 1 | 2;
 
-    // Active → off (deselect entirely)
+    // Active → off (deselect)
     if (current === 2) {
       setPositionStates(prev => ({ ...prev, [role]: 0 }));
       return;
     }
 
+    // GK is exclusively standalone — skip partial state, go 0→2 directly
+    if (role === 'GK') {
+      if (Object.entries(positionStates).some(([r, s]) => r !== 'GK' && s > 0)) {
+        setRoleError('GK IS STANDALONE — DESELECT OTHER ROLES FIRST');
+        return;
+      }
+      setPositionStates(prev => {
+        const cleared: Record<string, 0 | 1 | 2> = {};
+        for (const r of Object.keys(prev)) cleared[r] = 0;
+        cleared['GK'] = 2;
+        return cleared;
+      });
+      return;
+    }
+
+    // Outfield role: block if GK is selected or even partial
+    if ((positionStates['GK'] ?? 0) !== 0) {
+      setRoleError('DESELECT GK FIRST');
+      return;
+    }
+
     // Off → partial, or partial → active
     const next = (current + 1) as 1 | 2;
-
     if (next === 2) {
-      // Activating — run all constraints
-      if (role === 'GK') {
-        if (Object.entries(positionStates).some(([r, s]) => r !== 'GK' && s === 2)) {
-          setRoleError('GK CANNOT COMBINE');
-          return;
-        }
-        // Demote any other active roles to partial so GK stands alone
-        setPositionStates(prev => {
-          const updated: Record<string, 0 | 1 | 2> = {};
-          for (const [r, s] of Object.entries(prev)) {
-            updated[r] = r === 'GK' ? 2 : (s === 2 ? 1 : s as 0 | 1);
-          }
-          updated['GK'] = 2;
-          return updated;
-        });
-        return;
-      }
-      if ((positionStates['GK'] ?? 0) === 2) {
-        setRoleError('GK CANNOT COMBINE');
-        return;
-      }
       const newActive = [...selectedRoles, role];
       if (newActive.length > 3) { setRoleError('MAX 3 ROLES'); return; }
       if (!validateRoleAdjacency(newActive)) { setRoleError('NOT ADJACENT'); return; }
@@ -322,32 +321,41 @@ export default function NewPlayerScreen() {
           <MonoLabel size={9} color={theme.inkMuted}>· MAX 3</MonoLabel>
         </View>
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 4, backgroundColor: theme.surface }}>
-          {ROLE_GRID.map((row, ri) => (
-            <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < ROLE_GRID.length - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
-              {row.map((role, ci) => {
-                const st = (positionStates[role ?? ''] ?? 0) as 0 | 1 | 2;
-                return (
-                  <Pressable
-                    key={`${ri}-${ci}`}
-                    onPress={() => toggleRole(role)}
-                    disabled={role === null}
-                    style={{
-                      flex: 1, paddingVertical: 13, alignItems: 'center',
-                      backgroundColor: st === 2 ? theme.ink : st === 1 ? theme.surface3 : 'transparent',
-                      borderRightWidth: ci < 2 ? 1 : 0, borderRightColor: theme.hairline,
-                    }}
-                  >
-                    <Text style={{
-                      fontFamily: theme.mono, fontSize: 11, letterSpacing: 1,
-                      color: role
-                        ? (st === 2 ? theme.bg : st === 1 ? theme.inkSec : theme.hairline2)
-                        : 'transparent',
-                    }}>{role ?? '·'}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          ))}
+          {ROLE_GRID.map((row, ri) => {
+            const gkSelected = (positionStates['GK'] ?? 0) !== 0;
+            const hasOutfield = Object.entries(positionStates).some(([r, s]) => r !== 'GK' && s > 0);
+            return (
+              <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < ROLE_GRID.length - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
+                {row.map((role, ci) => {
+                  const st = (positionStates[role ?? ''] ?? 0) as 0 | 1 | 2;
+                  const locked = role !== null && (
+                    (role === 'GK' && hasOutfield) ||
+                    (role !== 'GK' && gkSelected)
+                  );
+                  return (
+                    <Pressable
+                      key={`${ri}-${ci}`}
+                      onPress={() => toggleRole(role)}
+                      disabled={role === null || locked}
+                      style={{
+                        flex: 1, paddingVertical: 13, alignItems: 'center',
+                        backgroundColor: st === 2 ? theme.ink : st === 1 ? theme.surface3 : 'transparent',
+                        borderRightWidth: ci < 2 ? 1 : 0, borderRightColor: theme.hairline,
+                        opacity: locked ? 0.25 : 1,
+                      }}
+                    >
+                      <Text style={{
+                        fontFamily: theme.mono, fontSize: 11, letterSpacing: 1,
+                        color: role
+                          ? (st === 2 ? theme.bg : st === 1 ? theme.inkSec : theme.hairline2)
+                          : 'transparent',
+                      }}>{role ?? '·'}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            );
+          })}
         </View>
         {roleError ? (
           <MonoLabel size={10} color={theme.neg} style={{ marginBottom: 6 }}>⚠ {roleError}</MonoLabel>

@@ -81,18 +81,27 @@ export default function EditPlayerScreen() {
   function toggleRole(role: string | null) {
     if (!role) return;
     setRoleError('');
-    let next: string[];
     if (selectedRoles.includes(role)) {
-      next = selectedRoles.filter(r => r !== role);
-    } else {
-      if (role === 'GK') { setSelectedRoles(['GK']); return; }
-      if (selectedRoles.includes('GK')) { setRoleError('GK CANNOT COMBINE'); return; }
-      next = [...selectedRoles, role];
-    }
-    if (next.length > 0 && !validateRoleAdjacency(next)) {
-      setRoleError('NOT ADJACENT');
+      setSelectedRoles(selectedRoles.filter(r => r !== role));
       return;
     }
+    // GK is exclusively standalone
+    if (role === 'GK') {
+      if (selectedRoles.some(r => r !== 'GK')) {
+        setRoleError('GK IS STANDALONE — DESELECT OTHER ROLES FIRST');
+        return;
+      }
+      setSelectedRoles(['GK']);
+      return;
+    }
+    // Outfield role: block if GK is selected
+    if (selectedRoles.includes('GK')) {
+      setRoleError('DESELECT GK FIRST');
+      return;
+    }
+    const next = [...selectedRoles, role];
+    if (next.length > 3) { setRoleError('MAX 3 ROLES'); return; }
+    if (!validateRoleAdjacency(next)) { setRoleError('NOT ADJACENT'); return; }
     setSelectedRoles(next);
   }
 
@@ -248,33 +257,42 @@ export default function EditPlayerScreen() {
           <MonoLabel size={9} color={theme.inkMuted}>· MAX 3</MonoLabel>
         </View>
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 4, backgroundColor: theme.surface }}>
-          {ROLE_GRID.map((row, ri) => (
-            <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < ROLE_GRID.length - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
-              {row.map((role, ci) => {
-                const sel = role !== null && selectedRoles.includes(role);
-                return (
-                  <Pressable
-                    key={`${ri}-${ci}`}
-                    onPress={() => toggleRole(role)}
-                    disabled={role === null}
-                    style={{
-                      flex: 1,
-                      paddingVertical: 13,
-                      alignItems: 'center',
-                      backgroundColor: sel ? theme.ink : 'transparent',
-                      borderRightWidth: ci < 2 ? 1 : 0,
-                      borderRightColor: theme.hairline,
-                    }}
-                  >
-                    <Text style={{
-                      fontFamily: theme.mono, fontSize: 11, letterSpacing: 1,
-                      color: role ? (sel ? theme.bg : theme.inkSec) : 'transparent',
-                    }}>{role ?? '·'}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          ))}
+          {ROLE_GRID.map((row, ri) => {
+            const gkSelected = selectedRoles.includes('GK');
+            const hasOutfield = selectedRoles.some(r => r !== 'GK');
+            return (
+              <View key={ri} style={{ flexDirection: 'row', borderBottomWidth: ri < ROLE_GRID.length - 1 ? 1 : 0, borderBottomColor: theme.hairline }}>
+                {row.map((role, ci) => {
+                  const sel = role !== null && selectedRoles.includes(role);
+                  const locked = role !== null && (
+                    (role === 'GK' && hasOutfield) ||
+                    (role !== 'GK' && gkSelected)
+                  );
+                  return (
+                    <Pressable
+                      key={`${ri}-${ci}`}
+                      onPress={() => toggleRole(role)}
+                      disabled={role === null || locked}
+                      style={{
+                        flex: 1,
+                        paddingVertical: 13,
+                        alignItems: 'center',
+                        backgroundColor: sel ? theme.ink : 'transparent',
+                        borderRightWidth: ci < 2 ? 1 : 0,
+                        borderRightColor: theme.hairline,
+                        opacity: locked ? 0.25 : 1,
+                      }}
+                    >
+                      <Text style={{
+                        fontFamily: theme.mono, fontSize: 11, letterSpacing: 1,
+                        color: role ? (sel ? theme.bg : theme.inkSec) : 'transparent',
+                      }}>{role ?? '·'}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            );
+          })}
         </View>
         {roleError ? (
           <MonoLabel size={10} color={theme.neg} style={{ marginBottom: 6 }}>⚠ {roleError}</MonoLabel>
