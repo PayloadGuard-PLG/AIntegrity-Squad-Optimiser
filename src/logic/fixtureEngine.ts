@@ -33,11 +33,15 @@ export function calculateRestorersBridge(
   naturalCycles: number,
   profile: GameProfile
 ): GreensBridgeSuggestion {
-  const cyclesPerRestorer = Math.floor(profile.conditionPerRestorer / profile.conditionCostPerDrill);
+  // condition cost per drill at Very Easy + Fan Club L0 (reference scenario for restorer bridge)
+  const costPerDrill = profile.baseLossPerDrill
+    * (profile.condLevelMultipliers?.['Very Easy'] ?? 1)
+    * (1 - (profile.fanClubCondReduction?.[0] ?? 0.1));
+  const cyclesPerRestorer = costPerDrill > 0 ? Math.floor(profile.conditionPerRestorer / costPerDrill) : 0;
   const additionalCycles = availableRestorers * cyclesPerRestorer;
   const worthwhile = additionalCycles > 0 && naturalCycles > 0;
   const note = worthwhile
-    ? `${availableRestorers} restorer${availableRestorers !== 1 ? 's' : ''} → +${additionalCycles} extra cycle${additionalCycles !== 1 ? 's' : ''} (${cyclesPerRestorer} per restorer · ${profile.conditionPerRestorer}% restored / ${profile.conditionCostPerDrill}% per drill)`
+    ? `${availableRestorers} restorer${availableRestorers !== 1 ? 's' : ''} → +${additionalCycles} extra drills (${cyclesPerRestorer} per restorer · ${profile.conditionPerRestorer}% restored / ${costPerDrill.toFixed(3)}% per drill at Very Easy)`
     : availableRestorers === 0
       ? 'No restorers available — bridge not possible.'
       : 'Set fixture window to evaluate bridge value.';

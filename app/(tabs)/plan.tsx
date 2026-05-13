@@ -28,6 +28,14 @@ const TIER_ADDITIONS: Record<TierName, number> = _profile.tierAttrAdditions as R
 const TIER_INCREMENTS: Record<TierName, number> = _profile.tierIncrements as Record<TierName, number>;
 const TIER_COSTS: Record<TierName, number> = _profile.tierPointsRequired as Record<TierName, number>;
 const DRILL_NAMES = DRILL_LIST.map(d => d.name);
+
+function drillTypeColor(name: string, t: typeof theme): string {
+  const d = DRILL_LIST.find(dl => dl.name === name);
+  if (d?.type === 'Attack')     return t.steelLight;
+  if (d?.type === 'Defence')    return '#86c5d6';
+  if (d?.type === 'Possession') return '#a78bfa';
+  return t.hot; // Physical
+}
 const TEAM_PLAY_PILLARS: TeamPlayPillar[] = ['attack', 'defence', 'possession', 'condition'];
 
 type Section = 'drills' | 'resources' | 'tier' | 'teamplay';
@@ -275,17 +283,6 @@ export default function PlanScreen() {
                 </View>
               </View>
 
-              {/* DRILL LEVEL card */}
-              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
-                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
-                  <MonoLabel size={10} color={theme.steelLight}>DRILL LEVEL</MonoLabel>
-                </View>
-                <View style={{ padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                  {DRILL_LEVELS.map(l => <Chip key={l} active={drillLevel === l} onPress={() => { setDrillLevel(l); invalidate(); }}>{l}</Chip>)}
-                </View>
-              </View>
-
               {/* 2× AD toggle */}
               <Pressable onPress={() => { setTwoxAd(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: twoxAd ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 12, paddingHorizontal: 14, marginBottom: 10 }}>
                 <View style={{ width: 16, height: 16, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
@@ -303,6 +300,7 @@ export default function PlanScreen() {
                   <View key={idx} style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
                       <MonoLabel size={10} style={{ minWidth: 22 }}>{String(idx + 1).padStart(2, '0')}</MonoLabel>
+                      <View style={{ width: 3, height: 14, backgroundColor: drillTypeColor(row.drillName, theme), marginRight: 2 }} />
                       <Text style={{ flex: 1, fontSize: 14, color: theme.ink, fontWeight: '700', fontFamily: theme.display }}>{row.drillName}</Text>
                       <Pressable onPress={() => setDrillRows(rows => rows.filter((_, i) => i !== idx))}>
                         <Text style={{ color: theme.neg, fontSize: 16, paddingHorizontal: 6 }}>×</Text>
@@ -366,8 +364,8 @@ export default function PlanScreen() {
                       </View>
                       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
                         {preset.drillNames.map(n => (
-                          <View key={n} style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: theme.hairline3 }}>
-                            <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: theme.inkSec }}>{n}</Text>
+                          <View key={n} style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: drillTypeColor(n, theme) + '88' }}>
+                            <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: drillTypeColor(n, theme) }}>{n}</Text>
                           </View>
                         ))}
                       </View>
