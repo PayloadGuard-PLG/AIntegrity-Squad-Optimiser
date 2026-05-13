@@ -319,9 +319,9 @@ Note: L5 and L6 both show +25% — whether bonus plateaus at L5 or scales differ
 
 ### 6.2 Free daily maintenance (all managers)
 
-Four free teamplay training drills are available daily, accessible by watching ads. These drills specifically raise teamplay pillar scores. A base multiplier (2×–4×, scaling with ads watched) applies to the teamplay gain from these drills.
+Four free teamplay training drills are available daily, accessible by watching ads. These drills specifically raise teamplay pillar scores. A ×1.5 (150%) multiplier applies to the teamplay gain from these drills.
 
-**Effective free daily boost:** 4 drills × base multiplier — sufficient to offset the ~2-point daily decay if used consistently.
+**Effective free daily boost:** 4 drills × 1.5 multiplier — sufficient to offset the ~2-point daily decay if used consistently.
 
 ### 6.3 Match Advisor (premium)
 
@@ -329,7 +329,7 @@ The Match Advisor grants **+150% Teamplay multiplier on all training sessions** 
 
 | Boost type | Scope | Duration | Cost |
 |---|---|---|---|
-| 4 free ad drills (2×–4× mult) | Teamplay drills only | Daily | Free |
+| 4 free ad drills (×1.5 / 150%) | Teamplay drills only | Daily | Free |
 | Match Advisor (+150%) | All training sessions | 7 days | Premium milestone |
 | Match Advisor (+150%) | All training sessions | 1 day | 25 tokens |
 
