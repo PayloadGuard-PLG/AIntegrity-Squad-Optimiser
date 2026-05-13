@@ -113,6 +113,12 @@ export default function EditPlayerScreen() {
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         )};
         setStatInputs(updated);
+        // Infer GK when role OCR fails (stripe background) but GK stats are clearly present
+        if ((!data.roles || data.roles.length === 0) && updated['REFLEXES'] !== undefined && updated['TACKLING'] === undefined) {
+          setSelectedRoles(['GK']);
+        } else if (data.roles && data.roles.length > 0) {
+          setSelectedRoles(data.roles);
+        }
         // Auto-recompute OVR from merged stats
         const statsObj: Record<string, number> = {};
         for (const [k, v] of Object.entries(updated)) {

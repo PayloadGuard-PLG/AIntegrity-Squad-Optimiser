@@ -104,12 +104,19 @@ export default function NewPlayerScreen() {
         Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
       };
       if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
-      if (data.roles && data.roles.length > 0) setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
+      if (data.roles && data.roles.length > 0) {
+        setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
+      }
 
       if (data.stats && Object.keys(data.stats).length > 0) {
         const inputs = Object.fromEntries(
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         );
+        // If role detection failed but stats are GK-specific, auto-infer GK.
+        // GK cards have REFLEXES/AGILITY/etc. but never TACKLING/PASSING/etc.
+        if ((!data.roles || data.roles.length === 0) && inputs['REFLEXES'] !== undefined && inputs['TACKLING'] === undefined) {
+          setPositionStates({ GK: 2 });
+        }
         setStatInputs(inputs);
         recomputeOvr(inputs);
         setScanned(true);

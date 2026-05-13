@@ -272,7 +272,7 @@ whiteStats = ROLE_CONSTRAINTS[role1].essential
 | Role | White count |
 |---|---|
 | ST | 9 |
-| GK | 7 |
+| GK | 11 |
 | AMC | 8 |
 | AML | 8 |
 | AMR | 8 |
