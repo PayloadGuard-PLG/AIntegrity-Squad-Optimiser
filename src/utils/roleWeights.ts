@@ -42,19 +42,75 @@ export const ADJACENCY_MAP: Record<string, string[]> = {
 // essential = white stats (full XP efficiency)
 // secondary = grey stats (×0.5 XP efficiency per profile.greyWeightMultiplier)
 export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: string[] }> = {
-  ST:  { essential: ['FINISHING', 'SHOOTING', 'DRIBBLING', 'PASSING', 'POSITIONING', 'HEADING'], secondary: ['STRENGTH', 'SPEED', 'CREATIVITY'] },
-  GK:  { essential: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION', 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION'], secondary: ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'] },
-  AMC: { essential: ['PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'HEADING'], secondary: ['SPEED', 'CREATIVITY', 'FITNESS'] },
-  AML: { essential: ['CROSSING', 'DRIBBLING', 'PASSING', 'SHOOTING', 'FINISHING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  AMR: { essential: ['CROSSING', 'DRIBBLING', 'PASSING', 'SHOOTING', 'FINISHING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  ML:  { essential: ['CROSSING', 'PASSING', 'DRIBBLING', 'POSITIONING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  MR:  { essential: ['CROSSING', 'PASSING', 'DRIBBLING', 'POSITIONING'], secondary: ['FITNESS', 'SPEED', 'CREATIVITY'] },
-  MC:  { essential: ['PASSING', 'DRIBBLING', 'SHOOTING', 'TACKLING', 'POSITIONING', 'BRAVERY'], secondary: ['FITNESS', 'STRENGTH', 'SPEED', 'CREATIVITY'] },
-  DMC: { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING'], secondary: ['FITNESS', 'STRENGTH', 'AGGRESSION'] },
-  DC:  { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'], secondary: ['STRENGTH', 'AGGRESSION'] },
-  DL:  { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING'], secondary: ['FITNESS', 'AGGRESSION', 'SPEED'] },
-  DR:  { essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING'], secondary: ['FITNESS', 'AGGRESSION', 'SPEED'] },
+  ST:  {
+    essential: ['POSITIONING', 'HEADING', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'STRENGTH', 'SPEED', 'CREATIVITY'],
+    secondary: ['TACKLING', 'MARKING', 'BRAVERY', 'CROSSING', 'FITNESS', 'AGGRESSION'],
+  },
+  GK:  {
+    essential: ['REFLEXES', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION', 'KICKING', 'AERIAL REACH', 'FITNESS'],
+    secondary: ['AGILITY', 'THROWING', 'PUNCHING', 'CONCENTRATION', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
+  },
+  AMC: {
+    essential: ['HEADING', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING', 'STRENGTH', 'AGGRESSION'],
+  },
+  AML: {
+    essential: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'STRENGTH', 'AGGRESSION'],
+  },
+  AMR: {
+    essential: ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'STRENGTH', 'AGGRESSION'],
+  },
+  ML:  {
+    essential: ['POSITIONING', 'PASSING', 'DRIBBLING', 'CROSSING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['TACKLING', 'MARKING', 'HEADING', 'BRAVERY', 'SHOOTING', 'FINISHING', 'STRENGTH', 'AGGRESSION'],
+  },
+  MR:  {
+    essential: ['POSITIONING', 'PASSING', 'DRIBBLING', 'CROSSING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['TACKLING', 'MARKING', 'HEADING', 'BRAVERY', 'SHOOTING', 'FINISHING', 'STRENGTH', 'AGGRESSION'],
+  },
+  MC:  {
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'PASSING', 'DRIBBLING', 'FITNESS', 'STRENGTH', 'SPEED', 'CREATIVITY'],
+    secondary: ['HEADING', 'CROSSING', 'SHOOTING', 'FINISHING', 'AGGRESSION'],
+  },
+  DMC: {
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'FITNESS', 'STRENGTH', 'AGGRESSION', 'CREATIVITY'],
+    secondary: ['DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'SPEED'],
+  },
+  DC:  {
+    essential: ['POSITIONING', 'HEADING', 'FITNESS', 'STRENGTH', 'AGGRESSION'],
+    secondary: ['TACKLING', 'MARKING', 'BRAVERY', 'PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'SPEED', 'CREATIVITY'],
+  },
+  DL:  {
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING', 'FITNESS', 'AGGRESSION', 'SPEED'],
+    secondary: ['HEADING', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'STRENGTH', 'CREATIVITY'],
+  },
+  DR:  {
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'CROSSING', 'FITNESS', 'AGGRESSION', 'SPEED'],
+    secondary: ['HEADING', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'STRENGTH', 'CREATIVITY'],
+  },
 };
+
+/**
+ * For each role R1 and each role R2 adjacent to it, lists the stats that
+ * become white when R2 is added to a player who already has R1.
+ * i.e. ROLE_CONSTRAINTS[R2].essential − ROLE_CONSTRAINTS[R1].essential
+ * GK is excluded (GK cannot combine with outfield roles).
+ */
+export const ROLE_CROSSOVER_WHITES: Record<string, Record<string, string[]>> = (() => {
+  const result: Record<string, Record<string, string[]>> = {};
+  for (const [r1, neighbours] of Object.entries(ADJACENCY_MAP)) {
+    if (r1 === 'GK' || !ROLE_CONSTRAINTS[r1]) continue;
+    result[r1] = {};
+    for (const r2 of neighbours) {
+      if (r2 === 'GK' || !ROLE_CONSTRAINTS[r2]) continue;
+      const base = new Set(ROLE_CONSTRAINTS[r1].essential);
+      result[r1][r2] = ROLE_CONSTRAINTS[r2].essential.filter(s => !base.has(s));
+    }
+  }
+  return result;
+})();
 
 export function validateRoleAdjacency(roles: string[]): boolean {
   if (roles.length <= 1) return true;
