@@ -21,10 +21,12 @@ const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.
 const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — +50% vs normal\nFast ×1.25 — +25%\nAverage ×1.1 — +10%\nNormal ×1.0 — baseline\nSlow ×0.7 — -30%\n\nDetected automatically from player card scan.';
 
 const ROLE_GRID = [
-  [null, 'DR', 'DC', 'DL'],
-  ['GK', 'MR', 'MC', 'ML'],
-  [null, 'AMR', 'AMC', 'AML'],
-  [null, null, 'ST', null],
+  [null,  'ST',  null ],
+  ['AML', 'AMC', 'AMR'],
+  ['ML',  'MC',  'MR' ],
+  [null,  'DMC', null ],
+  ['DL',  'DC',  'DR' ],
+  [null,  'GK',  null ],
 ];
 
 const inputStyle = {
@@ -325,7 +327,7 @@ export default function NewPlayerScreen() {
                     style={{
                       flex: 1, paddingVertical: 13, alignItems: 'center',
                       backgroundColor: st === 2 ? theme.ink : st === 1 ? theme.surface3 : 'transparent',
-                      borderRightWidth: ci < 3 ? 1 : 0, borderRightColor: theme.hairline,
+                      borderRightWidth: ci < 2 ? 1 : 0, borderRightColor: theme.hairline,
                     }}
                   >
                     <Text style={{
