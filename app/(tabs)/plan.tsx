@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert, Modal } from 'react-native';
-import { router } from 'expo-router';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { View, Text, Pressable, ScrollView, TextInput, Alert } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -88,7 +88,6 @@ export default function PlanScreen() {
   );
   const [section, setSection] = useState<Section>('drills');
   const [plan, setPlan] = useState<InvestmentPlan | null>(null);
-  const [showPresetPicker, setShowPresetPicker] = useState(false);
   const [savedPresets, setSavedPresets] = useState<DrillPreset[]>([]);
   const [fixtureHours, setFixtureHours] = useState('');
   const [fixtureCooldown, setFixtureCooldown] = useState('60');
@@ -100,6 +99,9 @@ export default function PlanScreen() {
 
   // Invalidate projection when player changes from another tab
   useEffect(() => { setPlan(null); }, [selectedId]);
+
+  // Reload presets whenever this tab comes into focus (catches saves made on the Drills tab)
+  useFocusEffect(useCallback(() => { setSavedPresets(drillPresetService.getAll()); }, []));
 
   const fixtureWindow = useMemo(() => {
     const h = parseFloat(fixtureHours);
@@ -324,14 +326,54 @@ export default function PlanScreen() {
                     </View>
                   </View>
                 ))}
-                <View style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, flexDirection: 'row' }}>
-                  <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ flex: 1, padding: 12, alignItems: 'center', backgroundColor: theme.surface, borderRightWidth: 1, borderRightColor: theme.hairline2 }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
-                  </Pressable>
-                  <Pressable onPress={() => { setSavedPresets(drillPresetService.getAll()); setShowPresetPicker(true); }} style={{ paddingHorizontal: 16, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: theme.hot }}>LOAD PRESET</Text>
-                  </Pressable>
+                <Pressable onPress={() => setDrillRows(rows => [...rows, newDrill()])} style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12, alignItems: 'center', backgroundColor: theme.surface }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: theme.steelLight }}>＋  ADD DRILL</Text>
+                </Pressable>
+              </View>
+
+              {/* SAVED PRESETS */}
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+                <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight}>SAVED PRESETS</MonoLabel>
+                  {savedPresets.length > 0 && <MonoLabel size={9} color={theme.inkGhost} style={{ marginLeft: 8 }}>{savedPresets.length}</MonoLabel>}
                 </View>
+                {savedPresets.length === 0 ? (
+                  <View style={{ paddingVertical: 14, paddingHorizontal: 14 }}>
+                    <MonoLabel size={10} color={theme.inkGhost}>NO SAVED PRESETS — CREATE FROM DRILLS TAB</MonoLabel>
+                  </View>
+                ) : (
+                  savedPresets.map((preset, idx) => (
+                    <View key={preset.id} style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, padding: 12, paddingHorizontal: 14 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                        <Text style={{ flex: 1, fontSize: 13, fontWeight: '600', color: theme.ink, fontFamily: theme.display }}>{preset.name}</Text>
+                        <Pressable onPress={() => {
+                          const newRows: DrillSession[] = preset.drillNames.map(name => {
+                            const d = DRILL_LIST.find(dl => dl.name === name);
+                            return { drillName: name, sessionCount: 6, drillLevel: (d?.intensity ?? 'Very Easy') as DrillLevel };
+                          });
+                          setDrillRows(newRows);
+                          invalidate();
+                        }} style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: theme.ink, marginRight: 6 }}>
+                          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, fontWeight: '700', color: theme.bg }}>LOAD</Text>
+                        </Pressable>
+                        <Pressable onPress={() => {
+                          drillPresetService.delete(preset.id);
+                          setSavedPresets(drillPresetService.getAll());
+                        }} style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.neg + '66' }}>
+                          <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.neg }}>×</Text>
+                        </Pressable>
+                      </View>
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+                        {preset.drillNames.map(n => (
+                          <View key={n} style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: theme.hairline3 }}>
+                            <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: theme.inkSec }}>{n}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  ))
+                )}
               </View>
 
               {/* FIXTURE WINDOW card */}
@@ -571,48 +613,6 @@ export default function PlanScreen() {
         </View>
       </ScrollView>
 
-      {/* Preset Picker Modal */}
-      <Modal visible={showPresetPicker} transparent animationType="slide" onRequestClose={() => setShowPresetPicker(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <View style={{ backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.hairline2, maxHeight: '70%' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.hairline2 }}>
-              <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>LOAD PRESET</MonoLabel>
-              <Pressable onPress={() => setShowPresetPicker(false)} style={{ paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.hairline2 }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.inkSec }}>CLOSE</Text>
-              </Pressable>
-            </View>
-            <ScrollView contentContainerStyle={{ padding: 14, gap: 8 }}>
-              {savedPresets.length === 0 ? (
-                <View style={{ padding: 40, alignItems: 'center' }}>
-                  <MonoLabel color={theme.inkGhost}>NO SAVED PRESETS</MonoLabel>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.inkGhost, marginTop: 6, letterSpacing: 0.5, textAlign: 'center' }}>Build a preset on the Drills tab first.</Text>
-                </View>
-              ) : (
-                savedPresets.map(preset => (
-                  <Pressable key={preset.id} onPress={() => {
-                    const newRows: DrillSession[] = preset.drillNames.map(name => ({ drillName: name, sessionCount: 6, drillLevel: 'Very Easy' as DrillLevel }));
-                    setDrillRows(rows => [...rows.filter(r => r.drillName !== 'Touch Training' || rows.length > 1), ...newRows].slice(0, 12));
-                    invalidate();
-                    setShowPresetPicker(false);
-                  }} style={{ borderWidth: 1, borderColor: theme.hairline2, backgroundColor: theme.surface, padding: 12, paddingHorizontal: 14 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                      <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: theme.ink, fontFamily: theme.display }}>{preset.name}</Text>
-                      <MonoLabel size={9} color={theme.inkGhost}>{preset.drillNames.length} DRILLS</MonoLabel>
-                    </View>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
-                      {preset.drillNames.map(n => (
-                        <View key={n} style={{ paddingHorizontal: 6, paddingVertical: 3, borderWidth: 1, borderColor: theme.hairline3 }}>
-                          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.8, color: theme.inkSec }}>{n}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </Pressable>
-                ))
-              )}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

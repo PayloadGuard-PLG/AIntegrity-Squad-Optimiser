@@ -77,7 +77,7 @@ export function applyDrillSessionsToStats(
     const drill = findDrill(session.drillName);
     if (!drill) continue;
 
-    const drillLevelMult = profile.drillLevelMultipliers[session.drillLevel] ?? 1.0;
+    const drillLevelMult = profile.drillLevelMultipliers[drill.intensity] ?? 1.0;
     const statDeltas: string[] = [];
 
     let drillHits = 0;
@@ -123,7 +123,7 @@ export function applyDrillSessionsToStats(
       const ovrDelta = Number((newOvr - runningOvr).toFixed(1));
       steps.push({
         action: 'drill',
-        description: `${session.drillName} ×${session.sessionCount} sessions (${session.drillLevel})`,
+        description: `${session.drillName} ×${session.sessionCount} sessions (${drill.intensity})`,
         ovrBefore: runningOvr,
         ovrAfter: newOvr,
         resourcesUsed: `${session.sessionCount} sessions`,
