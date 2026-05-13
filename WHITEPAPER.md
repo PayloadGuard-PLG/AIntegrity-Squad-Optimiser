@@ -434,7 +434,7 @@ Every role maps exactly 15 stats (essential + secondary = 15). Verified from gam
 | Role | White (essential) | Grey (secondary) |
 |---|---|---|
 | ST | POSITIONING, HEADING, PASSING, DRIBBLING, SHOOTING, FINISHING, STRENGTH, SPEED, CREATIVITY (9) | TACKLING, MARKING, BRAVERY, CROSSING, FITNESS, AGGRESSION (6) |
-| GK | REFLEXES, ANTICIPATION, RUSHING OUT, COMMUNICATION, KICKING, AERIAL REACH, FITNESS (7) | AGILITY, THROWING, PUNCHING, CONCENTRATION, STRENGTH, AGGRESSION, SPEED, CREATIVITY (8) |
+| GK | REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION, FITNESS (11) | STRENGTH, AGGRESSION, SPEED, CREATIVITY (4) |
 | AMC | HEADING, PASSING, DRIBBLING, SHOOTING, FINISHING, FITNESS, SPEED, CREATIVITY (8) | TACKLING, MARKING, POSITIONING, BRAVERY, CROSSING, STRENGTH, AGGRESSION (7) |
 | AML | PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, FITNESS, SPEED, CREATIVITY (8) | TACKLING, MARKING, POSITIONING, HEADING, BRAVERY, STRENGTH, AGGRESSION (7) |
 | AMR | same as AML | same as AML |
@@ -564,7 +564,7 @@ interface InvestmentPlan {
 | Item | Status |
 |---|---|
 | Drill XP baseline | `baseXpPerSession = 150` confirmed from Standard Attacking ×30 (age 18, Normal talent). Validate for other intensities/ages with CALIBRATION_LOG data. |
-| GK white stat list | Corrected Sprint 17: 7 white (REFLEXES, ANTICIPATION, RUSHING OUT, COMMUNICATION, KICKING, AERIAL REACH, FITNESS) + 8 grey (AGILITY, THROWING, PUNCHING, CONCENTRATION, STRENGTH, AGGRESSION, SPEED, CREATIVITY). Sprint 8 entry was wrong — AGILITY, THROWING, PUNCHING, CONCENTRATION are grey, not white. |
+| GK white stat list | Corrected Sprint 17 (final): all 10 GK-specific stats + FITNESS = 11 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION, FITNESS). Secondary: STRENGTH, AGGRESSION, SPEED, CREATIVITY (4). Earlier Sprint 17 intermediate had 7 white — superseded by direct game card verification. |
 | GK stat entry UI | Fixed Sprint 9: GK_STATS grid 10 → 15; all confirmed from Sutters card. |
 | Tier bonus scope | Confirmed Sprint 16 (direct game observation): white (essential) stats only get the tier increment — grey role stats and off-role stats receive 0. Sprint 12 calibration (role stats white+grey) superseded. |
 | Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
@@ -639,7 +639,7 @@ Only tokens on the same baseline as a recognised stat name are scanned for the g
 | 1.0 | Sprint 13 | Squad Plan tab (per-player run history, persistent DB). Coach Session Capture screen (squad auto-fill, lo/hi gain logger, live OVR boost preview). Coaches tab: 3-col stat grid, 2× AD removed, SAVE RUN button. |
 | 1.1 | Sprint 14 | Consistent DEF/ATT/PHY column colour scheme across all stat surfaces. Role OCR switched to token-exact matching. PR #4 merged to main; main is now source of truth. |
 | 1.2 | Sprints 15–16 | Tier rename T0–T6. Drill intensity field + filter. Coach OCR hardened (Y_TOL, GAIN_RE spaces, hi cap). Tier bonus corrected to white stats only. Grey stat visibility fix. Player scanner: split Y tolerances, cap 500, role detection backup, name digit filter. EAS workflow android-only/main-only. |
-| 1.3 | Sprint 17 | All 13 role stat baselines corrected to exactly 15 stats each (verified from game). GK corrected (FITNESS→white, AGILITY/THROWING/PUNCHING/CONCENTRATION→grey). DMC added to role selection grid (6×3 layout). `ROLE_CROSSOVER_WHITES` export added. |
+| 1.3 | Sprint 17 | All 13 role stat baselines corrected to exactly 15 stats each (verified from game). GK corrected to 11 white (all 10 GK stats + FITNESS) + 4 grey (STRENGTH, AGGRESSION, SPEED, CREATIVITY) — verified from direct game card screenshot. DMC added to role selection grid (6×3 layout). `ROLE_CROSSOVER_WHITES` export added. GK auto-inference in scanner (infers GK role when REFLEXES detected but TACKLING absent and no role badge OCR). Maths centralised in `profiles/game_2025.json`. |
 
 ---
 
