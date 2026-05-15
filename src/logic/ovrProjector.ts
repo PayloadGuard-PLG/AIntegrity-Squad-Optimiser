@@ -187,9 +187,9 @@ export function projectOvr(
         const prevTier = ALL_TIERS[i - 1] as TierName;
         const inc  = (profile.tierAttrAdditions[stepTier] ?? 0) - (profile.tierAttrAdditions[prevTier] ?? 0);
         const cost = profile.tierPointsRequired?.[stepTier] ?? getTierCost(stepTier);
-        const tierOvrGain = Number(((inc * whiteKeys.length) / (profile.totalAttributeCount * profile.qualityOvrDivisor)).toFixed(1));
+        const tierOvrGain = (inc * whiteKeys.length) / (profile.totalAttributeCount * profile.qualityOvrDivisor);
         const ovrBefore = currentOvr;
-        currentOvr = Number((currentOvr + tierOvrGain).toFixed(1));
+        currentOvr += tierOvrGain;
         steps.push({
           action: 'tier',
           description: `Tier → ${stepTier} (+${inc} per white attr × ${whiteKeys.length} stats)`,
