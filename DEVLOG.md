@@ -6,6 +6,63 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 19 — Engine Calibration: Age Table, Star Decay, XP Float Bug
+**2026-05-15**
+
+Branch: `main` (commits `a94ec23`, `f7a63e9` + this sprint)
+
+### Shipped
+
+**OVR analytical path — rounding removed (commit `a94ec23`)**
+
+`projectOvr()` in `ovrProjector.ts` was applying `toFixed(1)` per tier upgrade step in the stat-less analytical path. Over 6 tiers this accumulated a compound rounding error, causing a 1-OVR discrepancy (Plan showed 233, stored value was 234 on a T0→T6 player). Fixed by accumulating OVR as exact floats across all tier steps; only the final display value is rounded.
+
+**Age table corrected to community-verified values (commit `f7a63e9`)**
+
+Previous age table was based on a single unverified calibration point and was ~3× wrong at prime ages (age 23 was 0.28, correct value is 0.85). Replaced with community-verified handoff values across all ages. The corrected table is the source of truth going forward:
+
+| Age | Old multiplier | New multiplier |
+|---|---|---|
+| 19 | 0.90 | 1.00 |
+| 20 | 0.55 | 1.00 |
+| 21 | 0.40 | 0.85 |
+| 22 | 0.32 | 0.85 |
+| 23 | 0.28 | 0.85 |
+| 24 | 0.24 | 0.72 |
+| 29 | 0.12 | 0.50 |
+| 30+ | 0.10 | 0 |
+
+**XP bracket float-straddling bug fixed (commit `f7a63e9`)**
+
+`xpBaseForStat` was comparing the raw float stat value against integer bracket boundaries. A stat at value `139.7` matched neither `[120, 139]` (too high) nor `[140, 159]` (too low) and returned `Infinity`, causing the training loop to halt. For a DR player running 50 sessions on top-6 ROI drills, this caused TACKLING to cap at ~139 and produced only +4 OVR instead of the correct +40 OVR. Fixed with `Math.floor(statValue)` before bracket lookup in `xpEngine.ts`.
+
+**Star decay — mechanism wired in engine (this sprint)**
+
+Star decay was present in the profile (`starDecayPerSession = 0.85`) but hardcoded as `0` (disabled) in `applyDrillSessionsToStats`. Now wired:
+
+```typescript
+const starsGained = Math.floor((runningOvr - ovrBefore) / (profile.starOvrThreshold ?? 20));
+```
+
+Passed to `estimateStatGainPct` at each stat calculation. Each star threshold = +20 OVR gained in the current session. `starDecayPerSession = 0.85` is a placeholder — exact value pending confirmation. Once confirmed, update `profiles/game_2025.json` only; no code change needed.
+
+`starOvrThreshold: number` added to `GameProfile` interface and `game_2025.json`.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F74 | 1-OVR discrepancy Plan vs stored OVR on T0→T6 players | Removed `toFixed(1)` per-step rounding in analytical OVR path |
+| F75 | Age table 3× wrong at prime ages (23→0.28 not 0.85) | Corrected to community-verified values |
+| F76 | XP bracket float-straddling halted training at fractional bracket boundaries | `Math.floor(statValue)` before bracket lookup |
+| F77 | Star decay in profile but never applied (hardcoded 0) | Wired `starsGained` from cumulative OVR gain in session |
+
+### Pending
+
+- Star decay ratio: `0.85` is a placeholder. Steve to confirm exact value next session.
+
+---
+
 ## Sprint 18 — Post-OTA Stabilisation: Tier Stacking, Player Sync, Plan Defaults
 **2026-05-15**
 

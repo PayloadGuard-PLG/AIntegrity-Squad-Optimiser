@@ -1,8 +1,8 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
-**Branch:** `claude/continue-development-CAQUS` (Sprint 17 — pending merge to `main`)
-**As of:** Sprint 17 — 2026-05-13 (Session CAQUS continued)
-**Deploy:** Create a new branch from `main`, push, PR back. EAS OTA auto-fires on merge to `main` (Android only).
+**Branch:** `main`
+**As of:** Sprint 19 — 2026-05-15
+**Deploy:** Push to `main`. EAS OTA auto-fires on merge to `main` (Android only).
 
 ---
 
@@ -58,14 +58,14 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 
 | # | Area | Task | Priority |
 |---|---|---|---|
-| 1 | OCR — roles | Token-exact matching is now in place. Still possible to get zero roles if the screenshot crops the role badges. Add a fallback: if no roles detected, keep the previously selected roles (don't wipe them). | Medium |
-| 2 | Touch Training drill | In `DRILL_LIST` as of Sprint 15. Stats: `['CONCENTRATION','DRIBBLING','HEADING','CREATIVITY']`, intensity Very Easy, baseLoss 0.75. Type TBC. | Resolved |
-| 3 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
-| 4 | Coach Capture → real calibration | The Capture screen is built but gains entered there don't update `game_2025.json` or the XP engine. Future: use captured lo/hi to back-solve actual XP budget and validate against model. | Low |
-| 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled in engine. | Low |
-| 6 | CLI drill levels | `src/index.ts` updated to new drill level names but not tested end-to-end. | Low |
-| 7 | Squad-wide season simulator | Plan tab projects one player. ~+7 OVR/season confirmed from squad-wide L4 Very Easy drilling. Not expressible in current UI. | Low |
-| 8 | AppHeader 6th tab | SQUAD PLAN is in the tab bar but the AppHeader scrollable nav still shows 5 tabs. Confirm SQUAD PLAN appears in `src/components/AppHeader.tsx` `NAV_ITEMS` array. | Quick check |
+| 1 | Star decay ratio | `starDecayPerSession = 0.85` is a placeholder. Steve to confirm exact value. Once confirmed, update `profiles/game_2025.json` only — wiring is already live in `applyDrillSessionsToStats`. | High |
+| 2 | Seasons planner tab | Planned new tab: project player stats across one full season including drills, tier, seasonal OVR decay (~20% base OVR drop per season). Requires seasonal decay modelling. No implementation started. | Medium |
+| 3 | OCR — roles | Token-exact matching is in place. Still possible to get zero roles if screenshot crops role badges. Add fallback: if no roles detected, keep previously selected roles. | Medium |
+| 4 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
+| 5 | Coach Capture → real calibration | Capture screen is built but gains don't update `game_2025.json` or XP engine. Future: back-solve actual XP budget from lo/hi captures. | Low |
+| 6 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled. | Low |
+| 7 | CLI drill levels | `src/index.ts` updated to new drill level names but not tested end-to-end. | Low |
+| 8 | AppHeader 6th tab | SQUAD PLAN is in tab bar. Confirm it appears in `src/components/AppHeader.tsx` `NAV_ITEMS` array. | Quick check |
 
 ---
 
@@ -115,9 +115,12 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 ### XP model
 ```
 budget_per_stat  = sessionCount × 150 (baseXpPerSession) / drill.stats.length
-xpCost_per_1%   = xpCostTable[statValue] / (ageMult × talentMult × greyMult × drillLevelMult)
+xpCost_per_1%   = xpCostTable[statValue] / (ageMult × talentMult × greyMult × drillLevelMult × starMult)
+starMult         = starDecayPerSession ^ floor((runningOvr - ovrBefore) / starOvrThreshold)
 gain             = fractional float; OVR = floor(mean(all 15 stats))
 ```
+
+Age multipliers (community-verified): peak 1.0 at 18–20, 0.85 at 21–23, 0.72 at 24–25, 0.61 at 26–28, 0.50 at 29, 0 at 30+.
 
 ### Condition model
 ```

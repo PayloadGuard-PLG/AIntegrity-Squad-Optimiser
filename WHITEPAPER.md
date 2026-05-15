@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 1.3 — Sprint 17**
+**Version 1.5 — Sprint 19**
 
 ---
 
@@ -109,22 +109,26 @@ Costs increase with stat value. Top-level players (stats 180–250) still train 
 
 ### 3.4 Age multipliers
 
+Community-verified values from the original project handoff document. Supersede earlier estimates which were based on a single unverified calibration point.
+
 | Age | Multiplier |
 |---|---|
 | 17 | 1.10 |
 | 18 | 1.00 |
-| 19 | 0.90 |
-| 20 | 0.55 |
-| 21 | 0.40 |
-| 22 | 0.32 |
-| 23 | 0.28 |
-| 24 | 0.24 |
-| 25 | 0.22 |
-| 26 | 0.19 |
-| 27 | 0.16 |
-| 28 | 0.14 |
-| 29 | 0.12 |
-| 30+ | 0.10 (clamped) |
+| 19 | 1.00 |
+| 20 | 1.00 |
+| 21 | 0.85 |
+| 22 | 0.85 |
+| 23 | 0.85 |
+| 24 | 0.72 |
+| 25 | 0.72 |
+| 26 | 0.61 |
+| 27 | 0.61 |
+| 28 | 0.61 |
+| 29 | 0.50 |
+| 30+ | 0 (clamped) |
+
+Ages not in the table interpolate linearly between the two nearest entries (`getAgeMultiplier` in `xpEngine.ts`).
 
 ### 3.5 Talent tier multipliers
 
@@ -156,7 +160,16 @@ Stats outside a player's role essential list (grey stats) receive `greyMult = 0.
 
 ### 3.8 Star decay
 
-No star decay is applied (`starDecayPerSession = 1.0`). Real training data (Standard Attacking ×30) shows near-linear gains across all session counts — aggressive per-% decay was not supported by observation and caused severely understated projections for high-stat players. The parameter remains in `game_2025.json` for future refinement if non-linearity is confirmed.
+Star decay reduces training efficiency as cumulative OVR gained within a session crosses star thresholds. Each threshold is +20 OVR gained in a session.
+
+```
+starsGained = floor(ovrGainedSoFarInSession / 20)
+sessionMult = starDecayPerSession ^ starsGained
+```
+
+`starDecayPerSession` is currently `0.85` (placeholder — exact ratio pending confirmation). `starOvrThreshold = 20` is confirmed.
+
+In `applyDrillSessionsToStats`, `starsGained` is computed from cumulative OVR gained since the start of the call (`runningOvr - ovrBefore`) and passed into `estimateStatGainPct`. This means each stat's gain calculation accounts for the decay earned by all preceding stats and drills in the same session.
 
 ---
 

@@ -35,6 +35,8 @@ export interface GameProfile {
   baseXpPerSession: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
+  /** OVR gain per star threshold — decay applies each time cumulative session OVR gain crosses a multiple of this */
+  starOvrThreshold: number;
   /** OVR = floor(sum / totalAttributeCount) */
   qualityOvrDivisor: number;
   totalAttributeCount: number;

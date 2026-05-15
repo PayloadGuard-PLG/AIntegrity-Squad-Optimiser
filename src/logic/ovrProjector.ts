@@ -96,11 +96,12 @@ export function applyDrillSessionsToStats(
       if (currentVal >= profile.statCap) continue;
 
       const isWhite = isWhiteStat(player.role, normalized);
+      const starsGained = Math.floor((runningOvr - ovrBefore) / (profile.starOvrThreshold ?? 20));
       const gainPct = estimateStatGainPct(
         session.sessionCount * profile.baseXpPerSession / drill.stats.length,
         currentVal,
         player.age,
-        0,
+        starsGained,
         talentTier,
         isWhite,
         twoxAdActive,
