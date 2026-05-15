@@ -21,6 +21,8 @@ export interface PlayerCardScan {
   tier?: string;
   talent?: string;
   stats: Record<string, number>;
+  newRole?: string;
+  newRolePoints?: number;
   _debug?: string;
 }
 
@@ -28,7 +30,8 @@ export interface PlayerCardScan {
 const UI_BLOCKLIST = ['Squad', 'Contract', 'Overview', 'Skills', 'Stats', 'Training',
   'Playstyle', 'Celebrations', 'Trainer', 'Personal', 'Defence', 'Attack', 'Physical',
   'Goalkeeping', 'Safeguard', 'Special', 'Ability', 'Team', 'None', 'Select', 'Player',
-  'Start', 'Reward', 'Goal Celebrations', 'Personal Trainer', 'Special Ability'];
+  'Start', 'Reward', 'Goal Celebrations', 'Personal Trainer', 'Special Ability',
+  'Age', 'Roles', 'Role', 'Level', 'Points', 'Overall', 'Rating', 'Talent'];
 
 const TIER_NAME_MAP: Record<string, string> = {
   None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
@@ -144,19 +147,40 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   const rawTalent = KNOWN_TALENTS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
   const talent = rawTalent ? (TALENT_NAME_MAP[rawTalent] ?? rawTalent) : undefined;
 
+  // Detect new role in training: "DMC+", "AML+" etc. — role name with "+" suffix
+  const newRoleRegex = new RegExp(`\\b(${KNOWN_ROLES.join('|')})\\+`, 'i');
+  const newRoleMatch = newRoleRegex.exec(fullText);
+  let newRole: string | undefined;
+  let newRolePoints: number | undefined;
+  if (newRoleMatch) {
+    newRole = newRoleMatch[1].toUpperCase();
+    // Look for a point count (0–50) near the matching token
+    const nrTok = tokens.find(t => new RegExp(`${newRole}\\+`, 'i').test(t.text));
+    if (nrTok) {
+      const nearby = tokens
+        .filter(t => Math.abs(t.top - nrTok.top) < Y_TOL_VAL)
+        .map(t => parseInt(t.text, 10))
+        .filter(n => !isNaN(n) && n >= 0 && n <= 50);
+      if (nearby.length > 0) newRolePoints = nearby[0];
+    }
+    newRolePoints = newRolePoints ?? 0;
+  }
+
   const nameCandidates = result.blocks.filter(b => {
     const t = b.text.trim();
     return (
       t.length >= 3 &&
       /^[A-Z][a-z]/.test(t) &&
+      !t.includes('+') &&                                         // role-in-training tokens contain "+"
+      !/^Age\s*[:.]?\s*\d/i.test(t) &&                           // "Age: 26" pattern
+      !/^\d/.test(t) &&
       !KNOWN_ROLES.includes(t.toUpperCase()) &&
       !KNOWN_TIERS.some(tier => t.toLowerCase() === tier.toLowerCase()) &&
       !UI_BLOCKLIST.some(kw =>
         kw.includes(' ')
           ? t.toLowerCase().includes(kw.toLowerCase())
           : t.toLowerCase() === kw.toLowerCase()
-      ) &&
-      !/^\d/.test(t)
+      )
     );
   });
   const nameBlock = nameCandidates.reduce<typeof nameCandidates[0] | undefined>(
@@ -166,5 +190,5 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   const name = nameBlock?.text.trim();
 
   const _debug = fullText.replace(/\n/g, ' | ').slice(0, 300);
-  return { name, age, roles: roles.length > 0 ? roles : undefined, overall, tier, talent, stats, _debug };
+  return { name, age, roles: roles.length > 0 ? roles : undefined, overall, tier, talent, stats, newRole, newRolePoints, _debug };
 }

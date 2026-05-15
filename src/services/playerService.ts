@@ -19,6 +19,8 @@ function toRow(p: Player): PlayerRow {
     stats: JSON.stringify(p.stats),
     isMutantCandidate: p.isMutantCandidate,
     snapshot: p.snapshot ? JSON.stringify(p.snapshot) : null,
+    newRole: p.newRole ?? null,
+    newRolePoints: p.newRolePoints ?? 0,
     createdAt: Date.now(),
   };
 }
@@ -58,6 +60,8 @@ function fromRow(row: PlayerRow): Player {
       stats: JSON.parse(row.stats) as Record<string, number>,
       isMutantCandidate: Boolean(row.isMutantCandidate),
       snapshot,
+      newRole: row.newRole ?? null,
+      newRolePoints: row.newRolePoints ?? 0,
     };
   } catch {
     return {
@@ -71,6 +75,8 @@ function fromRow(row: PlayerRow): Player {
       stats: {},
       isMutantCandidate: false,
       snapshot,
+      newRole: null,
+      newRolePoints: 0,
     };
   }
 }

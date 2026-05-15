@@ -6,6 +6,7 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
+import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
@@ -240,6 +241,9 @@ export default function ResultsScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: theme.display, fontSize: 17, fontWeight: '700', color: theme.ink }}>{player.name}</Text>
                 <MonoLabel size={9} color={theme.inkSec}>AGE {player.age} · {player.role.join(' / ')} · {player.tier ?? 'NO TIER'}</MonoLabel>
+                {player.newRole && (
+                  <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} />
+                )}
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={{ fontFamily: theme.display, fontSize: 24, fontWeight: '700', color: theme.ink }}>{player.overall}</Text>

@@ -9,6 +9,8 @@ export type ScanResult = {
   roles?: string[];
   tier?: string;
   talent?: string;
+  newRole?: string;
+  newRolePoints?: number;
 };
 
 export const useScanner = () => {

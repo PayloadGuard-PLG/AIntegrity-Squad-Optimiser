@@ -6,6 +6,7 @@ import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
+import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { CornerBrackets } from '../../src/components/atoms/CornerBrackets';
 import { theme, TIER_COLORS, ovrColor } from '../../src/constants/theme';
 import { Player } from '../../src/database/playerSchema';
@@ -61,6 +62,9 @@ function PlayerRow({ player, index }: { player: Player; index: number }) {
             </View>
           )}
         </View>
+        {player.newRole && (
+          <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} />
+        )}
       </View>
       <Text style={{ color: theme.inkMuted, fontFamily: theme.mono, fontSize: 14 }}>›</Text>
     </Pressable>

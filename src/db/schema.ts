@@ -11,6 +11,8 @@ export const players = sqliteTable('players', {
   talent: text('talent').notNull().default('Normal'),
   isMutantCandidate: integer('is_mutant_candidate', { mode: 'boolean' }).notNull().default(false),
   snapshot: text('snapshot'),  // JSON: PlayerSnapshot | null — pre-apply state for revert
+  newRole: text('new_role'),                                       // role currently being trained (e.g. "DMC")
+  newRolePoints: integer('new_role_points').notNull().default(0), // training progress 0–50; unlocks at 50
   createdAt: integer('created_at').notNull(),
 });
 

@@ -17,6 +17,8 @@ export interface Player {
   stats: Record<string, number>;
   isMutantCandidate: boolean;
   snapshot?: PlayerSnapshot | null;
+  newRole?: string | null;
+  newRolePoints?: number;
 }
 
 export const INITIAL_PLAYER_STATE: Player = {

@@ -6,6 +6,7 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
+import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { theme } from '../../src/constants/theme';
@@ -85,6 +86,13 @@ export default function DrillsScreen() {
               ))}
             </ScrollView>
           </>
+        )}
+
+        {/* Selected player NR bar — shown below chip selector, not inside chip */}
+        {selectedPlayer?.newRole && (
+          <View style={{ marginBottom: 8, paddingHorizontal: 2 }}>
+            <NewRoleBar roleName={selectedPlayer.newRole} points={selectedPlayer.newRolePoints ?? 0} />
+          </View>
         )}
 
         {/* Drill level selector */}

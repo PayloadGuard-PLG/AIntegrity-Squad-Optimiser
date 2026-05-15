@@ -56,6 +56,8 @@ export default function NewPlayerScreen() {
   const [scanMsg, setScanMsg] = useState('');
   const [scannedUri, setScannedUri] = useState<string | null>(null);
   const [scanRejected, setScanRejected] = useState(false);
+  const [newRole, setNewRole] = useState<string | null>(null);
+  const [newRolePoints, setNewRolePoints] = useState(0);
 
   const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
@@ -120,6 +122,7 @@ export default function NewPlayerScreen() {
         }
         setStatInputs(inputs);
         recomputeOvr(inputs);
+        if (data.newRole) { setNewRole(data.newRole); setNewRolePoints(data.newRolePoints ?? 0); }
         setScanned(true);
         setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
@@ -207,6 +210,8 @@ export default function NewPlayerScreen() {
         talent,
         stats: statsObj,
         isMutantCandidate: mutant,
+        newRole: newRole ?? undefined,
+        newRolePoints: newRolePoints,
       });
       router.back();
     } catch (err) {
