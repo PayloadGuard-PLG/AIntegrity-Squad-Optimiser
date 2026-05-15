@@ -386,6 +386,7 @@ export default function CoachesScreen() {
               <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>HIGHLIGHTED = ESSENTIAL · DIM = SECONDARY</MonoLabel>
               <StatGrid3Col
                 statKeys={[...white, ...grey]}
+                roles={player.role}
                 values={player.stats}
               />
             </View>
