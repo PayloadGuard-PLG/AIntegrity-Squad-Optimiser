@@ -45,7 +45,6 @@ function uid() { return String(++_uid); }
 export default function ResultsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [twoxAd, setTwoxAd] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
@@ -57,7 +56,7 @@ export default function ResultsScreen() {
   const [result, setResult] = useState<StepResult[] | null>(null);
   const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
 
-  const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
+  const player = squad.find(p => p.id === manager.selectedPlayerId) ?? (squad.length === 1 ? squad[0] : null);
 
   const { white, grey } = useMemo(() => {
     if (!player) return { white: [] as string[], grey: [] as string[] };
@@ -73,7 +72,7 @@ export default function ResultsScreen() {
   }, [player]);
 
   function selectPlayer(id: string) {
-    setSelectedId(id);
+    manager.setSelectedPlayerId(id);
     setSessions([]);
     setSelectedTier(null);
     setResult(null);
@@ -145,14 +144,14 @@ export default function ResultsScreen() {
 
     // 2. Tier upgrade
     if (selectedTier) {
-      const roleKeys = getAllStatKeys(player.role);
-      const afterTier = applyTierBonusToStats(currentStats, roleKeys, selectedTier, profile, player.tier);
+      const whiteKeys = getWhiteStatKeys(player.role);
+      const afterTier = applyTierBonusToStats(currentStats, whiteKeys, selectedTier, profile, player.tier);
       const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
       steps.push({
-        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / ROLE STAT)`,
+        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / WHITE STAT)`,
         ovrBefore: currentOvr,
         ovrAfter,
-        detail: `${roleKeys.length} role stats +${TIER_ADDITIONS[selectedTier]}, off-role +1`,
+        detail: `${whiteKeys.length} white stats +${TIER_ADDITIONS[selectedTier]}, grey +0, off-role +1`,
         color: TIER_COLORS[selectedTier] ?? theme.hot,
       });
       currentStats = afterTier;

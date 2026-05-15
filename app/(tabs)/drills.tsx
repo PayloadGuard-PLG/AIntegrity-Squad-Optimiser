@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Modal } from 'react-native';
 import { useSquad } from '../../src/hooks/useSquad';
+import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
@@ -19,7 +20,7 @@ const INTENSITY_COLORS: Record<string, string> = {
 
 export default function DrillsScreen() {
   const { squad } = useSquad();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const manager = useManager();
   const [fanLevel, setFanLevel] = useState<FanLevel>(2);
   const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
 
@@ -29,7 +30,7 @@ export default function DrillsScreen() {
   const [presetName, setPresetName] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
+  const selectedPlayer = squad.find(p => p.id === manager.selectedPlayerId) ?? (squad.length === 1 ? squad[0] : null);
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
@@ -70,7 +71,7 @@ export default function DrillsScreen() {
             <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
               {squad.map(p => (
-                <Chip key={p.id} active={p.id === selectedId} onPress={() => setSelectedId(p.id)}>{p.name}</Chip>
+                <Chip key={p.id} active={p.id === manager.selectedPlayerId} onPress={() => manager.setSelectedPlayerId(p.id)}>{p.name}</Chip>
               ))}
             </ScrollView>
           </>
