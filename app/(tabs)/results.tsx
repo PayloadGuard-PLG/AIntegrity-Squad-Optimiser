@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -47,10 +47,7 @@ export default function ResultsScreen() {
   const manager = useManager();
   const [twoxAd, setTwoxAd] = useState(false);
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
-  const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
-  const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
-    Object.fromEntries(TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : '']))
-  );
+  const [excludedTiers, setExcludedTiers] = useState<Set<TierName>>(new Set());
   const [restorers, setRestorers] = useState('');
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
@@ -71,10 +68,15 @@ export default function ResultsScreen() {
     return TIER_ORDER.filter((_, i) => i > idx);
   }, [player]);
 
+  const tierIncluded = useCallback((t: TierName): boolean => {
+    const have = manager.tierPoints[t] ?? 0;
+    return have >= TIER_COSTS[t] && !excludedTiers.has(t);
+  }, [manager.tierPoints, excludedTiers]);
+
   function selectPlayer(id: string) {
     manager.setSelectedPlayerId(id);
     setSessions([]);
-    setSelectedTier(null);
+    setExcludedTiers(new Set());
     setResult(null);
     setFinalStats(null);
   }
@@ -142,20 +144,26 @@ export default function ResultsScreen() {
       currentOvr = ovrAfter;
     }
 
-    // 2. Tier upgrade
-    if (selectedTier) {
+    // 2. Tier upgrades — iterate all included tiers in order, tracking fromTier per step
+    {
       const whiteKeys = getWhiteStatKeys(player.role);
-      const afterTier = applyTierBonusToStats(currentStats, whiteKeys, selectedTier, profile, player.tier);
-      const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
-      steps.push({
-        label: `TIER → ${selectedTier.toUpperCase()} (+${TIER_ADDITIONS[selectedTier]} / WHITE STAT)`,
-        ovrBefore: currentOvr,
-        ovrAfter,
-        detail: `${whiteKeys.length} white stats +${TIER_ADDITIONS[selectedTier]}, grey +0, off-role +1`,
-        color: TIER_COLORS[selectedTier] ?? theme.hot,
-      });
-      currentStats = afterTier;
-      currentOvr = ovrAfter;
+      let currentTier = player.tier as TierName;
+      for (const t of TIER_ORDER) {
+        if (!upgradableTiers.includes(t) || !tierIncluded(t)) continue;
+        const increment = TIER_ADDITIONS[t] - (TIER_ADDITIONS[currentTier] ?? 0);
+        const afterTier = applyTierBonusToStats(currentStats, whiteKeys, t, profile, currentTier);
+        const ovrAfter = Number(computeOvrWithPadding(afterTier, player.overall, profile).toFixed(1));
+        steps.push({
+          label: `TIER → ${t.toUpperCase()} (+${increment} / WHITE STAT)`,
+          ovrBefore: currentOvr,
+          ovrAfter,
+          detail: `${whiteKeys.length} white stats +${increment}, grey +0`,
+          color: TIER_COLORS[t] ?? theme.hot,
+        });
+        currentStats = afterTier;
+        currentOvr = ovrAfter;
+        currentTier = t;
+      }
     }
 
     // 3. Restorers — condition restore (informational)
@@ -191,7 +199,8 @@ export default function ResultsScreen() {
   const finalOvr = result ? result[result.length - 1]?.ovrAfter ?? null : null;
   const baseOvr = result ? result[0]?.ovrBefore ?? null : null;
   const totalGain = finalOvr != null && baseOvr != null ? Number((finalOvr - baseOvr).toFixed(1)) : null;
-  const ready = player && (sessions.some(s => s.stats.length > 0 && parseInt(s.sessions, 10) > 0) || selectedTier);
+  const tiersIncluded = player ? TIER_ORDER.some(t => upgradableTiers.includes(t) && tierIncluded(t)) : false;
+  const ready = player && (sessions.some(s => s.stats.length > 0 && parseInt(s.sessions, 10) > 0) || tiersIncluded);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -340,23 +349,29 @@ export default function ResultsScreen() {
               ) : (
                 upgradableTiers.map((t, idx) => {
                   const cost = TIER_COSTS[t];
-                  const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
+                  const have = manager.tierPoints[t] ?? 0;
                   const canAfford = have >= cost;
-                  const sel = selectedTier === t;
+                  const included = tierIncluded(t);
                   const c = TIER_COLORS[t] ?? theme.inkSec;
                   return (
                     <Pressable key={t}
-                      onPress={() => { setSelectedTier(sel ? null : t); setResult(null); }}
-                      style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: sel ? 3 : 0, borderLeftColor: c, backgroundColor: sel ? theme.surface2 : 'transparent', padding: 11, paddingHorizontal: 14 }}>
+                      onPress={canAfford ? () => {
+                        setExcludedTiers(prev => {
+                          const next = new Set(prev);
+                          if (next.has(t)) next.delete(t); else next.add(t);
+                          return next;
+                        });
+                        setResult(null);
+                      } : undefined}
+                      style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, borderLeftWidth: included ? 3 : 0, borderLeftColor: c, backgroundColor: included ? theme.surface2 : 'transparent', padding: 11, paddingHorizontal: 14 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                         <Text style={{ fontFamily: theme.display, fontSize: 13, fontWeight: '700', color: c, textTransform: 'uppercase', minWidth: 82 }}>{t}</Text>
-                        <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>+{TIER_ADDITIONS[t]}/STAT · NEED {cost}</MonoLabel>
+                        <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>NEED {cost} PTS</MonoLabel>
                         <TextInput
                           keyboardType="numeric"
-                          value={tierPointInputs[t] ?? ''}
+                          value={have > 0 ? String(have) : ''}
                           onChangeText={v => {
                             const clean = v.replace(/[^0-9]/g, '');
-                            setTierPointInputs(prev => ({ ...prev, [t]: clean }));
                             manager.setTierPoints({ ...manager.tierPoints, [t]: parseInt(clean, 10) || 0 });
                             setResult(null); setFinalStats(null);
                           }}
@@ -373,9 +388,9 @@ export default function ResultsScreen() {
                           {cost - have} SHORT
                         </MonoLabel>
                       )}
-                      {canAfford && !sel && (
-                        <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4, marginLeft: 92 }}>
-                          TAP TO INCLUDE IN PLAN
+                      {canAfford && (
+                        <MonoLabel size={8} color={included ? theme.inkGhost : theme.neg} style={{ marginTop: 4, marginLeft: 92 }}>
+                          {included ? 'TAP TO EXCLUDE' : 'TAP TO INCLUDE'}
                         </MonoLabel>
                       )}
                     </Pressable>
@@ -477,22 +492,24 @@ export default function ResultsScreen() {
               <Pressable
                 onPress={() => {
                   if (!player || !finalStats) return;
+                  const appliedTiers = TIER_ORDER.filter(t => upgradableTiers.includes(t) && tierIncluded(t));
+                  const finalTier = appliedTiers[appliedTiers.length - 1] ?? player.tier;
                   playerService.applyAndSnapshot(player, {
                     stats: finalStats,
                     overall: Number(finalOvr.toFixed(1)),
-                    tier: selectedTier ?? player.tier,
+                    tier: finalTier,
                   });
                   setResult(null);
                   setFinalStats(null);
                   setSessions([]);
-                  setSelectedTier(null);
+                  setExcludedTiers(new Set());
                 }}
                 style={{ borderWidth: 1, borderColor: theme.pos, padding: 14, alignItems: 'center', marginTop: 14, backgroundColor: theme.pos + '18' }}>
                 <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: theme.pos, fontWeight: '700' }}>
                   ✓ APPLY FULL PLAN TO CARD
                 </Text>
                 <MonoLabel size={8} color={theme.pos} style={{ marginTop: 4 }}>
-                  {selectedTier ? `STATS + OVR + TIER → ${selectedTier.toUpperCase()}` : 'STATS + OVR ONLY'}
+                  {tiersIncluded ? `STATS + OVR + TIER → ${(TIER_ORDER.filter(t => upgradableTiers.includes(t) && tierIncluded(t)).pop() ?? player?.tier ?? '').toUpperCase()}` : 'STATS + OVR ONLY'}
                 </MonoLabel>
               </Pressable>
             )}

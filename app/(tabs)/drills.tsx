@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Modal } from 'react-native';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -31,6 +31,12 @@ export default function DrillsScreen() {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const selectedPlayer = squad.find(p => p.id === manager.selectedPlayerId) ?? (squad.length === 1 ? squad[0] : null);
+
+  useEffect(() => {
+    if (selectedPlayer && !manager.selectedPlayerId) {
+      manager.setSelectedPlayerId(selectedPlayer.id);
+    }
+  }, [selectedPlayer?.id]);
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];

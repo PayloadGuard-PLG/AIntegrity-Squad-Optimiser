@@ -98,12 +98,17 @@ export default function PlanScreen() {
   const [plan, setPlan] = useState<InvestmentPlan | null>(null);
   const [savedPresets, setSavedPresets] = useState<DrillPreset[]>([]);
   const [fixtureHours, setFixtureHours] = useState('');
-  const [fixtureCooldown, setFixtureCooldown] = useState('60');
+  const [fixtureCooldown, setFixtureCooldown] = useState('');
   const [teamPlayInputs, setTeamPlayInputs] = useState<Partial<Record<TeamPlayPillar, string>>>({});
 
   const selectedPlayer = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   function invalidate() { setPlan(null); }
+
+  // Sync talent from player card whenever the selected player changes
+  useEffect(() => {
+    if (selectedPlayer) setTalent(selectedPlayer.talent);
+  }, [selectedPlayer?.id]);
 
   // Invalidate projection when player changes from another tab
   useEffect(() => { setPlan(null); }, [selectedId]);
