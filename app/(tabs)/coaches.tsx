@@ -3,7 +3,6 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert 
 import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
-import type { StatCapture } from '../../src/logic/coachScanner';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -11,7 +10,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
-import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
+import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, OUTFIELD_STATS, GK_STATS_ALL } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
@@ -31,6 +30,13 @@ const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
 const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
 const TIER_INCREMENTS: Record<TierName, number> = profile.tierIncrements as Record<TierName, number>;
+
+const CATEGORY_STATS: Record<string, string[]> = {
+  Attacking:  ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
+  Defending:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
+  Physical:   ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
+  Safeguard:  ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'],
+};
 
 const STAT_COLS = {
   DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
@@ -53,7 +59,7 @@ export default function CoachesScreen() {
   const selectedId = manager.selectedPlayerId;
 
   const [sessions, setSessions] = useState('');
-  const [scannedStats, setScannedStats] = useState<StatCapture[]>([]);
+  const [scannedStats, setScannedStats] = useState<string[]>([]);
   const [coachType, setCoachType] = useState('');
   const [coachCategory, setCoachCategory] = useState('');
   const [result, setResult] = useState<ProjectionResult | null>(null);
@@ -71,16 +77,16 @@ export default function CoachesScreen() {
 
   useEffect(() => {
     if (incomingPlayerId) manager.setSelectedPlayerId(incomingPlayerId);
-    if (incomingSessions) setSessions(incomingSessions);
   }, []);
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const { white, grey } = useMemo(() => {
     if (!player) return { white: [] as string[], grey: [] as string[] };
+    const isGK = player.role.some(r => r.includes('GK'));
+    const allStats = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
     const w = getWhiteStatKeys(player.role);
-    const all = getAllStatKeys(player.role);
-    const g = all.filter(s => !w.includes(s));
+    const g = allStats.filter(s => !w.includes(s));
     return { white: w, grey: g };
   }, [player]);
 
@@ -111,47 +117,34 @@ export default function CoachesScreen() {
     setScanStatus('');
     try {
       const scan = await scanCoachPreview(picked.assets[0].uri);
-      if (scan.stats.length === 0) {
-        const isRecognisedCoach = !!(scan.coachType || scan.coachCategory || scan.multiplier);
-        if (!isRecognisedCoach) {
-          setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
-          setScannedStats([]);
-          setCoachType('');
-          setCoachCategory('');
-          return;
-        }
-        // Recognised coach header but no highlighted stat rows — fall back to player white stats
-        const fallback = getWhiteStatKeys(player.role).map(statName => ({
-          statName,
-          statBefore: player.stats[statName] ?? 0,
-          gainLo: 0,
-          gainHi: 0,
-        }));
-        setScannedStats(fallback);
-        setCoachType(scan.coachType ?? '');
-        setCoachCategory(scan.coachCategory ?? '');
-        if (scan.multiplier) setSessions(String(scan.multiplier));
-        setResult(null);
-        setSelectedTier(null);
-        setSaveConfirmed(false);
-        const fallbackParts: string[] = [];
-        if (scan.multiplier) fallbackParts.push(`×${scan.multiplier}`);
-        fallbackParts.push(`${fallback.length} STATS (WHITE)`);
-        if (scan.coachType) fallbackParts.push(scan.coachType.toUpperCase());
-        if (scan.coachCategory) fallbackParts.push(scan.coachCategory.toUpperCase());
-        setScanStatus(`SCANNED: ${fallbackParts.join(' · ')}`);
+      const recognised = !!(scan.coachType || scan.coachCategory || scan.multiplier);
+
+      if (!recognised && scan.stats.length === 0) {
+        setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
+        setScannedStats([]); setCoachType(''); setCoachCategory('');
         return;
       }
+
       if (scan.multiplier) setSessions(String(scan.multiplier));
-      setScannedStats(scan.stats);
       setCoachType(scan.coachType ?? '');
       setCoachCategory(scan.coachCategory ?? '');
-      setResult(null);
-      setSelectedTier(null);
-      setSaveConfirmed(false);
+      setResult(null); setSelectedTier(null); setSaveConfirmed(false);
+
+      let statNames: string[];
+      if (scan.stats.length > 0) {
+        // Stat names from highlighted rows — values discarded, they belong to a different player
+        statNames = scan.stats.map(s => s.statName);
+      } else {
+        // Recognised header but no highlighted rows — derive from category, then fall back to white stats
+        const catStats = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : [];
+        statNames = catStats.filter(s => player!.stats[s] !== undefined);
+        if (statNames.length === 0) statNames = getWhiteStatKeys(player!.role);
+      }
+      setScannedStats(statNames);
+
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
-      parts.push(`${scan.stats.length} STATS`);
+      parts.push(`${statNames.length} STATS`);
       if (scan.coachType) parts.push(scan.coachType.toUpperCase());
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
@@ -172,14 +165,14 @@ export default function CoachesScreen() {
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
-    for (const s of scannedStats) {
-      const from = player.stats[s.statName];
+    for (const statName of scannedStats) {
+      const from = player.stats[statName];
       if (from === undefined) continue;
-      const isWhite = isWhiteStat(player.role, s.statName);
+      const isWhite = isWhiteStat(player.role, statName);
       const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, false, drillMult, profile);
       if (gain > 0) {
-        postCoachStats[s.statName] = Math.min(from + gain, profile.statCap);
-        gains.push({ stat: s.statName, from, gain: Number(gain.toFixed(1)), isWhite });
+        postCoachStats[statName] = Math.min(from + gain, profile.statCap);
+        gains.push({ stat: statName, from, gain: Number(gain.toFixed(1)), isWhite });
       }
     }
 
@@ -226,7 +219,7 @@ export default function CoachesScreen() {
     if (!player || !result) return;
     squadPlanService.saveRun(player.id, {
       sessions: parseInt(sessions, 10) || 0,
-      selectedStats: scannedStats.map(s => s.statName),
+      selectedStats: scannedStats,
       ovrBefore: result.ovrBefore,
       ovrAfter: result.ovrAfter,
       gains: result.gains,
@@ -355,23 +348,27 @@ export default function CoachesScreen() {
                 <MonoLabel color={theme.steelLight} style={{ marginBottom: 10 }}>
                   COACH BOOSTS · {scannedStats.length} {scannedStats.length === 1 ? 'STAT' : 'STATS'}
                 </MonoLabel>
-                {scannedStats.map((s, i) => {
-                  const col = statColor(s.statName);
-                  const isWhite = isWhiteStat(player.role, s.statName);
+                {scannedStats.map((statName, i) => {
+                  const col = statColor(statName);
+                  const isWhite = isWhiteStat(player.role, statName);
+                  const playerVal = player.stats[statName];
+                  const inRole = playerVal !== undefined;
                   return (
-                    <View key={s.statName} style={{
+                    <View key={statName} style={{
                       flexDirection: 'row', alignItems: 'center',
                       paddingVertical: 8,
                       borderTopWidth: i > 0 ? 1 : 0, borderTopColor: theme.hairline,
                     }}>
-                      <View style={{ width: 3, height: 20, backgroundColor: isWhite ? col : col + '44', marginRight: 10, borderRadius: 1 }} />
+                      <View style={{ width: 3, height: 20,
+                        backgroundColor: !inRole ? theme.hot : isWhite ? col : col + '44',
+                        marginRight: 10, borderRadius: 1 }} />
                       <Text style={{ flex: 1, fontFamily: theme.mono, fontSize: 11, letterSpacing: 0.6,
-                        color: isWhite ? col : theme.inkGhost }}>
-                        {s.statName}
+                        color: !inRole ? theme.hot : isWhite ? col : theme.inkGhost }}>
+                        {statName}{!inRole ? ' · NOT IN ROLE' : ''}
                       </Text>
-                      {(s.gainLo > 0 || s.gainHi > 0) && (
-                        <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.pos }}>
-                          +{s.gainLo}–{s.gainHi}
+                      {inRole && (
+                        <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkSec }}>
+                          {Math.round(playerVal)}
                         </Text>
                       )}
                     </View>
