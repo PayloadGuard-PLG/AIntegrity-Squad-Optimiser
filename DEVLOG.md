@@ -4,10 +4,74 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 18 — Systematic Test & Stability Phase
+**2026-05-15 — Test Phase**
+
+Branch: `main`
+
+### Goal
+
+No new features until the full calculation stack passes systematic end-to-end verification. Every touchpoint a user can interact with gets a dedicated test pass — stat entry, OCR scan outputs, coach calculations, drill ROI outputs, OVR projections, tier upgrades, and plan sequencing.
+
+### Test Scope (one-by-one, in order)
+
+**1. Stat Entry & Player Model**
+- Manual stat entry for all 13 roles: confirm white/grey classification renders correctly on the 3-col grid
+- Edge cases: single-role player vs multi-role player (confirm union whites)
+- GK: 7 white + 8 grey — confirm no outfield stats shown as essential
+- Snapshot / revert: apply gains → revert → confirm stat restoration
+
+**2. OCR — Player Card Scanner**
+- Scan at least one card per role category (GK, DEF, MID, ATT)
+- Verify: all 15 stats detected, OVR parsed, role(s) detected, tier detected, name detected
+- Edge cases: compound role tokens (`DL ML AML`), player numbers not picked up as name, sidebar labels blocked
+
+**3. OCR — Coach Preview Scanner**
+- Standard coach (5 stats): confirm exactly 5 stats, no cross-column gain theft
+- Focused coach (1–2 stats): confirm partial detection
+- Header: type, category, multiplier each detected independently
+- Confirm session counts auto-fill and OVR delta preview is non-zero
+
+**4. Drill Calculations**
+- For each intensity level: confirm condition cost formula = `baseLoss × intensityMult × (1 − fanReduction)`
+- VE + L4: confirm 0-drain flag fires (0.375% < 0.38 threshold)
+- ROI sort: highest white-stat overlap / lowest avg white stat value appears first
+- All 25 drills visible for all roles; efficiency = white hits / total drill stats
+
+**5. OVR Projector**
+- Drill sessions: XP budget = `sessionCount × baseXpPerSession`; stat gains accumulate correctly
+- Drill intensity: confirm `drill.intensity` (fixed per drill) used, NOT user's filter level
+- Tier upgrade: bonus applies to white stats only; `floor(tierBonus × whiteCount / 15)` OVR delta
+- Restorers: condition restore only, zero OVR change
+- 180-rule: base OVR ≥ 180 → drill gains locked; tier OVR can exceed 180
+
+**6. Plan Tab — Sequential Chain**
+- Preset load → drills applied in order → tier upgrade → restorers
+- Per-step OVR shown; final OVR matches manual calculation
+- Drills-first enforced (tier step only appears after all drill steps)
+
+**7. SQUAD PLAN History**
+- Saved runs show correct before/after OVR and stat gains
+- Per-run delete works; player grouping correct
+
+### Definition of Done
+
+Each test area above produces either:
+- ✓ PASS — observed output matches expected formula output
+- ✗ FAIL — filed as `F[n]` bug in KNOWN_ISSUES.md; fix committed before moving to next area
+
+No area is "probably fine" — every item gets an explicit pass/fail on real device.
+
+### New Feature Freeze
+
+No new features committed until all 7 test areas return ✓. Bugs found during testing are the only commits allowed on this branch until stability is confirmed.
+
+---
+
 ## Sprint 17 — Role Stat Baselines Audit, DMC Role Grid, Crossover Whites
 **2026-05-13 — Session CAQUS (continued)**
 
-Branch: `claude/continue-development-CAQUS` → PR pending merge to `main`
+Branch: `claude/continue-development-CAQUS` → merged to `main` (PR #29)
 
 ### Shipped
 
