@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Alert, ActivityIndicator, Platform, Image } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useSquad } from '../../src/hooks/useSquad';
@@ -69,6 +69,8 @@ export default function CoachCaptureScreen() {
   const [saved, setSaved] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
+  const [scannedUri, setScannedUri] = useState<string | null>(null);
+  const [scanRejected, setScanRejected] = useState(false);
   const [expandedStats, setExpandedStats] = useState<Set<string>>(new Set());
 
   const player: Player | null = squad.find(p => p.id === selectedPlayerId) ?? null;
@@ -88,6 +90,8 @@ export default function CoachCaptureScreen() {
   }, [gains, white, grey]);
 
   async function scanFromUri(uri: string) {
+    setScannedUri(uri);
+    setScanRejected(false);
     setIsScanning(true);
     setScanStatus('SCANNING...');
     try {
@@ -112,8 +116,15 @@ export default function CoachCaptureScreen() {
       if (!selectedPlayerId && scan.playerAge) setAgeInput(String(scan.playerAge));
       if (!selectedPlayerId && scan.ovrBefore)  setOvrInput(String(scan.ovrBefore));
 
-      setScanStatus(parts.length > 0 ? `DETECTED: ${parts.join(' · ')}` : 'NOTHING DETECTED — SET MANUALLY');
+      if (parts.length > 0) {
+        setScannedUri(null);
+        setScanStatus(`DETECTED: ${parts.join(' · ')}`);
+      } else {
+        setScanRejected(true);
+        setScanStatus('SCAN REJECTED — IMAGE NOT RECOGNISED');
+      }
     } catch (e) {
+      setScanRejected(true);
       setScanStatus('SCAN FAILED — SET MANUALLY');
     } finally {
       setIsScanning(false);
@@ -219,12 +230,22 @@ export default function CoachCaptureScreen() {
               <MonoLabel size={9} color={theme.steelLight}>SCANNING COACH SCREEN...</MonoLabel>
             </View>
           )}
-          {!isScanning && scanStatus !== '' && (
+          {!isScanning && scanStatus !== '' && !scanRejected && (
             <View style={{ padding: 10, borderTopWidth: 1, borderTopColor: theme.hairline }}>
               <MonoLabel size={9} color={scanStatus.startsWith('DETECTED') ? theme.pos : theme.inkMuted}>{scanStatus}</MonoLabel>
             </View>
           )}
         </View>
+
+        {scannedUri && scanRejected && (
+          <View style={{ width: '100%', aspectRatio: 16 / 9, position: 'relative', marginBottom: 14, backgroundColor: '#000' }}>
+            <Image source={{ uri: scannedUri }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 13, letterSpacing: 2, fontWeight: '700', color: theme.hot, marginBottom: 8 }}>INVALID IMAGE</Text>
+              <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkMuted, textAlign: 'center', letterSpacing: 1 }}>UPLOAD A SCREEN RESOLUTION COACH PREVIEW</Text>
+            </View>
+          </View>
+        )}
 
         {/* 1. COACH TYPE */}
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>

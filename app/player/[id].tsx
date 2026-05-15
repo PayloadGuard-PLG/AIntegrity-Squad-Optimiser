@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
@@ -55,6 +55,8 @@ export default function EditPlayerScreen() {
   const [reloadKey, setReloadKey] = useState(0);
   const [scanMsg, setScanMsg] = useState('');
   const [scanOk, setScanOk] = useState(false);
+  const [scannedUri, setScannedUri] = useState<string | null>(null);
+  const [scanRejected, setScanRejected] = useState(false);
 
   const { scanPlayerScreenshot, isScanning } = useScanner();
 
@@ -112,6 +114,8 @@ export default function EditPlayerScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
       if (result.canceled || !result.assets?.[0]?.uri) return;
 
+      setScannedUri(result.assets[0].uri);
+      setScanRejected(false);
       setScanOk(false);
       setScanMsg('');
       const data = await scanPlayerScreenshot(result.assets[0].uri);
@@ -139,10 +143,12 @@ export default function EditPlayerScreen() {
           const fakePlayer = { stats: statsObj, overall: parseFloat(overall) || 100, role: selectedRoles.length > 0 ? selectedRoles : ['ST'] } as any;
           setOverall(computeOvrFromStats(fakePlayer, profile).toFixed(1));
         }
+        setScannedUri(null);
         setScanMsg(`${Object.keys(data.stats).length} STATS UPDATED — REVIEW AND SAVE`);
         setScanOk(true);
       } else {
-        setScanMsg('NO STATS DETECTED — TRY A CLEARER SCREENSHOT');
+        setScanRejected(true);
+        setScanMsg('SCAN REJECTED — IMAGE NOT RECOGNISED');
       }
     } catch {
       setScanMsg('SCAN ERROR — TRY AGAIN');
@@ -372,7 +378,17 @@ export default function EditPlayerScreen() {
             : <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.5, color: theme.steelLight }}>◎ SCAN UPDATED PLAYER CARD</Text>
           }
         </Pressable>
-        {scanMsg !== '' && (
+        {scannedUri && scanRejected && (
+          <View style={{ width: '100%', aspectRatio: 16 / 9, position: 'relative', marginBottom: 8, backgroundColor: '#000' }}>
+            <Image source={{ uri: scannedUri }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 13, letterSpacing: 2, fontWeight: '700', color: theme.hot, marginBottom: 8 }}>INVALID IMAGE</Text>
+              <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkMuted, textAlign: 'center', letterSpacing: 1 }}>UPLOAD A SCREEN RESOLUTION PLAYER CARD</Text>
+            </View>
+          </View>
+        )}
+
+        {scanMsg !== '' && !scanRejected && (
           <View style={{ padding: 10, borderWidth: 1, borderColor: (scanOk ? theme.pos : theme.neg) + '55', backgroundColor: (scanOk ? theme.pos : theme.neg) + '0d', marginBottom: 12 }}>
             <MonoLabel size={9} color={scanOk ? theme.pos : theme.neg}>{scanMsg}</MonoLabel>
           </View>

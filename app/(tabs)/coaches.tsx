@@ -88,7 +88,7 @@ export default function CoachesScreen() {
         parts.push(`${scan.stats.length} stats`);
         setSelectedStats(new Set(scan.stats.map(s => s.statName)));
       }
-      setScanStatus(parts.length > 0 ? `SCANNED: ${parts.join(' · ')}` : 'NOTHING DETECTED');
+      setScanStatus(parts.length > 0 ? `SCANNED: ${parts.join(' · ')}` : 'SCAN REJECTED — IMAGE NOT RECOGNISED');
     } catch {
       setScanStatus('SCAN FAILED');
     } finally {

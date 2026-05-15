@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { playerService } from '../../src/services/playerService';
@@ -54,6 +54,8 @@ export default function NewPlayerScreen() {
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
   const [scanned, setScanned] = useState(false);
   const [scanMsg, setScanMsg] = useState('');
+  const [scannedUri, setScannedUri] = useState<string | null>(null);
+  const [scanRejected, setScanRejected] = useState(false);
 
   const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
@@ -86,47 +88,51 @@ export default function NewPlayerScreen() {
       if (result.canceled || !result.assets?.[0]?.uri) return;
 
       const uri = result.assets[0].uri;
+      setScannedUri(uri);
+      setScanRejected(false);
       setScanned(false);
       setScanMsg('');
 
       const data = await scanPlayerScreenshot(uri);
       if (!data) return;
 
-      if (data.name) setName(data.name);
-      if (data.age) setAge(data.age.toString());
-      const TIER_MAP: Record<string, TierName> = {
-        None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
-        T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
-      };
-      setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
-      const TALENT_MAP: Record<string, TalentTier> = {
-        FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
-        Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
-      };
-      if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
-      if (data.roles && data.roles.length > 0) {
-        setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
-      }
-
       if (data.stats && Object.keys(data.stats).length > 0) {
+        if (data.name) setName(data.name);
+        if (data.age) setAge(data.age.toString());
+        const TIER_MAP: Record<string, TierName> = {
+          None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
+          T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
+        };
+        setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
+        const TALENT_MAP: Record<string, TalentTier> = {
+          FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
+          Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
+        };
+        if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
+        if (data.roles && data.roles.length > 0) {
+          setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
+        }
         const inputs = Object.fromEntries(
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         );
-        // If role detection failed but stats are GK-specific, auto-infer GK.
-        // GK cards have REFLEXES/AGILITY/etc. but never TACKLING/PASSING/etc.
         if ((!data.roles || data.roles.length === 0) && inputs['REFLEXES'] !== undefined && inputs['TACKLING'] === undefined) {
           setPositionStates({ GK: 2 });
         }
         setStatInputs(inputs);
         recomputeOvr(inputs);
         setScanned(true);
+        setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
       } else if (data.overall) {
+        if (data.name) setName(data.name);
+        if (data.age) setAge(data.age.toString());
         setOverall(data.overall.toString());
         setOvrIsAuto(false);
+        setScannedUri(null);
         setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
       } else {
-        setScanMsg('NO STATS FOUND — TRY A CLEARER SCREENSHOT.');
+        setScanRejected(true);
+        setScanMsg('SCAN REJECTED — IMAGE NOT RECOGNISED');
       }
     } catch (err) {
       setScanMsg('SCAN ERROR — TRY AGAIN.');
@@ -236,7 +242,17 @@ export default function NewPlayerScreen() {
           )}
         </Pressable>
 
-        {scanMsg !== '' && (
+        {scannedUri && scanRejected && (
+          <View style={{ width: '100%', aspectRatio: 16 / 9, position: 'relative', marginBottom: 8, backgroundColor: '#000' }}>
+            <Image source={{ uri: scannedUri }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 13, letterSpacing: 2, fontWeight: '700', color: theme.hot, marginBottom: 8 }}>INVALID IMAGE</Text>
+              <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.inkMuted, textAlign: 'center', letterSpacing: 1 }}>UPLOAD A SCREEN RESOLUTION PLAYER CARD</Text>
+            </View>
+          </View>
+        )}
+
+        {scanMsg !== '' && !scanRejected && (
           <View style={{ padding: 10, borderWidth: 1, borderColor: (scanned ? theme.pos : theme.neg) + '55', backgroundColor: (scanned ? theme.pos : theme.neg) + '0d', marginBottom: 8 }}>
             <MonoLabel size={9} color={scanned ? theme.pos : theme.neg}>{scanMsg}</MonoLabel>
             {scanned && <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>OR ENTER MANUALLY BELOW · OVR AUTO-COMPUTES · PICK ROLE FOR WHITE/GREY</MonoLabel>}
