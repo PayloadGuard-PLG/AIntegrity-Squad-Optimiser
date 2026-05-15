@@ -369,9 +369,6 @@ export default function CoachesScreen() {
                         color: isWhite ? col : theme.inkGhost }}>
                         {s.statName}
                       </Text>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkSec, marginRight: 12 }}>
-                        {player.stats[s.statName] ?? '—'}
-                      </Text>
                       {(s.gainLo > 0 || s.gainHi > 0) && (
                         <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.pos }}>
                           +{s.gainLo}–{s.gainHi}
