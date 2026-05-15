@@ -110,6 +110,7 @@ export default function ResultsScreen() {
     const steps: StepResult[] = [];
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
+    const ovrBase = currentOvr; // baseline for star decay — accumulates across all sessions
 
     // 1. Each coaching session in order
     for (const session of sessions) {
@@ -125,7 +126,8 @@ export default function ResultsScreen() {
         const from = currentStats[stat];
         if (from === undefined) continue;
         const isWhite = isWhiteStat(player.role, stat);
-        const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, twoxAd, drillMult, profile);
+        const starsGained = Math.floor((currentOvr - ovrBase) / (profile.starOvrThreshold ?? 20));
+        const gain = estimateStatGainPct(budget, from, player.age, starsGained, player.talent, isWhite, twoxAd, drillMult, profile);
         if (gain > 0) {
           updatedStats[stat] = Math.min(from + gain, profile.statCap);
           gainParts.push(`${stat} +${gain.toFixed(1)}`);
