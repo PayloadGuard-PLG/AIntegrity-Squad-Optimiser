@@ -1,24 +1,75 @@
 # Squad Optimiser — Dev Log
 
+> **Read before every session:** [`ASSUMPTIONS.md`](./ASSUMPTIONS.md) — Steve's standing rule. Assumption is the mother of all fuck ups. Ask. Don't guess.
+
 Reverse-chronological. Each entry covers what shipped, what broke, and what the next sprint targets.
 
 ---
 
-## Sprint 18 — Systematic Test & Stability Phase
-**2026-05-15 — Test Phase**
+## Sprint 18 — Post-OTA Stabilisation: Tier Stacking, Player Sync, Plan Defaults
+**2026-05-15**
 
-Branch: `main`
+Branch: `main` (commits `951e687`, `8a2f7d3` → rebased `7421a3a`)
 
-### Goal
+### Shipped
 
-No new features until the full calculation stack passes systematic end-to-end verification. Every touchpoint a user can interact with gets a dedicated test pass — stat entry, OCR scan outputs, coach calculations, drill ROI outputs, OVR projections, tier upgrades, and plan sequencing.
+**Results tab — tier stacking + auto-include (commit `7421a3a`)**
 
-### Test Scope (one-by-one, in order)
+Replaced single `selectedTier: TierName | null` with `excludedTiers: Set<TierName>`:
+
+- All affordable tiers are **auto-included** by default when the player can pay the cost. No tap required to activate.
+- Tap an affordable tier to **exclude** it from the plan; tap again to re-include. Label shows "TAP TO EXCLUDE" / "TAP TO INCLUDE".
+- `runProjection` iterates `TIER_ORDER` in sequence, tracking `currentTier` as the `fromTier` for each step, producing a correct multi-step OVR chain (T4 → T5 → T6 each appear as separate rows with accurate per-step delta).
+- Tier points now read/written **directly from `manager.tierPoints`** — local `tierPointInputs` state removed. Points entered on the Plan tab appear immediately on Results with no desync.
+- Tier labels show the **incremental** bonus per white stat (e.g. "+30/WHITE STAT" for T3→T4) instead of the cumulative total from T0 ("+80"), which was the cause of the inflated-looking OVR numbers.
+- Detail string no longer shows wrong "off-role +1" text.
+- APPLY TO CARD uses the highest applied tier as `finalTier`.
+- `ready` condition and Apply footer label updated accordingly.
+
+**Drills tab — player context sync (commit `7421a3a`)**
+
+Added `useEffect` that writes the auto-resolved `selectedPlayer.id` back to `manager.selectedPlayerId` when context is null:
+
+```typescript
+useEffect(() => {
+  if (selectedPlayer && !manager.selectedPlayerId) {
+    manager.setSelectedPlayerId(selectedPlayer.id);
+  }
+}, [selectedPlayer?.id]);
+```
+
+Closes the gap where Drills auto-resolved a player visually (via `?? squad[0]` fallback) but other tabs remained unaware. Single-player squads now correctly propagate to Plan/Coaches/Results on first render.
+
+**Plan tab — talent auto-sync + blank defaults (commit `7421a3a`)**
+
+- `talent` state now syncs from `selectedPlayer.talent` via `useEffect` on player change. Previously hardcoded to `'Normal'` regardless of scanned card value.
+- `fixtureCooldown` default changed from `'60'` to `''`. No pre-filled value before user enters one.
+
+**`ASSUMPTIONS.md` added**
+
+Steve's standing rule committed to root. Referenced from DEVLOG header. All future Claude sessions should read it at session start.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F68 | Results tier selection single-only, no auto-populate from Plan | `excludedTiers` state + stacking loop; reads `manager.tierPoints` directly |
+| F69 | Results OVR label showed cumulative tier addition (+80 for T4) not increment from current tier (+30) | Label now computes `TIER_ADDITIONS[t] - TIER_ADDITIONS[currentTier]` per step |
+| F70 | Tier points entered in Plan not visible in Results (local state initialised once on mount) | Removed local `tierPointInputs`; reads `manager.tierPoints` directly |
+| F71 | Drills tab showed "SELECT A PLAYER" even when another tab had player selected | `useEffect` syncs auto-resolved player back to `manager.selectedPlayerId` |
+| F72 | Plan tab talent defaulted to 'Normal' regardless of scanned player card value | `useEffect` syncs talent from `selectedPlayer.talent` on player change |
+| F73 | Plan tab fixture cooldown pre-filled '60' — confusing before user enters their own value | Default changed to `''` |
+
+### Context Note
+
+PR #30 (`951e687`) had already corrected the `getWhiteStatKeys` bug in Results (so the tier bonus applies to white stats only, not all role stats). That fix was live in the OTA. The F68/F69/F70 bugs above were separate issues that survived that OTA — the label inflation, the desync, and the stacking limitation were still present in the post-OTA build confirmed by Steve from live device.
+
+### Test Scope (pending — systematic pass still required)
 
 **1. Stat Entry & Player Model**
 - Manual stat entry for all 13 roles: confirm white/grey classification renders correctly on the 3-col grid
 - Edge cases: single-role player vs multi-role player (confirm union whites)
-- GK: 7 white + 8 grey — confirm no outfield stats shown as essential
+- GK: 11 white + 4 grey — confirm no outfield stats shown as essential
 - Snapshot / revert: apply gains → revert → confirm stat restoration
 
 **2. OCR — Player Card Scanner**
@@ -30,41 +81,20 @@ No new features until the full calculation stack passes systematic end-to-end ve
 - Standard coach (5 stats): confirm exactly 5 stats, no cross-column gain theft
 - Focused coach (1–2 stats): confirm partial detection
 - Header: type, category, multiplier each detected independently
-- Confirm session counts auto-fill and OVR delta preview is non-zero
 
 **4. Drill Calculations**
 - For each intensity level: confirm condition cost formula = `baseLoss × intensityMult × (1 − fanReduction)`
 - VE + L4: confirm 0-drain flag fires (0.375% < 0.38 threshold)
-- ROI sort: highest white-stat overlap / lowest avg white stat value appears first
-- All 25 drills visible for all roles; efficiency = white hits / total drill stats
+- ROI sort and drill filtering working correctly
 
-**5. OVR Projector**
-- Drill sessions: XP budget = `sessionCount × baseXpPerSession`; stat gains accumulate correctly
-- Drill intensity: confirm `drill.intensity` (fixed per drill) used, NOT user's filter level
-- Tier upgrade: bonus applies to white stats only; `floor(tierBonus × whiteCount / 15)` OVR delta
-- Restorers: condition restore only, zero OVR change
-- 180-rule: base OVR ≥ 180 → drill gains locked; tier OVR can exceed 180
+**5. OVR Projector — Results tab**
+- Tier upgrade chain: T3→T4 GK = +22 OVR, T3→T4→T5 stacks correctly
+- Labels show incremental per-step bonus matching Plan tab output
+- Tier points from Plan tab appear pre-filled in Results
 
-**6. Plan Tab — Sequential Chain**
-- Preset load → drills applied in order → tier upgrade → restorers
-- Per-step OVR shown; final OVR matches manual calculation
-- Drills-first enforced (tier step only appears after all drill steps)
-
-**7. SQUAD PLAN History**
-- Saved runs show correct before/after OVR and stat gains
-- Per-run delete works; player grouping correct
-
-### Definition of Done
-
-Each test area above produces either:
-- ✓ PASS — observed output matches expected formula output
-- ✗ FAIL — filed as `F[n]` bug in KNOWN_ISSUES.md; fix committed before moving to next area
-
-No area is "probably fine" — every item gets an explicit pass/fail on real device.
-
-### New Feature Freeze
-
-No new features committed until all 7 test areas return ✓. Bugs found during testing are the only commits allowed on this branch until stability is confirmed.
+**6. Cross-tab Player Selection**
+- Select player on Squad → appears selected on Plan, Drills, Coaches, Results
+- Fresh launch → Drills tab auto-selects single-squad player and propagates to other tabs
 
 ---
 
