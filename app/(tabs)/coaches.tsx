@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -69,11 +69,10 @@ export default function CoachesScreen() {
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
 
-  // Only apply incoming params once on mount — don't pre-fill stats
-  useState(() => {
+  useEffect(() => {
     if (incomingPlayerId) manager.setSelectedPlayerId(incomingPlayerId);
     if (incomingSessions) setSessions(incomingSessions);
-  });
+  }, []);
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
@@ -113,10 +112,34 @@ export default function CoachesScreen() {
     try {
       const scan = await scanCoachPreview(picked.assets[0].uri);
       if (scan.stats.length === 0) {
-        setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
-        setScannedStats([]);
-        setCoachType('');
-        setCoachCategory('');
+        const isRecognisedCoach = !!(scan.coachType || scan.coachCategory || scan.multiplier);
+        if (!isRecognisedCoach) {
+          setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
+          setScannedStats([]);
+          setCoachType('');
+          setCoachCategory('');
+          return;
+        }
+        // Recognised coach header but no highlighted stat rows — fall back to player white stats
+        const fallback = getWhiteStatKeys(player.role).map(statName => ({
+          statName,
+          statBefore: player.stats[statName] ?? 0,
+          gainLo: 0,
+          gainHi: 0,
+        }));
+        setScannedStats(fallback);
+        setCoachType(scan.coachType ?? '');
+        setCoachCategory(scan.coachCategory ?? '');
+        if (scan.multiplier) setSessions(String(scan.multiplier));
+        setResult(null);
+        setSelectedTier(null);
+        setSaveConfirmed(false);
+        const fallbackParts: string[] = [];
+        if (scan.multiplier) fallbackParts.push(`×${scan.multiplier}`);
+        fallbackParts.push(`${fallback.length} STATS (WHITE)`);
+        if (scan.coachType) fallbackParts.push(scan.coachType.toUpperCase());
+        if (scan.coachCategory) fallbackParts.push(scan.coachCategory.toUpperCase());
+        setScanStatus(`SCANNED: ${fallbackParts.join(' · ')}`);
         return;
       }
       if (scan.multiplier) setSessions(String(scan.multiplier));
@@ -346,12 +369,11 @@ export default function CoachesScreen() {
                         color: isWhite ? col : theme.inkGhost }}>
                         {s.statName}
                       </Text>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkSec, marginRight: 12 }}>
-                        {s.statBefore}
-                      </Text>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.pos }}>
-                        +{s.gainLo}–{s.gainHi}
-                      </Text>
+                      {(s.gainLo > 0 || s.gainHi > 0) && (
+                        <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.pos }}>
+                          +{s.gainLo}–{s.gainHi}
+                        </Text>
+                      )}
                     </View>
                   );
                 })}
@@ -364,7 +386,6 @@ export default function CoachesScreen() {
               <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>HIGHLIGHTED = ESSENTIAL · DIM = SECONDARY</MonoLabel>
               <StatGrid3Col
                 statKeys={[...white, ...grey]}
-                roles={player.role}
                 values={player.stats}
               />
             </View>

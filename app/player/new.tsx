@@ -44,8 +44,8 @@ export default function NewPlayerScreen() {
   const [name, setName] = useState('');
   const [positionStates, setPositionStates] = useState<Record<string, 0 | 1 | 2>>({});
   const selectedRoles = Object.entries(positionStates).filter(([, s]) => s === 2).map(([r]) => r);
-  const [age, setAge] = useState('18');
-  const [overall, setOverall] = useState('100');
+  const [age, setAge] = useState('');
+  const [overall, setOverall] = useState('');
   const [ovrIsAuto, setOvrIsAuto] = useState(false);
   const [tier, setTier] = useState<TierName>('T0');
   const [talent, setTalent] = useState<TalentTier>('Normal');
