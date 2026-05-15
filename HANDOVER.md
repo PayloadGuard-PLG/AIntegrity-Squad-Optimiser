@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `main`
-**As of:** Sprint 20 — 2026-05-15
+**As of:** Sprint 21 — 2026-05-15
 **Deploy:** Push to `main`. EAS OTA auto-fires on merge to `main` (Android only).
 
 ---
@@ -16,6 +16,8 @@ All tabs functional. Engine calibrated against empirical session data. OTA pipel
 
 - **QualityMeter** (`src/components/atoms/QualityMeter.tsx`) — 10-bar vertical OVR indicator (max=180, 18 OVR/bar). Color-escalates dark steel → amber → green. `md` (8×3px) for roster/headers; `sm` (5×2px) for chips. Wired to all 6 player entry points across tabs.
 - **Scan rejection** — irrelevant images (no recognisable player/coach data) now render a full-width preview with 85% black overlay + "INVALID IMAGE" centered. Form state never overwritten on rejection. Applies to player/new, player/[id], coach/capture, coaches inline.
+- **NewRoleBar** (`src/components/atoms/NewRoleBar.tsx`) — horizontal 5-segment gradient bar showing new-role training progress (0–50 pts, unlocks at 50). Label `NR · ROLE`. 16px container; top 8px used, bottom 8px reserved for a planned second ability. Shown in SQUAD rows, Results header, Drills area. Not in chips.
+- **New role OCR** — scanner detects `ROLE+` tokens and nearby point count. `newRole` + `newRolePoints` stored on Player. DB migration 0007.
 - **SQUAD tab** — player list, tap → edit/delete, OVR badge, QualityMeter, tier/age/role display, snapshot revert banner
 - **SQUAD PLAN tab** — per-player history of saved coaching projections. OVR before/after, stat gains, session count, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
 - **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Navigate to it via the PROJECT button after a coach scan, or directly from the app. Squad auto-fill copies stats/OVR/talent from player card. Per-stat lo/hi gain entry (tap to expand). Live OVR boost preview. Saves to Squad Plan.
@@ -60,7 +62,8 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 
 | # | Area | Task | Priority |
 |---|---|---|---|
-| 1 | Seasons planner tab | Planned new tab: project player stats across one full season including drills, tier, seasonal OVR decay (~20% base OVR drop per season). Requires seasonal decay modelling. No implementation started. | Medium |
+| 1 | New role — manual entry | `player/new.tsx` and `player/[id].tsx` have no UI fields for `newRole`/`newRolePoints` yet. Scanner populates on scan; manual entry not exposed. Add two fields to the edit form. | Quick |
+| 2 | Seasons planner tab | Planned new tab: project player stats across one full season including drills, tier, seasonal OVR decay (~20% base OVR drop per season). Requires seasonal decay modelling. No implementation started. | Medium |
 | 2 | OCR — roles | Token-exact matching is in place. Still possible to get zero roles if screenshot crops role badges. Add fallback: if no roles detected, keep previously selected roles. | Medium |
 | 3 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
 | 4 | Coach Capture → real calibration | Capture screen is built but gains don't update `game_2025.json` or XP engine. Future: back-solve actual XP budget from lo/hi captures. | Low |

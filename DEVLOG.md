@@ -6,6 +6,48 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 21 — New Role Training Bar + OCR Name Fix
+**2026-05-15**
+
+Branch: `main` (commit `128177a`)
+
+### Shipped
+
+**New role mechanic modelled**
+
+Roles suffixed with `+` (e.g. `DMC+`) are in training — they unlock at 50 points earned one-by-one through drills. The system now:
+- Stores `newRole: string | null` and `newRolePoints: number` (0–50) on the Player
+- DB migration `0007_new_role.sql` adds `new_role TEXT` and `new_role_points INTEGER DEFAULT 0`
+- Scanner detects `ROLE+` tokens in card text and reads the nearby point count (0–50)
+
+**NewRoleBar atom (`src/components/atoms/NewRoleBar.tsx`)**
+
+Horizontal 5-segment gradient bar. Each segment = 10 pts. Colors escalate dark steel → steelLight → pos green. Label: `NR · ROLENAME` left-aligned. Total container height 16px — bar occupies top 8px, bottom 8px is a reserved empty slot for a planned second ability display.
+
+Wired into:
+- **SQUAD tab** — below the role/tier line in each player row
+- **Results tab** — below the name/age strip in the selected player header
+- **Drills tab** — between the chip selector and drill level picker
+- **Not in chips** — too small; bar only appears in full player display areas
+
+**OCR name detection hardened**
+
+Player name candidates now exclude:
+- Any block containing `+` (role-in-training tokens)
+- Any block matching `Age: N` pattern (was producing `Age: 26` as a player name)
+- Extended blocklist: `Age`, `Roles`, `Role`, `Level`, `Points`, `Overall`, `Rating`, `Talent`
+
+Fixes the `DARK VADERLL` / `Age: 26` / `ROLES: DMC+` artefacts seen in live device testing.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F80 | OCR picking up "Age: 26" and "ROLES: DMC+" as player names | Blocklist extension + `+` and age-pattern exclusions in name candidates |
+| F81 | New role training progress not tracked or displayed | NewRoleBar component + scanner detection + DB migration |
+
+---
+
 ## Sprint 20 — QualityMeter + Scan Rejection
 **2026-05-15**
 
