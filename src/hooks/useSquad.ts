@@ -34,18 +34,8 @@ export function useSquad(): { squad: Player[]; error: Error | undefined } {
         stats: JSON.parse(row.stats) as Record<string, number>,
         isMutantCandidate: Boolean(row.isMutantCandidate),
       };
-    } catch {
-      return {
-        id: row.id,
-        name: row.name,
-        role: ['ST'],
-        age: row.age,
-        overall: row.overall,
-        tier: normaliseTier(row.tier),
-        talent: 'Normal' as TalentTier,
-        stats: {},
-        isMutantCandidate: false,
-      };
+    } catch (e) {
+      throw e;
     }
   });
 
