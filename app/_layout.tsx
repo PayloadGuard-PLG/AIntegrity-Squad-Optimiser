@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
-import { useDbMigration, ensureSnapshotColumn } from '../src/db';
+import { useDbMigration, ensureSnapshotColumn, ensureNewRoleColumns } from '../src/db';
 import { ManagerProvider } from '../src/context/ManagerContext';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
@@ -9,7 +9,10 @@ export default function RootLayout() {
   const { success, error } = useDbMigration();
 
   useEffect(() => {
-    if (success) ensureSnapshotColumn();
+    if (success) {
+      ensureSnapshotColumn();
+      ensureNewRoleColumns();
+    }
   }, [success]);
 
   if (!success) {

@@ -23,3 +23,9 @@ export const useDbMigration = () => {
 export function ensureSnapshotColumn() {
   try { expoDb.execSync('ALTER TABLE players ADD COLUMN snapshot text DEFAULT NULL;'); } catch {}
 }
+
+// Idempotent column guard — catches devices where m0007 was skipped
+export function ensureNewRoleColumns() {
+  try { expoDb.execSync('ALTER TABLE players ADD COLUMN new_role text;'); } catch {}
+  try { expoDb.execSync('ALTER TABLE players ADD COLUMN new_role_points integer NOT NULL DEFAULT 0;'); } catch {}
+}
