@@ -55,6 +55,8 @@ UPDATE \`players\` SET \`tier\` = 'T6' WHERE \`tier\` = 'Legendary';`;
 
 const m0006 = `CREATE TABLE IF NOT EXISTS \`drill_presets\` (\n  \`id\` text PRIMARY KEY NOT NULL,\n  \`name\` text NOT NULL,\n  \`drill_names\` text NOT NULL,\n  \`created_at\` integer NOT NULL\n);`;
 
+const m0007 = `ALTER TABLE \`players\` ADD \`new_role\` text;\nALTER TABLE \`players\` ADD \`new_role_points\` integer NOT NULL DEFAULT 0;`;
+
 export default {
   journal,
   migrations: {
@@ -65,5 +67,6 @@ export default {
     m0004,
     m0005,
     m0006,
+    m0007,
   },
 };

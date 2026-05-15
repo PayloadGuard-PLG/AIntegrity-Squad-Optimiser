@@ -1,8 +1,9 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
+import type { StatCapture } from '../../src/logic/coachScanner';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -10,7 +11,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
-import { isWhiteStat, getAllStatKeys, getWhiteStatKeys } from '../../src/utils/roleWeights';
+import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
@@ -31,17 +32,30 @@ const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Recor
 const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
 const TIER_INCREMENTS: Record<TierName, number> = profile.tierIncrements as Record<TierName, number>;
 
+const STAT_COLS = {
+  DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
+  ATT: new Set(['PASSING','DRIBBLING','CROSSING','SHOOTING','FINISHING','THROWING','KICKING','PUNCHING','AERIAL REACH','CONCENTRATION']),
+  PHY: new Set(['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY']),
+};
+const COL_COLORS = { DEF: '#4A7FC1', ATT: '#7C3AED', PHY: '#C05621' } as const;
+function statColor(stat: string): string {
+  if (STAT_COLS.DEF.has(stat)) return COL_COLORS.DEF;
+  if (STAT_COLS.ATT.has(stat)) return COL_COLORS.ATT;
+  return COL_COLORS.PHY;
+}
+
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
-
-
 
 export default function CoachesScreen() {
   const { squad } = useSquad();
   const manager = useManager();
   const selectedId = manager.selectedPlayerId;
+
   const [sessions, setSessions] = useState('');
-  const [selectedStats, setSelectedStats] = useState<Set<string>>(new Set());
+  const [scannedStats, setScannedStats] = useState<StatCapture[]>([]);
+  const [coachType, setCoachType] = useState('');
+  const [coachCategory, setCoachCategory] = useState('');
   const [result, setResult] = useState<ProjectionResult | null>(null);
   const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
   const [saveConfirmed, setSaveConfirmed] = useState(false);
@@ -50,51 +64,16 @@ export default function CoachesScreen() {
       TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : ''])
     )
   );
-
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
 
-  useEffect(() => {
-    if (incomingPlayerId) selectPlayer(incomingPlayerId);
+  // Only apply incoming params once on mount — don't pre-fill stats
+  useState(() => {
+    if (incomingPlayerId) manager.setSelectedPlayerId(incomingPlayerId);
     if (incomingSessions) setSessions(incomingSessions);
-  }, [incomingPlayerId, incomingSessions]);
-
-  // Auto-seed white stats when player resolves (covers single-player auto-select case)
-  const seededPlayerIdRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (!player) return;
-    if (player.id === seededPlayerIdRef.current) return;
-    seededPlayerIdRef.current = player.id;
-    setSelectedStats(new Set(getWhiteStatKeys(player.role)));
-    setResult(null);
-    setSelectedTier(null);
-    setSaveConfirmed(false);
-  }, [player?.id]);
-
-  async function scanCoach() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
-    if (picked.canceled || !picked.assets[0]) return;
-    setIsScanning(true);
-    setScanStatus('');
-    try {
-      const scan = await scanCoachPreview(picked.assets[0].uri);
-      const parts: string[] = [];
-      if (scan.multiplier) { setSessions(String(scan.multiplier)); parts.push(`×${scan.multiplier}`); }
-      if (scan.stats.length > 0) {
-        parts.push(`${scan.stats.length} stats`);
-        setSelectedStats(new Set(scan.stats.map(s => s.statName)));
-      }
-      setScanStatus(parts.length > 0 ? `SCANNED: ${parts.join(' · ')}` : 'SCAN REJECTED — IMAGE NOT RECOGNISED');
-    } catch {
-      setScanStatus('SCAN FAILED');
-    } finally {
-      setIsScanning(false);
-    }
-  }
+  });
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
@@ -114,43 +93,70 @@ export default function CoachesScreen() {
 
   const selectPlayer = useCallback((id: string) => {
     manager.setSelectedPlayerId(id);
-    const p = squad.find(s => s.id === id);
-    setSelectedStats(p ? new Set(getWhiteStatKeys(p.role)) : new Set());
+    setSessions('');
+    setScannedStats([]);
+    setCoachType('');
+    setCoachCategory('');
     setResult(null);
     setSelectedTier(null);
     setSaveConfirmed(false);
-  }, [squad, manager]);
+    setScanStatus('');
+  }, [manager]);
 
-  const toggleStat = useCallback((stat: string) => {
-    setSelectedStats(prev => {
-      const next = new Set(prev);
-      if (next.has(stat)) next.delete(stat);
-      else next.add(stat);
-      return next;
-    });
-    setResult(null);
-    setSelectedTier(null);
-    setSaveConfirmed(false);
-  }, []);
+  async function scanCoach() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
+    const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+    if (picked.canceled || !picked.assets[0]) return;
+    setIsScanning(true);
+    setScanStatus('');
+    try {
+      const scan = await scanCoachPreview(picked.assets[0].uri);
+      if (scan.stats.length === 0) {
+        setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
+        setScannedStats([]);
+        setCoachType('');
+        setCoachCategory('');
+        return;
+      }
+      if (scan.multiplier) setSessions(String(scan.multiplier));
+      setScannedStats(scan.stats);
+      setCoachType(scan.coachType ?? '');
+      setCoachCategory(scan.coachCategory ?? '');
+      setResult(null);
+      setSelectedTier(null);
+      setSaveConfirmed(false);
+      const parts: string[] = [];
+      if (scan.multiplier) parts.push(`×${scan.multiplier}`);
+      parts.push(`${scan.stats.length} STATS`);
+      if (scan.coachType) parts.push(scan.coachType.toUpperCase());
+      if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
+      setScanStatus(`SCANNED: ${parts.join(' · ')}`);
+    } catch {
+      setScanStatus('SCAN FAILED');
+    } finally {
+      setIsScanning(false);
+    }
+  }
 
   function runProjection() {
-    if (!player || selectedStats.size === 0) return;
+    if (!player || scannedStats.length === 0) return;
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
     const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
-    const budget = sessionCount * profile.baseXpPerSession / selectedStats.size;
+    const budget = sessionCount * profile.baseXpPerSession / scannedStats.length;
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
-    for (const stat of Array.from(selectedStats)) {
-      const from = player.stats[stat];
+    for (const s of scannedStats) {
+      const from = player.stats[s.statName];
       if (from === undefined) continue;
-      const isWhite = isWhiteStat(player.role, stat);
+      const isWhite = isWhiteStat(player.role, s.statName);
       const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, false, drillMult, profile);
       if (gain > 0) {
-        postCoachStats[stat] = Math.min(from + gain, profile.statCap);
-        gains.push({ stat, from, gain: Number(gain.toFixed(1)), isWhite });
+        postCoachStats[s.statName] = Math.min(from + gain, profile.statCap);
+        gains.push({ stat: s.statName, from, gain: Number(gain.toFixed(1)), isWhite });
       }
     }
 
@@ -184,16 +190,20 @@ export default function CoachesScreen() {
     }
     playerService.applyAndSnapshot(player, { stats: newStats, overall: Number(newOvr.toFixed(1)), tier: newTier });
     setResult(null);
-    setSelectedStats(new Set());
+    setScannedStats([]);
+    setCoachType('');
+    setCoachCategory('');
+    setSessions('');
     setSelectedTier(null);
     setSaveConfirmed(false);
+    setScanStatus('');
   }
 
   function saveRun() {
     if (!player || !result) return;
     squadPlanService.saveRun(player.id, {
       sessions: parseInt(sessions, 10) || 0,
-      selectedStats: Array.from(selectedStats),
+      selectedStats: scannedStats.map(s => s.statName),
       ovrBefore: result.ovrBefore,
       ovrAfter: result.ovrAfter,
       gains: result.gains,
@@ -201,6 +211,8 @@ export default function CoachesScreen() {
     });
     setSaveConfirmed(true);
   }
+
+  const canProject = scannedStats.length > 0 && parseInt(sessions, 10) > 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -237,6 +249,26 @@ export default function CoachesScreen() {
                 <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>COACH CONFIG</MonoLabel>
               </View>
 
+              {/* Scanned coach identity — only shown after scan */}
+              {(coachType || coachCategory) && (
+                <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+                  {coachType && (
+                    <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.steelLight + '88' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
+                        {coachType.toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                  {coachCategory && (
+                    <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.inkSec + '55' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.inkSec }}>
+                        {coachCategory.toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+
               {/* Sessions */}
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <MonoLabel style={{ width: 80 }}>SESSIONS ×</MonoLabel>
@@ -262,7 +294,7 @@ export default function CoachesScreen() {
               </View>
 
               {/* Talent — read from player card */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
                 <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
                   <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
@@ -271,48 +303,87 @@ export default function CoachesScreen() {
                 </View>
                 <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
+
+              {/* Scan button lives here — separate from PROJECT */}
+              <Pressable onPress={scanCoach} disabled={isScanning}
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  borderWidth: 1, borderColor: theme.steelLight + '88', padding: 14, backgroundColor: theme.surface2 }}>
+                {isScanning
+                  ? <ActivityIndicator size="small" color={theme.steelLight} />
+                  : <>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1, color: theme.steelLight }}>⊕ SCAN COACH</Text>
+                      {scannedStats.length > 0 && (
+                        <MonoLabel size={9} color={theme.inkGhost}>TAP TO RESCAN</MonoLabel>
+                      )}
+                    </>
+                }
+              </Pressable>
+
+              {scanStatus !== '' && (
+                <MonoLabel size={9} color={scanStatus.startsWith('SCANNED') ? theme.pos : theme.neg} style={{ marginTop: 8 }}>
+                  {scanStatus}
+                </MonoLabel>
+              )}
             </View>
 
-            {/* Stat coverage */}
-            <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>STAT COVERAGE</MonoLabel>
-                {selectedStats.size > 0 && (
-                  <MonoLabel color={theme.hot}>{selectedStats.size} STAT{selectedStats.size !== 1 ? 'S' : ''}</MonoLabel>
-                )}
+            {/* Coach boosts sub-grid — only shown after scan */}
+            {scannedStats.length > 0 && (
+              <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
+                <MonoLabel color={theme.steelLight} style={{ marginBottom: 10 }}>
+                  COACH BOOSTS · {scannedStats.length} {scannedStats.length === 1 ? 'STAT' : 'STATS'}
+                </MonoLabel>
+                {scannedStats.map((s, i) => {
+                  const col = statColor(s.statName);
+                  const isWhite = isWhiteStat(player.role, s.statName);
+                  return (
+                    <View key={s.statName} style={{
+                      flexDirection: 'row', alignItems: 'center',
+                      paddingVertical: 8,
+                      borderTopWidth: i > 0 ? 1 : 0, borderTopColor: theme.hairline,
+                    }}>
+                      <View style={{ width: 3, height: 20, backgroundColor: isWhite ? col : col + '44', marginRight: 10, borderRadius: 1 }} />
+                      <Text style={{ flex: 1, fontFamily: theme.mono, fontSize: 11, letterSpacing: 0.6,
+                        color: isWhite ? col : theme.inkGhost }}>
+                        {s.statName}
+                      </Text>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkSec, marginRight: 12 }}>
+                        {s.statBefore}
+                      </Text>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.pos }}>
+                        +{s.gainLo}–{s.gainHi}
+                      </Text>
+                    </View>
+                  );
+                })}
               </View>
+            )}
 
+            {/* Player stats — read-only reference */}
+            <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
+              <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>PLAYER STATS</MonoLabel>
               <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>HIGHLIGHTED = ESSENTIAL · DIM = SECONDARY</MonoLabel>
               <StatGrid3Col
                 statKeys={[...white, ...grey]}
                 roles={player.role}
                 values={player.stats}
-                selected={selectedStats}
-                onToggle={toggleStat}
               />
             </View>
 
-            {/* Project + Scan buttons */}
-            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>
-              <Pressable onPress={runProjection}
-                style={{ flex: 1, borderWidth: 1, borderColor: selectedStats.size > 0 ? theme.steelLight : theme.hairline2, padding: 16, alignItems: 'center', backgroundColor: selectedStats.size > 0 ? theme.steelLight : 'transparent' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: selectedStats.size > 0 ? theme.bg : theme.inkGhost }}>
-                  ▶ PROJECT
-                </Text>
-              </Pressable>
-              <Pressable onPress={scanCoach} disabled={isScanning}
-                style={{ borderWidth: 1, borderColor: theme.steelLight + '88', padding: 16, alignItems: 'center', minWidth: 80, backgroundColor: theme.surface2 }}>
-                {isScanning
-                  ? <ActivityIndicator size="small" color={theme.steelLight} />
-                  : <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1, color: theme.steelLight }}>⊕ SCAN</Text>
-                }
-              </Pressable>
-            </View>
-            {scanStatus !== '' && (
-              <MonoLabel size={9} color={scanStatus.startsWith('SCANNED') ? theme.pos : theme.neg} style={{ marginBottom: 10 }}>
-                {scanStatus}
-              </MonoLabel>
-            )}
+            {/* Project button — standalone, only active after scan */}
+            <Pressable onPress={runProjection} disabled={!canProject}
+              style={{ borderWidth: 1, borderColor: canProject ? theme.steelLight : theme.hairline2,
+                padding: 16, alignItems: 'center', marginBottom: 14,
+                backgroundColor: canProject ? theme.steelLight : 'transparent' }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2,
+                color: canProject ? theme.bg : theme.inkGhost }}>
+                ▶ PROJECT
+              </Text>
+              {!canProject && (
+                <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4 }}>
+                  {scannedStats.length === 0 ? 'SCAN A COACH FIRST' : 'ENTER SESSION COUNT'}
+                </MonoLabel>
+              )}
+            </Pressable>
 
             {/* Result */}
             {result && (
@@ -356,7 +427,7 @@ export default function CoachesScreen() {
                     </View>
                   )}
 
-                  {/* Per-stat breakdown — 3-col grid */}
+                  {/* Per-stat breakdown */}
                   {result.gains.length > 0 ? (
                     <StatGrid3Col
                       statKeys={result.gains.map(g => g.stat)}
