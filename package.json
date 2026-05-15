@@ -13,6 +13,7 @@
     "test:logic": "npx tsx tests/logic-test.ts",
     "test:engine": "npx tsx tests/engine-test.ts",
     "test:projection": "npx tsx tests/projection-test.ts",
+    "sim:ala": "npx tsx tests/sim-ala.ts",
     "db:generate": "drizzle-kit generate",
     "typecheck": "tsc --noEmit"
   },
