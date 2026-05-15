@@ -5,6 +5,7 @@ import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
+import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
@@ -216,9 +217,12 @@ export default function ResultsScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
               {squad.map(p => (
-                <Chip key={p.id} active={p.id === player?.id} onPress={() => selectPlayer(p.id)}>
-                  {p.name}
-                </Chip>
+                <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <QualityMeter ovr={p.overall} size="sm" />
+                  <Chip active={p.id === player?.id} onPress={() => selectPlayer(p.id)}>
+                    {p.name}
+                  </Chip>
+                </View>
               ))}
             </ScrollView>
           </>
@@ -232,6 +236,7 @@ export default function ResultsScreen() {
           <>
             {/* Player info strip */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
+              <QualityMeter ovr={player.overall} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: theme.display, fontSize: 17, fontWeight: '700', color: theme.ink }}>{player.name}</Text>
                 <MonoLabel size={9} color={theme.inkSec}>AGE {player.age} · {player.role.join(' / ')} · {player.tier ?? 'NO TIER'}</MonoLabel>

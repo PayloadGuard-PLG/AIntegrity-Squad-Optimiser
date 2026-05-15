@@ -5,6 +5,7 @@ import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
+import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { CornerBrackets } from '../../src/components/atoms/CornerBrackets';
 import { theme, TIER_COLORS, ovrColor } from '../../src/constants/theme';
 import { Player } from '../../src/database/playerSchema';
@@ -37,7 +38,7 @@ function PlayerRow({ player, index }: { player: Player; index: number }) {
       padding: 12, paddingHorizontal: 14,
       flexDirection: 'row', alignItems: 'center', gap: 14,
     }}>
-      <MonoLabel size={9} style={{ width: 20 }}>{String(index + 1).padStart(2, '0')}</MonoLabel>
+      <QualityMeter ovr={player.overall} />
       <OvrBadge ovr={player.overall} />
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, fontWeight: '600', color: theme.ink, fontFamily: theme.display, letterSpacing: -0.2, marginBottom: 4 }}>

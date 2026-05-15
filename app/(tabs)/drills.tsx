@@ -5,6 +5,7 @@ import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
+import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { theme } from '../../src/constants/theme';
@@ -77,7 +78,10 @@ export default function DrillsScreen() {
             <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
               {squad.map(p => (
-                <Chip key={p.id} active={p.id === manager.selectedPlayerId} onPress={() => manager.setSelectedPlayerId(p.id)}>{p.name}</Chip>
+                <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <QualityMeter ovr={p.overall} size="sm" />
+                  <Chip active={p.id === manager.selectedPlayerId} onPress={() => manager.setSelectedPlayerId(p.id)}>{p.name}</Chip>
+                </View>
               ))}
             </ScrollView>
           </>

@@ -6,6 +6,7 @@ import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
+import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { OvrMovement } from '../../src/components/atoms/OvrMovement';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
@@ -212,9 +213,12 @@ export default function PlanScreen() {
             {squad.map(p => {
               const sel = p.id === selectedId;
               return (
-                <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1 }}>
-                  <Text style={{ fontSize: 12, color: sel ? theme.ink : theme.inkMuted, fontWeight: sel ? '600' : '400', fontFamily: theme.display, marginBottom: 2 }}>{p.name}</Text>
-                  <MonoLabel size={8}>{p.overall} · {p.role[0]}</MonoLabel>
+                <Pressable key={p.id} onPress={() => setSelectedId(p.id)} style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: sel ? theme.steelLight : 'transparent', marginBottom: -1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <QualityMeter ovr={p.overall} size="sm" />
+                  <View>
+                    <Text style={{ fontSize: 12, color: sel ? theme.ink : theme.inkMuted, fontWeight: sel ? '600' : '400', fontFamily: theme.display, marginBottom: 2 }}>{p.name}</Text>
+                    <MonoLabel size={8}>{p.overall} · {p.role[0]}</MonoLabel>
+                  </View>
                 </Pressable>
               );
             })}

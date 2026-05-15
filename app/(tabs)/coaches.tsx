@@ -8,6 +8,7 @@ import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
+import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { isWhiteStat, getAllStatKeys, getWhiteStatKeys } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
@@ -213,9 +214,12 @@ export default function CoachesScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
               {squad.map(p => (
-                <Chip key={p.id} active={p.id === player?.id} onPress={() => selectPlayer(p.id)}>
-                  {p.name}
-                </Chip>
+                <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <QualityMeter ovr={p.overall} size="sm" />
+                  <Chip active={p.id === player?.id} onPress={() => selectPlayer(p.id)}>
+                    {p.name}
+                  </Chip>
+                </View>
               ))}
             </ScrollView>
           </>
