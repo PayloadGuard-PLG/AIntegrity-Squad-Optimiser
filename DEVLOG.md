@@ -6,6 +6,48 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 20 — QualityMeter + Scan Rejection
+**2026-05-15**
+
+Branch: `main` (commits `e759ee6`, `8f31972`)
+
+### Shipped
+
+**QualityMeter — 10-bar OVR display across all tabs (commit `e759ee6`)**
+
+New atom `src/components/atoms/QualityMeter.tsx`. 10 vertical bars, max OVR = 180 (10 × 18 OVR per bar). Color escalates from dark steel (bar 0, `#2d3a52`) through amber (bar 8, `#e8b466`) to green (bar 9, `#7eb89a`). Partial bar on the in-progress segment at fractional opacity. Two size variants:
+
+| Variant | Width | Bar height | Use |
+|---|---|---|---|
+| `md` (default) | 8px | 3px | Squad roster rows, Results player header |
+| `sm` | 5px | 2px | Player selector chips (Plan / Drills / Coaches / Results) |
+
+Wired to all 6 player display locations:
+- Squad roster (`index.tsx`) — replaced row-number label with `<QualityMeter ovr={player.overall} />`
+- Results player header — meter left of name
+- Results / Plan / Drills / Coaches player chips — meter left of chip
+
+The 18-OVR-per-bar scale is **independent** of the 20-OVR star decay threshold. At OVR 100: `100/180×10 = 5.56` → 5 full bars + 56%-filled 6th, consistent with ~5½ stars on player cards.
+
+**Scan rejection with image overlay (commit `8f31972`)**
+
+Previously, irrelevant images (non-player-card / non-coach-screen) received only a soft "NOTHING DETECTED" status. Now:
+
+- If no recognisable data is extracted, the picked image is rendered at full width with an **85% black overlay** and "INVALID IMAGE" centered in amber, plus guidance text "UPLOAD A SCREEN RESOLUTION PLAYER CARD / COACH PREVIEW".
+- On valid scans the preview clears immediately and the form populates as before.
+- `player/new.tsx`, `player/[id].tsx`, `coach/capture.tsx` — full image + overlay pattern.
+- `coaches.tsx` inline scan — status message upgraded to "SCAN REJECTED — IMAGE NOT RECOGNISED".
+- Form state is **not overwritten** when a scan is rejected (no contamination of existing values).
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F78 | No visual quality indicator anywhere in app | QualityMeter atom wired to all 6 player entry points |
+| F79 | Irrelevant scan images showed soft NOTHING DETECTED, no user guidance | Rejection overlay with image preview and explicit INVALID IMAGE messaging |
+
+---
+
 ## Sprint 19 — Engine Calibration: Age Table, Star Decay, XP Float Bug
 **2026-05-15**
 

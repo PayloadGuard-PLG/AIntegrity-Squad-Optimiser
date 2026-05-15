@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `main`
-**As of:** Sprint 19 — 2026-05-15
+**As of:** Sprint 20 — 2026-05-15
 **Deploy:** Push to `main`. EAS OTA auto-fires on merge to `main` (Android only).
 
 ---
@@ -14,7 +14,9 @@ All tabs functional. Engine calibrated against empirical session data. OTA pipel
 
 ### What works
 
-- **SQUAD tab** — player list, tap → edit/delete, OVR badge, tier/age/role display, snapshot revert banner
+- **QualityMeter** (`src/components/atoms/QualityMeter.tsx`) — 10-bar vertical OVR indicator (max=180, 18 OVR/bar). Color-escalates dark steel → amber → green. `md` (8×3px) for roster/headers; `sm` (5×2px) for chips. Wired to all 6 player entry points across tabs.
+- **Scan rejection** — irrelevant images (no recognisable player/coach data) now render a full-width preview with 85% black overlay + "INVALID IMAGE" centered. Form state never overwritten on rejection. Applies to player/new, player/[id], coach/capture, coaches inline.
+- **SQUAD tab** — player list, tap → edit/delete, OVR badge, QualityMeter, tier/age/role display, snapshot revert banner
 - **SQUAD PLAN tab** — per-player history of saved coaching projections. OVR before/after, stat gains, session count, tier, date, delete. Backed by `squad_plan_runs` DB table (migration 0004).
 - **COACH CAPTURE screen** (`/coach/capture`) — calibration data logger. Navigate to it via the PROJECT button after a coach scan, or directly from the app. Squad auto-fill copies stats/OVR/talent from player card. Per-stat lo/hi gain entry (tap to expand). Live OVR boost preview. Saves to Squad Plan.
 - **COACHES tab** — 3-col stat selector grid (white/grey sections), ×N sessions input, intensity locked to Very Hard, talent read from player card. SCAN button scans a coach preview screenshot and pre-fills session count. Per-stat gain projection + OVR delta. TIER UPGRADE section shows combined coach+tier OVR. APPLY TO PLAYER CARD writes stats back. SAVE RUN persists to Squad Plan.
