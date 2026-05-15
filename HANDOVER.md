@@ -58,14 +58,13 @@ White stats (essential for role) render at full column colour. Grey stats (secon
 
 | # | Area | Task | Priority |
 |---|---|---|---|
-| 1 | Star decay ratio | `starDecayPerSession = 0.85` is a placeholder. Steve to confirm exact value. Once confirmed, update `profiles/game_2025.json` only — wiring is already live in `applyDrillSessionsToStats`. | High |
-| 2 | Seasons planner tab | Planned new tab: project player stats across one full season including drills, tier, seasonal OVR decay (~20% base OVR drop per season). Requires seasonal decay modelling. No implementation started. | Medium |
-| 3 | OCR — roles | Token-exact matching is in place. Still possible to get zero roles if screenshot crops role badges. Add fallback: if no roles detected, keep previously selected roles. | Medium |
-| 4 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
-| 5 | Coach Capture → real calibration | Capture screen is built but gains don't update `game_2025.json` or XP engine. Future: back-solve actual XP budget from lo/hi captures. | Low |
-| 6 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled. | Low |
-| 7 | CLI drill levels | `src/index.ts` updated to new drill level names but not tested end-to-end. | Low |
-| 8 | AppHeader 6th tab | SQUAD PLAN is in tab bar. Confirm it appears in `src/components/AppHeader.tsx` `NAV_ITEMS` array. | Quick check |
+| 1 | Seasons planner tab | Planned new tab: project player stats across one full season including drills, tier, seasonal OVR decay (~20% base OVR drop per season). Requires seasonal decay modelling. No implementation started. | Medium |
+| 2 | OCR — roles | Token-exact matching is in place. Still possible to get zero roles if screenshot crops role badges. Add fallback: if no roles detected, keep previously selected roles. | Medium |
+| 3 | Condition validation | Confirm `COND_LEVEL_MULTIPLIERS` at Easy and Hard levels. Only VE and VH cross-checked against real screenshots. | Medium |
+| 4 | Coach Capture → real calibration | Capture screen is built but gains don't update `game_2025.json` or XP engine. Future: back-solve actual XP budget from lo/hi captures. | Low |
+| 5 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery reduction from premium milestones not modelled. | Low |
+| 6 | CLI drill levels | `src/index.ts` updated to new drill level names but not tested end-to-end. | Low |
+| 7 | AppHeader 6th tab | SQUAD PLAN is in tab bar. Confirm it appears in `src/components/AppHeader.tsx` `NAV_ITEMS` array. | Quick check |
 
 ---
 

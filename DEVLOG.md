@@ -57,9 +57,9 @@ Passed to `estimateStatGainPct` at each stat calculation. Each star threshold = 
 | F76 | XP bracket float-straddling halted training at fractional bracket boundaries | `Math.floor(statValue)` before bracket lookup |
 | F77 | Star decay in profile but never applied (hardcoded 0) | Wired `starsGained` from cumulative OVR gain in session |
 
-### Pending
+### Star Decay Ratio — Confirmed
 
-- Star decay ratio: `0.85` is a placeholder. Steve to confirm exact value next session.
+`starDecayPerSession = 0.85` confirmed via community data: "roughly 15% reduction in XP gains per star gained" = 0.85× multiplier exactly. No code change required — value was already correct.
 
 ---
 
