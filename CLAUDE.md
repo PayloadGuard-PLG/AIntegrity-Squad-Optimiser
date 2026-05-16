@@ -464,3 +464,90 @@ The formula is now structurally sound. The remaining calibration work is:
 Primary risk: bXPS=220 was calibrated assuming Normal talent for Ricky Grant. If he's actually
 Fast (×1.25), the true bXPS would be ~176. If Fastest (×1.5), bXPS ~147. This is the biggest
 remaining uncertainty in every projection the app shows.
+
+---
+
+## Sprint 26 Handover — Talent Confirmed, Player Snapshots, Role Detection
+
+### What was done (Sprint 26)
+
+**1. TALENT CONFIRMED for both calibration players**
+
+Both Ricky Grant and Ryan Rodger are **Normal (×1.0)** — confirmed from intake form Training Rate
+selections. This resolves the biggest open calibration question since Sprint 24.
+
+Impact: bXPS=220 was calibrated assuming Normal talent. That assumption is now verified.
+With Normal + K=55 + bXPS=220, Tackling 120 ×40 Standard predicts ~62 pts (actual: 59-73 ✓).
+
+**2. Calibration data comprehensively updated** (`profiles/calibration_data.json`)
+
+- Added `talent: "Normal", talentConfirmed: true, talentSource: "..."` to both players
+- Added `snapshots[]` array to each player tracking stats at different training stages:
+  - Grant: T2/ELITE snapshot + T3/STELLAR snapshot (current)
+  - Rogers: T0/OVR-116 snapshot (original calibration) + T0/OVR-120 snapshot (current)
+- Added `tier_increment_verification` for Grant: T2→T3 confirms 13 white stats for DL/ML/AML
+  (all except HEADING and STRENGTH), matching `tierIncrements[T3] = 20`
+- Confirmed white stat count from tier increment: Heading +1, Strength +1 (grey). All others +21.
+
+**3. Player seeds created** (`profiles/player_seeds.json`)
+
+Definitive player records for re-entry if device DB is wiped. Contains correct roles, stats,
+talent, tier for both players. Full 3-role entries (not 1-role as entered in intake forms).
+
+**4. Controlled ×N test logged**
+
+Extensive Safeguard ×10/×40 on OVR-99 outfield player (talent ×1.0, Fitness 111, VH intensity):
+- ×10 → app projects +3.7 FITNESS
+- ×40 → app projects +9.0 FITNESS
+- Ratio: 2.43 (expected ~3.65 from pure exponential cost model alone)
+- Unexplained 33% sub-linearity. Player age unknown — needed to resolve.
+
+### Critical open issues for next session
+
+**1. Roles entered with only 1 position in intake forms:**
+- Grant saved as DL only (should be DL + ML + AML)
+- Rogers saved as AML only (should be AML + ML + AMC)
+- Fix: open each player in the player edit screen, add the missing 2 roles
+- Impact: `isWhiteStat()` uses union of all roles. Single role = fewer white stats = different projections
+
+**2. OVR +1 discrepancy:**
+- Grant: our formula gives 175, game shows 176
+- Rogers: our formula gives 120, game shows 121
+- Stats as read from screenshots sum to 1 less than needed. Either a stat is 1 point off
+  in our read, or the game uses a slightly different rounding. Not critical for projections.
+
+**3. ×N anomaly still open:**
+- The OVR-99 player's ×10/×40 ratio (2.43 vs expected 3.65) suggests either sub-linear budget
+  scaling (geometric session decay) OR some age-related effect compounding with the cost curve.
+- Need: player's age from the coach planner screen to diagnose.
+- Do NOT change budget formula until this is understood.
+
+**4. Role detection in player scanner — Steve's note:**
+- Scanner picks up role labels from "black" (unlit/unselected) positions in the game card
+- May need colour-based filtering of role tokens, but ML Kit OCR doesn't expose text colour
+- Alternative: restrict role detection to the specific Y-band where the role badge row appears
+- See `src/logic/playerScanner.ts` → `KNOWN_ROLES` and role extraction logic
+
+### Files changed in Sprint 26
+
+| File | Change |
+|---|---|
+| `profiles/calibration_data.json` | Complete rewrite with confirmed talent, snapshots, tier verification, ×N test |
+| `profiles/player_seeds.json` | NEW — definitive player records for DB re-entry |
+| `CLAUDE.md` | This section |
+
+### Note from this Claude to the next Claude
+
+The formula is now well-calibrated for Normal talent players in the 60-260 stat range.
+The K=55 exponential model gives reasonable predictions once you account for the budget formula.
+
+Priority order for next session:
+1. Fix the roles for both players in the device DB (DL+ML+AML for Grant, AML+ML+AMC for Rogers)
+2. Get the OVR-99 mystery player's age (screenshot the coach planner showing their profile)
+3. Investigate the role scanner "black role" issue — read playerScanner.ts lines around role extraction
+4. Confirm whether Grant and Rogers are actually saved in the DB with the correct stats from the
+   most recent intake form scan, or whether they have older stats
+
+The calibration_data.json and player_seeds.json together are the persistent record.
+Any new coach observations Steve scans should be added to calibration_data.json observations[].
+The player_seeds.json should be updated whenever stats change significantly (after major coaching).
