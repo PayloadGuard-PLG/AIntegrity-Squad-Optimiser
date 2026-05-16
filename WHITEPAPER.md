@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 1.5 — Sprint 19**
+**Version 2.0 — Sprint 27**
 
 ---
 
@@ -31,10 +31,19 @@ Drill Sessions  →  Tier Upgrade  →  Restorers (condition)
 ### 3.1 OVR Formula
 
 ```
-OVR = floor(mean(all 15 stats))
+OVR = ceil(mean(all 15 stats))
 ```
 
-`qualityOvrDivisor = 1` — OVR is the **floored** (truncated) unweighted mean of all 15 attributes. Confirmed from Sutters GK snapshot (2026-05-08): sum of 15 stats = 2,844; 2,844 ÷ 15 = 189.6 → game displays **189**. Earlier estimate (mean 194.8 → displays 195) was unverified; the truncation rule supersedes it.
+`qualityOvrDivisor = 1` — OVR is the **ceiling** (rounded up) of the unweighted mean of all 15 attributes. Confirmed from 4 data points (Sprint 27):
+
+| Player | sum/15 | ceil | floor | Game OVR |
+|---|---|---|---|---|
+| McGinty T0 | 99.53 | **100** | 99 | 100 ✓ |
+| Rogers T0 | 120.60 | **121** | 120 | 121 ✓ |
+| Grant T2 | 157.00 | **157** | 157 | 157 ✓ |
+| Grant T3 | 175.40 | **176** | 175 | 176 ✓ |
+
+`floor` fails for McGinty and Grant T3. `ceil` matches all four. Earlier Sprint 19 text (which cited a GK snapshot and concluded truncation) was based on an integer mean case where floor and ceil agree — the distinction was not observable until non-integer cases were tested. `qualityPctToOvr()` in `xpEngine.ts` uses `Math.ceil`.
 
 ### 3.2 XP cost per 1% stat gain
 
@@ -56,19 +65,19 @@ xpNeededFor1Pct(
 xpBudget = sessionCount × baseXpPerSession / drill.stats.length
 ```
 
-Budget is divided equally across all stats a drill trains. A 5-stat drill run for 30 sessions gives each stat 30 × 150 / 5 = **900 XP**.
+Budget is divided equally across all stats a drill trains. A 5-stat drill run for 30 sessions gives each stat 30 × 220 / 5 = **1,320 XP**.
 
-**Calibration — Standard Attacking ×30 (age 18, Normal talent):**
+**Calibration — Standard Defending ×40 (Ricky Grant, age 20, Normal talent):**
 
-| Stat | Start | Observed gain | Model (Medium) |
+| Stat | Start | Observed gain | Model |
 |---|---|---|---|
-| Passing | 121 | +26–33 | ~27 |
-| Dribbling | 132 | +20–27 | ~25 |
-| Crossing | 132 | +20–27 | ~25 |
-| Shooting | 129 | +21–29 | ~26 |
-| Finishing | 127 | +22–30 | ~27 |
+| Tackling | 120 | +59–73 | ~62 ✓ |
 
-Model gives gains within the observed ranges at Medium intensity (1.3×). `baseXpPerSession = 150` confirmed.
+`baseXpPerSession = 220` calibrated against this data point. Normal talent (×1.0) confirmed from intake form screenshot (Sprint 26).
+
+**Calibration — exponential model derivation:**
+
+Tackling 120 and Positioning 228 observed simultaneously under the same XP budget. Actual gain ratio = 66 / 13.5 = 4.89. `exp((228 − 120) / 55) = 4.89` exactly — validates the exponential cost curve (see §3.3).
 
 **Note — Training XP ≠ stat-gain XP:** The "Training XP" display is a separate resource and does not map to the XP budget modelled here.
 
@@ -85,27 +94,32 @@ xpCost = base / (ageMult × talentMult × greyMult × adMult × drillLevelMult)
 
 The engine iterates 1% at a time from the current stat value, subtracting `xpCost` from the budget, until the budget is exhausted. Sub-integer progress banks as a fractional carry.
 
-### 3.3 XP cost table
+### 3.3 XP cost model — exponential (current)
 
-Costs increase with stat value. Top-level players (stats 180–250) still train — costs are steep but finite.
+XP cost per 1% gain follows a continuous exponential curve (Sprint 25):
 
-| Stat range | XP per 1% |
-|---|---|
-| 0–59 | 8 |
-| 60–79 | 10 |
-| 80–99 | 20 |
-| 100–119 | 30 |
-| 120–139 | 40 |
-| 140–159 | 50 |
-| 160–179 | 60 |
-| 180–199 | 80 |
-| 200–219 | 100 |
-| 220–239 | 125 |
-| 240–259 | 160 |
-| 260–279 | 200 |
-| 280–339 | 250 |
+```
+xpBase(stat) = C₀ × exp(stat / K)
 
-**Example:** stat-241 white attr, age 24, Normal talent, Very Easy drill: `xpCost = 160 / 0.24 ≈ 667`. Budget for 6 sessions = 900 XP → 1% gain.
+C₀ = 2.94   (base cost at stat = 0)
+K  = 55      (scale constant; cost doubles every ~38 stat points)
+```
+
+This supersedes the stepped cost table used through Sprint 24. The exponential model was derived from the observed gain ratio between Tackling 120 and Positioning 228 in the same coaching session (same XP budget, same player, same session) — see §3.2.
+
+**Examples (Normal talent, age 20, white stat):**
+
+| Stat | xpBase | Example cost (÷ ageMult 1.0) |
+|---|---|---|
+| 60 | 2.94 × e^(60/55) ≈ 8.9 | ~9 XP / 1% |
+| 120 | 2.94 × e^(120/55) ≈ 26.9 | ~27 XP / 1% |
+| 180 | 2.94 × e^(180/55) ≈ 81.7 | ~82 XP / 1% |
+| 228 | 2.94 × e^(228/55) ≈ 198 | ~198 XP / 1% |
+| 260 | 2.94 × e^(260/55) ≈ 371 | ~371 XP / 1% |
+
+Cost growth is continuous — no step discontinuities at round-number boundaries.
+
+**Fallback:** If `xpCostBase` or `xpCostDecayK` are absent from the game profile, `xpBaseForStat()` falls back to the stepped table stored in `profile.xpCostTable`. The stepped table remains in `game_2025.json` as a reference but is not used when the exponential parameters are present.
 
 ### 3.4 Age multipliers
 
@@ -167,7 +181,7 @@ starsGained = floor(ovrGainedSoFarInSession / 20)
 sessionMult = starDecayPerSession ^ starsGained
 ```
 
-`starDecayPerSession` is currently `0.85` (placeholder — exact ratio pending confirmation). `starOvrThreshold = 20` is confirmed.
+`starDecayPerSession = 0.85`. `starOvrThreshold = 20` is confirmed. The ×N anomaly (×20 and ×40 sessions producing nearly identical projected gains) is consistent with the geometric sum plateau: `Σ(0.85^k, k=0..N-1)` converges to `1/(1-0.85) = 6.67` at large N, meaning sessions beyond ~20 contribute diminishing returns. This is a model characteristic, not a bug — empirical confirmation pending.
 
 In `applyDrillSessionsToStats`, `starsGained` is computed from cumulative OVR gained since the start of the call (`runningOvr - ovrBefore`) and passed into `estimateStatGainPct`. This means each stat's gain calculation accounts for the decay earned by all preceding stats and drills in the same session.
 
@@ -184,7 +198,7 @@ for each stat in player.stats:
     if stat in whiteStats:
         stat += tierAttrAddition[targetTier] - tierAttrAddition[fromTier]
 
-OVR = floor(mean(all 15 updated stats))
+OVR = ceil(mean(all 15 updated stats))
 ```
 
 **Confirmed from direct game observation (Sprint 16).** Earlier Sprint 12 calibration claimed role stats (white+grey) received the full increment based on Ricky Grant Elite→Stellar data; that interpretation has been superseded.
@@ -576,17 +590,20 @@ interface InvestmentPlan {
 
 | Item | Status |
 |---|---|
-| Drill XP baseline | `baseXpPerSession = 150` confirmed from Standard Attacking ×30 (age 18, Normal talent). Validate for other intensities/ages with CALIBRATION_LOG data. |
-| GK white stat list | Corrected Sprint 17 (final): all 10 GK-specific stats + FITNESS = 11 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION, FITNESS). Secondary: STRENGTH, AGGRESSION, SPEED, CREATIVITY (4). Earlier Sprint 17 intermediate had 7 white — superseded by direct game card verification. |
-| GK stat entry UI | Fixed Sprint 9: GK_STATS grid 10 → 15; all confirmed from Sutters card. |
-| Tier bonus scope | Confirmed Sprint 16 (direct game observation): white (essential) stats only get the tier increment — grey role stats and off-role stats receive 0. Sprint 12 calibration (role stats white+grey) superseded. |
-| Individual stat entry | Drill-level projection requires all 15 stats entered per player. Players stored with only an OVR value get drill gains skipped — a warning is shown and the projection falls back to the tier-only estimate. |
-| Condition level multipliers | Confirmed Sprint 11 from screenshots: VE×1, E×2, M×3, H×4, VH×5. Additional mid-range validation (Easy, Medium, Hard) still useful. |
-| Role OCR | Sprint 14: switched from full-text `\bROLE\b` regex to token-exact match. Eliminates false positives from partial word matches. Remaining gap: if the screenshot crops the role badge area entirely, zero roles are detected — currently the scan returns `undefined` (no roles set). Future fix: preserve the existing role selection when scan returns no roles. |
-| Touch Training drill | Missing from `DRILL_LIST`. Trains Concentration, Dribbling, Heading, Creativity — type TBC. |
-| Team Play system | Fully documented in §6 but not modelled in the engine. Pillars, decay, Match Advisor multiplier, and ADVANCE costs are out of scope for current OVR projection. |
-| Star decay curve | `starDecayPerSession = 1.0` (no decay). Confirmed near-linear from real data. |
-| Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but condition recovery cooldown reduction (milestone 6 +10%, milestone 12 further reduction) is not applied in engine output. |
+| OVR formula | `Math.ceil` — confirmed Sprint 27 from 4 data points (McGinty, Rogers, Grant T2, Grant T3). Fixed in `qualityPctToOvr()`. |
+| Drill XP baseline | `baseXpPerSession = 220` — calibrated Sprint 24 against Standard Defending ×40, Normal talent, age 20. |
+| XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=55 — confirmed Sprint 25 from observed gain ratio. |
+| Talent multipliers | Normal (×1.0) confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Fastest (×1.5) and Fast (×1.25) are community estimates — empirical calibration against known-Fastest/Fast players pending. |
+| ×N anomaly | ×20 and ×40 sessions produce nearly equal projected gains. Geometric sum plateau hypothesis (sessions beyond ~20 contribute < 4% additional XP) is the working model. Empirical test needed. Do not change budget formula until confirmed. |
+| Star decay curve | `starDecayPerSession = 0.85`. Near-linear empirical observation at low session counts is consistent with the geometric sum plateau model — distinguish by testing ×10 vs ×40 on the same player. |
+| GK white stat list | 11 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION, FITNESS) + 4 grey (STRENGTH, AGGRESSION, SPEED, CREATIVITY). Confirmed Sprint 17. |
+| Tier bonus scope | White (essential) stats only — confirmed Sprint 16. Grey role stats and off-role stats receive 0 increment. |
+| Individual stat entry | Drill-level projection requires per-stat values. Players with only an OVR get drill gains skipped; projection falls back to tier-only estimate with a warning. |
+| Condition level multipliers | Confirmed Sprint 11: VE×1, E×2, M×3, H×4, VH×5. |
+| Role OCR | Anchored to Roles: label Y-band Sprint 27. Fallback to full-text regex when label not found. If screenshot crops role badge area entirely, zero roles detected — existing role selection is preserved (not overwritten). |
+| Touch Training drill | Present in DRILL_LIST (added Sprint 8). Trains HEADING, CREATIVITY, CONCENTRATION, DRIBBLING. Very Easy intensity. |
+| Team Play system | Documented §6, not modelled in OVR engine. |
+| Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery cooldown reduction not applied in engine output. |
 | Formation/synergy | Not modelled. |
 
 ---
@@ -608,9 +625,21 @@ Scans a screenshot of a player's confirmed card and extracts:
 3. For each token, check if `text.toUpperCase()` is a known stat name (single word) or if the next token completes a two-word stat (e.g. `RUSHING OUT`). Two-word match requires both tokens to be within `Y_TOL = 28px` vertically.
 4. For each matched stat name, look for numbers to its RIGHT on the same baseline using `Y_TOL_VAL = 20px` (tighter than `Y_TOL = 28px` to exclude section-header totals such as `DEFENCE 173`). Take the leftmost valid number (1–500). Fallback: look directly below the label (within `Y_BELOW = 40px`, within 100px horizontally).
 
-**Role detection (Sprint 16):**
+**Role detection (Sprint 27):**
 
-Roles are matched by splitting each token on whitespace and badge punctuation (`[\s,./|·•·()\[\]<>:]+`), then checking the result against `KNOWN_ROLES`. A `fullText` regex backup (`/\b(GK|DC|DL|...)\b/gi`) catches cases where badge OCR garbles token boundaries.
+Role extraction is anchored to the Y-band of the "Roles:" label token (±28px). The scanner finds the "Roles:" label by text match, records its `top` value, then restricts role token scanning to that Y band. This prevents false positives from dark/inactive position labels elsewhere on the game card.
+
+```typescript
+const rolesLabelTok = tokens.find(t => /^roles?\s*:?$/i.test(t.text.trim()));
+const roleRowY = rolesLabelTok?.top;
+const roleSourceTokens = roleRowY != null
+  ? tokens.filter(t => Math.abs(t.top - roleRowY) < Y_TOL)
+  : tokens;
+```
+
+Within the band, tokens are split on whitespace and badge punctuation (`[\s,./|·•·()\[\]<>:]+`) and matched against `KNOWN_ROLES`. The game may emit multiple roles as a single OCR token (e.g. `"DL ML AML"`). A `fullText` regex backup runs when no "Roles:" label is found by OCR.
+
+**Multi-role entry:** Up to 3 roles may be selected in the game's position grid. The union of all roles' essential stats forms the white stat set for projection (union rule — DL+ML+AML unlocks whites from all three positions).
 
 **Name heuristic:**
 - Find the first OCR block whose text starts with a capital letter followed by a lowercase letter (`/^[A-Z][a-z]/`)
@@ -622,17 +651,47 @@ Roles are matched by splitting each token on whitespace and badge punctuation (`
 
 ### 14.2 Coach Preview Scanner (`src/logic/coachScanner.ts`)
 
-Scans a screenshot of the confirmed coach assignment preview and extracts:
-- Coach type (Standard / Focused / Extensive), category (Attacking / Defending / Physical / Safeguard), multiplier (×N) from a header line
-- Per-highlighted-stat gain ranges (`+lo–hi`) — only rows that contain a gain range pattern are captured
+Scans a screenshot of the coach assignment preview screen and extracts:
+- Coach type (Standard / Focused / Extensive), category (Attacking / Defending / Physical / Safeguard), multiplier (×N) — matched independently from separate header tokens, not a single combined regex
+- Highlighted stat names — only the stats the coach boosts, not all visible stats
 
-**Gain range detection:**
+**Two scan states the scanner must handle:**
 
-The game highlights affected stats with a `+lo–hi` gain range indicator. The scanner uses `GAIN_RE = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/` — allows spaces around the dash because OCR often emits `+57 – 71`. Three dash variants (en-dash, hyphen, em-dash) are matched. Sanity cap: `hi <= 300`.
+| State | Highlighted row shows | Non-highlighted row shows |
+|---|---|---|
+| Player selected | `MARKING 87 +6–9` (gain range inline) | `TACKLING 57` (value only) |
+| No player selected | `MARKING ↑` (arrow indicator) | `TACKLING` (name only) |
 
-Only tokens on the same baseline as a recognised stat name are scanned for the gain range. This prevents false matches from other on-screen numbers.
+**Gain range detection (player-selected state):**
 
-**Integration with Coaches tab:** The `⊕ SCAN` button in the Coaches tab runs `scanCoachPreview` on a gallery image. If a multiplier is detected, it auto-fills the Sessions ×N input. The Coach Session Capture screen (`/coach/capture`) gives finer control — stat-by-stat lo/hi entry with live OVR boost preview.
+`GAIN_RE = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/` — the `+` prefix is optional because OCR on teal/white highlight backgrounds may drop or mangle it. Three dash variants matched (en-dash, hyphen, em-dash). Sanity checks: `lo > 0`, `hi > lo`, `hi <= 300`, `lo <= 150` (prevents stat values misread as range boundaries).
+
+Y tolerances are split to prevent adjacent-row bleed:
+- `Y_TOL_NAME = 25px` — stat name detection (allows two-word names e.g. RUSHING OUT)
+- `Y_TOL_VAL = 18px` — gain range row lookup, tighter than row spacing (~22px)
+
+Right-of-stat-name filter (`t.left > tok.left`) is essential — the 3-column coach layout places stats from three categories at the same Y coordinate; a gain range for a stat in column 1 must not be attributed to column 2.
+
+**Arrow indicator detection (no-player-selected state):**
+
+When no player is selected, highlighted rows show a `↑` character (OCR variants: `^ › > ▲`) but no gain values. The scanner detects these and captures `{ statName, statBefore: 0, gainLo: 0, gainHi: 0 }`. `resolveCoachStats` in `coachPipeline.ts` uses only `statName` — zero values are discarded downstream.
+
+**Coach pipeline (`src/logic/coachPipeline.ts`):**
+
+All post-OCR processing is consolidated here:
+1. Raw OCR → `coachScanner.ts` → `CoachScanResult` (header + stat captures)
+2. `resolveCoachStats(scan, player, profile)` — extracts stat names only; discards all image gain values
+3. XP projection via `ovrProjector.ts` using the selected player's DB stats, not OCR values
+
+The image's `statBefore`, `gainLo`, `gainHi` values belong to whoever's player card was shown in the screenshot, not the selected player. They are discarded immediately after OCR. Only stat names are retained.
+
+**Manual fallback:** When OCR fails to detect the coach header, a manual picker lets the user select coach type, category, multiplier, and individual stats.
+
+**Coaches tab — 3-table layout:**
+
+The coach preview section displays three read-only tables side by side: OFFERING (stat names from scan), CURRENT (player's DB values for those stats), PROJECTED (estimated values after coaching).
+
+**Integration:** The `⊕ SCAN` button in the Coaches tab runs `scanCoachPreview` on a gallery image. Double-tapping a player chip navigates to the player edit screen (`/player/[id]`).
 
 ---
 
@@ -653,6 +712,13 @@ Only tokens on the same baseline as a recognised stat name are scanned for the g
 | 1.1 | Sprint 14 | Consistent DEF/ATT/PHY column colour scheme across all stat surfaces. Role OCR switched to token-exact matching. PR #4 merged to main; main is now source of truth. |
 | 1.2 | Sprints 15–16 | Tier rename T0–T6. Drill intensity field + filter. Coach OCR hardened (Y_TOL, GAIN_RE spaces, hi cap). Tier bonus corrected to white stats only. Grey stat visibility fix. Player scanner: split Y tolerances, cap 500, role detection backup, name digit filter. EAS workflow android-only/main-only. |
 | 1.3 | Sprint 17 | All 13 role stat baselines corrected to exactly 15 stats each (verified from game). GK corrected to 11 white (all 10 GK stats + FITNESS) + 4 grey (STRENGTH, AGGRESSION, SPEED, CREATIVITY) — verified from direct game card screenshot. DMC added to role selection grid (6×3 layout). `ROLE_CROSSOVER_WHITES` export added. GK auto-inference in scanner (infers GK role when REFLEXES detected but TACKLING absent and no role badge OCR). Maths centralised in `profiles/game_2025.json`. |
+| 1.4 | Sprints 18–19 | QualityMeter atom (10-bar OVR display). Scan rejection overlay (INVALID IMAGE). Star decay fix in Results tab. Age table replaced with community-verified values. New role training bar (NewRoleBar) + DB migration 0007. |
+| 1.5 | Sprint 20–21 | (same as 1.4 — version numbering corrected retroactively) |
+| 1.6 | Sprint 22 | Unified coach pipeline (`coachPipeline.ts`). `scannedStats` is `string[]` — image values discarded. Coaches tab 3-table layout (OFFERING / CURRENT / PROJECTED). `_debugBlocks` logging. |
+| 1.7 | Sprint 23 | coachScanner: Y_TOL split (NAME=25, VAL=18); GAIN_RE `+` optional; sanity tightened; arrow indicator detection for no-player-selected state; manual type/category/stat picker fallback; Goalkeeping → Safeguard category mapping. |
+| 1.8 | Sprint 24 | Star decay bug fixed in `estimateStatGainPct`. `baseXpPerSession` 150 → 220. Double-tap player chip → player edit screen. `profiles/calibration_data.json` created. |
+| 1.9 | Sprint 25 | Exponential XP cost model: `xpBaseForStat = C₀ × exp(stat/K)`, C₀=2.94, K=55. `xpCostBase` and `xpCostDecayK` added to GameProfile interface. Community formula structure confirmed. |
+| 2.0 | Sprints 26–27 | Talent confirmed Normal for both calibration players. `player_seeds.json` created. Rogers 3rd role corrected AMC → DL (identical white stats to Grant). Role detection anchored to Roles: label Y-band. Kevin McGinty identified (age 27, AMC). OVR formula fixed `Math.floor` → `Math.ceil` — confirmed from 4 data points. |
 
 ---
 
