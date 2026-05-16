@@ -6,6 +6,8 @@ const Y_TOL_NAME = 25; // two-word stat name detection (RUSHING OUT, AERIAL REAC
 const Y_TOL_VAL  = 18; // gain range row lookup — tighter than row spacing to prevent adjacent-row bleed
 const GAIN_RE_STAT = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/; // + optional: OCR drops it on bright teal backgrounds
 const GAIN_RE_OVR  = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;  // + required for OVR boost (avoids N-N false matches)
+// Arrow OCR candidates seen on highlighted rows when no player is selected
+const ARROW_RE = /[↑\^›>▲]/;
 
 export const COACH_TYPES    = ['Standard', 'Focused', 'Extensive'] as const;
 export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard'] as const;
@@ -152,6 +154,14 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
           .filter(n => !isNaN(n) && n > 0 && n <= 340);
         const statBefore = rowNums[0] ?? 0;
         stats.push({ statName, statBefore, gainLo: lo, gainHi: hi });
+      }
+    } else {
+      // No-player-selected state: highlighted rows show stat name + ↑ arrow but no values.
+      // Arrow is the only differentiator — capture stat name with zero gain values.
+      // resolveCoachStats in coachPipeline.ts uses only statName; zero gains are ignored.
+      const hasArrow = rowTokens.some(t => ARROW_RE.test(t.text));
+      if (hasArrow) {
+        stats.push({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
       }
     }
 
