@@ -81,7 +81,7 @@ export default function CoachesScreen() {
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
-  const { white, grey } = useMemo(() => {
+  const { white, grey, allStats } = useMemo(() => {
     if (!player) return { white: [] as string[], grey: [] as string[], allStats: OUTFIELD_STATS as readonly string[] };
     const isGK = player.role.some(r => r.includes('GK'));
     const allStats = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
