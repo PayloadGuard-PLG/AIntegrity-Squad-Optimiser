@@ -369,3 +369,98 @@ anomaly. If the geometric sum hypothesis is correct, bXPS needs re-calibration s
 
 The calibration_data.json is your reference. Add new observations there as Steve scans more
 coaches. Each confirmed data point narrows the formula further.
+
+---
+
+## Sprint 25 Handover — Community Framework Confirmation + Exponential Model
+
+### What was done (Sprint 25)
+
+**1. Exponential XP cost model implemented** (`src/logic/xpEngine.ts`, `profiles/game_2025.json`)
+
+`xpBaseForStat()` now uses `C₀ × exp(stat / K)` when `xpCostBase` and `xpCostDecayK` are
+present in the profile. The stepped `xpCostTable` remains as fallback if those fields are absent.
+
+Parameters added to game_2025.json:
+- `"xpCostBase": 2.94`   (base cost at stat=0)
+- `"xpCostDecayK": 55`   (decay constant in stat units; K=55 → cost doubles every ~38 stat pts)
+
+Derivation: observed Tackling-120 vs Positioning-228 in same coach session (same budget).
+Actual gain ratio = 66 / 13.5 = 4.89. exp((228-120)/55) = 4.89 exactly. Model confirmed.
+
+**2. Community framework received and verified**
+
+Grok research confirms the complete formula:
+```
+Effective Gain = Base × Age × Talent × Drill-Avg Penalty × White Factor × Intensity/Tier
+```
+This maps exactly to `xpNeededFor1Pct`'s divisor. No structural changes needed.
+
+### Community framework — key findings
+
+| Finding | Status | Code impact |
+|---|---|---|
+| Formula structure confirmed | ✅ Confirmed | None — already correct |
+| `greyWeightMultiplier = 0.5` ("white ~2× XP") | ✅ Confirmed | None |
+| Age multiplier table (discrete 3-year slabs) | ✅ Confirmed | None |
+| ~20% seasonal quality reset | ✅ Confirmed | Unmodeled (intentional) |
+| Fast Trainer = 1.5–2× effective | ⚠️ Range only | talentMultipliers may need update |
+| Sharpness concept | New — match output only | Not relevant to training optimizer |
+| "Blue bar carryover" variance | New — unobservable from OCR | Not modelable |
+| Market value = FT signal | New — detection method | Potential future feature |
+
+### Talent multipliers — outstanding issue
+
+Community reports FT as "1.5–2× effective". Current profile:
+- Fastest: 1.5 — may need to be **2.0** (top of FT range)
+- Fast: 1.25 — may need to be **1.5** (bottom of FT range)
+- Average: 1.1, Normal: 1.0, Slow: 0.7 — uncontested
+
+**Do NOT update these values until talent tiers for Ricky Grant and Ryan Rodger are confirmed.**
+The "1.5–2× effective" range could reflect overall observed efficiency (all factors combined),
+not the raw multiplier in isolation. Calibrating against known-talent players is the only way
+to separate this out.
+
+### FT detection methods (from community data)
+
+1. **Market value**: highest-value player for given age/quality = strong FT signal (levels 1–19)
+2. **Empirical test**: standardised drill set at 15–18% condition loss — measure % gain per
+   attribute. FTs show consistently higher gains (e.g. +1 per attribute where ST shows +0.5)
+3. **Player edit screen**: talent tier shown explicitly as Fastest/Fast/Average/Normal/Slow
+
+Method 3 is fastest. Get Steve to screenshot both players' edit screens.
+
+### ×N anomaly — still open
+
+Community data doesn't address whether ×20 ≈ ×40 in practice. The geometric sum plateau
+hypothesis remains the most plausible explanation:
+```
+sum(0.85^k, k=0..19) = 6.38 effective sessions
+sum(0.85^k, k=0..39) = 6.66 effective sessions
+```
+Ratio ≈ 1.04 (4% more XP for double the sessions). This would explain identical-looking gains
+between ×20 and ×40. Needs Steve to test deliberately: same player, ×10 vs ×40, compare gains.
+
+### Files changed in Sprint 25
+
+| File | Change |
+|---|---|
+| `src/logic/xpEngine.ts` | `xpBaseForStat()` uses exponential when params present |
+| `src/types/resources.ts` | Added optional `xpCostBase`, `xpCostDecayK` to `GameProfile` |
+| `profiles/game_2025.json` | Added `xpCostBase: 2.94`, `xpCostDecayK: 55` |
+
+### Note from this Claude to the next Claude
+
+The exponential model is the correct structural fix. The K=55 and C₀=2.94 were derived from the
+Tackling-120 vs Positioning-228 ratio and are consistent with community data showing ~15% drop
+per 20% quality band.
+
+The formula is now structurally sound. The remaining calibration work is:
+1. Confirm talent tiers (player edit screen — 30 seconds each)
+2. Once talent known, back-calculate bXPS from one clean white-stat data point
+3. If ×N anomaly confirmed, switch budget formula to geometric sum and re-calibrate bXPS
+4. Pin Fastest/Fast multipliers to 2.0/1.5 if empirical tests support it
+
+Primary risk: bXPS=220 was calibrated assuming Normal talent for Ricky Grant. If he's actually
+Fast (×1.25), the true bXPS would be ~176. If Fastest (×1.5), bXPS ~147. This is the biggest
+remaining uncertainty in every projection the app shows.
