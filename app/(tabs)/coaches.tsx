@@ -132,10 +132,19 @@ export default function CoachesScreen() {
 
       let statNames: string[];
       if (scan.stats.length > 0) {
-        // Stat names from highlighted rows — values discarded, they belong to a different player
-        statNames = scan.stats.map(s => s.statName);
+        // Only highlighted rows indicate which stats this coach boosts.
+        // gainLo/gainHi presence = highlighted; values belong to another player and are discarded.
+        const highlighted = scan.stats.filter(s => s.gainLo > 0 || s.gainHi > 0);
+        if (highlighted.length > 0) {
+          statNames = highlighted.map(s => s.statName);
+        } else {
+          // Stats detected but none highlighted — treat as blank coach, fall through to category
+          const catStats = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : [];
+          statNames = catStats.filter(s => player!.stats[s] !== undefined);
+          if (statNames.length === 0) statNames = getWhiteStatKeys(player!.role);
+        }
       } else {
-        // Recognised header but no highlighted rows — derive from category, then fall back to white stats
+        // Recognised header but no stat rows at all — derive from category, then fall back to white stats
         const catStats = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : [];
         statNames = catStats.filter(s => player!.stats[s] !== undefined);
         if (statNames.length === 0) statNames = getWhiteStatKeys(player!.role);
@@ -342,38 +351,23 @@ export default function CoachesScreen() {
               )}
             </View>
 
-            {/* Coach boosts sub-grid — only shown after scan */}
+            {/* Coach boosts — 3-col table, gains inserted in-place after PROJECT */}
             {scannedStats.length > 0 && (
               <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
                 <MonoLabel color={theme.steelLight} style={{ marginBottom: 10 }}>
                   COACH BOOSTS · {scannedStats.length} {scannedStats.length === 1 ? 'STAT' : 'STATS'}
+                  {result && result.gains.length === 0 && (
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.neg }}> · NO GAINS</Text>
+                  )}
                 </MonoLabel>
-                {scannedStats.map((statName, i) => {
-                  const col = statColor(statName);
-                  const isWhite = isWhiteStat(player.role, statName);
-                  const playerVal = player.stats[statName];
-                  const inRole = playerVal !== undefined;
-                  return (
-                    <View key={statName} style={{
-                      flexDirection: 'row', alignItems: 'center',
-                      paddingVertical: 8,
-                      borderTopWidth: i > 0 ? 1 : 0, borderTopColor: theme.hairline,
-                    }}>
-                      <View style={{ width: 3, height: 20,
-                        backgroundColor: !inRole ? theme.hot : isWhite ? col : col + '44',
-                        marginRight: 10, borderRadius: 1 }} />
-                      <Text style={{ flex: 1, fontFamily: theme.mono, fontSize: 11, letterSpacing: 0.6,
-                        color: !inRole ? theme.hot : isWhite ? col : theme.inkGhost }}>
-                        {statName}{!inRole ? ' · NOT IN ROLE' : ''}
-                      </Text>
-                      {inRole && (
-                        <Text style={{ fontFamily: theme.mono, fontSize: 11, color: theme.inkSec }}>
-                          {Math.round(playerVal)}
-                        </Text>
-                      )}
-                    </View>
-                  );
-                })}
+                <StatGrid3Col
+                  statKeys={scannedStats}
+                  roles={player.role}
+                  values={player.stats}
+                  gains={result && result.gains.length > 0
+                    ? Object.fromEntries(result.gains.map(g => [g.stat, g.gain]))
+                    : undefined}
+                />
               </View>
             )}
 
@@ -447,19 +441,6 @@ export default function CoachesScreen() {
                     </View>
                   )}
 
-                  {/* Per-stat breakdown */}
-                  {result.gains.length > 0 ? (
-                    <StatGrid3Col
-                      statKeys={result.gains.map(g => g.stat)}
-                      roles={player.role}
-                      values={Object.fromEntries(result.gains.map(g => [g.stat, g.from]))}
-                      gains={Object.fromEntries(result.gains.map(g => [g.stat, g.gain]))}
-                    />
-                  ) : (
-                    <View style={{ paddingVertical: 12, alignItems: 'center' }}>
-                      <MonoLabel color={theme.inkGhost}>NO GAINS — ENTER STAT VALUES ON PLAYER PROFILE</MonoLabel>
-                    </View>
-                  )}
                 </View>
 
                 {/* Tier upgrade section */}
