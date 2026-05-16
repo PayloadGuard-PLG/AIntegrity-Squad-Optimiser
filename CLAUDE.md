@@ -176,14 +176,18 @@ Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clampin
 
 OVR is computed in two parts and added:
 ```
-base_quality   = min(180, floor(sum_of_base_stats / 15))
+base_quality   = min(180, ceil(sum_of_base_stats / 15))
 tier_contrib   = floor(tier_bonus × key_stat_count / 15)
 total_OVR      = base_quality + tier_contrib
 ```
 
 The game UI displays this split explicitly (e.g. "290 OVR = 152 + 138 Tier increase").
-In code: `floor(sum_of_all_stats / 15)` produces the same result because tier bonuses are
+In code: `ceil(sum_of_all_stats / 15)` produces the same result because tier bonuses are
 baked into stats — the two representations are equivalent.
+
+**CRITICAL: The game uses Math.ceil (NOT Math.floor or Math.round) for OVR.**
+Confirmed from 4 data points in sprint 27 (Rogers, McGinty, Grant T3, Grant T2).
+Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts` — all OVR display and projections now correct.
 
 ### 180-Rule (training lock)
 
@@ -622,3 +626,25 @@ can still be used for formula validation as long as the isWhite flags are treate
 
 The ×N anomaly and OVR +1 discrepancy remain open. The OVR-99 mystery player's age is still
 unknown — this is still needed to diagnose the Extensive Safeguard ×10/×40 ratio of 2.43.
+
+### Sprint 27 Addendum — Kevin McGinty + OVR Formula Fix
+
+**Kevin McGinty identified as OVR-99 mystery player (sprint 26 controlled test)**
+
+- Name: Kevin McGinty, Age 27, Roles: AMC only, T0, Normal talent
+- Confirmed from screenshots: 1862c396 (game card), 60724dba (intake form), 4588b6a9 (scan)
+- Age 27 → ageMult = 0.61 from ageTable. Training is 39% less efficient than baseline.
+- Added to player_seeds.json and calibration_data.json.
+
+**OVR formula confirmed: Math.ceil (NOT floor)**
+
+Four data points all match `ceil(sum/15)`:
+- McGinty: ceil(1493/15) = ceil(99.53) = **100** ✓ (game: 100)
+- Rogers: ceil(1809/15) = ceil(120.6) = **121** ✓ (game: 121)
+- Grant T3: ceil(2631/15) = ceil(175.4) = **176** ✓ (game: 176)
+- Grant T2: ceil(2355/15) = ceil(157.0) = **157** ✓ (game: 157)
+
+`floor` and `round` both fail for Grant T3. `ceil` matches all 4.
+
+Fixed in `src/logic/xpEngine.ts` → `qualityPctToOvr()`.
+This resolves the "OVR +1 discrepancy" that had been open since sprint 24.

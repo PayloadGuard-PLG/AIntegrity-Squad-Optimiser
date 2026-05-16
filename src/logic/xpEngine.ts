@@ -101,9 +101,9 @@ export function statsToQualityPct(
   return sum / profile.totalAttributeCount;
 }
 
-/** OVR = floor(Quality% / qualityOvrDivisor) — engine truncates, not rounds */
+/** OVR = ceil(Quality% / qualityOvrDivisor) — game uses ceiling, confirmed from 4 data points */
 export function qualityPctToOvr(qualityPct: number, profile: GameProfile): number {
-  return Math.floor(qualityPct / profile.qualityOvrDivisor);
+  return Math.ceil(qualityPct / profile.qualityOvrDivisor);
 }
 
 /**
