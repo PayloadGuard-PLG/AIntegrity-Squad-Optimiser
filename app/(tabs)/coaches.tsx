@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert 
 import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
+import { resolveCoachStats } from '../../src/logic/coachPipeline';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -30,13 +31,6 @@ const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
 const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
 const TIER_INCREMENTS: Record<TierName, number> = profile.tierIncrements as Record<TierName, number>;
-
-const CATEGORY_STATS: Record<string, string[]> = {
-  Attacking:  ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
-  Defending:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
-  Physical:   ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
-  Safeguard:  ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'],
-};
 
 const STAT_COLS = {
   DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
@@ -130,25 +124,7 @@ export default function CoachesScreen() {
       setCoachCategory(scan.coachCategory ?? '');
       setResult(null); setSelectedTier(null); setSaveConfirmed(false);
 
-      let statNames: string[];
-      if (scan.stats.length > 0) {
-        // Only highlighted rows indicate which stats this coach boosts.
-        // gainLo/gainHi presence = highlighted; values belong to another player and are discarded.
-        const highlighted = scan.stats.filter(s => s.gainLo > 0 || s.gainHi > 0);
-        if (highlighted.length > 0) {
-          statNames = highlighted.map(s => s.statName);
-        } else {
-          // Stats detected but none highlighted — treat as blank coach, fall through to category
-          const catStats = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : [];
-          statNames = catStats.filter(s => player!.stats[s] !== undefined);
-          if (statNames.length === 0) statNames = getWhiteStatKeys(player!.role);
-        }
-      } else {
-        // Recognised header but no stat rows at all — derive from category, then fall back to white stats
-        const catStats = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : [];
-        statNames = catStats.filter(s => player!.stats[s] !== undefined);
-        if (statNames.length === 0) statNames = getWhiteStatKeys(player!.role);
-      }
+      const statNames = resolveCoachStats(scan, player!.stats, player!.role);
       setScannedStats(statNames);
 
       const parts: string[] = [];

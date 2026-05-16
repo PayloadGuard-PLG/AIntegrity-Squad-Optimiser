@@ -1,0 +1,49 @@
+import type { CoachScanResult } from './coachScanner';
+import { getWhiteStatKeys } from '../utils/roleWeights';
+
+export const CATEGORY_STATS: Record<string, string[]> = {
+  Attacking:  ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
+  Defending:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
+  Physical:   ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
+  Safeguard:  ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION'],
+};
+
+/**
+ * Deterministic stat resolution from a coach scan result.
+ * Returns 1–15 stat names. Never hard-caps at 5.
+ *
+ * Decision chain:
+ * 1. Stats detected + category known:
+ *    - Contamination check: if more out-of-category than in-category, restrict to in-category
+ *    - Otherwise: trust all detected stats (clean or extensive coach, up to 15)
+ * 2. Stats detected + category unknown: use all detected (best effort)
+ * 3. No stats detected + category known: full category filtered to player's available stats
+ * 4. Nothing → white stats for player's role
+ */
+export function resolveCoachStats(
+  scan: CoachScanResult,
+  playerStats: Record<string, number>,
+  playerRole: string[],
+): string[] {
+  const catList = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : null;
+  const detected = scan.stats.map(s => s.statName);
+
+  if (detected.length > 0) {
+    if (catList) {
+      const inCat  = detected.filter(n =>  catList.includes(n));
+      const outCat = detected.filter(n => !catList.includes(n));
+      // Contamination: more out-of-category than in-category → cross-column OCR leakage
+      if (outCat.length >= inCat.length && inCat.length > 0) return inCat;
+      return detected;  // clean or extensive scan (1–15 stats)
+    }
+    return detected;  // category unknown — use all detected
+  }
+
+  // No stat rows found — use category header as fallback
+  if (catList) {
+    const fromCat = catList.filter(s => playerStats[s] !== undefined);
+    if (fromCat.length > 0) return fromCat;
+  }
+
+  return getWhiteStatKeys(playerRole);
+}

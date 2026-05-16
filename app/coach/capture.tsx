@@ -13,6 +13,7 @@ import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile, TalentTier } from '../../src/types/resources';
 import { squadPlanService } from '../../src/services/squadPlanService';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
+import { resolveCoachStats } from '../../src/logic/coachPipeline';
 import { Player } from '../../src/database/playerSchema';
 
 const profile = gameProfileJson as unknown as GameProfile;
@@ -101,16 +102,26 @@ export default function CoachCaptureScreen() {
       if (scan.coachCategory) { setCoachCategory(scan.coachCategory.toUpperCase()); parts.push(scan.coachCategory); }
       if (scan.multiplier)    { setMultiplier(String(scan.multiplier));          parts.push(`×${scan.multiplier}`); }
 
-      if (scan.stats.length > 0) {
-        const newGains: Record<string, GainEntry> = {};
-        const newStatVals: Record<string, string> = {};
-        for (const s of scan.stats) {
-          newGains[s.statName]  = { lo: String(s.gainLo), hi: String(s.gainHi) };
-          if (s.statBefore > 0) newStatVals[s.statName] = String(s.statBefore);
+      const numericStats: Record<string, number> = {};
+      for (const [k, v] of Object.entries(statValues)) {
+        const n = parseFloat(v);
+        if (!isNaN(n)) numericStats[k] = n;
+      }
+      const resolvedStats = resolveCoachStats(scan, numericStats, player?.role ?? []);
+      const newGains: Record<string, GainEntry> = {};
+      const newStatVals: Record<string, string> = {};
+      for (const statName of resolvedStats) {
+        const raw = scan.stats.find(s => s.statName === statName);
+        if (raw) {
+          newGains[statName] = { lo: String(raw.gainLo), hi: String(raw.gainHi) };
+          if (raw.statBefore > 0) newStatVals[statName] = String(raw.statBefore);
         }
+      }
+      if (Object.keys(newGains).length > 0) {
         setGains(prev => ({ ...prev, ...newGains }));
         setStatValues(prev => ({ ...prev, ...newStatVals }));
-        parts.push(`${scan.stats.length} STAT${scan.stats.length !== 1 ? 'S' : ''}`);
+        const n = Object.keys(newGains).length;
+        parts.push(`${n} STAT${n !== 1 ? 'S' : ''}`);
       }
 
       if (!selectedPlayerId && scan.playerAge) setAgeInput(String(scan.playerAge));

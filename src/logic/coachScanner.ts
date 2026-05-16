@@ -54,8 +54,12 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   // Detect type, category, and multiplier independently — tolerates multi-line OCR output
   const coachType     = (/\b(Standard|Focused|Extensive)\b/i.exec(fullText))?.[1] as CoachType | undefined;
   const coachCategory = (/\b(Attacking|Defending|Physical|Safeguard)\b/i.exec(fullText))?.[1] as CoachCategory | undefined;
-  const multMatch     = /[×xX]\s*(\d+)/i.exec(fullText);
-  const multiplier    = multMatch ? parseInt(multMatch[1]) : undefined;
+  // Search for multiplier starting from the coach type/category keyword to avoid picking up
+  // any ×N pattern that appears earlier in the image (e.g. session counts, player bonuses).
+  const typeIdx    = fullText.search(/\b(Standard|Focused|Extensive)\b/i);
+  const searchFrom = typeIdx >= 0 ? fullText.slice(typeIdx) : fullText;
+  const multMatch  = /[×xX*✕]\s*(\d+)/.exec(searchFrom);
+  const multiplier = multMatch ? parseInt(multMatch[1]) : undefined;
 
   const ovrMatch  = /\bOVR\b[^\d]*(\d{2,3})/i.exec(fullText) ?? /(\d{2,3})\s*OVR/i.exec(fullText);
   const ovrBefore = ovrMatch ? parseInt(ovrMatch[1]) : undefined;
