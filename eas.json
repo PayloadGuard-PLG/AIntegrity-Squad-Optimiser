@@ -6,7 +6,6 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "requiresFingerprint": false,
       "android": {
         "buildType": "apk"
       }
