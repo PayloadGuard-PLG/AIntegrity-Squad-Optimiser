@@ -1,0 +1,82 @@
+{
+  "_notes": [
+    "Definitive player records for the DarkVader FC squad.",
+    "These are the source-of-truth entries for the device SQLite DB.",
+    "If players need to be re-entered (new install, DB reset), use these exact values.",
+    "Stats reflect the most recent confirmed screenshot (may be slightly higher than calibration",
+    "  observations due to ongoing training — tier changes are deterministic, training is incremental).",
+    "Roles: enter ALL roles in the position grid (max 3) — not just the primary role.",
+    "  Using only the primary role gives a narrower white stat set, reducing projection accuracy."
+  ],
+  "players": [
+    {
+      "name": "Grant",
+      "age": 20,
+      "roles": ["DL", "ML", "AML"],
+      "roles_note": "Select DL + ML + AML in the position grid. OCR reads 'Roles: DL MLAML' from game card.",
+      "tier": "T3",
+      "tier_game_name": "STELLAR",
+      "talent": "Normal",
+      "talentMultiplier": 1.0,
+      "isMutantCandidate": false,
+      "ovr": 175.0,
+      "ovr_game": 176,
+      "stats": {
+        "TACKLING": 121,
+        "MARKING": 139,
+        "POSITIONING": 230,
+        "HEADING": 155,
+        "BRAVERY": 215,
+        "PASSING": 130,
+        "DRIBBLING": 224,
+        "CROSSING": 155,
+        "SHOOTING": 151,
+        "FINISHING": 165,
+        "FITNESS": 261,
+        "STRENGTH": 65,
+        "AGGRESSION": 202,
+        "SPEED": 161,
+        "CREATIVITY": 257
+      },
+      "white_stats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
+      "grey_stats": ["HEADING","STRENGTH"],
+      "source_screenshots": ["ddff3ed8 (game card STELLAR)", "97ebc223 (intake form scan)"],
+      "last_updated": "2026-05-16"
+    },
+    {
+      "name": "Rogers",
+      "age": 18,
+      "roles": ["AML", "ML", "AMC"],
+      "roles_note": "Select AML + ML + AMC in the position grid. OCR reads 'Roles: AML MLAMC' from game card.",
+      "tier": "T0",
+      "tier_game_name": "None",
+      "talent": "Normal",
+      "talentMultiplier": 1.0,
+      "isMutantCandidate": false,
+      "ovr": 120.0,
+      "ovr_game": 121,
+      "stats": {
+        "TACKLING": 70,
+        "MARKING": 88,
+        "POSITIONING": 155,
+        "HEADING": 113,
+        "BRAVERY": 74,
+        "PASSING": 125,
+        "DRIBBLING": 143,
+        "CROSSING": 136,
+        "SHOOTING": 134,
+        "FINISHING": 132,
+        "FITNESS": 154,
+        "STRENGTH": 90,
+        "AGGRESSION": 111,
+        "SPEED": 112,
+        "CREATIVITY": 172
+      },
+      "white_stats": ["PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY","POSITIONING","HEADING"],
+      "grey_stats": ["TACKLING","MARKING","BRAVERY","STRENGTH","AGGRESSION"],
+      "grey_stats_note": "POSITIONING white from ML. HEADING white from AMC. TACKLING/MARKING/BRAVERY grey for all 3 roles.",
+      "source_screenshots": ["f6b8ddf9 (game card)", "5a725abb / e8b8ea43 (intake form scan)"],
+      "last_updated": "2026-05-16"
+    }
+  ]
+}
