@@ -106,7 +106,26 @@ Runtime fallback for DB rows with legacy values: `normaliseTier()` in `src/servi
 Example: `getAllStatKeys(['DL','ML','AML'])` does NOT include HEADING.
 
 **Consequence for coach scanner:** A DEFENDING coach may highlight HEADING on a DL/ML/AML player.
-The scanner captures it correctly; the UI shows it in a "DETECTED — NOT IN ROLE" section (`theme.hot` amber).
+The scanner captures it correctly; the UI shows it amber with `· NOT IN ROLE` label.
+
+### Coaches Tab — Stat Data Architecture
+
+`scannedStats` in `app/(tabs)/coaches.tsx` is `string[]` (stat names only).
+
+The coach preview image contains `statBefore`, `gainLo`, `gainHi` values that **belong to whoever's player card is shown in the image**, not the selected player. These values are discarded immediately after OCR. Only stat names from highlighted rows are kept.
+
+Projection is pure math from the selected player's DB record:
+- `budget = sessionCount × profile.baseXpPerSession / scannedStats.length`
+- XP engine runs per stat using `player.stats[statName]`, `player.age`, `player.talent`, role whiteness
+
+Scan paths:
+1. Unrecognised image (no type/category/multiplier + no stats) → rejected
+2. Stats found → extract `.statName` from each `StatCapture`, discard all values
+3. Recognised header, no highlighted rows (blank coach tile) → derive stats from `CATEGORY_STATS[coachCategory]`, filtered to stats the player actually has; falls back to white stats
+
+`CATEGORY_STATS` constant in coaches.tsx maps each coach category to its 5 stats.
+
+PLAYER STATS section uses `OUTFIELD_STATS` or `GK_STATS_ALL` (full 15) — not `getAllStatKeys()` which is role-filtered.
 
 ---
 
@@ -186,8 +205,9 @@ The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
 - **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
 - **Condition (restorers)**: restores condition only — zero OVR change; +15% per restorer (confirmed)
 - **Seasonal decay**: ~20% base OVR drop per season (unmodeled — affects base quality, not tier)
-- **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0006 (drill_presets)
+- **DB**: Drizzle ORM + expo-sqlite; migrations in `drizzle/` folder; current latest is m0007 (new_role + new_role_points columns on players)
 - **Drill Presets**: stored in `drill_presets` table; service at `src/services/drillPresetService.ts`
+- **New-role training**: `players.new_role` (text) + `players.new_role_points` (integer, 0–50); idempotent guard in `src/db/index.ts → ensureNewRoleColumns()`
 
 ---
 
