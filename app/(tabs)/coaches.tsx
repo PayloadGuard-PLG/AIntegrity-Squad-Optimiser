@@ -124,6 +124,9 @@ export default function CoachesScreen() {
       setCoachCategory(scan.coachCategory ?? '');
       setResult(null); setSelectedTier(null); setSaveConfirmed(false);
 
+      if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
+      if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
+
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
       setScannedStats(statNames);
 
