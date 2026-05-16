@@ -9,6 +9,12 @@ export interface XpCostEntry {
 export interface GameProfile {
   version: string;
   xpCostTable: XpCostEntry[];
+  /** If set, xpBaseForStat uses exponential formula instead of the stepped table:
+   *  cost(stat) = xpCostBase * exp(stat / xpCostDecayK)
+   *  Fitted from calibration: K≈55 (quality scale ≈20% per 36 stat pts), base≈2.94
+   */
+  xpCostBase?: number;
+  xpCostDecayK?: number;
   ageTable: Record<string, number>;
   talentMultipliers: Record<string, number>;
   /** XP gain multipliers per drill difficulty (stat training) */

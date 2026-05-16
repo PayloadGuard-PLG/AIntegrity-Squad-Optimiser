@@ -7,6 +7,9 @@ import { GameProfile, TalentTier, TierName } from '../types/resources';
  * not here — individual stats above 180 are valid when a tier bonus carried them there.
  */
 export function xpBaseForStat(statValue: number, profile: GameProfile): number {
+  if (profile.xpCostBase != null && profile.xpCostDecayK != null) {
+    return profile.xpCostBase * Math.exp(statValue / profile.xpCostDecayK);
+  }
   const v = Math.floor(statValue);
   for (const entry of profile.xpCostTable) {
     if (v >= entry.statMin && v <= entry.statMax) {

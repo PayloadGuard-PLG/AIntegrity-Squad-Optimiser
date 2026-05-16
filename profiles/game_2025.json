@@ -1,5 +1,7 @@
 {
   "version": "2025",
+  "xpCostBase": 2.94,
+  "xpCostDecayK": 55,
   "xpCostTable": [
     {
       "statMin": 0,
