@@ -46,8 +46,8 @@
     {
       "name": "Rogers",
       "age": 18,
-      "roles": ["AML", "ML", "AMC"],
-      "roles_note": "Select AML + ML + AMC in the position grid. OCR reads 'Roles: AML MLAMC' from game card.",
+      "roles": ["AML", "ML", "DL"],
+      "roles_note": "Select AML + ML + DL in the position grid. Confirmed from sprint 27 intake form screenshot (64c4b2e2). Previous record had AMC — DL is the correct current in-game role.",
       "tier": "T0",
       "tier_game_name": "None",
       "talent": "Normal",
@@ -72,10 +72,9 @@
         "SPEED": 112,
         "CREATIVITY": 172
       },
-      "white_stats": ["PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY","POSITIONING","HEADING"],
-      "grey_stats": ["TACKLING","MARKING","BRAVERY","STRENGTH","AGGRESSION"],
-      "grey_stats_note": "POSITIONING white from ML. HEADING white from AMC. TACKLING/MARKING/BRAVERY grey for all 3 roles.",
-      "source_screenshots": ["f6b8ddf9 (game card)", "5a725abb / e8b8ea43 (intake form scan)"],
+      "white_stats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
+      "grey_stats": ["HEADING","STRENGTH"],
+      "source_screenshots": ["f6b8ddf9 (game card)", "5a725abb / e8b8ea43 (intake form scan)", "64c4b2e2 (intake form sprint 27 — 3-role entry confirmed)"],
       "last_updated": "2026-05-16"
     }
   ]

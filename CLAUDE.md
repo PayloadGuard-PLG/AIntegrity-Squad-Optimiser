@@ -551,3 +551,74 @@ Priority order for next session:
 The calibration_data.json and player_seeds.json together are the persistent record.
 Any new coach observations Steve scans should be added to calibration_data.json observations[].
 The player_seeds.json should be updated whenever stats change significantly (after major coaching).
+
+---
+
+## Sprint 27 Handover — Role Correction, 3-Role Entries Confirmed, Scanner Fixes
+
+### What was done (Sprint 27)
+
+**1. Both players re-entered with correct 3-role data (Sprint 26 open issue resolved)**
+
+Sprint 26 noted both players were saved with 1 role only. Steve has now re-entered both with
+the full 3-role position grid selections, confirmed from intake form screenshots:
+- **Grant**: DL + ML + AML ✓ (unchanged from player_seeds.json — correct)
+- **Rogers**: AML + ML + **DL** — NOTE: previous records had AMC. Corrected to DL.
+
+Rogers' prior record (AMC as 3rd role) was wrong. The in-game role is DL, not AMC.
+
+**2. Rogers white/grey stats corrected** (`profiles/player_seeds.json`, `profiles/calibration_data.json`)
+
+With DL replacing AMC, Rogers' white stats now match Grant's exactly:
+- **White (13)**: TACKLING, MARKING, POSITIONING, BRAVERY, PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, FITNESS, AGGRESSION, SPEED, CREATIVITY
+- **Grey (2)**: HEADING, STRENGTH
+
+The AMC-era observations in calibration_data.json (46697–46703) remain as historical records.
+Their `isWhite` flags reflect the AMC-era role set and should be treated as such if re-calibrating.
+
+**3. coachScanner.ts — Sprint 23 plan complete**
+
+All 5 Sprint 23 items now implemented:
+- A: Y_TOL split (Y_TOL_NAME=25, Y_TOL_VAL=18) — was already done in prior session
+- B: blockIdx — explicitly decided against (line-level tokens + left-filter prevent cross-col bleed; blockIdx breaks gain detection since name and gain are in different blocks)
+- C: GAIN_RE `+` optional (`/\+?\s*(\d+)\s*[–\-—]\s*(\d+)/`), sanity `hi > lo`, `lo <= 150` — was already done
+- D: Arrow indicator detection for no-player-selected state — **added this sprint**
+- E: `_debugBlocks` logging in coaches.tsx — was already done
+
+**4. playerScanner.ts — role detection anchored fix**
+
+Role detection now anchored to the "Roles:" label Y-band (`Y_TOL=28px`).
+Prevents false positives from dark/inactive position labels elsewhere in the game card.
+Falls back to fullText regex only when no "Roles:" label is found by OCR.
+
+### Impact of Rogers role change on projections
+
+Before (AMC): TACKLING, MARKING, BRAVERY, AGGRESSION → grey (×0.5 XP). HEADING → white.
+After (DL): TACKLING, MARKING, BRAVERY, AGGRESSION → white (full XP). HEADING → grey.
+
+For a Defending coach on Rogers, this means TACKLING/MARKING/BRAVERY now project at full
+rate instead of halved. HEADING goes from full rate to halved. This is a significant change
+in projected coaching value for defending coaches on Rogers.
+
+### Files changed in Sprint 27
+
+| File | Change |
+|---|---|
+| `profiles/player_seeds.json` | Rogers roles AMC→DL, white/grey stats corrected |
+| `profiles/calibration_data.json` | Rogers roles, whiteStats, greyStats, notes, open questions updated |
+| `src/logic/playerScanner.ts` | Role detection anchored to Roles: label Y-band |
+| `src/logic/coachScanner.ts` | Arrow indicator detection (Sprint 23 item D) |
+| `CLAUDE.md` | This section |
+
+### Note from this Claude to the next Claude
+
+Rogers role correction is significant — any prior projections or analysis that assumed AMC
+(grey TACKLING/MARKING/BRAVERY/AGGRESSION, white HEADING) are now invalidated. The new
+whiteness set (DL) is identical to Grant's, which simplifies comparisons between the two players.
+
+The AMC-era calibration observations (46697–46703) are still in calibration_data.json and
+can still be used for formula validation as long as the isWhite flags are treated as AMC-era
+(TACKLING/MARKING/BRAVERY grey=true for those sessions).
+
+The ×N anomaly and OVR +1 discrepancy remain open. The OVR-99 mystery player's age is still
+unknown — this is still needed to diagnose the Extensive Safeguard ×10/×40 ratio of 2.43.
