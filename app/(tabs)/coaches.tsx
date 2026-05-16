@@ -351,22 +351,16 @@ export default function CoachesScreen() {
               )}
             </View>
 
-            {/* Coach boosts — 3-col table, gains inserted in-place after PROJECT */}
+            {/* Table 1 — coach offering: boosted stats only, static after scan */}
             {scannedStats.length > 0 && (
               <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 14, marginBottom: 14 }}>
                 <MonoLabel color={theme.steelLight} style={{ marginBottom: 10 }}>
                   COACH BOOSTS · {scannedStats.length} {scannedStats.length === 1 ? 'STAT' : 'STATS'}
-                  {result && result.gains.length === 0 && (
-                    <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.neg }}> · NO GAINS</Text>
-                  )}
                 </MonoLabel>
                 <StatGrid3Col
                   statKeys={scannedStats}
                   roles={player.role}
                   values={player.stats}
-                  gains={result && result.gains.length > 0
-                    ? Object.fromEntries(result.gains.map(g => [g.stat, g.gain]))
-                    : undefined}
                 />
               </View>
             )}
@@ -424,6 +418,17 @@ export default function CoachesScreen() {
                       <MonoLabel size={8} color={result.ovrGain > 0 ? theme.pos : theme.inkMuted}>OVR</MonoLabel>
                     </View>
                   </View>
+
+                  {/* Table 3 — full player card with gains shown in-cell */}
+                  <StatGrid3Col
+                    statKeys={[...STAT_COLUMNS.DEF, ...STAT_COLUMNS.ATT, ...STAT_COLUMNS.PHY]
+                      .filter(s => (allStats as readonly string[]).includes(s))}
+                    roles={player.role}
+                    values={player.stats}
+                    gains={result.gains.length > 0
+                      ? Object.fromEntries(result.gains.map(g => [g.stat, g.gain]))
+                      : undefined}
+                  />
 
                   {/* Combined coach + tier banner */}
                   {combinedOvr != null && combinedGain != null && selectedTier && (
