@@ -10,7 +10,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
-import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, OUTFIELD_STATS, GK_STATS_ALL } from '../../src/utils/roleWeights';
+import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
@@ -82,12 +82,12 @@ export default function CoachesScreen() {
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const { white, grey } = useMemo(() => {
-    if (!player) return { white: [] as string[], grey: [] as string[] };
+    if (!player) return { white: [] as string[], grey: [] as string[], allStats: OUTFIELD_STATS as readonly string[] };
     const isGK = player.role.some(r => r.includes('GK'));
     const allStats = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
     const w = getWhiteStatKeys(player.role);
     const g = allStats.filter(s => !w.includes(s));
-    return { white: w, grey: g };
+    return { white: w, grey: g, allStats };
   }, [player]);
 
   const upgradableTiers = useMemo(() => {
@@ -293,7 +293,7 @@ export default function CoachesScreen() {
                     keyboardType="numeric"
                     value={sessions}
                     onChangeText={v => { setSessions(v.replace(/[^0-9]/g, '')); setResult(null); setSelectedTier(null); }}
-                    placeholder="30"
+                    placeholder="—"
                     placeholderTextColor={theme.inkGhost}
                     style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink, padding: 10, textAlign: 'center' }}
                   />
@@ -382,7 +382,8 @@ export default function CoachesScreen() {
               <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>PLAYER STATS</MonoLabel>
               <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 8 }}>HIGHLIGHTED = ESSENTIAL · DIM = SECONDARY</MonoLabel>
               <StatGrid3Col
-                statKeys={[...white, ...grey]}
+                statKeys={[...STAT_COLUMNS.DEF, ...STAT_COLUMNS.ATT, ...STAT_COLUMNS.PHY]
+                  .filter(s => (allStats as readonly string[]).includes(s))}
                 roles={player.role}
                 values={player.stats}
               />
