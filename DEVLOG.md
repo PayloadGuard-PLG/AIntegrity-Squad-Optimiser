@@ -6,6 +6,328 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 27 — Role Correction, Scanner Fixes, OVR Formula Fix, Kevin McGinty
+**2026-05-16**
+
+Branch: `claude/continue-development-CAQUS` (commits `59b5d7d`, `387e9d1`, `a184903`, `3e04c0c`)
+
+### Shipped
+
+**Rogers 3rd role corrected: AMC → DL**
+
+Sprint 26 re-entry screenshots confirmed Rogers' in-game position grid is AML + ML + **DL**, not AMC as recorded in prior sprints. All data files updated:
+- `profiles/player_seeds.json` — roles, white_stats (10 → 13), grey_stats corrected
+- `profiles/calibration_data.json` — player entry, snapshots, open questions updated
+- Historical observations 46697–46703 kept as-is; their `isWhite` flags reflect the AMC-era role set
+
+With DL replacing AMC, Rogers' white/grey split now matches Grant's exactly:
+- **White (13):** TACKLING, MARKING, POSITIONING, BRAVERY, PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, FITNESS, AGGRESSION, SPEED, CREATIVITY
+- **Grey (2):** HEADING, STRENGTH
+
+Impact on defending coach projections for Rogers: TACKLING/MARKING/BRAVERY now project at full XP rate (white) instead of halved (grey). HEADING moves to grey.
+
+**playerScanner.ts — role detection anchored to Roles: label (commit `59b5d7d`)**
+
+Role extraction now anchors to the Y-band of the "Roles:" label token (±28px). Previously the scanner swept all tokens for role-shaped strings and could pick up dark/inactive position labels elsewhere on the game card. Fix:
+```typescript
+const rolesLabelTok = tokens.find(t => /^roles?\s*:?$/i.test(t.text.trim()));
+const roleRowY = rolesLabelTok?.top;
+const roleSourceTokens = roleRowY != null
+  ? tokens.filter(t => Math.abs(t.top - roleRowY) < Y_TOL)
+  : tokens;
+```
+Falls back to full-text regex scan when no "Roles:" token is found.
+
+**coachScanner.ts — arrow indicator detection for no-player-selected state (commit `387e9d1`)**
+
+Sprint 23 plan item D implemented. When no player is selected on the coach preview screen, highlighted stat rows show an arrow indicator (`↑ ^ › > ▲`) next to the stat name but no gain values. The scanner now captures these:
+```typescript
+const ARROW_RE = /[↑\^›>▲]/;
+// after GAIN_RE block:
+} else {
+  const hasArrow = rowTokens.some(t => ARROW_RE.test(t.text));
+  if (hasArrow) {
+    stats.push({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
+  }
+}
+```
+`resolveCoachStats` in coachPipeline.ts uses only `statName` — zero gain values are discarded downstream.
+
+**Kevin McGinty identified as OVR-99 mystery player (commit `3e04c0c`)**
+
+The OVR-99 player from the Sprint 26 controlled test (Extensive Safeguard ×10/×40) confirmed as Kevin McGinty: Age 27, roles AMC only, T0, Normal talent. Age 27 → `ageMult = 0.61`. Added to `profiles/player_seeds.json` and `profiles/calibration_data.json`.
+
+The ×10/×40 ratio of 2.43 (vs linear 4×) is explained by the exponential cost curve: higher stat values cost more, so doubling the session count yields diminishing returns. Not a bug.
+
+**OVR formula fixed: Math.floor → Math.ceil (commit `3e04c0c`)**
+
+The game uses `Math.ceil` for the OVR formula, not `Math.floor` or `Math.round`. Confirmed from 4 data points:
+
+| Player | sum/15 | ceil | floor | Game OVR |
+|---|---|---|---|---|
+| McGinty (T0) | 99.53 | **100** | 99 | 100 ✓ |
+| Rogers (T0) | 120.60 | **121** | 120 | 121 ✓ |
+| Grant (T2) | 157.00 | **157** | 157 | 157 ✓ |
+| Grant (T3) | 175.40 | **176** | 175 | 176 ✓ |
+
+`floor` fails for McGinty and Grant T3. `ceil` matches all four. Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts`. This resolves the "OVR +1 discrepancy" open since Sprint 24.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F91 | playerScanner picking up inactive position labels as player roles | Anchor role extraction to Roles: label Y-band |
+| F92 | coachScanner missing highlighted stats when no player is selected | Arrow indicator detection (ARROW_RE fallback path) |
+| F93 | OVR displayed 1 below game value for most players | qualityPctToOvr: Math.floor → Math.ceil |
+| F94 | Rogers white/grey stats wrong (AMC-era) | Corrected to DL; all 13 white stats now match Grant |
+
+### Open / Next Sprint
+
+- Rogers device DB: Steve should verify the DB entry has DL as 3rd role (not an older AMC entry)
+- Splash screen assets: awaiting Steve to supply `assets/splash.png` (1284×2778) and resized `assets/icon.png` (1024×1024); then update `app.json` to separate splash/icon paths
+- ×N anomaly: sub-linearity is expected from exponential cost model (documented above); no formula change needed
+
+---
+
+## Sprint 26 — Talent Confirmed, Player Snapshots, Seed Data
+**2026-05-16**
+
+Branch: `claude/continue-development-CAQUS` (commit `3e02c5d`)
+
+### Shipped
+
+**Talent confirmed for both calibration players**
+
+Both Ricky Grant and Ryan Rogers are **Normal talent (×1.0)** — confirmed from intake form Training Rate selections. This resolves the largest open calibration uncertainty since Sprint 24. `bXPS=220` was calibrated under the Normal assumption; that assumption is now verified.
+
+**Calibration database comprehensively updated (`profiles/calibration_data.json`)**
+
+- Added `talent: "Normal", talentConfirmed: true, talentSource: "..."` to both player entries
+- Added `snapshots[]` arrays tracking stats at different training stages:
+  - Grant: T2/ELITE snapshot + T3/STELLAR snapshot (current)
+  - Rogers: T0/OVR-116 snapshot (original calibration) + T0/OVR-120 snapshot (current)
+- Added `tier_increment_verification` for Grant: T2→T3 confirms 13 white stats for DL/ML/AML
+- White stat count verified from tier increment: HEADING +1, STRENGTH +1 (grey — one point from rounding); all others +21
+
+**Player seed file created (`profiles/player_seeds.json`)**
+
+Definitive player records for re-entry if device DB is wiped. Contains correct roles, stats, talent, and tier for both players. Uses full 3-role entries, not the 1-role values entered during initial intake.
+
+**Controlled ×N test logged**
+
+Extensive Safeguard ×10 vs ×40 on OVR-99 outfield player (talent ×1.0, Fitness 111, Very Hard intensity):
+- ×10 → app projects +3.7 FITNESS
+- ×40 → app projects +9.0 FITNESS
+- Ratio 2.43 (expected ~3.65 under linear budget model)
+- Sub-linearity attributed to exponential cost curve + unknown player age (age now confirmed as 27 in Sprint 27)
+
+### Bugs Fixed This Sprint
+
+None (data/calibration sprint).
+
+### Open / Next Sprint
+
+- Roles entered with only 1 position in intake forms (Grant saved as DL only; Rogers as AML only) — re-enter with full 3-role selections on device
+- OVR +1 discrepancy for both players (resolved in Sprint 27 via ceil fix)
+- OVR-99 mystery player age unknown (resolved in Sprint 27: Kevin McGinty, age 27)
+- ×N anomaly ratio 2.43 vs expected 3.65 (resolved in Sprint 27: expected from exponential cost model)
+
+---
+
+## Sprint 25 — Exponential XP Cost Model + Community Framework
+**2026-05-16**
+
+Branch: `claude/continue-development-CAQUS` (commits `acca203`, `2140d7b`)
+
+### Shipped
+
+**Exponential XP cost model (commit `acca203`)**
+
+`xpBaseForStat()` in `src/logic/xpEngine.ts` now uses `C₀ × exp(stat / K)` when `xpCostBase` and `xpCostDecayK` are present in the game profile. The stepped `xpCostTable` is retained as fallback when those fields are absent.
+
+Parameters derived from calibration data and added to `profiles/game_2025.json`:
+- `xpCostBase: 2.94` — base cost at stat = 0
+- `xpCostDecayK: 55` — decay constant (cost doubles every ~38 stat points)
+
+Derivation: observed Tackling 120 vs Positioning 228 in the same coach session under the same XP budget. Actual gain ratio = 66 / 13.5 = 4.89. `exp((228-120)/55) = 4.89` exactly. Model confirmed from one ratio.
+
+**Community framework confirmed (commit `2140d7b`)**
+
+Research confirms the published training formula:
+```
+Effective Gain = Base × Age × Talent × Drill-Avg Penalty × White Factor × Intensity/Tier
+```
+Maps directly to the `xpNeededFor1Pct` divisor. No structural code changes needed.
+
+Key community findings:
+
+| Finding | Status |
+|---|---|
+| Formula structure | ✅ Confirmed — matches existing code |
+| greyWeightMultiplier = 0.5 | ✅ Confirmed |
+| Age multiplier (discrete slabs) | ✅ Confirmed |
+| ~20% seasonal quality reset | ✅ Confirmed (unmodeled by design) |
+| Fast Trainer = 1.5–2× effective | ⚠️ Range only — talent confirmation pending |
+
+**`src/types/resources.ts`** — added optional `xpCostBase?: number` and `xpCostDecayK?: number` to `GameProfile` interface.
+
+### Bugs Fixed This Sprint
+
+None (model improvement sprint).
+
+### Open / Next Sprint
+
+- Talent tier for Ricky Grant and Ryan Rogers unknown — everything hangs off this; `bXPS=220` assumed Normal (×1.0)
+- Fast/Fastest talent multipliers (community: 1.5–2× effective range) cannot be pinned until known-talent calibration is available
+- ×N anomaly (×20 ≈ ×40 for same player/stats): geometric session decay plateau is the working hypothesis; do not change budget formula until empirically confirmed
+
+---
+
+## Sprint 24 — XP Math Fix, Double-Tap Player Select, Calibration DB
+**2026-05-16**
+
+Branch: `claude/continue-development-CAQUS` (commit `931503b`)
+
+### Shipped
+
+**XP star decay bug fixed (`src/logic/xpEngine.ts`)**
+
+`estimateStatGainPct` was passing `starsGainedInSession + gain` to `xpNeededFor1Pct` as the star count. Since `gain` incremented per stat point (0→1→2→…), `starMult = 0.85^gain` caused each successive integer point to cost exponentially more. By point 14 the per-point multiplier had risen ~8×, which is why projections showed +12 for Tackling 122 when the game actually delivers +60+.
+
+Fix: pass `starsGainedInSession` only (accumulated OVR stars, not per-stat-point count). Costs now depend on stat value, which is the correct model.
+
+**`baseXpPerSession` recalibrated: 150 → 220 (`profiles/game_2025.json`)**
+
+Calibrated against Ricky Grant (age 20) Standard Defending ×40: Tackling 120 → actual game gain 59-73 pts ↔ ~60 projected with bXPS=220. Stepped xpCostTable entries for 200+ stats also increased to match empirical observations (Aggression 201: only 14-21 pts, Creativity 256: only 5-7 pts).
+
+**Double-tap player selection (`app/(tabs)/coaches.tsx`)**
+
+Single tap: selects player for coaching projection. Double tap (within 350ms on same chip): navigates to the player edit screen (`/player/[id]`). Implemented with a `lastTapRef` per-session to detect consecutive taps.
+
+**Calibration database created (`profiles/calibration_data.json`)**
+
+All coach screenshot observations from Ricky Grant and Ryan Rogers captured with: gainLo/Hi ranges, stat values, isWhite flags, coach type/category/multiplier, OVR. Not loaded at runtime — pure reference for formula analysis.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F87 | Projections massively underestimating gains (e.g. +12 vs actual +60) | Star decay bug: was accumulating per-point, now uses session OVR stars only |
+| F88 | No quick path from Coaches tab to player edit screen | Double-tap chip navigates to `/player/[id]` |
+
+### Open / Next Sprint
+
+- Talent tier for Ricky Grant and Ryan Rogers unknown — bXPS=220 assumes Normal (×1.0)
+- ×N anomaly: Standard Defending ×20 and ×40 show nearly identical gains — geometric sum plateau hypothesis
+- Positioning 148 (Rogers, AML/ML/AMC) underperforms prediction — possible partial-grey treatment
+- Stats above 240 still under-project even with updated table
+
+---
+
+## Sprint 23 — coachScanner Highlighted-Stat Detection Overhaul
+**2026-05-16**
+
+Branch: `claude/continue-development-CAQUS` (commits `8679c4c`, `41c899c`, `83a1ec6`, `5467436`, `793a17d`, `e9b01e0`, `8d949cb`)
+
+### Shipped
+
+**coachScanner.ts — all 5 detection improvements**
+
+*A — Y tolerance split*
+
+`Y_TOL=25` replaced with two constants:
+- `Y_TOL_NAME=25` — stat name detection (allows two-word names e.g. RUSHING OUT)
+- `Y_TOL_VAL=18` — gain range row lookup, tighter than row spacing (~22px) to prevent adjacent-row bleed
+
+*B — blockIdx explicitly NOT used*
+
+`blockIdx` filtering was evaluated and rejected: stat name tokens and their gain values are in different ML Kit blocks (name is in the teal-background block, gain is in the adjacent text block). Adding a `blockIdx` filter would break gain detection for highlighted stats. Left/right column filtering (`t.left > tok.left`) already prevents cross-column bleed without blockIdx.
+
+*C — GAIN_RE `+` optional, tightened sanity check*
+
+`/\+\s*(\d+)\s*[–\-—]\s*(\d+)/` → `/\+?\s*(\d+)\s*[–\-—]\s*(\d+)/`
+
+Teal/white highlight backgrounds cause OCR to drop or mangle `+`. Sanity check tightened: `hi > lo` (not `>=`), `lo <= 150` (excludes stat values misread as lo).
+
+*D — Arrow indicator detection (no-player-selected state)*
+
+When no player is selected, highlighted stats show `↑` (or OCR variants `^ › > ▲`) with no gain values. Scanner now detects these and captures `{ statName, statBefore: 0, gainLo: 0, gainHi: 0 }`. `resolveCoachStats` uses only `statName` — zero values discarded.
+
+*E — `_debugBlocks` logging*
+
+`CoachScanResult._debugBlocks` string captures all ML Kit block texts. Logged in `coaches.tsx` under `__DEV__` for Termux block-structure validation.
+
+**Switch to line-level tokens (commit `5467436`)**
+
+Changed from element-level to line-level token extraction. Line-level grouping reduces token count and keeps multi-word stat names together. This was necessary after blockIdx was removed — lines keep natural word associations.
+
+**Goalkeeping → Safeguard category mapping (commit `793a17d`)**
+
+Game uses "Goalkeeping" as the category label for GK coaches; internal code uses "Safeguard". Mapping added to coachScanner.ts.
+
+**Safeguard CATEGORY_STATS expanded (commit `e9b01e0`)**
+
+Safeguard category now maps to all 11 GK stats, not just 5. Corrects fallback stat derivation for blank GK coach tiles.
+
+**Manual type/category/stat picker fallback (commit `8d949cb`)**
+
+When OCR fails to detect the coach header, users can manually select coach type (Standard/Focused/Extensive), category (Attacking/Defending/Physical/Safeguard), multiplier, and individual stats via a dropdown picker. Prevents total scan failure on difficult image conditions.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F83 | coachScanner returning all 13 stats instead of 2 highlighted ones | Y_TOL_VAL=18, optional `+` in GAIN_RE, arrow detection |
+| F84 | Adjacent-row gain ranges bleeding into wrong stat | Y_TOL_VAL tightened to 18px |
+| F85 | GK coaches' category not recognised | Goalkeeping → Safeguard mapping |
+| F86 | No fallback when OCR fails completely on coach header | Manual type/category/stat picker |
+
+---
+
+## Sprint 22 — Unified Coach Scan Pipeline
+**2026-05-16**
+
+Branch: `claude/continue-development-CAQUS` (commits `1b0071d`, `5dea82a`, `5025315`, `27ebbf8`, `fbb5e25`)
+
+### Shipped
+
+**coachPipeline.ts — unified scan pipeline**
+
+New file `src/logic/coachPipeline.ts` consolidates all post-OCR processing:
+1. Raw OCR → `coachScanner.ts` → `CoachScanResult` (header fields + stat captures)
+2. `resolveCoachStats(scan, player, profile)` → stat names only (image gain values discarded)
+3. XP projection via `ovrProjector.ts` using player's DB stats, not OCR values
+
+**`scannedStats` is `string[]` — image values never touch projection**
+
+The coach preview image contains `statBefore`, `gainLo`, `gainHi` that belong to whoever's player is shown in the image, not the selected player. These are discarded immediately after OCR. Only stat names from highlighted rows are retained.
+
+Projection is pure math from the selected player's DB record:
+```typescript
+const budget = sessionCount * profile.baseXpPerSession / scannedStats.length;
+```
+
+**Coaches tab — 3-table layout (commit `5dea82a`)**
+
+Three side-by-side read-only tables in the coach preview section:
+1. **OFFERING** — stat names the coach boosts (from scan)
+2. **CURRENT** — player's current values for those stats
+3. **PROJECTED** — estimated values after coaching sessions
+
+Replaces the earlier combined grid that mixed OCR values with projections.
+
+**`_debugBlocks` logging added**
+
+`CoachScanResult` extended with optional `_debugBlocks?: string`. Logged under `__DEV__` in `coaches.tsx` for diagnosing block structure in Termux builds.
+
+### Bugs Fixed This Sprint
+
+| ID | Area | Fix |
+|---|---|---|
+| F82 | Coach scan projection using image player's stats, not selected player | Discard all OCR values post-scan; project from DB record only |
+
+---
+
 ## Sprint 21 — New Role Training Bar + OCR Name Fix
 **2026-05-15**
 
