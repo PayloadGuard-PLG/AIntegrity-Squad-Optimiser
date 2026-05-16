@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats, CATEGORY_STATS } from '../../src/logic/coachPipeline';
@@ -67,6 +67,7 @@ export default function CoachesScreen() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
+  const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
 
@@ -284,7 +285,17 @@ export default function CoachesScreen() {
               {squad.map(p => (
                 <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <QualityMeter ovr={p.overall} size="sm" />
-                  <Chip active={p.id === player?.id} onPress={() => selectPlayer(p.id)}>
+                  <Chip active={p.id === player?.id} onPress={() => {
+                    const now = Date.now();
+                    const last = lastTapRef.current;
+                    if (last?.id === p.id && now - last.time < 350) {
+                      lastTapRef.current = null;
+                      router.push(`/player/${p.id}`);
+                    } else {
+                      lastTapRef.current = { id: p.id, time: now };
+                      selectPlayer(p.id);
+                    }
+                  }}>
                     {p.name}
                   </Chip>
                 </View>

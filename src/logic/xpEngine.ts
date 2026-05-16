@@ -70,7 +70,7 @@ export function estimateStatGainPct(
   let current = statValue;
 
   while (remaining > 0 && current < profile.statCap) {
-    const cost = xpNeededFor1Pct(current, age, starsGainedInSession + gain, talent, isWhite, twoxAd, drillLevelMult, profile);
+    const cost = xpNeededFor1Pct(current, age, starsGainedInSession, talent, isWhite, twoxAd, drillLevelMult, profile);
     if (!isFinite(cost) || cost <= 0) break;
     if (cost > remaining) {
       gain += remaining / cost; // fractional: bank the partial progress

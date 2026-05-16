@@ -259,3 +259,113 @@ Colour names (`green`, `amber`, `red`) in UI styling are fine — they describe 
 When adding new features, choose generic football-management vocabulary. Run
 `git grep -niE '\bgreens\b|skill drill|nordeus|top eleven|elitechest'` before
 committing to verify nothing crept back in.
+
+---
+
+## Sprint 24 Handover — XP Math, Double-Tap, Calibration DB
+
+### What was done (Sprint 24)
+
+**1. XP math root cause fixed** (`src/logic/xpEngine.ts` line 73)
+
+The `estimateStatGainPct` loop was passing `starsGainedInSession + gain` to `xpNeededFor1Pct`.
+Since `gain` accumulated per stat point (0→1→2→...→60), `starMult = 0.85^gain` caused each
+successive point to cost exponentially more. By point 14, the per-point cost had multiplied by
+~8×. This is why projections showed +12 for Tackling 122 when the game actually delivers +60+.
+
+Fix: pass `starsGainedInSession` only (not `+ gain`). Costs now depend on STAT VALUE (not
+cumulative session points), which is the correct model.
+
+**2. baseXpPerSession** raised from 150 → 220 (`profiles/game_2025.json`)
+Calibrated against Ricky Grant (Age 20) Standard Defending ×40:
+Tackling 120 → +59-73 actual ↔ ~60 predicted with bXPS=220. Correct.
+
+**3. xpCostTable high-stat entries increased** (`profiles/game_2025.json`)
+Empirical evidence (Aggression 201 gaining only 14-21 pts, Creativity 256 gaining only 5-7 pts
+despite high budget) shows the game's cost curve is STEEPER above 200 than original table.
+Updated entries (provisional — needs more data):
+  200-219: 100 → 150   |   220-239: 125 → 200
+  240-259: 160 → 260   |   260-279: 200 → 340   |   280-339: 250 → 440
+
+**4. Double-tap player selection** (`app/(tabs)/coaches.tsx`)
+Single tap = select player for coaching projection.
+Double tap (within 350ms) = navigate to player edit screen (`/player/[id]`).
+Uses a `lastTapRef` per-session (not per-player) to detect consecutive taps on same chip.
+
+**5. Calibration database created** (`profiles/calibration_data.json`)
+All coach screenshot observations from Ricky Grant and Ryan Rodger captured with:
+gainLo/Hi ranges, stat values, isWhite flags, coach type/category/multiplier, OVR.
+File is NOT loaded at runtime — pure reference for formula analysis.
+
+### XP formula — open questions for next Claude
+
+- **Talent multiplier unknown for both players.** All calibration was done without knowing
+  if Ricky Grant is Fast (×1.25) or Normal (×1.0). This affects bXPS by up to 25%.
+  Steve needs to confirm: look at the talent tier icon on the player edit screen.
+
+- **The ×N anomaly:** Standard Defending ×20 showed nearly identical gains to ×40 for the
+  same stats/player. Two hypotheses:
+  1. `starDecayPerSession = 0.85` as applied once-per-SESSION causes the geometric sum to
+     plateau: sum(0.85^k, k=0..N-1) → 1/(1-0.85) = 6.67 at large N. So ×20 and ×40 give
+     almost the same total effective sessions (~6.4 vs ~6.7). This would mean the current
+     formula `budget = N × bXPS / numStats` is WRONG — the budget should use the geometric
+     sum, not N directly.
+  2. OCR misread of the multiplier in one screenshot.
+  If hypothesis 1 is correct, the budget formula in coaches.tsx needs to change from:
+  ```typescript
+  const budget = sessionCount * profile.baseXpPerSession / scannedStats.length;
+  ```
+  to something like:
+  ```typescript
+  const effectiveSessions = (1 - Math.pow(profile.starDecayPerSession, sessionCount))
+                            / (1 - profile.starDecayPerSession);
+  const budget = effectiveSessions * profile.baseXpPerSession / scannedStats.length;
+  ```
+  But this would also require re-tuning bXPS. Do NOT implement until Steve confirms
+  whether ×20 and ×40 give the same results in practice.
+
+- **Positioning 148 for AML/ML/AMC (Ryan Rodger) underperforms prediction.**
+  Predicted ~35-39 pts but game shows ~14-20 pts. Hypothesis: the game may give a reduced
+  (partial grey) multiplier for stats that are white in only 1 of 3 roles. Needs more data.
+
+- **Creativity 256 and other 240+ stats** still under-project even with updated table.
+  Actual cost at this level appears to be ~260 XP/pt but even that may be too low.
+  Once talent is confirmed, re-derive table entries for 200+.
+
+### Files changed in Sprint 24
+
+| File | Change |
+|---|---|
+| `src/logic/xpEngine.ts` | Fixed star decay bug in `estimateStatGainPct` |
+| `profiles/game_2025.json` | `baseXpPerSession` 150→220, high-stat cost table 200+ increased |
+| `app/(tabs)/coaches.tsx` | Added `router`/`useRef` imports, double-tap logic for player chips |
+| `profiles/calibration_data.json` | NEW — raw screenshot calibration data |
+
+### Dev/test workflow reminder
+
+```
+# Hot reload on device (no rebuild needed for JS changes):
+# Just save the file — Metro reloads automatically if dev client is running
+
+# TypeScript check:
+npx tsc --noEmit
+
+# Push to dev branch (DO NOT push to main — triggers OTA):
+git push -u origin claude/continue-development-CAQUS
+```
+
+### Note from this Claude to the next Claude
+
+The XP math is closer but still provisional. The star decay bug fix is the most impactful
+change (turns +12 projection into +40-50 which is in the right ballpark). The bXPS=220 and
+updated high-stat table give reasonable results for 60-200 stat range.
+
+The BIGGEST open issue is confirming talent for Ricky Grant and Ryan Rodger. Everything
+hangs off this. Get Steve to open the player edit screen and screenshot the talent label —
+it shows "Fastest" / "Fast" / "Average" / "Normal" / "Slow" explicitly.
+
+Don't touch `starDecayPerSession` in game_2025.json without first understanding the ×N
+anomaly. If the geometric sum hypothesis is correct, bXPS needs re-calibration simultaneously.
+
+The calibration_data.json is your reference. Add new observations there as Steve scans more
+coaches. Each confirmed data point narrows the formula further.

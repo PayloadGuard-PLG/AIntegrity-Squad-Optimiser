@@ -44,27 +44,27 @@
     {
       "statMin": 200,
       "statMax": 219,
-      "xpPer1Pct": 100
+      "xpPer1Pct": 150
     },
     {
       "statMin": 220,
       "statMax": 239,
-      "xpPer1Pct": 125
+      "xpPer1Pct": 200
     },
     {
       "statMin": 240,
       "statMax": 259,
-      "xpPer1Pct": 160
+      "xpPer1Pct": 260
     },
     {
       "statMin": 260,
       "statMax": 279,
-      "xpPer1Pct": 200
+      "xpPer1Pct": 340
     },
     {
       "statMin": 280,
       "statMax": 339,
-      "xpPer1Pct": 250
+      "xpPer1Pct": 440
     }
   ],
   "ageTable": {
@@ -143,7 +143,7 @@
   "greyWeightMultiplier": 0.5,
   "statCap": 9999,
   "maxBaseOvr": 180,
-  "baseXpPerSession": 150,
+  "baseXpPerSession": 220,
   "twoxAdMultiplier": 2.0,
   "starDecayPerSession": 0.85,
   "starOvrThreshold": 20,

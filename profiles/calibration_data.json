@@ -1,0 +1,391 @@
+{
+  "_notes": [
+    "Raw coach session observations extracted from game screenshots.",
+    "gainLo/gainHi = game-shown range for that stat after the coach session.",
+    "isWhite = whether the stat is essential (white) for the player's roles per roleWeights.ts.",
+    "talentUnknown = true when talent tier (Fast/Normal/Slow) was not visible in screenshot.",
+    "All observations are from a single coach session (one coach purchase).",
+    "Coach budget formula under investigation — see CLAUDE.md for calibration status.",
+    "OVR values include tier bonus baked in. Base stat = displayed - tierAttrAdditions[tier].",
+    "ANOMALY: Standard Defending x20 shows similar or slightly higher gains than x40 for same",
+    "  stats/player — possible OCR misread or game has non-linear N scaling. Flag for review.",
+    "xpCostTable entries above 200 are marked PROVISIONAL — needs more data to confirm."
+  ],
+  "players": [
+    {
+      "id": "ricky_grant",
+      "name": "Ricky Grant",
+      "roles": ["DL", "ML", "AML"],
+      "whiteStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","CROSSING","FITNESS","AGGRESSION","SPEED","PASSING","DRIBBLING","SHOOTING","FINISHING","CREATIVITY"],
+      "greyStats": ["HEADING","STRENGTH"],
+      "talentUnknown": true,
+      "talentGuess": "Normal or Fast — star icon visible but label not OCR'd",
+      "observations": [
+        {
+          "screenshot": "46926_std_def_x40_ovr177",
+          "coachType": "Standard",
+          "coachCategory": "Defending",
+          "multiplier": 40,
+          "playerOvr": 177,
+          "playerAge": 20,
+          "statsBefore": {
+            "TACKLING": 122, "MARKING": 140, "POSITIONING": 230,
+            "HEADING": 155, "BRAVERY": 216
+          },
+          "gains": [
+            { "stat": "TACKLING",    "gainLo": 57, "gainHi": 71, "isWhite": true  },
+            { "stat": "MARKING",     "gainLo": 48, "gainHi": 56, "isWhite": true  },
+            { "stat": "POSITIONING", "gainLo": 10, "gainHi": 15, "isWhite": true  },
+            { "stat": "HEADING",     "gainLo": 11, "gainHi": 15, "isWhite": false },
+            { "stat": "BRAVERY",     "gainLo": 12, "gainHi": 18, "isWhite": true  }
+          ],
+          "ovrBoostLo": 9, "ovrBoostHi": 12
+        },
+        {
+          "screenshot": "46927_std_atk_x30_ovr177",
+          "coachType": "Standard",
+          "coachCategory": "Attacking",
+          "multiplier": 30,
+          "playerOvr": 177,
+          "playerAge": 20,
+          "statsBefore": {
+            "PASSING": 132, "DRIBBLING": 225, "CROSSING": 156,
+            "SHOOTING": 153, "FINISHING": 167
+          },
+          "gains": [
+            { "stat": "PASSING",    "gainLo": 52, "gainHi": 63, "isWhite": true },
+            { "stat": "DRIBBLING",  "gainLo": 11, "gainHi": null, "isWhite": true, "_note": "hi value unclear from OCR" },
+            { "stat": "CROSSING",   "gainLo": 37, "gainHi": 44, "isWhite": true },
+            { "stat": "SHOOTING",   "gainLo": 39, "gainHi": 46, "isWhite": true },
+            { "stat": "FINISHING",  "gainLo": 29, "gainHi": 36, "isWhite": true }
+          ],
+          "ovrBoostLo": 11, "ovrBoostHi": 14
+        },
+        {
+          "screenshot": "46928_std_phy_x35_ovr177",
+          "coachType": "Standard",
+          "coachCategory": "Physical",
+          "multiplier": 35,
+          "playerOvr": 177,
+          "playerAge": 20,
+          "statsBefore": {
+            "FITNESS": null, "STRENGTH": 66, "AGGRESSION": 203,
+            "SPEED": 163, "CREATIVITY": 257
+          },
+          "_note": "FITNESS stat value unclear from OCR",
+          "gains": [
+            { "stat": "STRENGTH",   "gainLo": 51, "gainHi": 66, "isWhite": false },
+            { "stat": "AGGRESSION", "gainLo": 13, "gainHi": 20, "isWhite": true  },
+            { "stat": "SPEED",      "gainLo": 32, "gainHi": 39, "isWhite": true  },
+            { "stat": "CREATIVITY", "gainLo": 5,  "gainHi": 7,  "isWhite": true  }
+          ],
+          "ovrBoostLo": 7, "ovrBoostHi": 9
+        },
+        {
+          "screenshot": "46929_foc_atk_x3_ovr177",
+          "coachType": "Focused",
+          "coachCategory": "Attacking",
+          "multiplier": 3,
+          "playerOvr": 177,
+          "playerAge": 20,
+          "coachLabel": "REWARD COACH",
+          "statsBefore": {
+            "PASSING": 132, "CROSSING": 156
+          },
+          "gains": [
+            { "stat": "PASSING",  "gainLo": 18, "gainHi": 25, "isWhite": true },
+            { "stat": "CROSSING", "gainLo": 14, "gainHi": 19, "isWhite": true }
+          ],
+          "ovrBoostLo": 2, "ovrBoostHi": 3
+        },
+        {
+          "screenshot": "46930_foc_phy_x2_ovr177",
+          "coachType": "Focused",
+          "coachCategory": "Physical",
+          "multiplier": 2,
+          "playerOvr": 177,
+          "playerAge": 20,
+          "coachLabel": "REWARD COACH",
+          "statsBefore": {
+            "AGGRESSION": 203
+          },
+          "gains": [
+            { "stat": "AGGRESSION", "gainLo": 4, "gainHi": 6, "isWhite": true }
+          ],
+          "ovrBoostLo": 0, "ovrBoostHi": 1
+        },
+        {
+          "screenshot": "46931_foc_def_x2_ovr177",
+          "coachType": "Focused",
+          "coachCategory": "Defending",
+          "multiplier": 2,
+          "playerOvr": 177,
+          "playerAge": 20,
+          "statsBefore": {
+            "MARKING": 140, "POSITIONING": 230
+          },
+          "gains": [
+            { "stat": "MARKING",     "gainLo": 12, "gainHi": 17, "isWhite": true },
+            { "stat": "POSITIONING", "gainLo": 2,  "gainHi": 3,  "isWhite": true }
+          ],
+          "ovrBoostLo": 1, "ovrBoostHi": 2
+        },
+        {
+          "screenshot": "46694_std_def_x40_ovr175",
+          "coachType": "Standard",
+          "coachCategory": "Defending",
+          "multiplier": 40,
+          "playerOvr": 175.0,
+          "playerAge": 20,
+          "statsBefore": {
+            "TACKLING": 120, "MARKING": 137, "POSITIONING": 228,
+            "HEADING": 154, "BRAVERY": 214
+          },
+          "gains": [
+            { "stat": "TACKLING",    "gainLo": 59, "gainHi": 73, "isWhite": true  },
+            { "stat": "MARKING",     "gainLo": 49, "gainHi": 59, "isWhite": true  },
+            { "stat": "POSITIONING", "gainLo": 11, "gainHi": 16, "isWhite": true  },
+            { "stat": "HEADING",     "gainLo": 11, "gainHi": 15, "isWhite": false },
+            { "stat": "BRAVERY",     "gainLo": 13, "gainHi": 18, "isWhite": true  }
+          ],
+          "ovrBoostLo": 10, "ovrBoostHi": 12
+        },
+        {
+          "screenshot": "46347_std_def_x20_ovr175",
+          "coachType": "Standard",
+          "coachCategory": "Defending",
+          "multiplier": 20,
+          "playerOvr": 175.0,
+          "playerAge": 20,
+          "_anomaly": "x20 shows similar gains to x40 (46694) for same stats — possible OCR error or non-linear N scaling",
+          "statsBefore": {
+            "TACKLING": 120, "MARKING": 137, "POSITIONING": 228,
+            "HEADING": 154, "BRAVERY": 214
+          },
+          "gains": [
+            { "stat": "TACKLING",    "gainLo": 66, "gainHi": 77, "isWhite": true  },
+            { "stat": "MARKING",     "gainLo": 54, "gainHi": 63, "isWhite": true  },
+            { "stat": "HEADING",     "gainLo": 13, "gainHi": 18, "isWhite": false },
+            { "stat": "BRAVERY",     "gainLo": 15, "gainHi": 22, "isWhite": true  }
+          ],
+          "ovrBoostLo": 10, "ovrBoostHi": 12
+        },
+        {
+          "screenshot": "46346_std_atk_x30_ovr175",
+          "coachType": "Standard",
+          "coachCategory": "Attacking",
+          "multiplier": 30,
+          "playerOvr": 175.0,
+          "playerAge": 20,
+          "statsBefore": {
+            "PASSING": 130, "DRIBBLING": 223, "CROSSING": 154,
+            "SHOOTING": 150, "FINISHING": 164
+          },
+          "gains": [
+            { "stat": "PASSING",   "gainLo": 53, "gainHi": 64, "isWhite": true },
+            { "stat": "DRIBBLING", "gainLo": 11, "gainHi": 17, "isWhite": true },
+            { "stat": "CROSSING",  "gainLo": 38, "gainHi": 46, "isWhite": true },
+            { "stat": "SHOOTING",  "gainLo": 41, "gainHi": 48, "isWhite": true },
+            { "stat": "FINISHING", "gainLo": 31, "gainHi": 38, "isWhite": true }
+          ],
+          "ovrBoostLo": 12, "ovrBoostHi": 14
+        },
+        {
+          "screenshot": "46345_std_phy_x35_ovr175",
+          "coachType": "Standard",
+          "coachCategory": "Physical",
+          "multiplier": 35,
+          "playerOvr": 175.0,
+          "playerAge": 20,
+          "statsBefore": {
+            "FITNESS": 260, "STRENGTH": 64, "AGGRESSION": 201,
+            "SPEED": 160, "CREATIVITY": 256
+          },
+          "gains": [
+            { "stat": "FITNESS",    "gainLo": 6,  "gainHi": 8,  "isWhite": true  },
+            { "stat": "STRENGTH",   "gainLo": 52, "gainHi": 67, "isWhite": false },
+            { "stat": "AGGRESSION", "gainLo": 14, "gainHi": 21, "isWhite": true  },
+            { "stat": "SPEED",      "gainLo": 34, "gainHi": 41, "isWhite": true  },
+            { "stat": "CREATIVITY", "gainLo": 5,  "gainHi": 7,  "isWhite": true  }
+          ],
+          "ovrBoostLo": 7, "ovrBoostHi": 10
+        },
+        {
+          "screenshot": "46372_foc_def_x2_ovr175",
+          "coachType": "Focused",
+          "coachCategory": "Defending",
+          "multiplier": 2,
+          "playerOvr": 175.0,
+          "playerAge": 20,
+          "statsBefore": {
+            "MARKING": 137, "POSITIONING": 228
+          },
+          "gains": [
+            { "stat": "MARKING",     "gainLo": 13, "gainHi": 18, "isWhite": true },
+            { "stat": "POSITIONING", "gainLo": 2,  "gainHi": 3,  "isWhite": true }
+          ],
+          "ovrBoostLo": 1, "ovrBoostHi": 2
+        }
+      ]
+    },
+    {
+      "id": "ryan_rodger",
+      "name": "Ryan Rodger",
+      "roles": ["AML", "ML", "AMC"],
+      "whiteStats": ["PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY","POSITIONING","HEADING"],
+      "greyStats": ["TACKLING","MARKING","BRAVERY","STRENGTH","AGGRESSION"],
+      "_note": "POSITIONING white from ML only; HEADING white from AMC only. Effective whiteness may differ from pure isWhiteStat().",
+      "talentUnknown": true,
+      "talentGuess": "Unknown — playstyle icon visible but not OCR'd",
+      "observations": [
+        {
+          "screenshot": "46699_std_atk_x30_ovr116",
+          "coachType": "Standard",
+          "coachCategory": "Attacking",
+          "multiplier": 30,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "statsBefore": {
+            "PASSING": 121, "DRIBBLING": 136, "CROSSING": 132,
+            "SHOOTING": 129, "FINISHING": 127
+          },
+          "gains": [
+            { "stat": "PASSING",   "gainLo": 26, "gainHi": 34, "isWhite": true },
+            { "stat": "DRIBBLING", "gainLo": 17, "gainHi": 25, "isWhite": true },
+            { "stat": "CROSSING",  "gainLo": 20, "gainHi": 27, "isWhite": true },
+            { "stat": "SHOOTING",  "gainLo": 21, "gainHi": 29, "isWhite": true },
+            { "stat": "FINISHING", "gainLo": 23, "gainHi": 30, "isWhite": true }
+          ],
+          "ovrBoostLo": 7, "ovrBoostHi": 9
+        },
+        {
+          "screenshot": "46697_std_def_x40_ovr116",
+          "coachType": "Standard",
+          "coachCategory": "Defending",
+          "multiplier": 40,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "statsBefore": {
+            "TACKLING": 68, "MARKING": 85, "POSITIONING": 148,
+            "HEADING": 108, "BRAVERY": 70
+          },
+          "_note": "Tackling/Marking/Bravery are GREY for AML/ML/AMC. Positioning white via ML only, Heading white via AMC only.",
+          "gains": [
+            { "stat": "TACKLING",    "gainLo": 50, "gainHi": 64, "isWhite": false },
+            { "stat": "MARKING",     "gainLo": 41, "gainHi": 55, "isWhite": false },
+            { "stat": "POSITIONING", "gainLo": 14, "gainHi": 20, "isWhite": true  },
+            { "stat": "HEADING",     "gainLo": 35, "gainHi": 43, "isWhite": true  },
+            { "stat": "BRAVERY",     "gainLo": 49, "gainHi": 63, "isWhite": false }
+          ],
+          "ovrBoostLo": 13, "ovrBoostHi": 16
+        },
+        {
+          "screenshot": "46698_std_phy_x35_ovr116",
+          "coachType": "Standard",
+          "coachCategory": "Physical",
+          "multiplier": 35,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "statsBefore": {
+            "FITNESS": 148, "STRENGTH": 87, "AGGRESSION": 108,
+            "SPEED": 106, "CREATIVITY": 166
+          },
+          "_note": "Strength and Aggression are GREY for AML/ML/AMC.",
+          "gains": [
+            { "stat": "FITNESS",    "gainLo": 14, "gainHi": 21, "isWhite": true  },
+            { "stat": "STRENGTH",   "gainLo": 40, "gainHi": 53, "isWhite": false },
+            { "stat": "AGGRESSION", "gainLo": 31, "gainHi": 37, "isWhite": false },
+            { "stat": "SPEED",      "gainLo": 36, "gainHi": 44, "isWhite": true  },
+            { "stat": "CREATIVITY", "gainLo": 12, "gainHi": 17, "isWhite": true  }
+          ],
+          "ovrBoostLo": 9, "ovrBoostHi": 11
+        },
+        {
+          "screenshot": "46700_foc_atk_x3_ovr116",
+          "coachType": "Focused",
+          "coachCategory": "Attacking",
+          "multiplier": 3,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "coachLabel": "REWARD COACH",
+          "statsBefore": {
+            "PASSING": 121, "CROSSING": 132
+          },
+          "gains": [
+            { "stat": "PASSING",  "gainLo": 10, "gainHi": 15, "isWhite": true },
+            { "stat": "CROSSING", "gainLo": 8,  "gainHi": 10, "isWhite": true }
+          ],
+          "ovrBoostLo": 1, "ovrBoostHi": 2
+        },
+        {
+          "screenshot": "46701_foc_def_x2_ovr116_a",
+          "coachType": "Focused",
+          "coachCategory": "Defending",
+          "multiplier": 2,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "statsBefore": {
+            "MARKING": 85, "POSITIONING": 148
+          },
+          "gains": [
+            { "stat": "MARKING",     "gainLo": 10, "gainHi": 15, "isWhite": false },
+            { "stat": "POSITIONING", "gainLo": 2,  "gainHi": 4,  "isWhite": true  }
+          ],
+          "ovrBoostLo": 1, "ovrBoostHi": 1
+        },
+        {
+          "screenshot": "46702_foc_phy_x2_ovr116",
+          "coachType": "Focused",
+          "coachCategory": "Physical",
+          "multiplier": 2,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "coachLabel": "REWARD COACH",
+          "statsBefore": {
+            "AGGRESSION": 108
+          },
+          "gains": [
+            { "stat": "AGGRESSION", "gainLo": 12, "gainHi": 16, "isWhite": false }
+          ],
+          "ovrBoostLo": 1, "ovrBoostHi": 1
+        },
+        {
+          "screenshot": "46703_foc_atk_x3_ovr116_b",
+          "coachType": "Focused",
+          "coachCategory": "Attacking",
+          "multiplier": 3,
+          "playerOvr": 116.4,
+          "playerAge": 18,
+          "coachLabel": "REWARD COACH",
+          "statsBefore": {
+            "PASSING": 121, "CROSSING": 132
+          },
+          "gains": [
+            { "stat": "PASSING",  "gainLo": 10, "gainHi": 15, "isWhite": true },
+            { "stat": "CROSSING", "gainLo": 8,  "gainHi": 10, "isWhite": true }
+          ],
+          "ovrBoostLo": 1, "ovrBoostHi": 2
+        }
+      ]
+    }
+  ],
+  "calibrationStatus": {
+    "lastUpdated": "2026-05-16",
+    "formulaStatus": "PROVISIONAL",
+    "confirmedParameters": {
+      "drillLevelMultipliers": "confirmed from game screenshots",
+      "greyWeightMultiplier_0_5": "appears correct — grey gains ~0.5x white at same stat level",
+      "ageTable": "unconfirmed beyond age 18-20 range",
+      "xpCostTable_0_199": "approximately correct based on mid-range stat observations",
+      "xpCostTable_200_plus": "PROVISIONAL — increased 1.5-1.8x from original based on Aggression 201 and Creativity 256 observations"
+    },
+    "openQuestions": [
+      "Talent multiplier for Ricky Grant and Ryan Rodger not confirmed — affects all XP calculations",
+      "Standard x20 vs x40 anomaly: x20 shows similar gains to x40 — possible non-linear N scaling or OCR error",
+      "Focused coach budget formula: Focused x2 gains proportional to Standard x40? Needs verification",
+      "High-stat cost curve (220+): Creativity 256 gaining only 5-7 suggests much steeper cost than our table even after correction",
+      "Positioning 148 for Ryan Rodger (AML/ML/AMC): only white via ML — gains suggest possible partial grey treatment by game"
+    ],
+    "keyInsight": "starsGainedInSession was being accumulated per stat point gained (bug fixed Sprint 24), causing exponential cost escalation. Original bug explained why projections showed +12 when actual game showed +60+"
+  }
+}
