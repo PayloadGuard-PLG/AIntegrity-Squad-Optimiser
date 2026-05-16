@@ -6,7 +6,6 @@ const Y_TOL_NAME = 25; // two-word stat name detection (RUSHING OUT, AERIAL REAC
 const Y_TOL_VAL  = 18; // gain range row lookup — tighter than row spacing to prevent adjacent-row bleed
 const GAIN_RE_STAT = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/; // + optional: OCR drops it on bright teal backgrounds
 const GAIN_RE_OVR  = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;  // + required for OVR boost (avoids N-N false matches)
-const ARROW_RE     = /[↑\^›>▲]/;                      // highlighted-stat indicator (no-player state)
 
 export const COACH_TYPES    = ['Standard', 'Focused', 'Extensive'] as const;
 export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard'] as const;
@@ -48,19 +47,19 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   ]);
   const fullText = result.text ?? '';
 
-  type Token = { text: string; top: number; left: number; blockIdx: number };
+  // Use line-level tokens — element arrays are sparse/empty on many devices;
+  // lines always have populated text and frame data.
+  type Token = { text: string; top: number; left: number };
   const tokens: Token[] = (result.blocks ?? [])
-    .flatMap((b, blockIdx) =>
-      b.lines.flatMap(l =>
-        l.elements.map(e => ({
-          text: e.text.trim(),
-          top:  e.frame?.top  ?? 0,
-          left: e.frame?.left ?? 0,
-          blockIdx,
-        }))
-      )
-    )
+    .flatMap(b => b.lines)
+    .map(l => ({
+      text: l.text.trim(),
+      top:  l.frame?.top  ?? 0,
+      left: l.frame?.left ?? 0,
+    }))
     .filter(t => t.text.length > 0);
+
+  console.log('[COACH SCAN] token count:', tokens.length);
 
   // Detect type, category, and multiplier independently — tolerates multi-line OCR output
   const coachType     = (/\b(Standard|Focused|Extensive)\b/i.exec(fullText))?.[1] as CoachType | undefined;
@@ -101,6 +100,8 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   // The game shows 3 columns side by side (Defense / Attack / Physical). Stats in different
   // columns share the same Y row. Restricting to t.left > tok.left prevents picking up a
   // gain range from column 1 (e.g. Tackling +57-71) when processing a column 2 stat (Passing).
+  // Note: stat names and their gain ranges are always in different ML Kit blocks — do NOT
+  // restrict by blockIdx or gains will never be found.
   const used = new Set<number>();
   const stats: StatCapture[] = [];
 
@@ -125,17 +126,16 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
 
     if (!statName) continue;
 
-    // Only include tokens on the same row AND to the right of this stat name AND in the same
-    // ML Kit block. Highlighted stat cells have a distinct background — ML Kit typically puts
-    // them in a separate block. Restricting to the same block + tighter Y_TOL_VAL prevents
-    // gain ranges from adjacent rows or columns bleeding into the wrong stat.
+    // Only include tokens on the same row AND to the right of this stat name.
+    // Use tighter Y_TOL_VAL to prevent gain ranges from adjacent rows bleeding in.
     const rowTokens = tokens.filter((t, idx) =>
       !consumed.includes(idx) &&
       Math.abs(t.top - tok.top) < Y_TOL_VAL &&
-      t.left > tok.left &&
-      t.blockIdx === tok.blockIdx
+      t.left > tok.left
     );
     const rowText = rowTokens.map(t => t.text).join(' ');
+
+    console.log('[ROW]', statName, JSON.stringify(rowText));
 
     const gainMatch = GAIN_RE_STAT.exec(rowText);
     if (gainMatch) {
@@ -148,13 +148,6 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
           .filter(n => !isNaN(n) && n > 0 && n <= 340);
         const statBefore = rowNums[0] ?? 0;
         stats.push({ statName, statBefore, gainLo: lo, gainHi: hi });
-      }
-    } else {
-      // No gain range found — check for arrow indicator (no-player-selected state).
-      // The game shows ↑ next to highlighted stats before a player is chosen.
-      const hasArrow = rowTokens.some(t => ARROW_RE.test(t.text));
-      if (hasArrow) {
-        stats.push({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
       }
     }
 
