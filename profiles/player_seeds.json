@@ -46,8 +46,8 @@
     {
       "name": "Rogers",
       "age": 18,
-      "roles": ["AML", "ML", "AMC"],
-      "roles_note": "Select AML + ML + AMC in the position grid. OCR reads 'Roles: AML MLAMC' from game card.",
+      "roles": ["AML", "ML", "DL"],
+      "roles_note": "Select AML + ML + DL in the position grid. Confirmed from sprint 27 intake form screenshot (64c4b2e2). Previous record had AMC — DL is the correct current in-game role.",
       "tier": "T0",
       "tier_game_name": "None",
       "talent": "Normal",
@@ -72,10 +72,44 @@
         "SPEED": 112,
         "CREATIVITY": 172
       },
-      "white_stats": ["PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY","POSITIONING","HEADING"],
-      "grey_stats": ["TACKLING","MARKING","BRAVERY","STRENGTH","AGGRESSION"],
-      "grey_stats_note": "POSITIONING white from ML. HEADING white from AMC. TACKLING/MARKING/BRAVERY grey for all 3 roles.",
-      "source_screenshots": ["f6b8ddf9 (game card)", "5a725abb / e8b8ea43 (intake form scan)"],
+      "white_stats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
+      "grey_stats": ["HEADING","STRENGTH"],
+      "source_screenshots": ["f6b8ddf9 (game card)", "5a725abb / e8b8ea43 (intake form scan)", "64c4b2e2 (intake form sprint 27 — 3-role entry confirmed)"],
+      "last_updated": "2026-05-16"
+    }
+    ,
+    {
+      "name": "McGinty",
+      "age": 27,
+      "roles": ["AMC"],
+      "roles_note": "Only AMC selected. Confirmed from game card (1862c396) and intake form scan (4588b6a9).",
+      "tier": "T0",
+      "tier_game_name": "None",
+      "talent": "Normal",
+      "talentMultiplier": 1.0,
+      "isMutantCandidate": false,
+      "ovr": 100,
+      "ovr_game": 100,
+      "stats": {
+        "TACKLING": 92,
+        "MARKING": 78,
+        "POSITIONING": 75,
+        "HEADING": 103,
+        "BRAVERY": 99,
+        "PASSING": 128,
+        "DRIBBLING": 101,
+        "CROSSING": 91,
+        "SHOOTING": 102,
+        "FINISHING": 115,
+        "FITNESS": 108,
+        "STRENGTH": 90,
+        "AGGRESSION": 103,
+        "SPEED": 94,
+        "CREATIVITY": 114
+      },
+      "white_stats": ["HEADING","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY"],
+      "grey_stats": ["TACKLING","MARKING","POSITIONING","BRAVERY","CROSSING","STRENGTH","AGGRESSION"],
+      "source_screenshots": ["1862c396 (game card)", "60724dba (intake form)", "4588b6a9 (scan result)"],
       "last_updated": "2026-05-16"
     }
   ]

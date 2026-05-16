@@ -176,14 +176,18 @@ Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clampin
 
 OVR is computed in two parts and added:
 ```
-base_quality   = min(180, floor(sum_of_base_stats / 15))
+base_quality   = min(180, ceil(sum_of_base_stats / 15))
 tier_contrib   = floor(tier_bonus × key_stat_count / 15)
 total_OVR      = base_quality + tier_contrib
 ```
 
 The game UI displays this split explicitly (e.g. "290 OVR = 152 + 138 Tier increase").
-In code: `floor(sum_of_all_stats / 15)` produces the same result because tier bonuses are
+In code: `ceil(sum_of_all_stats / 15)` produces the same result because tier bonuses are
 baked into stats — the two representations are equivalent.
+
+**CRITICAL: The game uses Math.ceil (NOT Math.floor or Math.round) for OVR.**
+Confirmed from 4 data points in sprint 27 (Rogers, McGinty, Grant T3, Grant T2).
+Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts` — all OVR display and projections now correct.
 
 ### 180-Rule (training lock)
 
@@ -551,3 +555,96 @@ Priority order for next session:
 The calibration_data.json and player_seeds.json together are the persistent record.
 Any new coach observations Steve scans should be added to calibration_data.json observations[].
 The player_seeds.json should be updated whenever stats change significantly (after major coaching).
+
+---
+
+## Sprint 27 Handover — Role Correction, 3-Role Entries Confirmed, Scanner Fixes
+
+### What was done (Sprint 27)
+
+**1. Both players re-entered with correct 3-role data (Sprint 26 open issue resolved)**
+
+Sprint 26 noted both players were saved with 1 role only. Steve has now re-entered both with
+the full 3-role position grid selections, confirmed from intake form screenshots:
+- **Grant**: DL + ML + AML ✓ (unchanged from player_seeds.json — correct)
+- **Rogers**: AML + ML + **DL** — NOTE: previous records had AMC. Corrected to DL.
+
+Rogers' prior record (AMC as 3rd role) was wrong. The in-game role is DL, not AMC.
+
+**2. Rogers white/grey stats corrected** (`profiles/player_seeds.json`, `profiles/calibration_data.json`)
+
+With DL replacing AMC, Rogers' white stats now match Grant's exactly:
+- **White (13)**: TACKLING, MARKING, POSITIONING, BRAVERY, PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, FITNESS, AGGRESSION, SPEED, CREATIVITY
+- **Grey (2)**: HEADING, STRENGTH
+
+The AMC-era observations in calibration_data.json (46697–46703) remain as historical records.
+Their `isWhite` flags reflect the AMC-era role set and should be treated as such if re-calibrating.
+
+**3. coachScanner.ts — Sprint 23 plan complete**
+
+All 5 Sprint 23 items now implemented:
+- A: Y_TOL split (Y_TOL_NAME=25, Y_TOL_VAL=18) — was already done in prior session
+- B: blockIdx — explicitly decided against (line-level tokens + left-filter prevent cross-col bleed; blockIdx breaks gain detection since name and gain are in different blocks)
+- C: GAIN_RE `+` optional (`/\+?\s*(\d+)\s*[–\-—]\s*(\d+)/`), sanity `hi > lo`, `lo <= 150` — was already done
+- D: Arrow indicator detection for no-player-selected state — **added this sprint**
+- E: `_debugBlocks` logging in coaches.tsx — was already done
+
+**4. playerScanner.ts — role detection anchored fix**
+
+Role detection now anchored to the "Roles:" label Y-band (`Y_TOL=28px`).
+Prevents false positives from dark/inactive position labels elsewhere in the game card.
+Falls back to fullText regex only when no "Roles:" label is found by OCR.
+
+### Impact of Rogers role change on projections
+
+Before (AMC): TACKLING, MARKING, BRAVERY, AGGRESSION → grey (×0.5 XP). HEADING → white.
+After (DL): TACKLING, MARKING, BRAVERY, AGGRESSION → white (full XP). HEADING → grey.
+
+For a Defending coach on Rogers, this means TACKLING/MARKING/BRAVERY now project at full
+rate instead of halved. HEADING goes from full rate to halved. This is a significant change
+in projected coaching value for defending coaches on Rogers.
+
+### Files changed in Sprint 27
+
+| File | Change |
+|---|---|
+| `profiles/player_seeds.json` | Rogers roles AMC→DL, white/grey stats corrected |
+| `profiles/calibration_data.json` | Rogers roles, whiteStats, greyStats, notes, open questions updated |
+| `src/logic/playerScanner.ts` | Role detection anchored to Roles: label Y-band |
+| `src/logic/coachScanner.ts` | Arrow indicator detection (Sprint 23 item D) |
+| `CLAUDE.md` | This section |
+
+### Note from this Claude to the next Claude
+
+Rogers role correction is significant — any prior projections or analysis that assumed AMC
+(grey TACKLING/MARKING/BRAVERY/AGGRESSION, white HEADING) are now invalidated. The new
+whiteness set (DL) is identical to Grant's, which simplifies comparisons between the two players.
+
+The AMC-era calibration observations (46697–46703) are still in calibration_data.json and
+can still be used for formula validation as long as the isWhite flags are treated as AMC-era
+(TACKLING/MARKING/BRAVERY grey=true for those sessions).
+
+The ×N anomaly and OVR +1 discrepancy remain open. The OVR-99 mystery player's age is still
+unknown — this is still needed to diagnose the Extensive Safeguard ×10/×40 ratio of 2.43.
+
+### Sprint 27 Addendum — Kevin McGinty + OVR Formula Fix
+
+**Kevin McGinty identified as OVR-99 mystery player (sprint 26 controlled test)**
+
+- Name: Kevin McGinty, Age 27, Roles: AMC only, T0, Normal talent
+- Confirmed from screenshots: 1862c396 (game card), 60724dba (intake form), 4588b6a9 (scan)
+- Age 27 → ageMult = 0.61 from ageTable. Training is 39% less efficient than baseline.
+- Added to player_seeds.json and calibration_data.json.
+
+**OVR formula confirmed: Math.ceil (NOT floor)**
+
+Four data points all match `ceil(sum/15)`:
+- McGinty: ceil(1493/15) = ceil(99.53) = **100** ✓ (game: 100)
+- Rogers: ceil(1809/15) = ceil(120.6) = **121** ✓ (game: 121)
+- Grant T3: ceil(2631/15) = ceil(175.4) = **176** ✓ (game: 176)
+- Grant T2: ceil(2355/15) = ceil(157.0) = **157** ✓ (game: 157)
+
+`floor` and `round` both fail for Grant T3. `ceil` matches all 4.
+
+Fixed in `src/logic/xpEngine.ts` → `qualityPctToOvr()`.
+This resolves the "OVR +1 discrepancy" that had been open since sprint 24.

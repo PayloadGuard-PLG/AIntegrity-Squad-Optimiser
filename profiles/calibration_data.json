@@ -284,14 +284,15 @@
       "id": "ryan_rodger",
       "name": "Ryan Rodger",
       "age": 18,
-      "roles": ["AML", "ML", "AMC"],
+      "roles": ["AML", "ML", "DL"],
+      "roles_updated": "Sprint 27 — intake form screenshot 64c4b2e2 confirms DL (not AMC). All 3 roles now entered in app.",
       "talent": "Normal",
       "talentMultiplier": 1.0,
       "talentConfirmed": true,
       "talentSource": "Intake form Training Rate selection ×1.0 (sprint 26 screenshots)",
-      "whiteStats": ["PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY","POSITIONING","HEADING"],
-      "greyStats": ["TACKLING","MARKING","BRAVERY","STRENGTH","AGGRESSION"],
-      "_note": "POSITIONING white from ML only; HEADING white from AMC only. Effective whiteness may differ from pure isWhiteStat().",
+      "whiteStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
+      "greyStats": ["HEADING","STRENGTH"],
+      "_note": "Pre-sprint-27 observations (46697–46703) were made with AMC in Rogers' role set — isWhite flags in those observations reflect AMC-era whiteness and should be treated as historical. With DL replacing AMC, TACKLING/MARKING/BRAVERY/AGGRESSION are now white; HEADING is now grey. Both Rogers and Grant now have identical role sets (DL+ML+AML) and identical white stats (13 white, 2 grey).",
       "snapshots": [
         {
           "snapshotId": "rodger_t0_ovr116",
@@ -448,12 +449,55 @@
       ]
     }
   ],
+  "kevin_mcginty": {
+    "id": "kevin_mcginty",
+    "name": "Kevin McGinty",
+    "age": 27,
+    "roles": ["AMC"],
+    "talent": "Normal",
+    "talentMultiplier": 1.0,
+    "talentConfirmed": true,
+    "talentSource": "Intake form Training Rate selection ×1.0 (sprint 27 screenshot 60724dba)",
+    "tier": "T0",
+    "whiteStats": ["HEADING","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY"],
+    "greyStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","CROSSING","STRENGTH","AGGRESSION"],
+    "whiteStatCount": 8,
+    "ageMultiplier": 0.61,
+    "stats": {
+      "TACKLING": 92, "MARKING": 78, "POSITIONING": 75,
+      "HEADING": 103, "BRAVERY": 99,
+      "PASSING": 128, "DRIBBLING": 101, "CROSSING": 91,
+      "SHOOTING": 102, "FINISHING": 115,
+      "FITNESS": 108, "STRENGTH": 90, "AGGRESSION": 103,
+      "SPEED": 94, "CREATIVITY": 114
+    },
+    "ovr_game": 100,
+    "ovr_app_ceil": 100,
+    "ovr_app_floor": 99,
+    "statSum": 1493,
+    "source": "Screenshots 1862c396 (game card), 60724dba (intake form), 4588b6a9 (scan result) — sprint 27",
+    "note": "Identified as the OVR-99 mystery player from the xN controlled test. Age 27 resolves that open question. ageMult=0.61 (from ageTable) applies."
+  },
+  "ovr_formula_verification": {
+    "formula": "Math.ceil(sum_of_all_stats / totalAttributeCount)",
+    "confirmedFrom": "4 data points (sprint 27)",
+    "dataPoints": [
+      { "player": "Kevin McGinty", "statSum": 1493, "divBy15": 99.533, "floor": 99, "round": 100, "ceil": 100, "game": 100, "match": "ceil" },
+      { "player": "Ryan Rodger", "statSum": 1809, "divBy15": 120.6, "floor": 120, "round": 121, "ceil": 121, "game": 121, "match": "ceil" },
+      { "player": "Ricky Grant T3", "statSum": 2631, "divBy15": 175.4, "floor": 175, "round": 175, "ceil": 176, "game": 176, "match": "ceil" },
+      { "player": "Ricky Grant T2", "statSum": 2355, "divBy15": 157.0, "floor": 157, "round": 157, "ceil": 157, "game": 157, "match": "all" }
+    ],
+    "conclusion": "Game uses ceil. floor and round both fail for Grant T3 (175.4 → ceil=176 ✓). Fixed in qualityPctToOvr() sprint 27."
+  },
   "controlled_tests": [
     {
       "testId": "xN_ratio_ext_safeguard_ovr99",
       "description": "Controlled x10 vs x40 session count test to measure gain non-linearity.",
-      "player": "Unknown outfield player, OVR 99, talent ×1.0 (Normal, confirmed from coach planner display)",
-      "playerAge": "unknown — needed to complete calibration",
+      "player": "Kevin McGinty — confirmed sprint 27 screenshots (60724dba, 4588b6a9, 1862c396)",
+      "playerAge": 27,
+      "playerRole": ["AMC"],
+      "playerTier": "T0",
+      "playerTalent": "Normal",
       "statTested": "FITNESS",
       "statValueStart": 111,
       "coachType": "Extensive",
@@ -488,10 +532,9 @@
       "bXPS recalibration: now that both talents are confirmed Normal (×1.0), recheck bXPS=220 against ALL calibration data. Tackling 120 ×40 Std → ~62 predicted vs 59-73 actual — within range. Recalibrate with clean data point.",
       "x20 vs x40 anomaly: x20 shows similar gains to x40 for same stats/player. Geometric decay hypothesis still open.",
       "xN ratio 2.43 for Extensive Safeguard x10/x40: app projects this sub-linear ratio. Need OVR-99 player age to explain.",
-      "Positioning 148 for Ryan Rodger (AML/ML/AMC): only white via ML — gains suggest possible partial grey treatment by game.",
       "OVR +1 discrepancy: both players show 1 OVR higher in game than our formula computes. Possibly a stat slightly mis-read in our screenshot transcription.",
-      "Roles entry: both players saved with 1 role (DL for Grant, AML for Rogers). Should be 3 roles each for correct white stat calculation."
+      "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations."
     ],
-    "keyInsight": "BOTH calibration players are Normal talent (×1.0). This eliminates the talent uncertainty that blocked calibration since Sprint 24. All prior predictions assuming Normal talent are now validated. bXPS=220 gives ~62 for Tackling 120 ×40 Standard (actual: 59-73). Reasonable."
+    "keyInsight": "BOTH calibration players are Normal talent (×1.0). Both now have 3 roles entered in app (DL+ML+AML for both Grant and Rogers). Rogers role corrected from AMC to DL in sprint 27 — both players now have identical role sets and identical white stat sets (13 white, 2 grey). bXPS=220 gives ~62 for Tackling 120 ×40 Standard (actual: 59-73). Reasonable."
   }
 }
