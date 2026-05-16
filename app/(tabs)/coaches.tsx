@@ -3,7 +3,7 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert 
 import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
-import { resolveCoachStats } from '../../src/logic/coachPipeline';
+import { resolveCoachStats, CATEGORY_STATS } from '../../src/logic/coachPipeline';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -66,6 +66,7 @@ export default function CoachesScreen() {
   );
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
+  const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
 
@@ -96,11 +97,61 @@ export default function CoachesScreen() {
     setScannedStats([]);
     setCoachType('');
     setCoachCategory('');
+    setFocusedStatSel(new Set());
     setResult(null);
     setSelectedTier(null);
     setSaveConfirmed(false);
     setScanStatus('');
   }, [manager]);
+
+  function buildStatus(stats: string[], type: string, cat: string, prefix: string) {
+    const parts: string[] = [];
+    if (sessions) parts.push(`×${sessions}`);
+    parts.push(`${stats.length} STATS`);
+    if (type) parts.push(type.toUpperCase());
+    if (cat) parts.push(cat.toUpperCase());
+    setScanStatus(`${prefix}: ${parts.join(' · ')}`);
+  }
+
+  function selectCoachType(type: string) {
+    const next = coachType === type ? '' : type;
+    setCoachType(next);
+    setFocusedStatSel(new Set());
+    setResult(null);
+    if (next && next !== 'Focused' && coachCategory) {
+      const stats = CATEGORY_STATS[coachCategory] ?? [];
+      setScannedStats(stats);
+      buildStatus(stats, next, coachCategory, 'MANUAL');
+    } else {
+      setScannedStats([]);
+      setScanStatus('');
+    }
+  }
+
+  function selectCoachCategory(cat: string) {
+    const next = coachCategory === cat ? '' : cat;
+    setCoachCategory(next);
+    setFocusedStatSel(new Set());
+    setResult(null);
+    if (next && coachType && coachType !== 'Focused') {
+      const stats = CATEGORY_STATS[next] ?? [];
+      setScannedStats(stats);
+      buildStatus(stats, coachType, next, 'MANUAL');
+    } else {
+      setScannedStats([]);
+      setScanStatus('');
+    }
+  }
+
+  function toggleFocusedStat(stat: string) {
+    const next = new Set(focusedStatSel);
+    if (next.has(stat)) { next.delete(stat); } else if (next.size < 2) { next.add(stat); }
+    setFocusedStatSel(next);
+    const stats = [...next];
+    setScannedStats(stats);
+    setResult(null);
+    if (stats.length > 0) buildStatus(stats, coachType, coachCategory, 'MANUAL');
+  }
 
   async function scanCoach() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -122,6 +173,7 @@ export default function CoachesScreen() {
       if (scan.multiplier) setSessions(String(scan.multiplier));
       setCoachType(scan.coachType ?? '');
       setCoachCategory(scan.coachCategory ?? '');
+      setFocusedStatSel(new Set());
       setResult(null); setSelectedTier(null); setSaveConfirmed(false);
 
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
@@ -253,23 +305,64 @@ export default function CoachesScreen() {
                 <MonoLabel color={theme.steelLight} style={{ flex: 1 }}>COACH CONFIG</MonoLabel>
               </View>
 
-              {/* Scanned coach identity — only shown after scan */}
-              {(coachType || coachCategory) && (
-                <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-                  {coachType && (
-                    <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.steelLight + '88' }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
-                        {coachType.toUpperCase()}
+              {/* Type chips — always interactive */}
+              <View style={{ flexDirection: 'row', gap: 5, marginBottom: 8, flexWrap: 'wrap' }}>
+                {(['Standard', 'Focused', 'Extensive'] as const).map(t => {
+                  const active = coachType === t;
+                  return (
+                    <Pressable key={t} onPress={() => selectCoachType(t)}
+                      style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
+                        borderColor: active ? theme.steelLight : theme.hairline2,
+                        backgroundColor: active ? theme.steelLight + '22' : 'transparent' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
+                        color: active ? theme.steelLight : theme.inkGhost }}>
+                        {t.toUpperCase()}
                       </Text>
-                    </View>
-                  )}
-                  {coachCategory && (
-                    <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: theme.inkSec + '55' }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.inkSec }}>
-                        {coachCategory.toUpperCase()}
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {/* Category chips — always interactive */}
+              <View style={{ flexDirection: 'row', gap: 5, marginBottom: 12, flexWrap: 'wrap' }}>
+                {(['Attacking', 'Defending', 'Physical', 'Safeguard'] as const).map(c => {
+                  const active = coachCategory === c;
+                  return (
+                    <Pressable key={c} onPress={() => selectCoachCategory(c)}
+                      style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
+                        borderColor: active ? theme.inkSec : theme.hairline2,
+                        backgroundColor: active ? theme.inkSec + '22' : 'transparent' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
+                        color: active ? theme.inkSec : theme.inkGhost }}>
+                        {c.toUpperCase()}
                       </Text>
-                    </View>
-                  )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {/* Focused stat selector */}
+              {coachType === 'Focused' && coachCategory && (
+                <View style={{ marginBottom: 12 }}>
+                  <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 6 }}>
+                    BOOSTED STATS — TAP TO SELECT (MAX 2)
+                  </MonoLabel>
+                  <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
+                    {(CATEGORY_STATS[coachCategory] ?? []).map(stat => {
+                      const sel = focusedStatSel.has(stat);
+                      return (
+                        <Pressable key={stat} onPress={() => toggleFocusedStat(stat)}
+                          style={{ paddingHorizontal: 8, paddingVertical: 5, borderWidth: 1,
+                            borderColor: sel ? theme.pos : theme.hairline2,
+                            backgroundColor: sel ? theme.pos + '22' : 'transparent' }}>
+                          <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1,
+                            color: sel ? theme.pos : theme.inkGhost }}>
+                            {stat}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </View>
               )}
 
