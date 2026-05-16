@@ -124,21 +124,36 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     ?? /\b(\d{2})\s*(?:yr|years?)\b/i.exec(fullText);
   const age = ageMatch ? parseInt(ageMatch[1]) : undefined;
 
-  // Match roles — split on whitespace and badge punctuation, plus fullText regex backup
+  // Match roles — anchored to the "Roles:" label row when present.
+  // The game card shows active roles (highlighted) on one line and inactive positions
+  // (dark/black) elsewhere. Anchoring prevents false positives from off-role grid labels.
   const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
   const foundRoles = new Set<string>();
-  for (const t of tokens) {
+
+  // Find the "Roles:" label token to get its Y position
+  const rolesLabelTok = tokens.find(t => /^roles?\s*:?$/i.test(t.text.trim()));
+  const roleRowY = rolesLabelTok?.top;
+
+  const roleSourceTokens = roleRowY != null
+    ? tokens.filter(t => Math.abs(t.top - roleRowY) < Y_TOL)  // anchored to Roles: row
+    : tokens;                                                    // fallback: all tokens
+
+  for (const t of roleSourceTokens) {
     t.text.toUpperCase().split(/[\s,./|·•·()\[\]<>:]+/).forEach(part => {
       const p = part.trim();
       if (p && roleSet.has(p)) foundRoles.add(p);
     });
   }
-  // fullText regex backup handles cases where badge OCR garbles token boundaries
-  const roleRegex = /\b(GK|DC|DL|DR|DMC|MC|ML|MR|AMC|AML|AMR|ST)\b/gi;
-  let roleMatch: RegExpExecArray | null;
-  while ((roleMatch = roleRegex.exec(fullText)) !== null) {
-    foundRoles.add(roleMatch[1].toUpperCase());
+
+  // fullText regex backup — only when no anchor found (avoids reintroducing off-row roles)
+  if (roleRowY == null) {
+    const roleRegex = /\b(GK|DC|DL|DR|DMC|MC|ML|MR|AMC|AML|AMR|ST)\b/gi;
+    let roleMatch: RegExpExecArray | null;
+    while ((roleMatch = roleRegex.exec(fullText)) !== null) {
+      foundRoles.add(roleMatch[1].toUpperCase());
+    }
   }
+
   const roles = KNOWN_ROLES.filter(r => foundRoles.has(r));
 
   const rawTier = KNOWN_TIERS.find(t => new RegExp(`\\b${t}\\b`, 'i').test(fullText));
