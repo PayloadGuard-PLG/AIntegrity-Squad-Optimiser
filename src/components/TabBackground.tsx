@@ -8,8 +8,8 @@ const { width: W, height: H } = Dimensions.get('window');
 // Only the geometric arrangement differs — just enough to orient the user without
 // competing with any content.
 
-const S = 'rgba(200,17,17,0.055)';   // base stroke (red, very faint)
-const D = 'rgba(200,17,17,0.09)';    // slightly stronger for nodes / key lines
+const S = 'rgba(200,17,17,0.18)';    // base stroke
+const D = 'rgba(200,17,17,0.32)';    // nodes / key lines
 
 export type TabKey = 'squad' | 'plan' | 'drills' | 'coaches' | 'results';
 
