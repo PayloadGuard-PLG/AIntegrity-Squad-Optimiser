@@ -6,6 +6,127 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 28 — Bug Fixes from Steve's Test Protocol + Animated Splash + Tab Backgrounds
+**2026-05-17**
+
+Branch: `claude/continue-development-CAQUS` (commits `6999d4e`, `6babe9c`, `98b1f4b`, `b7ca6bd`, `bb1ff77`, `86162a7`, `24a3242`, `eb06356`, `126e820`, `b29b568`, `c216455`)
+
+Steve ran a full test protocol on build `83a1ec6` (EAS ab01b0d7, Pixel 8 Pro Android 16, fresh install). 18 bugs recorded. This sprint fixed all addressable issues.
+
+### Shipped
+
+**Fix 1 — Concatenated role token splitting (commit `6999d4e`)**
+
+OCR emits multi-role sequences as a single token: `"MLAML"`, `"DLAML"`, `"DLMLAML"`. These tokens aren't in `KNOWN_ROLES` and were silently dropped, breaking white stat union for multi-role players.
+
+Greedy parser added to `src/logic/playerScanner.ts` — tries longest known role first, consumes the token left-to-right, only accepts if the full token is consumed:
+```typescript
+function splitConcatenatedRoles(token: string): string[] {
+  const found: string[] = [];
+  let pos = 0;
+  while (pos < token.length) {
+    const match = ROLES_BY_LEN.find(r => token.startsWith(r, pos));
+    if (!match) break;
+    found.push(match);
+    pos += match.length;
+  }
+  return pos === token.length ? found : [];
+}
+```
+Examples: `"MLAML"` → `["ML","AML"]`, `"DMCMC"` → `["DMC","MC"]`, `"DLMLAML"` → `["DL","ML","AML"]`.
+
+**Fix 2 — Player selector visible with 1-player squad (commit `98b1f4b`)**
+
+Both `app/(tabs)/drills.tsx` and `app/(tabs)/coaches.tsx` gated the player chip selector on `squad.length > 1`. With a single player, the selector was hidden — no visual confirmation of who was selected. Changed to `squad.length > 0` in both files.
+
+**Fix 3 — Focused coach 0-stat fallback guard (commits `86162a7`, `24a3242`, `eb06356`)**
+
+Root cause had two parts:
+
+1. **OCR case mismatch**: `coachScanner.ts` used case-insensitive regex (`/Focused/i`) which returned the raw OCR text (`"FOCUSED"`). Downstream guard `scan.coachType === 'Focused'` never fired (title-case vs uppercase). Fixed by normalising through a lookup: `COACH_TYPES.find(t => t.toLowerCase() === rawType.toLowerCase())`. Same fix applied to `coachCategory`.
+
+2. **Fallback too broad**: When a Focused coach scan detected 0 highlighted stats, `resolveCoachStats` fell through to `getWhiteStatKeys(playerRole)` and returned all 13 white stats. Focused coaches only boost 1–2 stats — 13 is always wrong. Guard added to `src/logic/coachPipeline.ts`:
+```typescript
+if (scan.coachType === 'Focused') {
+  return []; // activates manual picker
+}
+```
+
+Note: ML Kit OCR cannot read the `↑` arrow icons shown in the no-player-selected state (they are icon overlays, not text). Workaround documented in UI hint: scan with any player selected. Arrow detection from Sprint 27 handles the player-selected path correctly.
+
+**Fix 4 — OVR before/after scale mismatch (commit `bb1ff77`)**
+
+An intermediate commit (`b7ca6bd`) attempted to show fractional OVR progress (e.g. `291.1`) by returning raw `sum/15`. But `ovrBefore` still used `computeOvrWithPadding` (ceil-based), causing gain = `291.1 − 292 = −0.2`. Reverted — both before and after now use `computeOvrWithPadding`. Fractional display deferred; clean integer deltas restored.
+
+**Fix 5 — Unselected button borders (commit `98b1f4b`)**
+
+Coach type (Standard/Focused/Extensive), category (Attacking/Defending/Physical/Safeguard), and intensity buttons had no visible border when unselected on dark background. Changed inactive `borderColor` from `theme.hairline2` to `theme.steel`; inactive text from `theme.inkGhost` to `theme.inkMuted`.
+
+**Fix 6 — Stat colour coding in Focused stat picker (commit `98b1f4b`)**
+
+Stat toggle buttons in the manual Focused picker were all white. Now use `statColor(stat)` for text and `col + '88'` for border, matching the DEF (blue) / ATT (purple) / PHY (orange) scheme used in StatGrid and the rest of the app.
+
+**Animated splash screen (commit `126e820`)**
+
+New component `src/components/SplashAnimation.tsx` — shown on app launch before the main tab navigator. Uses React Native `Animated` API + `react-native-svg`. Total sequence ~3.2s:
+- Grid lines + concentric rings fade in (450ms)
+- Inner circuit traces + cardinal ticks (400ms)
+- Title text: "SQUAD / OPTIMISER / ENGINE" + "SESSION SIMULATOR" (500ms)
+- Hold (1500ms)
+- Full fade out (550ms) → `onComplete()` → main app mounts
+
+Two continuous spinning dashed rings (CW 5s loop, CCW 8s loop) run throughout. Color: `#cc1111` throughout — consistent with app accent.
+
+`app/_layout.tsx` updated to gate behind `animDone` state. DB migration spinner now uses the same red (`#cc1111`).
+
+**Per-tab background art (commits `126e820`, `b29b568`, `c216455`)**
+
+New component `src/components/TabBackground.tsx`. Each tab has a unique accent colour replicated in its SVG background art. Same data-viz aesthetic (bars, grid lines, trend lines, nodes) themed per tab function:
+
+| Tab | Colour | Art |
+|---|---|---|
+| Squad | Steel blue `#4a9eff` | Descending OVR roster bars + 4-3-3 formation dot overlay |
+| Plan | Green `#34d399` | 7-step tier milestone bars (T0→T6) + ascending projection curve |
+| Drills | Amber `#fb923c` | 5 intensity groups × 3 drill bars + convergence lines to focal point |
+| Coaches | Purple `#a78bfa` | DEF/ATT/PHY stat column bars (3×5) + horizontal scan lines |
+| Results | Red `#cc1111` | Ascending projection bars + trend line (confirmed good in testing) |
+
+All backgrounds use `StyleSheet.absoluteFill` + `pointerEvents="none"` — zero interaction interference.
+
+**Neri seed entry (commit `6babe9c`)**
+
+Partial seed entry added to `profiles/player_seeds.json` for the 292 OVR ST/AMC/MC T6 player visible in Steve's screenshots. Stats not yet fully confirmed from intake form scan.
+
+### Bugs Fixed This Sprint
+
+| ID | Description | Fix |
+|---|---|---|
+| F95 | Multi-role OCR tokens (`"MLAML"`) silently dropped | Greedy concatenated role parser in playerScanner |
+| F96 | Player selector hidden with 1-player squad | `squad.length > 1` → `> 0` in drills + coaches |
+| F97 | Focused coach scan returns 13 stats instead of activating manual picker | OCR case normalisation + Focused guard in coachPipeline |
+| F98 | Coach type/category buttons don't light up after scan | coachType/coachCategory normalised to title-case in coachScanner |
+| F99 | Unselected type/category/stat buttons invisible on dark bg | Border colour `hairline2` → `steel`, text `inkGhost` → `inkMuted` |
+| F100 | Focused stat picker all white — no DEF/ATT/PHY colour coding | `statColor(stat)` applied to Focused toggle chips |
+| F101 | OVR showing −0.2 gain after coach session | Before/after using different scale (raw vs ceil); reverted to consistent ceil |
+
+### Not a Bug — Sprint 28 Triage
+
+- **Bug 17 (stat gains 3–4× prediction)**: Steve's manual calc used old params (`bXPS=150`, wrong age mult). App formula correct — documented in CLAUDE.md.
+- **Scan 04 (Standard Defending ×20, 4 of 5 stats)**: OCR miss on one stat row, not a code logic bug.
+- **Bug 14 (player name replaced by role string)**: Heuristic already excludes uppercase sequences. Likely OCR miss on that device/screenshot. Monitor on next build.
+- **Bug 9 / Bug 16 (OVR ±1)**: Already fixed in Sprint 27 (`Math.ceil` in `qualityPctToOvr`).
+- **Bug 11 (arrow confusion in coach scan)**: Already fixed in Sprint 27 (arrow detection in coachScanner).
+
+### Open / Next Sprint
+
+- **Neri full stats**: scan Neri's player card to complete `profiles/player_seeds.json` entry; verify roles and tier.
+- **Splash / icon assets**: Steve to supply `assets/splash.png` (1284×2778) and `assets/icon.png` (1024×1024); update `app.json` to point to them.
+- **Fractional OVR display**: deferred — needs a clean design that doesn't conflict with ceil-based before/after. Consider showing as `+0.6→+1.2` range rather than fractional AFTER value.
+- **×N anomaly**: sub-linearity expected from exponential cost curve; no code change until Steve tests ×10 vs ×40 deliberately on same player.
+- **Git workflow**: two Termux sessions — Metro on one, git pull on the other. No Metro restart needed; file changes hot-reload automatically.
+
+---
+
 ## Sprint 27 — Role Correction, Scanner Fixes, OVR Formula Fix, Kevin McGinty
 **2026-05-16**
 
