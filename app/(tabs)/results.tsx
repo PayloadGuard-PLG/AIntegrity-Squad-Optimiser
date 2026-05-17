@@ -15,12 +15,9 @@ import { estimateStatGainPct, applyTierBonusToStats } from '../../src/logic/xpEn
 import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
-import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources'; // DrillLevel used by ACADEMY_DRILL_LEVEL
+import { TalentTier, TierName, GameProfile } from '../../src/types/resources';
 
 const profile = gameProfileJson as unknown as GameProfile;
-
-// Academy coaches always run at Very Hard rate — no difficulty picker needed
-const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
@@ -120,7 +117,7 @@ export default function ResultsScreen() {
       if (session.stats.length === 0) continue;
       const n = parseInt(session.sessions, 10) || 0;
       if (n === 0) continue;
-      const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
+      const drillMult = 1.0; // coaches have no intensity level
       const budget = n * profile.baseXpPerSession / session.stats.length;
       const updatedStats = { ...currentStats };
       const gainParts: string[] = [];
@@ -333,7 +330,7 @@ export default function ResultsScreen() {
                     <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.steelLight }} />
                       <MonoLabel size={8} color={theme.inkSec}>
-                        {sess.stats.length} STAT{sess.stats.length !== 1 ? 'S' : ''} · ×{sess.sessions || '0'} SESSIONS · VERY HARD ({profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL]}×)
+                        {sess.stats.length} STAT{sess.stats.length !== 1 ? 'S' : ''} · ×{sess.sessions || '0'} SESSIONS
                       </MonoLabel>
                     </View>
                   )}

@@ -24,7 +24,6 @@ import { squadPlanService } from '../../src/services/squadPlanService';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = {
   Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
 };
@@ -202,7 +201,7 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
+    const drillMult = 1.0; // coaches have no intensity level — only talent and age apply
     const budget = sessionCount * profile.baseXpPerSession / scannedStats.length;
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
@@ -338,8 +337,9 @@ export default function CoachesScreen() {
 
               {/* Category chips — always interactive */}
               <View style={{ flexDirection: 'row', gap: 5, marginBottom: 12, flexWrap: 'wrap' }}>
-                {(['Attacking', 'Defending', 'Physical', 'Safeguard'] as const).map(c => {
+                {(['Attacking', 'Defending', 'Physical', 'Safeguard', 'Goalkeeping'] as const).map(c => {
                   const active = coachCategory === c;
+                  const label = c === 'Goalkeeping' ? 'GK' : c.toUpperCase();
                   return (
                     <Pressable key={c} onPress={() => selectCoachCategory(c)}
                       style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
@@ -347,7 +347,7 @@ export default function CoachesScreen() {
                         backgroundColor: active ? theme.inkSec + '22' : 'transparent' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
                         color: active ? theme.inkSec : theme.inkMuted }}>
-                        {c.toUpperCase()}
+                        {label}
                       </Text>
                     </Pressable>
                   );
@@ -393,15 +393,6 @@ export default function CoachesScreen() {
                     style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink, padding: 10, textAlign: 'center' }}
                   />
                 </View>
-              </View>
-
-              {/* Intensity — fixed for academy coaches */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <MonoLabel style={{ flex: 1 }}>INTENSITY</MonoLabel>
-                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.ink, backgroundColor: theme.ink }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.bg }}>VERY HARD</Text>
-                </View>
-                <MonoLabel size={8} color={theme.inkGhost}>ACADEMY FIXED</MonoLabel>
               </View>
 
               {/* Talent — read from player card */}
