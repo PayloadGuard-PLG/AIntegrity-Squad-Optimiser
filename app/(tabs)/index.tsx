@@ -8,6 +8,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { CornerBrackets } from '../../src/components/atoms/CornerBrackets';
+import { TabBackground } from '../../src/components/TabBackground';
 import { theme, TIER_COLORS, ovrColor } from '../../src/constants/theme';
 import { Player } from '../../src/database/playerSchema';
 
@@ -100,6 +101,7 @@ export default function SquadScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <TabBackground tab="squad" />
       <AppHeader />
 
       {squad.length === 0 ? (
