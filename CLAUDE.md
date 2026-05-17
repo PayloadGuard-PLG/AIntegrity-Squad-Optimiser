@@ -558,6 +558,70 @@ The player_seeds.json should be updated whenever stats change significantly (aft
 
 ---
 
+## Sprint 28 Handover — Bug Fixes (Steve's Test Protocol) + Visual Polish
+
+### What was done (Sprint 28)
+
+**1. Concatenated role token parser** (`src/logic/playerScanner.ts`)
+
+OCR collapses multi-role sequences into single tokens (`"MLAML"`, `"DLMLAML"`). Greedy parser added: tries longest known role first, consumes left-to-right, only accepts if full token consumed. Prevents silent role drops that broke white stat union for multi-role players.
+
+**2. Player selector threshold** (`app/(tabs)/drills.tsx`, `app/(tabs)/coaches.tsx`)
+
+`squad.length > 1` → `squad.length > 0`. Selector now visible with a single player; the auto-select fallback highlights the chip correctly.
+
+**3. Focused coach scan — two-part fix**
+
+- `src/logic/coachScanner.ts`: OCR returns uppercase ("FOCUSED", "ATTACKING"). Normalised via `COACH_TYPES.find()` / `COACH_CATS.find()` lookups so downstream title-case guards fire correctly.
+- `src/logic/coachPipeline.ts`: Added Focused guard before the white-stat fallback. Focused with 0 detections returns `[]`, activating the manual picker. ML Kit cannot read `↑` arrow icons in the no-player state — workaround is to scan with any player selected.
+
+**4. OVR scale mismatch fix** (`app/(tabs)/coaches.tsx`)
+
+Intermediate fractional-OVR attempt caused `ovrAfter` (raw `sum/15`) to differ from `ovrBefore` (ceil-based), producing −0.2 gain. Reverted to consistent `computeOvrWithPadding` for both.
+
+**5. Button border / stat colour polish** (`app/(tabs)/coaches.tsx`)
+
+Inactive type/category buttons: `borderColor` → `theme.steel`, text → `theme.inkMuted`.
+Focused stat picker chips: `statColor(stat)` for text + tinted border, matching DEF/ATT/PHY scheme.
+
+**6. Animated splash screen** (`src/components/SplashAnimation.tsx`, `app/_layout.tsx`)
+
+~3.2s sequence: rings + grid → circuit traces → title text → hold → fade out → `onComplete()`. Two continuous spinning dashed rings. Color `#cc1111` throughout. DB migration spinner uses same red.
+
+**7. Per-tab background art** (`src/components/TabBackground.tsx`)
+
+Unique accent colour per tab (squad=blue, plan=green, drills=amber, coaches=purple, results=red). Same data-viz aesthetic across all tabs; art themed to tab function. `StyleSheet.absoluteFill` + `pointerEvents="none"`.
+
+### Files changed in Sprint 28
+
+| File | Change |
+|---|---|
+| `src/logic/playerScanner.ts` | Greedy concatenated role parser |
+| `src/logic/coachScanner.ts` | coachType/coachCategory OCR case normalisation |
+| `src/logic/coachPipeline.ts` | Focused coach 0-stat guard |
+| `app/(tabs)/drills.tsx` | selector threshold + TabBackground |
+| `app/(tabs)/coaches.tsx` | selector threshold, OVR fix, button UI, stat colours, TabBackground |
+| `app/(tabs)/index.tsx` | TabBackground |
+| `app/(tabs)/plan.tsx` | TabBackground |
+| `app/(tabs)/results.tsx` | TabBackground |
+| `app/_layout.tsx` | Splash gate + red DB spinner |
+| `src/components/SplashAnimation.tsx` | NEW — animated splash |
+| `src/components/TabBackground.tsx` | NEW — per-tab SVG background art |
+| `profiles/player_seeds.json` | Neri partial seed entry |
+
+### Note from this Claude to the next Claude
+
+All Sprint 28 bugs from Steve's test protocol are fixed. The app is in a clean state.
+
+Key things to know:
+- **Focused coach workflow**: Scan with any player selected so ML Kit reads the `+lo-hi` gain values as text. Arrow-only state (no player) will always return 0 stats because the arrows are icon overlays. Manual picker is the fallback and works correctly.
+- **Neri**: 292 OVR, T6, roles ST/AMC/MC, Age 27. Partial seed in player_seeds.json. Steve needs to scan the player card to confirm full stats.
+- **Splash assets**: Steve will supply `assets/splash.png` and `assets/icon.png`. Update `app.json` when received.
+- **Git workflow confirmed**: Two Termux sessions — Metro on one, `git pull` on the other. Metro hot-reloads file changes without restart. Only push to `claude/continue-development-CAQUS`. `main` triggers EAS OTA.
+- **Fractional OVR**: Deferred. Clean approach would show projected gain as a range (`+0.6→+1.2`) rather than fractional AFTER value.
+
+---
+
 ## Sprint 27 Handover — Role Correction, 3-Role Entries Confirmed, Scanner Fixes
 
 ### What was done (Sprint 27)
