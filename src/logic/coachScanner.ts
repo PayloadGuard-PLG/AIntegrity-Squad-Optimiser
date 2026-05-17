@@ -10,7 +10,7 @@ const GAIN_RE_OVR  = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;  // + required for OVR b
 const ARROW_RE = /[↑\^›>▲]/;
 
 export const COACH_TYPES    = ['Standard', 'Focused', 'Extensive'] as const;
-export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard'] as const;
+export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard', 'Goalkeeping'] as const;
 export const TALENT_OPTIONS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'] as const;
 
 export type CoachType     = typeof COACH_TYPES[number];
@@ -69,12 +69,9 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   const coachType = rawType
     ? COACH_TYPES.find(t => t.toLowerCase() === rawType.toLowerCase())
     : undefined;
-  // Game uses "Goalkeeping" for the GK coach category — map it to our internal 'Safeguard'
   const rawCat = (/\b(Attacking|Defending|Physical|Safeguard|Goalkeeping)\b/i.exec(fullText))?.[1];
   const coachCategory = rawCat
-    ? (rawCat.toLowerCase() === 'goalkeeping'
-        ? 'Safeguard'
-        : COACH_CATS.find(c => c.toLowerCase() === rawCat.toLowerCase()))
+    ? COACH_CATS.find(c => c.toLowerCase() === rawCat.toLowerCase())
     : undefined;
   // Search for multiplier starting from the coach type/category keyword to avoid picking up
   // any ×N pattern that appears earlier in the image (e.g. session counts, player bonuses).
