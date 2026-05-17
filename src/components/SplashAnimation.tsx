@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, View, Text, Dimensions, StyleSheet } from 'react-native';
-import Svg, { Circle, Line, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Rect, Defs, RadialGradient, Stop, Mask, G } from 'react-native-svg';
 
 const { width: W, height: H } = Dimensions.get('window');
 const CX = W / 2;
@@ -15,6 +15,93 @@ const RED       = '#cc1111';
 const RED_TRACE = 'rgba(200,15,15,0.65)';
 const RED_FAINT = 'rgba(200,15,15,0.07)';
 const INK       = '#f4f4f5';
+
+// Border-only background art for the splash screen.
+// A radial gradient mask makes the art fade toward the centre so it
+// doesn't compete with the ring animation.
+function SplashBorderArt() {
+  const S  = 'rgba(200,15,15,0.28)';   // stroke
+  const F  = 'rgba(200,15,15,0.12)';   // bar fill
+  const N  = 'rgba(200,15,15,0.50)';   // nodes / trend line
+
+  // Bottom bar chart (ascending, like Results tab)
+  const baseY  = H * 0.92;
+  const maxH   = H * 0.16;
+  const bars   = [0.22, 0.38, 0.30, 0.52, 0.42, 0.68, 0.55, 0.82, 0.65, 1.00];
+  const slotW  = (W * 0.88) / bars.length;
+  const barW   = slotW * 0.52;
+  const startX = W * 0.06;
+
+  const trendPts = bars.map((h, i) => {
+    const x = startX + i * slotW + slotW / 2;
+    const y = baseY - maxH * h;
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
+
+  // Top horizontal grid lines
+  const topLines = [H * 0.04, H * 0.08, H * 0.12];
+
+  // Side vertical scan lines (left + right margins)
+  const sideLines = [W * 0.04, W * 0.08, W - W * 0.04, W - W * 0.08];
+
+  return (
+    <Svg width={W} height={H}>
+      <Defs>
+        {/* Gradient: black at centre → white at edges = art hidden in centre, visible at border */}
+        <RadialGradient id="splashMask" cx="50%" cy="42%" r="58%" fx="50%" fy="42%">
+          <Stop offset="0%"   stopColor="black" stopOpacity={1} />
+          <Stop offset="45%"  stopColor="black" stopOpacity={0.92} />
+          <Stop offset="68%"  stopColor="black" stopOpacity={0.45} />
+          <Stop offset="88%"  stopColor="white" stopOpacity={0.7} />
+          <Stop offset="100%" stopColor="white" stopOpacity={1} />
+        </RadialGradient>
+        <Mask id="borderFade">
+          <Rect x={0} y={0} width={W} height={H} fill="url(#splashMask)" />
+        </Mask>
+      </Defs>
+
+      <G mask="url(#borderFade)">
+        {/* Bottom ascending bars */}
+        {bars.map((h, i) => (
+          <Rect key={i}
+            x={startX + i * slotW + (slotW - barW) / 2}
+            y={baseY - maxH * h}
+            width={barW} height={maxH * h}
+            fill={F}
+          />
+        ))}
+        {/* Bottom trend line */}
+        <Path d={trendPts} fill="none" stroke={N} strokeWidth={1.2} />
+        {/* Bottom nodes */}
+        {bars.map((h, i) => (
+          <Circle key={i}
+            cx={startX + i * slotW + slotW / 2}
+            cy={baseY - maxH * h}
+            r={2} fill={N}
+          />
+        ))}
+        {/* Bottom baseline */}
+        <Line x1={W * 0.05} y1={baseY} x2={W * 0.95} y2={baseY} stroke={S} strokeWidth={0.8} />
+
+        {/* Top horizontal grid lines */}
+        {topLines.map((y, i) => (
+          <Line key={i} x1={W * 0.05} y1={y} x2={W * 0.95} y2={y}
+            stroke={S} strokeWidth={0.7} strokeDasharray="6 10" />
+        ))}
+        {/* Top tick nodes */}
+        {[0.2, 0.4, 0.6, 0.8].map((f, i) => (
+          <Circle key={i} cx={W * f} cy={H * 0.08} r={2} fill={N} opacity={0.6} />
+        ))}
+
+        {/* Side vertical scan lines */}
+        {sideLines.map((x, i) => (
+          <Line key={i} x1={x} y1={H * 0.15} x2={x} y2={H * 0.85}
+            stroke={S} strokeWidth={0.7} strokeDasharray="4 12" />
+        ))}
+      </G>
+    </Svg>
+  );
+}
 
 interface Props { onComplete: () => void }
 
@@ -75,6 +162,11 @@ export function SplashAnimation({ onComplete }: Props) {
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#000', opacity: fadeOut }]}>
+
+      {/* Border background art — data-viz bars + grid, masked to fade toward centre */}
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeGrid }]}>
+        <SplashBorderArt />
+      </Animated.View>
 
       {/* Grid + corner brackets */}
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeGrid }]}>
