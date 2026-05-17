@@ -24,7 +24,6 @@ import { squadPlanService } from '../../src/services/squadPlanService';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-const ACADEMY_DRILL_LEVEL: DrillLevel = 'Very Hard';
 const TALENT_LABEL: Record<TalentTier, string> = {
   Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
 };
@@ -202,7 +201,7 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    const drillMult = profile.drillLevelMultipliers[ACADEMY_DRILL_LEVEL] ?? 1.7;
+    const drillMult = 1.0; // coaches have no intensity level — only talent and age apply
     const budget = sessionCount * profile.baseXpPerSession / scannedStats.length;
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
