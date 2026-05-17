@@ -43,8 +43,11 @@ export function resolveCoachStats(
 
   // No stat rows found — use category header as fallback
   if (scan.coachType === 'Focused') {
-    // Focused coaches boost 1–2 stats; a full category or white-stat list is always wrong.
-    // Return empty so the manual picker activates rather than projecting on all stats.
+    // Arrow characters in the no-player state are not read by ML Kit OCR, so highlighted
+    // stats cannot be auto-detected. Return [] — the coaches tab shows the category picker
+    // chips so the user can select the 1–2 boosted stats manually.
+    // Workaround: scan the tile with any player selected; the game then shows gain ranges
+    // (+lo-hi) as text, which the scanner detects reliably.
     return [];
   }
   if (catList) {
