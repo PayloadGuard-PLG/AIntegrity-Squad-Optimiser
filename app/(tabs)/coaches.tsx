@@ -435,7 +435,7 @@ export default function CoachesScreen() {
               )}
               {scanStatus.startsWith('SCANNED') && coachType === 'Focused' && scannedStats.length === 0 && (
                 <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4 }}>
-                  FOCUSED: SELECT A PLAYER IN-GAME BEFORE SCANNING FOR AUTO-DETECT
+                  FOCUSED: ADD ANY PLAYER TO THE COACH IN-GAME BEFORE SCANNING
                 </MonoLabel>
               )}
             </View>
