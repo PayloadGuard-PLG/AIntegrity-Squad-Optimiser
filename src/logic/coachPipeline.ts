@@ -42,6 +42,11 @@ export function resolveCoachStats(
   }
 
   // No stat rows found — use category header as fallback
+  if (scan.coachType === 'Focused') {
+    // Focused coaches boost 1–2 stats; a full category or white-stat list is always wrong.
+    // Return empty so the manual picker activates rather than projecting on all stats.
+    return [];
+  }
   if (catList) {
     const fromCat = catList.filter(s => playerStats[s] !== undefined);
     if (fromCat.length > 0) return fromCat;
