@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -16,6 +16,7 @@ import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, TierName, GameProfile } from '../../src/types/resources';
+import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
 
 const profile = gameProfileJson as unknown as GameProfile;
 const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
@@ -52,8 +53,14 @@ export default function ResultsScreen() {
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
   const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
+  const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
+  const [showHistoryPicker, setShowHistoryPicker] = useState(false);
 
   const player = squad.find(p => p.id === manager.selectedPlayerId) ?? (squad.length === 1 ? squad[0] : null);
+
+  useEffect(() => {
+    setCoachHistory(player ? coachHistoryService.getForPlayer(player.id) : []);
+  }, [player?.id]);
 
   const { white, grey } = useMemo(() => {
     if (!player) return { white: [] as string[], grey: [] as string[] };
@@ -79,10 +86,23 @@ export default function ResultsScreen() {
     setExcludedTiers(new Set());
     setResult(null);
     setFinalStats(null);
+    setShowHistoryPicker(false);
   }
 
   function addSession() {
+    setShowHistoryPicker(true);
+    setResult(null);
+  }
+
+  function addSessionFromHistory(entry: CoachHistoryEntry) {
+    setSessions(prev => [...prev, { id: uid(), stats: entry.stats, sessions: String(entry.sessions) }]);
+    setShowHistoryPicker(false);
+    setResult(null);
+  }
+
+  function addSessionManual() {
     setSessions(prev => [...prev, { id: uid(), stats: [], sessions: '30' }]);
+    setShowHistoryPicker(false);
     setResult(null);
   }
 
@@ -136,7 +156,7 @@ export default function ResultsScreen() {
 
       const ovrAfter = computeOvrWithPadding(updatedStats, player.overall, profile);
       steps.push({
-        label: `COACHING ×${n} (VH) — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
+        label: `COACHING ×${n} — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
         ovrBefore: currentOvr,
         ovrAfter: Number(ovrAfter.toFixed(1)),
         detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no gains — enter stat values',
@@ -269,6 +289,39 @@ export default function ResultsScreen() {
               </Pressable>
             </View>
 
+            {/* History picker — shown when + ADD is tapped */}
+            {showHistoryPicker && (
+              <View style={{ borderWidth: 1, borderColor: theme.steelLight + '55', marginBottom: 14 }}>
+                <View style={{ paddingHorizontal: 14, paddingVertical: 10, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
+                  <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>SELECT COACH SESSION</MonoLabel>
+                  <Pressable onPress={() => setShowHistoryPicker(false)}>
+                    <MonoLabel size={9} color={theme.inkGhost}>CANCEL</MonoLabel>
+                  </Pressable>
+                </View>
+                {coachHistory.length === 0 && (
+                  <View style={{ padding: 16, alignItems: 'center' }}>
+                    <MonoLabel size={9} color={theme.inkGhost}>NO SCANS YET — SCAN A COACH FIRST</MonoLabel>
+                  </View>
+                )}
+                {coachHistory.map(entry => (
+                  <Pressable key={entry.id} onPress={() => addSessionFromHistory(entry)}
+                    style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12,
+                      flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ flex: 1 }}>
+                      <MonoLabel size={9} color={theme.ink}>{entry.label}</MonoLabel>
+                      <MonoLabel size={8} color={theme.inkGhost}>{new Date(entry.timestamp).toLocaleDateString()}</MonoLabel>
+                    </View>
+                    <MonoLabel size={9} color={theme.pos}>+ ADD</MonoLabel>
+                  </Pressable>
+                ))}
+                <Pressable onPress={addSessionManual}
+                  style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12, alignItems: 'center' }}>
+                  <MonoLabel size={9} color={theme.inkMuted}>+ MANUAL ENTRY</MonoLabel>
+                </Pressable>
+              </View>
+            )}
+
             {/* Coaching sessions */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
@@ -282,7 +335,7 @@ export default function ResultsScreen() {
 
               {sessions.length === 0 && (
                 <View style={{ padding: 16, alignItems: 'center' }}>
-                  <MonoLabel color={theme.inkGhost}>TAP + ADD TO ADD A COACHING SESSION</MonoLabel>
+                  <MonoLabel color={theme.inkGhost}>TAP + ADD TO SELECT A COACHING SESSION</MonoLabel>
                 </View>
               )}
 
@@ -297,7 +350,7 @@ export default function ResultsScreen() {
                     </Pressable>
                   </View>
 
-                  {/* Sessions × and intensity */}
+                  {/* Sessions count */}
                   <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginBottom: 10 }}>
                     <MonoLabel size={9} style={{ width: 24 }}>×</MonoLabel>
                     <View style={{ width: 72, borderWidth: 1, borderColor: theme.hairline2 }}>
@@ -310,10 +363,7 @@ export default function ResultsScreen() {
                         style={{ fontFamily: theme.mono, fontSize: 16, fontWeight: '700', color: theme.ink, padding: 7, textAlign: 'center' }}
                       />
                     </View>
-                    <View style={{ paddingHorizontal: 8, paddingVertical: 5, borderWidth: 1, borderColor: theme.ink, backgroundColor: theme.ink }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 0.5, color: theme.bg }}>VERY HARD</Text>
-                    </View>
-                    <MonoLabel size={8} color={theme.inkGhost}>ACADEMY</MonoLabel>
+                    <MonoLabel size={8} color={theme.inkGhost}>SESSIONS</MonoLabel>
                   </View>
 
                   {/* Stat picker — 3-col grid */}
