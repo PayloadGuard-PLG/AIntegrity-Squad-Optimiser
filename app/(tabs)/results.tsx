@@ -8,6 +8,7 @@ import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
+import { TabBackground } from '../../src/components/TabBackground';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct, applyTierBonusToStats } from '../../src/logic/xpEngine';
@@ -208,6 +209,7 @@ export default function ResultsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <TabBackground tab="results" />
       <AppHeader />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 60 }}>
 

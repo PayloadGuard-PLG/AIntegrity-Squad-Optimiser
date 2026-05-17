@@ -8,6 +8,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { OvrMovement } from '../../src/components/atoms/OvrMovement';
+import { TabBackground } from '../../src/components/TabBackground';
 import { planPlayerInvestment } from '../../src/logic/investmentEngine';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import { calculateFixtureCycles, calculateTeamPlayPlan, calculateRestorersBridge } from '../../src/logic/fixtureEngine';
@@ -191,6 +192,7 @@ export default function PlanScreen() {
   if (squad.length === 0) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
+        <TabBackground tab="plan" />
         <AppHeader />
         <View style={{ padding: 60, alignItems: 'center' }}>
           <MonoLabel color={theme.steelLight} style={{ marginBottom: 12 }}>NO ASSET SELECTED</MonoLabel>
@@ -205,6 +207,7 @@ export default function PlanScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <TabBackground tab="plan" />
       <AppHeader />
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
 

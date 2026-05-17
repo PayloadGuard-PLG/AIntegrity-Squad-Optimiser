@@ -10,6 +10,7 @@ import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { theme } from '../../src/constants/theme';
+import { TabBackground } from '../../src/components/TabBackground';
 import { FanLevel } from '../../src/types/resources';
 
 const INTENSITY_COLORS: Record<string, string> = {
@@ -71,6 +72,7 @@ export default function DrillsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <TabBackground tab="drills" />
       <AppHeader />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: presetMode ? 120 : 30 }}>
 

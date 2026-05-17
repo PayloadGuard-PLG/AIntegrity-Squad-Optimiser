@@ -11,6 +11,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
+import { TabBackground } from '../../src/components/TabBackground';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
@@ -273,6 +274,7 @@ export default function CoachesScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <TabBackground tab="coaches" />
       <AppHeader />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
 
