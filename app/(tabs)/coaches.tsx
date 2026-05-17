@@ -281,7 +281,7 @@ export default function CoachesScreen() {
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 40 }}>
 
         {/* Player picker */}
-        {squad.length > 1 && (
+        {squad.length > 0 && (
           <>
             <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}
@@ -327,10 +327,10 @@ export default function CoachesScreen() {
                   return (
                     <Pressable key={t} onPress={() => selectCoachType(t)}
                       style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
-                        borderColor: active ? theme.steelLight : theme.hairline2,
+                        borderColor: active ? theme.steelLight : theme.steel,
                         backgroundColor: active ? theme.steelLight + '22' : 'transparent' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
-                        color: active ? theme.steelLight : theme.inkGhost }}>
+                        color: active ? theme.steelLight : theme.inkMuted }}>
                         {t.toUpperCase()}
                       </Text>
                     </Pressable>
@@ -345,10 +345,10 @@ export default function CoachesScreen() {
                   return (
                     <Pressable key={c} onPress={() => selectCoachCategory(c)}
                       style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
-                        borderColor: active ? theme.inkSec : theme.hairline2,
+                        borderColor: active ? theme.inkSec : theme.steel,
                         backgroundColor: active ? theme.inkSec + '22' : 'transparent' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
-                        color: active ? theme.inkSec : theme.inkGhost }}>
+                        color: active ? theme.inkSec : theme.inkMuted }}>
                         {c.toUpperCase()}
                       </Text>
                     </Pressable>
@@ -365,13 +365,14 @@ export default function CoachesScreen() {
                   <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
                     {(CATEGORY_STATS[coachCategory] ?? []).map(stat => {
                       const sel = focusedStatSel.has(stat);
+                      const col = statColor(stat);
                       return (
                         <Pressable key={stat} onPress={() => toggleFocusedStat(stat)}
                           style={{ paddingHorizontal: 8, paddingVertical: 5, borderWidth: 1,
-                            borderColor: sel ? theme.pos : theme.hairline2,
+                            borderColor: sel ? theme.pos : col + '88',
                             backgroundColor: sel ? theme.pos + '22' : 'transparent' }}>
                           <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1,
-                            color: sel ? theme.pos : theme.inkGhost }}>
+                            color: sel ? theme.pos : col }}>
                             {stat}
                           </Text>
                         </Pressable>
