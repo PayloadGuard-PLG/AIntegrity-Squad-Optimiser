@@ -21,6 +21,7 @@ import gameProfileJson from '../../profiles/game_2025.json';
 import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources';
 import { playerService } from '../../src/services/playerService';
 import { squadPlanService } from '../../src/services/squadPlanService';
+import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
@@ -67,6 +68,7 @@ export default function CoachesScreen() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
+  const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
   const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
@@ -74,6 +76,10 @@ export default function CoachesScreen() {
   useEffect(() => {
     if (incomingPlayerId) manager.setSelectedPlayerId(incomingPlayerId);
   }, []);
+
+  useEffect(() => {
+    setCoachHistory(player ? coachHistoryService.getForPlayer(player.id) : []);
+  }, [player?.id]);
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
@@ -134,7 +140,7 @@ export default function CoachesScreen() {
     setCoachCategory(next);
     setFocusedStatSel(new Set());
     setResult(null);
-    if (next && coachType && coachType !== 'Focused') {
+    if (next && coachType !== 'Focused') {
       const stats = CATEGORY_STATS[next] ?? [];
       setScannedStats(stats);
       buildStatus(stats, coachType, next, 'MANUAL');
@@ -152,6 +158,21 @@ export default function CoachesScreen() {
     setScannedStats(stats);
     setResult(null);
     if (stats.length > 0) buildStatus(stats, coachType, coachCategory, 'MANUAL');
+  }
+
+  function saveToHistory(stats: string[], sessCount: number, type: string, cat: string, isManual: boolean) {
+    if (!player || stats.length === 0 || sessCount === 0) return;
+    coachHistoryService.save({
+      id: Date.now().toString(),
+      playerId: player.id,
+      timestamp: Date.now(),
+      coachType: type,
+      coachCategory: cat,
+      sessions: sessCount,
+      stats,
+      isManual,
+    });
+    setCoachHistory(coachHistoryService.getForPlayer(player.id));
   }
 
   async function scanCoach() {
@@ -189,6 +210,8 @@ export default function CoachesScreen() {
       if (scan.coachType) parts.push(scan.coachType.toUpperCase());
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
+      saveToHistory(statNames, scan.multiplier ?? parseInt(sessions, 10) || 0,
+        scan.coachType ?? '', scan.coachCategory ?? '', false);
     } catch {
       setScanStatus('SCAN FAILED');
     } finally {
@@ -222,6 +245,9 @@ export default function CoachesScreen() {
     setResult({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)), postCoachStats });
     setSelectedTier(null);
     setSaveConfirmed(false);
+    if (!scanStatus.startsWith('SCANNED')) {
+      saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true);
+    }
   }
 
   function tierOvr(tier: TierName): number | null {
@@ -650,6 +676,36 @@ export default function CoachesScreen() {
                 )}
               </>
             )}
+          {/* Scan history — per player */}
+          {coachHistory.length > 0 && (
+            <View style={{ marginTop: 8, marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <View style={{ width: 3, height: 10, backgroundColor: theme.steel }} />
+                <MonoLabel size={9} color={theme.steel}>SCAN HISTORY — {player.name.toUpperCase()}</MonoLabel>
+              </View>
+              {coachHistory.map(entry => (
+                <Pressable key={entry.id} onPress={() => {
+                  setSessions(String(entry.sessions));
+                  setCoachType(entry.coachType);
+                  setCoachCategory(entry.coachCategory);
+                  setScannedStats(entry.stats);
+                  setFocusedStatSel(new Set());
+                  setResult(null);
+                  setScanStatus(`HISTORY: ${entry.label}`);
+                }}
+                  style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, marginBottom: 5,
+                    flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ flex: 1 }}>
+                    <MonoLabel size={9} color={theme.inkSec}>{entry.label}</MonoLabel>
+                    <MonoLabel size={8} color={theme.inkGhost}>
+                      {new Date(entry.timestamp).toLocaleDateString()}
+                    </MonoLabel>
+                  </View>
+                  <MonoLabel size={9} color={theme.steelLight}>▶ USE</MonoLabel>
+                </Pressable>
+              ))}
+            </View>
+          )}
           </>
         )}
       </ScrollView>

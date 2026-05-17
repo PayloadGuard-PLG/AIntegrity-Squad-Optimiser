@@ -29,3 +29,19 @@ export function ensureNewRoleColumns() {
   try { expoDb.execSync('ALTER TABLE players ADD COLUMN new_role text;'); } catch {}
   try { expoDb.execSync('ALTER TABLE players ADD COLUMN new_role_points integer NOT NULL DEFAULT 0;'); } catch {}
 }
+
+export function ensureCoachHistoryTable() {
+  try {
+    expoDb.execSync(`CREATE TABLE IF NOT EXISTS coach_scan_history (
+      id TEXT PRIMARY KEY,
+      player_id TEXT NOT NULL,
+      timestamp INTEGER NOT NULL,
+      coach_type TEXT,
+      coach_category TEXT,
+      sessions INTEGER,
+      stats TEXT NOT NULL DEFAULT '[]',
+      is_manual INTEGER NOT NULL DEFAULT 0,
+      label TEXT
+    );`);
+  } catch {}
+}
