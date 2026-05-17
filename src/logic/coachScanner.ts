@@ -63,12 +63,18 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
 
   console.log('[COACH SCAN] token count:', tokens.length);
 
-  // Detect type, category, and multiplier independently — tolerates multi-line OCR output
-  const coachType = (/\b(Standard|Focused|Extensive)\b/i.exec(fullText))?.[1] as CoachType | undefined;
+  // Detect type, category, and multiplier independently — tolerates multi-line OCR output.
+  // Normalise captured text to canonical title-case (OCR may return all-caps e.g. "FOCUSED").
+  const rawType = (/\b(Standard|Focused|Extensive)\b/i.exec(fullText))?.[1];
+  const coachType = rawType
+    ? COACH_TYPES.find(t => t.toLowerCase() === rawType.toLowerCase())
+    : undefined;
   // Game uses "Goalkeeping" for the GK coach category — map it to our internal 'Safeguard'
   const rawCat = (/\b(Attacking|Defending|Physical|Safeguard|Goalkeeping)\b/i.exec(fullText))?.[1];
   const coachCategory = rawCat
-    ? (rawCat.toLowerCase() === 'goalkeeping' ? 'Safeguard' : rawCat) as CoachCategory
+    ? (rawCat.toLowerCase() === 'goalkeeping'
+        ? 'Safeguard'
+        : COACH_CATS.find(c => c.toLowerCase() === rawCat.toLowerCase()))
     : undefined;
   // Search for multiplier starting from the coach type/category keyword to avoid picking up
   // any ×N pattern that appears earlier in the image (e.g. session counts, player bonuses).
