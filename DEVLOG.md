@@ -6,6 +6,45 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 29 — Visual Polish: Tab Art, Splash Border, Git Discipline
+**2026-05-17**
+
+Branch: `claude/continue-development-CAQUS` (commits `f4fb8f5`, `08ea078`, `fa53f4c`, `d29d067`, `f971395`, `f3d7f21`)
+
+### Shipped
+
+**Tab background opacity fix (commit `f4fb8f5`)**
+
+Sprint 28 tab backgrounds were rendering at nearly invisible opacity (0.055/0.09 — miscalibrated for dark screen). Corrected:
+- All tabs: stroke `0.22→0.32`, node `0.40→0.55`, fill `0.10→0.16`
+- Coaches tab: fill kept lower (`0.10`) to prevent bar colour bleed; bar count reduced from 5→3 per column group with wider spacing
+
+**Tab label legibility fix (commit `08ea078`)**
+
+Inactive tab selector labels were `theme.inkMuted` (`#909099`) — too faint on dark background to read comfortably. Changed to `theme.inkSec` (`#c8c8d2`) in `src/components/AppHeader.tsx`.
+
+**Git Discipline added to ASSUMPTIONS.md (commits `fa53f4c`, `d29d067`)**
+
+Standing rules for branch management, sprint-end docs pattern, and dev session workflow codified in ASSUMPTIONS.md. Third-party brand names removed and replaced with generic descriptors (`live field update`, `hot-reload server`, `device console session`).
+
+**Splash screen border art (commits `f971395`, `f3d7f21`)**
+
+Data-viz border art added to `src/components/SplashAnimation.tsx` via new `SplashBorderArt` component:
+- Bottom: ascending bar chart with 10 bars paired in the 5 tab accent colours (blue/green/amber/purple/red)
+- Top: 5 dashed horizontal grid lines + nodes, one per tab colour
+- Sides: vertical scan lines in tab colours (blue/green left, purple/amber right)
+- SVG `RadialGradient` mask fades art to transparent behind the ring animation — visible at all screen edges, hidden in the central reticle zone
+- Fades in with the existing grid layer at animation start
+
+### Open / Next Sprint
+
+- Assess splash and tab art on device with Steve — adjust opacity/colour if needed after review
+- Neri full stat scan — complete `profiles/player_seeds.json` entry
+- Splash/icon assets from Steve → update app config
+- Fractional OVR display (deferred from Sprint 28) — range format `+0.6→+1.2`
+
+---
+
 ## Sprint 28 — Bug Fixes from Steve's Test Protocol + Animated Splash + Tab Backgrounds
 **2026-05-17**
 
