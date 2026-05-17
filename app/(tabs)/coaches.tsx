@@ -218,7 +218,11 @@ export default function CoachesScreen() {
     }
 
     const ovrBefore = computeOvrFromStats(player, profile);
-    const ovrAfter = computeOvrWithPadding(postCoachStats, player.overall, profile);
+    // Raw (non-ceil) fractional OVR — shows decimal progress toward the next integer (e.g. 291.1).
+    // ovrBefore stays ceil'd to match the game display; ovrAfter shows how far coaching moved the needle.
+    const rawVals = Object.values(postCoachStats);
+    const rawMiss = Math.max(0, profile.totalAttributeCount - rawVals.length);
+    const ovrAfter = (rawVals.reduce((a, b) => a + b, 0) + player.overall * rawMiss) / profile.totalAttributeCount;
     setResult({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)), postCoachStats });
     setSelectedTier(null);
     setSaveConfirmed(false);

@@ -3,6 +3,19 @@ import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
 const KNOWN_ROLES = ['GK', 'DC', 'DL', 'DR', 'DMC', 'MC', 'ML', 'MR', 'AMC', 'AML', 'AMR', 'ST'];
+const ROLES_BY_LEN = [...KNOWN_ROLES].sort((a, b) => b.length - a.length);
+
+function splitConcatenatedRoles(token: string): string[] {
+  const found: string[] = [];
+  let pos = 0;
+  while (pos < token.length) {
+    const match = ROLES_BY_LEN.find(r => token.startsWith(r, pos));
+    if (!match) break;
+    found.push(match);
+    pos += match.length;
+  }
+  return pos === token.length ? found : [];
+}
 const KNOWN_TIERS = ['Legendary', 'Epic', 'Master', 'Stellar', 'Elite', 'Rare'];
 const KNOWN_TALENTS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_NAME_MAP: Record<string, string> = {
@@ -141,7 +154,11 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   for (const t of roleSourceTokens) {
     t.text.toUpperCase().split(/[\s,./|·•·()\[\]<>:]+/).forEach(part => {
       const p = part.trim();
-      if (p && roleSet.has(p)) foundRoles.add(p);
+      if (p && roleSet.has(p)) {
+        foundRoles.add(p);
+      } else if (p && p.length >= 4) {
+        splitConcatenatedRoles(p).forEach(r => foundRoles.add(r));
+      }
     });
   }
 
