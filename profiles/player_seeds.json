@@ -111,6 +111,53 @@
       "grey_stats": ["TACKLING","MARKING","POSITIONING","BRAVERY","CROSSING","STRENGTH","AGGRESSION"],
       "source_screenshots": ["1862c396 (game card)", "60724dba (intake form)", "4588b6a9 (scan result)"],
       "last_updated": "2026-05-16"
+    },
+    {
+      "name": "Neri",
+      "age": 27,
+      "roles": ["ST", "AMC", "MC"],
+      "roles_note": "Select ST + AMC + MC in the position grid. Roles visible in test protocol screenshots. OCR likely emits 'STAMCMC' as concatenated token — greedy role parser (Sprint 28 fix 1) required to detect all 3.",
+      "tier": "T6",
+      "tier_game_name": "Legendary",
+      "talent": "Normal",
+      "talentMultiplier": 1.0,
+      "isMutantCandidate": false,
+      "ovr": 291,
+      "ovr_game": 291,
+      "stats_note": "Read from projection screenshot (coaches tab, build 83a1ec6). Small font — one stat is likely misread by ~14 pts (sum 4375 gives OVR 292, game shows 291; correct sum is ~4361). Re-scan Neri's player card to confirm. POSITIONING gain of +0.6 at stat 332 is inconsistent with the exponential model (expected +0.2); stored value may be stale from a lower-tier scan. Use player card scan to update.",
+      "stats": {
+        "TACKLING": 209,
+        "MARKING": 229,
+        "POSITIONING": 332,
+        "HEADING": 354,
+        "BRAVERY": 314,
+        "PASSING": 319,
+        "DRIBBLING": 329,
+        "CROSSING": 89,
+        "SHOOTING": 437,
+        "FINISHING": 447,
+        "FITNESS": 350,
+        "STRENGTH": 233,
+        "AGGRESSION": 99,
+        "SPEED": 291,
+        "CREATIVITY": 343
+      },
+      "white_stats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","STRENGTH","SPEED","CREATIVITY"],
+      "grey_stats": ["CROSSING","AGGRESSION"],
+      "white_stat_derivation": "ST∪AMC∪MC essential union. ST adds POSITIONING,HEADING,SHOOTING,FINISHING,STRENGTH,CREATIVITY and more; AMC adds FITNESS; MC adds TACKLING,MARKING,BRAVERY. CROSSING is grey (not essential for any of the 3 roles). AGGRESSION is grey (secondary for all 3).",
+      "training_lock_check": {
+        "tier_contrib": 138,
+        "note": "floor(160 × 13 / 15) = 138",
+        "base_ovr": 153,
+        "note2": "291 − 138 = 153. Below maxBaseOvr (180). Training is NOT locked."
+      },
+      "open_questions": [
+        "Exact stats need player card re-scan — projection screenshot values have ~14pt discrepancy vs expected OVR.",
+        "POSITIONING stored value may be stale (displayed 332, but +0.6 gain is consistent with stored value ~267).",
+        "OVR gain showed 0 in test — confirmed as Math.floor bug in build 83a1ec6, fixed in dev branch (3e04c0c)."
+      ],
+      "source_screenshots": ["coaches_tab_projection (test protocol, build 83a1ec6)", "c73136c5 (game coach planner — scan source)"],
+      "last_updated": "2026-05-17"
     }
   ]
 }
