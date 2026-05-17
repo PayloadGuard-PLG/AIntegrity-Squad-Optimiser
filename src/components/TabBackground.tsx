@@ -8,11 +8,11 @@ export type TabKey = 'squad' | 'plan' | 'drills' | 'coaches' | 'results';
 // Each tab has a unique accent color replicated in its background art.
 // Same data-viz aesthetic across all tabs — bars, lines, nodes — themed per function.
 const C: Record<TabKey, { s: string; f: string; n: string }> = {
-  squad:   { s: 'rgba(74,158,255,0.22)',  f: 'rgba(74,158,255,0.10)',  n: 'rgba(74,158,255,0.40)'  }, // steel blue  — roster
-  plan:    { s: 'rgba(52,211,153,0.22)',  f: 'rgba(52,211,153,0.10)',  n: 'rgba(52,211,153,0.40)'  }, // green       — growth
-  drills:  { s: 'rgba(251,146,60,0.22)',  f: 'rgba(251,146,60,0.10)',  n: 'rgba(251,146,60,0.40)'  }, // amber       — intensity
-  coaches: { s: 'rgba(167,139,250,0.22)', f: 'rgba(167,139,250,0.10)', n: 'rgba(167,139,250,0.40)' }, // purple      — sessions
-  results: { s: 'rgba(200,17,17,0.22)',   f: 'rgba(200,17,17,0.10)',   n: 'rgba(200,17,17,0.40)'   }, // red         — projection
+  squad:   { s: 'rgba(74,158,255,0.32)',  f: 'rgba(74,158,255,0.16)',  n: 'rgba(74,158,255,0.55)'  }, // steel blue  — roster
+  plan:    { s: 'rgba(52,211,153,0.32)',  f: 'rgba(52,211,153,0.16)',  n: 'rgba(52,211,153,0.55)'  }, // green       — growth
+  drills:  { s: 'rgba(251,146,60,0.32)',  f: 'rgba(251,146,60,0.16)',  n: 'rgba(251,146,60,0.55)'  }, // amber       — intensity
+  coaches: { s: 'rgba(167,139,250,0.32)', f: 'rgba(167,139,250,0.10)', n: 'rgba(167,139,250,0.55)' }, // purple — lower fill to avoid bar bleed
+  results: { s: 'rgba(200,17,17,0.32)',   f: 'rgba(200,17,17,0.16)',   n: 'rgba(200,17,17,0.55)'   }, // red         — projection
 };
 
 interface Props { tab: TabKey }
@@ -180,18 +180,18 @@ function DrillsBg({ c }: { c: Col }) {
 }
 
 // ─── COACHES ── DEF / ATT / PHY stat column bars (mirrors the 3-col stat grid) ───────────
-// 3 groups of 5 bars each, with scan-line overlays suggesting analysis mode
+// 3 groups of 3 bars each — wider gaps to prevent colour bleed
 function CoachesBg({ c }: { c: Col }) {
   const baseY  = H * 0.76;
   const maxH   = H * 0.42;
-  // 3 stat columns: DEF (5 stats), ATT (5 stats), PHY (5 stats)
+  // 3 stat columns: DEF / ATT / PHY — 3 representative bars each
   const cols   = [
-    [0.88, 0.72, 0.94, 0.65, 0.80],
-    [0.90, 0.96, 0.78, 1.00, 0.85],
-    [0.95, 0.70, 0.82, 0.88, 0.76],
+    [0.72, 0.88, 0.65],
+    [0.96, 0.78, 1.00],
+    [0.82, 0.95, 0.70],
   ];
   const colGroupW = (W * 0.82) / cols.length;
-  const barW      = colGroupW * 0.13;
+  const barW      = colGroupW * 0.14;
   const startX    = W * 0.09;
 
   return (
@@ -199,7 +199,7 @@ function CoachesBg({ c }: { c: Col }) {
       {/* Stat bars */}
       {cols.map((bars, ci) =>
         bars.map((h, bi) => {
-          const x = startX + ci * colGroupW + bi * (colGroupW * 0.19) + colGroupW * 0.04;
+          const x = startX + ci * colGroupW + bi * (colGroupW * 0.30) + colGroupW * 0.06;
           return <Rect key={`${ci}-${bi}`} x={x} y={baseY - maxH * h} width={barW} height={maxH * h} fill={c.f} />;
         })
       )}

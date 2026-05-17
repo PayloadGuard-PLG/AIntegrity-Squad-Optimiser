@@ -90,7 +90,7 @@ export function AppHeader({ title, subtitle, onBack }: Props) {
                 {active && <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, backgroundColor: theme.steelLight }} />}
                 <Text style={{
                   fontFamily: theme.mono, fontSize: 11, letterSpacing: 2,
-                  color: active ? theme.ink : theme.inkMuted,
+                  color: active ? theme.ink : theme.inkSec,
                 }}>{t.label}</Text>
               </Pressable>
             );
