@@ -210,7 +210,7 @@ export default function CoachesScreen() {
       if (scan.coachType) parts.push(scan.coachType.toUpperCase());
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
-      saveToHistory(statNames, scan.multiplier ?? parseInt(sessions, 10) || 0,
+      saveToHistory(statNames, (scan.multiplier ?? parseInt(sessions, 10)) || 0,
         scan.coachType ?? '', scan.coachCategory ?? '', false);
     } catch {
       setScanStatus('SCAN FAILED');
