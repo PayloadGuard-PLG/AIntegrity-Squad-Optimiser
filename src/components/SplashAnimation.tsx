@@ -16,44 +16,60 @@ const RED_TRACE = 'rgba(200,15,15,0.65)';
 const RED_FAINT = 'rgba(200,15,15,0.07)';
 const INK       = '#f4f4f5';
 
-// Border-only background art for the splash screen.
-// A radial gradient mask makes the art fade toward the centre so it
-// doesn't compete with the ring animation.
+// Border background art for the splash screen.
+// Uses the five tab accent colours. Radial mask fades art toward the
+// centre ring — art is strong at the edges, invisible behind the rings.
 function SplashBorderArt() {
-  const S  = 'rgba(200,15,15,0.28)';   // stroke
-  const F  = 'rgba(200,15,15,0.12)';   // bar fill
-  const N  = 'rgba(200,15,15,0.50)';   // nodes / trend line
+  // Tab accent colours — same as TabBackground
+  const BLUE   = '#4a9eff';
+  const GREEN  = '#34d399';
+  const AMBER  = '#fb923c';
+  const PURPLE = '#a78bfa';
+  const RED_T  = '#cc1111';
 
-  // Bottom bar chart (ascending, like Results tab)
-  const baseY  = H * 0.92;
-  const maxH   = H * 0.16;
-  const bars   = [0.22, 0.38, 0.30, 0.52, 0.42, 0.68, 0.55, 0.82, 0.65, 1.00];
-  const slotW  = (W * 0.88) / bars.length;
-  const barW   = slotW * 0.52;
+  // Bottom bar chart — each pair of bars takes a tab colour
+  const baseY  = H * 0.93;
+  const maxH   = H * 0.20;
+  const barData: { h: number; color: string }[] = [
+    { h: 0.30, color: BLUE   }, { h: 0.45, color: BLUE   },
+    { h: 0.50, color: GREEN  }, { h: 0.65, color: GREEN  },
+    { h: 0.60, color: AMBER  }, { h: 0.80, color: AMBER  },
+    { h: 0.72, color: PURPLE }, { h: 0.88, color: PURPLE },
+    { h: 0.85, color: RED_T  }, { h: 1.00, color: RED_T  },
+  ];
+  const slotW  = (W * 0.88) / barData.length;
+  const barW   = slotW * 0.58;
   const startX = W * 0.06;
 
-  const trendPts = bars.map((h, i) => {
+  const trendPts = barData.map(({ h }, i) => {
     const x = startX + i * slotW + slotW / 2;
     const y = baseY - maxH * h;
     return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
   }).join(' ');
 
-  // Top horizontal grid lines
-  const topLines = [H * 0.04, H * 0.08, H * 0.12];
+  // Top coloured grid lines — one per tab colour
+  const topLines = [
+    { y: H * 0.03, color: BLUE   },
+    { y: H * 0.06, color: GREEN  },
+    { y: H * 0.09, color: AMBER  },
+    { y: H * 0.12, color: PURPLE },
+    { y: H * 0.15, color: RED_T  },
+  ];
 
-  // Side vertical scan lines (left + right margins)
-  const sideLines = [W * 0.04, W * 0.08, W - W * 0.04, W - W * 0.08];
+  // Side vertical scan lines
+  const leftLines  = [W * 0.03, W * 0.07];
+  const rightLines = [W * 0.93, W * 0.97];
 
   return (
     <Svg width={W} height={H}>
       <Defs>
-        {/* Gradient: black at centre → white at edges = art hidden in centre, visible at border */}
-        <RadialGradient id="splashMask" cx="50%" cy="42%" r="58%" fx="50%" fy="42%">
-          <Stop offset="0%"   stopColor="black" stopOpacity={1} />
-          <Stop offset="45%"  stopColor="black" stopOpacity={0.92} />
-          <Stop offset="68%"  stopColor="black" stopOpacity={0.45} />
-          <Stop offset="88%"  stopColor="white" stopOpacity={0.7} />
-          <Stop offset="100%" stopColor="white" stopOpacity={1} />
+        {/* Black at centre → white at edges: hides art behind rings, shows it at border */}
+        <RadialGradient id="splashMask" cx="50%" cy="42%" r="52%" fx="50%" fy="42%">
+          <Stop offset="0%"   stopColor="black" stopOpacity={1}    />
+          <Stop offset="38%"  stopColor="black" stopOpacity={0.95} />
+          <Stop offset="58%"  stopColor="black" stopOpacity={0.50} />
+          <Stop offset="75%"  stopColor="white" stopOpacity={0.80} />
+          <Stop offset="100%" stopColor="white" stopOpacity={1}    />
         </RadialGradient>
         <Mask id="borderFade">
           <Rect x={0} y={0} width={W} height={H} fill="url(#splashMask)" />
@@ -61,42 +77,51 @@ function SplashBorderArt() {
       </Defs>
 
       <G mask="url(#borderFade)">
-        {/* Bottom ascending bars */}
-        {bars.map((h, i) => (
+        {/* Bottom bars — paired by tab colour */}
+        {barData.map(({ h, color }, i) => (
           <Rect key={i}
             x={startX + i * slotW + (slotW - barW) / 2}
             y={baseY - maxH * h}
             width={barW} height={maxH * h}
-            fill={F}
+            fill={color} opacity={0.35}
           />
         ))}
         {/* Bottom trend line */}
-        <Path d={trendPts} fill="none" stroke={N} strokeWidth={1.2} />
-        {/* Bottom nodes */}
-        {bars.map((h, i) => (
+        <Path d={trendPts} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={1.4} />
+        {/* Bottom nodes — coloured per bar */}
+        {barData.map(({ h, color }, i) => (
           <Circle key={i}
             cx={startX + i * slotW + slotW / 2}
             cy={baseY - maxH * h}
-            r={2} fill={N}
+            r={2.5} fill={color} opacity={0.8}
           />
         ))}
         {/* Bottom baseline */}
-        <Line x1={W * 0.05} y1={baseY} x2={W * 0.95} y2={baseY} stroke={S} strokeWidth={0.8} />
+        <Line x1={W * 0.04} y1={baseY} x2={W * 0.96} y2={baseY}
+          stroke="rgba(255,255,255,0.25)" strokeWidth={0.8} />
 
-        {/* Top horizontal grid lines */}
-        {topLines.map((y, i) => (
-          <Line key={i} x1={W * 0.05} y1={y} x2={W * 0.95} y2={y}
-            stroke={S} strokeWidth={0.7} strokeDasharray="6 10" />
+        {/* Top coloured horizontal lines */}
+        {topLines.map(({ y, color }, i) => (
+          <Line key={i} x1={W * 0.04} y1={y} x2={W * 0.96} y2={y}
+            stroke={color} strokeWidth={0.9} opacity={0.55} strokeDasharray="8 12" />
         ))}
         {/* Top tick nodes */}
-        {[0.2, 0.4, 0.6, 0.8].map((f, i) => (
-          <Circle key={i} cx={W * f} cy={H * 0.08} r={2} fill={N} opacity={0.6} />
+        {[BLUE, GREEN, AMBER, PURPLE, RED_T].map((color, i) => (
+          <Circle key={i} cx={W * (0.15 + i * 0.175)} cy={H * 0.09}
+            r={2.5} fill={color} opacity={0.7} />
         ))}
 
-        {/* Side vertical scan lines */}
-        {sideLines.map((x, i) => (
-          <Line key={i} x1={x} y1={H * 0.15} x2={x} y2={H * 0.85}
-            stroke={S} strokeWidth={0.7} strokeDasharray="4 12" />
+        {/* Left scan lines */}
+        {leftLines.map((x, i) => (
+          <Line key={i} x1={x} y1={H * 0.18} x2={x} y2={H * 0.82}
+            stroke={i === 0 ? BLUE : GREEN} strokeWidth={0.9}
+            opacity={0.45} strokeDasharray="5 14" />
+        ))}
+        {/* Right scan lines */}
+        {rightLines.map((x, i) => (
+          <Line key={i} x1={x} y1={H * 0.18} x2={x} y2={H * 0.82}
+            stroke={i === 0 ? PURPLE : AMBER} strokeWidth={0.9}
+            opacity={0.45} strokeDasharray="5 14" />
         ))}
       </G>
     </Svg>
