@@ -22,9 +22,10 @@ const TALENT_NAME_MAP: Record<string, string> = {
   FT1: 'Fastest', FT2: 'Fast', FT3: 'Average',
 };
 
-const Y_TOL = 28;     // px — two-word stat name detection (RUSHING OUT, AERIAL REACH)
-const Y_TOL_VAL = 20; // px — value lookup (tighter: excludes section-header row numbers)
-const Y_BELOW = 40;   // px — below-fallback for value directly below stat label
+const Y_TOL = 28;      // px — two-word stat name detection (RUSHING OUT, AERIAL REACH)
+const Y_TOL_VAL = 20;  // px — value lookup (tighter: excludes section-header row numbers)
+const Y_BELOW = 40;    // px — below-fallback for value directly below stat label
+const Y_TOL_ROLE = 55; // px — role badge detection; wider than Y_TOL to capture 2-row role grids
 
 export interface PlayerCardScan {
   name?: string;
@@ -148,8 +149,8 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   const roleRowY = rolesLabelTok?.top;
 
   const roleSourceTokens = roleRowY != null
-    ? tokens.filter(t => Math.abs(t.top - roleRowY) < Y_TOL)  // anchored to Roles: row
-    : tokens;                                                    // fallback: all tokens
+    ? tokens.filter(t => Math.abs(t.top - roleRowY) < Y_TOL_ROLE)  // wider: catches 2-row role grids
+    : tokens;                                                         // fallback: all tokens
 
   for (const t of roleSourceTokens) {
     t.text.toUpperCase().split(/[\s,./|·•·()\[\]<>:]+/).forEach(part => {
@@ -162,13 +163,18 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
     });
   }
 
-  // fullText regex backup — only when no anchor found (avoids reintroducing off-row roles)
+  // fullText fallback — only when no "Roles:" anchor found.
+  // Splits on non-alpha chars and applies greedy role parser to each segment so
+  // concatenated tokens like "DMCMC" (no word boundary) are correctly parsed.
   if (roleRowY == null) {
-    const roleRegex = /\b(GK|DC|DL|DR|DMC|MC|ML|MR|AMC|AML|AMR|ST)\b/gi;
-    let roleMatch: RegExpExecArray | null;
-    while ((roleMatch = roleRegex.exec(fullText)) !== null) {
-      foundRoles.add(roleMatch[1].toUpperCase());
-    }
+    fullText.toUpperCase().split(/[^A-Z]+/).forEach(segment => {
+      if (!segment) return;
+      if (roleSet.has(segment)) {
+        foundRoles.add(segment);
+      } else if (segment.length >= 4) {
+        splitConcatenatedRoles(segment).forEach(r => foundRoles.add(r));
+      }
+    });
   }
 
   const roles = KNOWN_ROLES.filter(r => foundRoles.has(r));
