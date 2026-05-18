@@ -479,15 +479,17 @@
     "note": "Identified as the OVR-99 mystery player from the xN controlled test. Age 27 resolves that open question. ageMult=0.61 (from ageTable) applies."
   },
   "ovr_formula_verification": {
-    "formula": "Math.ceil(sum_of_all_stats / totalAttributeCount)",
-    "confirmedFrom": "4 data points (sprint 27)",
+    "formula": "Math.floor(sum_of_all_stats / totalAttributeCount)",
+    "confirmedFrom": "Sprint 27 (4 data points, apparent ceil) + Sprint 32 (clean tier upgrade, decisive floor)",
     "dataPoints": [
-      { "player": "Kevin McGinty", "statSum": 1493, "divBy15": 99.533, "floor": 99, "round": 100, "ceil": 100, "game": 100, "match": "ceil" },
-      { "player": "Ryan Rodger", "statSum": 1809, "divBy15": 120.6, "floor": 120, "round": 121, "ceil": 121, "game": 121, "match": "ceil" },
-      { "player": "Ricky Grant T3", "statSum": 2631, "divBy15": 175.4, "floor": 175, "round": 175, "ceil": 176, "game": 176, "match": "ceil" },
-      { "player": "Ricky Grant T2", "statSum": 2355, "divBy15": 157.0, "floor": 157, "round": 157, "ceil": 157, "game": 157, "match": "all" }
+      { "player": "Kevin McGinty T0",  "statSum": 1493, "divBy15": 99.53,  "floor": 99,  "ceil": 100, "game": 100, "_note": "Ambiguous — floor 99 ≠ game 100. Sprint 27 concluded ceil. Explained: internal sum > displayed sum due to fractional stat accumulation from training." },
+      { "player": "Ryan Rodger T0",    "statSum": 1809, "divBy15": 120.6,  "floor": 120, "ceil": 121, "game": 121, "_note": "Ambiguous — same explanation as McGinty." },
+      { "player": "Ricky Grant T2",    "statSum": 2355, "divBy15": 157.00, "floor": 157, "ceil": 157, "game": 157, "_note": "Integer mean — floor and ceil agree. Not diagnostic." },
+      { "player": "Ricky Grant T3",    "statSum": 2631, "divBy15": 175.4,  "floor": 175, "ceil": 176, "game": 176, "_note": "Sprint 27 used displayed sum 2631. But Sprint 27 concluded ceil=176 ✓. HOWEVER: displayed sum was lower than internal sum — fractional training gains pushed internal sum high enough that floor(internal/15)=176 also. Not a clean test." },
+      { "player": "Ricky Grant T2→T3 CLEAN", "statSum": 2615, "divBy15": 174.33, "floor": 174, "ceil": 175, "game": 174, "match": "floor", "_note": "DECISIVE. Clean tier upgrade only — no training between snapshots. Integer stat changes. floor(2615/15)=floor(174.33)=174 ✓. ceil=175 ✗. Resolves ambiguity conclusively." }
     ],
-    "conclusion": "Game uses ceil. floor and round both fail for Grant T3 (175.4 → ceil=176 ✓). Fixed in qualityPctToOvr() sprint 27."
+    "conclusion": "Game uses Math.floor. Sprint 27's apparent ceil confirmation was an artefact: fractional stat accumulation from training inflated the internal sum above the displayed screenshot sum, making floor(internal) equal ceil(displayed) for those cases. The clean Grant T2→T3 tier upgrade (no training, integer-only stat changes) is the only unambiguous test. floor wins. Fixed in qualityPctToOvr() sprint 32.",
+    "macgregor_confirmation": "MacGregor T2: displayed sum=2181, game OVR=145. floor(2181/15)=floor(145.4)=145 ✓. Consistent with floor formula."
   },
   "bxps_recalibration": {
     "finding": "bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally.",
@@ -607,14 +609,66 @@
         "coachType": "Extensive",
         "coachCategory": "Goalkeeping",
         "multiplier": 114,
+        "playerOvr_internal": 145.8,
+        "playerOvr_displayed": 145,
         "playerOvr_t0_before": "unknown — pre-coaching baseline not captured",
         "playerOvr_t0_after": 123,
         "playerAge": 18,
         "ageMult": 1.0,
-        "talentMult": 0.7,
-        "note": "OCR of coach preview detected 8/11 GK stats. THROWING, AERIAL REACH, FITNESS missed — embedded in adjacent 3-column OCR merge tokens. Workaround: tap Goalkeeping category button after scan to force-reload all 11 GK stats.",
+        "talentMult_profile": 0.7,
+        "numStats": 11,
+        "game_ovr_boost_range": [24, 32],
+        "game_ovr_boost_note": "Block [4] in OCR: '145.8 +24-32' — game's own projection for ×114 session",
+        "gains": [
+          { "stat": "REFLEXES",      "statBefore": 144, "gainLo": 35, "gainHi": 48, "isWhite": true  },
+          { "stat": "AGILITY",       "statBefore": 143, "gainLo": 36, "gainHi": 49, "isWhite": true  },
+          { "stat": "ANTICIPATION",  "statBefore": 156, "gainLo": 31, "gainHi": 44, "isWhite": true  },
+          { "stat": "RUSHING OUT",   "statBefore": 172, "gainLo": 28, "gainHi": 33, "isWhite": true  },
+          { "stat": "COMMUNICATION", "statBefore": 138, "gainLo": 36, "gainHi": 51, "isWhite": true  },
+          { "stat": "THROWING",      "statBefore": 168, "gainLo": 29, "gainHi": 36, "isWhite": true  },
+          { "stat": "KICKING",       "statBefore": 152, "gainLo": 32, "gainHi": 46, "isWhite": true  },
+          { "stat": "PUNCHING",      "statBefore": 141, "gainLo": 35, "gainHi": 49, "isWhite": true  },
+          { "stat": "AERIAL REACH",  "statBefore": 149, "gainLo": 34, "gainHi": 47, "isWhite": true  },
+          { "stat": "CONCENTRATION", "statBefore": 157, "gainLo": 31, "gainHi": 43, "isWhite": true  },
+          { "stat": "FITNESS",       "statBefore": 165, "gainLo": 29, "gainHi": 38, "isWhite": true  }
+        ],
+        "engine_prediction": {
+          "ovrBefore": 145,
+          "ovrAfter": 187.0,
+          "ovrGain": 42,
+          "source": "Coach Planner screenshot — sprint 32 session",
+          "statGains": {
+            "REFLEXES": 62.6, "AGILITY": 63.3, "ANTICIPATION": 54.8,
+            "RUSHING OUT": 45.2, "COMMUNICATION": 66.8,
+            "THROWING": 47.5, "KICKING": 57.3, "PUNCHING": 64.7,
+            "AERIAL REACH": 59.3, "CONCENTRATION": 54.1, "FITNESS": 49.3
+          }
+        },
+        "overprediction_analysis": {
+          "engine_vs_game_hi_ratio_avg": 1.30,
+          "engine_vs_game_mid_ratio_avg": 1.49,
+          "ratios_per_stat": {
+            "REFLEXES":      { "engine": 62.6, "game_hi": 48, "ratio_hi": 1.30 },
+            "AGILITY":       { "engine": 63.3, "game_hi": 49, "ratio_hi": 1.29 },
+            "ANTICIPATION":  { "engine": 54.8, "game_hi": 44, "ratio_hi": 1.25 },
+            "RUSHING OUT":   { "engine": 45.2, "game_hi": 33, "ratio_hi": 1.37 },
+            "COMMUNICATION": { "engine": 66.8, "game_hi": 51, "ratio_hi": 1.31 },
+            "THROWING":      { "engine": 47.5, "game_hi": 36, "ratio_hi": 1.32 },
+            "KICKING":       { "engine": 57.3, "game_hi": 46, "ratio_hi": 1.24 },
+            "PUNCHING":      { "engine": 64.7, "game_hi": 49, "ratio_hi": 1.32 },
+            "AERIAL REACH":  { "engine": 59.3, "game_hi": 47, "ratio_hi": 1.26 },
+            "CONCENTRATION": { "engine": 54.1, "game_hi": 43, "ratio_hi": 1.26 },
+            "FITNESS":       { "engine": 49.3, "game_hi": 38, "ratio_hi": 1.30 }
+          },
+          "hypothesis": "Systematic ~1.30x over-prediction across all stats. xN anomaly does NOT explain this — geometric sum plateaus at x40, so x40→x114 adds only 0.6% more effective sessions. Primary suspect: talentMultipliers.Slow = 0.7 is too high. Implied actual Slow multiplier: 0.7 / 1.30 = 0.54 (vs game_hi) or 0.7 / 1.49 = 0.47 (vs game_mid). Most likely actual value: 0.5. MacGregor is only Slow player calibrated. bXPS=450 was calibrated exclusively from Normal talent players — Slow multiplier is untested.",
+          "implied_slow_talent_mult": 0.47,
+          "implied_slow_talent_mult_vs_hi": 0.54,
+          "current_slow_talent_mult": 0.7,
+          "action": "DO NOT change talentMultipliers.Slow until actual post-session stat gains are measured and back-calculated. Confirm real game result for this x114 session then back-calculate: implied_mult = 0.7 * (actual_gain / engine_gain) for any single white stat."
+        },
+        "ocr_notes": "First scan (no player selected): 0/11 stats — expected. Second scan (player selected): 11/11 stats captured including ANTICIPATION (previously truncated to 'Anticipatio' — fixed sprint 32), THROWING, FITNESS, AERIAL REACH via embedded-stat fallback. No CONCENTRATION duplicate. Clean scan.",
         "training_sequence": "Drills first → ×114 Extensive Goalkeeping → T1 upgrade → T2 upgrade. Optimal sequence (drills before coaching before tiers) confirmed.",
-        "playstyle_unlock": "Sweeper Keeper unlocked during or after this session at Standard level (Effect ×1)"
+        "playstyle_unlock": "Sweeper Keeper unlocked during or after this session at Standard level (Effect ×1). Playstyle system not modelled in engine — documented for reference only."
       }
     ]
   },
