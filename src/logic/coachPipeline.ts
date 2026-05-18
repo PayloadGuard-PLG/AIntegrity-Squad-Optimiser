@@ -39,7 +39,9 @@ export function resolveCoachStats(
       // stats are being coached. Always use the full category list for these coach types so the
       // budget is divided correctly and cross-column false-positives (e.g. PHY stat detected in
       // a DEF scan) are excluded.
-      if (scan.coachType === 'Standard' || scan.coachType === 'Extensive') {
+      // Exception: Reward Coaches use the Standard/Extensive label but only boost specific
+      // cross-category stats — trust what OCR detected instead of forcing the full category list.
+      if (!scan.isRewardCoach && (scan.coachType === 'Standard' || scan.coachType === 'Extensive')) {
         const fromCat = catList.filter(s => playerStats[s] !== undefined);
         if (fromCat.length > 0) return fromCat;
       }

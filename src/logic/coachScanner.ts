@@ -54,6 +54,7 @@ export interface CoachScanResult {
   ovrBefore?: number;
   ovrBoostLo?: number;
   ovrBoostHi?: number;
+  isRewardCoach?: boolean;
   stats: StatCapture[];
   _debugBlocks?: string;
 }
@@ -107,6 +108,8 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   const boostMatch   = GAIN_RE_OVR.exec(textAfterOvr);
   const ovrBoostLo   = boostMatch ? parseInt(boostMatch[1]) : undefined;
   const ovrBoostHi   = boostMatch ? parseInt(boostMatch[2]) : undefined;
+
+  const isRewardCoach = /\breward\s*coach\b/i.test(fullText);
 
   const ageMatch  = /\bAge\s*:?\s*(\d{2})\b/i.exec(fullText);
   const playerAge = ageMatch ? parseInt(ageMatch[1]) : undefined;
@@ -209,7 +212,9 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     // Match: STATNAME VALUE + lo-hi — the gain MUST follow the stat name and its value.
     // catFilter: when category is known, restrict to category stats only — prevents out-of-category
     // column bleed (e.g. AGGRESSION appearing in POSITIONING's PHY-column rowText).
-    const catFilter = coachCategory ? (CATEGORY_STAT_SETS[coachCategory] ?? null) : null;
+    // Reward Coaches boost cross-category stats — bypass category filter so all highlighted
+    // stats are captured regardless of category (e.g. AGGRESSION in a Safeguard Reward Coach).
+    const catFilter = (!isRewardCoach && coachCategory) ? (CATEGORY_STAT_SETS[coachCategory] ?? null) : null;
     for (const candidate of [...OUTFIELD_STATS, ...GK_STATS] as string[]) {
       if (candidate === statName || captureMap.has(candidate)) continue;
       if (catFilter && !catFilter.has(candidate)) continue;
@@ -241,5 +246,5 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     .join(' | ');
 
   const stats = Array.from(captureMap.values());
-  return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, stats, _debugBlocks };
+  return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, isRewardCoach, stats, _debugBlocks };
 }
