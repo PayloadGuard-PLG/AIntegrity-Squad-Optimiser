@@ -22,10 +22,10 @@
 
 ## ✨ Core Capabilities
 
-- 🎯 **Deterministic OVR Projections** — Models age, role, stat profile, and talent tier to project the exact OVR outcome for any combination of coaching, upgrades, and condition resources — before you spend anything.
-- 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry.
-- 📈 **Drill ROI Ranking** — All 25 drills ranked by return on investment for the selected player and Fan Club level. Zero-drain detection at L4 + Very Easy.
-- 🔗 **Sequential Planning** — Chain coaching blocks, tier upgrades, and restorers into one sequential plan with a per-step OVR breakdown, saved to device history.
+- 🎯 **Deterministic OVR Projections** — Models age, role, stat profile, and talent tier to project the exact OVR outcome for any combination of drill plans, coaching sessions, and tier upgrades — before you spend anything.
+- 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details.
+- 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and Fan Club level. Zero-drain detection at L4 + Very Easy.
+- 🔗 **Sequential Planning** — Chain drill plans, coaching sessions, tier upgrades, and restorers into one sequential plan with a per-step OVR breakdown in the Results hub.
 
 📡 *Post-build updates deploy via EAS OTA — no app store submission required.*
 
@@ -35,15 +35,13 @@
 
 **📋 SQUAD** — The roster overview. Scan a player card screenshot to instantly add a player, or tap to edit manually. Includes a one-step revert to undo applied gains.
 
-**🧑‍🏫 COACHES** — Simulate a coaching block. Select the stats it covers, enter session count → exact per-stat gains and OVR delta. Scan a coach preview screenshot to auto-fill.
+**⚙️ PLAN** — Single-player projection tool. Select drills, set tier target, add restorers → get a step-by-step OVR breakdown.
 
-**💊 DRILLS** — All 25 drills ranked by ROI for the selected player. Fan Club level selector. Drill type colour-coded. Build a preset on this tab and load it into PLAN.
+**💊 DRILLS** — All 40 drills ranked by ROI for the selected player. Fan Club level selector. Zero-drain detection. Build and save drill presets, then **push to Results** to include them in your combined plan.
 
-**⚙️ PLAN** — Combine drills, tier upgrades, and restorers into a single projection. Analyses per-resource gain breakdown across the full chain.
+**🧑‍🏫 COACHES** — Scan a coach preview screenshot to auto-fill session count and stats. Project the OVR gain from the coaching block. Apply to player card or save to history for import into Results.
 
-**✅ RESULTS** — The full sequential OVR chain before you execute it in-game.
-
-**📊 SQUAD PLAN** — Saved coaching history per player — OVR before/after, stat gains, session count, tier, date.
+**✅ RESULTS** — The combined plan hub. Import drill plans from history + coaching sessions from history, add a tier upgrade and condition restorers, then PROJECT to see the full sequential OVR chain. One button applies the complete plan to the player card.
 
 > 🎨 **Visual Interface:** Stats use fixed colour-coding across every screen — DEF 🔵 `#4A7FC1`, ATT 🟣 `#7C3AED`, PHY 🟠 `#C05621`. Essential (white) stats display at full opacity; secondary (grey) stats are dimmed.
 
@@ -53,9 +51,9 @@
 
 > **Always drill before tier upgrade.**
 >
-> Tier permanently raises base stat values — coaching afterwards costs more XP per gain. Run all drills first to maximise total OVR gain per resource unit.
+> Tier permanently raises base stat values — coaching and drilling afterwards costs more XP per gain. Run all drills and coaching first to maximise total OVR gain per resource unit.
 
-The engine enforces this ordering in every plan it generates.
+The Results tab enforces this ordering in every projection it generates: Drill Plans → Coach Sessions → Tier → Restorers.
 
 ---
 

@@ -6,6 +6,85 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 30 — Tab Simplification: Results as Single Plan Hub + drillXpFactor Calibration
+**2026-05-18**
+
+Branch: `claude/continue-development-CAQUS` (commits `dcc4b64`, `0375a77`, `4fd12f2`)
+
+### Shipped
+
+**Coaches tab — tier section removed (commit `dcc4b64`)**
+
+The TIER UPGRADE block has been removed from the Coaches tab entirely. Tier upgrades now live only in the Results tab.
+
+Removed: `selectedTier`, `tierPointInputs`, `upgradableTiers`, `tierOvr()`, `combinedOvr`, `combinedGain`, `TIER_COSTS`, `TIER_ADDITIONS`, `TIER_INCREMENTS`, `TIER_ORDER` constants, combined OVR banner JSX, and the full tier upgrade JSX block (~100 lines). Unused imports (`TIER_COLORS`, `getWhiteStatKeys`, `getAllStatKeys`, `applyTierBonusToStats`, `TierName`, `DrillLevel`) removed. `applyGains()` and `saveRun()` simplified — no tier branch. Coach tab is now: scan → project → apply to card.
+
+**Drills tab — test lab rewrite (commit `dcc4b64`)**
+
+Full rewrite of the saved presets section:
+- `drillPresetService.getAll()` now loaded in `useEffect` on save (fixes invisible presets bug — presets were saving but never displaying)
+- SAVED PRESETS section: each preset shows name, intensity-coloured drill chips, condition/cycle calculation, cycles TextInput, SELECT button (white border when selected)
+- `projectDrillPlan()`: iterates selected presets × cycles, calls `estimateStatGainPct` per stat with correct `drillLevelMultipliers[drill.intensity]` multiplier
+- `pushToResults()`: saves each selected preset as a `DrillPlanEntry` via `drillPlanHistoryService`, navigates to Results tab
+- New `drill_plan_history` SQLite table (via `ensureDrillPlanHistoryTable()` in `src/db/index.ts`)
+
+**Results tab — combined plan hub rewrite (commit `dcc4b64`)**
+
+Full rewrite. Results is now the only place to combine all investment types:
+- **DRILL PLANS section**: selectable list from `drillPlanHistoryService.getForPlayer()` (entries pushed from Drills tab). Amber left border when selected. Max 10.
+- **COACHING SESSIONS section**: selectable list from `coachHistoryService.getForPlayer()` (entries saved when scanning/projecting in Coaches tab). Steel left border when selected. Max 5.
+- **TIER UPGRADE section**: unchanged — only in Results.
+- `runProjection()`: drill plans → coach sessions → tier upgrades (correct order).
+- `ready` condition: any of drill/coach/tier selected.
+- "ADD TO ROSTER — APPLY FULL PLAN" button applies final stats + OVR + tier to player card.
+- Old manual session entry (SessionEntry, stat picker grid, history picker modal) removed entirely.
+
+**GK category toggle fix (commit `0375a77`)**
+
+`selectCoachCategory()` previously used toggle logic (`const next = coachCategory === cat ? '' : cat`). After a scan detected Goalkeeping, tapping GK again would toggle it OFF and clear stats. Changed to always-select — tapping any category always loads that category's full stat list. Switch category by tapping a different one; scan resets everything.
+
+**drillXpFactor = 0.3 — drill projection calibration (commit `4fd12f2`)**
+
+`baseXpPerSession = 220` was calibrated for academy coaches only. Drill sessions give significantly less XP per session. Without real drill session calibration data, a provisional `drillXpFactor = 0.3` scales drill budgets down to 30% of coach baseline. Applied in `drills.tsx` and `results.tsx`:
+```
+drillBudget = cycles × baseXpPerSession × drillXpFactor / drill.stats.length
+```
+Flag is in `profiles/game_2025.json` and `src/types/resources.ts` (`drillXpFactor?: number`). Tune once real before/after stats from a drill run are available.
+
+**New services and DB tables**
+
+- `src/services/coachHistoryService.ts` — `CoachHistoryEntry`, `save()`, `getForPlayer()`
+- `src/services/drillPlanHistoryService.ts` — `DrillPlanEntry`, `save()`, `getForPlayer()`
+- `src/db/index.ts` — `ensureCoachHistoryTable()`, `ensureDrillPlanHistoryTable()`
+- `app/_layout.tsx` — calls both new ensure* guards on migration success
+
+### Calibration confirmed
+
+Lewis MacGregor (Age 18, GK, Normal ×1.0, T0 → T2):
+- Before: 143 OVR
+- After ×114 Extensive Goalkeeping + T1 + T2: **191 OVR confirmed in-game**
+- App projection: 191 ✓ — coach formula validated for GK category
+
+OCR scan of ×114 Extensive GK detected 8/11 stats (THROWING, AERIAL REACH, FITNESS missed — embedded in adjacent column tokens rather than standalone blocks). Workaround: tap GK category after scan to load all 11.
+
+### Open / Next Sprint
+
+- Drill XP factor calibration — need before/after stats from a real drill run to back-calculate true `drillXpFactor`
+- Sprint 31: Game Readiness dashboard (condition, teamplay, fan club, streak road)
+- Sprint 31 questions: fan club per-player vs global? Streak road manual vs auto-increment?
+
+---
+
+## Sprint 30 Hotfixes — GK toggle + drillXpFactor
+**2026-05-18**
+
+See main Sprint 30 entry above. These were committed separately:
+
+- `0375a77` fix: GK category always reloads stats on tap — no toggle-off
+- `4fd12f2` fix: drillXpFactor=0.3 — scale drill budget to coach baseline (uncalibrated)
+
+---
+
 ## Sprint 29 — Visual Polish: Tab Art, Splash Border, Git Discipline
 **2026-05-17**
 
