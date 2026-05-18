@@ -219,6 +219,19 @@ export default function NewPlayerScreen() {
     }
   }
 
+  // Fixed per-column stat order for scan preview — 5 stats per column, always same positions.
+  // Outfield and GK have different DEF/ATT stats; PHY is shared.
+  const isGkScan = !!statInputs['REFLEXES'];
+  const SCAN_PREVIEW_COLS: Record<'DEF' | 'ATT' | 'PHY', readonly string[]> = {
+    DEF: isGkScan
+      ? ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION']
+      : ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
+    ATT: isGkScan
+      ? ['THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION']
+      : ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
+    PHY: ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <AppHeader title="NEW ASSET" subtitle="INTAKE FORM" onBack={() => router.back()} />
@@ -278,19 +291,21 @@ export default function NewPlayerScreen() {
                   <View style={{ padding: 6, borderBottomWidth: 1, borderBottomColor: cc, backgroundColor: cc + '28' }}>
                     <MonoLabel size={8} color={cc}>{col}</MonoLabel>
                   </View>
-                  {STAT_COLUMNS[col].filter(s => statInputs[s]).map(s => {
+                  {SCAN_PREVIEW_COLS[col].map(s => {
                     const white = isWhiteStat(selectedRoles, s);
+                    const value = statInputs[s];
                     return (
                       <View key={s} style={{
                         paddingHorizontal: 8, paddingVertical: 7,
-                        borderBottomWidth: 1, borderBottomColor: white ? cc + '44' : theme.hairline,
-                        borderLeftWidth: white ? 3 : 1,
-                        borderLeftColor: white ? cc : theme.hairline2,
-                        backgroundColor: white ? cc + '1a' : cc + '0a',
+                        borderBottomWidth: 1, borderBottomColor: white && value ? cc + '44' : theme.hairline,
+                        borderLeftWidth: white && value ? 3 : 1,
+                        borderLeftColor: white && value ? cc : theme.hairline2,
+                        backgroundColor: value ? (white ? cc + '1a' : cc + '0a') : 'transparent',
+                        opacity: value ? 1 : 0.35,
                       }}>
-                        <MonoLabel size={7} color={white ? cc : theme.inkMuted}>{s}</MonoLabel>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: white ? '700' : '400', color: white ? theme.ink : theme.inkMuted, marginTop: 2 }}>
-                          {statInputs[s]}
+                        <MonoLabel size={7} color={white && value ? cc : theme.inkMuted}>{s}</MonoLabel>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: white && value ? '700' : '400', color: white && value ? theme.ink : theme.inkMuted, marginTop: 2 }}>
+                          {value ?? '—'}
                         </Text>
                       </View>
                     );
