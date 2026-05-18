@@ -30,11 +30,11 @@ budget = sessionCount × baseXpPerSession / selectedStats.count
 
 | Constant | JSON key | Value |
 |---|---|---|
-| baseXpPerSession | `baseXpPerSession` | 220 |
+| baseXpPerSession | `baseXpPerSession` | 450 |
 
-Example: 5-stat coach block for ×40 sessions: `40 × 220 / 5 = 1,760 XP per stat`.
+Example: 5-stat coach block for ×40 sessions: `40 × 450 / 5 = 3,600 XP per stat`.
 
-**Calibration:** `baseXpPerSession = 220` confirmed Sprint 24 against Standard Defending ×40 (Ricky Grant, age 20, Normal talent): Tackling 120 → +59–73 observed, model gives ~62 at bXPS=220 ✓. Further confirmed by Lewis MacGregor ×114 Extensive GK (all 11 white GK stats): 143 OVR → 191 after coach + T1 + T2, matching app projection exactly.
+**Calibration:** `baseXpPerSession = 450` — recalibrated Sprint 31. Original 220 was calibrated against the stepped cost table (Sprint 24); Sprint 25 introduced the exponential model without re-calibrating, causing systematic under-prediction. Four data points (Cptn Dallas ×4 Safeguard + Ricky Grant ×40 Defending) implied 409–495, mean 443 → set to 450.
 
 ### 2.2 XP budget per stat — drill session
 

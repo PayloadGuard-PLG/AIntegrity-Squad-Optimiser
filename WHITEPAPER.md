@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 2.1 — Sprint 30**
+**Version 2.2 — Sprint 32**
 
 ---
 
@@ -65,7 +65,7 @@ xpNeededFor1Pct(
 xpBudget = sessionCount × baseXpPerSession / selectedStats.count
 ```
 
-Budget divided equally across all stats the coach covers. A 5-stat coach block for ×40 sessions gives each stat `40 × 220 / 5 = 1,760 XP`.
+Budget divided equally across all stats the coach covers. A 5-stat coach block for ×40 sessions gives each stat `40 × 450 / 5 = 3,600 XP`.
 
 **XP budget per stat — drill session (Sprint 30):**
 ```
@@ -80,11 +80,15 @@ Drills award significantly less XP per session than academy coaches. `drillXpFac
 |---|---|---|---|
 | Tackling | 120 | +59–73 | ~62 ✓ |
 
-`baseXpPerSession = 220` calibrated against this data point. Normal talent (×1.0) confirmed from intake form screenshot (Sprint 26).
+This data point was originally used to calibrate `baseXpPerSession = 220` (Sprint 24, against the stepped cost table). The exponential model introduced in Sprint 25 required a separate recalibration — see Sprint 31 below.
 
-**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, Slow talent ×0.7):**
+**Calibration — Sprint 31 bXPS recalibration (220 → 450):**
 
-Before: 143 OVR (T0). App projected 191 OVR after coach + T1 + T2 upgrade. Actual result: **191 OVR**. Confirms `baseXpPerSession = 220` holds for GK Extensive sessions. Slow talent (×0.7) confirmed correct.
+Four independent data points across two players (Cptn Dallas ×4 Safeguard, Ricky Grant ×40 Defending) implied bXPS 409–495, mean 443. Set to **450**. Validated: Dallas ×4 Safeguard all 3 stats land inside game ranges.
+
+**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, Slow talent ×0.7) — Sprint 30 pre-recalibration:**
+
+Before: 143 OVR (T0). App projected 191 OVR after coach + T1 + T2. Actual result: **191 OVR** ✓. This match was achieved at bXPS=220; the recalibration to 450 was based on Dallas/Grant data from smaller session counts (×4/×40) where the star decay model has less impact. For very high session counts (×114), star decay modelling may be needed for accurate projection — see §3.8.
 
 **Calibration — exponential model derivation:**
 
@@ -481,7 +485,7 @@ Every role maps exactly 15 stats (essential + secondary = 15). Verified from gam
 | ML | POSITIONING, PASSING, DRIBBLING, CROSSING, FITNESS, SPEED, CREATIVITY (7) | TACKLING, MARKING, HEADING, BRAVERY, SHOOTING, FINISHING, STRENGTH, AGGRESSION (8) |
 | MR | same as ML | same as ML |
 | MC | TACKLING, MARKING, POSITIONING, BRAVERY, PASSING, DRIBBLING, FITNESS, STRENGTH, SPEED, CREATIVITY (10) | HEADING, CROSSING, SHOOTING, FINISHING, AGGRESSION (5) |
-| DMC | TACKLING, MARKING, POSITIONING, HEADING, BRAVERY, PASSING, FITNESS, STRENGTH, AGGRESSION, CREATIVITY (10) | DRIBBLING, CROSSING, SHOOTING, FINISHING, SPEED (5) |
+| DMC | TACKLING, MARKING, POSITIONING, HEADING, BRAVERY, PASSING, FITNESS, AGGRESSION, CREATIVITY (9) | DRIBBLING, CROSSING, SHOOTING, FINISHING, SPEED, STRENGTH (6) |
 | DC | POSITIONING, HEADING, FITNESS, STRENGTH, AGGRESSION (5) | TACKLING, MARKING, BRAVERY, PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING, SPEED, CREATIVITY (10) |
 | DL | TACKLING, MARKING, POSITIONING, BRAVERY, CROSSING, FITNESS, AGGRESSION, SPEED (8) | HEADING, PASSING, DRIBBLING, SHOOTING, FINISHING, STRENGTH, CREATIVITY (7) |
 | DR | same as DL | same as DL |
@@ -604,7 +608,7 @@ interface InvestmentPlan {
 | Item | Status |
 |---|---|
 | OVR formula | `Math.ceil` — confirmed Sprint 27 from 4 data points (McGinty, Rogers, Grant T2, Grant T3). Fixed in `qualityPctToOvr()`. |
-| Coach XP baseline | `baseXpPerSession = 220` — calibrated Sprint 24 against Standard Defending ×40, Normal talent, age 20. Confirmed Sprint 30 from Lewis MacGregor ×114 Extensive GK (143→191 OVR). |
+| Coach XP baseline | `baseXpPerSession = 450` — recalibrated Sprint 31 from four Dallas/Grant data points (implied 409–495, mean 443). Original 220 was calibrated against stepped cost table; exponential model (Sprint 25) required higher bXPS. |
 | Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=55 — confirmed Sprint 25 from observed gain ratio. |
 | Talent multipliers | Normal (×1.0) confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Fastest (×1.5) and Fast (×1.25) are community estimates — empirical calibration against known-Fastest/Fast players pending. |
@@ -733,7 +737,8 @@ The coach preview section displays three read-only tables side by side: OFFERING
 | 1.8 | Sprint 24 | Star decay bug fixed in `estimateStatGainPct`. `baseXpPerSession` 150 → 220. Double-tap player chip → player edit screen. `profiles/calibration_data.json` created. |
 | 1.9 | Sprint 25 | Exponential XP cost model: `xpBaseForStat = C₀ × exp(stat/K)`, C₀=2.94, K=55. `xpCostBase` and `xpCostDecayK` added to GameProfile interface. Community formula structure confirmed. |
 | 2.0 | Sprints 26–27 | Talent confirmed Normal for both calibration players. `player_seeds.json` created. Rogers 3rd role corrected AMC → DL (identical white stats to Grant). Role detection anchored to Roles: label Y-band. Kevin McGinty identified (age 27, AMC). OVR formula fixed `Math.floor` → `Math.ceil` — confirmed from 4 data points. |
-| 2.1 | Sprints 28–30 | Animated splash + per-tab background art. Focused coach scan fix (normalise OCR case). Concatenated role token greedy parser. GK category always-reload fix. `drillLevelMult` removed from coach projection (coaches use 1.0, not VH×1.7). `drillXpFactor = 0.3` added for drill budget scaling. Coaches tab tier section removed. Results tab rewritten as combined drill+coach+tier hub with history pickers. `coachHistoryService` + `drillPlanHistoryService` + new DB tables. Lewis MacGregor ×114 Extensive GK confirms bXPS=220 (143→191 OVR matches app prediction). |
+| 2.1 | Sprints 28–30 | Animated splash + per-tab background art. Focused coach scan fix (normalise OCR case). Concatenated role token greedy parser. GK category always-reload fix. `drillLevelMult` removed from coach projection (coaches use 1.0, not VH×1.7). `drillXpFactor = 0.3` added for drill budget scaling. Coaches tab tier section removed. Results tab rewritten as combined drill+coach+tier hub with history pickers. `coachHistoryService` + `drillPlanHistoryService` + new DB tables. Lewis MacGregor ×114 Extensive GK at bXPS=220 gives 143→191 OVR match (pre-recalibration). |
+| 2.2 | Sprints 31–32 | **Sprint 31:** `baseXpPerSession` recalibrated 220→450 (exponential model re-baseline from 4 data points). Coaches tab crash on sessions input fixed (stale `setSelectedTier`). CROSSING detection fixed (secondary embedded-stat scan). DMC STRENGTH moved to secondary. `OCR_STAT_CORRECTIONS` for TACKLING misreads. Three new calibration players: Cptn Dallas, Rayne, age-24 DMC. **Sprint 32:** `customCoachEngine.ts` rewritten — deprecated `calculateDynamicGain` shim replaced with `estimateStatGainPct`; `PlayerStats` gains `statValue`+`talent`; function gains `profile` parameter. Branch transition to `claude/test-connection-I2s8B`. |
 
 ---
 

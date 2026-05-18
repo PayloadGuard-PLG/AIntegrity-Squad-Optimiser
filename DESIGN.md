@@ -168,6 +168,7 @@ These files contain all the math. Editing them for cosmetic reasons is always wr
 |---|---|
 | `src/logic/ovrProjector.ts` | OVR projection chain: drills → tier → restorers |
 | `src/logic/xpEngine.ts` | Stat gain per session (XP formula) |
+| `src/logic/customCoachEngine.ts` | `predictCustomDrill` — per-stat coaching gain prediction wired to real XP engine |
 | `src/logic/fixtureEngine.ts` | Fixture cycles, team play plan, restorer bridge |
 | `src/logic/investmentEngine.ts` | Top-level plan orchestration |
 | `src/logic/coachScanner.ts` | OCR → coach stat extraction |

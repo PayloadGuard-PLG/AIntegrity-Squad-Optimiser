@@ -15,6 +15,26 @@
 
 ---
 
+## Fixed — Sprint 32 (2026-05-18)
+
+| ID | Area | Fix |
+|---|---|---|
+| F56 | customCoachEngine — deprecated shim, no GameProfile | `predictCustomDrill` called `calculateDynamicGain` (deprecated shim in `coachMath.ts`) without a `GameProfile`. Fallback hardcoded `ageFactor = 0.2` for any player over 21. Fixed: rewritten to call `estimateStatGainPct` with actual `statValue`, `talent`, and `profile`. XP budget = `sessions × baseXpPerSession × coachMultiplier`. `PlayerStats` interface gains `statValue` and `talent` fields; function gains `profile` parameter. |
+
+---
+
+## Fixed — Sprint 31 (2026-05-18)
+
+| ID | Area | Fix |
+|---|---|---|
+| F57 | Coaches tab crash on sessions input | Sprint 30 removed the tier section but left `setSelectedTier(null)` in the sessions `onChangeText` handler. App crashed on keystroke. Removed the stale call. |
+| F58 | CROSSING never detected by coach scanner | 3-column OCR merge: ML Kit collapsed adjacent-column text into single blocks (`"194 + 4-6 Crossing"`). CROSSING (ATT column) never appeared as a standalone token. Secondary embedded-stat regex scan added to `rowText` in `coachScanner.ts`. |
+| F59 | bXPS=220 massively under-predicts with exponential cost model | Sprint 25 switched to the exponential model without re-calibrating bXPS. Back-calculated from four Dallas/Grant data points: 409–495, mean 443 → set to 450. Validated against Dallas ×4 Safeguard all-three-stats ranges. |
+| F60 | DMC STRENGTH incorrectly essential | STRENGTH was in DMC's white list from prior MC/AMC adjacency carry-over. Game confirms grey for pure DMC. Moved to secondary in `roleWeights.ts`. |
+| F61 | OCR misreads TACKLING as TACKIING or TACKL1NG | `OCR_STAT_CORRECTIONS` map added in `playerScanner.ts` to normalise these misreads. |
+
+---
+
 ## Fixed — Sprint 30 (2026-05-18)
 
 | ID | Area | Fix |
