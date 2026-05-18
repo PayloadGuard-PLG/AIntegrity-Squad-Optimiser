@@ -158,6 +158,62 @@
       ],
       "source_screenshots": ["coaches_tab_projection (test protocol, build 83a1ec6)", "c73136c5 (game coach planner — scan source)"],
       "last_updated": "2026-05-17"
+    },
+    {
+      "name": "MacGregor",
+      "age": 18,
+      "roles": ["GK"],
+      "roles_note": "GK only. Confirmed from game card and training report screenshots (sprint 32).",
+      "tier": "T2",
+      "tier_game_name": "Elite",
+      "talent": "Slow",
+      "talentMultiplier": 0.7,
+      "talentConfirmed": true,
+      "talentSource": "Sprint 30 — confirmed Slow from coaching rate observations.",
+      "isMutantCandidate": false,
+      "ovr_calc": 145.4,
+      "ovr_game": 145,
+      "stats": {
+        "REFLEXES": 144,
+        "AGILITY": 143,
+        "ANTICIPATION": 156,
+        "RUSHING OUT": 172,
+        "COMMUNICATION": 138,
+        "THROWING": 168,
+        "KICKING": 152,
+        "PUNCHING": 141,
+        "AERIAL REACH": 149,
+        "CONCENTRATION": 157,
+        "FITNESS": 165,
+        "STRENGTH": 129,
+        "AGGRESSION": 132,
+        "SPEED": 124,
+        "CREATIVITY": 111
+      },
+      "white_stats": ["REFLEXES","AGILITY","ANTICIPATION","RUSHING OUT","COMMUNICATION","THROWING","KICKING","PUNCHING","AERIAL REACH","CONCENTRATION","FITNESS"],
+      "grey_stats": ["STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
+      "white_stat_count": 11,
+      "ovr_verification": "sum=2181, floor(2181/15)=floor(145.4)=145 ✓",
+      "back_calculated_t0": {
+        "note": "Pre-tier T0 stats derived by subtracting T2 cumulative bonus (+30) from 11 white stats. Represents post-coaching, pre-tier state.",
+        "stats": {
+          "REFLEXES": 114, "AGILITY": 113, "ANTICIPATION": 126, "RUSHING OUT": 142, "COMMUNICATION": 108,
+          "THROWING": 138, "KICKING": 122, "PUNCHING": 111, "AERIAL REACH": 119, "CONCENTRATION": 127,
+          "FITNESS": 135, "STRENGTH": 129, "AGGRESSION": 132, "SPEED": 124, "CREATIVITY": 111
+        },
+        "sum": 1851,
+        "ovr": 123
+      },
+      "playstyle": {
+        "name": "Sweeper Keeper",
+        "level": "Standard",
+        "effect": "x1",
+        "unlocked": true,
+        "system_note": "Playstyles are a game progression system — not modelled in the XP engine. Earn Playstyle points (Defender category for Sweeper Keeper) to level up. Levels: Standard(x1) → Intermediate(x2) → Advanced(x3) → Master(x4). Points must match playstyle category. Levelling above Standard requires Playstyle boosters."
+      },
+      "training_history_note": "×114 Extensive Goalkeeping session (Slow talent ×0.7, age 18 ageMult ×1.0, 11 white stats). Drills done first, then coaching, then T1→T2 tier upgrade — optimal sequence confirmed. OCR of coach preview detected 8/11 stats (THROWING, AERIAL REACH, FITNESS merged into adjacent column tokens — known GK scan limitation).",
+      "source_screenshots": ["5f2228ee (training report post-coaching)", "c341397d (skills tab — all 15 stats confirmed)"],
+      "last_updated": "2026-05-18"
     }
   ]
 }

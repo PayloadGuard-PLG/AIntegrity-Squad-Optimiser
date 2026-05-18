@@ -558,6 +558,66 @@
       "note": "Ratio 2.43 is sub-linear. Exponential cost model alone should give ~3.65 ratio for this stat range. Remaining 33% sub-linearity unexplained. Possible causes: (a) geometric session decay not yet applied in budget formula, (b) age-related reduction compounding with cost curve, (c) model K parameter off. Needs player age to resolve."
     }
   ],
+  "lewis_macgregor": {
+    "id": "lewis_macgregor",
+    "name": "Lewis MacGregor",
+    "age": 18,
+    "roles": ["GK"],
+    "talent": "Slow",
+    "talentMultiplier": 0.7,
+    "talentConfirmed": true,
+    "talentSource": "Sprint 30 coaching rate observations",
+    "tier": "T2",
+    "whiteStats": ["REFLEXES","AGILITY","ANTICIPATION","RUSHING OUT","COMMUNICATION","THROWING","KICKING","PUNCHING","AERIAL REACH","CONCENTRATION","FITNESS"],
+    "greyStats": ["STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
+    "whiteStatCount": 11,
+    "snapshots": [
+      {
+        "snapshotId": "macgregor_t0_post_coaching",
+        "tier": "T0",
+        "note": "Back-calculated by subtracting T2 cumulative tier bonus (+30 per white stat) from confirmed T2 stats. Represents state after ×114 Extensive Goalkeeping, before tier upgrades.",
+        "stats": {
+          "REFLEXES": 114, "AGILITY": 113, "ANTICIPATION": 126, "RUSHING OUT": 142, "COMMUNICATION": 108,
+          "THROWING": 138, "KICKING": 122, "PUNCHING": 111, "AERIAL REACH": 119, "CONCENTRATION": 127,
+          "FITNESS": 135, "STRENGTH": 129, "AGGRESSION": 132, "SPEED": 124, "CREATIVITY": 111
+        },
+        "sum": 1851,
+        "ovr_calc": 123,
+        "source": "Derived from T2 confirmed stats (sprint 32 screenshots)"
+      },
+      {
+        "snapshotId": "macgregor_t2_elite",
+        "tier": "T2",
+        "tierGameName": "Elite",
+        "tierAttrAddition": 30,
+        "stats": {
+          "REFLEXES": 144, "AGILITY": 143, "ANTICIPATION": 156, "RUSHING OUT": 172, "COMMUNICATION": 138,
+          "THROWING": 168, "KICKING": 152, "PUNCHING": 141, "AERIAL REACH": 149, "CONCENTRATION": 157,
+          "FITNESS": 165, "STRENGTH": 129, "AGGRESSION": 132, "SPEED": 124, "CREATIVITY": 111
+        },
+        "sum": 2181,
+        "ovr_calc": 145,
+        "ovr_game": 145,
+        "source": "Screenshots 5f2228ee (training report) + c341397d (skills tab) — sprint 32"
+      }
+    ],
+    "observations": [
+      {
+        "id": "macgregor_114x_extensive_gk",
+        "coachType": "Extensive",
+        "coachCategory": "Goalkeeping",
+        "multiplier": 114,
+        "playerOvr_t0_before": "unknown — pre-coaching baseline not captured",
+        "playerOvr_t0_after": 123,
+        "playerAge": 18,
+        "ageMult": 1.0,
+        "talentMult": 0.7,
+        "note": "OCR of coach preview detected 8/11 GK stats. THROWING, AERIAL REACH, FITNESS missed — embedded in adjacent 3-column OCR merge tokens. Workaround: tap Goalkeeping category button after scan to force-reload all 11 GK stats.",
+        "training_sequence": "Drills first → ×114 Extensive Goalkeeping → T1 upgrade → T2 upgrade. Optimal sequence (drills before coaching before tiers) confirmed.",
+        "playstyle_unlock": "Sweeper Keeper unlocked during or after this session at Standard level (Effect ×1)"
+      }
+    ]
+  },
   "calibrationStatus": {
     "lastUpdated": "2026-05-18",
     "formulaStatus": "PROVISIONAL",
