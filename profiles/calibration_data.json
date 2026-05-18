@@ -664,7 +664,7 @@
           "implied_slow_talent_mult": 0.47,
           "implied_slow_talent_mult_vs_hi": 0.54,
           "current_slow_talent_mult": 0.7,
-          "action": "DO NOT change talentMultipliers.Slow until actual post-session stat gains are measured and back-calculated. Confirm real game result for this x114 session then back-calculate: implied_mult = 0.7 * (actual_gain / engine_gain) for any single white stat."
+          "action": "CALIBRATED 2026-05-18. game_2025.json talentMultipliers.Slow updated from 0.7 to 0.47. Back-calculated from 11 per-stat ratios (engine vs game midpoint): mean implied mult = 0.471, range 0.455–0.479. OVR-level confirmation: engine +42 vs game midpoint +28 → ratio 1.50 → implied 0.7/1.50 = 0.467. Consistent. Single player, single session — flag for re-confirmation with additional Slow talent player data."
         },
         "ocr_notes": "First scan (no player selected): 0/11 stats — expected. Second scan (player selected): 11/11 stats captured including ANTICIPATION (previously truncated to 'Anticipatio' — fixed sprint 32), THROWING, FITNESS, AERIAL REACH via embedded-stat fallback. No CONCENTRATION duplicate. Clean scan.",
         "training_sequence": "Drills first → ×114 Extensive Goalkeeping → T1 upgrade → T2 upgrade. Optimal sequence (drills before coaching before tiers) confirmed.",
