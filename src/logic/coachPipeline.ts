@@ -30,7 +30,7 @@ export function resolveCoachStats(
   playerRole: string[],
 ): string[] {
   const catList = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : null;
-  const detected = scan.stats.map(s => s.statName);
+  const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
 
   if (detected.length > 0) {
     if (catList) {
