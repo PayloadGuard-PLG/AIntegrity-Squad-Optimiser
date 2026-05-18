@@ -39,6 +39,8 @@ export interface GameProfile {
   maxBaseOvr: number;
   /** XP units awarded per coaching/drill session before multipliers */
   baseXpPerSession: number;
+  /** Scaling factor for drill budget vs coach budget — UNCALIBRATED, needs real drill data */
+  drillXpFactor?: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
   /** OVR gain per star threshold — decay applies each time cumulative session OVR gain crosses a multiple of this */
