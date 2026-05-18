@@ -126,9 +126,6 @@ export default function NewPlayerScreen() {
         setScanned(true);
         setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
-        if (!inputs['TACKLING'] && !inputs['REFLEXES']) {
-          Alert.alert('OCR — TACKLING MISS', data._debug ?? 'no debug text');
-        }
       } else if (data.overall) {
         if (data.name) setName(data.name);
         if (data.age) setAge(data.age.toString());

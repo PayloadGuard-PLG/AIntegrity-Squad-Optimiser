@@ -2,6 +2,12 @@ import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
+
+// OCR misread corrections — applied before stat lookup
+const OCR_STAT_CORRECTIONS: Record<string, string> = {
+  'TACKIING': 'TACKLING',
+  'TACKL1NG': 'TACKLING',
+};
 const KNOWN_ROLES = ['GK', 'DC', 'DL', 'DR', 'DMC', 'MC', 'ML', 'MR', 'AMC', 'AML', 'AMR', 'ST'];
 const ROLES_BY_LEN = [...KNOWN_ROLES].sort((a, b) => b.length - a.length);
 
@@ -80,7 +86,7 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   for (let i = 0; i < tokens.length; i++) {
     if (used.has(i)) continue;
     const tok = tokens[i];
-    const upper = tok.text.toUpperCase();
+    const upper = OCR_STAT_CORRECTIONS[tok.text.toUpperCase()] ?? tok.text.toUpperCase();
 
     let statName = '';
     let consumed = [i];
@@ -227,11 +233,6 @@ export async function scanPlayerCard(imageUri: string): Promise<PlayerCardScan> 
   );
   const name = nameBlock?.text.trim();
 
-  const tackTok = tokens.find(t => t.text.toUpperCase() === 'TACKLING');
-  const near114 = tokens.filter(t => { const n = parseInt(t.text, 10); return n === 114 || n === 113 || n === 115; });
-  const coordLog = tackTok
-    ? `TACK Y=${tackTok.top} X=${tackTok.left} | near114: ${near114.map(t => `"${t.text}" Y=${t.top} X=${t.left}`).join(', ')}`
-    : `TACK not in tokens | near114: ${near114.map(t => `"${t.text}" Y=${t.top} X=${t.left}`).join(', ')}`;
-  const _debug = coordLog + ' || ' + fullText.replace(/\n/g, ' | ').slice(0, 150);
+  const _debug = fullText.replace(/\n/g, ' | ').slice(0, 300);
   return { name, age, roles: roles.length > 0 ? roles : undefined, overall, tier, talent, stats, newRole, newRolePoints, _debug };
 }
