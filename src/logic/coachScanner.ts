@@ -112,7 +112,22 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   // Note: stat names and their gain ranges are always in different ML Kit blocks — do NOT
   // restrict by blockIdx or gains will never be found.
   const used = new Set<number>();
-  const stats: StatCapture[] = [];
+  const captureMap = new Map<string, StatCapture>();
+
+  function upsertCapture(candidate: StatCapture): void {
+    const existing = captureMap.get(candidate.statName);
+    if (!existing) { captureMap.set(candidate.statName, candidate); return; }
+    // Prefer a real baseline value over an arrow-only capture (statBefore === 0)
+    if (candidate.statBefore > 0 && existing.statBefore === 0) {
+      captureMap.set(candidate.statName, candidate); return;
+    }
+    // Prefer narrower gain span — indicates a less ambiguous OCR read
+    const existingSpan = existing.gainHi - existing.gainLo;
+    const candidateSpan = candidate.gainHi - candidate.gainLo;
+    if (candidate.statBefore > 0 && candidateSpan < existingSpan) {
+      captureMap.set(candidate.statName, candidate);
+    }
+  }
 
   for (let i = 0; i < tokens.length; i++) {
     if (used.has(i)) continue;
@@ -152,11 +167,16 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
       const hi = parseInt(gainMatch[2]);
       // Sanity: lo plausible gain (not a stat value), hi ordered above lo, both in range
       if (lo > 0 && hi > 0 && hi > lo && hi <= 300 && lo <= 150) {
-        const rowNums = rowTokens
-          .map(t => parseInt(t.text, 10))
-          .filter(n => !isNaN(n) && n > 0 && n <= 340);
-        const statBefore = rowNums[0] ?? 0;
-        stats.push({ statName, statBefore, gainLo: lo, gainHi: hi });
+        // Pick the numeric token spatially nearest to the stat name token.
+        // rowNums[0] was wrong: in 3-column merged OCR rows the first number may belong
+        // to the adjacent column's stat, not to this one.
+        const nearestNumTok = rowTokens
+          .filter(t => { const n = parseInt(t.text, 10); return !isNaN(n) && n > 0 && n <= 340; })
+          .reduce<Token | null>((best, t) =>
+            !best || Math.abs(t.left - tok.left) < Math.abs(best.left - tok.left) ? t : best,
+          null);
+        const statBefore = nearestNumTok ? parseInt(nearestNumTok.text, 10) : 0;
+        upsertCapture({ statName, statBefore, gainLo: lo, gainHi: hi });
       }
     }
 
@@ -167,14 +187,14 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     // Match: STATNAME VALUE + lo-hi — the gain MUST follow the stat name and its value,
     // so POSITIONING's gain (before "Crossing") is never misattributed to CROSSING.
     for (const candidate of [...OUTFIELD_STATS, ...GK_STATS] as string[]) {
-      if (candidate === statName || stats.some(s => s.statName === candidate)) continue;
+      if (candidate === statName || captureMap.has(candidate)) continue;
       const escapedName = candidate.replace(/\s+/g, '\\s+');
       const embRE = new RegExp(`\\b${escapedName}\\b\\s+(\\d+)\\s*\\+?\\s*(\\d+)\\s*[-–—]\\s*(\\d+)`, 'i');
       const em = embRE.exec(rowText);
       if (!em) continue;
       const eLo = parseInt(em[2]), eHi = parseInt(em[3]);
       if (eLo > 0 && eHi > 0 && eHi > eLo && eHi <= 300 && eLo <= 150) {
-        stats.push({ statName: candidate, statBefore: parseInt(em[1]), gainLo: eLo, gainHi: eHi });
+        upsertCapture({ statName: candidate, statBefore: parseInt(em[1]), gainLo: eLo, gainHi: eHi });
       }
     }
 
@@ -184,7 +204,7 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
       // resolveCoachStats in coachPipeline.ts uses only statName; zero gains are ignored.
       const hasArrow = rowTokens.some(t => ARROW_RE.test(t.text));
       if (hasArrow) {
-        stats.push({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
+        upsertCapture({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
       }
     }
 
@@ -195,5 +215,6 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     .map((b, i) => `[${i}] ${b.text.replace(/\n/g, ' ').slice(0, 60)}`)
     .join(' | ');
 
+  const stats = Array.from(captureMap.values());
   return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, stats, _debugBlocks };
 }
