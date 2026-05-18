@@ -75,8 +75,8 @@ export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: 
     secondary: ['HEADING', 'CROSSING', 'FINISHING', 'AGGRESSION'],
   },
   DMC: {
-    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'FITNESS', 'STRENGTH', 'AGGRESSION', 'CREATIVITY'],
-    secondary: ['DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'SPEED'],
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'FITNESS', 'AGGRESSION', 'CREATIVITY'],
+    secondary: ['DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING', 'SPEED', 'STRENGTH'],
   },
   DC:  {
     essential: ['POSITIONING', 'HEADING', 'FITNESS', 'STRENGTH', 'AGGRESSION'],
