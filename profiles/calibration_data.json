@@ -567,7 +567,10 @@
       "playerOvr": 115,
       "playerTalent": "Normal",
       "playerTalentMult": 1.0,
-      "playerAge": "unknown — back-calc from x4 TACKLING gain (~+11.8 at budget 360) implies ageMult ~0.85 (age 21–23 bracket)",
+      "playerAge": 22,
+      "playerAgeMult": 0.85,
+      "playerAgeConfirmed": true,
+      "playerAgeSource": "Confirmed by user 2026-05-18. Age 22 → bracket 21–23 → ageMult 0.85.",
       "roles": "DMC MC DC (inferred from white stat pattern)",
       "stats": {
         "TACKLING": 114, "MARKING": 126, "POSITIONING": 127, "HEADING": 107, "BRAVERY": 124,
@@ -599,7 +602,16 @@
         "prediction": "If geometric decay applies: x40 OVR gain ≈ x20 OVR gain × 1.044 ≈ 12.5. Game would show ~12–13 OVR for x40, NOT 19.",
         "linear_prediction": "If linear (current engine): x40 OVR gain = 19 (as shown)."
       },
-      "action_needed": "Run x40 Standard Safeguard on Brandon Prentice. Screenshot before/after player card. If actual OVR gain is ~12–13 → geometric decay confirmed. If ~17–19 → linear model confirmed. This resolves Issue 5 in RESEARCH_PROMPT.md."
+      "action_needed": "Run x40 Standard Safeguard on Brandon Prentice. Screenshot before/after player card. If actual OVR gain is ~12–13 → geometric decay confirmed. If ~17–19 → linear model confirmed. This resolves Issue 5 in RESEARCH_PROMPT.md.",
+      "reward_coach_observation": {
+        "date": "2026-05-18",
+        "note": "Reward Coach Standard Safeguard x4. Reward Coaches assumed to use same XP budget as regular Standard coaches — no evidence of extra boost (user confirmed). Only 3 stats boosted (cross-category): MARKING, POSITIONING, AGGRESSION. Regular Standard Safeguard boosts all 5 DEF stats.",
+        "statsCoached": ["MARKING", "POSITIONING", "AGGRESSION"],
+        "numStats": 3,
+        "engine_projection_x4": { "MARKING": 15.4, "POSITIONING": 15.1, "AGGRESSION": 11.6, "ovrGain": 3, "ovrAfter": 118.0 },
+        "budget_per_stat": 600,
+        "actual_needed": "Run this Reward Coach x4, screenshot after. Compare vs +15.4/+15.1/+11.6."
+      }
     }
   ],
   "lewis_macgregor": {
