@@ -118,7 +118,7 @@ export default function ResultsScreen() {
         const drill = DRILL_LIST.find(d => d.name === drillName);
         if (!drill) continue;
         const drillMult = (profile.drillLevelMultipliers as Record<string, number>)[drill.intensity] ?? 1.0;
-        const budget = plan.cycles * profile.baseXpPerSession / drill.stats.length;
+        const budget = plan.cycles * profile.baseXpPerSession * (profile.drillXpFactor ?? 1.0) / drill.stats.length;
         for (const stat of drill.stats) {
           const from = currentStats[stat];
           if (from === undefined) continue;

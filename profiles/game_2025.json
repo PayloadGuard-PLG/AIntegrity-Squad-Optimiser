@@ -146,6 +146,7 @@
   "statCap": 9999,
   "maxBaseOvr": 180,
   "baseXpPerSession": 220,
+  "drillXpFactor": 0.3,
   "twoxAdMultiplier": 2.0,
   "starDecayPerSession": 0.85,
   "starOvrThreshold": 20,
