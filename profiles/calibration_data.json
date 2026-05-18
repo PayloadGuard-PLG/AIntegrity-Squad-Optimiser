@@ -558,6 +558,48 @@
       "gainRatio_40_to_10": 2.43,
       "expectedRatioLinear": 4.0,
       "note": "Ratio 2.43 is sub-linear. Exponential cost model alone should give ~3.65 ratio for this stat range. Remaining 33% sub-linearity unexplained. Possible causes: (a) geometric session decay not yet applied in budget formula, (b) age-related reduction compounding with cost curve, (c) model K parameter off. Needs player age to resolve."
+    },
+    {
+      "id": "brandon_prentice_xN_safeguard",
+      "date": "2026-05-18",
+      "purpose": "xN session scaling test — engine projections at x4/x20/x40 for same player/coach. Actual game results needed to confirm or refute linear budget model.",
+      "player": "Brandon Prentice",
+      "playerOvr": 115,
+      "playerTalent": "Normal",
+      "playerTalentMult": 1.0,
+      "playerAge": "unknown — back-calc from x4 TACKLING gain (~+11.8 at budget 360) implies ageMult ~0.85 (age 21–23 bracket)",
+      "roles": "DMC MC DC (inferred from white stat pattern)",
+      "stats": {
+        "TACKLING": 114, "MARKING": 126, "POSITIONING": 127, "HEADING": 107, "BRAVERY": 124,
+        "PASSING": 115, "DRIBBLING": 117, "CROSSING": 96, "SHOOTING": 125, "FINISHING": 99,
+        "FITNESS": 130, "STRENGTH": 96, "AGGRESSION": 105, "SPEED": 131, "CREATIVITY": 120
+      },
+      "sum": 1732,
+      "ovrCheck": "floor(1732/15) = 115 ✓",
+      "coach": "Standard Safeguard x4 (same scan reused; session count changed manually to x20, x40)",
+      "numStats": 5,
+      "statsCoached": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY"],
+      "engine_projections": {
+        "x4":  { "ovrGain": 3,  "ovrAfter": 118.0, "statGains": { "TACKLING": 11.8, "MARKING": 9.7,  "POSITIONING": 9.6,  "HEADING": 7.0,  "BRAVERY": 10.0 } },
+        "x20": { "ovrGain": 12, "ovrAfter": 127.0, "statGains": { "TACKLING": 43.4, "MARKING": 37.2, "POSITIONING": 36.7, "HEADING": 28.6, "BRAVERY": 38.2 } },
+        "x40": { "ovrGain": 19, "ovrAfter": 134.0, "statGains": { "TACKLING": 67.4, "MARKING": 59.2, "POSITIONING": 58.5, "HEADING": 47.3, "BRAVERY": 60.5 } }
+      },
+      "xN_ratios_engine": {
+        "x20_vs_x4_ovr": 4.0,
+        "x40_vs_x4_ovr": 6.33,
+        "x40_vs_x20_ovr": 1.58,
+        "note": "Sub-linearity from exponential cost curve alone (expected — not evidence of session decay). TACKLING ratio x40/x20 = 67.4/43.4 = 1.55. At x20 TACKLING rises ~43pts (114→157), at x40 next 24pts cost more as stat is higher."
+      },
+      "geometric_decay_prediction": {
+        "starDecayPerSession": 0.85,
+        "effectiveSessions_x4":  3.24,
+        "effectiveSessions_x20": 6.38,
+        "effectiveSessions_x40": 6.66,
+        "x40_vs_x20_effective_ratio": 1.044,
+        "prediction": "If geometric decay applies: x40 OVR gain ≈ x20 OVR gain × 1.044 ≈ 12.5. Game would show ~12–13 OVR for x40, NOT 19.",
+        "linear_prediction": "If linear (current engine): x40 OVR gain = 19 (as shown)."
+      },
+      "action_needed": "Run x40 Standard Safeguard on Brandon Prentice. Screenshot before/after player card. If actual OVR gain is ~12–13 → geometric decay confirmed. If ~17–19 → linear model confirmed. This resolves Issue 5 in RESEARCH_PROMPT.md."
     }
   ],
   "lewis_macgregor": {
