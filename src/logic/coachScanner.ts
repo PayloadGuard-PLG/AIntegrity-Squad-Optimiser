@@ -2,6 +2,15 @@ import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
+
+// ML Kit misreads seen on coach preview stat labels
+const COACH_OCR_CORRECTIONS: Record<string, string> = {
+  'ANTICIPATIO':  'ANTICIPATION',
+  'ANTICIPAT1ON': 'ANTICIPATION',
+  'CONCENTRAT1ON': 'CONCENTRATION',
+  'COMMUNICAT1ON': 'COMMUNICATION',
+};
+
 const Y_TOL_NAME = 25; // two-word stat name detection (RUSHING OUT, AERIAL REACH)
 const Y_TOL_VAL  = 18; // gain range row lookup — tighter than row spacing to prevent adjacent-row bleed
 const GAIN_RE_STAT = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/; // + optional: OCR drops it on bright teal backgrounds
@@ -132,7 +141,8 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   for (let i = 0; i < tokens.length; i++) {
     if (used.has(i)) continue;
     const tok = tokens[i];
-    const upper = tok.text.toUpperCase();
+    const rawUpper = tok.text.toUpperCase();
+    const upper = COACH_OCR_CORRECTIONS[rawUpper] ?? rawUpper;
 
     let statName = '';
     let consumed = [i];
@@ -141,7 +151,8 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
       statName = upper;
     } else if (i + 1 < tokens.length) {
       const next = tokens[i + 1];
-      const twoWord = upper + ' ' + next.text.toUpperCase();
+      const nextUpper = COACH_OCR_CORRECTIONS[next.text.toUpperCase()] ?? next.text.toUpperCase();
+      const twoWord = upper + ' ' + nextUpper;
       if (ALL_STATS.has(twoWord as any) && Math.abs(next.top - tok.top) < Y_TOL_NAME) {
         statName = twoWord;
         consumed = [i, i + 1];
