@@ -657,6 +657,26 @@
           "profile_slow_mult": 0.47,
           "game_ovr_boost_range": [24, 32],
           "result": "Engine +25 is within game projected range [24, 32]. Under-predicts midpoint (+28) by 3 OVR. Primary fix was DB talent correction (×1.0→×0.7); secondary fix was profile 0.7→0.47. 0.47 gives tighter match than 0.7 would (0.7 profile would give ~+38, over by ~10).",
+          "statGains": {
+            "REFLEXES": 38.1, "AGILITY": 38.8, "ANTICIPATION": 32.4,
+            "RUSHING OUT": 25.8, "COMMUNICATION": 41.1,
+            "THROWING": 27.4, "KICKING": 34.2, "PUNCHING": 39.6,
+            "AERIAL REACH": 35.6, "CONCENTRATION": 32.0, "FITNESS": 28.6
+          },
+          "per_stat_vs_game_range": {
+            "REFLEXES":      { "engine": 38.1, "gameRange": [35, 48], "inRange": true  },
+            "AGILITY":       { "engine": 38.8, "gameRange": [36, 49], "inRange": true  },
+            "ANTICIPATION":  { "engine": 32.4, "gameRange": [31, 44], "inRange": true  },
+            "RUSHING OUT":   { "engine": 25.8, "gameRange": [28, 33], "inRange": false, "delta": -2.2 },
+            "COMMUNICATION": { "engine": 41.1, "gameRange": [36, 51], "inRange": true  },
+            "THROWING":      { "engine": 27.4, "gameRange": [29, 36], "inRange": false, "delta": -1.6 },
+            "KICKING":       { "engine": 34.2, "gameRange": [32, 46], "inRange": true  },
+            "PUNCHING":      { "engine": 39.6, "gameRange": [35, 49], "inRange": true  },
+            "AERIAL REACH":  { "engine": 35.6, "gameRange": [34, 47], "inRange": true  },
+            "CONCENTRATION": { "engine": 32.0, "gameRange": [31, 43], "inRange": true  },
+            "FITNESS":       { "engine": 28.6, "gameRange": [29, 38], "inRange": false, "delta": -0.4 }
+          },
+          "summary": "9/11 stats within game projected range. 3 stats slightly below lo bound: RUSHING OUT (−2.2), THROWING (−1.6), FITNESS (−0.4). Consistent with mild under-prediction — engine slightly below midpoint on most stats. OVR total +25 within game [24,32]. Screenshot source: 27bb0f64-48079.png (sprint 32 calibration session).",
           "confirmed": true,
           "confirmed_date": "2026-05-18"
         },
