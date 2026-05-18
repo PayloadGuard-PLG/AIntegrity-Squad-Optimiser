@@ -489,6 +489,50 @@
     ],
     "conclusion": "Game uses ceil. floor and round both fail for Grant T3 (175.4 → ceil=176 ✓). Fixed in qualityPctToOvr() sprint 27."
   },
+  "bxps_recalibration": {
+    "finding": "bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally.",
+    "newValue": 450,
+    "evidence": [
+      {
+        "player": "Cptn Dallas",
+        "age": 23, "ageMult": 0.85,
+        "talent": "Normal", "talentMult": 1.0,
+        "roles": ["AMR","MR","DR"],
+        "coachType": "Standard", "coachCategory": "Safeguard",
+        "sessionCount": 4, "numStats": 3,
+        "stats": [
+          { "stat": "MARKING",    "value": 139, "isWhite": true, "gameRange": [11,16], "gameMid": 13.5, "impliedBxps": 495 },
+          { "stat": "POSITIONING","value": 194, "isWhite": true, "gameRange": [4,6],   "gameMid": 5.0,  "impliedBxps": 455 },
+          { "stat": "AGGRESSION", "value": 189, "isWhite": true, "gameRange": [4,6],   "gameMid": 5.0,  "impliedBxps": 414 }
+        ],
+        "impliedBxpsAvg": 455,
+        "screenshots": ["5d0a44a1 (app scan)", "71118e85 (game preview)"],
+        "sessionDate": "2026-05-18"
+      },
+      {
+        "player": "Ricky Grant",
+        "age": 20, "ageMult": 1.0,
+        "talent": "Normal", "talentMult": 1.0,
+        "roles": ["DL","ML","AML"],
+        "coachType": "Standard", "coachCategory": "Defending",
+        "sessionCount": 40, "numStats": 5,
+        "stats": [
+          { "stat": "TACKLING", "value": 120, "isWhite": true, "actualRange": [59,73], "actualMid": 66, "impliedBxps": 409 }
+        ],
+        "impliedBxpsAvg": 409,
+        "note": "Grant data is actual before/after stats, not game-predicted range. Mid-range used as best estimate.",
+        "sessionDate": "2026-05-16"
+      }
+    ],
+    "chosenBxps": 450,
+    "rationale": "Mean of 4 estimates: 495, 455, 414, 409 → mean 443. Rounded to 450. All four independent back-calculations cluster in 410–500 range, consistent with ~2× underestimate at bXPS=220.",
+    "validationWithNewBxps": {
+      "dallas_marking_139": { "predicted": 12.46, "gameRange": [11,16], "pass": true },
+      "dallas_positioning_194": { "predicted": 4.92, "gameRange": [4,6], "pass": true },
+      "dallas_aggression_189": { "predicted": 5.36, "gameRange": [4,6], "pass": true },
+      "grant_tackling_120": { "predicted": 69.5, "actualRange": [59,73], "pass": true }
+    }
+  },
   "controlled_tests": [
     {
       "testId": "xN_ratio_ext_safeguard_ovr99",
@@ -515,7 +559,7 @@
     }
   ],
   "calibrationStatus": {
-    "lastUpdated": "2026-05-16",
+    "lastUpdated": "2026-05-18",
     "formulaStatus": "PROVISIONAL",
     "confirmedParameters": {
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
@@ -535,6 +579,6 @@
       "OVR +1 discrepancy: both players show 1 OVR higher in game than our formula computes. Possibly a stat slightly mis-read in our screenshot transcription.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations."
     ],
-    "keyInsight": "BOTH calibration players are Normal talent (×1.0). Both now have 3 roles entered in app (DL+ML+AML for both Grant and Rogers). Rogers role corrected from AMC to DL in sprint 27 — both players now have identical role sets and identical white stat sets (13 white, 2 grey). bXPS=220 gives ~62 for Tackling 120 ×40 Standard (actual: 59-73). Reasonable."
+    "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21."
   }
 }
