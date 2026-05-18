@@ -115,14 +115,13 @@ export default function CoachesScreen() {
   }
 
   function selectCoachCategory(cat: string) {
-    const next = coachCategory === cat ? '' : cat;
-    setCoachCategory(next);
+    setCoachCategory(cat);
     setFocusedStatSel(new Set());
     setResult(null);
-    if (next && coachType !== 'Focused') {
-      const stats = CATEGORY_STATS[next] ?? [];
+    if (coachType !== 'Focused') {
+      const stats = CATEGORY_STATS[cat] ?? [];
       setScannedStats(stats);
-      buildStatus(stats, coachType, next, 'MANUAL');
+      buildStatus(stats, coachType, cat, 'MANUAL');
     } else {
       setScannedStats([]);
       setScanStatus('');
