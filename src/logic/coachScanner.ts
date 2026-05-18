@@ -11,7 +11,18 @@ const COACH_OCR_CORRECTIONS: Record<string, string> = {
   'COMMUNICAT1ON': 'COMMUNICATION',
 };
 
-const Y_TOL_NAME = 25; // two-word stat name detection (RUSHING OUT, AERIAL REACH)
+// Category stat sets used to filter the embedded-pass — prevents PHY-column stats
+// (e.g. AGGRESSION) from being captured when a DEF-column stat's rowText spans all 3 columns.
+// Must be kept in sync with CATEGORY_STATS in coachPipeline.ts.
+const CATEGORY_STAT_SETS: Record<string, Set<string>> = {
+  Attacking:   new Set(['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING']),
+  Defending:   new Set(['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY']),
+  Physical:    new Set(['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY']),
+  Safeguard:   new Set(['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY']),
+  Goalkeeping: new Set([...GK_STATS]),
+};
+
+ // two-word stat name detection (RUSHING OUT, AERIAL REACH)
 const Y_TOL_VAL  = 18; // gain range row lookup — tighter than row spacing to prevent adjacent-row bleed
 const GAIN_RE_STAT = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/; // + optional: OCR drops it on bright teal backgrounds
 const GAIN_RE_OVR  = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;  // + required for OVR boost (avoids N-N false matches)
@@ -195,10 +206,13 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     // into single blocks (e.g. "194 + 4-6 Crossing", "256 Aggression"). ATT/PHY stat names
     // that appear standalone can be detected above, but highlighted ATT/PHY stats whose names
     // are merged into a DEF-column block only appear embedded in this row's right-side text.
-    // Match: STATNAME VALUE + lo-hi — the gain MUST follow the stat name and its value,
-    // so POSITIONING's gain (before "Crossing") is never misattributed to CROSSING.
+    // Match: STATNAME VALUE + lo-hi — the gain MUST follow the stat name and its value.
+    // catFilter: when category is known, restrict to category stats only — prevents out-of-category
+    // column bleed (e.g. AGGRESSION appearing in POSITIONING's PHY-column rowText).
+    const catFilter = coachCategory ? (CATEGORY_STAT_SETS[coachCategory] ?? null) : null;
     for (const candidate of [...OUTFIELD_STATS, ...GK_STATS] as string[]) {
       if (candidate === statName || captureMap.has(candidate)) continue;
+      if (catFilter && !catFilter.has(candidate)) continue;
       const escapedName = candidate.replace(/\s+/g, '\\s+');
       const embRE = new RegExp(`\\b${escapedName}\\b\\s+(\\d+)\\s*\\+?\\s*(\\d+)\\s*[-–—]\\s*(\\d+)`, 'i');
       const em = embRE.exec(rowText);
