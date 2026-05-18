@@ -158,7 +158,27 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
         const statBefore = rowNums[0] ?? 0;
         stats.push({ statName, statBefore, gainLo: lo, gainHi: hi });
       }
-    } else {
+    }
+
+    // Secondary scan: the game's 3-column layout causes ML Kit to merge adjacent column text
+    // into single blocks (e.g. "194 + 4-6 Crossing", "256 Aggression"). ATT/PHY stat names
+    // that appear standalone can be detected above, but highlighted ATT/PHY stats whose names
+    // are merged into a DEF-column block only appear embedded in this row's right-side text.
+    // Match: STATNAME VALUE + lo-hi — the gain MUST follow the stat name and its value,
+    // so POSITIONING's gain (before "Crossing") is never misattributed to CROSSING.
+    for (const candidate of [...OUTFIELD_STATS, ...GK_STATS] as string[]) {
+      if (candidate === statName || stats.some(s => s.statName === candidate)) continue;
+      const escapedName = candidate.replace(/\s+/g, '\\s+');
+      const embRE = new RegExp(`\\b${escapedName}\\b\\s+(\\d+)\\s*\\+?\\s*(\\d+)\\s*[-–—]\\s*(\\d+)`, 'i');
+      const em = embRE.exec(rowText);
+      if (!em) continue;
+      const eLo = parseInt(em[2]), eHi = parseInt(em[3]);
+      if (eLo > 0 && eHi > 0 && eHi > eLo && eHi <= 300 && eLo <= 150) {
+        stats.push({ statName: candidate, statBefore: parseInt(em[1]), gainLo: eLo, gainHi: eHi });
+      }
+    }
+
+    if (!gainMatch) {
       // No-player-selected state: highlighted rows show stat name + ↑ arrow but no values.
       // Arrow is the only differentiator — capture stat name with zero gain values.
       // resolveCoachStats in coachPipeline.ts uses only statName; zero gains are ignored.

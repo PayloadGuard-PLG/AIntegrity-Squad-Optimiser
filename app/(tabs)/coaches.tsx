@@ -369,7 +369,7 @@ export default function CoachesScreen() {
                   <TextInput
                     keyboardType="numeric"
                     value={sessions}
-                    onChangeText={v => { setSessions(v.replace(/[^0-9]/g, '')); setResult(null); setSelectedTier(null); }}
+                    onChangeText={v => { setSessions(v.replace(/[^0-9]/g, '')); setResult(null); }}
                     placeholder="—"
                     placeholderTextColor={theme.inkGhost}
                     style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink, padding: 10, textAlign: 'center' }}
