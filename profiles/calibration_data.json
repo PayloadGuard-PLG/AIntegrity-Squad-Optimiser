@@ -566,7 +566,9 @@
     "age": 18,
     "roles": ["GK"],
     "talent": "Slow",
-    "talentMultiplier": 0.7,
+    "talentMultiplier": 0.47,
+    "talentMultiplier_community_estimate": 0.7,
+    "talentMultiplier_note": "0.47 calibrated 2026-05-18 from ×114 Extensive GK per-stat ratio analysis (engine vs game midpoint). Community estimate 0.7 retained for reference. Profile (game_2025.json) uses 0.47.",
     "talentConfirmed": true,
     "talentSource": "Sprint 30 coaching rate observations",
     "tier": "T2",
@@ -615,7 +617,8 @@
         "playerOvr_t0_after": 123,
         "playerAge": 18,
         "ageMult": 1.0,
-        "talentMult_profile": 0.7,
+        "talentMult_profile": 0.47,
+        "talentMult_profile_note": "Profile value at time of corrected calibration. Was 0.7 (community estimate) at initial scan.",
         "numStats": 11,
         "game_ovr_boost_range": [24, 32],
         "game_ovr_boost_note": "Block [4] in OCR: '145.8 +24-32' — game's own projection for ×114 session",
@@ -632,17 +635,30 @@
           { "stat": "CONCENTRATION", "statBefore": 157, "gainLo": 31, "gainHi": 43, "isWhite": true  },
           { "stat": "FITNESS",       "statBefore": 165, "gainLo": 29, "gainHi": 38, "isWhite": true  }
         ],
-        "engine_prediction": {
+        "engine_prediction_initial": {
           "ovrBefore": 145,
           "ovrAfter": 187.0,
           "ovrGain": 42,
           "source": "Coach Planner screenshot — sprint 32 session",
+          "db_talent_at_scan": "Normal (×1.0) — BUG: DB record had incorrect talent. Player is Slow (×0.7) per sprint 30 confirmation. The ×1.0 in DB was an entry error — not corrected until sprint 32 calibration session.",
           "statGains": {
             "REFLEXES": 62.6, "AGILITY": 63.3, "ANTICIPATION": 54.8,
             "RUSHING OUT": 45.2, "COMMUNICATION": 66.8,
             "THROWING": 47.5, "KICKING": 57.3, "PUNCHING": 64.7,
             "AERIAL REACH": 59.3, "CONCENTRATION": 54.1, "FITNESS": 49.3
           }
+        },
+        "engine_prediction_corrected": {
+          "ovrBefore": 145,
+          "ovrAfter": 170,
+          "ovrGain": 25,
+          "source": "Coach Planner re-scan — sprint 32 calibration session, after fixing DB talent to Slow (×0.7) and profile to 0.47",
+          "db_talent_at_scan": "Slow (×0.7) — corrected in Edit Player screen during calibration session",
+          "profile_slow_mult": 0.47,
+          "game_ovr_boost_range": [24, 32],
+          "result": "Engine +25 is within game projected range [24, 32]. Under-predicts midpoint (+28) by 3 OVR. Primary fix was DB talent correction (×1.0→×0.7); secondary fix was profile 0.7→0.47. 0.47 gives tighter match than 0.7 would (0.7 profile would give ~+38, over by ~10).",
+          "confirmed": true,
+          "confirmed_date": "2026-05-18"
         },
         "overprediction_analysis": {
           "engine_vs_game_hi_ratio_avg": 1.30,
@@ -684,7 +700,8 @@
       "tierIncrements_T2_T3": "+20 per white stat confirmed from Grant T2→T3 snapshots",
       "whiteStats_grant_DL_ML_AML": "13 stats confirmed (all except HEADING and STRENGTH)",
       "xpCostTable_0_199": "approximately correct based on mid-range stat observations",
-      "xpCostTable_200_plus": "PROVISIONAL — increased 1.5-1.8x from original based on Aggression 201 and Creativity 256 observations"
+      "xpCostTable_200_plus": "PROVISIONAL — increased 1.5-1.8x from original based on Aggression 201 and Creativity 256 observations",
+      "talent_jables_slow": "Slow ×0.47 calibrated 2026-05-18 from ×114 Extensive GK. Engine +25 within game [24,32]. Single player, single session — flag for re-confirmation. Primary finding: DB entry error (×1.0 Normal stored instead of ×0.7 Slow) was the dominant source of over-prediction (+42→+25 after DB fix alone)."
     },
     "openQuestions": [
       "bXPS recalibration: now that both talents are confirmed Normal (×1.0), recheck bXPS=220 against ALL calibration data. Tackling 120 ×40 Std → ~62 predicted vs 59-73 actual — within range. Recalibrate with clean data point.",
