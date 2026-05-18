@@ -1,32 +1,42 @@
-import { calculateDynamicGain } from '../utils/coachMath';
+import { estimateStatGainPct } from './xpEngine';
+import { GameProfile, TalentTier } from '../types/resources';
 
 export interface PlayerStats {
   age: number;
   tier: string;
   ovr: number;
   roles: string[];
+  statValue: number;
+  talent: TalentTier;
 }
 
 /**
- * Predicts drill effect with custom multipliers
+ * Predicts coaching gain for a single stat using the real XP engine.
+ * coachMultiplier scales the XP budget (e.g. ×1.5 coaching intensity).
  */
 export function predictCustomDrill(
   player: PlayerStats,
   coachMultiplier: number,
   sessions: number,
-  targetSkillIsWhite: boolean
+  targetSkillIsWhite: boolean,
+  profile: GameProfile
 ) {
-  const gainPerSession = calculateDynamicGain(
-    coachMultiplier,
+  const xpBudget = sessions * profile.baseXpPerSession * coachMultiplier;
+  const totalGain = estimateStatGainPct(
+    xpBudget,
+    player.statValue,
     player.age,
+    0,
+    player.talent,
     targetSkillIsWhite,
-    player.ovr
+    false,
+    1.0,
+    profile
   );
+  const gainPerSession = sessions > 0 ? totalGain / sessions : 0;
 
-  const totalGain = gainPerSession * sessions;
-  
   return {
-    gainPerSession,
+    gainPerSession: Number(gainPerSession.toFixed(4)),
     totalGain: Number(totalGain.toFixed(2)),
     projectedOvr: Number((player.ovr + totalGain).toFixed(2)),
     warning: player.age > 25 ? "Slow Trainer: Low Efficiency" : null
