@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 2.0 — Sprint 27**
+**Version 2.1 — Sprint 30**
 
 ---
 
@@ -60,12 +60,19 @@ xpNeededFor1Pct(
 ): number
 ```
 
-**XP budget per stat per drill run:**
+**XP budget per stat — coach session:**
 ```
-xpBudget = sessionCount × baseXpPerSession / drill.stats.length
+xpBudget = sessionCount × baseXpPerSession / selectedStats.count
 ```
 
-Budget is divided equally across all stats a drill trains. A 5-stat drill run for 30 sessions gives each stat 30 × 220 / 5 = **1,320 XP**.
+Budget divided equally across all stats the coach covers. A 5-stat coach block for ×40 sessions gives each stat `40 × 220 / 5 = 1,760 XP`.
+
+**XP budget per stat — drill session (Sprint 30):**
+```
+xpBudget = cycles × baseXpPerSession × drillXpFactor / drill.stats.length
+```
+
+Drills award significantly less XP per session than academy coaches. `drillXpFactor = 0.3` is a provisional scaling factor (uncalibrated — needs real drill before/after data).
 
 **Calibration — Standard Defending ×40 (Ricky Grant, age 20, Normal talent):**
 
@@ -74,6 +81,10 @@ Budget is divided equally across all stats a drill trains. A 5-stat drill run fo
 | Tackling | 120 | +59–73 | ~62 ✓ |
 
 `baseXpPerSession = 220` calibrated against this data point. Normal talent (×1.0) confirmed from intake form screenshot (Sprint 26).
+
+**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, Slow talent ×0.7):**
+
+Before: 143 OVR (T0). App projected 191 OVR after coach + T1 + T2 upgrade. Actual result: **191 OVR**. Confirms `baseXpPerSession = 220` holds for GK Extensive sessions. Slow talent (×0.7) confirmed correct.
 
 **Calibration — exponential model derivation:**
 
@@ -154,9 +165,9 @@ Ages not in the table interpolate linearly between the two nearest entries (`get
 | Normal | 1.00 |
 | Slow | 0.70 |
 
-### 3.6 Drill level multipliers (XP)
+### 3.6 Drill level multipliers (XP — drills only)
 
-These multipliers scale the XP budget available per session. They apply to stat-gain calculations only.
+Each drill has one fixed intensity level. The multiplier scales XP yield for that drill.
 
 | Level | XP multiplier |
 |---|---|
@@ -166,7 +177,9 @@ These multipliers scale the XP budget available per session. They apply to stat-
 | Hard | 1.55 |
 | Very Hard | 1.7 |
 
-**Note:** Condition loss uses a separate set of multipliers (`COND_LEVEL_MULTIPLIERS`) — see §5. The two sets are not interchangeable.
+**These multipliers do NOT apply to coach sessions.** Academy coaches have no adjustable intensity — `drillLevelMult = 1.0` is hardcoded for all coach projections. Earlier docs that said coaches run at "Very Hard (×1.7)" were incorrect — that was a bug fixed in Sprint 29.
+
+**Note:** Condition loss uses a separate set of multipliers (`condLevelMultipliers`) — see §5. The two sets are not interchangeable.
 
 ### 3.7 Grey stat weight
 
@@ -591,7 +604,8 @@ interface InvestmentPlan {
 | Item | Status |
 |---|---|
 | OVR formula | `Math.ceil` — confirmed Sprint 27 from 4 data points (McGinty, Rogers, Grant T2, Grant T3). Fixed in `qualityPctToOvr()`. |
-| Drill XP baseline | `baseXpPerSession = 220` — calibrated Sprint 24 against Standard Defending ×40, Normal talent, age 20. |
+| Coach XP baseline | `baseXpPerSession = 220` — calibrated Sprint 24 against Standard Defending ×40, Normal talent, age 20. Confirmed Sprint 30 from Lewis MacGregor ×114 Extensive GK (143→191 OVR). |
+| Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=55 — confirmed Sprint 25 from observed gain ratio. |
 | Talent multipliers | Normal (×1.0) confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Fastest (×1.5) and Fast (×1.25) are community estimates — empirical calibration against known-Fastest/Fast players pending. |
 | ×N anomaly | ×20 and ×40 sessions produce nearly equal projected gains. Geometric sum plateau hypothesis (sessions beyond ~20 contribute < 4% additional XP) is the working model. Empirical test needed. Do not change budget formula until confirmed. |
@@ -719,35 +733,58 @@ The coach preview section displays three read-only tables side by side: OFFERING
 | 1.8 | Sprint 24 | Star decay bug fixed in `estimateStatGainPct`. `baseXpPerSession` 150 → 220. Double-tap player chip → player edit screen. `profiles/calibration_data.json` created. |
 | 1.9 | Sprint 25 | Exponential XP cost model: `xpBaseForStat = C₀ × exp(stat/K)`, C₀=2.94, K=55. `xpCostBase` and `xpCostDecayK` added to GameProfile interface. Community formula structure confirmed. |
 | 2.0 | Sprints 26–27 | Talent confirmed Normal for both calibration players. `player_seeds.json` created. Rogers 3rd role corrected AMC → DL (identical white stats to Grant). Role detection anchored to Roles: label Y-band. Kevin McGinty identified (age 27, AMC). OVR formula fixed `Math.floor` → `Math.ceil` — confirmed from 4 data points. |
+| 2.1 | Sprints 28–30 | Animated splash + per-tab background art. Focused coach scan fix (normalise OCR case). Concatenated role token greedy parser. GK category always-reload fix. `drillLevelMult` removed from coach projection (coaches use 1.0, not VH×1.7). `drillXpFactor = 0.3` added for drill budget scaling. Coaches tab tier section removed. Results tab rewritten as combined drill+coach+tier hub with history pickers. `coachHistoryService` + `drillPlanHistoryService` + new DB tables. Lewis MacGregor ×114 Extensive GK confirms bXPS=220 (143→191 OVR matches app prediction). |
 
 ---
 
-## 13. Coaches Tab and Results Hub
+## 13. Coaches Tab and Results Hub (Sprint 30)
 
 ### 13.1 SESSION SIMULATOR (Coaches tab)
 
 `app/(tabs)/coaches.tsx` — models the effect of a coaching block on a single player. The user specifies:
 - **Subject** — player from squad
-- **Stat coverage** — 3-column grid (StatGrid component). White stats section + Grey/Non-role section, each rendered in rows of 3. Tap to toggle. Counter shows total selected.
-- **Sessions ×N** — how many coaching sessions (e.g. ×30 Standard Attacking, ×59 Standard Safeguard)
-- **Intensity** — locked to Very Hard (academy coaches have no adjustable difficulty)
+- **Stat coverage** — 3-column grid. White stats section + Grey/Non-role section. Tap to toggle. Counter shows total selected.
+- **Sessions ×N** — how many coaching sessions (e.g. ×30 Standard Attacking, ×114 Extensive GK)
 - **Talent** — read from player card (`player.talent`); no per-session dropdown
 
-The **2× AD multiplier** is absent from this tab. The 2× ad boost applies only to Teamplay drills, not Academy coaching. The engine hardcodes `twoxAd = false` for all coach projections.
+**No tier section.** The Coaches tab was stripped of its tier upgrade section in Sprint 30. Tier upgrade is available only in the Results tab.
 
-Output: per-stat gains (float), OVR before/after banner, optional TIER UPGRADE card showing combined OVR.
+**No intensity row.** Coaches have no adjustable drill level. `drillLevelMult = 1.0` is always used.
 
-**SAVE RUN TO SQUAD PLAN** — persists the current projection (sessions, selected stats, gains, OVR before/after, tier) to the `squad_plan_runs` table for the current player. Button confirms inline (text changes to ✓ SAVED).
+The **2× AD multiplier** is absent. The 2× ad boost applies only to Teamplay drills, not Academy coaching. The engine hardcodes `twoxAd = false` for all coach projections.
 
-**APPLY TO PLAYER CARD** writes post-coach stats + updated OVR (+ tier if selected) back to the player's DB record.
+Output: per-stat gains (float), OVR before/after banner.
 
-The Coach Session Capture screen (`/coach/capture`) is accessible for logging raw game data.
+**APPLY TO PLAYER CARD** writes post-coach stats + updated OVR back to the player's DB record.
 
-### 13.2 FULL PLAN (Results tab)
+**Auto-save to history:** Each coach scan/projection automatically saves to `coach_scan_history` via `coachHistoryService`. Saved entries appear as selectable items in the Results tab COACHING SESSIONS section.
 
-`app/(tabs)/results.tsx` — chains multiple coaching sessions + tier upgrades + restorers + recovery kits into a single sequential OVR projection. Each step shows OVR before → after. Gives the manager a complete end-to-end roadmap: drill blocks → Epic upgrade → Legendary upgrade → condition restore.
+**GK category:** Tapping the GK category button always loads all 11 GK stats — it does NOT toggle off if already selected (Sprint 30 fix). This ensures a re-tap after a partial scan forces a full reload.
 
-**APPLY FULL PLAN TO CARD** writes the final stats, OVR, and tier back to the player record in one tap.
+### 13.2 RESULTS HUB (Sprint 30 — full rewrite)
+
+`app/(tabs)/results.tsx` is the single authoritative combined plan view. Four sections:
+
+1. **DRILL PLANS** (amber) — select from `drill_plan_history` entries pushed from the Drills tab. Up to 10. Each shows preset name, drill count, cycles. Tap to add/remove.
+2. **COACHING SESSIONS** (steel) — select from `coach_scan_history` entries. Up to 5. Each shows stat count, session count.
+3. **TIER UPGRADE** — standard tier picker + points input (same as before).
+4. **CONDITION RESTORE** — restorer count input.
+
+**Projection order:** Drill Plans → Coach Sessions → Tier → Condition (drills-first rule enforced by structure).
+
+**PROJECT** runs the chain, producing a per-step OVR breakdown. **ADD TO ROSTER** applies the final stats, OVR, and tier back to the player record in one tap.
+
+**Drill budget in projection:**
+```
+budget = plan.cycles × baseXpPerSession × drillXpFactor / drill.stats.length
+drillLevelMult = profile.drillLevelMultipliers[drill.intensity]
+```
+
+**Coach budget in projection:**
+```
+budget = entry.sessions × baseXpPerSession / entry.stats.length
+drillLevelMult = 1.0
+```
 
 ### 13.3 Stat Grid Visual Design
 
@@ -779,18 +816,12 @@ This convention is implemented via a `statColor(stat)` helper and `STAT_COLS`/`C
 
 Stat classification in the Capture screen correctly reflects the selected player's role — white stats show under WHITE — ESSENTIAL, grey under GREY — SECONDARY / NON-ROLE.
 
-### 13.4 SQUAD PLAN tab
+### 13.4 History Services (Sprint 30)
 
-`app/(tabs)/squad-plan.tsx` — persistent per-player scenario builder.
+Two new services bridge the Drills/Coaches tabs to the Results hub:
 
-Displays all saved projection runs grouped by player. Each run shows:
-- OVR before → after and gain delta
-- Session count and stat count
-- Tier (if applicable)
-- Timestamp
-- Expandable stat gain tags (per-stat +gain values)
-- Delete button (with confirmation)
+**`src/services/coachHistoryService.ts`** — `CoachHistoryEntry` type, `save()`, `getForPlayer()`. Backed by `coach_scan_history` table (ensured idempotently in `src/db/index.ts`). The Coaches tab auto-saves each projection run here. The Results tab reads it to populate the COACHING SESSIONS picker.
 
-Players with no saved runs appear below with a shortcut to the Coaches tab. The instruction footer reminds users to use SAVE RUN in the Coaches tab to populate this view.
+**`src/services/drillPlanHistoryService.ts`** — `DrillPlanEntry` type, `save()`, `getForPlayer()`. Backed by `drill_plan_history` table. The Drills tab calls `pushToResults()` which saves the active preset here. The Results tab reads it to populate the DRILL PLANS picker.
 
-**DB backing:** `squad_plan_runs` table (migration 0004). `squadPlanService` provides `saveRun`, `getRunsForPlayer`, `getAllRuns`, `deleteRun`. Runs are inserted by the Coaches tab (SAVE RUN button) and by the Coach Capture screen (SAVE TO LOG button).
+**Legacy:** `squad_plan_runs` table (migration 0004) is retained for DB backward compatibility. `squadPlanService` is still in place. The Coaches SAVE RUN button still writes to this table for reference history.

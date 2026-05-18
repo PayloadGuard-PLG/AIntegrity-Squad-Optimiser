@@ -7,65 +7,88 @@ All constants live in `profiles/game_2025.json`. All formulas are implemented ag
 ## 1. OVR (Overall Rating)
 
 ```
-OVR = floor( sum(all 15 stats) / totalAttributeCount )
+OVR = ceil( sum(all 15 stats) / totalAttributeCount )
 ```
 
 | Constant | JSON key | Value |
 |---|---|---|
 | totalAttributeCount | `totalAttributeCount` | 15 |
 
-**Source:** `qualityOvrDivisor = 1` confirms unweighted mean. Truncation (floor) confirmed from Sutters GK: sum 2,844 ÷ 15 = 189.6 → displays 189.
+**Source:** `qualityOvrDivisor = 1` — unweighted mean, ceiling. Confirmed Sprint 27 from 4 data points: `floor` fails for McGinty T0 (99.53) and Grant T3 (175.4); `ceil` matches all four. Fixed in `qualityPctToOvr()` in `xpEngine.ts`.
 
-**Training lock:** When `floor(sum / 15) >= maxBaseOvr (180)`, drills and academy coaching are locked. Tier bonuses can push the displayed OVR well above 180 — the lock is on the base (pre-tier) mean, not the displayed total.
+**Training lock:** When `ceil(sum / 15) >= maxBaseOvr (180)`, drills and academy coaching are locked. Tier bonuses push displayed OVR well above 180 — the lock is on the base (pre-tier) mean, not the displayed total.
 
 ---
 
 ## 2. Stat Gain (XP Engine)
 
-### 2.1 XP budget per stat per session block
+### 2.1 XP budget per stat — coach session
 
 ```
-budget = sessionCount × baseXpPerSession / drill.stats.length
+budget = sessionCount × baseXpPerSession / selectedStats.count
 ```
 
 | Constant | JSON key | Value |
 |---|---|---|
-| baseXpPerSession | `baseXpPerSession` | 150 |
+| baseXpPerSession | `baseXpPerSession` | 220 |
 
-A 5-stat drill run for ×30 sessions: `30 × 150 / 5 = 900 XP per stat`.
+Example: 5-stat coach block for ×40 sessions: `40 × 220 / 5 = 1,760 XP per stat`.
 
-### 2.2 XP cost per 1% stat gain
+**Calibration:** `baseXpPerSession = 220` confirmed Sprint 24 against Standard Defending ×40 (Ricky Grant, age 20, Normal talent): Tackling 120 → +59–73 observed, model gives ~62 at bXPS=220 ✓. Further confirmed by Lewis MacGregor ×114 Extensive GK (all 11 white GK stats): 143 OVR → 191 after coach + T1 + T2, matching app projection exactly.
+
+### 2.2 XP budget per stat — drill session
 
 ```
-xpCost = xpCostTable[statValue] / ( ageMult × talentMult × greyMult × adMult × drillLevelMult )
+budget = cycles × baseXpPerSession × drillXpFactor / drill.stats.length
+```
+
+| Constant | JSON key | Value |
+|---|---|---|
+| drillXpFactor | `drillXpFactor` | 0.3 (provisional — uncalibrated) |
+
+Drills award significantly less XP per session than academy coaches. The `drillXpFactor` scales the budget down from the coach baseline. Current value 0.3 is provisional — needs actual before/after stat data from a controlled drill run to back-calculate the true factor.
+
+### 2.3 XP cost per 1% stat gain
+
+```
+xpCost = xpBase(statValue) / ( ageMult × talentMult × greyMult × adMult × drillLevelMult )
 ```
 
 Each factor:
 
 | Factor | Source | Notes |
 |---|---|---|
-| `xpCostTable[statValue]` | `xpCostTable` array | Base cost (XP per 1%) at current stat value |
-| `ageMult` | `ageTable[age]` | 1.10 at 17, 1.00 at 18, drops to 0.10 at 30+ |
+| `xpBase(statValue)` | exponential formula (§2.4) | Base cost (XP per 1%) at current stat value |
+| `ageMult` | `ageTable[age]` | See §2.6 |
 | `talentMult` | `talentMultipliers[talent]` | Fastest=1.5 … Slow=0.7 |
-| `greyMult` | `greyWeightMultiplier` | 1.0 if white (essential), 0.5 if grey (secondary) |
+| `greyMult` | `greyWeightMultiplier` | 1.0 if white (essential), 0.5 if grey |
 | `adMult` | `twoxAdMultiplier` | 2.0 if 2× ad active, else 1.0 |
-| `drillLevelMult` | `drillLevelMultipliers[level]` | VE=1.0, Easy=1.15, Medium=1.3, Hard=1.55, VH=1.7 |
+| `drillLevelMult` | drill intensity (§2.7) or 1.0 for coaches | Fixed per drill; coaches always 1.0 |
 
-### 2.3 Gain iteration
+**Coach sessions:** `drillLevelMult = 1.0` — coaches have no adjustable intensity. The engine hardcodes 1.0 for all coach projections regardless of drill level multiplier tables.
 
-The engine iterates 1% at a time, subtracting `xpCost` from `budget` until the budget is exhausted. Sub-integer progress carries forward as a fractional remainder:
+### 2.4 XP cost model — exponential
 
 ```
-remaining = budget
-while remaining > 0:
-    cost = xpCost(currentStat, age, talent, greyMult, adMult, drillLevelMult)
-    if cost > remaining: gain += remaining / cost; break
-    remaining -= cost
-    currentStat += 1
-    gain += 1
+xpBase(stat) = C₀ × exp(stat / K)
+
+C₀ = 2.94   (xpCostBase in game_2025.json)
+K  = 55      (xpCostDecayK — cost doubles every ~38 stat points)
 ```
 
-### 2.4 XP cost table
+Derived Sprint 25 from the simultaneous observation of Tackling 120 and Positioning 228 under the same XP budget: gain ratio 66 / 13.5 = 4.89, `exp((228 − 120) / 55) = 4.89` exactly.
+
+| Stat | xpBase |
+|---|---|
+| 60 | ~8.9 XP/1% |
+| 120 | ~26.9 XP/1% |
+| 180 | ~81.7 XP/1% |
+| 228 | ~198 XP/1% |
+| 260 | ~371 XP/1% |
+
+**Fallback:** If `xpCostBase` / `xpCostDecayK` absent, falls back to stepped `xpCostTable` in JSON.
+
+### 2.5 Stepped XP cost table (fallback / reference)
 
 | Stat range | XP per 1% |
 |---|---|
@@ -77,32 +100,48 @@ while remaining > 0:
 | 140–159 | 50 |
 | 160–179 | 60 |
 | 180–199 | 80 |
-| 200–219 | 100 |
-| 220–239 | 125 |
-| 240–259 | 160 |
-| 260–279 | 200 |
-| 280–339 | 250 |
+| 200–219 | 150 |
+| 220–239 | 200 |
+| 240–259 | 260 |
+| 260–279 | 340 |
+| 280–339 | 440 |
 
-### 2.5 Age multipliers
+Values above 200 raised Sprint 24 from empirical evidence (Aggression 201 gaining only 14–21 pts, Creativity 256 gaining only 5–7 pts despite high budget). Exponential model supersedes this table.
+
+### 2.6 Age multipliers (confirmed — game_2025.json)
 
 | Age | Multiplier |
 |---|---|
 | 17 | 1.10 |
 | 18 | 1.00 |
-| 19 | 0.90 |
-| 20 | 0.55 |
-| 21 | 0.40 |
-| 22 | 0.32 |
-| 23 | 0.28 |
-| 24 | 0.24 |
-| 25 | 0.22 |
-| 26 | 0.19 |
-| 27 | 0.16 |
-| 28 | 0.14 |
-| 29 | 0.12 |
-| 30+ | 0.10 |
+| 19 | 1.00 |
+| 20 | 1.00 |
+| 21 | 0.85 |
+| 22 | 0.85 |
+| 23 | 0.85 |
+| 24 | 0.72 |
+| 25 | 0.72 |
+| 26 | 0.61 |
+| 27 | 0.61 |
+| 28 | 0.61 |
+| 29 | 0.50 |
+| 30+ | 0 (clamped) |
 
-### 2.6 Talent multipliers
+### 2.7 Drill level multipliers (XP — fixed per drill)
+
+Each drill has one fixed intensity. The multiplier scales the XP yield:
+
+| Level | XP multiplier |
+|---|---|
+| Very Easy | 1.00 |
+| Easy | 1.15 |
+| Medium | 1.30 |
+| Hard | 1.55 |
+| Very Hard | 1.70 |
+
+**These do NOT apply to coach sessions.** Coaches always use `drillLevelMult = 1.0`.
+
+### 2.8 Talent multipliers
 
 | Talent | Multiplier |
 |---|---|
@@ -112,15 +151,23 @@ while remaining > 0:
 | Normal | 1.00 |
 | Slow | 0.70 |
 
-### 2.7 Drill level multipliers (XP only)
+Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow confirmed for Lewis MacGregor (Sprint 30). Fastest/Fast are community estimates — empirical calibration pending.
 
-| Level | Multiplier |
-|---|---|
-| Very Easy | 1.00 |
-| Easy | 1.15 |
-| Medium | 1.30 |
-| Hard | 1.55 |
-| Very Hard | 1.70 |
+### 2.9 Gain iteration
+
+The engine iterates 1% at a time, subtracting `xpCost` from `budget` until the budget is exhausted:
+
+```
+remaining = budget
+while remaining > 0:
+    cost = xpCost(currentStat, age, talent, greyMult, adMult, drillLevelMult)
+    if cost > remaining: gain += remaining / cost; break
+    remaining -= cost
+    currentStat += 1
+    gain += 1
+```
+
+Sub-integer progress carries forward as a fractional remainder.
 
 ---
 
@@ -136,7 +183,7 @@ conditionLoss = baseLossPerDrill × condLevelMultipliers[drillLevel] × ( 1 − 
 | condLevelMultipliers | `condLevelMultipliers` | VE=1, Easy=2, Medium=3, Hard=4, VH=5 |
 | fanClubCondReduction | `fanClubCondReduction` | [0.10, 0.15, 0.20, 0.25, 0.50] (L0–L4) |
 
-**Note:** `condLevelMultipliers` and `drillLevelMultipliers` are different tables with different purposes. Condition and XP are independent systems.
+**Note:** `condLevelMultipliers` and `drillLevelMultipliers` are separate tables with different purposes. Condition drain and XP gain are independent systems.
 
 ### 3.1 Zero-drain threshold
 
@@ -188,14 +235,14 @@ increment = tierAttrAdditions[targetTier] − tierAttrAdditions[fromTier]
 
 Explicit per-step increments (JSON `tierIncrements`):
 
-| Upgrade | Increment per white stat |
-|---|---|
-| → T1 (Rare) | +10 |
-| → T2 (Elite) | +20 |
-| → T3 (Stellar) | +20 |
-| → T4 (Master) | +30 |
-| → T5 (Epic) | +40 |
-| → T6 (Legendary) | +40 |
+| Upgrade | Internal | Game name | Increment per white stat |
+|---|---|---|---|
+| T0 → T1 | Rare | +10 |
+| T1 → T2 | Elite | +20 |
+| T2 → T3 | Stellar | +20 |
+| T3 → T4 | Master | +30 |
+| T4 → T5 | Epic | +40 |
+| T5 → T6 | Legendary | +40 |
 
 Cumulative from T0 (`tierAttrAdditions`): T1=+10, T2=+30, T3=+50, T4=+80, T5=+120, T6=+160.
 
@@ -211,18 +258,19 @@ OVR delta = increment × whiteStatCount / totalAttributeCount
 | T3 on ST (9 white) | +20 × 9 | +12.0 |
 | T3 on DC (5 white) | +20 × 5 | +6.7 |
 | T3 on MC (10 white) | +20 × 10 | +13.3 |
+| T6 on GK (11 white) | +40 × 11 | +29.3 |
 | T6 on MC (10 white) | +40 × 10 | +26.7 |
 
 ### 5.3 Tier point costs
 
-| Tier | Points required |
-|---|---|
-| T1 (Rare) | 100 |
-| T2 (Elite) | 90 |
-| T3 (Stellar) | 50 |
-| T4 (Master) | 25 |
-| T5 (Epic) | 15 |
-| T6 (Legendary) | 10 |
+| Tier | Internal | Points required |
+|---|---|---|
+| Rare | T1 | 100 |
+| Elite | T2 | 90 |
+| Stellar | T3 | 50 |
+| Master | T4 | 25 |
+| Epic | T5 | 15 |
+| Legendary | T6 | 10 |
 
 Each tier has its own independent point pool. Points for Rare cannot be used for Elite, etc.
 
@@ -231,27 +279,27 @@ Each tier has its own independent point pool. Points for Rare cannot be used for
 ## 6. Drills-First Rule
 
 ```
-optimal order: Drills → Tier upgrade → Restorers
+optimal order: Drill Plans → Coach Sessions → Tier upgrade → Restorers
 ```
 
-Tier upgrades raise the base stat value of white stats permanently. Any drills run afterwards train from a higher baseline where XP costs are greater. Running drills first maximises total stat gain per resource unit.
+Tier upgrades raise the base stat value of white stats permanently. Any training done afterwards costs more XP per gain. Running drills and coaches first maximises total stat gain per resource unit.
 
-**Example:** ST at stat 120 (white). Running drills first gains ~+26 per stat at xpCost 40/1%. After T3 (+20), the stat is now 166, training costs 60/1% — significantly more expensive. Sequence matters.
+The Results tab enforces this ordering in its projection chain.
 
 ---
 
 ## 7. Coach / Academy Session Model
 
-Academy coaches use the same XP formula as drills, locked to Very Hard intensity:
+Academy coaches use the XP formula with `drillLevelMult = 1.0` (no intensity adjustment):
 
 ```
 budget = sessionCount × baseXpPerSession / selectedStats.count
-xpCost = xpCostTable[statValue] / ( ageMult × talentMult × greyMult × 1.0 × drillLevelMult[VH] )
+xpCost = xpBase(statValue) / ( ageMult × talentMult × greyMult × 1.0 × 1.0 )
 ```
 
-- `twoxAd = false` always (2× ad applies to teamplay drills only, not academy coaching)
-- Intensity locked to `'Very Hard'` (`drillLevelMult = 1.7`)
-- `selectedStats.count` = number of stats the coach covers (user-selected; typically 3–10)
+- `twoxAd = false` always (2× ad applies to teamplay drills only)
+- No intensity level — `drillLevelMult = 1.0` hardcoded
+- `selectedStats.count` = number of stats the coach covers (typically 3–11 depending on type)
 
 ---
 
@@ -264,8 +312,6 @@ whiteStats = ROLE_CONSTRAINTS[role1].essential
            ∪ ROLE_CONSTRAINTS[role2].essential   (if present)
            ∪ ROLE_CONSTRAINTS[role3].essential   (if present)
 ```
-
-`ROLE_CROSSOVER_WHITES[R1][R2]` lists the stats that become white when R2 is added to a player with R1 already set.
 
 **White stat counts by role** (affects tier OVR delta via §5.2):
 
@@ -286,21 +332,24 @@ whiteStats = ROLE_CONSTRAINTS[role1].essential
 
 ---
 
-## 9. End-to-End Projection Chain
+## 9. End-to-End Projection Chain (Results tab)
 
 ```
-Step 1: Apply drill sessions → new stats after XP gain
-Step 2: Apply tier upgrade → white stats += increment
-Step 3: Recalculate OVR = floor( sum(all 15 updated stats) / 15 )
-Step 4: Record restorers as condition step (zero OVR change)
+Step 1: Apply drill plans   → new stats after XP gain (drillXpFactor applied)
+Step 2: Apply coach sessions → new stats after XP gain (drillMult = 1.0)
+Step 3: Apply tier upgrade  → white stats += increment
+Step 4: Recalculate OVR     = ceil( sum(all 15 updated stats) / 15 )
+Step 5: Restorers           = condition step (zero OVR change)
 ```
 
-The Results tab chains multiple coaching blocks before tier and restorers:
+Multiple drill plans and coach sessions can be chained before tier:
 
 ```
-Coach block 1 → Coach block 2 → ... → Tier upgrade → Restorers
-OVR₀ → OVR₁ → OVR₂ → ... → OVRₙ → OVR_final
+Drill Plan 1 → Drill Plan 2 → Coach Session 1 → Coach Session 2 → Tier → Restorers
+OVR₀ → OVR₁ → OVR₂ → OVR₃ → OVR₄ → OVR_final
 ```
+
+All five stages are assembled in the **Results** tab (the only place to combine all resource types).
 
 ---
 
