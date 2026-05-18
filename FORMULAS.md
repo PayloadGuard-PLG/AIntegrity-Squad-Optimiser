@@ -60,7 +60,7 @@ Each factor:
 |---|---|---|
 | `xpBase(statValue)` | exponential formula (§2.4) | Base cost (XP per 1%) at current stat value |
 | `ageMult` | `ageTable[age]` | See §2.6 |
-| `talentMult` | `talentMultipliers[talent]` | Fastest=1.5 … Slow=0.7 |
+| `talentMult` | `talentMultipliers[talent]` | Fastest=1.5 … Slow=0.47 |
 | `greyMult` | `greyWeightMultiplier` | 1.0 if white (essential), 0.5 if grey |
 | `adMult` | `twoxAdMultiplier` | 2.0 if 2× ad active, else 1.0 |
 | `drillLevelMult` | drill intensity (§2.7) or 1.0 for coaches | Fixed per drill; coaches always 1.0 |
@@ -149,9 +149,9 @@ Each drill has one fixed intensity. The multiplier scales the XP yield:
 | Fast | 1.25 |
 | Average | 1.10 |
 | Normal | 1.00 |
-| Slow | 0.70 |
+| Slow | 0.47 |
 
-Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow confirmed for Lewis MacGregor (Sprint 30). Fastest/Fast are community estimates — empirical calibration pending.
+Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow recalibrated Sprint 32: community estimate was 0.7, empirical back-calculation from ×114 Complete Goalkeeping on Slow GK (age 18) gives 0.47 (mean of 11 per-stat ratios, range 0.455–0.479). Fastest/Fast are community estimates — empirical calibration pending.
 
 ### 2.9 Gain iteration
 
