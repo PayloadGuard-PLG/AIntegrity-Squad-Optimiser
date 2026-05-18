@@ -5,11 +5,11 @@ export const CATEGORY_STATS: Record<string, string[]> = {
   Attacking:  ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
   Defending:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
   Physical:   ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
-  // All 10 GK stats + Fitness — Standard/Extensive Goalkeeping boosts all of these
-  Safeguard:    ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION',
-                 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION', 'FITNESS'],
-  Goalkeeping:  ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION',
-                 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION', 'FITNESS'],
+  // Safeguard = Defending category — same 5 DEF stats. Game uses both names for the same coach type.
+  Safeguard:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
+  // All 11 GK stats — Standard and Extensive Goalkeeping both boost all of these
+  Goalkeeping: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION',
+                'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION', 'FITNESS'],
 };
 
 /**
@@ -34,11 +34,21 @@ export function resolveCoachStats(
 
   if (detected.length > 0) {
     if (catList) {
+      // Standard/Extensive always boost ALL category stats. Arrow icons (↑) are not OCR-readable,
+      // so the scan may only detect a subset — that is an OCR limitation, not evidence that fewer
+      // stats are being coached. Always use the full category list for these coach types so the
+      // budget is divided correctly and cross-column false-positives (e.g. PHY stat detected in
+      // a DEF scan) are excluded.
+      if (scan.coachType === 'Standard' || scan.coachType === 'Extensive') {
+        const fromCat = catList.filter(s => playerStats[s] !== undefined);
+        if (fromCat.length > 0) return fromCat;
+      }
+
       const inCat  = detected.filter(n =>  catList.includes(n));
       const outCat = detected.filter(n => !catList.includes(n));
       // Contamination: more out-of-category than in-category → cross-column OCR leakage
       if (outCat.length >= inCat.length && inCat.length > 0) return inCat;
-      return detected;  // clean or extensive scan (1–15 stats)
+      return detected;  // clean focused scan or unknown type
     }
     return detected;  // category unknown — use all detected
   }
