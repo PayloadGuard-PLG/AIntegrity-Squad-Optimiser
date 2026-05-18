@@ -7,16 +7,16 @@ All constants live in `profiles/game_2025.json`. All formulas are implemented ag
 ## 1. OVR (Overall Rating)
 
 ```
-OVR = ceil( sum(all 15 stats) / totalAttributeCount )
+OVR = floor( sum(all 15 stats) / totalAttributeCount )
 ```
 
 | Constant | JSON key | Value |
 |---|---|---|
 | totalAttributeCount | `totalAttributeCount` | 15 |
 
-**Source:** `qualityOvrDivisor = 1` — unweighted mean, ceiling. Confirmed Sprint 27 from 4 data points: `floor` fails for McGinty T0 (99.53) and Grant T3 (175.4); `ceil` matches all four. Fixed in `qualityPctToOvr()` in `xpEngine.ts`.
+**Source:** `qualityOvrDivisor = 1` — unweighted mean, truncated (floor). Confirmed Sprint 32 from Grant T2→T3 clean tier upgrade: displayed stats sum to 2615, game OVR = 174. `floor(2615/15) = floor(174.33) = 174` ✓. `ceil` gives 175 ✗. Sprint 27's apparent `ceil` confirmation was an artefact of fractional stat accumulation from training — the internal sum was slightly higher than displayed, making floor and ceil coincide for those points. Fixed in `qualityPctToOvr()` in `xpEngine.ts`.
 
-**Training lock:** When `ceil(sum / 15) >= maxBaseOvr (180)`, drills and academy coaching are locked. Tier bonuses push displayed OVR well above 180 — the lock is on the base (pre-tier) mean, not the displayed total.
+**Training lock:** When `floor(sum / 15) >= maxBaseOvr (180)`, drills and academy coaching are locked. Tier bonuses push displayed OVR well above 180 — the lock is on the base (pre-tier) mean, not the displayed total.
 
 ---
 

@@ -176,18 +176,22 @@ Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clampin
 
 OVR is computed in two parts and added:
 ```
-base_quality   = min(180, ceil(sum_of_base_stats / 15))
+base_quality   = min(180, floor(sum_of_base_stats / 15))
 tier_contrib   = floor(tier_bonus × key_stat_count / 15)
 total_OVR      = base_quality + tier_contrib
 ```
 
 The game UI displays this split explicitly (e.g. "290 OVR = 152 + 138 Tier increase").
-In code: `ceil(sum_of_all_stats / 15)` produces the same result because tier bonuses are
+In code: `floor(sum_of_all_stats / 15)` produces the same result because tier bonuses are
 baked into stats — the two representations are equivalent.
 
-**CRITICAL: The game uses Math.ceil (NOT Math.floor or Math.round) for OVR.**
-Confirmed from 4 data points in sprint 27 (Rogers, McGinty, Grant T3, Grant T2).
-Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts` — all OVR display and projections now correct.
+**CRITICAL: The game uses Math.floor (NOT Math.ceil or Math.round) for OVR.**
+Confirmed definitively Sprint 32 from Grant T2→T3 clean tier upgrade: displayed sum = 2615,
+game OVR = 174. `floor(2615/15) = floor(174.33) = 174` ✓. `ceil = 175` ✗.
+Sprint 27's "4-data-point ceil confirmation" was an artefact — fractional stat accumulation from
+training pushed the internal sum above the displayed sum, making floor and ceil agree on those
+cases. The clean integer-only tier upgrade resolved the ambiguity conclusively.
+Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts`.
 
 ### 180-Rule (training lock)
 

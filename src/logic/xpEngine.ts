@@ -101,9 +101,9 @@ export function statsToQualityPct(
   return sum / profile.totalAttributeCount;
 }
 
-/** OVR = ceil(Quality% / qualityOvrDivisor) — game uses ceiling, confirmed from 4 data points */
+/** OVR = floor(Quality% / qualityOvrDivisor) — confirmed from Grant T2→T3 clean upgrade (sum=2615, game=174, floor✓ ceil✗) */
 export function qualityPctToOvr(qualityPct: number, profile: GameProfile): number {
-  return Math.ceil(qualityPct / profile.qualityOvrDivisor);
+  return Math.floor(qualityPct / profile.qualityOvrDivisor);
 }
 
 /**

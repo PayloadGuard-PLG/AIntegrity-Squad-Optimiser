@@ -20,6 +20,7 @@
 | ID | Area | Fix |
 |---|---|---|
 | F56 | customCoachEngine — deprecated shim, no GameProfile | `predictCustomDrill` called `calculateDynamicGain` (deprecated shim in `coachMath.ts`) without a `GameProfile`. Fallback hardcoded `ageFactor = 0.2` for any player over 21. Fixed: rewritten to call `estimateStatGainPct` with actual `statValue`, `talent`, and `profile`. XP budget = `sessions × baseXpPerSession × coachMultiplier`. `PlayerStats` interface gains `statValue` and `talent` fields; function gains `profile` parameter. |
+| F62 | OVR formula — `Math.ceil` wrong | `qualityPctToOvr()` used `Math.ceil`. Grant T2→T3 clean tier upgrade (displayed sum=2615) gives game OVR 174. `floor(174.33)=174` ✓, `ceil=175` ✗. Sprint 27's "ceil confirmation" was an artefact of fractional stat accumulation pushing internal sum above displayed sum. Fixed to `Math.floor` in `xpEngine.ts`. All OVR projection and display now correct. |
 
 ---
 

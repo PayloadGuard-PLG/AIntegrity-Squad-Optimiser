@@ -31,19 +31,17 @@ Drill Sessions  →  Tier Upgrade  →  Restorers (condition)
 ### 3.1 OVR Formula
 
 ```
-OVR = ceil(mean(all 15 stats))
+OVR = floor(mean(all 15 stats))
 ```
 
-`qualityOvrDivisor = 1` — OVR is the **ceiling** (rounded up) of the unweighted mean of all 15 attributes. Confirmed from 4 data points (Sprint 27):
+`qualityOvrDivisor = 1` — OVR is the **floor** (truncated) of the unweighted mean of all 15 attributes. Confirmed definitively Sprint 32 from Grant T2→T3 clean tier upgrade test:
 
-| Player | sum/15 | ceil | floor | Game OVR |
-|---|---|---|---|---|
-| McGinty T0 | 99.53 | **100** | 99 | 100 ✓ |
-| Rogers T0 | 120.60 | **121** | 120 | 121 ✓ |
-| Grant T2 | 157.00 | **157** | 157 | 157 ✓ |
-| Grant T3 | 175.40 | **176** | 175 | 176 ✓ |
+| Player | Displayed stat sum | sum/15 | floor | ceil | Game OVR |
+|---|---|---|---|---|---|
+| Grant T2 (displayed) | 2355 | 157.00 | 157 | 157 | 157 ✓ (ambiguous) |
+| Grant T3 (displayed) | 2615 | 174.33 | **174** | 175 | **174 ✓** |
 
-`floor` fails for McGinty and Grant T3. `ceil` matches all four. Earlier Sprint 19 text (which cited a GK snapshot and concluded truncation) was based on an integer mean case where floor and ceil agree — the distinction was not observable until non-integer cases were tested. `qualityPctToOvr()` in `xpEngine.ts` uses `Math.ceil`.
+T3 is the decisive case: `floor(174.33) = 174` matches the game; `ceil = 175` does not. Sprint 27's "4-data-point ceil confirmation" was misleading — the displayed stat sum in those cases was lower than the internal sum (fractional stat accumulation from training). The internal sum was sufficient for floor and ceil to agree on displayed values. The clean tier upgrade (no training, stat change is a known integer increment) eliminates this ambiguity. `qualityPctToOvr()` in `xpEngine.ts` uses `Math.floor`.
 
 ### 3.2 XP cost per 1% stat gain
 
