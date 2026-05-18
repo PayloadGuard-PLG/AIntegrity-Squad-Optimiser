@@ -10,15 +10,14 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
-import { theme, TIER_COLORS } from '../../src/constants/theme';
+import { theme } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
-import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
+import { isWhiteStat, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
-import { applyTierBonusToStats } from '../../src/logic/xpEngine';
 import gameProfileJson from '../../profiles/game_2025.json';
-import { DrillLevel, TalentTier, TierName, GameProfile } from '../../src/types/resources';
+import { TalentTier, GameProfile } from '../../src/types/resources';
 import { playerService } from '../../src/services/playerService';
 import { squadPlanService } from '../../src/services/squadPlanService';
 import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
@@ -28,10 +27,6 @@ const profile = gameProfileJson as unknown as GameProfile;
 const TALENT_LABEL: Record<TalentTier, string> = {
   Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
 };
-const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
-const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
-const TIER_INCREMENTS: Record<TierName, number> = profile.tierIncrements as Record<TierName, number>;
 
 const STAT_COLS = {
   DEF: new Set(['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','REFLEXES','AGILITY','ANTICIPATION','RUSHING OUT','COMMUNICATION']),
@@ -58,13 +53,7 @@ export default function CoachesScreen() {
   const [coachType, setCoachType] = useState('');
   const [coachCategory, setCoachCategory] = useState('');
   const [result, setResult] = useState<ProjectionResult | null>(null);
-  const [selectedTier, setSelectedTier] = useState<TierName | null>(null);
   const [saveConfirmed, setSaveConfirmed] = useState(false);
-  const [tierPointInputs, setTierPointInputs] = useState<Partial<Record<TierName, string>>>(() =>
-    Object.fromEntries(
-      TIER_ORDER.map(t => [t, manager.tierPoints[t] != null ? String(manager.tierPoints[t]) : ''])
-    )
-  );
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
@@ -83,19 +72,10 @@ export default function CoachesScreen() {
 
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
-  const { white, grey, allStats } = useMemo(() => {
-    if (!player) return { white: [] as string[], grey: [] as string[], allStats: OUTFIELD_STATS as readonly string[] };
+  const allStats = useMemo(() => {
+    if (!player) return OUTFIELD_STATS as readonly string[];
     const isGK = player.role.some(r => r.includes('GK'));
-    const allStats = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
-    const w = getWhiteStatKeys(player.role);
-    const g = allStats.filter(s => !w.includes(s));
-    return { white: w, grey: g, allStats };
-  }, [player]);
-
-  const upgradableTiers = useMemo(() => {
-    if (!player) return TIER_ORDER;
-    const currentIdx = TIER_ORDER.indexOf(player.tier as TierName);
-    return TIER_ORDER.filter((_, i) => i > currentIdx);
+    return isGK ? GK_STATS_ALL : OUTFIELD_STATS;
   }, [player]);
 
   const selectPlayer = useCallback((id: string) => {
@@ -106,7 +86,6 @@ export default function CoachesScreen() {
     setCoachCategory('');
     setFocusedStatSel(new Set());
     setResult(null);
-    setSelectedTier(null);
     setSaveConfirmed(false);
     setScanStatus('');
   }, [manager]);
@@ -196,7 +175,7 @@ export default function CoachesScreen() {
       setCoachType(scan.coachType ?? '');
       setCoachCategory(scan.coachCategory ?? '');
       setFocusedStatSel(new Set());
-      setResult(null); setSelectedTier(null); setSaveConfirmed(false);
+      setResult(null); setSaveConfirmed(false);
 
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
@@ -243,41 +222,20 @@ export default function CoachesScreen() {
     const ovrBefore = computeOvrFromStats(player, profile);
     const ovrAfter = computeOvrWithPadding(postCoachStats, player.overall, profile);
     setResult({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)), postCoachStats });
-    setSelectedTier(null);
     setSaveConfirmed(false);
     if (!scanStatus.startsWith('SCANNED')) {
       saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true);
     }
   }
 
-  function tierOvr(tier: TierName): number | null {
-    if (!player || !result) return null;
-    const afterTierStats = applyTierBonusToStats(result.postCoachStats, getWhiteStatKeys(player.role), tier, profile, player.tier);
-    return computeOvrWithPadding(afterTierStats, player.overall, profile);
-  }
-
-  const combinedOvr = selectedTier ? tierOvr(selectedTier) : null;
-  const combinedGain = combinedOvr != null && result
-    ? Number((combinedOvr - result.ovrBefore).toFixed(1))
-    : null;
-
   function applyGains() {
     if (!player || !result) return;
-    let newStats = { ...result.postCoachStats };
-    let newTier = player.tier;
-    let newOvr = result.ovrAfter;
-    if (selectedTier && combinedOvr != null) {
-      newStats = applyTierBonusToStats(newStats, getWhiteStatKeys(player.role), selectedTier, profile, player.tier);
-      newTier = selectedTier;
-      newOvr = combinedOvr;
-    }
-    playerService.applyAndSnapshot(player, { stats: newStats, overall: Number(newOvr.toFixed(1)), tier: newTier });
+    playerService.applyAndSnapshot(player, { stats: result.postCoachStats, overall: Number(result.ovrAfter.toFixed(1)), tier: player.tier });
     setResult(null);
     setScannedStats([]);
     setCoachType('');
     setCoachCategory('');
     setSessions('');
-    setSelectedTier(null);
     setSaveConfirmed(false);
     setScanStatus('');
   }
@@ -290,7 +248,6 @@ export default function CoachesScreen() {
       ovrBefore: result.ovrBefore,
       ovrAfter: result.ovrAfter,
       gains: result.gains,
-      tier: selectedTier,
     });
     setSaveConfirmed(true);
   }
@@ -543,116 +500,9 @@ export default function CoachesScreen() {
                       : undefined}
                   />
 
-                  {/* Combined coach + tier banner */}
-                  {combinedOvr != null && combinedGain != null && selectedTier && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
-                      <View style={{ flex: 1 }}>
-                        <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 3 }}>COACH + {selectedTier.toUpperCase()} TIER</MonoLabel>
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-                          <Text style={{ fontFamily: theme.display, fontSize: 26, fontWeight: '700', color: TIER_COLORS[selectedTier] ?? theme.ink }}>{combinedOvr.toFixed(1)}</Text>
-                          <Text style={{ fontFamily: theme.mono, fontSize: 13, color: TIER_COLORS[selectedTier] ?? theme.pos, fontWeight: '700' }}>
-                            +{combinedGain}
-                          </Text>
-                        </View>
-                      </View>
-                      <View style={{ width: 3, height: 42, backgroundColor: TIER_COLORS[selectedTier] ?? theme.steelLight }} />
-                    </View>
-                  )}
-
                 </View>
 
-                {/* Tier upgrade section */}
-                <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
-                  <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
-                    <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>TIER UPGRADE</MonoLabel>
-                    {player.tier && player.tier !== 'T0' && (
-                      <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: TIER_COLORS[player.tier] ?? theme.hairline2 }}>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1, color: TIER_COLORS[player.tier] ?? theme.inkSec }}>
-                          CURRENT: {player.tier.toUpperCase()}
-                        </Text>
-                      </View>
-                    )}
-                    {(!player.tier || player.tier === 'T0') && (
-                      <MonoLabel size={9} color={theme.inkGhost}>NO TIER</MonoLabel>
-                    )}
-                  </View>
 
-                  {upgradableTiers.length === 0 ? (
-                    <View style={{ padding: 16, alignItems: 'center' }}>
-                      <MonoLabel color={theme.inkGhost}>ALREADY AT T6</MonoLabel>
-                    </View>
-                  ) : (
-                    upgradableTiers.map((t, idx) => {
-                      const cost = TIER_COSTS[t];
-                      const have = parseInt(tierPointInputs[t] ?? '0', 10) || 0;
-                      const canAfford = have >= cost;
-                      const sel = selectedTier === t;
-                      const c = TIER_COLORS[t] ?? theme.inkSec;
-                      const ovrResult = sel ? combinedOvr : null;
-
-                      return (
-                        <Pressable key={t}
-                          onPress={() => setSelectedTier(sel ? null : t)}
-                          style={{
-                            borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2,
-                            borderLeftWidth: sel ? 3 : 0, borderLeftColor: c,
-                            backgroundColor: sel ? theme.surface2 : 'transparent',
-                          }}>
-                          <View style={{ padding: 12, paddingHorizontal: 14 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                              <Text style={{ fontFamily: theme.display, fontSize: 14, fontWeight: '700', color: c, textTransform: 'uppercase', letterSpacing: 0.5, minWidth: 90 }}>
-                                {t}
-                              </Text>
-                              <MonoLabel size={9} color={theme.inkSec} style={{ flex: 1 }}>
-                                +{TIER_INCREMENTS[t]} / WHITE STAT · NEED {cost} PTS
-                              </MonoLabel>
-                              <Text style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '700', color: canAfford ? theme.pos : theme.inkGhost }}>
-                                {canAfford ? '✓' : '·'}
-                              </Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                              <MonoLabel size={9} color={theme.inkSec}>HAVE</MonoLabel>
-                              <TextInput
-                                keyboardType="numeric"
-                                value={tierPointInputs[t] ?? ''}
-                                onChangeText={v => {
-                                  const clean = v.replace(/[^0-9]/g, '');
-                                  setTierPointInputs(prev => ({ ...prev, [t]: clean }));
-                                  manager.setTierPoints({ ...manager.tierPoints, [t]: parseInt(clean, 10) || 0 });
-                                  if (sel) setSelectedTier(null);
-                                }}
-                                placeholder="0"
-                                placeholderTextColor={theme.inkGhost}
-                                style={{
-                                  backgroundColor: theme.surface3 ?? theme.surface2,
-                                  color: canAfford ? theme.pos : theme.ink,
-                                  fontFamily: theme.mono, fontSize: 13, fontWeight: '700',
-                                  padding: 5, paddingHorizontal: 10,
-                                  minWidth: 64, borderWidth: 1,
-                                  borderColor: canAfford ? theme.pos + '66' : theme.hairline2,
-                                  textAlign: 'center',
-                                }}
-                              />
-                              {!canAfford && have > 0 && (
-                                <MonoLabel size={9} color={theme.neg}>{cost - have} SHORT</MonoLabel>
-                              )}
-                              {canAfford && !sel && (
-                                <MonoLabel size={9} color={theme.inkGhost}>TAP TO ADD TO PROJECTION</MonoLabel>
-                              )}
-                              {sel && ovrResult != null && (
-                                <View style={{ marginLeft: 'auto', flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-                                  <Text style={{ fontFamily: theme.display, fontSize: 18, fontWeight: '700', color: c }}>{ovrResult.toFixed(1)}</Text>
-                                  <MonoLabel size={9} color={c}>OVR</MonoLabel>
-                                </View>
-                              )}
-                            </View>
-                          </View>
-                        </Pressable>
-                      );
-                    })
-                  )}
-                </View>
 
                 {/* Save run + apply */}
                 {result.gains.length > 0 && (
@@ -669,7 +519,7 @@ export default function CoachesScreen() {
                         ✓ APPLY TO PLAYER CARD
                       </Text>
                       <MonoLabel size={8} color={theme.pos} style={{ marginTop: 4 }}>
-                        {selectedTier ? `UPDATES STATS + TIER → ${selectedTier.toUpperCase()}` : 'UPDATES BASE STATS + OVR'}
+                        UPDATES BASE STATS + OVR
                       </MonoLabel>
                     </Pressable>
                   </View>

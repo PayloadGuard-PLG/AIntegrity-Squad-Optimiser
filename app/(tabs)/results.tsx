@@ -9,14 +9,15 @@ import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
-import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
-import { StatGrid3Col } from '../../src/components/StatGrid3Col';
+import { isWhiteStat, getWhiteStatKeys } from '../../src/utils/roleWeights';
 import { estimateStatGainPct, applyTierBonusToStats } from '../../src/logic/xpEngine';
 import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, TierName, GameProfile } from '../../src/types/resources';
 import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
+import { drillPlanHistoryService, type DrillPlanEntry } from '../../src/services/drillPlanHistoryService';
+import { DRILL_LIST } from '../../src/database/drillDatabase';
 
 const profile = gameProfileJson as unknown as GameProfile;
 const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
@@ -24,13 +25,9 @@ const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
 const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
 const CONDITION_PER_RESTORER: number = profile.conditionPerRestorer;
-const CONDITION_PER_RECOVERY = 25; // recovery kit restores ~25% condition
+const CONDITION_PER_RECOVERY = 25;
 
-type SessionEntry = {
-  id: string;
-  stats: string[];
-  sessions: string;
-};
+const DRILL_AMBER = '#D97706';
 
 type StepResult = {
   label: string;
@@ -40,34 +37,31 @@ type StepResult = {
   color?: string;
 };
 
-let _uid = 0;
-function uid() { return String(++_uid); }
-
 export default function ResultsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
   const [twoxAd, setTwoxAd] = useState(false);
-  const [sessions, setSessions] = useState<SessionEntry[]>([]);
+  const [selectedCoachIds, setSelectedCoachIds] = useState<Set<string>>(new Set());
+  const [selectedDrillPlanIds, setSelectedDrillPlanIds] = useState<Set<string>>(new Set());
   const [excludedTiers, setExcludedTiers] = useState<Set<TierName>>(new Set());
   const [restorers, setRestorers] = useState('');
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
   const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
-  const [showHistoryPicker, setShowHistoryPicker] = useState(false);
+  const [drillPlanHistory, setDrillPlanHistory] = useState<DrillPlanEntry[]>([]);
 
   const player = squad.find(p => p.id === manager.selectedPlayerId) ?? (squad.length === 1 ? squad[0] : null);
 
   useEffect(() => {
-    setCoachHistory(player ? coachHistoryService.getForPlayer(player.id) : []);
+    if (player) {
+      setCoachHistory(coachHistoryService.getForPlayer(player.id));
+      setDrillPlanHistory(drillPlanHistoryService.getForPlayer(player.id));
+    } else {
+      setCoachHistory([]);
+      setDrillPlanHistory([]);
+    }
   }, [player?.id]);
-
-  const { white, grey } = useMemo(() => {
-    if (!player) return { white: [] as string[], grey: [] as string[] };
-    const w = getWhiteStatKeys(player.role);
-    const all = getAllStatKeys(player.role);
-    return { white: w, grey: all.filter(s => !w.includes(s)) };
-  }, [player]);
 
   const upgradableTiers = useMemo(() => {
     if (!player) return TIER_ORDER;
@@ -82,46 +76,28 @@ export default function ResultsScreen() {
 
   function selectPlayer(id: string) {
     manager.setSelectedPlayerId(id);
-    setSessions([]);
+    setSelectedCoachIds(new Set());
+    setSelectedDrillPlanIds(new Set());
     setExcludedTiers(new Set());
     setResult(null);
     setFinalStats(null);
-    setShowHistoryPicker(false);
   }
 
-  function addSession() {
-    setShowHistoryPicker(true);
+  function toggleCoachSession(id: string) {
+    setSelectedCoachIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else if (next.size < 5) { next.add(id); }
+      return next;
+    });
     setResult(null);
   }
 
-  function addSessionFromHistory(entry: CoachHistoryEntry) {
-    setSessions(prev => [...prev, { id: uid(), stats: entry.stats, sessions: String(entry.sessions) }]);
-    setShowHistoryPicker(false);
-    setResult(null);
-  }
-
-  function addSessionManual() {
-    setSessions(prev => [...prev, { id: uid(), stats: [], sessions: '30' }]);
-    setShowHistoryPicker(false);
-    setResult(null);
-  }
-
-  function removeSession(id: string) {
-    setSessions(prev => prev.filter(s => s.id !== id));
-    setResult(null);
-  }
-
-  function updateSession(id: string, patch: Partial<SessionEntry>) {
-    setSessions(prev => prev.map(s => s.id === id ? { ...s, ...patch } : s));
-    setResult(null);
-  }
-
-  function toggleSessionStat(id: string, stat: string) {
-    setSessions(prev => prev.map(s => {
-      if (s.id !== id) return s;
-      const next = s.stats.includes(stat) ? s.stats.filter(x => x !== stat) : [...s.stats, stat];
-      return { ...s, stats: next };
-    }));
+  function toggleDrillPlan(id: string) {
+    setSelectedDrillPlanIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else if (next.size < 10) { next.add(id); }
+      return next;
+    });
     setResult(null);
   }
 
@@ -130,43 +106,75 @@ export default function ResultsScreen() {
     const steps: StepResult[] = [];
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
-    const ovrBase = currentOvr; // baseline for star decay — accumulates across all sessions
+    const ovrBase = currentOvr;
 
-    // 1. Each coaching session in order
-    for (const session of sessions) {
-      if (session.stats.length === 0) continue;
-      const n = parseInt(session.sessions, 10) || 0;
-      if (n === 0) continue;
-      const drillMult = 1.0; // coaches have no intensity level
-      const budget = n * profile.baseXpPerSession / session.stats.length;
-      const updatedStats = { ...currentStats };
+    // 1. Drill plans (pushed from drills tab)
+    for (const planId of selectedDrillPlanIds) {
+      const plan = drillPlanHistory.find(p => p.id === planId);
+      if (!plan || plan.cycles === 0) continue;
       const gainParts: string[] = [];
 
-      for (const stat of session.stats) {
+      for (const drillName of plan.drillNames) {
+        const drill = DRILL_LIST.find(d => d.name === drillName);
+        if (!drill) continue;
+        const drillMult = (profile.drillLevelMultipliers as Record<string, number>)[drill.intensity] ?? 1.0;
+        const budget = plan.cycles * profile.baseXpPerSession / drill.stats.length;
+        for (const stat of drill.stats) {
+          const from = currentStats[stat];
+          if (from === undefined) continue;
+          const isWhite = isWhiteStat(player.role, stat);
+          const starsGained = Math.floor((currentOvr - ovrBase) / (profile.starOvrThreshold ?? 20));
+          const gain = estimateStatGainPct(budget, from, player.age, starsGained, player.talent, isWhite, twoxAd, drillMult, profile);
+          if (gain > 0) {
+            currentStats[stat] = Math.min(from + gain, profile.statCap);
+            gainParts.push(`${stat} +${gain.toFixed(1)}`);
+          }
+        }
+      }
+
+      const ovrAfter = Number(computeOvrWithPadding(currentStats, player.overall, profile).toFixed(1));
+      steps.push({
+        label: `DRILL: ${plan.label}`,
+        ovrBefore: currentOvr,
+        ovrAfter,
+        detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no stat gains',
+        color: DRILL_AMBER,
+      });
+      currentOvr = ovrAfter;
+    }
+
+    // 2. Coach sessions
+    for (const coachId of selectedCoachIds) {
+      const entry = coachHistory.find(e => e.id === coachId);
+      if (!entry || entry.stats.length === 0 || entry.sessions === 0) continue;
+      const drillMult = 1.0;
+      const budget = entry.sessions * profile.baseXpPerSession / entry.stats.length;
+      const gainParts: string[] = [];
+
+      for (const stat of entry.stats) {
         const from = currentStats[stat];
         if (from === undefined) continue;
         const isWhite = isWhiteStat(player.role, stat);
         const starsGained = Math.floor((currentOvr - ovrBase) / (profile.starOvrThreshold ?? 20));
         const gain = estimateStatGainPct(budget, from, player.age, starsGained, player.talent, isWhite, twoxAd, drillMult, profile);
         if (gain > 0) {
-          updatedStats[stat] = Math.min(from + gain, profile.statCap);
+          currentStats[stat] = Math.min(from + gain, profile.statCap);
           gainParts.push(`${stat} +${gain.toFixed(1)}`);
         }
       }
 
-      const ovrAfter = computeOvrWithPadding(updatedStats, player.overall, profile);
+      const ovrAfter = Number(computeOvrWithPadding(currentStats, player.overall, profile).toFixed(1));
       steps.push({
-        label: `COACHING ×${n} — ${session.stats.length} STAT${session.stats.length !== 1 ? 'S' : ''}`,
+        label: `COACH ×${entry.sessions} — ${entry.label}`,
         ovrBefore: currentOvr,
-        ovrAfter: Number(ovrAfter.toFixed(1)),
-        detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no gains — enter stat values',
+        ovrAfter,
+        detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no stat gains',
         color: theme.steelLight,
       });
-      currentStats = updatedStats;
       currentOvr = ovrAfter;
     }
 
-    // 2. Tier upgrades — iterate all included tiers in order, tracking fromTier per step
+    // 3. Tier upgrades
     {
       const whiteKeys = getWhiteStatKeys(player.role);
       let currentTier = player.tier as TierName;
@@ -188,30 +196,18 @@ export default function ResultsScreen() {
       }
     }
 
-    // 3. Restorers — condition restore (informational)
+    // 4. Restorers (informational)
     const restorerCount = parseInt(restorers, 10) || 0;
     if (restorerCount > 0) {
       const condPct = Math.min(restorerCount * CONDITION_PER_RESTORER, 100);
-      steps.push({
-        label: `RESTORERS ×${restorerCount} → +${condPct}% CONDITION`,
-        ovrBefore: currentOvr,
-        ovrAfter: currentOvr,
-        detail: 'condition restore — no OVR change',
-        color: theme.pos,
-      });
+      steps.push({ label: `RESTORERS ×${restorerCount} → +${condPct}% CONDITION`, ovrBefore: currentOvr, ovrAfter: currentOvr, detail: 'condition restore — no OVR change', color: theme.pos });
     }
 
-    // 4. Recovery kits — condition restore (informational)
+    // 5. Recovery kits (informational)
     const recoveryCount = parseInt(restPacks, 10) || 0;
     if (recoveryCount > 0) {
       const condPct = Math.min(recoveryCount * CONDITION_PER_RECOVERY, 100);
-      steps.push({
-        label: `RECOVERY KITS ×${recoveryCount} → +${condPct}% CONDITION`,
-        ovrBefore: currentOvr,
-        ovrAfter: currentOvr,
-        detail: 'enables additional training sessions',
-        color: theme.inkSec,
-      });
+      steps.push({ label: `RECOVERY KITS ×${recoveryCount} → +${condPct}% CONDITION`, ovrBefore: currentOvr, ovrAfter: currentOvr, detail: 'enables additional training sessions', color: theme.inkSec });
     }
 
     setResult(steps);
@@ -222,7 +218,7 @@ export default function ResultsScreen() {
   const baseOvr = result ? result[0]?.ovrBefore ?? null : null;
   const totalGain = finalOvr != null && baseOvr != null ? Number((finalOvr - baseOvr).toFixed(1)) : null;
   const tiersIncluded = player ? TIER_ORDER.some(t => upgradableTiers.includes(t) && tierIncluded(t)) : false;
-  const ready = player && (sessions.some(s => s.stats.length > 0 && parseInt(s.sessions, 10) > 0) || tiersIncluded);
+  const ready = player && (selectedDrillPlanIds.size > 0 || selectedCoachIds.size > 0 || tiersIncluded);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -230,7 +226,7 @@ export default function ResultsScreen() {
       <AppHeader />
       <ScrollView contentContainerStyle={{ padding: 14, paddingHorizontal: 16, paddingBottom: 60 }}>
 
-        {/* Player */}
+        {/* Player selector */}
         {squad.length > 1 && (
           <>
             <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
@@ -254,7 +250,7 @@ export default function ResultsScreen() {
           </View>
         ) : (
           <>
-            {/* Player info strip */}
+            {/* Player info strip — current card state */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
               <QualityMeter ovr={player.overall} />
               <View style={{ flex: 1 }}>
@@ -270,7 +266,7 @@ export default function ResultsScreen() {
               </View>
             </View>
 
-            {/* Talent (from card) + 2× ad */}
+            {/* Talent + 2× ad */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 12, marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <MonoLabel style={{ width: 56 }}>TALENT</MonoLabel>
@@ -289,106 +285,83 @@ export default function ResultsScreen() {
               </Pressable>
             </View>
 
-            {/* History picker — shown when + ADD is tapped */}
-            {showHistoryPicker && (
-              <View style={{ borderWidth: 1, borderColor: theme.steelLight + '55', marginBottom: 14 }}>
-                <View style={{ paddingHorizontal: 14, paddingVertical: 10, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
-                  <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>SELECT COACH SESSION</MonoLabel>
-                  <Pressable onPress={() => setShowHistoryPicker(false)}>
-                    <MonoLabel size={9} color={theme.inkGhost}>CANCEL</MonoLabel>
-                  </Pressable>
-                </View>
-                {coachHistory.length === 0 && (
-                  <View style={{ padding: 16, alignItems: 'center' }}>
-                    <MonoLabel size={9} color={theme.inkGhost}>NO SCANS YET — SCAN A COACH FIRST</MonoLabel>
-                  </View>
-                )}
-                {coachHistory.map(entry => (
-                  <Pressable key={entry.id} onPress={() => addSessionFromHistory(entry)}
-                    style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12,
-                      flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <View style={{ flex: 1 }}>
-                      <MonoLabel size={9} color={theme.ink}>{entry.label}</MonoLabel>
-                      <MonoLabel size={8} color={theme.inkGhost}>{new Date(entry.timestamp).toLocaleDateString()}</MonoLabel>
-                    </View>
-                    <MonoLabel size={9} color={theme.pos}>+ ADD</MonoLabel>
-                  </Pressable>
-                ))}
-                <Pressable onPress={addSessionManual}
-                  style={{ borderTopWidth: 1, borderTopColor: theme.hairline2, padding: 12, alignItems: 'center' }}>
-                  <MonoLabel size={9} color={theme.inkMuted}>+ MANUAL ENTRY</MonoLabel>
-                </Pressable>
+            {/* ── DRILL PLANS ── */}
+            <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
+              <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ width: 3, height: 12, backgroundColor: DRILL_AMBER, marginRight: 8 }} />
+                <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>DRILL PLANS</MonoLabel>
+                <MonoLabel size={8} color={theme.inkGhost}>
+                  {selectedDrillPlanIds.size > 0 ? `${selectedDrillPlanIds.size} SELECTED · ` : ''}MAX 10
+                </MonoLabel>
               </View>
-            )}
 
-            {/* Coaching sessions */}
+              {drillPlanHistory.length === 0 ? (
+                <View style={{ padding: 16, alignItems: 'center' }}>
+                  <MonoLabel size={9} color={theme.inkGhost}>PUSH DRILL PLANS FROM DRILLS TAB</MonoLabel>
+                </View>
+              ) : (
+                drillPlanHistory.map((plan, idx) => {
+                  const sel = selectedDrillPlanIds.has(plan.id);
+                  return (
+                    <Pressable key={plan.id} onPress={() => toggleDrillPlan(plan.id)}
+                      style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, padding: 12,
+                        flexDirection: 'row', alignItems: 'center', gap: 10,
+                        borderLeftWidth: sel ? 3 : 0, borderLeftColor: DRILL_AMBER,
+                        backgroundColor: sel ? DRILL_AMBER + '12' : 'transparent' }}>
+                      <View style={{ flex: 1 }}>
+                        <MonoLabel size={9} color={sel ? theme.ink : theme.inkSec}>{plan.label}</MonoLabel>
+                        <MonoLabel size={8} color={theme.inkGhost}>
+                          {new Date(plan.timestamp).toLocaleDateString()} · ×{plan.cycles} CYCLES
+                        </MonoLabel>
+                      </View>
+                      <MonoLabel size={9} color={sel ? DRILL_AMBER : theme.inkGhost}>
+                        {sel ? '✓ ADDED' : 'TAP TO ADD'}
+                      </MonoLabel>
+                    </Pressable>
+                  );
+                })
+              )}
+            </View>
+
+            {/* ── COACHING SESSIONS ── */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 3, height: 12, backgroundColor: theme.steelLight, marginRight: 8 }} />
                 <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>COACHING SESSIONS</MonoLabel>
-                <Pressable onPress={addSession}
-                  style={{ paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: theme.steelLight }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>+ ADD</Text>
-                </Pressable>
+                <MonoLabel size={8} color={theme.inkGhost}>
+                  {selectedCoachIds.size > 0 ? `${selectedCoachIds.size} SELECTED · ` : ''}MAX 5
+                </MonoLabel>
               </View>
 
-              {sessions.length === 0 && (
+              {coachHistory.length === 0 ? (
                 <View style={{ padding: 16, alignItems: 'center' }}>
-                  <MonoLabel color={theme.inkGhost}>TAP + ADD TO SELECT A COACHING SESSION</MonoLabel>
+                  <MonoLabel size={9} color={theme.inkGhost}>SCAN A COACH IN COACHES TAB FIRST</MonoLabel>
                 </View>
-              )}
-
-              {sessions.map((sess, idx) => (
-                <View key={sess.id} style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, padding: 12 }}>
-                  {/* Session header */}
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                    <MonoLabel size={9} color={theme.steelLight} style={{ flex: 1 }}>SESSION {idx + 1}</MonoLabel>
-                    <Pressable onPress={() => removeSession(sess.id)}
-                      style={{ paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1, borderColor: theme.neg + '66' }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 9, color: theme.neg }}>REMOVE</Text>
-                    </Pressable>
-                  </View>
-
-                  {/* Sessions count */}
-                  <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginBottom: 10 }}>
-                    <MonoLabel size={9} style={{ width: 24 }}>×</MonoLabel>
-                    <View style={{ width: 72, borderWidth: 1, borderColor: theme.hairline2 }}>
-                      <TextInput
-                        keyboardType="numeric"
-                        value={sess.sessions}
-                        onChangeText={v => updateSession(sess.id, { sessions: v.replace(/[^0-9]/g, '') })}
-                        placeholder="30"
-                        placeholderTextColor={theme.inkGhost}
-                        style={{ fontFamily: theme.mono, fontSize: 16, fontWeight: '700', color: theme.ink, padding: 7, textAlign: 'center' }}
-                      />
-                    </View>
-                    <MonoLabel size={8} color={theme.inkGhost}>SESSIONS</MonoLabel>
-                  </View>
-
-                  {/* Stat picker — 3-col grid */}
-                  <StatGrid3Col
-                    statKeys={[...white, ...grey]}
-                    roles={player.role}
-                    values={player.stats}
-                    selected={new Set(sess.stats)}
-                    onToggle={stat => toggleSessionStat(sess.id, stat)}
-                  />
-
-                  {/* Summary chip */}
-                  {sess.stats.length > 0 && (
-                    <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.steelLight }} />
-                      <MonoLabel size={8} color={theme.inkSec}>
-                        {sess.stats.length} STAT{sess.stats.length !== 1 ? 'S' : ''} · ×{sess.sessions || '0'} SESSIONS
+              ) : (
+                coachHistory.map((entry, idx) => {
+                  const sel = selectedCoachIds.has(entry.id);
+                  return (
+                    <Pressable key={entry.id} onPress={() => toggleCoachSession(entry.id)}
+                      style={{ borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: theme.hairline2, padding: 12,
+                        flexDirection: 'row', alignItems: 'center', gap: 10,
+                        borderLeftWidth: sel ? 3 : 0, borderLeftColor: theme.steelLight,
+                        backgroundColor: sel ? theme.steelLight + '12' : 'transparent' }}>
+                      <View style={{ flex: 1 }}>
+                        <MonoLabel size={9} color={sel ? theme.ink : theme.inkSec}>{entry.label}</MonoLabel>
+                        <MonoLabel size={8} color={theme.inkGhost}>
+                          {new Date(entry.timestamp).toLocaleDateString()} · {entry.isManual ? 'MANUAL' : 'SCANNED'}
+                        </MonoLabel>
+                      </View>
+                      <MonoLabel size={9} color={sel ? theme.steelLight : theme.inkGhost}>
+                        {sel ? '✓ ADDED' : 'TAP TO ADD'}
                       </MonoLabel>
-                    </View>
-                  )}
-                </View>
-              ))}
+                    </Pressable>
+                  );
+                })
+              )}
             </View>
 
-            {/* Tier upgrade */}
+            {/* ── TIER UPGRADE ── */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 3, height: 12, backgroundColor: theme.hot, marginRight: 8 }} />
@@ -459,14 +432,13 @@ export default function ResultsScreen() {
               )}
             </View>
 
-            {/* Condition — restorers + recovery kits */}
+            {/* ── CONDITION ── */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
               <View style={{ paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 3, height: 12, backgroundColor: theme.pos, marginRight: 8 }} />
                 <MonoLabel size={10} color={theme.steelLight}>CONDITION RESTORE</MonoLabel>
               </View>
               <View style={{ flexDirection: 'row' }}>
-                {/* Restorers */}
                 <View style={{ flex: 1, padding: 12, borderRightWidth: 1, borderRightColor: theme.hairline2 }}>
                   <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>RESTORERS (+{CONDITION_PER_RESTORER}% EA)</MonoLabel>
                   <TextInput
@@ -478,7 +450,6 @@ export default function ResultsScreen() {
                     style={{ fontFamily: theme.mono, fontSize: 20, fontWeight: '700', color: theme.ink, borderWidth: 1, borderColor: theme.hairline2, padding: 8, textAlign: 'center' }}
                   />
                 </View>
-                {/* Recovery kits */}
                 <View style={{ flex: 1, padding: 12 }}>
                   <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>RECOVERY KITS (+{CONDITION_PER_RECOVERY}% EA)</MonoLabel>
                   <TextInput
@@ -493,17 +464,22 @@ export default function ResultsScreen() {
               </View>
             </View>
 
-            {/* Project button */}
+            {/* ── PROJECT button ── */}
             <Pressable onPress={runProjection}
               style={{ borderWidth: 1, borderColor: ready ? theme.ink : theme.hairline2, padding: 18, alignItems: 'center', marginBottom: 14, backgroundColor: ready ? theme.surface2 : 'transparent' }}>
               <Text style={{ fontFamily: theme.mono, fontSize: 13, letterSpacing: 2.5, color: ready ? theme.ink : theme.inkGhost }}>
                 ▶ PROJECT FULL PLAN
               </Text>
+              {!ready && (
+                <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4 }}>
+                  SELECT A DRILL PLAN, COACH SESSION, OR TIER TO ENABLE
+                </MonoLabel>
+              )}
             </Pressable>
 
-            {/* Results */}
+            {/* ── RESULTS ── */}
             {result && result.length > 0 && (
-              <View style={{ borderWidth: 1, borderColor: totalGain != null && totalGain > 0 ? theme.pos + '66' : theme.hairline2 }}>
+              <View style={{ borderWidth: 1, borderColor: totalGain != null && totalGain > 0 ? theme.pos + '66' : theme.hairline2, marginBottom: 14 }}>
                 {/* Final OVR banner */}
                 <View style={{ padding: 16, backgroundColor: theme.surface2, borderBottomWidth: 1, borderBottomColor: theme.hairline2, flexDirection: 'row', alignItems: 'center' }}>
                   <View style={{ flex: 1 }}>
@@ -547,7 +523,7 @@ export default function ResultsScreen() {
               </View>
             )}
 
-            {/* Apply full plan to player card */}
+            {/* ── APPLY FULL PLAN TO CARD (Add to Roster) ── */}
             {finalStats && finalOvr != null && (
               <Pressable
                 onPress={() => {
@@ -561,15 +537,18 @@ export default function ResultsScreen() {
                   });
                   setResult(null);
                   setFinalStats(null);
-                  setSessions([]);
+                  setSelectedCoachIds(new Set());
+                  setSelectedDrillPlanIds(new Set());
                   setExcludedTiers(new Set());
                 }}
-                style={{ borderWidth: 1, borderColor: theme.pos, padding: 14, alignItems: 'center', marginTop: 14, backgroundColor: theme.pos + '18' }}>
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 2, color: theme.pos, fontWeight: '700' }}>
-                  ✓ APPLY FULL PLAN TO CARD
+                style={{ borderWidth: 1, borderColor: theme.pos, padding: 16, alignItems: 'center', marginBottom: 14, backgroundColor: theme.pos + '18' }}>
+                <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 2, color: theme.pos, fontWeight: '700' }}>
+                  ✓ ADD TO ROSTER — APPLY FULL PLAN
                 </Text>
                 <MonoLabel size={8} color={theme.pos} style={{ marginTop: 4 }}>
-                  {tiersIncluded ? `STATS + OVR + TIER → ${(TIER_ORDER.filter(t => upgradableTiers.includes(t) && tierIncluded(t)).pop() ?? player?.tier ?? '').toUpperCase()}` : 'STATS + OVR ONLY'}
+                  {tiersIncluded
+                    ? `STATS + OVR + TIER → ${(TIER_ORDER.filter(t => upgradableTiers.includes(t) && tierIncluded(t)).pop() ?? player?.tier ?? '').toUpperCase()}`
+                    : 'UPDATES STATS + OVR'}
                 </MonoLabel>
               </Pressable>
             )}

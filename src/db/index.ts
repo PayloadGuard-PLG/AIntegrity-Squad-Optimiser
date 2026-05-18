@@ -45,3 +45,18 @@ export function ensureCoachHistoryTable() {
     );`);
   } catch {}
 }
+
+export function ensureDrillPlanHistoryTable() {
+  try {
+    expoDb.execSync(`CREATE TABLE IF NOT EXISTS drill_plan_history (
+      id TEXT PRIMARY KEY,
+      player_id TEXT NOT NULL,
+      timestamp INTEGER NOT NULL,
+      preset_name TEXT NOT NULL,
+      drill_names TEXT NOT NULL DEFAULT '[]',
+      cycles INTEGER NOT NULL DEFAULT 1,
+      fan_level INTEGER NOT NULL DEFAULT 0,
+      label TEXT
+    );`);
+  } catch {}
+}
