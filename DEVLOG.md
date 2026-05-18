@@ -6,6 +6,129 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 32 — Custom Coach Engine Fix + Branch Transition
+**2026-05-18**
+
+Branch: `claude/test-connection-I2s8B` (commit `15164e8`)
+
+### Shipped
+
+**customCoachEngine.ts — replace deprecated shim with real XP engine (commit `15164e8`)**
+
+`predictCustomDrill` was calling `calculateDynamicGain` — the `@deprecated` shim in `coachMath.ts` — without passing a `GameProfile`. Without a profile, the shim hit the graceful degradation fallback:
+
+```javascript
+const ageFactor = age <= 19 ? 1.0 : age <= 21 ? 0.4 : 0.2;
+```
+
+Any player over 21 returned `ageFactor = 0.2` — the engine treated them as training at 20% efficiency. The real XP engine (`xpNeededFor1Pct`) uses the full age table with interpolation; the fallback is a hardcoded three-bracket approximation with no connection to `profiles/game_2025.json`.
+
+Two compounding errors in the original code:
+1. **Wrong function** — `calculateDynamicGain` (deprecated shim) instead of `estimateStatGainPct` from `xpEngine.ts`
+2. **No GameProfile** — age, talent, white/grey, cost curve all fell back to hardcoded guesses
+
+*Why multipliers scaled correctly despite the broken base:* `coachMultiplier` passes through the fallback formula proportionally — the ×1.5 / ×1.0 ratio was preserved even though the absolute base was wrong.
+
+**Fix:**
+- `PlayerStats` interface gains `statValue: number` and `talent: TalentTier` — the XP engine requires actual stat value, not OVR
+- `predictCustomDrill` gains a `profile: GameProfile` parameter
+- XP budget: `sessions × profile.baseXpPerSession × coachMultiplier`
+- `estimateStatGainPct` called with actual stat value, player age, talent tier, white/grey flag — all resolved from `game_2025.json`
+- `drillLevelMult = 1.0` for coach sessions (budget already incorporates `baseXpPerSession`)
+- Dead import of `calculateDynamicGain` removed
+
+### Branch transition
+
+`claude/test-connection-I2s8B` is now the active dev branch. `claude/continue-development-CAQUS` was merged to `main` via PR #62 and is retired.
+
+### Files changed
+
+| File | Change |
+|---|---|
+| `src/logic/customCoachEngine.ts` | Full rewrite — removed deprecated shim, wired to real XP engine with `statValue`, `talent`, `profile` |
+
+### Open / Next Sprint
+
+- Calibrate `drillXpFactor` — still provisional at 0.3; needs real before/after drill stat data
+- Confirm Fastest/Fast talent multipliers (community estimates 1.5/1.25 — not empirically tested)
+- Confirm ageMult=0.72 bracket from age-24 DMC player scan
+- Resolve ×N anomaly before changing budget formula
+- Fix age-24 DMC player name ("Team: Insidious FC" — scanner read club name, not player name)
+
+---
+
+## Sprint 31 — bXPS Recalibration + Critical Bug Fixes + Role Corrections
+**2026-05-18**
+
+Branch: `claude/continue-development-CAQUS` (commits `fb4ccc0`, `4482e2b`, `19d0170`, `5c9dcf7`, `c5cb17d`)
+
+### Shipped
+
+**Critical crash fix — stale `setSelectedTier` reference (commit `fb4ccc0`)**
+
+Sprint 30 removed the tier section from `coaches.tsx` but left `setSelectedTier(null)` in the sessions TextInput `onChangeText` handler. App crashed the moment the user typed in the sessions field. Removed the stale call.
+
+**Coach scanner — CROSSING detection fixed (commit `4482e2b`)**
+
+3-column OCR merge: ML Kit collapses adjacent-column text into single blocks (e.g. `"194 + 4-6 Crossing"`). CROSSING (ATT column) was never appearing as a standalone token when embedded in a DEF-column block. Fixed with a secondary embedded-stat scan in `rowText`:
+
+```typescript
+const embRE = new RegExp(`\\b${escapedName}\\b\\s+(\\d+)\\s*\\+?\\s*(\\d+)\\s*[-–—]\\s*(\\d+)`, 'i');
+```
+
+Safeguard scans now correctly return 3 stats instead of 2.
+
+**bXPS recalibrated: 220 → 450 (commit `19d0170`)**
+
+Root cause: Sprint 24 calibrated `baseXpPerSession=220` against the stepped xpCostTable model. Sprint 25 switched to the exponential model without re-calibrating. The exponential model's compounding makes gains significantly more expensive over a 60-point stat range — bXPS needed to rise proportionally.
+
+Back-calculated from four independent data points:
+
+| Player | Stat | Value | Session | Game range | Implied bXPS |
+|---|---|---|---|---|---|
+| Cptn Dallas ×4 Safeguard | MARKING | 139 | age 23, Normal | +11–16 | 495 |
+| Cptn Dallas ×4 Safeguard | POSITIONING | 194 | age 23, Normal | +4–6 | 455 |
+| Cptn Dallas ×4 Safeguard | AGGRESSION | 189 | age 23, Normal | +4–6 | 414 |
+| Ricky Grant ×40 Defending | TACKLING | 120 | age 20, Normal | +59–73 actual | 409 |
+
+Mean: 443 → set to **450**. Validated: Dallas ×4 Safeguard all 3 stats land inside game ranges. Rayne ×4 Safeguard confirmed +1 OVR (was +0 at bXPS=220).
+
+**DMC role — STRENGTH moved to secondary (commit `5c9dcf7`)**
+
+STRENGTH was in DMC's essential list incorrectly — carried over from MC/AMC adjacency. Game confirms STRENGTH is grey for a pure DMC player. DMC now: 9 essential, 6 secondary.
+
+**playerScanner.ts — OCR misread corrections (commit `c5cb17d`)**
+
+`OCR_STAT_CORRECTIONS` map added: `'TACKIING' → 'TACKLING'`, `'TACKL1NG' → 'TACKLING'`. ML Kit misreads the font's lowercase 'l' as 'i' or '1' on certain device renderings.
+
+### New players confirmed this sprint
+
+| Player | Age | Roles | Tier | Talent | OVR |
+|---|---|---|---|---|---|
+| Cptn Dallas | 23 | AMR/MR/DR | T0 | Normal ×1.0 | ~185 |
+| Rayne | 21 | ML/DL/DC | T3 | Normal ×1.0 | 204 |
+| Age-24 DMC (Insidious FC) | 24 | DMC | T0 | Normal ×1.0 | 127 |
+
+### Files changed
+
+| File | Change |
+|---|---|
+| `app/(tabs)/coaches.tsx` | Remove stale `setSelectedTier(null)` from sessions `onChangeText` |
+| `src/logic/coachScanner.ts` | Secondary embedded-stat scan for 3-column OCR merge (CROSSING fix) |
+| `src/logic/playerScanner.ts` | `OCR_STAT_CORRECTIONS` for TACKLING OCR misreads (`TACKIING`, `TACKL1NG`) |
+| `profiles/game_2025.json` | `baseXpPerSession` 220 → 450 |
+| `profiles/calibration_data.json` | `bxps_recalibration` block with full back-calculation evidence |
+| `src/utils/roleWeights.ts` | DMC: STRENGTH essential → secondary |
+
+### Open / Next Sprint
+
+- Confirm ageMult=0.72 bracket (age 24) — scan a coach preview for the age-24 DMC player
+- Calibrate `drillXpFactor` — still provisional at 0.3
+- Fix age-24 DMC player name (saved as "Team: Insidious FC")
+- Confirm DC white stat set (5 essential seems low — check if TACKLING/MARKING should be white)
+
+---
+
 ## Sprint 30 — Tab Simplification: Results as Single Plan Hub + drillXpFactor Calibration
 **2026-05-18**
 

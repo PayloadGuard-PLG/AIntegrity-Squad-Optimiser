@@ -817,3 +817,68 @@ from 4 data points across 2 different players and 2 different session counts.
 in coaches.tsx). Four data points across ×4 and ×40 sessions both fit linear budget scaling with
 bXPS=450, suggesting the game doesn't apply geometric session decay in the way modeled, or it's
 negligible. Leave as-is until a deliberate ×N test (same player, ×10 vs ×40) provides evidence.
+
+---
+
+## Sprint 32 Handover — Custom Coach Engine Fix + Branch Transition
+
+### What was done (Sprint 32)
+
+**1. `customCoachEngine.ts` — deprecated shim replaced with real XP engine**
+
+`predictCustomDrill` was calling `calculateDynamicGain` (the `@deprecated` shim in `coachMath.ts`)
+without passing a `GameProfile`. Without a profile, the function hit the graceful degradation fallback:
+
+```javascript
+const ageFactor = age <= 19 ? 1.0 : age <= 21 ? 0.4 : 0.2;
+```
+
+Any player over 21 returned `ageFactor = 0.2` — treating them as training at 20% efficiency.
+The real engine uses the age table with interpolation. All of age, talent, white/grey weighting,
+and the exponential cost curve were bypassed.
+
+Root cause was two compounding errors:
+- Wrong function (`calculateDynamicGain` instead of `estimateStatGainPct`)
+- No `GameProfile` (forced fallback to hardcoded guesses)
+
+Multipliers happened to scale correctly because `coachMultiplier` passes through the formula
+proportionally — the ratio was right even though the absolute base was wrong.
+
+**Fix (`commit 15164e8`):**
+- `PlayerStats.statValue: number` — the XP engine needs actual stat value, not OVR
+- `PlayerStats.talent: TalentTier` — for correct talent multiplier lookup
+- `predictCustomDrill(profile: GameProfile)` — new required parameter
+- XP budget: `sessions × profile.baseXpPerSession × coachMultiplier`
+- `estimateStatGainPct` called with all correct parameters from `game_2025.json`
+- `drillLevelMult = 1.0` (coaching sessions use full budget; intensity multipliers are for drills only)
+- Dead import of `calculateDynamicGain` removed
+
+**2. Branch transition**
+
+`claude/test-connection-I2s8B` is now the active dev branch.
+`claude/continue-development-CAQUS` was merged to `main` via PR #62 and retired.
+
+### Files changed in Sprint 32
+
+| File | Change |
+|---|---|
+| `src/logic/customCoachEngine.ts` | Full rewrite — deprecated shim out, real XP engine in |
+
+### Note from this Claude to the next Claude
+
+`customCoachEngine.ts` had no callers when fixed — the function was pre-built infrastructure.
+When it gets wired into a UI component, callers must provide `statValue` (the actual stat, not
+OVR) and `talent` on the `PlayerStats` object, plus a loaded `GameProfile`. The XP budget model
+is `sessions × baseXpPerSession × coachMultiplier` — `coachMultiplier` scales the total budget,
+not a per-session rate modifier.
+
+The `calculateDynamicGain` shim still exists in `coachMath.ts` for backward compatibility with
+any old tests that import it. It is still `@deprecated` and must not be used in new code. If all
+tests migrate, the shim can be deleted.
+
+Open questions for next session:
+1. Wire `predictCustomDrill` into a UI component (custom coach planner?)
+2. Confirm ageMult=0.72 (age 24) from the age-24 DMC player scan
+3. Calibrate `drillXpFactor` with real before/after drill stat data
+4. Confirm Fastest/Fast talent multipliers when a known-talent player is available
+5. Consider ×N empirical test (same player, ×10 vs ×40) to resolve star decay anomaly

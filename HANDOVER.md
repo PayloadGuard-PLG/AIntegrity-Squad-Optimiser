@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
-**Branch:** `claude/continue-development-CAQUS` (dev) / `main` (OTA deploy)
-**As of:** Sprint 30 — 2026-05-18
+**Branch:** `claude/test-connection-I2s8B` (dev) / `main` (OTA deploy)
+**As of:** Sprint 32 — 2026-05-18
 **Deploy:** Push to `main` triggers EAS OTA auto-deploy (Android only). NEVER push to `main` directly from dev work — merge only when releasing.
 
 ---
@@ -64,9 +64,9 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 
 | # | Area | Task | Priority |
 |---|---|---|---|
-| 1 | Sprint 31 — Game Readiness | Bar chart per player: condition % + teamplay pillars + fan club level + daily streak road (10 steps, ad-gated boosts at step 5 and 10). Plan file exists. Three open questions: (1) fan club per-player or global? (2) streak road manual tap or auto? (3) teamplay already tracked or new input? | Next sprint |
-| 2 | drillXpFactor calibration | `drillXpFactor = 0.3` is provisional. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. Do not change without real data. | High |
-| 3 | Lewis MacGregor actual gains | Lewis has a ×114 Extensive GK session queued. When Steve reports before/after stats, back-calculate effective talent multiplier and confirm `bXPS=220` holds for drills too. | High |
+| 1 | drillXpFactor calibration | `drillXpFactor = 0.3` is provisional. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. Do not change without real data. | High |
+| 1a | Age-24 DMC player name | Saved as "Team: Insidious FC" — scanner read club name. Correct in DB. | Quick |
+| 2 | ageMult=0.72 bracket (age 24) | Confirmed formula but not empirically validated against game data. Scan a coach preview for the age-24 DMC player with game +X–Y ranges visible and compare. | High |
 | 4 | New role — manual entry | `player/new.tsx` and `player/[id].tsx` have no UI fields for `newRole`/`newRolePoints`. Scanner populates on scan; manual entry not exposed. | Quick |
 | 5 | ×N anomaly | ×20 and ×40 sessions produce nearly identical projected gains. Geometric sum plateau hypothesis (sessions beyond ~20 contribute < 4% additional XP) is working model. Do NOT change budget formula until empirically confirmed. | Medium |
 | 6 | Fastest/Fast talent calibration | Currently community estimates (1.5 / 1.25). Needs known-talent players to confirm. | Medium |
@@ -84,6 +84,7 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 | `profiles/player_seeds.json` | Definitive player records for DB re-entry if device is wiped |
 | `src/types/resources.ts` | All TypeScript interfaces: GameProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
 | `src/logic/xpEngine.ts` | XP math: `estimateStatGainPct` (fractional float), `qualityPctToOvr` (Math.ceil), `applyTierBonusToStats` |
+| `src/logic/customCoachEngine.ts` | `predictCustomDrill` — per-stat coaching gain prediction using real XP engine. `PlayerStats` requires `statValue` + `talent`; function requires `GameProfile` |
 | `src/logic/ovrProjector.ts` | `computeOvrFromStats`, `computeOvrWithPadding`, `applyDrillSessionsToStats`, `projectOvr` |
 | `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort, condition costs |
 | `src/logic/playerScanner.ts` | **⚠ CRITICAL** — on-device ML Kit OCR. Role detection anchored to "Roles:" label Y-band. Greedy role token parser for concatenated tokens. No API calls. |
@@ -144,10 +145,10 @@ OVR = ceil( sum(all 15 stats) / 15 )
 ```
 Confirmed from 4 data points: McGinty (99.53→100), Rogers (120.6→121), Grant T2 (157.0→157), Grant T3 (175.4→176). Fixed in `qualityPctToOvr()` in `xpEngine.ts`. Any doc that says `floor` is stale.
 
-### XP model (Sprint 30 — separate budgets for coaches and drills)
+### XP model (Sprint 31 — separate budgets for coaches and drills)
 ```
-coach budget   = sessionCount × 220 (baseXpPerSession) / selectedStats.count
-drill budget   = cycles × 220 × 0.3 (drillXpFactor) / drill.stats.length
+coach budget   = sessionCount × 450 (baseXpPerSession) / selectedStats.count
+drill budget   = cycles × 450 × 0.3 (drillXpFactor) / drill.stats.length
 
 xpBase(stat)   = 2.94 × exp(stat / 55)          [exponential model, Sprint 25]
 xpCost(stat)   = xpBase(stat) / (ageMult × talentMult × greyMult × drillLevelMult)
@@ -214,8 +215,8 @@ ML/MR: white(7)=[POSITIONING,PASSING,DRIBBLING,CROSSING,FITNESS,SPEED,CREATIVITY
 MC:  white(10)=[TACKLING,MARKING,POSITIONING,BRAVERY,PASSING,DRIBBLING,FITNESS,STRENGTH,SPEED,CREATIVITY]
      grey(5)=  [HEADING,CROSSING,SHOOTING,FINISHING,AGGRESSION]
 
-DMC: white(10)=[TACKLING,MARKING,POSITIONING,HEADING,BRAVERY,PASSING,FITNESS,STRENGTH,AGGRESSION,CREATIVITY]
-     grey(5)=  [DRIBBLING,CROSSING,SHOOTING,FINISHING,SPEED]
+DMC: white(9)= [TACKLING,MARKING,POSITIONING,HEADING,BRAVERY,PASSING,FITNESS,AGGRESSION,CREATIVITY]
+     grey(6)=  [DRIBBLING,CROSSING,SHOOTING,FINISHING,SPEED,STRENGTH]
 
 DC:  white(5)=[POSITIONING,HEADING,FITNESS,STRENGTH,AGGRESSION]
      grey(10)=[TACKLING,MARKING,BRAVERY,PASSING,DRIBBLING,CROSSING,SHOOTING,FINISHING,SPEED,CREATIVITY]
@@ -237,11 +238,11 @@ Multi-role white union: `isWhiteStat(roles, stat)` returns true if essential for
 
 **Fan Club condition reduction:** L0=10%, L1=15%, L2=20%, L3=25%, L4=50%.
 
-**baseXpPerSession = 220** — calibrated Sprint 24 from Standard Defending ×40 (Ricky Grant, age 20, Normal talent). Confirmed Sprint 30 from Lewis MacGregor ×114 Extensive GK → 191 OVR.
+**baseXpPerSession = 450** — recalibrated Sprint 31 from four Dallas/Grant data points (implied 409–495, mean 443). Previous value 220 was calibrated against the stepped cost table; Sprint 25 switched to the exponential model without re-calibrating, causing systematic under-prediction.
 
 **Lewis MacGregor:** Age 18, Slow talent (×0.7), T0→T2 after ×114 Extensive GK + T1 + T2. Before: 143 OVR. After: 191 OVR. App prediction matched.
 
-**Calibration players:** Ricky Grant (DL/ML/AML, age 20, Normal ×1.0), Ryan Rogers (AML/ML/DL, age 20, Normal ×1.0), Kevin McGinty (AMC, age 27, Normal ×1.0), Lewis MacGregor (GK, age 18, Slow ×0.7).
+**Calibration players:** Ricky Grant (DL/ML/AML, age 20, Normal ×1.0), Ryan Rogers (AML/ML/DL, age 20, Normal ×1.0), Kevin McGinty (AMC, age 27, Normal ×1.0), Lewis MacGregor (GK, age 18, Slow ×0.7), Cptn Dallas (AMR/MR/DR, age 23, Normal ×1.0), Rayne (ML/DL/DC, age 21, Normal ×1.0).
 
 ---
 
@@ -249,8 +250,8 @@ Multi-role white union: `isWhiteStat(roles, stat)` returns true if essential for
 
 ```bash
 npx tsc --noEmit   # must return zero errors
-git push -u origin claude/continue-development-CAQUS   # dev branch only
+git push -u origin claude/test-connection-I2s8B   # dev branch only
 # NEVER push directly to main — EAS OTA fires on merge to main
 ```
 
-**Git discipline:** Always develop on `claude/continue-development-CAQUS`. Commit messages max 256 chars. Push to main only on explicit release instruction from Steve.
+**Git discipline:** Always develop on `claude/test-connection-I2s8B`. Commit messages max 256 chars. Push to main only on explicit release instruction from Steve.

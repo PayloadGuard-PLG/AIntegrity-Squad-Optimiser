@@ -1,6 +1,6 @@
 # Squad Optimiser — Enterprise Overview
 
-**Version 1.0 — Sprint 27**
+**Version 1.1 — Sprint 32**
 
 ---
 
@@ -140,7 +140,7 @@ The projection engine is calibrated against observed in-game data, not theoretic
 |---|---|
 | OVR formula | 4 player/tier snapshots — all match `ceil(mean(15 stats))` |
 | XP cost curve | Gain ratio between two stats at stat values 120 and 228 in the same coaching session |
-| baseXpPerSession | Standard Defending ×40 on a confirmed Normal talent player, age 20 |
+| baseXpPerSession | Recalibrated Sprint 31: four data points (Cptn Dallas ×4 Safeguard + Ricky Grant ×40 Defending), implied 409–495 → set to 450 |
 | Age multipliers | Community-verified table across all age bands |
 | Condition formula | Direct in-game screenshot verification across all intensity levels and fan club levels |
 
