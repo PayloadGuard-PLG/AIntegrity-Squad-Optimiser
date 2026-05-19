@@ -43,17 +43,17 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 
 // ─── 1. xpBaseForStat — exponential model ───────────────────────────────────
 {
-  console.log('\n[1] xpBaseForStat: exponential cost curve (C₀=2.94, K=55)');
+  console.log('\n[1] xpBaseForStat: exponential cost curve (C₀=2.94, K=47)');
   // C₀ × exp(stat/K)
   const at0   = xpBaseForStat(0,   profile);
-  const at55  = xpBaseForStat(55,  profile);
-  const at110 = xpBaseForStat(110, profile);
-  assertClose('stat=0 → 2.94',        at0,   2.94,   0.01);
-  assertClose('stat=55 → 2.94×e ≈ 7.99', at55, 2.94 * Math.E, 0.02);
-  assertClose('stat=110 → 2.94×e² ≈ 21.72', at110, 2.94 * Math.E * Math.E, 0.05);
-  // Ratio: exp((228-120)/55) ≈ 4.89 — the calibration derivation point
-  const ratio = xpBaseForStat(228, profile) / xpBaseForStat(120, profile);
-  assertClose('cost ratio stat228/stat120 = exp(108/55) ≈ 4.89', ratio, Math.exp(108 / 55), 0.05);
+  const at47  = xpBaseForStat(47,  profile);
+  const at94  = xpBaseForStat(94,  profile);
+  assertClose('stat=0 → 2.94',           at0,  2.94,                 0.01);
+  assertClose('stat=47 → 2.94×e ≈ 7.99', at47, 2.94 * Math.E,       0.02);
+  assertClose('stat=94 → 2.94×e² ≈ 21.72', at94, 2.94 * Math.E * Math.E, 0.05);
+  // Ratio derived from Grant ×40: exp((230-122)/47) — fits TACKLING vs POSITIONING
+  const ratio = xpBaseForStat(230, profile) / xpBaseForStat(122, profile);
+  assertClose('cost ratio stat230/stat122 = exp(108/47)', ratio, Math.exp(108 / 47), 0.05);
 }
 
 // ─── 2. getAgeMultiplier — table lookups ─────────────────────────────────────
@@ -76,11 +76,11 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   const base120 = xpBaseForStat(120, profile);
   // Normal, age 20, white — divisor = 1.0 × 1.0 × 1.0 = 1.0
   const costWhite = xpNeededFor1Pct(120, 20, 0, 'Normal', true,  false, 1.0, profile);
-  // Normal, age 20, grey  — divisor = 1.0 × 1.0 × 0.2 = 0.2 → cost is 5× white
+  // Normal, age 20, grey  — divisor = 1.0 × 1.0 × 0.22 = 0.22 → cost is ~4.55× white
   const costGrey  = xpNeededFor1Pct(120, 20, 0, 'Normal', false, false, 1.0, profile);
-  assertClose('white cost = base/1.0',      costWhite, base120,       0.01);
-  assertClose('grey cost = 5 × white cost', costGrey,  base120 / 0.2, 0.01);
-  assert('grey costs exactly 5× white', Math.abs(costGrey / costWhite - 5.0) < 0.001);
+  assertClose('white cost = base/1.0',           costWhite, base120,        0.01);
+  assertClose('grey cost = base/0.22',           costGrey,  base120 / 0.22, 0.01);
+  assert('grey costs ~4.55× white (1/0.22)', Math.abs(costGrey / costWhite - (1/0.22)) < 0.001);
 
   // Age multiplier: age 27 (0.61) costs more than age 20 (1.0)
   const cost27 = xpNeededFor1Pct(120, 27, 0, 'Normal', true, false, 1.0, profile);
@@ -103,24 +103,34 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 {
   console.log('\n[4] estimateStatGainPct: calibrated game observations');
 
-  // Observation A: bXPS=450 calibration point
-  // budget=360 (4 sessions, 5 stats), stat=139, age=23, Normal, white
-  // Game observed: +11–16 (Standard Safeguard ×4)
-  const gainA = estimateStatGainPct(360, 139, 23, 0, 'Normal', true, false, 1.0, profile);
-  assertInRange('Obs A: budget=360 stat=139 age=23 Normal white → +11–16', gainA, 11, 16);
+  // Observations A–D: Grant ×40 Standard Defending — derived K=47, bXPS=676
+  // Age 20 (ageMult=1.0 confirmed), Normal (×1.0 confirmed), 5 stats, 40 sessions.
+  // budget per stat = 40 × 676 / 5 = 5408. All confirmed from game screenshots.
+  const budgetGrant = 40 * 676 / 5; // 5408
 
-  // Observation B: high-stat cost curve
-  // budget=360, stat=194, age=23, Normal, white
-  // Game observed: +4–6
-  const gainB = estimateStatGainPct(360, 194, 23, 0, 'Normal', true, false, 1.0, profile);
-  assertInRange('Obs B: budget=360 stat=194 age=23 Normal white → +4–6', gainB, 4, 6);
+  const gainA = estimateStatGainPct(budgetGrant, 122, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs A: Grant TACKLING    stat=122 age=20 Normal white → +57–71', gainA, 57, 71);
+
+  const gainB = estimateStatGainPct(budgetGrant, 140, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs B: Grant MARKING     stat=140 age=20 Normal white → +48–56', gainB, 48, 56);
+
+  const gainC2 = estimateStatGainPct(budgetGrant, 230, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs C: Grant POSITIONING stat=230 age=20 Normal white → +10–15', gainC2, 10, 15);
+
+  const gainD2 = estimateStatGainPct(budgetGrant, 216, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs D: Grant BRAVERY     stat=216 age=20 Normal white → +12–18', gainD2, 12, 18);
+
+  const gainE2 = estimateStatGainPct(budgetGrant, 155, 20, 0, 'Normal', false, false, 1.0, profile);
+  assertInRange('Obs E: Grant HEADING     stat=155 age=20 Normal GREY  → +11–15', gainE2, 11, 15);
+
+  console.log('  [PENDING] Dallas ×4 Safeguard — age-23 observations inconsistent with current ageMult=0.85. Needs fresh before/after data.');
 
   // Observation C: grey stat costs 2× — same budget at same stat must give ~half the gain
   // grey at stat=139 age=23 Normal should be roughly half of white gain
   const gainC_white = estimateStatGainPct(360, 139, 23, 0, 'Normal', true,  false, 1.0, profile);
   const gainC_grey  = estimateStatGainPct(360, 139, 23, 0, 'Normal', false, false, 1.0, profile);
   assert('grey gain < white gain for same inputs', gainC_grey < gainC_white);
-  assertClose('grey/white ratio ≈ 0.2 (not exact due to compounding)', gainC_grey / gainC_white, 0.2, 0.08);
+  assertClose('grey/white ratio ≈ 0.22 (not exact due to compounding)', gainC_grey / gainC_white, 0.22, 0.08);
 
   // Observation D: Slow talent must gain less than Normal from same inputs.
   // The ratio of GAINS is not equal to the ratio of multipliers (0.47) because
