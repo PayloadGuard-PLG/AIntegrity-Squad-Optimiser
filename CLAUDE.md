@@ -26,7 +26,7 @@ backing a value, it is ASSUMED and must be labelled as such.
 | ageTable 18–20 | 1.0 | ✅ Confirmed | Grant age 20 projection matches game output |
 | ageTable 26–28 | 0.61 | ✅ Confirmed | McGinty age 27 identified and matched |
 | ageTable 21–23 | 0.85 | ❌ NOT confirmed | Assumed. No empirical data for this bracket. |
-| ageTable 24–25 | 0.72 | ❌ NOT confirmed | Assumed. No empirical data for this bracket. |
+| ageTable 24–25 | 0.72 | ✅ Confirmed | Garry McCluskey age 24: Focused Physical ×4 Drill Session Reward Coach, Fitness 213 → engine +3.5 vs actual +2-3. ageMult=0.72 validated. (Creativity slightly underpredicts — likely talent is above Normal.) |
 | ageTable 17 | 1.1 | ❌ NOT confirmed | Assumed. No 17-year-old calibration player. |
 | ageTable 29 | 0.50 | ❌ NOT confirmed | Assumed. |
 | ageTable 30 | 0.00 | ❌ NOT confirmed | Assumed. |
@@ -1036,17 +1036,38 @@ is within range.
 
 **Priority action items for next session:**
 
-1. **Run Brandon Prentice's Reward Coach ×4** — screenshot before/after player card.
+1. **DONE: ageMult=0.72 for age 24 now confirmed** — Garry McCluskey (age 24) Focused Physical
+   ×4 Drill Session Reward Coach. Fitness 213 → engine predicts +3.5, actual +2-3. ✅
+
+2. **Confirm Garry McCluskey talent** — screenshot the edit screen. Fitness data is consistent
+   with Normal (1.0) but Creativity underpredicts (+5.8 vs +7-10). Fast (1.25) would give
+   Creativity +7.1 ✓. One edit-screen screenshot resolves this.
+
+3. **Confirm King Alfie talent** — same: screenshot edit screen for Fastest/Fast/Average/Normal/Slow.
+
+4. **Training Camp is NOT modelled** — King Alfie's ×20 Standard Attacking session was a
+   "TRAINING CAMP" session type. The game boosted only 3/5 ATK stats (Dribbling, Crossing,
+   Finishing) with unknown budget formula. Engine now detects Training Camp and shows a warning
+   instead of a bad projection. Do NOT use Training Camp scans for formula calibration.
+
+5. **Run Brandon Prentice's Reward Coach ×4** — screenshot before/after player card.
    Compare actual gains vs +15.4 MARKING / +15.1 POSITIONING / +11.6 AGGRESSION.
    Validates ageMult=0.85 (age 22) and confirms Reward Coach budget = Standard budget.
 
-2. **Scan age-24 DMC player** — already in DB. Scan any coach preview with gain ranges
-   visible to validate ageMult=0.72 (age 24–25 bracket). One scan confirms or corrects it.
+6. **×N test** — same player, ×4 vs ×20 actual gains from a REGULAR coaching session (not
+   Training Camp). Prentice is the candidate. Engine predicts ×20 gives ~4× the ×4 gain.
 
-3. **×N test** — same player, ×4 vs ×20 actual gains. Prentice is the candidate. Engine
-   predicts ×20 gives ~4× the ×4 gain (linear model). If actual ratio is ~1× (both give
-   similar gains), geometric session decay is confirmed and the budget formula must change.
+7. **Slow talent second data point** — any Slow player, any Extensive coach scan.
 
-4. **Slow talent second data point** — any Slow player, any Extensive coach scan.
+## Training Camp Session Type
+
+Training Camp is a distinct game mode (shows "TRAINING CAMP" label in the game UI). Key differences
+from regular coaching sessions observed so far:
+
+- Only a subset of the category's stats are boosted (3/5 ATK stats for King Alfie ×20)
+- Budget formula unknown — cannot be back-calculated without knowing talent
+- Engine now detects "TRAINING CAMP" text and declines to project, showing a UI warning
+
+Do NOT attempt to fit Training Camp data to the coaching XP engine formula.
 
 See `RESEARCH_PROMPT.md` for the full issue list with back-calculation formulas.

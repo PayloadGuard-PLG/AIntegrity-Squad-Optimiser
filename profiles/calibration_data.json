@@ -762,6 +762,97 @@
       }
     ]
   },
+  {
+    "id": "garry_mccluskey",
+    "name": "Garry McCluskey",
+    "age": 24,
+    "roles": ["DC", "DMC", "MC"],
+    "tier": "T3",
+    "talent": "Normal",
+    "talentConfirmed": false,
+    "talentNote": "Assumed Normal — Fitness gain prediction +3.5 vs actual +2-3. Creativity underpredicts (+5.8 vs +7-10), suggesting talent may be Fast (1.25 → predicted +7.1 ✓). Confirm from edit screen.",
+    "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","FITNESS","STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
+    "greyStats": ["CROSSING","FINISHING","SHOOTING"],
+    "whiteStatCount": 12,
+    "tier_note": "12 white key attrs (not 13 as roleWeights.ts union would give) — game treats SHOOTING as grey for DC/DMC/MC combo. floor(50×12/15)=40 tier OVR ✓.",
+    "observations": [
+      {
+        "id": "mccluskey_4x_focused_physical_drill",
+        "date": "2026-05-19",
+        "coachType": "Focused",
+        "coachCategory": "Physical",
+        "sessionType": "DRILL_SESSION_REWARD_COACH",
+        "sessionCount": 4,
+        "boostedStats": ["FITNESS", "CREATIVITY"],
+        "numBoostedStats": 2,
+        "budgetPerStat_xpEngine": 1352,
+        "playerStats_at_time": {
+          "FITNESS": 213,
+          "CREATIVITY": 188
+        },
+        "actualGains": {
+          "FITNESS": { "lo": 2, "hi": 3 },
+          "CREATIVITY": { "lo": 7, "hi": 10 }
+        },
+        "enginePredictions_Normal_age24": {
+          "FITNESS": 3.5,
+          "CREATIVITY": 5.8
+        },
+        "enginePredictions_Fast_age24": {
+          "FITNESS": 4.3,
+          "CREATIVITY": 7.1
+        },
+        "analysis": "Fitness +3.5 predicted vs +2-3 actual: slightly above upper bound, consistent with Normal talent and ageMult=0.72. Validates ageMult=0.72 for age 24. Creativity +5.8 predicted vs +7-10 actual: ~20% under. If talent is Fast (1.25), Creativity prediction becomes +7.1 which hits the lower bound exactly. Need talent confirmation from edit screen.",
+        "ageMult_validated": "0.72 for age 24 — CONFIRMED from Fitness data point",
+        "source_screenshots": ["db505607 (player card)", "8c4b75ee (Focused Physical ×4 Drill Session Reward Coach preview)"]
+      }
+    ]
+  },
+  {
+    "id": "king_alfie",
+    "name": "King Alfie",
+    "age": 19,
+    "roles": ["DC", "DL", "DMC"],
+    "tier": "T3",
+    "talent": "Unknown",
+    "talentNote": "Not confirmed. Confirm Fastest/Fast/Average/Normal/Slow from edit screen.",
+    "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","CROSSING","FITNESS","STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
+    "greyStats": ["DRIBBLING","SHOOTING","FINISHING"],
+    "whiteStatCount": 12,
+    "ovrSplit": { "base": 160, "tierContrib": 40, "totalDisplayed": 200 },
+    "observations": [
+      {
+        "id": "alfie_20x_standard_attacking_training_camp",
+        "date": "2026-05-19",
+        "coachType": "Standard",
+        "coachCategory": "Attacking",
+        "sessionType": "TRAINING_CAMP",
+        "sessionType_note": "Game UI showed 'TRAINING CAMP' header. This is a distinct session type — NOT a regular coaching session. Budget distribution and stat selection rules differ. Engine CANNOT project Training Camp sessions.",
+        "sessionCount": 20,
+        "boostedStats_observed": ["DRIBBLING", "CROSSING", "FINISHING"],
+        "note_on_stat_count": "Only 3 of 5 ATK stats were highlighted (Passing and Shooting had no gain arrows). Training Camp appears to boost a subset of the category, not all 5 stats.",
+        "playerStats_at_time": {
+          "DRIBBLING": 103,
+          "CROSSING": 180,
+          "FINISHING": 99,
+          "PASSING": 196,
+          "SHOOTING": 116
+        },
+        "gamePreviewRanges": {
+          "DRIBBLING": { "lo": 42, "hi": 51 },
+          "CROSSING": { "lo": 30, "hi": 40 },
+          "FINISHING": { "lo": 45, "hi": 54 },
+          "PASSING": "no arrow shown",
+          "SHOOTING": "no arrow shown"
+        },
+        "ovrProjection_app": "+8-10 (app incorrectly uses 5-stat Standard budget)",
+        "ovrFromPreviewRanges": "≈+8.4 OVR from 3 stats only: (46+35+49)/15=8.7 ✓",
+        "engine_cannot_project": true,
+        "action_taken": "Added Training Camp detection to coachScanner.ts — scanner now sets isTrainingCamp=true, pipeline returns TRAINING_CAMP_SENTINEL, UI shows warning instead of bad projection.",
+        "source_screenshots": ["f0cb496c (player card)", "fee4aa1e (OVR 160+40 breakdown)", "bc9621f6 (Training Camp preview)", "9e423651 (Training Camp no-player)"]
+      }
+    ]
+  },
   "calibrationStatus": {
     "lastUpdated": "2026-05-18",
     "formulaStatus": "PROVISIONAL",
