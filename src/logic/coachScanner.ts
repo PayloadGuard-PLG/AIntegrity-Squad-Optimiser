@@ -55,6 +55,7 @@ export interface CoachScanResult {
   ovrBoostLo?: number;
   ovrBoostHi?: number;
   isRewardCoach?: boolean;
+  isTrainingCamp?: boolean;
   stats: StatCapture[];
   _debugBlocks?: string;
 }
@@ -109,7 +110,8 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   const ovrBoostLo   = boostMatch ? parseInt(boostMatch[1]) : undefined;
   const ovrBoostHi   = boostMatch ? parseInt(boostMatch[2]) : undefined;
 
-  const isRewardCoach = /\breward\s*coach\b/i.test(fullText);
+  const isRewardCoach   = /\breward\s*coach\b/i.test(fullText);
+  const isTrainingCamp  = /\btraining\s*camp\b/i.test(fullText);
 
   const ageMatch  = /\bAge\s*:?\s*(\d{2})\b/i.exec(fullText);
   const playerAge = ageMatch ? parseInt(ageMatch[1]) : undefined;
@@ -246,5 +248,5 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     .join(' | ');
 
   const stats = Array.from(captureMap.values());
-  return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, isRewardCoach, stats, _debugBlocks };
+  return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, isRewardCoach, isTrainingCamp, stats, _debugBlocks };
 }

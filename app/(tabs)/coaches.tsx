@@ -3,7 +3,7 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert 
 import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
-import { resolveCoachStats, CATEGORY_STATS } from '../../src/logic/coachPipeline';
+import { resolveCoachStats, CATEGORY_STATS, TRAINING_CAMP_SENTINEL } from '../../src/logic/coachPipeline';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -180,6 +180,13 @@ export default function CoachesScreen() {
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
 
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
+
+      if (statNames[0] === TRAINING_CAMP_SENTINEL) {
+        setScanStatus('TRAINING CAMP — cannot project (different budget structure)');
+        setScannedStats([]);
+        return;
+      }
+
       setScannedStats(statNames);
 
       const parts: string[] = [];
