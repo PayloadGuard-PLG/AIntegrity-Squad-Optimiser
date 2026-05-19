@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -32,11 +32,27 @@ function OvrBadge({ ovr }: { ovr: number }) {
 
 function PlayerRow({ player, index }: { player: Player; index: number }) {
   const manager = useManager();
+  const lastTapRef = useRef<number>(0);
+  const isSelected = manager.selectedPlayerId === player.id;
+
+  function handlePress() {
+    const now = Date.now();
+    if (now - lastTapRef.current < 350 && isSelected) {
+      router.push(`/player/${player.id}`);
+      lastTapRef.current = 0;
+    } else {
+      manager.setSelectedPlayerId(player.id);
+      lastTapRef.current = now;
+    }
+  }
+
   return (
-    <Pressable onPress={() => { manager.setSelectedPlayerId(player.id); router.push(`/player/${player.id}`); }} style={{
-      backgroundColor: theme.surface,
-      borderWidth: 1, borderColor: theme.hairline,
+    <Pressable onPress={handlePress} style={{
+      backgroundColor: isSelected ? theme.surface2 : theme.surface,
+      borderWidth: 1, borderColor: isSelected ? theme.steelLight + '88' : theme.hairline,
       borderTopWidth: index > 0 ? 0 : 1,
+      borderLeftWidth: isSelected ? 3 : 1,
+      borderLeftColor: isSelected ? theme.steelLight : theme.hairline,
       padding: 12, paddingHorizontal: 14,
       flexDirection: 'row', alignItems: 'center', gap: 14,
     }}>
@@ -67,7 +83,7 @@ function PlayerRow({ player, index }: { player: Player; index: number }) {
           <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} />
         )}
       </View>
-      <Text style={{ color: theme.inkMuted, fontFamily: theme.mono, fontSize: 14 }}>›</Text>
+      <Text style={{ color: isSelected ? theme.steelLight : theme.inkMuted, fontFamily: theme.mono, fontSize: 14 }}>›</Text>
     </Pressable>
   );
 }
