@@ -1,13 +1,20 @@
 import { View } from 'react-native';
 
 // 10 bars, max OVR = 180 (training cap), each bar = 18 OVR.
-// Note: starOvrThreshold (20 OVR per training star) is a separate mechanic.
-// These bars divide the training cap evenly — 10 × 18 = 180.
+// Colors run red → amber → green so quality reads instantly at a glance.
 const MAX_OVR = 180;
 const N_BARS  = 10;
 const COLORS  = [
-  '#2d3a52', '#3d4a66', '#4d5c7a', '#5b6b8a',
-  '#7a90af', '#9eb0d4', '#b8a070', '#c4a060', '#e8b466', '#7eb89a',
+  '#b91c1c', // bar 0  0–18   deep red
+  '#dc2626', // bar 1  18–36  red
+  '#f97316', // bar 2  36–54  orange
+  '#f59e0b', // bar 3  54–72  amber
+  '#eab308', // bar 4  72–90  yellow
+  '#a3e635', // bar 5  90–108 lime
+  '#4ade80', // bar 6  108–126 light green
+  '#22c55e', // bar 7  126–144 green
+  '#16a34a', // bar 8  144–162 deep green
+  '#059669', // bar 9  162–180 emerald (elite)
 ];
 const EMPTY = 'rgba(255,255,255,0.06)';
 
