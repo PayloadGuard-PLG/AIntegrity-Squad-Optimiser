@@ -886,3 +886,129 @@ Open questions for next session:
 3. Calibrate `drillXpFactor` with real before/after drill stat data
 4. Confirm Fastest/Fast talent multipliers when a known-talent player is available
 5. Consider ×N empirical test (same player, ×10 vs ×40) to resolve star decay anomaly
+
+---
+
+## Sprint 33 Handover — OCR Dedup, Safeguard Fix, Reward Coach Detection
+
+### What was done (Sprint 33)
+
+**1. OVR formula confirmed: Math.floor** (`src/logic/xpEngine.ts`)
+
+Sprint 27 addendum had confirmed `Math.ceil` from 4 data points. Sprint 32 re-examined with a
+clean integer-only tier upgrade (Grant T2→T3): displayed sum = 2615, game OVR = 174.
+`floor(2615/15) = 174` ✓, `ceil = 175` ✗. The prior ceil confirmation was an artefact of
+fractional stat accumulation. Fixed to `Math.floor` in `qualityPctToOvr()`.
+
+**2. Duplicate stat capture fix** (`src/logic/coachScanner.ts`)
+
+Scanner was pushing duplicate `StatCapture` entries (e.g. CONCENTRATION appearing twice),
+causing React "duplicate key" errors at `coaches.tsx:183`.
+
+Fix: replaced `stats[]` accumulator with `Map<string, StatCapture>` + `upsertCapture()`:
+- Prefer real baseline (statBefore > 0) over arrow-only capture (statBefore === 0)
+- Prefer narrower gain span as tiebreaker
+
+Also fixed baseline selection: was taking `rowNums[0]` (first number in row, which in a
+3-column merged block belongs to the adjacent column's stat). Fixed to pick the numeric token
+whose `left` position is **closest to the stat name token** — correctly attaches the stat's own
+current value rather than a neighbour's.
+
+**3. Slow talent multiplier calibrated: 0.7 → 0.47** (`profiles/game_2025.json`)
+
+Jables JaseysBoi (GK, Age 18, Slow): ×114 Extensive GK, engine at Slow=0.47 → +25 OVR,
+game range +24–32. 9/11 stats within game range; 3 stats 0.4–2.2 below lo bound, suggesting
+true value may be 0.49–0.52. Flagged for re-confirmation with a second Slow player scan.
+Full per-stat breakdown in `calibration_data.json → lewis_macgregor`.
+
+**Note:** DB had the player entered as Normal (×1.0). After DB correction to Slow (×0.7),
+the engine initially predicted +42 OVR (way over). Profile recalibration from 0.7 → 0.47
+then brought it to +25 OVR (within range). The 0.47 is a profile-level correction on top of
+the DB talent value — this is the correct model.
+
+**4. Safeguard category fix** (`src/logic/coachPipeline.ts`)
+
+`CATEGORY_STATS["Safeguard"]` was mapped to GK stats — wrong. Fixed to DEF stats
+(TACKLING, MARKING, POSITIONING, HEADING, BRAVERY), same as Defending.
+
+Added pipeline rule: **Standard and Extensive coaches always return the full category list**,
+regardless of how many stats OCR detected. Arrow icons (↑) on non-highlighted rows are
+unreadable by ML Kit, causing partial detections. The full-category override ensures the
+budget is divided correctly. Focused coaches and Reward Coaches are excluded from this rule.
+
+**5. Category filter in embedded stat pass** (`src/logic/coachScanner.ts`)
+
+The secondary embedded-stat scan (for stats merged into adjacent-column OCR blocks) was
+capturing out-of-category stats — e.g. AGGRESSION appearing in POSITIONING's rowText during
+a Safeguard scan. Fixed by filtering candidates to the coach's category before pattern-matching.
+
+`CATEGORY_STAT_SETS` constant added near top of `coachScanner.ts`, mirrors `CATEGORY_STATS`
+in `coachPipeline.ts` as `Set<string>` for O(1) lookups.
+
+**6. Reward Coach detection** (`src/logic/coachScanner.ts`, `src/logic/coachPipeline.ts`)
+
+Reward Coaches use the Standard/Extensive label but boost a custom set of stats (potentially
+cross-category, e.g. MARKING + POSITIONING + AGGRESSION in a Safeguard Reward Coach).
+
+Fix:
+- Scanner detects `"REWARD COACH"` text → sets `isRewardCoach: true` in `CoachScanResult`
+- Scanner bypasses category filter in embedded pass when `isRewardCoach` (so cross-category
+  stats like AGGRESSION are captured)
+- Pipeline skips the Standard/Extensive full-category override when `isRewardCoach` — falls
+  through to contamination check, which correctly handles cross-category detections
+
+Reward Coaches confirmed to use the **same XP budget** as regular Standard coaches — no
+extra boost, just awarded as a prize. No separate `rewardCoachXpMultiplier` needed.
+
+**7. RESEARCH_PROMPT.md created** (project root)
+
+Self-contained briefing covering all 8 open calibration/tuning issues with exact
+back-calculation formulas, evidence to collect, and priority order.
+
+**8. Brandon Prentice calibration data** (`profiles/calibration_data.json`)
+
+- Age confirmed: 22 → ageMult 0.85 bracket (21–23) ✓
+- xN engine projections recorded for ×4/×20/×40 Standard Safeguard (5 stats)
+- Reward Coach ×4 projection recorded (3 stats: MARKING, POSITIONING, AGGRESSION):
+  +15.4 / +15.1 / +11.6. Actual game result needed to validate.
+
+### Files changed in Sprint 33
+
+| File | Change |
+|---|---|
+| `src/logic/xpEngine.ts` | OVR formula: `Math.ceil` → `Math.floor` |
+| `src/logic/coachScanner.ts` | Map-based dedup + nearest-number baseline + CATEGORY_STAT_SETS + Reward Coach detection |
+| `src/logic/coachPipeline.ts` | Safeguard = DEF stats; Standard/Extensive full-category override; Reward Coach exclusion |
+| `profiles/game_2025.json` | `talentMultipliers.Slow` 0.7 → 0.47 |
+| `profiles/calibration_data.json` | Jables per-stat data; Prentice xN projections + age; Reward Coach observation |
+| `profiles/player_seeds.json` | Lewis MacGregor T2 snapshot |
+| `RESEARCH_PROMPT.md` | NEW — open calibration issues with priority order |
+
+### Note from this Claude to the next Claude
+
+**Reward Coach scanning** is now handled correctly. The `isRewardCoach` flag gates both the
+embedded-pass category filter and the pipeline's full-category override. Normal Standard
+coaches (full category) and Reward Coaches (specific cross-category stats) are distinguished
+automatically. No user action needed.
+
+**Slow talent (0.47)** is a single-player calibration. 3/11 stats fell slightly below the
+game's low bound, implying the true value may be 0.49–0.52. Do not change it without a
+second Slow player data point — the current value gives +25 OVR vs game's +24–32, which
+is within range.
+
+**Priority action items for next session:**
+
+1. **Run Brandon Prentice's Reward Coach ×4** — screenshot before/after player card.
+   Compare actual gains vs +15.4 MARKING / +15.1 POSITIONING / +11.6 AGGRESSION.
+   Validates ageMult=0.85 (age 22) and confirms Reward Coach budget = Standard budget.
+
+2. **Scan age-24 DMC player** — already in DB. Scan any coach preview with gain ranges
+   visible to validate ageMult=0.72 (age 24–25 bracket). One scan confirms or corrects it.
+
+3. **×N test** — same player, ×4 vs ×20 actual gains. Prentice is the candidate. Engine
+   predicts ×20 gives ~4× the ×4 gain (linear model). If actual ratio is ~1× (both give
+   similar gains), geometric session decay is confirmed and the budget formula must change.
+
+4. **Slow talent second data point** — any Slow player, any Extensive coach scan.
+
+See `RESEARCH_PROMPT.md` for the full issue list with back-calculation formulas.
