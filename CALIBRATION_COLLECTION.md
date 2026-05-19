@@ -6,12 +6,15 @@ Fill in each section. Leave blank if unknown. Once complete, hand back to Claude
 
 ## How to use this
 
+Each test has a working baseline — either back-calculated from game data or a community-researched
+starting point. The goal is to confirm or correct that baseline with real game observations.
+
 For each test: screenshot player card **before** the session, run the coach, screenshot **after**.
 Record the exact stat numbers from the card. Approximate is useless — exact only.
 
 ---
 
-## TEST 1 — Age 21–23 multiplier (CRITICAL — currently assumed, not confirmed)
+## TEST 1 — Age 21–23 multiplier (baseline: 0.85 — needs game data to confirm or correct)
 
 **What to do:** Pick any player aged 21, 22, or 23. Run any Standard or Extensive coach session.
 Screenshot player card before and after. Record exact stat values for at least one white stat.
@@ -37,7 +40,7 @@ Screenshot player card before and after. Record exact stat values for at least o
 
 ---
 
-## TEST 2 — Prentice Reward Coach ×4 (ageMult 0.85 + Reward Coach budget)
+## TEST 2 — Prentice Reward Coach ×4 (baseline: ageMult 0.85, Reward Coach budget = Standard)
 
 **What to do:** Run Prentice's Reward Coach ×4 (MARKING, POSITIONING, AGGRESSION).
 Screenshot player card before and after. Record all three stat values.
@@ -59,7 +62,7 @@ Screenshot player card before and after. Record all three stat values.
 
 ---
 
-## TEST 3 — Age 24–25 multiplier (completely unvalidated)
+## TEST 3 — Age 24–25 multiplier (baseline: 0.72 — needs game data to confirm or correct)
 
 **What to do:** Use the age-24 DMC player already in the DB.
 Run any coach session with visible gain ranges, or record before/after stats.
@@ -112,11 +115,11 @@ Record all 5 DEF stats. This re-checks whether the original Sprint 31 Dallas obs
 
 ---
 
-## TEST 5 — Slow talent second data point
+## TEST 5 — Slow talent second data point (baseline: 0.47 — single player only, needs confirmation)
 
 **What to do:** Any player with Slow talent. Run any coach session.
 Record before/after for at least one white stat.
-MacGregor (GK, Age 18, Slow) is the only Slow calibration we have — needs a second player to confirm.
+MacGregor (GK, Age 18, Slow) is the only data point — a second player confirms or corrects it.
 
 | Field | Value |
 |---|---|
@@ -161,7 +164,7 @@ The question: does doubling the multiplier double the gain, or does it plateau?
 
 ---
 
-## TEST 7 — Fast talent multiplier (community-derived 1.25 — NOT confirmed)
+## TEST 7 — Fast talent multiplier (baseline: 1.25 — needs game data to confirm or correct)
 
 **What to do:** Find a player confirmed as Fast talent (shown on edit screen as "Fast").
 Run any coach session on a white stat. Record exact before/after.
@@ -184,7 +187,7 @@ Compare against a Normal player of the same age running the same session if poss
 
 ---
 
-## TEST 8 — Fastest talent multiplier (community-derived 1.5 — NOT confirmed)
+## TEST 8 — Fastest talent multiplier (baseline: 1.5 — needs game data to confirm or correct)
 
 **What to do:** Find a player confirmed as Fastest talent (edit screen shows "Fastest").
 Same as Test 7 — one white stat, before/after.
@@ -206,7 +209,7 @@ Same as Test 7 — one white stat, before/after.
 
 ---
 
-## TEST 9 — Average talent multiplier (community-derived 1.1 — NOT confirmed)
+## TEST 9 — Average talent multiplier (baseline: 1.1 — needs game data to confirm or correct)
 
 **What to do:** Find a player confirmed as Average talent (edit screen shows "Average").
 
