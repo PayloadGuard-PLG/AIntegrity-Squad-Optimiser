@@ -181,33 +181,37 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 
 // ─── 7. Seasonal decay ───────────────────────────────────────────────────────
 //
-// Baseline: 20% decay per season (seasonDecayFactor=0.80). UNVALIDATED — needs
-// before/after season scan to confirm rate and whether white/grey differ.
-//
-// Model: tier bonus is permanent. Decay applies only to base (earned) portion.
-//   white stat at T3: base = stat - 50; decayed_base = floor(base × 0.8); result = decayed_base + 50
-//   grey stat: result = floor(stat × 0.8)
+// Confirmed from Grant T2→T3 upgrade screenshots + before/after season screenshots:
+//   Each stat drops by exactly 20 points flat per promotion level.
+//   White and grey stats drop equally — tier bonus provides no cushion.
+//   Source: Grant T3 stats (Tackling 120, Marking 137, Heading 154, Strength 64)
+//   After 1-level promotion: each drops by 20, matching T2 pre-upgrade values exactly.
 {
-  console.log('\n[7] projectSeasonDecay: tier-aware seasonal decay (baseline 20% — UNVALIDATED)');
-  const whiteKeys = ['TACKLING', 'MARKING'];
-  const stats = { TACKLING: 170, MARKING: 140, HEADING: 100 }; // HEADING = grey
+  console.log('\n[7] projectSeasonDecay: flat −20 per stat per level promoted (confirmed)');
 
-  // T3 tier bonus = 50. TACKLING base = 170-50 = 120, decayed = floor(120×0.8) = 96, result = 96+50 = 146
-  const decayed = projectSeasonDecay(stats, whiteKeys, 'T3', profile);
-  assert('TACKLING (white T3): tier preserved — floor((170-50)×0.8)+50 = 146', decayed['TACKLING'] === 146);
-  assert('MARKING  (white T3): tier preserved — floor((140-50)×0.8)+50 = 122', decayed['MARKING']  === 122);
-  assert('HEADING  (grey):     full decay    — floor(100×0.8) = 80',            decayed['HEADING']  === 80);
+  // Grant's confirmed T3 stats (immediate post-upgrade screenshot)
+  const stats = { TACKLING: 120, MARKING: 137, HEADING: 154, STRENGTH: 64 };
 
-  // T0 player — no tier bonus, all stats decay fully
-  const decayedT0 = projectSeasonDecay(stats, whiteKeys, 'T0', profile);
-  assert('T0 TACKLING (no bonus): floor(170×0.8) = 136', decayedT0['TACKLING'] === 136);
-  assert('T0 HEADING  (no bonus): floor(100×0.8) = 80',  decayedT0['HEADING']  === 80);
+  // 1 level promoted: every stat −20, white and grey alike
+  const decayed1 = projectSeasonDecay(stats, 1, profile);
+  assert('TACKLING 1 level: 120−20 = 100 (white, T3)',  decayed1['TACKLING'] === 100);
+  assert('MARKING  1 level: 137−20 = 117 (white, T3)',  decayed1['MARKING']  === 117);
+  assert('HEADING  1 level: 154−20 = 134 (grey)',       decayed1['HEADING']  === 134);
+  assert('STRENGTH 1 level:  64−20 =  44 (grey)',       decayed1['STRENGTH'] === 44);
 
-  // White stats must always decay less (or equal) compared to grey at same value
-  assert('white decays less than grey for same starting value (tier cushion)',
-    decayed['TACKLING'] > decayed['HEADING']); // 146 > 80
+  // 2 levels promoted: every stat −40
+  const decayed2 = projectSeasonDecay(stats, 2, profile);
+  assert('TACKLING 2 levels: 120−40 = 80',              decayed2['TACKLING'] === 80);
+  assert('MARKING  2 levels: 137−40 = 97',              decayed2['MARKING']  === 97);
 
-  console.log('  [UNVALIDATED] seasonDecayFactor=0.80 — add to CALIBRATION_COLLECTION.md Test 10');
+  // Stat cannot go below 0
+  const lowStats = { STAT: 15 };
+  const decayedLow = projectSeasonDecay(lowStats, 1, profile);
+  assert('stat floor: 15−20 clamps to 0',               decayedLow['STAT']   === 0);
+
+  // Cross-check: TACKLING after decay matches pre-upgrade T2 value (120−20 = 100 = T2 Tackling)
+  assert('1-level decay returns T3 white stat to T2 baseline (tier gain wiped each season)',
+    decayed1['TACKLING'] === 100);
 }
 
 console.log(`\n--- Results: ${passed} passed, ${failed} failed ---\n`);

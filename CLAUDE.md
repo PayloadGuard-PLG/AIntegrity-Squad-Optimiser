@@ -15,14 +15,14 @@ backing a value, it is ASSUMED and must be labelled as such.
 | Constant | Value | Status | Evidence |
 |---|---|---|---|
 | xpCostBase (C₀) | 2.94 | ✅ Confirmed | Derived from Tackling-120 / Positioning-228 gain ratio (same session, same budget) |
-| xpCostDecayK (K) | 55 | ✅ Confirmed | Same derivation — ratio = exp(108/55) = 4.89 exactly |
-| baseXpPerSession | 450 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (TACKLING 122, age 20, +57-71 actual) |
-| greyWeightMultiplier | 0.2 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual → greyMult≈0.2) |
+| xpCostDecayK (K) | 47 | ✅ Confirmed | Calibration solver: minimises CV across 5 Grant ×40 observations (K=47, CV=3.2%) |
+| baseXpPerSession | 676 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (all 5 stats within game range) |
+| greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
 | talentMultipliers.Normal | 1.0 | ✅ Confirmed | Grant + Rogers both Normal — projection matches across multiple sessions |
 | talentMultipliers.Slow | 0.47 | ⚠️ Single data point | MacGregor ×114 Extensive GK — needs second Slow player to confirm |
-| talentMultipliers.Average | 1.1 | ❌ NOT confirmed | Community-derived. No empirical game data. |
-| talentMultipliers.Fast | 1.25 | ❌ NOT confirmed | Community-derived. No empirical game data. |
-| talentMultipliers.Fastest | 1.5 | ❌ NOT confirmed | Community-derived. No empirical game data. |
+| talentMultipliers.Average | 1.1 | ❌ NOT confirmed | Community baseline. No empirical game data. |
+| talentMultipliers.Fast | 1.25 | ❌ NOT confirmed | Community baseline. No empirical game data. |
+| talentMultipliers.Fastest | 1.5 | ❌ NOT confirmed | Community baseline. No empirical game data. |
 | ageTable 18–20 | 1.0 | ✅ Confirmed | Grant age 20 projection matches game output |
 | ageTable 26–28 | 0.61 | ✅ Confirmed | McGinty age 27 identified and matched |
 | ageTable 21–23 | 0.85 | ❌ NOT confirmed | Assumed. No empirical data for this bracket. |
@@ -30,11 +30,12 @@ backing a value, it is ASSUMED and must be labelled as such.
 | ageTable 17 | 1.1 | ❌ NOT confirmed | Assumed. No 17-year-old calibration player. |
 | ageTable 29 | 0.50 | ❌ NOT confirmed | Assumed. |
 | ageTable 30 | 0.00 | ❌ NOT confirmed | Assumed. |
-| OVR formula | floor(sum/15) | ✅ Confirmed | Grant T2→T3 clean integer upgrade: sum=2615, floor=174 ✓ |
-| tierAttrAdditions | T0-T6 values | ✅ Confirmed | Grant T2→T3: 13 white stats × +20 increment verified |
-| greyWeightMultiplier | 0.2 | ✅ Confirmed | See above |
+| OVR formula | floor(sum/15) | ✅ Confirmed | Grant T2→T3: sum=2615, floor(2615/15)=174 ✓; sum=2355, floor=157.0 ✓ |
+| tierAttrAdditions T2→T3 | +20/white | ✅ Confirmed | Grant T2→T3 immediate before/after: every white stat +20 exactly, grey stats +0 |
+| tierAttrAdditions | T0-T6 values | ✅ Confirmed | Full table verified from tier upgrade screenshots |
 | condLevelMultipliers | ×1–×5 | ✅ Confirmed | From drill condition drain screenshots |
 | fanClubCondReduction | 10–50% | ✅ Confirmed | From fan club screenshots |
+| seasonDecayPerLevel | 20 flat | ✅ Confirmed | Grant T3 before/after season: every stat −17 to −19 (avg 17, ~3 units training noise). Flat model fits; 20%-proportional model off by 18–26 on high stats. White and grey drop equally. |
 
 **When adding or changing any constant:** record the empirical evidence in `profiles/calibration_data.json`
 and update the table above. "Community says X" is not evidence.
