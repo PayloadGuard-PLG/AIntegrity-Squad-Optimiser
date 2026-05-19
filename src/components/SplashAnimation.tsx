@@ -288,17 +288,39 @@ export function SplashAnimation({ onComplete }: Props) {
       <Animated.View style={{
         position: 'absolute',
         left: 0, right: 0,
-        top: CY + R_OUT + 32,
+        top: CY + R_OUT + 36,
         alignItems: 'center',
         opacity: fadeText,
       }}>
-        <Text style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: '700',
-          color: INK, letterSpacing: 6, textAlign: 'center', lineHeight: 36 }}>
-          {'SQUAD\nOPTIMISER'}
+        {/* Primary wordmark */}
+        <Text style={{
+          fontFamily: 'sans-serif', fontSize: 42, fontWeight: '800',
+          color: INK, letterSpacing: 1, textAlign: 'center', lineHeight: 44,
+        }}>
+          SQUAD
         </Text>
-        <View style={{ width: 54, height: 1.5, backgroundColor: RED, marginTop: 14, opacity: 0.9 }} />
-        <Text style={{ fontFamily: 'monospace', fontSize: 9, color: RED,
-          letterSpacing: 5, marginTop: 10, opacity: 0.8 }}>
+        <Text style={{
+          fontFamily: 'monospace', fontSize: 13, fontWeight: '400',
+          color: '#9eb0d4', letterSpacing: 9, textAlign: 'center', marginTop: 2,
+        }}>
+          OPTIMISER
+        </Text>
+
+        {/* Tier colour strip — T1→T6 */}
+        <View style={{ flexDirection: 'row', gap: 4, marginTop: 18 }}>
+          {['#60a5fa','#34d399','#22d3ee','#a78bfa','#fb923c','#fbbf24'].map((c, i) => (
+            <View key={i} style={{ width: 18, height: 2.5, backgroundColor: c, opacity: 0.75 }} />
+          ))}
+        </View>
+
+        {/* Red separator */}
+        <View style={{ width: 108, height: 1, backgroundColor: RED, marginTop: 10, opacity: 0.7 }} />
+
+        {/* Sub-label */}
+        <Text style={{
+          fontFamily: 'monospace', fontSize: 8, color: '#9eb0d4',
+          letterSpacing: 5, marginTop: 10, opacity: 0.7,
+        }}>
           SESSION SIMULATOR
         </Text>
       </Animated.View>
