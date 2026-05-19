@@ -4,7 +4,7 @@ import Svg, { Circle, Line, Path, Rect, Defs, RadialGradient, Stop, Mask, G } fr
 
 const { width: W, height: H } = Dimensions.get('window');
 const CX = W / 2;
-const CY = H * 0.42;
+const CY = H * 0.36;
 
 const R_OUT  = Math.min(W, H) * 0.40;
 const R_MID1 = R_OUT * 0.87;
@@ -64,7 +64,7 @@ function SplashBorderArt() {
     <Svg width={W} height={H}>
       <Defs>
         {/* Black at centre → white at edges: hides art behind rings, shows it at border */}
-        <RadialGradient id="splashMask" cx="50%" cy="42%" r="52%" fx="50%" fy="42%">
+        <RadialGradient id="splashMask" cx="50%" cy="36%" r="52%" fx="50%" fy="36%">
           <Stop offset="0%"   stopColor="black" stopOpacity={1}    />
           <Stop offset="38%"  stopColor="black" stopOpacity={0.95} />
           <Stop offset="58%"  stopColor="black" stopOpacity={0.50} />
@@ -288,17 +288,17 @@ export function SplashAnimation({ onComplete }: Props) {
       <Animated.View style={{
         position: 'absolute',
         left: 0, right: 0,
-        top: CY + R_OUT + 22,
+        top: CY + R_OUT + 32,
         alignItems: 'center',
         opacity: fadeText,
       }}>
-        <Text style={{ fontFamily: 'monospace', fontSize: 21, fontWeight: '700',
-          color: INK, letterSpacing: 5, textAlign: 'center', lineHeight: 30 }}>
-          {'SQUAD\nOPTIMISER\nENGINE'}
+        <Text style={{ fontFamily: 'monospace', fontSize: 26, fontWeight: '700',
+          color: INK, letterSpacing: 6, textAlign: 'center', lineHeight: 36 }}>
+          {'SQUAD\nOPTIMISER'}
         </Text>
-        <View style={{ width: 44, height: 1, backgroundColor: RED, marginTop: 10, opacity: 0.8 }} />
-        <Text style={{ fontFamily: 'monospace', fontSize: 8, color: RED,
-          letterSpacing: 4, marginTop: 8, opacity: 0.7 }}>
+        <View style={{ width: 54, height: 1.5, backgroundColor: RED, marginTop: 14, opacity: 0.9 }} />
+        <Text style={{ fontFamily: 'monospace', fontSize: 9, color: RED,
+          letterSpacing: 5, marginTop: 10, opacity: 0.8 }}>
           SESSION SIMULATOR
         </Text>
       </Animated.View>
