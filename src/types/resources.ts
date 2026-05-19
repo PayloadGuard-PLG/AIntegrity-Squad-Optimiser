@@ -16,11 +16,11 @@ export interface GameProfile {
   xpCostBase?: number;
   xpCostDecayK?: number;
   /**
-   * Fraction of BASE stat retained after seasonal reset (1 - decay rate).
-   * Applied only to the base portion of each stat — tier bonus is permanent and not decayed.
-   * 0.80 = 20% loss per season. Baseline figure — needs before/after season scan to confirm.
+   * Flat stat points lost per stat per manager level promoted at season end.
+   * Confirmed 20 from Grant T3 before/after season screenshots — same for white and grey stats.
+   * Relegation (negative levelsPromoted) adds this value instead of subtracting.
    */
-  seasonDecayFactor?: number;
+  seasonDecayPerLevel?: number;
   ageTable: Record<string, number>;
   talentMultipliers: Record<string, number>;
   /** XP gain multipliers per drill difficulty (stat training) */

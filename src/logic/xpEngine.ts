@@ -87,44 +87,25 @@ export function estimateStatGainPct(
 }
 
 /**
- * Projects a player's stats after one seasonal reset.
+ * Projects a player's stats after a seasonal promotion.
  *
- * The game's seasonal decay applies to the BASE portion of each stat only.
- * Tier bonuses are permanent upgrades and are not decayed.
+ * Confirmed from Grant T2→T3 + before/after season screenshots:
+ * each stat drops by exactly 20 points flat per level promoted, regardless
+ * of whether the stat is white or grey, and regardless of tier bonus.
  *
- * Mechanics:
- *   - White (essential) stats: strip tier bonus → decay base → restore tier bonus
- *   - Grey (secondary) and off-role stats: decay in full (no tier component)
- *   - Decay rate: profile.seasonDecayFactor (0.80 = retain 80%, lose 20%)
- *   - Grey stats face the same decay rate but recover far slower due to greyMult × ageMult
- *     compound cost — so older players progressively lose grey stats each season.
- *
- * @param stats        Current stat map (post-tier values as stored in DB)
- * @param whiteStatKeys Stats that are essential for this player's roles (receive tier bonus)
- * @param tier         Player's current tier (T0–T6)
- * @param profile      Game profile
+ * @param stats           Current stat map as stored in DB
+ * @param levelsPromoted  Levels gained this season (1 = normal promotion, -1 = relegation)
+ * @param profile         Game profile
  */
 export function projectSeasonDecay(
   stats: Record<string, number>,
-  whiteStatKeys: string[],
-  tier: TierName,
+  levelsPromoted: number,
   profile: GameProfile
 ): Record<string, number> {
-  const decayFactor = profile.seasonDecayFactor ?? 0.80;
-  const tierBonus   = profile.tierAttrAdditions[tier] ?? 0;
-  const whiteSet    = new Set(whiteStatKeys);
+  const drop = (profile.seasonDecayPerLevel ?? 20) * levelsPromoted;
   const result: Record<string, number> = {};
-
   for (const [key, value] of Object.entries(stats)) {
-    if (whiteSet.has(key) && tierBonus > 0) {
-      // Tier bonus is permanent — decay only the earned base portion
-      const base    = Math.max(0, value - tierBonus);
-      const decayed = Math.floor(base * decayFactor);
-      result[key]   = decayed + tierBonus;
-    } else {
-      // Grey, off-role, or T0 (no bonus) — full stat decays
-      result[key] = Math.floor(value * decayFactor);
-    }
+    result[key] = Math.max(0, value - drop);
   }
   return result;
 }
