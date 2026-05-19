@@ -76,11 +76,11 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   const base120 = xpBaseForStat(120, profile);
   // Normal, age 20, white — divisor = 1.0 × 1.0 × 1.0 = 1.0
   const costWhite = xpNeededFor1Pct(120, 20, 0, 'Normal', true,  false, 1.0, profile);
-  // Normal, age 20, grey  — divisor = 1.0 × 1.0 × 0.5 = 0.5 → cost doubles
+  // Normal, age 20, grey  — divisor = 1.0 × 1.0 × 0.2 = 0.2 → cost is 5× white
   const costGrey  = xpNeededFor1Pct(120, 20, 0, 'Normal', false, false, 1.0, profile);
   assertClose('white cost = base/1.0',      costWhite, base120,       0.01);
-  assertClose('grey cost = 2 × white cost', costGrey,  base120 / 0.5, 0.01);
-  assert('grey costs exactly 2× white', Math.abs(costGrey / costWhite - 2.0) < 0.001);
+  assertClose('grey cost = 5 × white cost', costGrey,  base120 / 0.2, 0.01);
+  assert('grey costs exactly 5× white', Math.abs(costGrey / costWhite - 5.0) < 0.001);
 
   // Age multiplier: age 27 (0.61) costs more than age 20 (1.0)
   const cost27 = xpNeededFor1Pct(120, 27, 0, 'Normal', true, false, 1.0, profile);
@@ -120,7 +120,7 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   const gainC_white = estimateStatGainPct(360, 139, 23, 0, 'Normal', true,  false, 1.0, profile);
   const gainC_grey  = estimateStatGainPct(360, 139, 23, 0, 'Normal', false, false, 1.0, profile);
   assert('grey gain < white gain for same inputs', gainC_grey < gainC_white);
-  assertClose('grey/white ratio ≈ 0.5 (not exact due to compounding)', gainC_grey / gainC_white, 0.5, 0.08);
+  assertClose('grey/white ratio ≈ 0.2 (not exact due to compounding)', gainC_grey / gainC_white, 0.2, 0.08);
 
   // Observation D: Slow talent must gain less than Normal from same inputs.
   // The ratio of GAINS is not equal to the ratio of multipliers (0.47) because

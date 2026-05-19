@@ -4,6 +4,43 @@ Persistent findings from game-play analysis and OCR debugging. Read this before 
 
 ---
 
+## Calibration Policy — Empirical Data Only
+
+**Community data is not trusted.** Every engine constant must be back-calculated from actual
+game screenshots (before/after player card stats). If there is no empirical game observation
+backing a value, it is ASSUMED and must be labelled as such.
+
+### Engine constants — confirmed vs assumed
+
+| Constant | Value | Status | Evidence |
+|---|---|---|---|
+| xpCostBase (C₀) | 2.94 | ✅ Confirmed | Derived from Tackling-120 / Positioning-228 gain ratio (same session, same budget) |
+| xpCostDecayK (K) | 55 | ✅ Confirmed | Same derivation — ratio = exp(108/55) = 4.89 exactly |
+| baseXpPerSession | 450 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (TACKLING 122, age 20, +57-71 actual) |
+| greyWeightMultiplier | 0.2 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual → greyMult≈0.2) |
+| talentMultipliers.Normal | 1.0 | ✅ Confirmed | Grant + Rogers both Normal — projection matches across multiple sessions |
+| talentMultipliers.Slow | 0.47 | ⚠️ Single data point | MacGregor ×114 Extensive GK — needs second Slow player to confirm |
+| talentMultipliers.Average | 1.1 | ❌ NOT confirmed | Community-derived. No empirical game data. |
+| talentMultipliers.Fast | 1.25 | ❌ NOT confirmed | Community-derived. No empirical game data. |
+| talentMultipliers.Fastest | 1.5 | ❌ NOT confirmed | Community-derived. No empirical game data. |
+| ageTable 18–20 | 1.0 | ✅ Confirmed | Grant age 20 projection matches game output |
+| ageTable 26–28 | 0.61 | ✅ Confirmed | McGinty age 27 identified and matched |
+| ageTable 21–23 | 0.85 | ❌ NOT confirmed | Assumed. No empirical data for this bracket. |
+| ageTable 24–25 | 0.72 | ❌ NOT confirmed | Assumed. No empirical data for this bracket. |
+| ageTable 17 | 1.1 | ❌ NOT confirmed | Assumed. No 17-year-old calibration player. |
+| ageTable 29 | 0.50 | ❌ NOT confirmed | Assumed. |
+| ageTable 30 | 0.00 | ❌ NOT confirmed | Assumed. |
+| OVR formula | floor(sum/15) | ✅ Confirmed | Grant T2→T3 clean integer upgrade: sum=2615, floor=174 ✓ |
+| tierAttrAdditions | T0-T6 values | ✅ Confirmed | Grant T2→T3: 13 white stats × +20 increment verified |
+| greyWeightMultiplier | 0.2 | ✅ Confirmed | See above |
+| condLevelMultipliers | ×1–×5 | ✅ Confirmed | From drill condition drain screenshots |
+| fanClubCondReduction | 10–50% | ✅ Confirmed | From fan club screenshots |
+
+**When adding or changing any constant:** record the empirical evidence in `profiles/calibration_data.json`
+and update the table above. "Community says X" is not evidence.
+
+---
+
 ## Game Layout: Coach Preview Screen
 
 ### Stat Grid — 3-Column Layout
