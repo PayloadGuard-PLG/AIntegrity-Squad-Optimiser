@@ -142,7 +142,7 @@
   },
   "baseLossPerDrill": 0.75,
   "zeroDrainThreshold": 0.38,
-  "greyWeightMultiplier": 0.5,
+  "greyWeightMultiplier": 0.2,
   "statCap": 9999,
   "maxBaseOvr": 180,
   "baseXpPerSession": 450,
