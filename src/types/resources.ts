@@ -11,10 +11,16 @@ export interface GameProfile {
   xpCostTable: XpCostEntry[];
   /** If set, xpBaseForStat uses exponential formula instead of the stepped table:
    *  cost(stat) = xpCostBase * exp(stat / xpCostDecayK)
-   *  Fitted from calibration: K≈55 (quality scale ≈20% per 36 stat pts), base≈2.94
+   *  Derived from Grant ×40 calibration: K=47, base=2.94 (C0 fixed, bXPS absorbs scaling)
    */
   xpCostBase?: number;
   xpCostDecayK?: number;
+  /**
+   * Fraction of BASE stat retained after seasonal reset (1 - decay rate).
+   * Applied only to the base portion of each stat — tier bonus is permanent and not decayed.
+   * 0.80 = 20% loss per season. Baseline figure — needs before/after season scan to confirm.
+   */
+  seasonDecayFactor?: number;
   ageTable: Record<string, number>;
   talentMultipliers: Record<string, number>;
   /** XP gain multipliers per drill difficulty (stat training) */

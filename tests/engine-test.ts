@@ -1,4 +1,4 @@
-import { estimateStatGainPct, xpNeededFor1Pct, xpBaseForStat, getAgeMultiplier } from '../src/logic/xpEngine';
+import { estimateStatGainPct, xpNeededFor1Pct, xpBaseForStat, getAgeMultiplier, projectSeasonDecay } from '../src/logic/xpEngine';
 import { applyTierBonusToStats } from '../src/logic/xpEngine';
 import { calculateActualLoss } from '../src/utils/conditionEngine';
 import gameProfileJson from '../profiles/game_2025.json';
@@ -177,6 +177,37 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   assertClose('Very Hard L0 = 3.375',  calculateActualLoss(baseLoss, 0, 'Very Hard'), 3.375, 0.001);
   assert('Very Easy L4 < zero-drain threshold (0.38)', calculateActualLoss(baseLoss, 4, 'Very Easy') < 0.38);
   assert('Easy L4 >= zero-drain threshold',             calculateActualLoss(baseLoss, 4, 'Easy') >= 0.38);
+}
+
+// ─── 7. Seasonal decay ───────────────────────────────────────────────────────
+//
+// Baseline: 20% decay per season (seasonDecayFactor=0.80). UNVALIDATED — needs
+// before/after season scan to confirm rate and whether white/grey differ.
+//
+// Model: tier bonus is permanent. Decay applies only to base (earned) portion.
+//   white stat at T3: base = stat - 50; decayed_base = floor(base × 0.8); result = decayed_base + 50
+//   grey stat: result = floor(stat × 0.8)
+{
+  console.log('\n[7] projectSeasonDecay: tier-aware seasonal decay (baseline 20% — UNVALIDATED)');
+  const whiteKeys = ['TACKLING', 'MARKING'];
+  const stats = { TACKLING: 170, MARKING: 140, HEADING: 100 }; // HEADING = grey
+
+  // T3 tier bonus = 50. TACKLING base = 170-50 = 120, decayed = floor(120×0.8) = 96, result = 96+50 = 146
+  const decayed = projectSeasonDecay(stats, whiteKeys, 'T3', profile);
+  assert('TACKLING (white T3): tier preserved — floor((170-50)×0.8)+50 = 146', decayed['TACKLING'] === 146);
+  assert('MARKING  (white T3): tier preserved — floor((140-50)×0.8)+50 = 122', decayed['MARKING']  === 122);
+  assert('HEADING  (grey):     full decay    — floor(100×0.8) = 80',            decayed['HEADING']  === 80);
+
+  // T0 player — no tier bonus, all stats decay fully
+  const decayedT0 = projectSeasonDecay(stats, whiteKeys, 'T0', profile);
+  assert('T0 TACKLING (no bonus): floor(170×0.8) = 136', decayedT0['TACKLING'] === 136);
+  assert('T0 HEADING  (no bonus): floor(100×0.8) = 80',  decayedT0['HEADING']  === 80);
+
+  // White stats must always decay less (or equal) compared to grey at same value
+  assert('white decays less than grey for same starting value (tier cushion)',
+    decayed['TACKLING'] > decayed['HEADING']); // 146 > 80
+
+  console.log('  [UNVALIDATED] seasonDecayFactor=0.80 — add to CALIBRATION_COLLECTION.md Test 10');
 }
 
 console.log(`\n--- Results: ${passed} passed, ${failed} failed ---\n`);
