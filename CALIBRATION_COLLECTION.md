@@ -161,6 +161,72 @@ The question: does doubling the multiplier double the gain, or does it plateau?
 
 ---
 
+## TEST 7 — Fast talent multiplier (community-derived 1.25 — NOT confirmed)
+
+**What to do:** Find a player confirmed as Fast talent (shown on edit screen as "Fast").
+Run any coach session on a white stat. Record exact before/after.
+Compare against a Normal player of the same age running the same session if possible.
+
+| Field | Value |
+|---|---|
+| Player name | |
+| Player age | |
+| Player talent (confirm from edit screen, exact text) | Fast |
+| Player tier | |
+| Coach type | |
+| Coach category | |
+| Coach multiplier | |
+| Stat name | |
+| Stat value BEFORE | |
+| Stat value AFTER | |
+| Is this stat white? | |
+| Notes | |
+
+---
+
+## TEST 8 — Fastest talent multiplier (community-derived 1.5 — NOT confirmed)
+
+**What to do:** Find a player confirmed as Fastest talent (edit screen shows "Fastest").
+Same as Test 7 — one white stat, before/after.
+
+| Field | Value |
+|---|---|
+| Player name | |
+| Player age | |
+| Player talent (confirm from edit screen, exact text) | Fastest |
+| Player tier | |
+| Coach type | |
+| Coach category | |
+| Coach multiplier | |
+| Stat name | |
+| Stat value BEFORE | |
+| Stat value AFTER | |
+| Is this stat white? | |
+| Notes | |
+
+---
+
+## TEST 9 — Average talent multiplier (community-derived 1.1 — NOT confirmed)
+
+**What to do:** Find a player confirmed as Average talent (edit screen shows "Average").
+
+| Field | Value |
+|---|---|
+| Player name | |
+| Player age | |
+| Player talent (confirm from edit screen, exact text) | Average |
+| Player tier | |
+| Coach type | |
+| Coach category | |
+| Coach multiplier | |
+| Stat name | |
+| Stat value BEFORE | |
+| Stat value AFTER | |
+| Is this stat white? | |
+| Notes | |
+
+---
+
 ## Anything else
 
 Space for observations that don't fit the tests above — unusual gains, unexpected results, anything that looked wrong in the app projection vs what the game showed.
