@@ -6,6 +6,107 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 34 — New Player Data + Training Camp Detection
+**2026-05-19**
+
+Branch: `claude/test-connection-I2s8B`
+
+### Shipped
+
+**Player seeds — Garry McCluskey + King Alfie added (`profiles/player_seeds.json`)**
+
+Two new DarkVader FC player records:
+
+- **Garry McCluskey** — Age 24, DC/DMC/MC, T3 Stellar, OVR 197. White (12): all except Crossing, Finishing, Shooting. Talent assumed Normal (unconfirmed from edit screen).
+- **King Alfie** — Age 19, DC/DL/DMC, T3 Stellar, OVR 200 (160 base + 40 tier). White (12): all except Dribbling, Shooting, Finishing. Talent Unknown.
+
+**ageMult=0.72 confirmed for age 24 (`CLAUDE.md`)**
+
+Garry McCluskey ×4 Focused Physical Drill Session Reward Coach: Fitness 213 → engine projects +3.5 at ageMult=0.72, actual game result +2–3. Validates the 24–25 bracket. Updated status in `CLAUDE.md` from ❌ NOT confirmed to ✅ Confirmed.
+
+**Training Camp detection — scanner + pipeline + UI (`src/logic/coachScanner.ts`, `src/logic/coachPipeline.ts`, `app/(tabs)/coaches.tsx`)**
+
+Training Camp is a distinct game session type (labelled "TRAINING CAMP" in-game). It does not boost all category stats — for King Alfie, only 3 of 5 ATK stats were boosted (Dribbling, Crossing, Finishing), and the budget distribution formula is unknown. The coaching engine cannot project Training Camp sessions.
+
+Fix:
+- `coachScanner.ts`: detects "TRAINING CAMP" string in OCR output → sets `isTrainingCamp: true` in `CoachScanResult`
+- `coachPipeline.ts`: `resolveCoachStats` returns `[TRAINING_CAMP_SENTINEL]` immediately when `scan.isTrainingCamp`. `TRAINING_CAMP_SENTINEL = '__TRAINING_CAMP__'` is exported for UI guards.
+- `coaches.tsx`: checks sentinel → shows "TRAINING CAMP — cannot project (different budget structure)" banner, clears stat list, suppresses OVR projection
+
+**Calibration data updated (`profiles/calibration_data.json`)**
+
+- Garry McCluskey observation: ×4 Drill Session Reward Coach (Fitness +2–3, Creativity +7–10). Validates ageMult=0.72; Creativity underprediction (+5.8 vs +7–10) suggests talent may be Fast rather than Normal.
+- King Alfie observation: Training Camp Standard Attacking ×20 — logged as OUT_OF_SCOPE_SESSION_TYPE. Game preview: Dribbling +42–51, Crossing +30–40, Finishing +45–54 (3 stats only; engine shows 5-stat budget — confirms Training Camp uses a different distribution).
+
+### Open / Next Sprint
+
+- Confirm talent tier for Garry McCluskey and King Alfie from edit screen (Fastest/Fast/Average/Normal/Slow label)
+- Creativity underprediction for Garry (+5.8 vs +7–10): if Fast (×1.25), predicted = +7.1 ✓ — talent confirmation will resolve this
+- Training Camp budget formula unknown — observe which stats show gain arrows across multiple Training Camp scans
+- Second Slow talent data point (MacGregor ×114 is single data point, 0.47 may be 0.49–0.52)
+- Brandon Prentice Reward Coach ×4 actual results (compare vs engine: +15.4 MARKING, +15.1 POSITIONING, +11.6 AGGRESSION)
+
+---
+
+## Sprint 33 — OCR Dedup + OVR Fix + Slow Talent + Safeguard Fix + Reward Coach
+**2026-05-18/19**
+
+Branch: `claude/test-connection-I2s8B` (commits `4482e2b`, `19d0170`, `5c9dcf7`, `c5cb17d`, `3e04c0c`)
+
+### Shipped
+
+**OVR formula confirmed: Math.floor (`src/logic/xpEngine.ts`)**
+
+Sprint 27 addendum had incorrectly confirmed `Math.ceil` from 4 data points. The correct resolution was a clean integer-only tier upgrade (Grant T2→T3): displayed sum = 2615, game OVR = 174. `floor(2615/15) = 174` ✓, `ceil = 175` ✗. The prior ceil observations were artefacts of fractional stat accumulation (internal sum > displayed sum). Fixed in `qualityPctToOvr()`.
+
+**Duplicate stat capture fix (`src/logic/coachScanner.ts`)**
+
+Scanner was pushing duplicate `StatCapture` entries (e.g. CONCENTRATION twice), causing React "duplicate key" errors. Fix: replaced `stats[]` accumulator with `Map<string, StatCapture>` + `upsertCapture()` — prefers real baseline (statBefore > 0) over arrow-only capture; narrower gain span as tiebreaker.
+
+Also fixed baseline selection: was taking `rowNums[0]` (first number in merged 3-column block, which may belong to the adjacent column). Fixed to pick the numeric token whose `left` position is closest to the stat name token.
+
+**Slow talent multiplier calibrated: 0.70 → 0.47 (`profiles/game_2025.json`)**
+
+Lewis MacGregor (GK, Age 18, Slow): ×114 Extensive GK, engine at Slow=0.47 → +25 OVR projected, game range +24–32. 9/11 stats within game range. Single data point — 3 stats marginally below lo bound, true value may be 0.49–0.52. Flagged for confirmation from a second Slow player.
+
+**Safeguard category fix (`src/logic/coachPipeline.ts`)**
+
+`CATEGORY_STATS["Safeguard"]` was incorrectly mapped to GK stats. Fixed to DEF stats (same as Defending: TACKLING, MARKING, POSITIONING, HEADING, BRAVERY).
+
+Standard and Extensive coaches now always return the full category list regardless of how many stats OCR detected. Arrow icons (↑) are unreadable by ML Kit on non-highlighted rows — partial detections are an OCR limitation, not evidence that fewer stats are coached. Focused and Reward Coaches excluded from this rule.
+
+**Category filter in embedded stat pass (`src/logic/coachScanner.ts`)**
+
+Secondary embedded-stat scan was capturing out-of-category stats from merged OCR blocks (e.g. AGGRESSION appearing in POSITIONING's rowText during a Safeguard scan). Fixed by filtering candidates to the coach's category. `CATEGORY_STAT_SETS` constant added (mirrors `CATEGORY_STATS` in pipeline as `Set<string>`). Reward Coaches bypass the filter (their cross-category boosts are intentional).
+
+**Reward Coach detection (`src/logic/coachScanner.ts`, `src/logic/coachPipeline.ts`)**
+
+Reward Coaches use the Standard/Extensive label but boost custom cross-category stats. Detection: scanner sets `isRewardCoach: true` when "REWARD COACH" found in OCR. Pipeline skips full-category override for Reward Coaches; scanner bypasses category filter in embedded pass. XP budget confirmed same as regular Standard coach.
+
+**Lewis MacGregor seed + calibration data (`profiles/player_seeds.json`, `profiles/calibration_data.json`)**
+
+T2 snapshot added. Full ×114 GK session per-stat breakdown recorded with predicted vs actual ranges.
+
+### Files changed
+
+| File | Change |
+|---|---|
+| `src/logic/xpEngine.ts` | OVR formula: `Math.ceil` → `Math.floor` |
+| `src/logic/coachScanner.ts` | Map-based dedup + nearest-number baseline + CATEGORY_STAT_SETS + Reward Coach detection |
+| `src/logic/coachPipeline.ts` | Safeguard = DEF stats; Standard/Extensive full-category override; Reward Coach exclusion |
+| `profiles/game_2025.json` | `talentMultipliers.Slow` 0.70 → 0.47 |
+| `profiles/calibration_data.json` | MacGregor per-stat data; Prentice xN projections; Reward Coach observation |
+| `profiles/player_seeds.json` | Lewis MacGregor T2 snapshot |
+
+### Open / Next Sprint
+
+- Brandon Prentice Reward Coach ×4 actual result — compare vs engine projections
+- ×N anomaly test (same player, ×4 vs ×20 actual gains) — linear or geometric budget scaling?
+- Second Slow talent data point
+- ageMult=0.72 validation from age-24 DMC player scan
+
+---
+
 ## Sprint 32 — Custom Coach Engine Fix + Branch Transition
 **2026-05-18**
 

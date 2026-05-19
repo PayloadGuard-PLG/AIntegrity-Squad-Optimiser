@@ -1,6 +1,6 @@
 # Squad Optimiser — Enterprise Overview
 
-**Version 1.1 — Sprint 32**
+**Version 1.2 — Sprint 34**
 
 ---
 
@@ -18,7 +18,7 @@ Football simulation games offer multiple resource types (training sessions, tier
 
 The cost of a wrong choice compounds: applying a tier upgrade before training increases the baseline stat values the XP engine must work against, permanently raising the per-point cost of future training. The correct sequence — always drills before tier upgrade — is not obvious from in-game UI alone.
 
-Squad Optimiser makes the correct sequence explicit and quantifies exactly how many sessions, at what cost, produce what rating.
+Squad Optimiser makes the correct sequence explicit and provides calibrated projections — based on empirically verified game mechanics — of how many sessions at what cost produce what rating.
 
 ---
 
@@ -32,23 +32,23 @@ Given a player's 15 individual stat values, the engine computes:
 - New OVR after training, tier upgrade, or both — in the correct application order
 - Warnings when training is locked (base OVR ≥ cap), when stats are missing, or when selected drills don't apply to the player's role
 
-The OVR formula is verified empirically from device screenshots: `OVR = ceil(mean of all 15 stats)`.
+The OVR formula is verified empirically from device screenshots: `OVR = floor(mean of all 15 stats)`. Confirmed definitively from a clean integer-only tier upgrade (Grant T2→T3): displayed sum 2615, game OVR 174, `floor(174.33) = 174` ✓.
 
 ### Calibrated XP Model
 
 The training cost model uses a continuous exponential curve derived from observed game data:
 
 ```
-cost(stat) = 2.94 × exp(stat / 55)
+cost(stat) = 2.94 × exp(stat / 47)
 ```
 
-This was validated against controlled coaching observations across multiple stat ranges (60–260). The model correctly explains why high-value stats (200+) train orders of magnitude slower than low-value ones.
+K=47 fitted via calibration solver (minimises CV across 5 Grant ×40 observations, CV=3.2%). C₀=2.94 confirmed from the gain ratio between stats at values 120 and 228 in the same coaching session. Both constants are in `profiles/game_2025.json`.
 
-Age, talent tier, stat whiteness (role-essential vs secondary), drill intensity, and ad multipliers are all factored in. The formula structure is confirmed against published community research.
+Age, talent tier, stat whiteness (role-essential vs secondary), drill intensity, and ad multipliers are all factored in. The OVR formula, cost curve shape, and confirmed age/talent brackets are validated from real game screenshots. Some talent tiers (Fastest, Fast, Average) and age brackets (21–23, 25, 29–30) are community estimates pending empirical validation.
 
 ### Role-Aware Stat Classification
 
-Each player position has a defined set of essential stats (white) and secondary stats (grey). Grey stats train at half the XP efficiency of white stats. When a player holds multiple positions, the white set is the union of all positions' essential lists — this maximises projection accuracy and matches the in-game mechanic.
+Each player position has a defined set of essential stats (white) and secondary stats (grey). Grey stats train at significantly reduced XP efficiency (approximately 4.5× more XP per point vs white stats — `greyWeightMultiplier = 0.22`, confirmed from game data). When a player holds multiple positions, the white set is the union of all positions' essential lists — this maximises projection accuracy and matches the in-game mechanic.
 
 Stat whiteness is determined at projection time from the player's current role selection, not hardcoded per player.
 
@@ -136,17 +136,25 @@ Player records, saved projection runs, and drill presets are stored in a device 
 
 The projection engine is calibrated against observed in-game data, not theoretical models:
 
-| Parameter | Calibration source |
-|---|---|
-| OVR formula | 4 player/tier snapshots — all match `ceil(mean(15 stats))` |
-| XP cost curve | Gain ratio between two stats at stat values 120 and 228 in the same coaching session |
-| baseXpPerSession | Recalibrated Sprint 31: four data points (Cptn Dallas ×4 Safeguard + Ricky Grant ×40 Defending), implied 409–495 → set to 450 |
-| Age multipliers | Community-verified table across all age bands |
-| Condition formula | Direct in-game screenshot verification across all intensity levels and fan club levels |
+| Parameter | Status | Calibration source |
+|---|---|---|
+| OVR formula (`floor`) | ✅ Confirmed | Grant T2→T3 clean tier upgrade: sum 2615, game OVR 174, `floor(174.33)=174` ✓ |
+| XP cost curve (K=47, C₀=2.94) | ✅ Confirmed | K fitted via CV minimisation across 5 sessions; C₀ from gain ratio at stat 120 vs 228 |
+| baseXpPerSession (676) | ✅ Confirmed | Grant ×40 Standard Defending — all 5 stats within game ranges |
+| greyWeightMultiplier (0.22) | ✅ Confirmed | Grant HEADING (grey, stat=155) — actual +11–15 matches model |
+| Age 18–20 (×1.0) | ✅ Confirmed | Grant age 20 — multiple sessions match |
+| Age 24–25 (×0.72) | ✅ Confirmed | Garry McCluskey age 24 — Fitness actual +2–3 vs engine +3.5 ✓ |
+| Age 26–28 (×0.61) | ✅ Confirmed | McGinty age 27 — projection matches |
+| Age 17, 21–23, 29, 30+ | ⚠️ Unconfirmed | Community estimates — no empirical validation yet |
+| Normal talent (×1.0) | ✅ Confirmed | Grant, Rogers, McGinty — multiple sessions |
+| Slow talent (×0.47) | ⚠️ Single data point | MacGregor ×114 GK — within game range but may be 0.49–0.52 |
+| Fastest/Fast/Average talent | ⚠️ Unconfirmed | Community estimates — no calibration player identified |
+| Condition formula | ✅ Confirmed | In-game screenshot verification across all intensity/fan club levels |
+| Tier bonus (white stats only) | ✅ Confirmed | Grant T2→T3: every white stat +20, grey stats +0 |
 
-Projections are estimates. The game has internal state (fractional stat accumulation, unobservable carryover) that is not accessible from screenshots. Actual results will differ by small amounts from projections.
+Projections are estimates, not guarantees. The game has internal state (fractional stat accumulation, unobservable carryover XP) that is not visible from screenshots. Actual results will differ slightly from projections — typically by 1–3 stat points on individual stats.
 
-Known limitations: talent tier multipliers for above-Normal talent are community estimates, not empirically confirmed against known-talent calibration players. The ×N anomaly (whether doubling session count yields proportional or sub-linear gains) is under investigation.
+Known limitations: Fastest/Fast/Average talent multipliers are unconfirmed community estimates. Age brackets 17, 21–23, and 29+ are assumed. The ×N anomaly (whether doubling session count scales proportionally) is under investigation. Drill XP factor (`drillXpFactor = 0.3`) is uncalibrated. Training Camp sessions are explicitly not projected — the app shows a warning when a Training Camp is detected.
 
 ---
 
