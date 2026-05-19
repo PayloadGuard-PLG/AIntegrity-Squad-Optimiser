@@ -17,8 +17,8 @@ const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
-const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — +50% vs normal\nFast ×1.25 — +25%\nAverage ×1.1 — +10%\nNormal ×1.0 — baseline\nSlow ×0.7 — -30%\n\nDetected automatically from player card scan.';
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow' };
+const TALENT_INFO = 'Training rate — how quickly this player gains stats per session. Detected automatically from player card scan.';
 
 const ROLE_GRID = [
   [null,  'ST',  null ],

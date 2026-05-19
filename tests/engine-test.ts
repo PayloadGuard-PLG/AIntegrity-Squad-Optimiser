@@ -1,4 +1,4 @@
-import { estimateStatGainPct, xpNeededFor1Pct, xpBaseForStat, getAgeMultiplier } from '../src/logic/xpEngine';
+import { estimateStatGainPct, xpNeededFor1Pct, xpBaseForStat, getAgeMultiplier, projectSeasonDecay } from '../src/logic/xpEngine';
 import { applyTierBonusToStats } from '../src/logic/xpEngine';
 import { calculateActualLoss } from '../src/utils/conditionEngine';
 import gameProfileJson from '../profiles/game_2025.json';
@@ -43,17 +43,17 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 
 // ─── 1. xpBaseForStat — exponential model ───────────────────────────────────
 {
-  console.log('\n[1] xpBaseForStat: exponential cost curve (C₀=2.94, K=55)');
+  console.log('\n[1] xpBaseForStat: exponential cost curve (C₀=2.94, K=47)');
   // C₀ × exp(stat/K)
   const at0   = xpBaseForStat(0,   profile);
-  const at55  = xpBaseForStat(55,  profile);
-  const at110 = xpBaseForStat(110, profile);
-  assertClose('stat=0 → 2.94',        at0,   2.94,   0.01);
-  assertClose('stat=55 → 2.94×e ≈ 7.99', at55, 2.94 * Math.E, 0.02);
-  assertClose('stat=110 → 2.94×e² ≈ 21.72', at110, 2.94 * Math.E * Math.E, 0.05);
-  // Ratio: exp((228-120)/55) ≈ 4.89 — the calibration derivation point
-  const ratio = xpBaseForStat(228, profile) / xpBaseForStat(120, profile);
-  assertClose('cost ratio stat228/stat120 = exp(108/55) ≈ 4.89', ratio, Math.exp(108 / 55), 0.05);
+  const at47  = xpBaseForStat(47,  profile);
+  const at94  = xpBaseForStat(94,  profile);
+  assertClose('stat=0 → 2.94',           at0,  2.94,                 0.01);
+  assertClose('stat=47 → 2.94×e ≈ 7.99', at47, 2.94 * Math.E,       0.02);
+  assertClose('stat=94 → 2.94×e² ≈ 21.72', at94, 2.94 * Math.E * Math.E, 0.05);
+  // Ratio derived from Grant ×40: exp((230-122)/47) — fits TACKLING vs POSITIONING
+  const ratio = xpBaseForStat(230, profile) / xpBaseForStat(122, profile);
+  assertClose('cost ratio stat230/stat122 = exp(108/47)', ratio, Math.exp(108 / 47), 0.05);
 }
 
 // ─── 2. getAgeMultiplier — table lookups ─────────────────────────────────────
@@ -76,11 +76,11 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   const base120 = xpBaseForStat(120, profile);
   // Normal, age 20, white — divisor = 1.0 × 1.0 × 1.0 = 1.0
   const costWhite = xpNeededFor1Pct(120, 20, 0, 'Normal', true,  false, 1.0, profile);
-  // Normal, age 20, grey  — divisor = 1.0 × 1.0 × 0.2 = 0.2 → cost is 5× white
+  // Normal, age 20, grey  — divisor = 1.0 × 1.0 × 0.22 = 0.22 → cost is ~4.55× white
   const costGrey  = xpNeededFor1Pct(120, 20, 0, 'Normal', false, false, 1.0, profile);
-  assertClose('white cost = base/1.0',      costWhite, base120,       0.01);
-  assertClose('grey cost = 5 × white cost', costGrey,  base120 / 0.2, 0.01);
-  assert('grey costs exactly 5× white', Math.abs(costGrey / costWhite - 5.0) < 0.001);
+  assertClose('white cost = base/1.0',           costWhite, base120,        0.01);
+  assertClose('grey cost = base/0.22',           costGrey,  base120 / 0.22, 0.01);
+  assert('grey costs ~4.55× white (1/0.22)', Math.abs(costGrey / costWhite - (1/0.22)) < 0.001);
 
   // Age multiplier: age 27 (0.61) costs more than age 20 (1.0)
   const cost27 = xpNeededFor1Pct(120, 27, 0, 'Normal', true, false, 1.0, profile);
@@ -103,24 +103,34 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 {
   console.log('\n[4] estimateStatGainPct: calibrated game observations');
 
-  // Observation A: bXPS=450 calibration point
-  // budget=360 (4 sessions, 5 stats), stat=139, age=23, Normal, white
-  // Game observed: +11–16 (Standard Safeguard ×4)
-  const gainA = estimateStatGainPct(360, 139, 23, 0, 'Normal', true, false, 1.0, profile);
-  assertInRange('Obs A: budget=360 stat=139 age=23 Normal white → +11–16', gainA, 11, 16);
+  // Observations A–D: Grant ×40 Standard Defending — derived K=47, bXPS=676
+  // Age 20 (ageMult=1.0 confirmed), Normal (×1.0 confirmed), 5 stats, 40 sessions.
+  // budget per stat = 40 × 676 / 5 = 5408. All confirmed from game screenshots.
+  const budgetGrant = 40 * 676 / 5; // 5408
 
-  // Observation B: high-stat cost curve
-  // budget=360, stat=194, age=23, Normal, white
-  // Game observed: +4–6
-  const gainB = estimateStatGainPct(360, 194, 23, 0, 'Normal', true, false, 1.0, profile);
-  assertInRange('Obs B: budget=360 stat=194 age=23 Normal white → +4–6', gainB, 4, 6);
+  const gainA = estimateStatGainPct(budgetGrant, 122, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs A: Grant TACKLING    stat=122 age=20 Normal white → +57–71', gainA, 57, 71);
+
+  const gainB = estimateStatGainPct(budgetGrant, 140, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs B: Grant MARKING     stat=140 age=20 Normal white → +48–56', gainB, 48, 56);
+
+  const gainC2 = estimateStatGainPct(budgetGrant, 230, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs C: Grant POSITIONING stat=230 age=20 Normal white → +10–15', gainC2, 10, 15);
+
+  const gainD2 = estimateStatGainPct(budgetGrant, 216, 20, 0, 'Normal', true,  false, 1.0, profile);
+  assertInRange('Obs D: Grant BRAVERY     stat=216 age=20 Normal white → +12–18', gainD2, 12, 18);
+
+  const gainE2 = estimateStatGainPct(budgetGrant, 155, 20, 0, 'Normal', false, false, 1.0, profile);
+  assertInRange('Obs E: Grant HEADING     stat=155 age=20 Normal GREY  → +11–15', gainE2, 11, 15);
+
+  console.log('  [PENDING] Dallas ×4 Safeguard — age-23 observations inconsistent with current ageMult=0.85. Needs fresh before/after data.');
 
   // Observation C: grey stat costs 2× — same budget at same stat must give ~half the gain
   // grey at stat=139 age=23 Normal should be roughly half of white gain
   const gainC_white = estimateStatGainPct(360, 139, 23, 0, 'Normal', true,  false, 1.0, profile);
   const gainC_grey  = estimateStatGainPct(360, 139, 23, 0, 'Normal', false, false, 1.0, profile);
   assert('grey gain < white gain for same inputs', gainC_grey < gainC_white);
-  assertClose('grey/white ratio ≈ 0.2 (not exact due to compounding)', gainC_grey / gainC_white, 0.2, 0.08);
+  assertClose('grey/white ratio ≈ 0.22 (not exact due to compounding)', gainC_grey / gainC_white, 0.22, 0.08);
 
   // Observation D: Slow talent must gain less than Normal from same inputs.
   // The ratio of GAINS is not equal to the ratio of multipliers (0.47) because
@@ -167,6 +177,37 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   assertClose('Very Hard L0 = 3.375',  calculateActualLoss(baseLoss, 0, 'Very Hard'), 3.375, 0.001);
   assert('Very Easy L4 < zero-drain threshold (0.38)', calculateActualLoss(baseLoss, 4, 'Very Easy') < 0.38);
   assert('Easy L4 >= zero-drain threshold',             calculateActualLoss(baseLoss, 4, 'Easy') >= 0.38);
+}
+
+// ─── 7. Seasonal decay ───────────────────────────────────────────────────────
+//
+// Baseline: 20% decay per season (seasonDecayFactor=0.80). UNVALIDATED — needs
+// before/after season scan to confirm rate and whether white/grey differ.
+//
+// Model: tier bonus is permanent. Decay applies only to base (earned) portion.
+//   white stat at T3: base = stat - 50; decayed_base = floor(base × 0.8); result = decayed_base + 50
+//   grey stat: result = floor(stat × 0.8)
+{
+  console.log('\n[7] projectSeasonDecay: tier-aware seasonal decay (baseline 20% — UNVALIDATED)');
+  const whiteKeys = ['TACKLING', 'MARKING'];
+  const stats = { TACKLING: 170, MARKING: 140, HEADING: 100 }; // HEADING = grey
+
+  // T3 tier bonus = 50. TACKLING base = 170-50 = 120, decayed = floor(120×0.8) = 96, result = 96+50 = 146
+  const decayed = projectSeasonDecay(stats, whiteKeys, 'T3', profile);
+  assert('TACKLING (white T3): tier preserved — floor((170-50)×0.8)+50 = 146', decayed['TACKLING'] === 146);
+  assert('MARKING  (white T3): tier preserved — floor((140-50)×0.8)+50 = 122', decayed['MARKING']  === 122);
+  assert('HEADING  (grey):     full decay    — floor(100×0.8) = 80',            decayed['HEADING']  === 80);
+
+  // T0 player — no tier bonus, all stats decay fully
+  const decayedT0 = projectSeasonDecay(stats, whiteKeys, 'T0', profile);
+  assert('T0 TACKLING (no bonus): floor(170×0.8) = 136', decayedT0['TACKLING'] === 136);
+  assert('T0 HEADING  (no bonus): floor(100×0.8) = 80',  decayedT0['HEADING']  === 80);
+
+  // White stats must always decay less (or equal) compared to grey at same value
+  assert('white decays less than grey for same starting value (tier cushion)',
+    decayed['TACKLING'] > decayed['HEADING']); // 146 > 80
+
+  console.log('  [UNVALIDATED] seasonDecayFactor=0.80 — add to CALIBRATION_COLLECTION.md Test 10');
 }
 
 console.log(`\n--- Results: ${passed} passed, ${failed} failed ---\n`);

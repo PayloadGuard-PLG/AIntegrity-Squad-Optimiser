@@ -230,6 +230,30 @@ Same as Test 7 — one white stat, before/after.
 
 ---
 
+## TEST 10 — Seasonal decay rate (baseline: 20% — needs before/after season scan)
+
+**What to do:** Find a player you have stats for at the END of a season.
+Screenshot their player card. After the season resets, screenshot again immediately.
+Record every stat before and after. This tells us the exact decay per stat.
+
+We need to know:
+- Does white stat decay differ from grey stat decay?
+- Is it exactly 20% or approximate?
+- Does the tier bonus portion survive the reset?
+
+| Field | Value |
+|---|---|
+| Player name | |
+| Player age | |
+| Player tier | |
+| Player roles | |
+| Screenshot timing (end of season / start of next) | |
+| STAT NAME | BEFORE | AFTER |
+| (fill one row per stat) | | |
+| Notes | |
+
+---
+
 ## Anything else
 
 Space for observations that don't fit the tests above — unusual gains, unexpected results, anything that looked wrong in the app projection vs what the game showed.
