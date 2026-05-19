@@ -24,11 +24,17 @@ export const CATEGORY_STATS: Record<string, string[]> = {
  * 3. No stats detected + category known: full category filtered to player's available stats
  * 4. Nothing → white stats for player's role
  */
+// Sentinel value returned when the scanned image is a Training Camp session.
+// Training Camps distribute XP differently from regular coaching sessions (fewer stats boosted,
+// unknown budget formula). The engine cannot project them — show a UI warning instead.
+export const TRAINING_CAMP_SENTINEL = '__TRAINING_CAMP__';
+
 export function resolveCoachStats(
   scan: CoachScanResult,
   playerStats: Record<string, number>,
   playerRole: string[],
 ): string[] {
+  if (scan.isTrainingCamp) return [TRAINING_CAMP_SENTINEL];
   const catList = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : null;
   const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
 
