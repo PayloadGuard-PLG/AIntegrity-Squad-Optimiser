@@ -10,7 +10,7 @@ import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
 import { isWhiteStat, getWhiteStatKeys } from '../../src/utils/roleWeights';
-import { estimateStatGainPct, applyTierBonusToStats } from '../../src/logic/xpEngine';
+import { estimateStatGainPct, applyTierBonusToStats, projectSeasonDecay } from '../../src/logic/xpEngine';
 import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
@@ -48,6 +48,8 @@ export default function ResultsScreen() {
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
   const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
+  const [seasonReset, setSeasonReset] = useState(false);
+  const [levelsPromoted, setLevelsPromoted] = useState('1');
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
   const [drillPlanHistory, setDrillPlanHistory] = useState<DrillPlanEntry[]>([]);
 
@@ -79,6 +81,7 @@ export default function ResultsScreen() {
     setSelectedCoachIds(new Set());
     setSelectedDrillPlanIds(new Set());
     setExcludedTiers(new Set());
+    setSeasonReset(false);
     setResult(null);
     setFinalStats(null);
   }
@@ -210,6 +213,23 @@ export default function ResultsScreen() {
       steps.push({ label: `RECOVERY KITS ×${recoveryCount} → +${condPct}% CONDITION`, ovrBefore: currentOvr, ovrAfter: currentOvr, detail: 'enables additional training sessions', color: theme.inkSec });
     }
 
+    // 6. Season reset — flat −20 per stat per level promoted (confirmed from Grant T3 data)
+    if (seasonReset) {
+      const levels = parseInt(levelsPromoted, 10) || 1;
+      const afterDecay = projectSeasonDecay(currentStats, levels, profile);
+      const ovrAfter = Number(computeOvrWithPadding(afterDecay, player.overall, profile).toFixed(1));
+      const dropPerStat = levels * (profile.seasonDecayPerLevel ?? 20);
+      steps.push({
+        label: `SEASON RESET · ${levels > 0 ? `PROMOTED +${levels}` : levels < 0 ? `RELEGATED ${levels}` : 'STAYED'}`,
+        ovrBefore: currentOvr,
+        ovrAfter,
+        detail: `every stat ${levels > 0 ? '−' : '+'}${Math.abs(dropPerStat)} · white and grey alike`,
+        color: levels > 0 ? theme.neg : theme.pos,
+      });
+      currentStats = afterDecay;
+      currentOvr = ovrAfter;
+    }
+
     setResult(steps);
     setFinalStats(currentStats);
   }
@@ -218,7 +238,7 @@ export default function ResultsScreen() {
   const baseOvr = result ? result[0]?.ovrBefore ?? null : null;
   const totalGain = finalOvr != null && baseOvr != null ? Number((finalOvr - baseOvr).toFixed(1)) : null;
   const tiersIncluded = player ? TIER_ORDER.some(t => upgradableTiers.includes(t) && tierIncluded(t)) : false;
-  const ready = player && (selectedDrillPlanIds.size > 0 || selectedCoachIds.size > 0 || tiersIncluded);
+  const ready = player && (selectedDrillPlanIds.size > 0 || selectedCoachIds.size > 0 || tiersIncluded || seasonReset);
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
@@ -232,7 +252,7 @@ export default function ResultsScreen() {
             <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
-              {squad.map(p => (
+              {[...squad].sort((a, b) => (a.id === player?.id ? -1 : b.id === player?.id ? 1 : 0)).map(p => (
                 <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <QualityMeter ovr={p.overall} size="sm" />
                   <Chip active={p.id === player?.id} onPress={() => selectPlayer(p.id)}>
@@ -462,6 +482,33 @@ export default function ResultsScreen() {
                   />
                 </View>
               </View>
+            </View>
+
+            {/* ── SEASON RESET ── */}
+            <View style={{ borderWidth: 1, borderColor: seasonReset ? theme.neg + '88' : theme.hairline2, marginBottom: 14 }}>
+              <Pressable
+                onPress={() => { setSeasonReset(v => !v); setResult(null); setFinalStats(null); }}
+                style={{ paddingHorizontal: 14, paddingVertical: 10, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center', borderBottomWidth: seasonReset ? 1 : 0, borderBottomColor: theme.hairline2 }}>
+                <View style={{ width: 3, height: 12, backgroundColor: theme.neg, marginRight: 8 }} />
+                <MonoLabel size={10} color={theme.steelLight} style={{ flex: 1 }}>SEASON RESET</MonoLabel>
+                <View style={{ width: 12, height: 12, backgroundColor: seasonReset ? theme.neg : 'transparent', borderWidth: 1, borderColor: seasonReset ? theme.neg : theme.hairline3 }} />
+              </Pressable>
+              {seasonReset && (
+                <View style={{ padding: 12 }}>
+                  <MonoLabel size={9} color={theme.inkSec} style={{ marginBottom: 6 }}>LEVELS PROMOTED THIS SEASON</MonoLabel>
+                  <TextInput
+                    keyboardType="numeric"
+                    value={levelsPromoted}
+                    onChangeText={v => { setLevelsPromoted(v.replace(/[^0-9]/g, '') || '1'); setResult(null); }}
+                    placeholder="1"
+                    placeholderTextColor={theme.inkGhost}
+                    style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.neg, borderWidth: 1, borderColor: theme.neg + '66', padding: 8, textAlign: 'center', marginBottom: 8 }}
+                  />
+                  <MonoLabel size={8} color={theme.inkGhost}>
+                    {`EACH STAT −${(parseInt(levelsPromoted, 10) || 1) * (profile.seasonDecayPerLevel ?? 20)} PTS · WHITE AND GREY ALIKE · APPLIES LAST`}
+                  </MonoLabel>
+                </View>
+              )}
             </View>
 
             {/* ── PROJECT button ── */}

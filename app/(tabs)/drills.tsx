@@ -184,7 +184,7 @@ export default function DrillsScreen() {
           <>
             <MonoLabel color={theme.steelLight} style={{ marginBottom: 8 }}>SUBJECT</MonoLabel>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingBottom: 14 }}>
-              {squad.map(p => (
+              {[...squad].sort((a, b) => (a.id === manager.selectedPlayerId ? -1 : b.id === manager.selectedPlayerId ? 1 : 0)).map(p => (
                 <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <QualityMeter ovr={p.overall} size="sm" />
                   <Chip active={p.id === manager.selectedPlayerId} onPress={() => manager.setSelectedPlayerId(p.id)}>{p.name}</Chip>
