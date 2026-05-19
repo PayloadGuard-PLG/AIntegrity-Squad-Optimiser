@@ -492,8 +492,8 @@
     "macgregor_confirmation": "MacGregor T2: displayed sum=2181, game OVR=145. floor(2181/15)=floor(145.4)=145 ✓. Consistent with floor formula."
   },
   "bxps_recalibration": {
-    "finding": "bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally.",
-    "newValue": 450,
+    "finding": "bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally. K was subsequently recalibrated from 55 to 47 via CV minimisation across 5 Grant ×40 observations (CV=3.2%). bXPS was then re-derived at 676 — the integral form of the XP budget equation with K=47 gives Grant Tackling 120 ×40 gain=65.7 (actual 59–73 ✓).",
+    "newValue": 676,
     "evidence": [
       {
         "player": "Cptn Dallas",
@@ -526,13 +526,13 @@
         "sessionDate": "2026-05-16"
       }
     ],
-    "chosenBxps": 450,
-    "rationale": "Mean of 4 estimates: 495, 455, 414, 409 → mean 443. Rounded to 450. All four independent back-calculations cluster in 410–500 range, consistent with ~2× underestimate at bXPS=220.",
+    "chosenBxps": 676,
+    "rationale": "Mean of 4 estimates: 495, 455, 414, 409 → mean 443. Initially set to 450. After K was recalibrated from 55 to 47 via CV minimisation across 5 Grant ×40 observations (CV=3.2%), bXPS was re-derived using the integral form of the XP budget equation: gain = C₀×K×[exp((stat+gain)/K) - exp(stat/K)] / ageMult. Solving the Grant Tackling 120 ×40 observation (budget = 40×bXPS/5 = 8×bXPS total, divided across 5 stats) gives bXPS=676: budget integral yields gain=65.7 (actual 59–73 ✓). All Dallas observations also validate at bXPS=676 with budget=4×676/3=901 XP/stat (MARKING 139 → 11.9 ✓ vs [11,16], POSITIONING 194 → 4.1 ✓ vs [4,6], AGGRESSION 189 → 4.5 ✓ vs [4,6]).",
     "validationWithNewBxps": {
-      "dallas_marking_139": { "predicted": 12.46, "gameRange": [11,16], "pass": true },
-      "dallas_positioning_194": { "predicted": 4.92, "gameRange": [4,6], "pass": true },
-      "dallas_aggression_189": { "predicted": 5.36, "gameRange": [4,6], "pass": true },
-      "grant_tackling_120": { "predicted": 69.5, "actualRange": [59,73], "pass": true }
+      "dallas_marking_139": { "predicted": 11.9, "gameRange": [11,16], "pass": true },
+      "dallas_positioning_194": { "predicted": 4.1, "gameRange": [4,6], "pass": true },
+      "dallas_aggression_189": { "predicted": 4.5, "gameRange": [4,6], "pass": true },
+      "grant_tackling_120": { "predicted": 65.7, "actualRange": [59,73], "pass": true }
     }
   },
   "controlled_tests": [
@@ -762,7 +762,7 @@
       }
     ]
   },
-  {
+  "garry_mccluskey": {
     "id": "garry_mccluskey",
     "name": "Garry McCluskey",
     "age": 24,
@@ -808,7 +808,7 @@
       }
     ]
   },
-  {
+  "king_alfie": {
     "id": "king_alfie",
     "name": "King Alfie",
     "age": 19,
@@ -854,14 +854,15 @@
     ]
   },
   "calibrationStatus": {
-    "lastUpdated": "2026-05-18",
+    "lastUpdated": "2026-05-19",
     "formulaStatus": "PROVISIONAL",
     "confirmedParameters": {
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
       "talent_rodger": "Normal ×1.0 (confirmed sprint 26)",
       "drillLevelMultipliers": "confirmed from game screenshots",
-      "greyWeightMultiplier_0_5": "appears correct — grey gains ~0.5x white at same stat level",
-      "ageTable": "unconfirmed beyond age 18-20 range",
+      "greyWeightMultiplier_0_22": "0.22 confirmed — back-calculated from Grant ×40 HEADING (grey, stat=155, actual +11-15 matches engine at greyMult=0.22). Grey stats cost ~4.5× more XP per point than white.",
+      "ageTable": "18-20 confirmed (Grant). 24-25 confirmed (McCluskey). 26-28 confirmed (McGinty). 21-23 partially validated by use (Dallas age 23 bXPS calibration). 17/29/30+ assumed.",
+      "ageTable_21_23_0_85_partial": "Validated by use: Dallas (age 23) ×4 Safeguard observations used ageMult=0.85 and all 3 stats landed inside game ranges at bXPS=676/K=47. Not a standalone controlled test — ageMult and bXPS were solved simultaneously. Treat as partial confirmation pending a dedicated age 21-23 controlled observation.",
       "tierIncrements_T2_T3": "+20 per white stat confirmed from Grant T2→T3 snapshots",
       "whiteStats_grant_DL_ML_AML": "13 stats confirmed (all except HEADING and STRENGTH)",
       "xpCostTable_0_199": "approximately correct based on mid-range stat observations",
@@ -869,12 +870,12 @@
       "talent_jables_slow": "Slow ×0.47 calibrated 2026-05-18 from ×114 Extensive GK. Engine +25 within game [24,32]. Single player, single session — flag for re-confirmation. Primary finding: DB entry error (×1.0 Normal stored instead of ×0.7 Slow) was the dominant source of over-prediction (+42→+25 after DB fix alone)."
     },
     "openQuestions": [
-      "bXPS recalibration: now that both talents are confirmed Normal (×1.0), recheck bXPS=220 against ALL calibration data. Tackling 120 ×40 Std → ~62 predicted vs 59-73 actual — within range. Recalibrate with clean data point.",
+      "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
       "x20 vs x40 anomaly: x20 shows similar gains to x40 for same stats/player. Geometric decay hypothesis still open.",
       "xN ratio 2.43 for Extensive Safeguard x10/x40: app projects this sub-linear ratio. Need OVR-99 player age to explain.",
       "OVR +1 discrepancy: both players show 1 OVR higher in game than our formula computes. Possibly a stat slightly mis-read in our screenshot transcription.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations."
     ],
-    "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21."
+    "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21. Subsequently K recalibrated 55→47, bXPS re-derived 450→676."
   }
 }
