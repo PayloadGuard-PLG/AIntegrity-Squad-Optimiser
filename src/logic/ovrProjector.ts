@@ -1,6 +1,7 @@
 import { getTierAttrAddition, getTierCost } from '../utils/math';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../utils/roleWeights';
 import { estimateStatGainPct, applyTierBonusToStats, statsToQualityPct, qualityPctToOvr } from './xpEngine';
+import { drillBudgetPerStat, ovrFromStatsWithPadding as engineOvrPadded } from '../engine/engineMath';
 import { DrillSession, GameProfile, TalentTier, DrillLevel, TierName, InvestmentStep } from '../types/resources';
 import { Player } from '../database/playerSchema';
 import { DRILL_LIST } from '../database/drillDatabase';
@@ -98,7 +99,7 @@ export function applyDrillSessionsToStats(
       const isWhite = isWhiteStat(player.role, normalized);
       const starsGained = Math.floor((runningOvr - ovrBefore) / (profile.starOvrThreshold ?? 20));
       const gainPct = estimateStatGainPct(
-        session.sessionCount * profile.baseXpPerSession / drill.stats.length,
+        drillBudgetPerStat(session.sessionCount, drill.stats.length),
         currentVal,
         player.age,
         starsGained,

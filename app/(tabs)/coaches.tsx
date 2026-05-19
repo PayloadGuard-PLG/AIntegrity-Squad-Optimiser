@@ -15,6 +15,7 @@ import { TabBackground } from '../../src/components/TabBackground';
 import { isWhiteStat, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
+import { coachBudgetPerStat } from '../../src/engine/engineMath';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, GameProfile } from '../../src/types/resources';
@@ -210,7 +211,7 @@ export default function CoachesScreen() {
     if (sessionCount === 0) return;
 
     const drillMult = 1.0; // coaches have no intensity level — only talent and age apply
-    const budget = sessionCount * profile.baseXpPerSession / scannedStats.length;
+    const budget = coachBudgetPerStat(sessionCount, scannedStats.length);
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 

@@ -1,27 +1,54 @@
-import { GameProfile, TalentTier, TierName } from '../types/resources';
-
 /**
- * Returns the XP cost per 1% stat gain at a given stat value.
- * Returns Infinity when no table entry matches (stat is beyond all defined ranges).
- * Training lock (base OVR >= maxBaseOvr) is enforced at the player level in projectOvr,
- * not here — individual stats above 180 are valid when a tier bonus carried them there.
+ * xpEngine.ts — Thin adapter layer.
+ *
+ * All math is now in src/engine/engineMath.ts (pure functions, no profile objects).
+ * This file keeps the GameProfile-typed signatures for backward compatibility with
+ * existing callers (ovrProjector, coaches tab, etc.) while delegating to engineMath.
+ *
+ * To tune a constant: update profiles/game_2025.json.
+ * To understand a formula: read src/engine/engineMath.ts.
+ * To see calibration evidence: read src/engine/engineConstants.ts.
  */
-export function xpBaseForStat(statValue: number, profile: GameProfile): number {
-  if (profile.xpCostBase != null && profile.xpCostDecayK != null) {
-    return profile.xpCostBase * Math.exp(statValue / profile.xpCostDecayK);
-  }
-  const v = Math.floor(statValue);
-  for (const entry of profile.xpCostTable) {
-    if (v >= entry.statMin && v <= entry.statMax) {
-      return entry.xpPer1Pct === -1 ? Infinity : entry.xpPer1Pct;
-    }
-  }
-  return Infinity;
+
+import { GameProfile, TalentTier, TierName } from '../types/resources';
+import {
+  xpCostAtStat,
+  ageMultiplier,
+  combinedMultiplier,
+  starsGainedFromOvrGain,
+  statGainFromBudget,
+  ovrFromStats,
+  ovrFromStatsWithPadding,
+  applySeasonDecay,
+} from '../engine/engineMath';
+import { SEASON_DECAY } from '../engine/engineConstants';
+
+// Re-export engineMath functions for callers that don't need GameProfile wrappers
+export {
+  xpCostAtStat,
+  ageMultiplier as getAgeMultiplierDirect,
+  combinedMultiplier,
+  starsGainedFromOvrGain,
+  statGainFromBudget,
+  ovrFromStats,
+  ovrFromStatsWithPadding,
+} from '../engine/engineMath';
+
+// ─── GameProfile wrappers (backward compatibility) ───────────────────────────
+
+/** XP cost per stat point at a given stat value. Delegates to engineMath.xpCostAtStat. */
+export function xpBaseForStat(statValue: number, _profile: GameProfile): number {
+  return xpCostAtStat(statValue);
+}
+
+/** Age multiplier for a given age. Delegates to engineMath.ageMultiplier. */
+export function getAgeMultiplier(age: number, _profile: GameProfile): number {
+  return ageMultiplier(age);
 }
 
 /**
- * XP required to gain 1% on a single stat.
- * Incorporates age, talent, white/grey, 2× ad, drill level, and star decay.
+ * XP required to gain 1 stat point at the given value, with all multipliers applied.
+ * Delegates to engineMath.combinedMultiplier + engineMath.xpCostAtStat.
  *
  * @param starsGainedInSession - cumulative stars earned in the current session so far
  */
@@ -33,29 +60,18 @@ export function xpNeededFor1Pct(
   isWhite: boolean,
   twoxAd: boolean,
   drillLevelMult: number,
-  profile: GameProfile
+  _profile: GameProfile,
 ): number {
-  const base = xpBaseForStat(statValue, profile);
+  const base = xpCostAtStat(statValue);
   if (!isFinite(base)) return Infinity;
-
-  const ageMult    = getAgeMultiplier(age, profile);
-  const starMult   = Math.pow(profile.starDecayPerSession, starsGainedInSession);
-  const talentMult = profile.talentMultipliers[talent] ?? 1.0;
-  const greyMult   = isWhite ? 1.0 : profile.greyWeightMultiplier;
-  const adMult     = twoxAd ? profile.twoxAdMultiplier : 1.0;
-
-  const divisor = ageMult * starMult * talentMult * greyMult * adMult * drillLevelMult;
-  if (divisor === 0) return Infinity;
-  return base / divisor;
+  const mult = combinedMultiplier({ age, talent, isWhite, starsGained: starsGainedInSession, twoxAd, drillLevelMult });
+  if (mult === 0) return Infinity;
+  return base / mult;
 }
 
 /**
- * Estimates the fractional stat gain for a given XP budget.
- *
- * Stats have sub-integer internal values. XP accumulates fractionally across
- * sessions — a visible "+1" only appears when the cumulative value crosses an
- * integer threshold. This function returns a float (e.g. 2.37), not a floor.
- * The fractional part represents banked progress toward the next integer.
+ * Estimates fractional stat gain for a given XP budget.
+ * Delegates to engineMath.statGainFromBudget.
  */
 export function estimateStatGainPct(
   xpBudget: number,
@@ -66,75 +82,47 @@ export function estimateStatGainPct(
   isWhite: boolean,
   twoxAd: boolean,
   drillLevelMult: number,
-  profile: GameProfile
+  _profile: GameProfile,
 ): number {
-  let remaining = xpBudget;
-  let gain = 0;
-  let current = statValue;
-
-  while (remaining > 0 && current < profile.statCap) {
-    const cost = xpNeededFor1Pct(current, age, starsGainedInSession, talent, isWhite, twoxAd, drillLevelMult, profile);
-    if (!isFinite(cost) || cost <= 0) break;
-    if (cost > remaining) {
-      gain += remaining / cost; // fractional: bank the partial progress
-      break;
-    }
-    remaining -= cost;
-    gain += 1;
-    current += 1;
-  }
-  return gain;
+  const mult = combinedMultiplier({ age, talent, isWhite, starsGained: starsGainedInSession, twoxAd, drillLevelMult });
+  return statGainFromBudget(statValue, xpBudget, mult);
 }
 
 /**
- * Projects a player's stats after a seasonal promotion.
- *
- * Confirmed from Grant T2→T3 + before/after season screenshots:
- * each stat drops by exactly 20 points flat per level promoted, regardless
- * of whether the stat is white or grey, and regardless of tier bonus.
- *
- * @param stats           Current stat map as stored in DB
- * @param levelsPromoted  Levels gained this season (1 = normal promotion, -1 = relegation)
- * @param profile         Game profile
+ * Projects stats after seasonal decay.
+ * Delegates to engineMath.applySeasonDecay.
  */
 export function projectSeasonDecay(
   stats: Record<string, number>,
   levelsPromoted: number,
-  profile: GameProfile
+  profile: GameProfile,
 ): Record<string, number> {
-  const drop = (profile.seasonDecayPerLevel ?? 20) * levelsPromoted;
-  const result: Record<string, number> = {};
-  for (const [key, value] of Object.entries(stats)) {
-    result[key] = Math.max(0, value - drop);
-  }
-  return result;
+  return applySeasonDecay(stats, levelsPromoted, profile.seasonDecayPerLevel ?? SEASON_DECAY);
 }
 
 /**
- * Quality% = unweighted mean of all attributes.
- * Attributes whose keys are present in the stats map are included.
- * If the map has fewer than profile.totalAttributeCount keys, missing stats default to 0.
+ * Quality% = sum of all stats / totalAttributeCount (unweighted mean × 15).
+ * Used as an intermediate before qualityPctToOvr.
  */
 export function statsToQualityPct(
   stats: Record<string, number>,
-  profile: GameProfile
+  profile: GameProfile,
 ): number {
   const values = Object.values(stats);
   if (values.length === 0) return 0;
-  const sum = values.reduce((acc, v) => acc + v, 0);
-  return sum / profile.totalAttributeCount;
+  return values.reduce((acc, v) => acc + v, 0) / profile.totalAttributeCount;
 }
 
-/** OVR = floor(Quality% / qualityOvrDivisor) — confirmed from Grant T2→T3 clean upgrade (sum=2615, game=174, floor✓ ceil✗) */
+/** OVR = floor(qualityPct / qualityOvrDivisor). Delegates to ovrFromStats. */
 export function qualityPctToOvr(qualityPct: number, profile: GameProfile): number {
-  return Math.floor(qualityPct / profile.qualityOvrDivisor);
+  // qualityPct is already sum/15, so multiply back to sum then use ovrFromStats logic
+  const sum = qualityPct * profile.totalAttributeCount;
+  return Math.floor(sum / (profile.totalAttributeCount * profile.qualityOvrDivisor));
 }
 
 /**
- * Applies a tier upgrade by adding the INCREMENTAL bonus to white (essential) stats only.
+ * Applies a tier upgrade by adding the incremental bonus to white (essential) stats only.
  * Grey role stats and off-role stats receive NO change — confirmed from direct game observation.
- * The incremental is: tierAttrAdditions[targetTier] - tierAttrAdditions[fromTier].
- * Pass fromTier = player's current tier so only the net gain is applied.
  * Returns a new stats object (does not mutate input).
  */
 export function applyTierBonusToStats(
@@ -142,7 +130,7 @@ export function applyTierBonusToStats(
   roleStatKeys: string[],
   targetTier: TierName,
   profile: GameProfile,
-  fromTier: TierName = 'T0'
+  fromTier: TierName = 'T0',
 ): Record<string, number> {
   const totalAddition = profile.tierAttrAdditions[targetTier] ?? 0;
   const prevAddition  = profile.tierAttrAdditions[fromTier]   ?? 0;
@@ -155,33 +143,6 @@ export function applyTierBonusToStats(
     if (roleSet.has(key)) {
       updated[key] = Math.min(updated[key] + increment, profile.statCap);
     }
-    // off-role stats: unchanged — tier bonus applies to key attributes only
   }
   return updated;
-}
-
-/**
- * Returns the age multiplier for a given age.
- * Interpolates linearly between the two nearest entries in profile.ageTable.
- * Clamps below the minimum table value for ages above the highest entry.
- */
-export function getAgeMultiplier(age: number, profile: GameProfile): number {
-  const table = profile.ageTable;
-  const ages = Object.keys(table).map(Number).sort((a, b) => a - b);
-
-  if (age <= ages[0]) return table[ages[0].toString()];
-
-  for (let i = 0; i < ages.length - 1; i++) {
-    const a0 = ages[i];
-    const a1 = ages[i + 1];
-    if (age >= a0 && age <= a1) {
-      const t = (age - a0) / (a1 - a0);
-      const v0 = table[a0.toString()];
-      const v1 = table[a1.toString()];
-      return Number((v0 + t * (v1 - v0)).toFixed(4));
-    }
-  }
-
-  // Beyond highest table entry — clamp to minimum
-  return table[ages[ages.length - 1].toString()];
 }

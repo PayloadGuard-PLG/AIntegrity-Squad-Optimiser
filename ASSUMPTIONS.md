@@ -25,6 +25,7 @@ Every sprint ends with a docs commit. No exceptions.
 5. **Dev branch:** `claude/test-connection-I2s8B`. All development work goes here.
 6. **Docs scope:** DEVLOG.md · CLAUDE.md · HANDOVER.md · README.md · WHITEPAPER.md · FORMULAS.md · KNOWN_ISSUES.md · ASSUMPTIONS.md — all must be updated to reflect the current sprint before session close.
 7. Two device console sessions for development: the hot-reload server on one, git on the other. Pull in the git session — the bundler picks up file changes and reloads without restart.
+8. **PR title max 256 characters.** GitHub hard-limits PR titles to 256 chars. Keep titles concise — one short phrase covering the sprint theme. Put detail in the PR body, not the title.
 
 ## Role Constraints
 
