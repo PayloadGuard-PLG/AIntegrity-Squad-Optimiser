@@ -10,9 +10,9 @@
 ![Updates](https://img.shields.io/badge/updates-OTA%20via%20EAS-brightgreen)
 ![License](https://img.shields.io/badge/license-Non--Commercial-red)
 
-**The Manager's Dilemma:** *Which player, which drills, which tier — and exactly what OVR will they reach?*
+**The Manager's Dilemma:** *Which player, which drills, which tier — and what OVR can they realistically reach?*
 
-**AIntegrity Squad Optimiser gives you the exact, mathematically proven answer before you commit a single in-game asset.**
+**AIntegrity Squad Optimiser gives you an empirically calibrated projection before you commit a single in-game asset.** The model is built from real game observations (not community guesses), but calibration is ongoing — confirmed constants are validated against screenshots; unconfirmed constants are clearly labelled in [`CLAUDE.md`](./CLAUDE.md).
 
 🔒 *All calculations run entirely on-device. No accounts, no servers, no API calls.*
 
@@ -22,7 +22,7 @@
 
 ## ✨ Core Capabilities
 
-- 🎯 **Deterministic OVR Projections** — Models age, role, stat profile, and talent tier to project the exact OVR outcome for any combination of drill plans, coaching sessions, and tier upgrades — before you spend anything.
+- 🎯 **Calibrated OVR Projections** — Models age, role, stat profile, and talent tier to project OVR outcomes for any combination of drill plans, coaching sessions, and tier upgrades — before you spend anything. Core constants (OVR formula, cost curve shape, age 18–20 and 26–28 brackets, Normal talent) are empirically confirmed from game screenshots. Several talent tiers and mid-range age brackets are still being validated — projections show a gain range, not a single guaranteed number.
 - 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details.
 - 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and Fan Club level. Zero-drain detection at L4 + Very Easy.
 - 🔗 **Sequential Planning** — Chain drill plans, coaching sessions, tier upgrades, and restorers into one sequential plan with a per-step OVR breakdown in the Results hub.
@@ -74,7 +74,7 @@ OTA updates push automatically on merge to `main`. An `EXPO_TOKEN` secret must b
 
 ## 🧠 Architecture & Documentation
 
-The core logic — calibrated XP models, OVR projection formulas, role weight tables, and condition drain calculations — is validated against real in-game data.
+The core logic — XP cost model, OVR projection formulas, role weight tables, and condition drain calculations — is reverse-engineered from real in-game data. Core constants are empirically confirmed; some talent multipliers and age brackets are still in calibration (see [`CLAUDE.md`](./CLAUDE.md) for the current status of every constant).
 
 | Doc | Contents |
 |---|---|

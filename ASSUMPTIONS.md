@@ -41,12 +41,16 @@ When Steve provides before/after stats from a game session:
 
 1. **Do not guess** the effective values — back-calculate from actual data
 2. For `drillXpFactor`: needs a controlled drill-only run (no tier, no coach) with known cycles and all 15 stats recorded before and after
-3. For `baseXpPerSession`: recalibrated to 450 in Sprint 31 (four data points: Dallas ×4 Safeguard + Grant ×40 Defending, implied 409–495, mean 443); do not change without new empirical evidence
-4. For talent multipliers: Normal (×1.0) confirmed for Grant, Rogers, McGinty; Slow (×0.7) confirmed for Lewis MacGregor; Fastest/Fast pending
+3. For `baseXpPerSession`: current value is **676** (in `profiles/game_2025.json`). Do not change without empirical evidence — back-calculated from Grant ×40 Standard Defending with all 5 stats within game range.
+4. For talent multipliers: Normal (×1.0) confirmed for Grant, Rogers, McGinty; Slow (×0.47) single data point from Lewis MacGregor (Sprint 33); Fastest/Fast/Average still community estimates — do not cite these as confirmed
 
-## Sprint 33 Open Questions
+## Sprint 34 Open Questions
 
-1. **drillXpFactor** — `0.3` is provisional. Before implementing drill projection in Results, Steve needs to run a controlled drill-only session (no tier, no coach) and report before/after stats so the factor can be back-calculated.
-2. **Age-24 DMC player name** — currently saved as "Team: Insidious FC". Correct in DB before relying on projections for this player.
-3. **ageMult=0.72 bracket** — confirmed from table but not empirically validated from a game scan. One data point from the age-24 DMC player would confirm.
-4. **Fastest/Fast talent** — still community estimates (×1.5/×1.25). When a confirmed Fastest or Fast player is available, back-calculate from a single clean white-stat data point.
+1. **drillXpFactor** — `0.3` is provisional. Before relying on drill projections in Results, run a controlled drill-only session (no tier, no coach) and record before/after stats to back-calculate the true value.
+2. **Garry McCluskey talent** — assumed Normal in seeds and projections. Creativity underprediction (+5.8 engine vs +7–10 actual) suggests Fast (×1.25) may be correct. Confirm from edit screen talent label.
+3. **King Alfie talent** — Unknown. Confirm from edit screen.
+4. **Fastest/Fast talent** — still community estimates (×1.5/×1.25). Once a confirmed Fast player is identified, back-calculate from a clean white-stat coach observation.
+5. **Training Camp budget formula** — observe which stats show gain arrows across multiple Training Camp scans. Is it always 3-of-5, or variable?
+6. **Slow talent second data point** — MacGregor ×114 is a single calibration point (0.47, possibly 0.49–0.52). Scan any Slow player's Extensive coach preview to confirm.
+7. **Brandon Prentice Reward Coach ×4** — engine projects +15.4 MARKING / +15.1 POSITIONING / +11.6 AGGRESSION. Compare vs actual game result to validate ageMult=0.85 for age 22.
+8. **ageMult=0.72 bracket (age 25)** — age 24 confirmed from Garry McCluskey. Age 25 shares the bracket (assumed, not yet validated from a separate 25-year-old data point).

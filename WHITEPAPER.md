@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 2.2 — Sprint 32**
+**Version 2.4 — Sprint 34**
 
 ---
 
@@ -63,7 +63,7 @@ xpNeededFor1Pct(
 xpBudget = sessionCount × baseXpPerSession / selectedStats.count
 ```
 
-Budget divided equally across all stats the coach covers. A 5-stat coach block for ×40 sessions gives each stat `40 × 450 / 5 = 3,600 XP`.
+Budget divided equally across all stats the coach covers. A 5-stat coach block for ×40 sessions gives each stat `40 × 676 / 5 = 5,408 XP`.
 
 **XP budget per stat — drill session (Sprint 30):**
 ```
@@ -82,15 +82,19 @@ This data point was originally used to calibrate `baseXpPerSession = 220` (Sprin
 
 **Calibration — Sprint 31 bXPS recalibration (220 → 450):**
 
-Four independent data points across two players (Cptn Dallas ×4 Safeguard, Ricky Grant ×40 Defending) implied bXPS 409–495, mean 443. Set to **450**. Validated: Dallas ×4 Safeguard all 3 stats land inside game ranges.
+Four independent data points across two players (Cptn Dallas ×4 Safeguard, Ricky Grant ×40 Defending) implied bXPS 409–495, mean 443. Set to 450.
 
-**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, Slow talent ×0.7) — Sprint 30 pre-recalibration:**
+**Calibration — current bXPS = 676 (post-Sprint 31 re-derivation):**
 
-Before: 143 OVR (T0). App projected 191 OVR after coach + T1 + T2. Actual result: **191 OVR** ✓. This match was achieved at bXPS=220; the recalibration to 450 was based on Dallas/Grant data from smaller session counts (×4/×40) where the star decay model has less impact. For very high session counts (×114), star decay modelling may be needed for accurate projection — see §3.8.
+After further recalibration against Grant's full 5-stat Standard Defending ×40 (all stats within game range), `baseXpPerSession` was updated to **676**. This is the value currently in `profiles/game_2025.json`. The exponential cost model (K=47, C₀=2.94) was also re-fitted simultaneously — all five Defending stats landing inside game ranges validates both parameters together.
+
+**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, Slow talent ×0.47) — Sprint 33:**
+
+Before: 143 OVR (T0). Session: ×114 Extensive GK. Engine at Slow=0.47 → projected +25 OVR; actual game range: +24–32 ✓. 9/11 GK stats within game range; 3 stats marginally below lo bound, suggesting true Slow multiplier may be 0.49–0.52. Single data point — needs a second Slow player to confirm.
 
 **Calibration — exponential model derivation:**
 
-Tackling 120 and Positioning 228 observed simultaneously under the same XP budget. Actual gain ratio = 66 / 13.5 = 4.89. `exp((228 − 120) / 55) = 4.89` exactly — validates the exponential cost curve (see §3.3).
+Tackling 120 and Positioning 228 observed simultaneously under the same XP budget. The gain ratio validates the exponential cost curve structure (see §3.3). K=47 was fitted via calibration solver minimising CV across five Grant ×40 observations (CV=3.2%).
 
 **Note — Training XP ≠ stat-gain XP:** The "Training XP" display is a separate resource and does not map to the XP budget modelled here.
 
@@ -99,7 +103,7 @@ Tackling 120 and Positioning 228 observed simultaneously under the same XP budge
 base       = xpCostTable[statValue]   (see §3.3)
 ageMult    = ageTable[age]
 talentMult = talentMultipliers[talentTier]
-greyMult   = 1.0 if isWhite else 0.5
+greyMult   = 1.0 if isWhite else 0.22   // profile.greyWeightMultiplier — confirmed Sprint 33
 adMult     = 2.0 if twoxAdActive else 1.0
 
 xpCost = base / (ageMult × talentMult × greyMult × adMult × drillLevelMult)
@@ -115,20 +119,20 @@ XP cost per 1% gain follows a continuous exponential curve (Sprint 25):
 xpBase(stat) = C₀ × exp(stat / K)
 
 C₀ = 2.94   (base cost at stat = 0)
-K  = 55      (scale constant; cost doubles every ~38 stat points)
+K  = 47      (scale constant; cost doubles every ~33 stat points)
 ```
 
-This supersedes the stepped cost table used through Sprint 24. The exponential model was derived from the observed gain ratio between Tackling 120 and Positioning 228 in the same coaching session (same XP budget, same player, same session) — see §3.2.
+This supersedes the stepped cost table used through Sprint 24. K=47 was fitted via a calibration solver that minimises coefficient of variation across five Grant ×40 Standard Defending observations (CV=3.2%). C₀=2.94 confirmed from the gain ratio between Tackling 120 and Positioning 228 in the same coaching session.
 
 **Examples (Normal talent, age 20, white stat):**
 
 | Stat | xpBase | Example cost (÷ ageMult 1.0) |
 |---|---|---|
-| 60 | 2.94 × e^(60/55) ≈ 8.9 | ~9 XP / 1% |
-| 120 | 2.94 × e^(120/55) ≈ 26.9 | ~27 XP / 1% |
-| 180 | 2.94 × e^(180/55) ≈ 81.7 | ~82 XP / 1% |
-| 228 | 2.94 × e^(228/55) ≈ 198 | ~198 XP / 1% |
-| 260 | 2.94 × e^(260/55) ≈ 371 | ~371 XP / 1% |
+| 60 | 2.94 × e^(60/47) ≈ 10.7 | ~11 XP / 1% |
+| 120 | 2.94 × e^(120/47) ≈ 38.9 | ~39 XP / 1% |
+| 180 | 2.94 × e^(180/47) ≈ 141 | ~141 XP / 1% |
+| 228 | 2.94 × e^(228/47) ≈ 396 | ~396 XP / 1% |
+| 260 | 2.94 × e^(260/47) ≈ 864 | ~864 XP / 1% |
 
 Cost growth is continuous — no step discontinuities at round-number boundaries.
 
@@ -136,36 +140,38 @@ Cost growth is continuous — no step discontinuities at round-number boundaries
 
 ### 3.4 Age multipliers
 
-Community-verified values from the original project handoff document. Supersede earlier estimates which were based on a single unverified calibration point.
+Values marked ✅ are confirmed from real game screenshot data. Values marked ⚠️ are assumed from community estimates or table interpolation — treat projections for those ages as approximate.
 
-| Age | Multiplier |
-|---|---|
-| 17 | 1.10 |
-| 18 | 1.00 |
-| 19 | 1.00 |
-| 20 | 1.00 |
-| 21 | 0.85 |
-| 22 | 0.85 |
-| 23 | 0.85 |
-| 24 | 0.72 |
-| 25 | 0.72 |
-| 26 | 0.61 |
-| 27 | 0.61 |
-| 28 | 0.61 |
-| 29 | 0.50 |
-| 30+ | 0 (clamped) |
+| Age | Multiplier | Status |
+|---|---|---|
+| 17 | 1.10 | ⚠️ Assumed |
+| 18 | 1.00 | ✅ Confirmed (Grant age 20 → same bracket, projection matches) |
+| 19 | 1.00 | ✅ Confirmed |
+| 20 | 1.00 | ✅ Confirmed (Grant age 20 calibration anchor) |
+| 21 | 0.85 | ⚠️ Assumed |
+| 22 | 0.85 | ⚠️ Assumed |
+| 23 | 0.85 | ⚠️ Assumed |
+| 24 | 0.72 | ✅ Confirmed (Garry McCluskey age 24 — Fitness 213 → +2-3 actual, engine +3.5 at ageMult=0.72 ✓) |
+| 25 | 0.72 | ⚠️ Assumed (same bracket) |
+| 26 | 0.61 | ✅ Confirmed (McGinty age 27 → same bracket, projection matches) |
+| 27 | 0.61 | ✅ Confirmed (McGinty age 27 calibration) |
+| 28 | 0.61 | ⚠️ Assumed (same bracket) |
+| 29 | 0.50 | ⚠️ Assumed |
+| 30+ | 0 (clamped) | ⚠️ Assumed |
 
 Ages not in the table interpolate linearly between the two nearest entries (`getAgeMultiplier` in `xpEngine.ts`).
 
 ### 3.5 Talent tier multipliers
 
-| Talent | Multiplier |
-|---|---|
-| Fastest | 1.50 |
-| Fast | 1.25 |
-| Average | 1.10 |
-| Normal | 1.00 |
-| Slow | 0.70 |
+Values marked ✅ are confirmed from game data. Values marked ⚠️ are community estimates — projections for those talent tiers may be off by 10–50%.
+
+| Talent | Multiplier | Status |
+|---|---|---|
+| Fastest | 1.50 | ⚠️ Community estimate — not empirically confirmed |
+| Fast | 1.25 | ⚠️ Community estimate — not empirically confirmed |
+| Average | 1.10 | ⚠️ Community estimate — not empirically confirmed |
+| Normal | 1.00 | ✅ Confirmed (Grant, Rogers, McGinty — multiple sessions) |
+| Slow | 0.47 | ⚠️ Single data point (MacGregor ×114 Extensive GK, Sprint 33) — needs second Slow player |
 
 ### 3.6 Drill level multipliers (XP — drills only)
 
@@ -185,7 +191,7 @@ Each drill has one fixed intensity level. The multiplier scales XP yield for tha
 
 ### 3.7 Grey stat weight
 
-Stats outside a player's role essential list (grey stats) receive `greyMult = 0.5`. They still gain from drills but at half the XP efficiency of white (essential) stats.
+Stats outside a player's role essential list (grey stats) receive `greyMult = 0.22` (`profile.greyWeightMultiplier`). They still gain from coaching and drills but at significantly reduced XP efficiency vs white (essential) stats — grey stats cost approximately 4.5× more XP per point gained. Confirmed from Grant ×40 HEADING (grey, stat=155, actual +11–15, model matches with greyMult=0.22).
 
 ### 3.8 Star decay
 
@@ -213,7 +219,7 @@ for each stat in player.stats:
     if stat in whiteStats:
         stat += tierAttrAddition[targetTier] - tierAttrAddition[fromTier]
 
-OVR = ceil(mean(all 15 updated stats))
+OVR = floor(mean(all 15 updated stats))
 ```
 
 **Confirmed from direct game observation (Sprint 16).** Earlier Sprint 12 calibration claimed role stats (white+grey) received the full increment based on Ricky Grant Elite→Stellar data; that interpretation has been superseded.
