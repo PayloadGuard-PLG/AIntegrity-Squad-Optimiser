@@ -224,7 +224,7 @@ export default function CoachesScreen() {
 
       // Talent back-calculation from observed gain ranges
       if (player && Object.keys(gainRanges).length > 0) {
-        const sessionCount = scan.multiplier ?? parseInt(sessions, 10) || 1;
+        const sessionCount = (scan.multiplier ?? parseInt(sessions, 10)) || 1;
         const numStats = statNames.length || 1;
         // Prefer white stats with no near-cap values for clearest signal
         const gainCandidates = Object.entries(gainRanges)
@@ -285,15 +285,7 @@ export default function CoachesScreen() {
       const from = player.stats[statName];
       if (from === undefined) continue;
       const isWhite = isWhiteStat(player.role, statName);
-      let gain: number;
-      // Use game-captured lo/hi range directly when available — avoids re-deriving what the
-      // game already computed. Falls back to XP formula for stats without scan data.
-      const scannedRange = scannedGainRanges[statName];
-      if (scannedRange) {
-        gain = (scannedRange.lo + scannedRange.hi) / 2;
-      } else {
-        gain = estimateStatGainPct(budget, from, player.age, 0, projTalent, isWhite, false, drillMult, profile);
-      }
+      const gain = estimateStatGainPct(budget, from, player.age, 0, projTalent, isWhite, false, drillMult, profile);
       if (gain > 0) {
         postCoachStats[statName] = Math.min(from + gain, profile.statCap);
         gains.push({ stat: statName, from, gain: Number(gain.toFixed(1)), isWhite });

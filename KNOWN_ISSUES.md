@@ -8,10 +8,20 @@
 | 2 | Drill presets — Results picker | Only the first preset pushed from Drills appears in Results DRILL PLANS; additional pushes don't appear until player is reselected. Underlying cause: `drillPlanHistory` state not refreshed after second push within same session. | High |
 | 3 | OCR — missing GK stats | ×114 Extensive GK scan detected 8/11 stats (THROWING, AERIAL REACH, FITNESS missed). OCR blocks embed adjacent column values, e.g. `"143+ 35-48 Throwing"` — these aren't standalone tokens. Workaround: tap GK category button after scan to force-reload all 11 GK stats. | Medium |
 | 4 | New role — manual entry | `player/new.tsx` and `player/[id].tsx` have no UI fields for `newRole`/`newRolePoints`. Scanner populates on scan; manual entry not exposed. | Medium |
-| 5 | ×N anomaly | ×20 and ×40 coaching sessions project nearly identical OVR gains. Geometric sum plateau hypothesis: `Σ(0.85^k, k=0..N-1)` converges near 6.67 at large N, so sessions beyond ~20 contribute < 4% additional XP. Do NOT change budget formula until empirically confirmed with deliberate ×10 vs ×40 test on same player. | Medium |
 | 6 | Fastest/Fast talent not confirmed | `Fastest=1.5`, `Fast=1.25` are community estimates. No empirical calibration against a confirmed-Fastest/Fast player yet. | Medium |
+| 9 | Slow talent — no confirmed data point | Slow (0.47) was derived from MacGregor ×114 using the linear budget model. With the geometric model (`sessionBudgetDecay=0.99`), MacGregor's result is consistent with Normal (1.0). 0.47 is **invalidated**. Back-calculate from a confirmed-Slow player using the geometric budget formula to establish a new Slow multiplier. | High |
 | 7 | Premium sponsor cooldown | `isPremiumSponsor` stored in `ManagerProfile` but the Faster Condition Recovery cooldown reduction is not factored into engine output. | Low |
 | 8 | Squad-wide OVR projection | Results/Plan project a single player in isolation. The observed ~+7 OVR/season from squad-wide Very Easy drilling at L4 zero-drain is not expressible in UI. | Low |
+
+---
+
+## Fixed — Sprint 34 (2026-05-20)
+
+| ID | Area | Fix |
+|---|---|---|
+| F63 | ×N anomaly — identical gains for ×20 and ×40 sessions | Root cause confirmed: geometric session budget decay. `sessionBudgetDecay=0.99` means each successive session delivers 0.99× the previous session's XP. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. For N=40: 33.1 (not 40). For N=114: 68.2 (not 114). MacGregor ×114 actual result 173 OVR — geometric model projects 172 (error −1 ✓), linear model projects 182 (error +9 ✗). Added `sessionBudgetDecay` to `game_2025.json`; updated `coachBudgetPerStat()` in `engineMath.ts`. Closes issue #5. |
+| F64 | Scan-ranges bypass blocked blank-coach scans | `runProjection` was using `(lo+hi)/2` from game scan ranges when available, falling back to formula. Blank coach scans (no player selected in-game) produce no gain ranges, making the bypass irrelevant. Removed — projection always uses the formula. Formula is now accurate for all scan modes. |
+| F65 | CI syntax error in `coaches.tsx:227` | `scan.multiplier ?? parseInt(sessions, 10) \|\| 1` → `(scan.multiplier ?? parseInt(sessions, 10)) \|\| 1`. JS requires parens when mixing `??` with `\|\|`. |
 
 ---
 

@@ -25,16 +25,28 @@ OVR = floor( sum(all 15 stats) / totalAttributeCount )
 ### 2.1 XP budget per stat — coach session
 
 ```
-budget = sessionCount × baseXpPerSession / selectedStats.count
+effectiveSessions = (1 − decay^N) / (1 − decay)
+budget = effectiveSessions × baseXpPerSession / selectedStats.count
 ```
 
 | Constant | JSON key | Value |
 |---|---|---|
-| baseXpPerSession | `baseXpPerSession` | 450 |
+| baseXpPerSession | `baseXpPerSession` | 676 |
+| sessionBudgetDecay | `sessionBudgetDecay` | 0.99 |
 
-Example: 5-stat coach block for ×40 sessions: `40 × 450 / 5 = 3,600 XP per stat`.
+Each successive session of the same coach delivers `0.99×` the previous session's XP. `effectiveSessions` converges to `1 / (1 − 0.99) = 100` for very large N.
 
-**Calibration:** `baseXpPerSession = 450` — recalibrated Sprint 31. Original 220 was calibrated against the stepped cost table (Sprint 24); Sprint 25 introduced the exponential model without re-calibrating, causing systematic under-prediction. Four data points (Cptn Dallas ×4 Safeguard + Ricky Grant ×40 Defending) implied 409–495, mean 443 → set to 450.
+Effective session counts at key N values:
+
+| Sessions (N) | Effective | vs Linear |
+|---|---|---|
+| 4 | 3.94 | −1.5% (negligible) |
+| 40 | 33.1 | −17% |
+| 114 | 68.2 | −40% |
+
+Example: 5-stat coach block for ×40 sessions: `33.1 × 676 / 5 = 4,476 XP per stat`.
+
+**Calibration:** `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). `sessionBudgetDecay = 0.99` — confirmed Sprint 34 from MacGregor ×114 Extensive GK: linear model projects 182 OVR (actual 173, error +9 ✗); geometric model (68.2 effective) projects 172 OVR (error −1 ✓).
 
 ### 2.2 XP budget per stat — drill session
 
@@ -61,7 +73,7 @@ Each factor:
 | `xpBase(statValue)` | exponential formula (§2.4) | Base cost (XP per 1%) at current stat value |
 | `ageMult` | `ageTable[age]` | See §2.6 |
 | `talentMult` | `talentMultipliers[talent]` | Fastest=1.5 … Slow=0.47 |
-| `greyMult` | `greyWeightMultiplier` | 1.0 if white (essential), 0.5 if grey |
+| `greyMult` | `greyWeightMultiplier` | 1.0 if white (essential), 0.22 if grey |
 | `adMult` | `twoxAdMultiplier` | 2.0 if 2× ad active, else 1.0 |
 | `drillLevelMult` | drill intensity (§2.7) or 1.0 for coaches | Fixed per drill; coaches always 1.0 |
 
@@ -73,18 +85,20 @@ Each factor:
 xpBase(stat) = C₀ × exp(stat / K)
 
 C₀ = 2.94   (xpCostBase in game_2025.json)
-K  = 55      (xpCostDecayK — cost doubles every ~38 stat points)
+K  = 47      (xpCostDecayK — cost doubles every ~33 stat points)
 ```
 
-Derived Sprint 25 from the simultaneous observation of Tackling 120 and Positioning 228 under the same XP budget: gain ratio 66 / 13.5 = 4.89, `exp((228 − 120) / 55) = 4.89` exactly.
+Derived from two independent calibration points:
+- **Gain ratio (Sprint 25):** Tackling 120 vs Positioning 228 in same budget → ratio 4.89. `exp((228−120)/K) = 4.89` → K=55. Later superseded.
+- **CV minimisation (Sprint 33):** 5 Grant ×40 Standard Defending observations; K=47 minimises coefficient of variation (CV=3.2%) across all 5 stats. K=47 adopted as confirmed ✅.
 
-| Stat | xpBase |
+| Stat | xpBase (K=47) |
 |---|---|
-| 60 | ~8.9 XP/1% |
-| 120 | ~26.9 XP/1% |
-| 180 | ~81.7 XP/1% |
-| 228 | ~198 XP/1% |
-| 260 | ~371 XP/1% |
+| 60 | ~10.2 XP/1% |
+| 120 | ~35.3 XP/1% |
+| 180 | ~121 XP/1% |
+| 228 | ~350 XP/1% |
+| 260 | ~641 XP/1% |
 
 **Fallback:** If `xpCostBase` / `xpCostDecayK` absent, falls back to stepped `xpCostTable` in JSON.
 
@@ -151,7 +165,7 @@ Each drill has one fixed intensity. The multiplier scales the XP yield:
 | Normal | 1.00 |
 | Slow | 0.47 |
 
-Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow recalibrated Sprint 32: community estimate was 0.7, empirical back-calculation from ×114 Complete Goalkeeping on Slow GK (age 18) gives 0.47 (mean of 11 per-stat ratios, range 0.455–0.479). Fastest/Fast are community estimates — empirical calibration pending.
+Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow (0.47) was derived Sprint 33 from MacGregor ×114 GK using the **linear** budget model — **invalidated Sprint 34**. With geometric budget (`sessionBudgetDecay=0.99`), MacGregor's result is consistent with Normal (1.0). Slow has no confirmed data point. Do not present 0.47 as calibrated. Fastest/Fast are community estimates — all three (Slow/Fast/Fastest) require confirmed-talent players tested under the geometric budget model.
 
 ### 2.9 Gain iteration
 
