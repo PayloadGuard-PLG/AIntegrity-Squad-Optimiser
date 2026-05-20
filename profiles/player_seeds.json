@@ -114,7 +114,7 @@
     },
     {
       "name": "Neri",
-      "age": 27,
+      "age": 28,
       "roles": ["ST", "AMC", "MC"],
       "roles_note": "Select ST + AMC + MC in the position grid. Roles visible in test protocol screenshots. OCR likely emits 'STAMCMC' as concatenated token — greedy role parser (Sprint 28 fix 1) required to detect all 3.",
       "tier": "T6",
@@ -122,25 +122,24 @@
       "talent": "Normal",
       "talentMultiplier": 1.0,
       "isMutantCandidate": false,
-      "ovr": 291,
-      "ovr_game": 291,
-      "stats_note": "Read from projection screenshot (coaches tab, build 83a1ec6). Small font — one stat is likely misread by ~14 pts (sum 4375 gives OVR 292, game shows 291; correct sum is ~4361). Re-scan Neri's player card to confirm. POSITIONING gain of +0.6 at stat 332 is inconsistent with the exponential model (expected +0.2); stored value may be stale from a lower-tier scan. Use player card scan to update.",
+      "ovr_game": 273,
+      "stats_note": "Confirmed from player card screenshot d1526180 (2026-05-20). Sum=4093, floor(4093/15)=272 — 1 below game OVR 273, likely minor OCR read variance on one stat. Previous DB stats (Fitness 240, Creativity 248 etc.) were significantly stale — update DB from these values.",
       "stats": {
-        "TACKLING": 209,
-        "MARKING": 229,
-        "POSITIONING": 332,
-        "HEADING": 354,
-        "BRAVERY": 314,
-        "PASSING": 319,
-        "DRIBBLING": 329,
-        "CROSSING": 89,
-        "SHOOTING": 437,
-        "FINISHING": 447,
-        "FITNESS": 350,
-        "STRENGTH": 233,
-        "AGGRESSION": 99,
-        "SPEED": 291,
-        "CREATIVITY": 343
+        "TACKLING": 190,
+        "MARKING": 210,
+        "POSITIONING": 313,
+        "HEADING": 336,
+        "BRAVERY": 296,
+        "PASSING": 301,
+        "DRIBBLING": 310,
+        "CROSSING": 69,
+        "SHOOTING": 423,
+        "FINISHING": 429,
+        "FITNESS": 330,
+        "STRENGTH": 213,
+        "AGGRESSION": 79,
+        "SPEED": 271,
+        "CREATIVITY": 323
       },
       "white_stats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","STRENGTH","SPEED","CREATIVITY"],
       "grey_stats": ["CROSSING","AGGRESSION"],
@@ -148,28 +147,26 @@
       "training_lock_check": {
         "tier_contrib": 138,
         "note": "floor(160 × 13 / 15) = 138",
-        "base_ovr": 153,
-        "note2": "291 − 138 = 153. Below maxBaseOvr (180). Training is NOT locked."
+        "base_ovr": 135,
+        "note2": "273 − 138 = 135. Below maxBaseOvr (180). Training is NOT locked."
       },
-      "open_questions": [
-        "Exact stats need player card re-scan — projection screenshot values have ~14pt discrepancy vs expected OVR.",
-        "POSITIONING stored value may be stale (displayed 332, but +0.6 gain is consistent with stored value ~267).",
-        "OVR gain showed 0 in test — confirmed as Math.floor bug in build 83a1ec6, fixed in dev branch (3e04c0c)."
-      ],
-      "source_screenshots": ["coaches_tab_projection (test protocol, build 83a1ec6)", "c73136c5 (game coach planner — scan source)"],
-      "last_updated": "2026-05-17"
+      "k47_failure_note": "K=47 predicts near-zero gain for Focused ×4 sessions at stat=330. Focused Physical ×4 (2026-05-20) gave +3-4 per stat. Implied K≈76 at this stat level. DB stats must be current for any projection to be meaningful — rescan player card before projecting.",
+      "source_screenshots": ["d1526180 (player card confirmed 2026-05-20)"],
+      "last_updated": "2026-05-20"
     },
     {
-      "name": "LJDark Leo",
+      "name": "Jables JaseysBoi",
+      "formerly_known_as": "Lewis MacGregor (account renamed — same player)",
       "age": 18,
       "roles": ["GK"],
       "roles_note": "GK only. Confirmed from game card and training report screenshots (sprint 32).",
       "tier": "T2",
       "tier_game_name": "Elite",
       "talent": "Slow",
-      "talentMultiplier": 0.7,
-      "talentConfirmed": true,
-      "talentSource": "Sprint 30 — confirmed Slow from coaching rate observations.",
+      "talent_note": "DB stores 'Slow' but talent is NOT a formula variable. Formula confirmed at 1.0 (Normal rate). DB value is informational only.",
+      "talentMultiplier": 1.0,
+      "talentConfirmed": false,
+      "talentSource": "Talent label in DB = Slow. However formula projection at 1.0 matches game result exactly (OVR 173 actual vs 172.5 engine). 0.47 was invalidated — derived from linear session budget model. Sprint 30 'confirmed Slow' was based on pre-geometric-model analysis. No actual talent confirmation from edit screen.",
       "isMutantCandidate": false,
       "ovr_calc": 145.4,
       "ovr_game": 145,
@@ -204,6 +201,10 @@
         "sum": 1851,
         "ovr": 123
       },
+      "post_x114_and_tiers": {
+        "note": "After ×114 Extensive GK (T0→T2 base), T1 upgrade, T2 upgrade: game OVR = 195. Confirmed 2026-05-20.",
+        "ovr_game": 195
+      },
       "playstyle": {
         "name": "Sweeper Keeper",
         "level": "Standard",
@@ -211,9 +212,9 @@
         "unlocked": true,
         "system_note": "Playstyles are a game progression system — not modelled in the XP engine. Earn Playstyle points (Defender category for Sweeper Keeper) to level up. Levels: Standard(x1) → Intermediate(x2) → Advanced(x3) → Master(x4). Points must match playstyle category. Levelling above Standard requires Playstyle boosters."
       },
-      "training_history_note": "×114 Extensive Goalkeeping session (Slow talent ×0.7, age 18 ageMult ×1.0, 11 white stats). Drills done first, then coaching, then T1→T2 tier upgrade — optimal sequence confirmed. OCR of coach preview detected 8/11 stats (THROWING, AERIAL REACH, FITNESS merged into adjacent column tokens — known GK scan limitation).",
+      "training_history_note": "×114 Extensive Goalkeeping session (age 18 ageMult ×1.0, 11 white stats, talent formula-locked to 1.0). Drills done first, then coaching, then T1→T2 tier upgrade — optimal sequence confirmed. Session screen OCR was taken under old account name 'Lewis MacGregor'. Engine projected OVR 172.5, actual game OVR 173 — error <1%. 11/11 GK stat projections within game-displayed ranges.",
       "source_screenshots": ["5f2228ee (training report post-coaching)", "c341397d (skills tab — all 15 stats confirmed)"],
-      "last_updated": "2026-05-18"
+      "last_updated": "2026-05-20"
     },
     {
       "name": "Garry McCluskey",
