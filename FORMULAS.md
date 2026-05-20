@@ -46,7 +46,7 @@ Effective session counts at key N values:
 
 Example: 5-stat coach block for ×40 sessions: `33.1 × 676 / 5 = 4,476 XP per stat`.
 
-**Calibration:** `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). `sessionBudgetDecay = 0.99` — confirmed Sprint 34 from MacGregor ×114 Extensive GK: linear model projects 182 OVR (actual 173, error +9 ✗); geometric model (68.2 effective) projects 172 OVR (error −1 ✓).
+**Calibration:** `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). `sessionBudgetDecay = 0.99` — confirmed Sprint 34 from LJDark Leo ×114 Extensive GK: linear model projects 182 OVR (actual 173, error +9 ✗); geometric model (68.2 effective) projects 172 OVR (error −1 ✓).
 
 ### 2.2 XP budget per stat — drill session
 
@@ -165,7 +165,7 @@ Each drill has one fixed intensity. The multiplier scales the XP yield:
 | Normal | 1.00 |
 | Slow | 0.47 |
 
-Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow (0.47) was derived Sprint 33 from MacGregor ×114 GK using the **linear** budget model — **invalidated Sprint 34**. With geometric budget (`sessionBudgetDecay=0.99`), MacGregor's result is consistent with Normal (1.0). Slow has no confirmed data point. Do not present 0.47 as calibrated. Fastest/Fast are community estimates — all three (Slow/Fast/Fastest) require confirmed-talent players tested under the geometric budget model.
+Normal confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Slow (0.47) was derived Sprint 33 from LJDark Leo ×114 GK using the **linear** budget model — **invalidated Sprint 34**. With geometric budget (`sessionBudgetDecay=0.99`), LJDark Leo's result is consistent with Normal (1.0). Slow has no confirmed data point. Do not present 0.47 as calibrated. Fastest/Fast are community estimates — all three (Slow/Fast/Fastest) require confirmed-talent players tested under the geometric budget model.
 
 ### 2.9 Gain iteration
 

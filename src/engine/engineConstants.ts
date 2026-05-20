@@ -33,7 +33,7 @@ export const BASE_XPS: number = profile.baseXpPerSession;  // 676
 // Confirmed ✅ sessionBudgetDecay = 0.99
 //   Each successive session of the same coach delivers slightly less XP than the previous.
 //   Effective sessions = (1 - 0.99^N) / (1 - 0.99) = (1 - 0.99^N) × 100.
-//   Derived from MacGregor ×114 Extensive GK (Normal, age 18):
+//   Derived from LJDark Leo ×114 Extensive GK (Normal, age 18):
 //     Linear model:   budget = 114 × 676 / 11 = 7006 XP/stat → projects 182 OVR (actual 173, error +9 ✗)
 //     Geometric 0.99: effective = 68.2 sessions, budget = 4191 XP/stat → projects 172 OVR (actual 173, error −1 ✓)
 //   Also resolves the long-running ×N anomaly: ×40 vs ×114 give different but realistic results.
@@ -67,10 +67,10 @@ export const AGE_TABLE: Record<string, number> = profile.ageTable;
 // ─── TALENT MULTIPLIERS ──────────────────────────────────────────────────────
 // Applied as a multiplier on training efficiency (higher = faster training).
 // Confirmed ✅ Normal (1.0): Grant, Rogers, McGinty — confirmed from intake form Training Rate.
-//   MacGregor (formerly Slow) is now confirmed as approximately Normal/Average — see note below.
+//   LJDark Leo (formerly Slow) is now confirmed as approximately Normal/Average — see note below.
 // ⚠️ Slow (0.47): INVALIDATED as a calibration point.
-//   MacGregor ×114 GK was used to derive Slow=0.47 using the linear session budget.
-//   With geometric budget (sessionBudgetDecay=0.99), MacGregor's data is consistent with Normal (1.0):
+//   LJDark Leo ×114 GK was used to derive Slow=0.47 using the linear session budget.
+//   With geometric budget (sessionBudgetDecay=0.99), LJDark Leo's data is consistent with Normal (1.0):
 //     geometric+Normal: 171.9 OVR predicted, 173 OVR actual (error −1.1).
 //   The 0.47 value was an artefact of the wrong budget model. Slow has NO confirmed data point.
 //   Do not use 0.47 for any Slow player until a proper calibration is done (known-Slow player,

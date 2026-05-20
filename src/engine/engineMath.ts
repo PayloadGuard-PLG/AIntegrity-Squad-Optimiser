@@ -122,22 +122,34 @@ export function combinedMultiplier(params: {
   return am * tm * gm * sm * ad * drillLevelMult;
 }
 
+// GK-exclusive stats — any session containing one of these uses categorySize=11.
+// All outfield sessions use categorySize=5. The game does NOT redistribute XP from
+// stats that a Focused or Reward coach doesn't target — the budget per targeted stat
+// is always effectiveSessions × BASE_XPS / categorySize, regardless of how many stats
+// are selected. Focused/Reward coaches simply discard the unselected shares.
+const GK_EXCLUSIVE_STATS = new Set([
+  'REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT',
+  'COMMUNICATION', 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH',
+]);
+
 // ─── STAGE 4a: COACHING BUDGET ───────────────────────────────────────────────
 // XP available per stat for a coaching session.
-// budget = sessions × BASE_XPS / numStats
-// Standard/Extensive: numStats = 5 (full category). Focused: numStats = 1 or 2.
-// Reward Coach: numStats = actual boosted stats detected by OCR.
+// budget = effectiveSessions × BASE_XPS / categorySize
+// categorySize = 11 (GK) or 5 (outfield) — ALWAYS fixed, regardless of how many
+// stats the coach targets. Focused/Reward coaches do not concentrate XP.
 // Tune: update baseXpPerSession or sessionBudgetDecay in game_2025.json.
 // Each successive session delivers SESSION_BUDGET_DECAY × the previous session's XP.
 // effectiveSessions = (1 - decay^N) / (1 - decay) — plateaus at 1/(1-decay) for large N.
 // With decay=0.99: ×4 ≈ 3.94, ×40 ≈ 33.1, ×114 ≈ 68.2 (vs linear 4, 40, 114).
-export function coachBudgetPerStat(sessions: number, numStats: number): number {
-  if (numStats <= 0) return 0;
+export function coachBudgetPerStat(sessions: number, selectedStats: string[]): number {
+  if (selectedStats.length === 0) return 0;
   const decay = SESSION_BUDGET_DECAY;
   const effectiveSessions = (decay >= 1.0 || sessions <= 0)
     ? sessions
     : (1 - Math.pow(decay, sessions)) / (1 - decay);
-  return (effectiveSessions * BASE_XPS) / numStats;
+  const isGK = selectedStats.some(s => GK_EXCLUSIVE_STATS.has(s.toUpperCase()));
+  const categorySize = isGK ? 11 : 5;
+  return (effectiveSessions * BASE_XPS) / categorySize;
 }
 
 // ─── STAGE 4b: DRILL BUDGET ──────────────────────────────────────────────────
@@ -270,14 +282,14 @@ export function estimateTalentFromGain(params: {
   statBefore: number;
   gainMid: number;
   sessions: number;
-  numStats: number;
+  statNames: string[];
   age: number;
   isWhite: boolean;
   twoxAd: boolean;
   drillLevelMult: number;
 }): { bestTier: string; confidence: 'high' | 'low'; candidateScores: Record<string, number> } {
-  const { statBefore, gainMid, sessions, numStats, age, isWhite, twoxAd, drillLevelMult } = params;
-  const budget = coachBudgetPerStat(sessions, numStats);
+  const { statBefore, gainMid, sessions, statNames, age, isWhite, twoxAd, drillLevelMult } = params;
+  const budget = coachBudgetPerStat(sessions, statNames);
   const tiers = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
   const candidateScores: Record<string, number> = {};
 
@@ -312,10 +324,10 @@ export function projectCoachGains(params: {
   drillLevelMult: number;  // 1.0 for all academy coaches (no intensity)
 }): Record<string, number> {
   const { sessions, statValues, whiteStats, age, talent, sessionOvrGainSoFar, twoxAd, drillLevelMult } = params;
-  const numStats = Object.keys(statValues).length;
-  if (numStats === 0) return {};
+  const statNames = Object.keys(statValues);
+  if (statNames.length === 0) return {};
 
-  const budget    = coachBudgetPerStat(sessions, numStats);
+  const budget    = coachBudgetPerStat(sessions, statNames);
   const stars     = starsGainedFromOvrGain(sessionOvrGainSoFar);
   const result: Record<string, number> = {};
 

@@ -119,7 +119,7 @@ Record all 5 DEF stats. This re-checks whether the original Sprint 31 Dallas obs
 
 **What to do:** Any player with Slow talent. Run any coach session.
 Record before/after for at least one white stat.
-MacGregor (GK, Age 18, Slow) is the only data point — a second player confirms or corrects it.
+LJDark Leo (GK, Age 18, Slow) is the only data point — a second player confirms or corrects it.
 
 | Field | Value |
 |---|---|

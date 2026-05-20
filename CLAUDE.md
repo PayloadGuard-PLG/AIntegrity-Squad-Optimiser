@@ -18,9 +18,9 @@ backing a value, it is ASSUMED and must be labelled as such.
 | xpCostDecayK (K) | 47 | ✅ Confirmed | Calibration solver: minimises CV across 5 Grant ×40 observations (K=47, CV=3.2%) |
 | baseXpPerSession | 676 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (all 5 stats within game range) |
 | greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
-| sessionBudgetDecay | 0.99 | ✅ Confirmed | MacGregor ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
+| sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
 | talentMultipliers.Normal | 1.0 | ✅ Confirmed | Grant + Rogers both Normal — projection matches across multiple sessions |
-| talentMultipliers.Slow | 0.47 | ❌ INVALIDATED | Derived from MacGregor ×114 using linear budget. With geometric budget, MacGregor is consistent with Normal (1.0). No confirmed Slow data point. |
+| talentMultipliers.Slow | 0.47 | ❌ INVALIDATED | Derived from LJDark Leo ×114 using linear budget. With geometric budget, LJDark Leo is consistent with Normal (1.0). No confirmed Slow data point. |
 | talentMultipliers.Average | 1.1 | ❌ NOT confirmed | Community baseline. No empirical game data. |
 | talentMultipliers.Fast | 1.25 | ❌ NOT confirmed | Community baseline. No empirical game data. |
 | talentMultipliers.Fastest | 1.5 | ❌ NOT confirmed | Community baseline. No empirical game data. |
@@ -955,10 +955,10 @@ current value rather than a neighbour's.
 
 **3. Slow talent multiplier calibrated: 0.7 → 0.47** (`profiles/game_2025.json`)
 
-Jables JaseysBoi (GK, Age 18, Slow): ×114 Extensive GK, engine at Slow=0.47 → +25 OVR,
+LJDark Leo (GK, Age 18, Slow): ×114 Extensive GK, engine at Slow=0.47 → +25 OVR,
 game range +24–32. 9/11 stats within game range; 3 stats 0.4–2.2 below lo bound, suggesting
 true value may be 0.49–0.52. Flagged for re-confirmation with a second Slow player scan.
-Full per-stat breakdown in `calibration_data.json → lewis_macgregor`.
+Full per-stat breakdown in `calibration_data.json → ljdark_leo`.
 
 **Note:** DB had the player entered as Normal (×1.0). After DB correction to Slow (×0.7),
 the engine initially predicted +42 OVR (way over). Profile recalibration from 0.7 → 0.47
@@ -1020,7 +1020,7 @@ back-calculation formulas, evidence to collect, and priority order.
 | `src/logic/coachPipeline.ts` | Safeguard = DEF stats; Standard/Extensive full-category override; Reward Coach exclusion |
 | `profiles/game_2025.json` | `talentMultipliers.Slow` 0.7 → 0.47 |
 | `profiles/calibration_data.json` | Jables per-stat data; Prentice xN projections + age; Reward Coach observation |
-| `profiles/player_seeds.json` | Lewis MacGregor T2 snapshot |
+| `profiles/player_seeds.json` | LJDark Leo T2 snapshot |
 | `RESEARCH_PROMPT.md` | NEW — open calibration issues with priority order |
 
 ### Note from this Claude to the next Claude
@@ -1066,7 +1066,7 @@ is within range.
 
 **1. `sessionBudgetDecay = 0.99` confirmed** (`profiles/game_2025.json`, `src/engine/engineConstants.ts`, `src/engine/engineMath.ts`)
 
-Lewis MacGregor (GK, Age 18) ×114 Extensive GK actual game result: **145 OVR → 173 OVR (+28)**.
+LJDark Leo (GK, Age 18) ×114 Extensive GK actual game result: **145 OVR → 173 OVR (+28)**.
 
 - Linear model (old): `budget = 114 × 676 / 11 = 7006 XP/stat` → projects 182 OVR. Error +9. ✗
 - Geometric model (new): effective = `(1 − 0.99^114) / (1 − 0.99) = 68.2` → `budget = 68.2 × 676 / 11 = 4191 XP/stat` → projects 172 OVR. Error −1. ✓
@@ -1079,13 +1079,13 @@ The long-running observation that ×20 and ×40 sessions gave nearly identical g
 
 **3. Slow (0.47) multiplier — INVALIDATED**
 
-The 0.47 value (Sprint 33) was back-calculated from MacGregor ×114 using the linear budget model. With geometric budget:
-- MacGregor ×114 at Slow (0.47) → projects 141 OVR (way too low — worse than linear model)
-- MacGregor ×114 at Normal (1.0) → projects 172 OVR (actual 173 ✓)
+The 0.47 value (Sprint 33) was back-calculated from LJDark Leo ×114 using the linear budget model. With geometric budget:
+- LJDark Leo ×114 at Slow (0.47) → projects 141 OVR (way too low — worse than linear model)
+- LJDark Leo ×114 at Normal (1.0) → projects 172 OVR (actual 173 ✓)
 
 The 0.47 was an artefact of the wrong session budget model. Slow has **no confirmed data point**.
 
-MacGregor's actual talent is not known from the screenshots seen this sprint (Playstyle icon ≠ talent tier). Personal Trainer tab on the edit screen shows the explicit Fastest/Fast/Average/Normal/Slow label.
+LJDark Leo's actual talent is not known from the screenshots seen this sprint (Playstyle icon ≠ talent tier). Personal Trainer tab on the edit screen shows the explicit Fastest/Fast/Average/Normal/Slow label.
 
 **4. Scan-ranges bypass removed from `runProjection`**
 
@@ -1093,10 +1093,10 @@ A prior push used `(lo+hi)/2` from the game's own scan ranges as the projection.
 
 ### Note from this Claude to the next Claude
 
-The geometric budget model is the correct structural fix. The formula now projects MacGregor ×114 to within 1 OVR of the actual game result — the biggest remaining calibration uncertainties are:
+The geometric budget model is the correct structural fix. The formula now projects LJDark Leo ×114 to within 1 OVR of the actual game result — the biggest remaining calibration uncertainties are:
 
-1. **Slow talent**: needs a confirmed-Slow player (not MacGregor — his talent is unknown) run through an Extensive coach with game ranges visible. Back-calculate the true multiplier with the geometric budget formula.
-2. **MacGregor talent**: check Personal Trainer tab. If Normal → the 0.47 was purely an artefact and there is still no Slow data. If Slow → MacGregor's own ×114 run can be used for recalibration (predicted 172, actual 173, implies multiplier very close to Normal — the game may have changed Slow's training rate).
+1. **Slow talent**: needs a confirmed-Slow player (not LJDark Leo — his talent is unknown) run through an Extensive coach with game ranges visible. Back-calculate the true multiplier with the geometric budget formula.
+2. **LJDark Leo talent**: check Personal Trainer tab. If Normal → the 0.47 was purely an artefact and there is still no Slow data. If Slow → LJDark Leo's own ×114 run can be used for recalibration (predicted 172, actual 173, implies multiplier very close to Normal — the game may have changed Slow's training rate).
 3. **Garry McCluskey talent**: edit screen confirmation needed. If Fast (×1.25), Creativity projects +7.1 (actual +7–10 ✓) — resolves the underprediction.
 
 ### Files changed in Sprint 34

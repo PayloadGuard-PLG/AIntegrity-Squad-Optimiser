@@ -31,7 +31,7 @@ All confirmed player records live in `profiles/player_seeds.json`.
 **Status:** Calibrated to 0.47. Single player, single session. Flag for re-confirmation.
 
 **Evidence:**
-- Player: Jables JaseysBoi, GK, Age 18, T2, Slow talent
+- Player: LJDark Leo, GK, Age 18, T2, Slow talent
 - Session: ×114 Extensive Goalkeeping, 11 white stats
 - Game projected: +24–32 OVR (+28 midpoint)
 - Engine at `Slow = 0.47`: +25 OVR ✓ (within game range)

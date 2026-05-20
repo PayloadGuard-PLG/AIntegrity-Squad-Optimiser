@@ -225,7 +225,6 @@ export default function CoachesScreen() {
       // Talent back-calculation from observed gain ranges
       if (player && Object.keys(gainRanges).length > 0) {
         const sessionCount = (scan.multiplier ?? parseInt(sessions, 10)) || 1;
-        const numStats = statNames.length || 1;
         // Prefer white stats with no near-cap values for clearest signal
         const gainCandidates = Object.entries(gainRanges)
           .filter(([s, g]) => isWhiteStat(player!.role, s) && g.statBefore < (profile.statCap ?? 450) - 20)
@@ -240,7 +239,7 @@ export default function CoachesScreen() {
           const est = estimateTalentFromGain({
             statBefore, gainMid,
             sessions: sessionCount,
-            numStats,
+            statNames,
             age: player!.age,
             isWhite: isWhiteStat(player!.role, bestStat),
             twoxAd: false,
@@ -274,7 +273,7 @@ export default function CoachesScreen() {
     if (sessionCount === 0) return;
 
     const drillMult = 1.0;
-    const budget = coachBudgetPerStat(sessionCount, scannedStats.length);
+    const budget = coachBudgetPerStat(sessionCount, scannedStats);
     // Effective talent: use back-calculated estimate if available, fall back to stored value.
     // Unknown talent falls back to Normal (1.0) — matches TALENT_MULTS fallback in engineMath.
     const projTalent: TalentTier = (talentEstimate?.tier as TalentTier) ?? (player.talent === 'Unknown' ? 'Normal' : player.talent);

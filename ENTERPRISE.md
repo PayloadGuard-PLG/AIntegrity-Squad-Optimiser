@@ -147,7 +147,7 @@ The projection engine is calibrated against observed in-game data, not theoretic
 | Age 26–28 (×0.61) | ✅ Confirmed | McGinty age 27 — projection matches |
 | Age 17, 21–23, 29, 30+ | ⚠️ Unconfirmed | Community estimates — no empirical validation yet |
 | Normal talent (×1.0) | ✅ Confirmed | Grant, Rogers, McGinty — multiple sessions |
-| Slow talent (×0.47) | ⚠️ Single data point | MacGregor ×114 GK — within game range but may be 0.49–0.52 |
+| Slow talent (×0.47) | ⚠️ Single data point | LJDark Leo ×114 GK — within game range but may be 0.49–0.52 |
 | Fastest/Fast/Average talent | ⚠️ Unconfirmed | Community estimates — no calibration player identified |
 | Condition formula | ✅ Confirmed | In-game screenshot verification across all intensity/fan club levels |
 | Tier bonus (white stats only) | ✅ Confirmed | Grant T2→T3: every white stat +20, grey stats +0 |
