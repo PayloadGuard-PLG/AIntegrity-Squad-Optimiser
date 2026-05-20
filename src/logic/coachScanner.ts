@@ -180,6 +180,14 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
 
     if (!statName) continue;
 
+    // Focused coaches target only stats within their stated category.
+    // Without this filter, a DEF-column stat's row text can extend rightward to pick up a
+    // PHY-column +lo-hi that happens to share the same Y (e.g. TACKLING reads FITNESS's +3-4).
+    // Standard/Extensive full-category returns are handled by coachPipeline's override.
+    if (coachType === 'Focused' && coachCategory && CATEGORY_STAT_SETS[coachCategory]) {
+      if (!CATEGORY_STAT_SETS[coachCategory].has(statName)) continue;
+    }
+
     // Only include tokens on the same row AND to the right of this stat name.
     // Use tighter Y_TOL_VAL to prevent gain ranges from adjacent rows bleeding in.
     const rowTokens = tokens.filter((t, idx) =>

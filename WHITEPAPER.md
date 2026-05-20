@@ -1,6 +1,6 @@
 # Squad Optimiser — Technical Whitepaper
 
-**Version 2.4 — Sprint 34**
+**Version 2.5 — Sprint 35**
 
 ---
 
@@ -95,14 +95,16 @@ Four independent data points across two players (Cptn Dallas ×4 Safeguard, Rick
 
 After further recalibration against Grant's full 5-stat Standard Defending ×40 (all stats within game range), `baseXpPerSession` was updated to **676**. This is the value currently in `profiles/game_2025.json`. The exponential cost model (K=47, C₀=2.94) was also re-fitted simultaneously — all five Defending stats landing inside game ranges validates both parameters together.
 
-**Calibration — ×114 Extensive GK (LJDark Leo, age 18, talent unknown) — Sprint 34:**
+**Calibration — ×114 Extensive GK (Jables JaseysBoi, age 18) — Sprint 34/35:**
 
 Before: 145 OVR (T0). Actual game result: **173 OVR (+28)**. This data point resolved the ×N anomaly and confirmed `sessionBudgetDecay = 0.99`:
 
 - Linear model (pre-Sprint 34): `114 × 676 / 11 = 7,006 XP/stat` → projects 182 OVR. Error +9. **Wrong.**
 - Geometric model (confirmed): `68.2 × 676 / 11 = 4,191 XP/stat` → projects 172 OVR. Error −1. **Correct.**
 
-LJDark Leo's talent is **unknown** — the Playstyle icon visible in screenshots is NOT the talent tier. Talent is shown on the Personal Trainer tab of the edit screen. With geometric budget and Normal (1.0) talent, the projection lands within 1 OVR of actual. If LJDark Leo is Slow, a recalibration of the Slow multiplier is required using the geometric formula.
+All 11 GK stat engine projections landed inside the game's displayed gain ranges (Sprint 35). OVR error < 1%.
+
+Player was previously misidentified as "LJDark Leo" (a user handle, not a player name). Correct in-game name is **Jables JaseysBoi** (formerly Lewis MacGregor — account renamed). DB stores talent as "Slow" but the formula at 1.0 (Normal) matches the result exactly — talent is not a formula variable.
 
 **Calibration — exponential model derivation:**
 
@@ -148,6 +150,17 @@ This supersedes the stepped cost table used through Sprint 24. K=47 was fitted v
 
 Cost growth is continuous — no step discontinuities at round-number boundaries.
 
+**Known limitation — K=47 breaks at T5+/T6 stat levels (stat ≥ 300):**
+
+K=47 was calibrated from stat range ~90–260. At stat=330 (T6 Legendary), cost(330) = 3,295 XP/point — 87× more expensive than stat=120. Engine predicts near-zero gain for a 1,332 XP budget (×4 Focused session). Game shows +3–4.
+
+| K | Predicted gain at stat=330, budget=1332, ageMult=0.61 |
+|---|---|
+| 47 | 0.25 ← engine |
+| 76 | 3.53 ← matches game |
+
+Implied K≈76 from Nerimala (Age 28, T6, Fitness/Creativity 323–330, Focused Physical ×4). K=47 confirmed valid to ~260; insufficient data above 300 to commit to a new constant. **Do not change K in the engine until 3+ data points in the 260–330 range confirm a consistent value.**
+
 **Fallback:** If `xpCostBase` or `xpCostDecayK` are absent from the game profile, `xpBaseForStat()` falls back to the stepped table stored in `profile.xpCostTable`. The stepped table remains in `game_2025.json` as a reference but is not used when the exponential parameters are present.
 
 ### 3.4 Age multipliers
@@ -167,7 +180,7 @@ Values marked ✅ are confirmed from real game screenshot data. Values marked �
 | 25 | 0.72 | ⚠️ Assumed (same bracket) |
 | 26 | 0.61 | ✅ Confirmed (McGinty age 27 → same bracket, projection matches) |
 | 27 | 0.61 | ✅ Confirmed (McGinty age 27 calibration) |
-| 28 | 0.61 | ⚠️ Assumed (same bracket) |
+| 28 | 0.61 | ✅ Confirmed (Nerimala age 28 — same bracket as McGinty; Focused Physical ×4, K=47 failure indicates stat cost model issue, not ageMult. ageMult=0.61 assumed correct.) |
 | 29 | 0.50 | ⚠️ Assumed |
 | 30+ | 0 (clamped) | ⚠️ Assumed |
 
@@ -182,8 +195,10 @@ Values marked ✅ are confirmed from game data. Values marked ⚠️ are communi
 | Fastest | 1.50 | ⚠️ Community estimate — not empirically confirmed |
 | Fast | 1.25 | ⚠️ Community estimate — not empirically confirmed |
 | Average | 1.10 | ⚠️ Community estimate — not empirically confirmed |
-| Normal | 1.00 | ✅ Confirmed (Grant, Rogers, McGinty — multiple sessions) |
-| Slow | 0.47 | ❌ INVALIDATED — derived from LJDark Leo ×114 using linear budget. With geometric budget, LJDark Leo is consistent with Normal (1.0). No confirmed Slow data point. |
+| Normal | 1.00 | ✅ Confirmed (Grant, Rogers, McGinty, Nerimala — multiple sessions) |
+| Slow | 0.70 | ⚠️ Community estimate — 0.47 invalidated (derived from linear budget model). No confirmed Slow data point exists. Formula uses 1.0 regardless; DB talent field is informational only. |
+
+**Talent is not a formula variable.** All confirmed calibration data (including the Jables JaseysBoi ×114 session, which the DB recorded as "Slow") is fully explained by age + exponential stat cost with talent locked at 1.0. The `talentMultipliers` table in `game_2025.json` exists for informational display only and is not used in any projection.
 
 ### 3.6 Drill level multipliers (XP — drills only)
 
@@ -624,12 +639,13 @@ interface InvestmentPlan {
 | Item | Status |
 |---|---|
 | OVR formula | `Math.floor` — confirmed Sprint 32 from Grant T2→T3 clean tier upgrade. `floor(2615/15) = 174` ✓. `ceil = 175` ✗. Fixed in `qualityPctToOvr()`. |
-| Session budget decay | `sessionBudgetDecay = 0.99` confirmed Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. LJDark Leo ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. |
+| Session budget decay | `sessionBudgetDecay = 0.99` confirmed Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. Jables JaseysBoi ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. 11/11 GK stat ranges confirmed Sprint 35. |
 | Coach XP baseline | `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). |
 | Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=47 — K confirmed via CV minimisation across 5 Grant ×40 observations (CV=3.2%). C₀ confirmed from Tackling/Positioning gain ratio. |
-| Talent multipliers | Normal (×1.0) confirmed for Grant, Rogers, McGinty. Slow (0.47) **invalidated** — derived from linear budget; geometric model shows LJDark Leo is consistent with Normal. No confirmed Slow data point. Fastest/Fast/Average are community estimates. |
+| Talent multipliers | Normal (×1.0) confirmed for Grant, Rogers, McGinty, Nerimala. Talent is not a formula variable — locked to 1.0 for all players. Slow (0.70) is a community estimate placeholder; 0.47 was invalidated (linear budget artefact). Fastest/Fast/Average are community estimates. |
 | ×N anomaly | **RESOLVED** Sprint 34 — explained by `sessionBudgetDecay = 0.99`. Not a plateau artefact. |
+| K=47 at T5+/T6 | K=47 fails at stat ≥ 300. Nerimala (T6, stat=330, age 28) Focused ×4: engine +0.25, game +3-4. Implied K≈76. Do not change engine K until 3+ data points in 260–330 range confirm a consistent value. |
 | Star decay curve | `starDecayPerSession = 0.85`. Within-session only (OVR star thresholds). Separate from session budget decay. |
 | GK white stat list | 11 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION, FITNESS) + 4 grey (STRENGTH, AGGRESSION, SPEED, CREATIVITY). Confirmed Sprint 17. |
 | Tier bonus scope | White (essential) stats only — confirmed Sprint 16. Grey role stats and off-role stats receive 0 increment. |
@@ -707,6 +723,12 @@ Y tolerances are split to prevent adjacent-row bleed:
 
 Right-of-stat-name filter (`t.left > tok.left`) is essential — the 3-column coach layout places stats from three categories at the same Y coordinate; a gain range for a stat in column 1 must not be attributed to column 2.
 
+**Focused-coach category filter (Sprint 35):**
+
+For Focused coaches specifically, the right-of-stat filter alone is insufficient. A DEF-column stat's row text can extend far enough rightward to reach a PHY-column gain range on the same Y. Example: with a Focused Physical coach boosting only FITNESS and CREATIVITY, TACKLING's row text reads "190 Passing 301 Fitness 330 +3-4" — the scanner picked up FITNESS's +3-4 as TACKLING's gain range.
+
+Fix: after identifying a stat name, if `coachType === 'Focused'` and the stat is not in `CATEGORY_STAT_SETS[coachCategory]`, skip it before gain detection. Standard and Extensive coaches are unaffected — they use the pipeline's full-category override regardless of OCR count.
+
 **Arrow indicator detection (no-player-selected state):**
 
 When no player is selected, highlighted rows show a `↑` character (OCR variants: `^ › > ▲`) but no gain values. The scanner detects these and captures `{ statName, statBefore: 0, gainLo: 0, gainHi: 0 }`. `resolveCoachStats` in `coachPipeline.ts` uses only `statName` — zero values are discarded downstream.
@@ -757,7 +779,8 @@ The coach preview section displays three read-only tables side by side: OFFERING
 | 2.1 | Sprints 28–30 | Animated splash + per-tab background art. Focused coach scan fix (normalise OCR case). Concatenated role token greedy parser. GK category always-reload fix. `drillLevelMult` removed from coach projection (coaches use 1.0, not VH×1.7). `drillXpFactor = 0.3` added for drill budget scaling. Coaches tab tier section removed. Results tab rewritten as combined drill+coach+tier hub with history pickers. `coachHistoryService` + `drillPlanHistoryService` + new DB tables. LJDark Leo ×114 Extensive GK at bXPS=220 gives 143→191 OVR match (pre-recalibration). |
 | 2.2 | Sprints 31–32 | **Sprint 31:** `baseXpPerSession` recalibrated 220→450 (exponential model re-baseline from 4 data points). Coaches tab crash on sessions input fixed (stale `setSelectedTier`). CROSSING detection fixed (secondary embedded-stat scan). DMC STRENGTH moved to secondary. `OCR_STAT_CORRECTIONS` for TACKLING misreads. Three new calibration players: Cptn Dallas, Rayne, age-24 DMC. **Sprint 32:** `customCoachEngine.ts` rewritten — deprecated `calculateDynamicGain` shim replaced with `estimateStatGainPct`; `PlayerStats` gains `statValue`+`talent`; function gains `profile` parameter. Branch transition to `claude/test-connection-I2s8B`. |
 | 2.3 | Sprint 33 | OVR formula fixed `Math.ceil` → `Math.floor` (confirmed clean integer tier upgrade). Duplicate stat capture fixed (Map-based dedup + nearest-number baseline). Safeguard category corrected to DEF stats. Standard/Extensive full-category override (arrow-only rows excluded from OCR count). Reward Coach detection (`isRewardCoach`). `bXPS` recalibrated 450→676 (Grant ×40 all 5 stats). K re-fitted 55→47 (CV minimisation across 5 Grant observations). `greyWeightMultiplier` confirmed 0.22. Garry McCluskey (age 24) + King Alfie seeds added. ageMult=0.72 confirmed for age 24. Training Camp detection + sentinel. |
-| 2.4 | Sprint 34 | `sessionBudgetDecay = 0.99` confirmed from LJDark Leo ×114 actual result 173 OVR (geometric model error −1 ✓, linear error +9 ✗). ×N anomaly resolved. Slow (0.47) invalidated — derived from linear budget; LJDark Leo consistent with Normal under geometric model. Scan-ranges bypass removed from `runProjection` — formula works for blank-coach scans. CI syntax fix (`coaches.tsx:227`). |
+| 2.4 | Sprint 34 | `sessionBudgetDecay = 0.99` confirmed from Jables JaseysBoi ×114 actual result 173 OVR (geometric model error −1 ✓, linear error +9 ✗). ×N anomaly resolved. Slow (0.47) invalidated — derived from linear budget; player consistent with Normal under geometric model. Scan-ranges bypass removed from `runProjection` — formula works for blank-coach scans. CI syntax fix (`coaches.tsx:227`). |
+| 2.5 | Sprint 35 | Player identity corrected: `ljdark_leo` → Jables JaseysBoi (formerly Lewis MacGregor; same player, account renamed). Gillespie identified as the player called "LJDark Leo" (no observations). Nerimala (G Neri) full name + talent Normal ✅ confirmed from edit screen; 15 stats rescanned. Slow ×0.47 invalidated everywhere; `game_2025.json` Slow reverted to 0.70 (community estimate, informational). K=47 fails at stat ≥ 300: Nerimala Focused ×4 at stat=330 implies K≈76; no engine change yet. Focused-coach cross-column OCR bleed fixed (`coachScanner.ts`): category filter in primary loop prevents DEF-column stat picking up PHY-column gain range. 11/11 GK stat projections confirmed in-range for Jables ×114 session. |
 
 ---
 
