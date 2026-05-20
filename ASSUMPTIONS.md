@@ -43,15 +43,15 @@ When Steve provides before/after stats from a game session:
 1. **Do not guess** the effective values — back-calculate from actual data
 2. For `drillXpFactor`: needs a controlled drill-only run (no tier, no coach) with known cycles and all 15 stats recorded before and after
 3. For `baseXpPerSession`: current value is **676** (in `profiles/game_2025.json`). Do not change without empirical evidence — back-calculated from Grant ×40 Standard Defending with all 5 stats within game range.
-4. For talent multipliers: Normal (×1.0) confirmed for Grant, Rogers, McGinty; Slow (×0.47) single data point from Lewis MacGregor (Sprint 33); Fastest/Fast/Average still community estimates — do not cite these as confirmed
+4. For talent multipliers: Normal (×1.0) confirmed for Grant, Rogers, McGinty; Slow (×0.47) **INVALIDATED Sprint 34** — derived from linear budget, geometric budget shows MacGregor is consistent with Normal; no confirmed Slow data point; Fastest/Fast/Average still community estimates — do not cite any of these as confirmed
 
 ## Sprint 34 Open Questions
 
 1. **drillXpFactor** — `0.3` is provisional. Before relying on drill projections in Results, run a controlled drill-only session (no tier, no coach) and record before/after stats to back-calculate the true value.
-2. **Garry McCluskey talent** — assumed Normal in seeds and projections. Creativity underprediction (+5.8 engine vs +7–10 actual) suggests Fast (×1.25) may be correct. Confirm from edit screen talent label.
-3. **King Alfie talent** — Unknown. Confirm from edit screen.
-4. **Fastest/Fast talent** — still community estimates (×1.5/×1.25). Once a confirmed Fast player is identified, back-calculate from a clean white-stat coach observation.
+2. **Garry McCluskey talent** — assumed Normal in seeds and projections. Creativity underprediction (+5.8 engine vs +7–10 actual) suggests Fast (×1.25) may be correct. Confirm from Personal Trainer tab on the edit screen (explicit Fastest/Fast/Average/Normal/Slow label — NOT the Playstyle icon).
+3. **King Alfie talent** — Unknown. Confirm from edit screen Personal Trainer tab.
+4. **Fastest/Fast talent** — still community estimates (×1.5/×1.25). Once a confirmed Fast player is identified, back-calculate from a clean white-stat coach observation under the geometric budget model.
 5. **Training Camp budget formula** — observe which stats show gain arrows across multiple Training Camp scans. Is it always 3-of-5, or variable?
-6. **Slow talent second data point** — MacGregor ×114 is a single calibration point (0.47, possibly 0.49–0.52). Scan any Slow player's Extensive coach preview to confirm.
+6. **Slow talent — no confirmed data point** — Slow (0.47) is **invalidated**. It was derived from MacGregor ×114 using the linear budget. With geometric budget, MacGregor's result is consistent with Normal (1.0). MacGregor's actual talent is unknown — check Personal Trainer tab. Once a confirmed-Slow player is identified, run an Extensive coach scan with game ranges visible and back-calculate under the geometric formula.
 7. **Brandon Prentice Reward Coach ×4** — engine projects +15.4 MARKING / +15.1 POSITIONING / +11.6 AGGRESSION. Compare vs actual game result to validate ageMult=0.85 for age 22.
 8. **ageMult=0.72 bracket (age 25)** — age 24 confirmed from Garry McCluskey. Age 25 shares the bracket (assumed, not yet validated from a separate 25-year-old data point).

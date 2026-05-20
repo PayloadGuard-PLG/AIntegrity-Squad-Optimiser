@@ -6,6 +6,62 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 34 — Geometric Budget Model + Formula Fix
+**2026-05-20**
+
+Branch: `claude/test-connection-I2s8B` (commits `cffe933`, `4a35400`)
+
+### Shipped
+
+**Session budget: geometric decay model confirmed (`profiles/game_2025.json`, `src/engine/engineConstants.ts`, `src/engine/engineMath.ts`)**
+
+Root cause of the ×N over-projection confirmed from Lewis MacGregor's actual game result: 145 OVR → **173 OVR (+28)** from ×114 Extensive GK.
+
+- **Linear model** (old): budget = N × bXPS / numStats → projects 182 OVR. Error +9. **Wrong.**
+- **Geometric model** (new): `effectiveSessions = (1 − 0.99^N) / (1 − 0.99)` → for N=114: 68.2 effective sessions → projects 172 OVR. Error −1. **Correct.**
+
+Each successive coaching session of the same coach delivers 0.99× the previous session's XP (`sessionBudgetDecay = 0.99`). Effective sessions plateau at 100 for very large N.
+
+Impact by session count:
+- ×4: 3.94 effective (negligible — Dallas calibration preserved)
+- ×40: 33.1 effective (Grant TACKLING-120 projects 59.2 vs actual 59–73 ✓)
+- ×114: 68.2 effective (MacGregor 145 → 172 OVR projected, actual 173 ✓)
+
+Added `"sessionBudgetDecay": 0.99` to `profiles/game_2025.json`. Added `SESSION_BUDGET_DECAY` constant (confirmed ✅) to `engineConstants.ts`. Updated `coachBudgetPerStat()` in `engineMath.ts` to use the geometric formula.
+
+**Slow (0.47) talent multiplier invalidated**
+
+The 0.47 value (Sprint 33) was back-calculated from MacGregor ×114 using the linear budget model. With geometric budget (0.99 decay), MacGregor's actual result (173 OVR) is consistent with Normal (1.0) talent — the 0.47 was an artefact of the wrong model. Slow has **no confirmed data point** until a player with confirmed-Slow talent is tested under the geometric budget formula. Updated `engineConstants.ts` JSDoc to reflect this.
+
+**Scan-ranges bypass removed from `runProjection` (`app/(tabs)/coaches.tsx`)**
+
+The previous push (`6a51a46`) used `(lo+hi)/2` from scan ranges directly in the projection. This blocked blank-coach scans (no player selected in-game produces no `+lo-hi` values). Reverted to formula-only projection. The formula is now accurate for all scan modes.
+
+**CI syntax fix (`app/(tabs)/coaches.tsx:227`)**
+
+`scan.multiplier ?? parseInt(sessions, 10) || 1` → `(scan.multiplier ?? parseInt(sessions, 10)) || 1`. JavaScript requires parens when mixing `??` with `||`.
+
+### Files changed
+
+| File | Change |
+|---|---|
+| `profiles/game_2025.json` | Added `sessionBudgetDecay: 0.99` |
+| `src/types/resources.ts` | Added optional `sessionBudgetDecay?: number` to `GameProfile` |
+| `src/engine/engineConstants.ts` | Added `SESSION_BUDGET_DECAY` export; updated Slow talent JSDoc (invalidated) |
+| `src/engine/engineMath.ts` | `coachBudgetPerStat()` uses geometric formula |
+| `app/(tabs)/coaches.tsx` | Removed scan-ranges bypass from `runProjection`; CI syntax fix |
+
+### Open / Next Sprint
+
+- **MacGregor talent unknown** — Playstyle icon ≠ talent. Check Personal Trainer tab for Fastest/Fast/Average/Normal/Slow label. If Normal: 0.47 was artefact only. If Slow: need to recalibrate from scratch with geometric budget.
+- **Slow talent has no confirmed data point** — 0.47 is invalidated. Scan any confirmed-Slow player's Extensive coach with game ranges visible, back-calculate with geometric budget formula.
+- Confirm talent tier for Garry McCluskey and King Alfie from edit screen
+- Creativity underprediction for Garry (+5.8 vs +7–10): if Fast (×1.25), predicted = +7.1 ✓ — talent confirmation will resolve this
+- Training Camp budget formula unknown — observe which stats show gain arrows across multiple Training Camp scans
+- Brandon Prentice Reward Coach ×4 actual results (compare vs engine: +15.4 MARKING, +15.1 POSITIONING, +11.6 AGGRESSION)
+
+---
+
 ## Sprint 34 — New Player Data + Training Camp Detection
 **2026-05-19**
 
@@ -37,14 +93,6 @@ Fix:
 
 - Garry McCluskey observation: ×4 Drill Session Reward Coach (Fitness +2–3, Creativity +7–10). Validates ageMult=0.72; Creativity underprediction (+5.8 vs +7–10) suggests talent may be Fast rather than Normal.
 - King Alfie observation: Training Camp Standard Attacking ×20 — logged as OUT_OF_SCOPE_SESSION_TYPE. Game preview: Dribbling +42–51, Crossing +30–40, Finishing +45–54 (3 stats only; engine shows 5-stat budget — confirms Training Camp uses a different distribution).
-
-### Open / Next Sprint
-
-- Confirm talent tier for Garry McCluskey and King Alfie from edit screen (Fastest/Fast/Average/Normal/Slow label)
-- Creativity underprediction for Garry (+5.8 vs +7–10): if Fast (×1.25), predicted = +7.1 ✓ — talent confirmation will resolve this
-- Training Camp budget formula unknown — observe which stats show gain arrows across multiple Training Camp scans
-- Second Slow talent data point (MacGregor ×114 is single data point, 0.47 may be 0.49–0.52)
-- Brandon Prentice Reward Coach ×4 actual results (compare vs engine: +15.4 MARKING, +15.1 POSITIONING, +11.6 AGGRESSION)
 
 ---
 

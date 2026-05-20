@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** `claude/test-connection-I2s8B` (dev) / `main` (OTA deploy)
-**As of:** Sprint 32 — 2026-05-18
+**As of:** Sprint 34 — 2026-05-20
 **Deploy:** Push to `main` triggers EAS OTA auto-deploy (Android only). NEVER push to `main` directly from dev work — merge only when releasing.
 
 ---
@@ -66,10 +66,10 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 |---|---|---|---|
 | 1 | drillXpFactor calibration | `drillXpFactor = 0.3` is provisional. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. Do not change without real data. | High |
 | 1a | Age-24 DMC player name | Saved as "Team: Insidious FC" — scanner read club name. Correct in DB. | Quick |
-| 2 | ageMult=0.72 bracket (age 24) | Confirmed formula but not empirically validated against game data. Scan a coach preview for the age-24 DMC player with game +X–Y ranges visible and compare. | High |
 | 4 | New role — manual entry | `player/new.tsx` and `player/[id].tsx` have no UI fields for `newRole`/`newRolePoints`. Scanner populates on scan; manual entry not exposed. | Quick |
-| 5 | ×N anomaly | ×20 and ×40 sessions produce nearly identical projected gains. Geometric sum plateau hypothesis (sessions beyond ~20 contribute < 4% additional XP) is working model. Do NOT change budget formula until empirically confirmed. | Medium |
+| 5 | Slow talent — no confirmed data point | Slow (0.47) **invalidated Sprint 34** — derived from MacGregor ×114 using linear budget. With geometric budget (`sessionBudgetDecay=0.99`), MacGregor result is consistent with Normal (1.0). Back-calculate from a confirmed-Slow player. | High |
 | 6 | Fastest/Fast talent calibration | Currently community estimates (1.5 / 1.25). Needs known-talent players to confirm. | Medium |
+| 9 | MacGregor talent unknown | Playstyle icon ≠ talent. Check Personal Trainer tab for the explicit Fastest/Fast/Average/Normal/Slow label. Determines whether MacGregor is the Slow recalibration candidate. | High |
 | 7 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery cooldown reduction not modelled. | Low |
 | 8 | Seasons planner | Project player across one full season including drills, tier, ~20% OVR decay. No implementation. | Low |
 
@@ -79,11 +79,11 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 
 | File | Purpose |
 |---|---|
-| `profiles/game_2025.json` | ALL game constants — XP table, age/talent/drill multipliers, `baseXpPerSession=220`, `drillXpFactor=0.3`, tier additions, condition model |
+| `profiles/game_2025.json` | ALL game constants — XP table, age/talent/drill multipliers, `baseXpPerSession=676`, `sessionBudgetDecay=0.99`, `drillXpFactor=0.3`, tier additions, condition model |
 | `profiles/calibration_data.json` | Raw calibration observations — Ricky Grant, Ryan Rogers, Lewis MacGregor, Kevin McGinty |
 | `profiles/player_seeds.json` | Definitive player records for DB re-entry if device is wiped |
 | `src/types/resources.ts` | All TypeScript interfaces: GameProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
-| `src/logic/xpEngine.ts` | XP math: `estimateStatGainPct` (fractional float), `qualityPctToOvr` (Math.ceil), `applyTierBonusToStats` |
+| `src/logic/xpEngine.ts` | XP math: `estimateStatGainPct` (fractional float), `qualityPctToOvr` (Math.floor), `applyTierBonusToStats` |
 | `src/logic/customCoachEngine.ts` | `predictCustomDrill` — per-stat coaching gain prediction using real XP engine. `PlayerStats` requires `statValue` + `talent`; function requires `GameProfile` |
 | `src/logic/ovrProjector.ts` | `computeOvrFromStats`, `computeOvrWithPadding`, `applyDrillSessionsToStats`, `projectOvr` |
 | `src/logic/controller.ts` | `getDrillRecommendations` — ROI sort, condition costs |
