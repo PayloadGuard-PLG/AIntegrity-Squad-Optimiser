@@ -3,7 +3,7 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert 
 import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
-import { resolveCoachStats, CATEGORY_STATS, TRAINING_CAMP_SENTINEL, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
+import { resolveCoachStats, CATEGORY_STATS, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
 import { estimateTalentFromGain } from '../../src/engine/engineMath';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
@@ -202,12 +202,6 @@ export default function CoachesScreen() {
       ));
 
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
-
-      if (statNames[0] === TRAINING_CAMP_SENTINEL) {
-        setScanStatus('TRAINING CAMP — cannot project (different budget structure)');
-        setScannedStats([]);
-        return;
-      }
 
       if (statNames[0] === ALL_ROUND_SENTINEL) {
         const allEnteredStats = Object.keys(player!.stats);
