@@ -226,12 +226,13 @@ export default function CoachesScreen() {
       if (player && Object.keys(gainRanges).length > 0) {
         const sessionCount = (scan.multiplier ?? parseInt(sessions, 10)) || 1;
         // Prefer white stats with no near-cap values for clearest signal
+        const statNameSet = new Set(statNames);
         const gainCandidates = Object.entries(gainRanges)
-          .filter(([s, g]) => isWhiteStat(player!.role, s) && g.statBefore < (profile.statCap ?? 450) - 20)
+          .filter(([s, g]) => statNameSet.has(s) && isWhiteStat(player!.role, s) && g.statBefore < (profile.statCap ?? 450) - 20)
           .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
-        // Fall back to any stat if no white stat has gains
+        // Fall back to any stat in the session if no white stat has gains
         const candidates = gainCandidates.length > 0 ? gainCandidates
-          : Object.entries(gainRanges).filter(([, g]) => g.statBefore < (profile.statCap ?? 450) - 20)
+          : Object.entries(gainRanges).filter(([s, g]) => statNameSet.has(s) && g.statBefore < (profile.statCap ?? 450) - 20)
               .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
         if (candidates.length > 0) {
           const [bestStat, { lo, hi, statBefore }] = candidates[0];
