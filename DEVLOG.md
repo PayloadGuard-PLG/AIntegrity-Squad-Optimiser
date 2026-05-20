@@ -1244,10 +1244,10 @@ Note: `src/logic/playerScanner.ts` `KNOWN_TIERS` still matches game display name
 |---|---|
 | Touch Training (→ Touch Training in S11) | Touch Training |
 | Porky in Centre | Porky in Centre |
-| Pass, Go & Shoot | Move & Finish |
-| Use Your Head | Head It |
-| Press the Play | Press Up |
-| Hold the Line | Hold Shape |
+| Run & Strike | Run & Strike |
+| Head Drill | Head Drill |
+| High Press | High Press |
+| Line Hold | Line Hold |
 
 Touch Training stats updated to `['CONCENTRATION', 'DRIBBLING', 'HEADING', 'CREATIVITY']` (HANDOVER spec), baseLoss 0.75 (VE level), intensity `'Very Easy'`.
 
@@ -1472,9 +1472,9 @@ Verification from confirmed screenshots:
 
 | Drill | Level | Fan Club | Formula | Observed |
 |---|---|---|---|---|
-| Use Your Head | VH | L0 | 0.75 × 5 × 0.9 | 3.375 ≈ 3.38% ✓ |
-| Carioca with Ladders | VH | L4 | 0.75 × 5 × 0.5 | 1.875 ≈ 1.88% ✓ |
-| Carioca with Ladders | Easy | L4 | 0.75 × 2 × 0.5 | 0.75% ✓ |
+| Head Drill | VH | L0 | 0.75 × 5 × 0.9 | 3.375 ≈ 3.38% ✓ |
+| Footwork Ladder | VH | L4 | 0.75 × 5 × 0.5 | 1.875 ≈ 1.88% ✓ |
+| Footwork Ladder | Easy | L4 | 0.75 × 2 × 0.5 | 0.75% ✓ |
 | Any drill | VE | L4 | 0.75 × 1 × 0.5 | 0.375% → 0% in game display ✓ |
 
 **`isZeroDrain` threshold revised**
@@ -1719,13 +1719,13 @@ Two engine fixes applied and confirmed:
 
 | Drill | Field | Before | After |
 |---|---|---|---|
-| Use Your Head | type | Attack | Defence |
-| Use Your Head | stats | `['HEADING','CREATIVITY']` | `['POSITIONING','PASSING','HEADING','CREATIVITY']` |
-| Use Your Head | baseLoss | 1.5 | 3.0 |
-| Stop the Attacker | stats | `['TACKLING','MARKING','BRAVERY']` | `['STRENGTH','MARKING','BRAVERY','DRIBBLING','TACKLING']` |
-| Stop the Attacker | baseLoss | 2.25 | 4.5 |
+| Head Drill | type | Attack | Defence |
+| Head Drill | stats | `['HEADING','CREATIVITY']` | `['POSITIONING','PASSING','HEADING','CREATIVITY']` |
+| Head Drill | baseLoss | 1.5 | 3.0 |
+| Win the Ball | stats | `['TACKLING','MARKING','BRAVERY']` | `['STRENGTH','MARKING','BRAVERY','DRIBBLING','TACKLING']` |
+| Win the Ball | baseLoss | 2.25 | 4.5 |
 
-baseLoss values derived from L4 Fan Club data (50% reduction observed): Use Your Head −1.5% at L4 → base = 3.0; Stop the Attacker −2.25% at L4 → base = 4.5.
+baseLoss values derived from L4 Fan Club data (50% reduction observed): Head Drill −1.5% at L4 → base = 3.0; Win the Ball −2.25% at L4 → base = 4.5.
 
 **ROI-based drill sort**
 
@@ -1766,8 +1766,8 @@ New helper: `getAllStatKeys(roles)` in `src/utils/roleWeights.ts` — returns un
 |---|---|---|
 | F22 | Star decay caused near-zero gains at high stat counts | `starDecayPerSession` 0.85 → 1.0; validated against observed training data |
 | F23 | XP budget not divided across drill stats | `ovrProjector.ts`: budget ÷ `drill.stats.length` |
-| F24 | Use Your Head categorised as Attack drill | `drillDatabase.ts`: type corrected to Defence |
-| F25 | Stop the Attacker missing 2 stats | Added STRENGTH + DRIBBLING to stat list |
+| F24 | Head Drill categorised as Attack drill | `drillDatabase.ts`: type corrected to Defence |
+| F25 | Win the Ball missing 2 stats | Added STRENGTH + DRIBBLING to stat list |
 | F26 | Generic "Stats missing" for all skipped drills | Separated into role-irrelevant vs un-entered categories |
 | F27 | Tier not auto-applying when points available | `getBestAffordableTier()` runs on projection if no explicit tier selected |
 | F28 | OVR baseline used stale `player.overall` when stats entered | Stats-computed OVR used as baseline when stats dict non-empty |
@@ -1953,7 +1953,7 @@ Push from Termux → CI picks up within ~1 min → EAS OTA bundle → app update
 
 **Drill database: isBase flag**
 
-`src/database/drillDatabase.ts`: `isBase: boolean` added to `Drill` interface. Core daily drills (Touch Training, Gym, Sprints, Juggling, etc.) marked `isBase: true`. Event/lab drills (Set-Piece Delivery, Warm-Up, Carioca, etc.) marked `isBase: false`.
+`src/database/drillDatabase.ts`: `isBase: boolean` added to `Drill` interface. Core daily drills (Touch Training, Weight Room, Speed Work, etc.) marked `isBase: true`. Event/lab drills (Dead Ball Practice, Activation, Footwork Ladder, etc.) marked `isBase: false`.
 
 **Tier system corrections**
 
