@@ -1,68 +1,30 @@
 import type { CoachScanResult } from './coachScanner';
-import { getWhiteStatKeys } from '../utils/roleWeights';
 
+// Kept for UI informational display only — not used in gain formula.
 export const CATEGORY_STATS: Record<string, string[]> = {
   Attacking:  ['PASSING', 'DRIBBLING', 'CROSSING', 'SHOOTING', 'FINISHING'],
   Defending:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
   Physical:   ['FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY'],
-  // Safeguard = Defending category — same 5 DEF stats. Game uses both names for the same coach type.
   Safeguard:  ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'],
-  // All 11 GK stats — Standard and Extensive Goalkeeping both boost all of these
   Goalkeeping: ['REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT', 'COMMUNICATION',
                 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH', 'CONCENTRATION', 'FITNESS'],
 };
 
-/**
- * Deterministic stat resolution from a coach scan result.
- * Returns 1–15 stat names. Never hard-caps at 5.
- *
- * Decision chain:
- * 1. Stats detected + category known:
- *    - Contamination check: if more out-of-category than in-category, restrict to in-category
- *    - Otherwise: trust all detected stats (clean or extensive coach, up to 15)
- * 2. Stats detected + category unknown: use all detected (best effort)
- * 3. No stats detected + category known: full category filtered to player's available stats
- * 4. Nothing → white stats for player's role
- */
-// Sentinel value returned when the scanned image is a Training Camp session.
-// Training Camps distribute XP differently from regular coaching sessions (fewer stats boosted,
-// unknown budget formula). The engine cannot project them — show a UI warning instead.
 export const TRAINING_CAMP_SENTINEL = '__TRAINING_CAMP__';
 export const ALL_ROUND_SENTINEL = '__ALL_ROUND__';
 
+/**
+ * Stat resolution from a coach scan.
+ * The coach name/type/category has no bearing on gains — only the stats
+ * with visible ranges in the scan matter, plus ×N and player attributes.
+ * Trust what OCR detected. Nothing more.
+ */
 export function resolveCoachStats(
   scan: CoachScanResult,
-  playerStats: Record<string, number>,
-  playerRole: string[],
+  _playerStats: Record<string, number>,
+  _playerRole: string[],
 ): string[] {
   if (scan.isAllRound) return [ALL_ROUND_SENTINEL];
-  const catList = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : null;
   const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
-
-  if (detected.length > 0) {
-    if (catList) {
-      const inCat  = detected.filter(n =>  catList.includes(n));
-      const outCat = detected.filter(n => !catList.includes(n));
-      // Contamination: more out-of-category than in-category → cross-column OCR leakage
-      if (outCat.length >= inCat.length && inCat.length > 0) return inCat;
-      return detected;
-    }
-    return detected;
-  }
-
-  // No stat rows found — use category header as fallback
-  if (scan.coachType === 'Focused') {
-    // Arrow characters in the no-player state are not read by ML Kit OCR, so highlighted
-    // stats cannot be auto-detected. Return [] — the coaches tab shows the category picker
-    // chips so the user can select the 1–2 boosted stats manually.
-    // Workaround: scan the tile with any player selected; the game then shows gain ranges
-    // (+lo-hi) as text, which the scanner detects reliably.
-    return [];
-  }
-  if (catList) {
-    const fromCat = catList.filter(s => playerStats[s] !== undefined);
-    if (fromCat.length > 0) return fromCat;
-  }
-
-  return getWhiteStatKeys(playerRole);
+  return detected;
 }
