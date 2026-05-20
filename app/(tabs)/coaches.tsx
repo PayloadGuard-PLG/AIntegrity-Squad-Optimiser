@@ -4,7 +4,6 @@ import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats, CATEGORY_STATS, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
-import { estimateTalentFromGain } from '../../src/engine/engineMath';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -60,7 +59,6 @@ export default function CoachesScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
-  const [talentEstimate, setTalentEstimate] = useState<{ tier: string; fromStat: string; confidence: 'high' | 'low' } | null>(null);
   // Gain ranges captured directly from the game's coach preview (+lo-hi per stat).
   // When present, projection uses (lo+hi)/2 directly instead of the XP formula.
   const [scannedGainRanges, setScannedGainRanges] = useState<Record<string, { lo: number; hi: number }>>({});
@@ -216,34 +214,6 @@ export default function CoachesScreen() {
 
       setScannedStats(statNames);
 
-      // Talent back-calculation from observed gain ranges
-      if (player && Object.keys(gainRanges).length > 0) {
-        const sessionCount = (scan.multiplier ?? parseInt(sessions, 10)) || 1;
-        // Prefer white stats with no near-cap values for clearest signal
-        const statNameSet = new Set(statNames);
-        const gainCandidates = Object.entries(gainRanges)
-          .filter(([s, g]) => statNameSet.has(s) && isWhiteStat(player!.role, s) && g.statBefore < (profile.statCap ?? 450) - 20)
-          .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
-        // Fall back to any stat in the session if no white stat has gains
-        const candidates = gainCandidates.length > 0 ? gainCandidates
-          : Object.entries(gainRanges).filter(([s, g]) => statNameSet.has(s) && g.statBefore < (profile.statCap ?? 450) - 20)
-              .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
-        if (candidates.length > 0) {
-          const [bestStat, { lo, hi, statBefore }] = candidates[0];
-          const gainMid = (lo + hi) / 2;
-          const est = estimateTalentFromGain({
-            statBefore, gainMid,
-            sessions: sessionCount,
-            statNames,
-            age: player!.age,
-            isWhite: isWhiteStat(player!.role, bestStat),
-            twoxAd: false,
-            drillLevelMult: 1.0,
-          });
-          if (__DEV__) console.log('[TALENT EST]', est.bestTier, est.confidence, est.candidateScores);
-          setTalentEstimate({ tier: est.bestTier, fromStat: bestStat, confidence: est.confidence });
-        }
-      }
 
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
@@ -269,9 +239,7 @@ export default function CoachesScreen() {
 
     const drillMult = 1.0;
     const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    // Effective talent: use back-calculated estimate if available, fall back to stored value.
-    // Unknown talent falls back to Normal (1.0) — matches TALENT_MULTS fallback in engineMath.
-    const projTalent: TalentTier = (talentEstimate?.tier as TalentTier) ?? (player.talent === 'Unknown' ? 'Normal' : player.talent);
+    const projTalent: TalentTier = 'Normal';
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
@@ -449,27 +417,16 @@ export default function CoachesScreen() {
                 </View>
               </View>
 
-              {/* Talent — stored value with scan-estimated override shown when available */}
-              {(() => {
-                const displayTier = (talentEstimate?.tier as TalentTier) ?? player.talent;
-                const isEstimated = !!talentEstimate;
-                const isUnknown = player.talent === 'Unknown' && !talentEstimate;
-                const displayLabel = TALENT_LABEL[displayTier] ?? displayTier;
-                const borderCol = isUnknown ? theme.hot : isEstimated ? theme.pos : theme.steelLight;
-                const textCol = isUnknown ? theme.hot : isEstimated ? theme.pos : theme.steelLight;
-                const subLabel = isUnknown ? 'SCAN TO ESTIMATE' : isEstimated ? `EST · ${talentEstimate.fromStat}${talentEstimate.confidence === 'low' ? '?' : ''}` : 'FROM CARD';
-                return (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                    <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
-                    <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: borderCol }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: textCol }}>
-                        {isUnknown ? 'UNKNOWN' : displayLabel}
-                      </Text>
-                    </View>
-                    <MonoLabel size={8} color={textCol}>{subLabel}</MonoLabel>
-                  </View>
-                );
-              })()}
+              {/* Talent — informational display from player card */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
+                    {TALENT_LABEL[player.talent as TalentTier] ?? player.talent}
+                  </Text>
+                </View>
+                <MonoLabel size={8} color={theme.steelLight}>FROM CARD</MonoLabel>
+              </View>
 
               {/* Scan button lives here — separate from PROJECT */}
               <Pressable onPress={scanCoach} disabled={isScanning}
