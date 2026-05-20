@@ -292,7 +292,11 @@ export default function CoachesScreen() {
     }
 
     const ovrBefore = computeOvrFromStats(player, profile);
-    const ovrAfter = computeOvrWithPadding(postCoachStats, player.overall, profile);
+    // Projected OVR uses raw sum/15 (no floor) so fractional progress is visible to 0.1.
+    // ovrBefore stays floored to match the game's displayed integer OVR.
+    const projSum = Object.values(postCoachStats).reduce((a, b) => a + b, 0)
+      + player.overall * Math.max(0, profile.totalAttributeCount - Object.keys(postCoachStats).length);
+    const ovrAfter = Number((projSum / profile.totalAttributeCount).toFixed(1));
     setResult({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)), postCoachStats });
     setSaveConfirmed(false);
     if (!scanStatus.startsWith('SCANNED')) {
