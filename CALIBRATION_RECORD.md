@@ -9,17 +9,17 @@ Nothing in here is dressed up. If it's assumed, it says so.
 
 Training gain for any player is determined by two things only:
 
-1. **How old they are** — older players gain less per session
+1. **How old they are** — older players gain less per session, lose more per season
 2. **How high their stats already are** — higher stats cost exponentially more XP per point
 
-That's it. Every confirmed calibration point fits this model with a single talent
-multiplier of 1.0 (Normal) for all players. No separate Fast/Slow/Fastest modifier
-has ever been confirmed from real game data.
+Young players train fast and lose slowly. Old players train slowly and lose quickly.
+That is the entire model. There is no talent variable. The game does not apply a
+separate per-player training rate multiplier — it uses per-star-step cost curves,
+which the exponential formula already captures.
 
-The "talent" label in the game likely affects aging rate and development ceiling
-across seasons — not per-session training rate. Grey stats drop 20 per season flat
-for all players. Older players can't regain them as efficiently because of the age
-multiplier, not because of any talent tier.
+The "talent" label exists in the game as a player development descriptor. It has no
+confirmed effect on per-session training rate. It is stored in the DB for reference
+only and is not used in any projection.
 
 ---
 
@@ -34,7 +34,7 @@ cost(stat) = C₀ × exp(stat / K)
 - C₀ = 2.94 ✅ CONFIRMED
 - K = 47 ✅ CONFIRMED
 - Derived from: Tackling-120 vs Positioning-228 gain ratio in same session, same budget.
-  ratio pins C₀ independently. K confirmed by CV minimisation across 5 Grant ×40 observations.
+  Ratio pins C₀ independently. K confirmed by CV minimisation across 5 Grant ×40 observations.
 
 ### Session Budget Per Stat
 
@@ -48,6 +48,7 @@ budget = effectiveSessions × 676 / detectedStatCount
 - sessionBudgetDecay = 0.99 ✅ CONFIRMED
   Unknown GK ×114 Extensive: predicted 172.5 OVR, actual 173. Linear model gave 182 (error +9).
 - detectedStatCount = whatever OCR detects with gain ranges. No assumed category sizes.
+  Coach name, type, and category have no bearing on this number.
 
 ### Gain Calculation
 
@@ -60,7 +61,7 @@ C₀ × K × (exp((stat + g) / K) − exp(stat / K)) = budget × ageMult × grey
 Where:
 - ageMult = from age table (see below)
 - greyMult = 1.0 for white stats, 0.22 for grey stats ✅ CONFIRMED
-- talent = 1.0 for all players (Normal — only confirmed value)
+- No talent multiplier. Locked to 1.0 for all players, always.
 
 ### OVR Formula
 
@@ -74,34 +75,43 @@ OVR = floor(sum of all 15 stats / 15)
 
 ## Age Multipliers
 
-| Age Range | Multiplier | Status |
+| Age | Multiplier | Status |
 |---|---|---|
 | 17 | 1.1 | ⚠️ ASSUMED — no data |
-| 18–20 | 1.0 | ✅ CONFIRMED — Grant age 20, multiple sessions |
-| 21–23 | 0.85 | ⚠️ ASSUMED — never empirically confirmed |
+| 18–21 | 1.0 | ✅ 18–20 CONFIRMED (Grant age 20). Age 21 extended from confirmed trend — young players train at full rate. Needs one age-21 data point to lock in. |
+| 22–23 | 0.85 | ⚠️ ASSUMED — no data. Dallas age 23 confirmed 0.85 but sits at the boundary. |
 | 24–25 | 0.72 | ✅ CONFIRMED — McCluskey age 24, Focused Physical ×4 |
 | 26–28 | 0.61 | ✅ CONFIRMED — McGinty age 27 |
 | 29 | 0.50 | ⚠️ ASSUMED — no data |
 | 30+ | 0.0 | ⚠️ ASSUMED — no data |
 
-The 21–23 bracket (0.85) is the most critical unconfirmed value. One controlled
-test with a known age-21 or age-22 player would confirm or correct it.
+The most critical unconfirmed values are 22–23 (0.85) and the exact boundary where
+the drop from 1.0 begins. One controlled test with a known age-22 player would pin it.
+
+Note: Dallas (age 23) confirmed 0.85 — so the taper does exist by 23. The question
+is whether 21 and 22 are still at 1.0 or already reduced. Current assumption: 21 = 1.0.
 
 ---
 
-## Talent Multipliers
+## Talent Multipliers — REMOVED FROM FORMULA
 
-| Tier | Multiplier | Status |
-|---|---|---|
-| Normal | 1.0 | ✅ CONFIRMED — Grant, Rogers, Dallas, McGinty, Unknown GK |
-| Slow | 0.47 | ❌ INVALIDATED — derived from linear budget model, wrong |
-| Average | 1.1 | ❌ NOT CONFIRMED — community estimate |
-| Fast | 1.25 | ❌ NOT CONFIRMED — community estimate |
-| Fastest | 1.5 | ❌ NOT CONFIRMED — community estimate |
+Talent is not a per-session training rate variable. It has been removed from all
+projection logic. The field remains in the DB as informational only.
 
-**Working assumption: all players use Normal (1.0).** Every confirmed data point fits
-Normal. No non-Normal player has ever produced a result that required a different multiplier
-under the correct (geometric) budget model.
+No talent tier has ever produced a result that required a multiplier other than 1.0
+under the correct (geometric) budget model. The game's training rate variation is
+fully explained by age and the exponential stat cost curve.
+
+---
+
+## Coach Name and Category — NOT USED IN FORMULA
+
+The coach name, type (Standard/Focused/Extensive), and category (Attacking/Defending
+etc.) have no bearing on gains. A "Training Camp" coach uses the same formula as any
+other coach — "Training Camp" is a resource cost label, not a different training mode.
+
+What determines the stat list: OCR scan ranges (+lo-hi) only. Whatever stats have
+visible gain ranges in the scan are the stats being boosted. Nothing else.
 
 ---
 
@@ -134,9 +144,9 @@ all stats − 20 per level promoted (white and grey equally)
 ~3 pts variance from training noise between screenshots). Flat model fits.
 Proportional model (20%) is wrong — would be off by 18–26 on high stats.
 
-Grey stats drop at the same rate as white stats. Older players can't regain them
-as efficiently because the age multiplier reduces training rate. This is the only
-meaningful difference between a young player and an old one in terms of stat progression.
+Old players lose stats at the same flat rate per season as young players. The
+difference is recovery rate: young players regain stats faster because ageMult is
+higher. Old players cannot recover efficiently — net loss per season grows with age.
 
 ---
 
@@ -152,7 +162,7 @@ Individual stats can exceed 180 via tier bonuses. The 180 cap is on the average.
 
 ## Confirmed Calibration Data Points
 
-### Ricky Grant — age 20, DL/ML/AML, Normal, T3/Stellar
+### Ricky Grant — age 20, DL/ML/AML, T3/Stellar
 ×40 Standard Defending:
 - TACKLING 120 (white): +59–73 actual, engine: ~60 ✓
 - MARKING 167 (white): within range ✓
@@ -162,23 +172,23 @@ Individual stats can exceed 180 via tier bonuses. The 180 cap is on the average.
 
 T2→T3 tier upgrade: sum=2615, floor(2615/15)=174 ✓ (confirmed OVR formula)
 
-### Cptn Dallas — age 23, AMR/MR/DR, Normal, T0
+### Cptn Dallas — age 23, AMR/MR/DR, T0
 ×4 Safeguard:
 - MARKING 139 (white): actual +11–16, engine: within range ✓
 - POSITIONING 194 (white): actual +4–6, engine: within range ✓
 - AGGRESSION 189 (white): actual +4–6, engine: within range ✓
-(Confirmed ageMult 0.85 for age 23 and bXPS=676)
+Confirmed ageMult 0.85 for age 23 and bXPS=676.
 
-### Kevin McGinty — age 27, AMC, Normal, T0
+### Kevin McGinty — age 27, AMC, T0
 Controlled Extensive Safeguard test. Confirmed ageMult=0.61 for age 26–28.
 
-### Garry McCluskey — age 24, Normal
+### Garry McCluskey — age 24
 Focused Physical ×4. Fitness 213 → engine +3.5, actual +2–3. Confirmed ageMult=0.72.
 
-### Unknown GK — age 18, Normal, T0/T1
+### Unknown GK — age 18, T0/T1
 ×114 Extensive GK: predicted 172.5 OVR, actual 173 OVR. Error −0.5 (<1%).
 Confirmed sessionBudgetDecay=0.99 and geometric budget model.
-(Note: this is NOT LJDark Leo — different player, identity not captured at time of test)
+(Not LJDark Leo — different player, identity not captured at time of test)
 
 ---
 
@@ -186,16 +196,15 @@ Confirmed sessionBudgetDecay=0.99 and geometric budget model.
 
 ### Coach Projection
 
-1. Player stats and age loaded from DB
+1. Player stats and age loaded from DB — stats must be current or projection is off
 2. Coach scan: OCR detects gain ranges (+lo-hi) for highlighted stats
-3. Detected stats = what OCR sees. No category-size assumptions.
+3. Detected stats = what OCR sees. Coach name and category ignored entirely.
 4. `effectiveSessions = (1 - 0.99^N) / 0.01`
 5. `budget = effectiveSessions × 676 / detectedStatCount`
 6. For each detected stat:
    - Determine white or grey (from player roles)
    - `greyMult = isWhite ? 1.0 : 0.22`
    - `ageMult` from age table
-   - `talentMult = 1.0` (Normal, all players)
    - Solve integral for gain g
    - `newStat = min(currentStat + g, statCap)`
 7. `ovrAfter = sum(all 15 stats after gains) / 15` (to 1 decimal for display)
@@ -203,13 +212,12 @@ Confirmed sessionBudgetDecay=0.99 and geometric budget model.
 
 ### What the Coach Scan Provides
 
-- Which stats are being boosted (from visible gain ranges)
+- Which stats are being boosted (from visible gain ranges only)
 - Session multiplier N
-- Coach type/category (informational, not used in formula)
 
 The game's displayed gain ranges (+lo-hi) are validation only — not formula input.
 If the projection lands inside the game's range, the formula holds.
-If it doesn't, something in the calibration needs updating.
+If it doesn't, check: are the DB stats current?
 
 ### What Determines Gain
 
@@ -218,27 +226,26 @@ Only three things:
 2. Player age (determines efficiency via age multiplier)
 3. Number of sessions × budget decay (determines total XP available)
 
-Talent tier does not affect the projection. The DB field exists for future use.
-
 ---
 
-## What Was Invalidated and Why
+## What Was Removed and Why
 
-| Thing | Value | Why Invalidated |
-|---|---|---|
-| Slow talent | 0.47 | Back-calculated using linear session budget. Under geometric (0.99) model, same player fits Normal (1.0). |
-| bXPS | 150 → 220 | Previous values calibrated against wrong cost model. 676 confirmed under exponential cost + geometric budget. |
-| OVR ceil | Math.ceil | 4 data points looked like ceil due to fractional training accumulation. Clean integer-only tier upgrade decisively showed floor. |
-| Category size divisor | /5 or /11 | Assumed all coaches boost full category. Training Camp and Focused coaches proved this wrong. Use detected count. |
-| Standard/Extensive full-category override | coachPipeline.ts | Same reason — assumed OCR misses = full category. Removed. Trust what OCR detects. |
-| Talent estimator from scan ranges | estimateTalentFromGain in coaches.tsx | Circular: used game's own projected ranges to back-calculate a multiplier, then re-derived the game's answer. Not a real prediction. Removed from coach flow. |
+| Thing | Why Removed |
+|---|---|
+| Talent multiplier | Not a real variable. Age + stat cost curve explains all observed training rate variation. No non-1.0 multiplier confirmed from any real data point. |
+| Talent estimator (estimateTalentFromGain) | Circular: used the game's own projected ranges to back-calculate a multiplier, then re-derived the game's answer. Removed from coach flow. |
+| Coach category stat filtering | Coach name/category has no bearing on which stats are boosted. OCR detects what's highlighted. Nothing else applies. |
+| Standard/Extensive full-category override | Same reason — assumed OCR misses = full category. Wrong. Trust what OCR detects. |
+| bXPS 150 → 220 | Calibrated against wrong cost model. 676 confirmed under exponential cost + geometric budget. |
+| OVR ceil | 4 data points looked like ceil due to fractional training accumulation. Clean integer-only tier upgrade decisively showed floor. |
+| Slow talent 0.47 | Derived from linear session budget model. Under geometric model, same data fits Normal (1.0). |
 
 ---
 
 ## Outstanding — Needs Real Data
 
-1. **Age 21–23 bracket (0.85)** — one controlled test with a known-age player in this range
-2. **Grey stat seasonal decay for older players** — does a 31-year-old lose more than 20 per season, or just struggle to regain?
-3. **Drill XP factor** — drillXpFactor=0.3 is provisional. Needs before/after drill-only session
-4. **Non-Normal talent tiers** — hypothesis is they don't affect training rate. To confirm: two players same age same stats different talent labels, same coach, compare gains
-5. **Training Camp budget formula** — distinct from regular coaching. Do not use Training Camp scans for formula calibration.
+1. **Age 21 bracket** — extended to 1.0 based on observed data trend. One clean test with a known age-21 player and current DB stats to confirm.
+2. **Age 22–23 boundary** — 0.85 assumed. Dallas (23) confirms 0.85 exists by age 23. Does it start at 22 or 23?
+3. **Drill XP factor** — drillXpFactor=0.3 is provisional. Needs before/after drill-only session.
+4. **Grey stat recovery rate for older players** — flat seasonal loss is confirmed. Recovery rate (ageMult × greyMult) is the model — no separate data point yet.
+5. **DB stat freshness** — projection accuracy depends entirely on DB stats matching the player's current in-game stats. A stale scan will give wrong results. Rescan the player card before projecting after any training or season.

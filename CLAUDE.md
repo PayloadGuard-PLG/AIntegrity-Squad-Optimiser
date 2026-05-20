@@ -19,18 +19,14 @@ backing a value, it is ASSUMED and must be labelled as such.
 | baseXpPerSession | 676 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (all 5 stats within game range) |
 | greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
 | sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
-| talentMultipliers.Normal | 1.0 | ✅ Confirmed | Grant + Rogers both Normal — projection matches across multiple sessions |
-| talentMultipliers.Slow | 0.47 | ❌ INVALIDATED | Derived from LJDark Leo ×114 using linear budget. With geometric budget, LJDark Leo is consistent with Normal (1.0). No confirmed Slow data point. |
-| talentMultipliers.Average | 1.1 | ❌ NOT confirmed | Community baseline. No empirical game data. |
-| talentMultipliers.Fast | 1.25 | ❌ NOT confirmed | Community baseline. No empirical game data. |
-| talentMultipliers.Fastest | 1.5 | ❌ NOT confirmed | Community baseline. No empirical game data. |
-| ageTable 18–20 | 1.0 | ✅ Confirmed | Grant age 20 projection matches game output |
-| ageTable 26–28 | 0.61 | ✅ Confirmed | McGinty age 27 identified and matched |
-| ageTable 21–23 | 0.85 | ❌ NOT confirmed | Assumed. No empirical data for this bracket. |
-| ageTable 24–25 | 0.72 | ✅ Confirmed | Garry McCluskey age 24: Focused Physical ×4 Drill Session Reward Coach, Fitness 213 → engine +3.5 vs actual +2-3. ageMult=0.72 validated. (Creativity slightly underpredicts — likely talent is above Normal.) |
-| ageTable 17 | 1.1 | ❌ NOT confirmed | Assumed. No 17-year-old calibration player. |
-| ageTable 29 | 0.50 | ❌ NOT confirmed | Assumed. |
-| ageTable 30 | 0.00 | ❌ NOT confirmed | Assumed. |
+| talentMultipliers | REMOVED | ✅ Not a formula variable | Talent has no confirmed effect on per-session training rate. Age + stat cost curve explains all observed variation. Locked to 1.0 for all players. DB field is informational only. |
+| ageTable 18–21 | 1.0 | ✅ 18–20 confirmed (Grant). 21 extended from trend — young players train at full rate. ⚠️ Age 21 needs one clean data point to lock. |
+| ageTable 22–23 | 0.85 | ⚠️ ASSUMED. Dallas age 23 confirms 0.85 exists by 23. Boundary (22 vs 23) unknown. |
+| ageTable 24–25 | 0.72 | ✅ Confirmed | McCluskey age 24, Focused Physical ×4, Fitness 213 → engine +3.5 vs actual +2–3. |
+| ageTable 26–28 | 0.61 | ✅ Confirmed | McGinty age 27. |
+| ageTable 17 | 1.1 | ⚠️ ASSUMED — no data. |
+| ageTable 29 | 0.50 | ⚠️ ASSUMED — no data. |
+| ageTable 30 | 0.00 | ⚠️ ASSUMED — no data. |
 | OVR formula | floor(sum/15) | ✅ Confirmed | Grant T2→T3: sum=2615, floor(2615/15)=174 ✓; sum=2355, floor=157.0 ✓ |
 | tierAttrAdditions T2→T3 | +20/white | ✅ Confirmed | Grant T2→T3 immediate before/after: every white stat +20 exactly, grey stats +0 |
 | tierAttrAdditions | T0-T6 values | ✅ Confirmed | Full table verified from tier upgrade screenshots |
@@ -1046,10 +1042,7 @@ is within range.
 
 3. **Confirm King Alfie talent** — same: screenshot edit screen for Fastest/Fast/Average/Normal/Slow.
 
-4. **Training Camp is NOT modelled** — King Alfie's ×20 Standard Attacking session was a
-   "TRAINING CAMP" session type. The game boosted only 3/5 ATK stats (Dribbling, Crossing,
-   Finishing) with unknown budget formula. Engine now detects Training Camp and shows a warning
-   instead of a bad projection. Do NOT use Training Camp scans for formula calibration.
+4. **Training Camp is just a label** — same formula as all other coaches. Stats boosted = whatever OCR detects with visible ranges. No special handling needed.
 
 5. **Run Brandon Prentice's Reward Coach ×4** — screenshot before/after player card.
    Compare actual gains vs +15.4 MARKING / +15.1 POSITIONING / +11.6 AGGRESSION.
@@ -1111,15 +1104,11 @@ The geometric budget model is the correct structural fix. The formula now projec
 
 ---
 
-## Training Camp Session Type
+## Training Camp
 
-Training Camp is a distinct game mode (shows "TRAINING CAMP" label in the game UI). Key differences
-from regular coaching sessions observed so far:
-
-- Only a subset of the category's stats are boosted (3/5 ATK stats for King Alfie ×20)
-- Budget formula unknown — cannot be back-calculated without knowing talent
-- Engine now detects "TRAINING CAMP" text and declines to project, showing a UI warning
-
-Do NOT attempt to fit Training Camp data to the coaching XP engine formula.
+"Training Camp" is a resource cost label — it is not a distinct coaching formula.
+All coaches use the same XP budget and the same gain formula regardless of what
+the game calls them. The stats boosted are determined solely by which stats have
+visible +lo-hi ranges in the OCR scan. Coach name and category are irrelevant.
 
 See `RESEARCH_PROMPT.md` for the full issue list with back-calculation formulas.
