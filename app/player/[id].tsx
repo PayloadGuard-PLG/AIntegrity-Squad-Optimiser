@@ -16,8 +16,8 @@ import { GameProfile } from '../../src/types/resources';
 const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow' };
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow', Unknown: 'Unknown' };
 const TALENT_INFO = 'Training rate — how quickly this player gains stats per session. Detected automatically from player card scan.';
 
 const ROLE_GRID = [
@@ -47,7 +47,7 @@ export default function EditPlayerScreen() {
   const [age, setAge] = useState('18');
   const [overall, setOverall] = useState('100');
   const [tier, setTier] = useState<TierName>('T0');
-  const [talent, setTalent] = useState<TalentTier>('Normal');
+  const [talent, setTalent] = useState<TalentTier>('Unknown');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
@@ -72,7 +72,7 @@ export default function EditPlayerScreen() {
     setAge(p.age.toString());
     setOverall(p.overall.toString());
     setTier(p.tier);
-    setTalent(p.talent ?? 'Normal');
+    setTalent(p.talent ?? 'Unknown');
     setMutant(p.isMutantCandidate);
     setSnapshot(p.snapshot ?? null);
     if (p.stats && Object.keys(p.stats).length > 0) {

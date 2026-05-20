@@ -28,6 +28,7 @@ export const CATEGORY_STATS: Record<string, string[]> = {
 // Training Camps distribute XP differently from regular coaching sessions (fewer stats boosted,
 // unknown budget formula). The engine cannot project them — show a UI warning instead.
 export const TRAINING_CAMP_SENTINEL = '__TRAINING_CAMP__';
+export const ALL_ROUND_SENTINEL = '__ALL_ROUND__';
 
 export function resolveCoachStats(
   scan: CoachScanResult,
@@ -35,6 +36,7 @@ export function resolveCoachStats(
   playerRole: string[],
 ): string[] {
   if (scan.isTrainingCamp) return [TRAINING_CAMP_SENTINEL];
+  if (scan.isAllRound) return [ALL_ROUND_SENTINEL];
   const catList = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : null;
   const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
 

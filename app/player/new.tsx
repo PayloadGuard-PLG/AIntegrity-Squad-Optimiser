@@ -16,8 +16,8 @@ import { GameProfile } from '../../src/types/resources';
 const profile = gameProfileJson as unknown as GameProfile;
 
 const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
-const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow' };
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow', Unknown: 'Unknown' };
 const TALENT_INFO = 'Training rate — how quickly this player gains stats per session. Detected automatically from player card scan.';
 
 const ROLE_GRID = [
@@ -48,7 +48,7 @@ export default function NewPlayerScreen() {
   const [overall, setOverall] = useState('');
   const [ovrIsAuto, setOvrIsAuto] = useState(false);
   const [tier, setTier] = useState<TierName>('T0');
-  const [talent, setTalent] = useState<TalentTier>('Normal');
+  const [talent, setTalent] = useState<TalentTier>('Unknown');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
@@ -110,7 +110,7 @@ export default function NewPlayerScreen() {
           FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
           Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
         };
-        if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Normal');
+        if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Unknown');
         if (data.roles && data.roles.length > 0) {
           setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
         }

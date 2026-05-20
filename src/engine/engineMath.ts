@@ -254,6 +254,41 @@ export function applySeasonDecay(
   return result;
 }
 
+// ─── TALENT BACK-CALCULATION ─────────────────────────────────────────────────
+// Given observed gain from a coach scan, find which talent tier best explains it.
+// Uses only the white-stat path for cleaner signal (grey multiplier adds noise).
+// bestTier = tier whose forward prediction is closest to gainMid.
+// confidence = 'high' if best score < 20% of gainMid, else 'low'.
+export function estimateTalentFromGain(params: {
+  statBefore: number;
+  gainMid: number;
+  sessions: number;
+  numStats: number;
+  age: number;
+  isWhite: boolean;
+  twoxAd: boolean;
+  drillLevelMult: number;
+}): { bestTier: string; confidence: 'high' | 'low'; candidateScores: Record<string, number> } {
+  const { statBefore, gainMid, sessions, numStats, age, isWhite, twoxAd, drillLevelMult } = params;
+  const budget = coachBudgetPerStat(sessions, numStats);
+  const tiers = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
+  const candidateScores: Record<string, number> = {};
+
+  let bestTier = 'Normal';
+  let bestScore = Infinity;
+
+  for (const tier of tiers) {
+    const mult = combinedMultiplier({ age, talent: tier, isWhite, starsGained: 0, twoxAd, drillLevelMult });
+    const predicted = statGainFromBudget(statBefore, budget, mult);
+    const score = Math.abs(predicted - gainMid);
+    candidateScores[tier] = Number(predicted.toFixed(2));
+    if (score < bestScore) { bestScore = score; bestTier = tier; }
+  }
+
+  const confidence: 'high' | 'low' = gainMid > 0 && bestScore < gainMid * 0.2 ? 'high' : 'low';
+  return { bestTier, confidence, candidateScores };
+}
+
 // ─── FULL COACHING PROJECTION ─────────────────────────────────────────────────
 // Composed pipeline for a single coaching session.
 // Input: session params + current stat values for the coached stats.
