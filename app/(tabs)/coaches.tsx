@@ -60,7 +60,6 @@ export default function CoachesScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
-  const [talentEstimate, setTalentEstimate] = useState<{ tier: string; fromStat: string; confidence: 'high' | 'low' } | null>(null);
   // Gain ranges captured directly from the game's coach preview (+lo-hi per stat).
   // When present, projection uses (lo+hi)/2 directly instead of the XP formula.
   const [scannedGainRanges, setScannedGainRanges] = useState<Record<string, { lo: number; hi: number }>>({});
@@ -216,36 +215,6 @@ export default function CoachesScreen() {
 
       setScannedStats(statNames);
 
-      // Talent back-calculation from observed gain ranges
-      if (player && Object.keys(gainRanges).length > 0) {
-        const sessionCount = (scan.multiplier ?? parseInt(sessions, 10)) || 1;
-        // Prefer white stats with no near-cap values for clearest signal
-        const statNameSet = new Set(statNames);
-        const gainCandidates = Object.entries(gainRanges)
-          .filter(([s, g]) => statNameSet.has(s) && isWhiteStat(player!.role, s) && g.statBefore < (profile.statCap ?? 450) - 20)
-          .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
-        // Fall back to any stat in the session if no white stat has gains
-        const candidates = gainCandidates.length > 0 ? gainCandidates
-          : Object.entries(gainRanges).filter(([s, g]) => statNameSet.has(s) && g.statBefore < (profile.statCap ?? 450) - 20)
-              .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
-        if (candidates.length > 0) {
-          const [bestStat, { lo, hi, statBefore }] = candidates[0];
-          const gainMid = (lo + hi) / 2;
-          const categorySize = scan.coachCategory === 'GK' ? 11 : 5;
-          const est = estimateTalentFromGain({
-            statBefore, gainMid,
-            sessions: sessionCount,
-            statNames,
-            categorySize,
-            age: player!.age,
-            isWhite: isWhiteStat(player!.role, bestStat),
-            twoxAd: false,
-            drillLevelMult: 1.0,
-          });
-          if (__DEV__) console.log('[TALENT EST]', est.bestTier, est.confidence, est.candidateScores);
-          setTalentEstimate({ tier: est.bestTier, fromStat: bestStat, confidence: est.confidence });
-        }
-      }
 
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
@@ -271,11 +240,7 @@ export default function CoachesScreen() {
 
     const drillMult = 1.0;
     const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    if (!talentEstimate) {
-      setScanStatus('SCAN A COACH — talent needed to project');
-      return;
-    }
-    const projTalent: TalentTier = talentEstimate.tier as TalentTier;
+    const projTalent: TalentTier = 'Normal';
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
