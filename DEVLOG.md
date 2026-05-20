@@ -47,7 +47,7 @@ Focused Physical ×4 Reward Coach result: game shows FITNESS +3–4, CREATIVITY 
 
 K=47 was calibrated from stat range 90–260. At stat=330 (T6), the exponential cost is 87× higher than at stat=120. Implied K≈76 from this data point. K=47 remains unchanged in the engine — one player, one session is not enough to commit to a new constant. Documented in Outstanding (CALIBRATION_RECORD.md item 6).
 
-*Action required:* Rescan Neri's player card in the app — DB still holds the old stale values.
+Player full name confirmed: **Nerimala** (not "Neri" / "G Neri"). Training Rate = **Normal ✅** confirmed from Edit Player screen (screenshot 53d01ca8). 15 stats rescanned — DB is now current (app OVR 272 = floor(4093/15) ✓). No rescan needed.
 
 **Focused-coach cross-column gain bleed fix (`src/logic/coachScanner.ts`)**
 
@@ -64,15 +64,14 @@ Fix: added `CATEGORY_STAT_SETS` filter in the primary detection loop for Focused
 | `src/logic/coachScanner.ts` | `CATEGORY_STAT_SETS` filter in primary loop for Focused coaches |
 | `profiles/game_2025.json` | `talentMultipliers.Slow`: 0.47 → 0.70 |
 | `profiles/calibration_data.json` | `ljdark_leo` → `jables_jaseysboi`; add `gillespie`; add `neri`; invalidate Slow 0.47 analysis |
-| `profiles/player_seeds.json` | Jables JaseysBoi (rename + talent note); Neri confirmed stats (age 28, all 15 current) |
+| `profiles/player_seeds.json` | Jables JaseysBoi (rename + talent note); Nerimala confirmed stats (age 28, all 15 current, talent Normal ✅) |
 | `CALIBRATION_RECORD.md` | Jables identity, Gillespie note, K=47 high-stat failure, Slow talent status |
 
 ### Open / Next Sprint
 
-- **Rescan Neri in app** — DB still stale. Projections for Neri are wrong until player card is rescanned.
-- **K=47 at T5+/T6** — implied K≈76 from Neri at stat=330. Need 2+ more data points in the 260–330 range before changing the engine constant. Any T5+ player with a regular (non-Focused) coach scan in that stat range qualifies.
-- **Jables talent from edit screen** — DB says Slow; formula-confirmed at 1.0 rate. True talent label (from Personal Trainer tab) still not captured. Doesn't affect projections but worth confirming for the record.
-- King Alfie talent still Unknown — screenshot edit screen for Fastest/Fast/Average/Normal/Slow.
+- **K=47 at T5+/T6** — implied K≈76 from Nerimala at stat=330. Need 2+ more data points in the 260–330 range before changing the engine constant. Any T5+ player with a regular (non-Focused) coach scan in that stat range qualifies.
+- **Jables talent from edit screen** — DB says Slow; formula-confirmed at 1.0 rate. True talent label (from Personal Trainer tab / Training Rate field) still not captured from a screenshot. Doesn't affect projections but closes the record.
+- King Alfie talent still Unknown — screenshot edit screen for Training Rate label.
 
 ---
 
