@@ -74,6 +74,15 @@ export default function CoachesScreen() {
     setCoachHistory(player ? coachHistoryService.getForPlayer(player.id) : []);
   }, [player?.id]);
 
+  // Auto-re-project when session count changes (if stats already scanned)
+  useEffect(() => {
+    if (!player || scannedStats.length === 0) return;
+    const n = parseInt(sessions, 10);
+    if (n > 0) runProjection();
+    else setResult(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessions]);
+
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const allStats = useMemo(() => {
@@ -92,7 +101,6 @@ export default function CoachesScreen() {
     setResult(null);
     setSaveConfirmed(false);
     setScanStatus('');
-    setTalentEstimate(null);
     setScannedGainRanges({});
   }, [manager]);
 
@@ -239,7 +247,7 @@ export default function CoachesScreen() {
 
     const drillMult = 1.0;
     const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    const projTalent: TalentTier = 'Normal';
+    const projTalent: TalentTier = (player.talent === 'Unknown' || !player.talent) ? 'Normal' : player.talent as TalentTier;
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
@@ -409,7 +417,7 @@ export default function CoachesScreen() {
                   <TextInput
                     keyboardType="numeric"
                     value={sessions}
-                    onChangeText={v => { setSessions(v.replace(/[^0-9]/g, '')); setResult(null); }}
+                    onChangeText={v => setSessions(v.replace(/[^0-9]/g, ''))}
                     placeholder="—"
                     placeholderTextColor={theme.inkGhost}
                     style={{ fontFamily: theme.mono, fontSize: 22, fontWeight: '700', color: theme.ink, padding: 10, textAlign: 'center' }}
