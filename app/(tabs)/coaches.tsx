@@ -224,7 +224,7 @@ export default function CoachesScreen() {
 
       // Talent back-calculation from observed gain ranges
       if (player && Object.keys(gainRanges).length > 0) {
-        const sessionCount = scan.multiplier ?? parseInt(sessions, 10) || 1;
+        const sessionCount = (scan.multiplier ?? parseInt(sessions, 10)) || 1;
         const numStats = statNames.length || 1;
         // Prefer white stats with no near-cap values for clearest signal
         const gainCandidates = Object.entries(gainRanges)
