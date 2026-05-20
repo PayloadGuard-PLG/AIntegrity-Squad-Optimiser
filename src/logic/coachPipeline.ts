@@ -35,32 +35,19 @@ export function resolveCoachStats(
   playerStats: Record<string, number>,
   playerRole: string[],
 ): string[] {
-  if (scan.isTrainingCamp) return [TRAINING_CAMP_SENTINEL];
   if (scan.isAllRound) return [ALL_ROUND_SENTINEL];
   const catList = scan.coachCategory ? (CATEGORY_STATS[scan.coachCategory] ?? []) : null;
   const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
 
   if (detected.length > 0) {
     if (catList) {
-      // Standard/Extensive always boost ALL category stats. Arrow icons (↑) are not OCR-readable,
-      // so the scan may only detect a subset — that is an OCR limitation, not evidence that fewer
-      // stats are being coached. Always use the full category list for these coach types so the
-      // budget is divided correctly and cross-column false-positives (e.g. PHY stat detected in
-      // a DEF scan) are excluded.
-      // Exception: Reward Coaches use the Standard/Extensive label but only boost specific
-      // cross-category stats — trust what OCR detected instead of forcing the full category list.
-      if (!scan.isRewardCoach && (scan.coachType === 'Standard' || scan.coachType === 'Extensive')) {
-        const fromCat = catList.filter(s => playerStats[s] !== undefined);
-        if (fromCat.length > 0) return fromCat;
-      }
-
       const inCat  = detected.filter(n =>  catList.includes(n));
       const outCat = detected.filter(n => !catList.includes(n));
       // Contamination: more out-of-category than in-category → cross-column OCR leakage
       if (outCat.length >= inCat.length && inCat.length > 0) return inCat;
-      return detected;  // clean focused scan or unknown type
+      return detected;
     }
-    return detected;  // category unknown — use all detected
+    return detected;
   }
 
   // No stat rows found — use category header as fallback

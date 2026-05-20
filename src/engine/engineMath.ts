@@ -122,21 +122,10 @@ export function combinedMultiplier(params: {
   return am * tm * gm * sm * ad * drillLevelMult;
 }
 
-// GK-exclusive stats — any session containing one of these uses categorySize=11.
-// All outfield sessions use categorySize=5. The game does NOT redistribute XP from
-// stats that a Focused or Reward coach doesn't target — the budget per targeted stat
-// is always effectiveSessions × BASE_XPS / categorySize, regardless of how many stats
-// are selected. Focused/Reward coaches simply discard the unselected shares.
-const GK_EXCLUSIVE_STATS = new Set([
-  'REFLEXES', 'AGILITY', 'ANTICIPATION', 'RUSHING OUT',
-  'COMMUNICATION', 'THROWING', 'KICKING', 'PUNCHING', 'AERIAL REACH',
-]);
-
 // ─── STAGE 4a: COACHING BUDGET ───────────────────────────────────────────────
 // XP available per stat for a coaching session.
-// budget = effectiveSessions × BASE_XPS / categorySize
-// categorySize = 11 (GK) or 5 (outfield) — ALWAYS fixed, regardless of how many
-// stats the coach targets. Focused/Reward coaches do not concentrate XP.
+// budget = effectiveSessions × BASE_XPS / detectedStatCount
+// detectedStatCount is whatever the scanner found with gain ranges — no assumed category sizes.
 // Tune: update baseXpPerSession or sessionBudgetDecay in game_2025.json.
 // Each successive session delivers SESSION_BUDGET_DECAY × the previous session's XP.
 // effectiveSessions = (1 - decay^N) / (1 - decay) — plateaus at 1/(1-decay) for large N.
@@ -147,9 +136,7 @@ export function coachBudgetPerStat(sessions: number, selectedStats: string[]): n
   const effectiveSessions = (decay >= 1.0 || sessions <= 0)
     ? sessions
     : (1 - Math.pow(decay, sessions)) / (1 - decay);
-  const isGK = selectedStats.some(s => GK_EXCLUSIVE_STATS.has(s.toUpperCase()));
-  const categorySize = isGK ? 11 : 5;
-  return (effectiveSessions * BASE_XPS) / categorySize;
+  return (effectiveSessions * BASE_XPS) / selectedStats.length;
 }
 
 // ─── STAGE 4b: DRILL BUDGET ──────────────────────────────────────────────────
