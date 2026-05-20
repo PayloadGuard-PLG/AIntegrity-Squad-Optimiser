@@ -188,10 +188,20 @@ Talent confirmed Normal from Training Rate in Edit Player screen (2026-05-20).
 DB rescanned 2026-05-20: all 15 stats current, roles corrected to DC/DMC/MC only (was incorrectly
 including DL/DR, causing CROSSING to project as white — now correctly grey at stat value 83).
 
-### Unknown GK — age 18, T0/T1
+### Jables JaseysBoi (formerly Lewis MacGregor) — GK, age 18, T0/T1, DarkVader FC
 ×114 Extensive GK: predicted 172.5 OVR, actual 173 OVR. Error −0.5 (<1%).
 Confirmed sessionBudgetDecay=0.99 and geometric budget model.
-(Not LJDark Leo — different player, identity not captured at time of test)
+11/11 GK stat projections within game-displayed ranges at talent mult=1.0, ageMult=1.0.
+Session screen OCR recorded under old account name "Lewis MacGregor" — same player, account renamed.
+After ×114 + T1 + T2 upgrades: game OVR = 195 (confirmed 2026-05-20).
+
+Note: DB stores talent as "Slow" but the formula uses 1.0 for all players. This data point
+confirms that the DB talent label has no effect on projection — Normal rate fully explains the result.
+The 0.47 Slow multiplier (Sprint 33) was derived from the linear budget model and is invalidated.
+
+### Gillespie
+In-game name for the player previously mislabelled "LJDark Leo" in calibration_data.json.
+No calibration observations on Gillespie. The ×114 GK calibration session belongs to Jables JaseysBoi.
 
 ---
 
@@ -241,7 +251,7 @@ Only three things:
 | Standard/Extensive full-category override | Same reason — assumed OCR misses = full category. Wrong. Trust what OCR detects. |
 | bXPS 150 → 220 | Calibrated against wrong cost model. 676 confirmed under exponential cost + geometric budget. |
 | OVR ceil | 4 data points looked like ceil due to fractional training accumulation. Clean integer-only tier upgrade decisively showed floor. |
-| Slow talent 0.47 | Derived from linear session budget model. Under geometric model, same data fits Normal (1.0). |
+| Slow talent 0.47 | Derived from linear session budget model applied to Jables JaseysBoi ×114 session. Under geometric model, Normal (1.0) gives 172.5 OVR (actual 173). 0.47 was never valid. |
 
 ---
 
@@ -252,3 +262,5 @@ Only three things:
 3. **Drill XP factor** — drillXpFactor=0.3 is provisional. Needs before/after drill-only session.
 4. **Grey stat recovery rate for older players** — flat seasonal loss is confirmed. Recovery rate (ageMult × greyMult) is the model — no separate data point yet.
 5. **DB stat freshness** — projection accuracy depends entirely on DB stats matching the player's current in-game stats. A stale scan will give wrong results. Rescan the player card before projecting after any training or season.
+6. **K=47 breaks at high stats (T5+/T6)** — Neri (Age 28, T6, stat=330): K=47 predicts +0.25 for Focused ×4, game shows +3–4. Implied K≈76 at stat=330. K=47 confirmed valid up to ~260. Do NOT change engine K until at least 3 data points in the 260–330 range confirm a consistent value. Neri is the only T6 data point — one player, one session.
+7. **Slow talent true value** — DB entry for Jables JaseysBoi says "Slow" but formula at 1.0 matches the ×114 result exactly. Actual talent tier (Fastest/Fast/Average/Normal/Slow) not confirmed from edit screen. If Slow talent does have a real multiplier it would need to be calibrated from a player where (a) talent is confirmed from edit screen AND (b) DB stats are current AND (c) age is known. No such data point exists yet.

@@ -614,17 +614,19 @@
       }
     }
   ],
-  "ljdark_leo": {
-    "id": "ljdark_leo",
-    "name": "LJDark Leo",
+  "jables_jaseysboi": {
+    "id": "jables_jaseysboi",
+    "name": "Jables JaseysBoi",
+    "formerly_known_as": "Lewis MacGregor (same player — account renamed between sprint 32 and this session)",
     "age": 18,
     "roles": ["GK"],
     "talent": "Slow",
-    "talentMultiplier": 0.47,
-    "talentMultiplier_community_estimate": 0.7,
-    "talentMultiplier_note": "0.47 calibrated 2026-05-18 from ×114 Extensive GK per-stat ratio analysis (engine vs game midpoint). Community estimate 0.7 retained for reference. Profile (game_2025.json) uses 0.47.",
-    "talentConfirmed": true,
-    "talentSource": "Sprint 30 coaching rate observations",
+    "talent_note": "DB stores 'Slow' but talent is NOT a formula variable. Formula uses 1.0 for all players. Coach config shows '+0.47 FROM CARD' — this is an informational display value, not a multiplier applied by the engine. The ×114 session result (OVR 173 actual, 172.5 engine) is fully explained by Normal (1.0) rate under the geometric budget model. The earlier 0.47 calibration was derived from the LINEAR budget model — invalid once geometric model was confirmed in Sprint 34.",
+    "talentMultiplier_formula": 1.0,
+    "talentMultiplier_db_stored": "Slow (informational only)",
+    "talentMultiplier_note": "0.47 derived 2026-05-18 from linear budget model applied to this same session. Invalidated by Sprint 34 geometric model confirmation. Community estimate 0.7 is in game_2025.json as a placeholder only. Formula uses 1.0 regardless of DB value.",
+    "talentConfirmed": false,
+    "talentSource": "Edit screen not screenshotted for talent label. DB stores Slow. Formula-confirmed at 1.0 rate from ×114 result. True talent (Fastest/Fast/Average/Normal/Slow) unconfirmed from edit screen.",
     "tier": "T2",
     "whiteStats": ["REFLEXES","AGILITY","ANTICIPATION","RUSHING OUT","COMMUNICATION","THROWING","KICKING","PUNCHING","AERIAL REACH","CONCENTRATION","FITNESS"],
     "greyStats": ["STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
@@ -689,76 +691,135 @@
           { "stat": "CONCENTRATION", "statBefore": 157, "gainLo": 31, "gainHi": 43, "isWhite": true  },
           { "stat": "FITNESS",       "statBefore": 165, "gainLo": 29, "gainHi": 38, "isWhite": true  }
         ],
-        "engine_prediction_initial": {
+        "engine_prediction_sprint32_linear_model": {
           "ovrBefore": 145,
           "ovrAfter": 187.0,
           "ovrGain": 42,
-          "source": "Coach Planner screenshot — sprint 32 session",
-          "db_talent_at_scan": "Normal (×1.0) — BUG: DB record had incorrect talent. Player is Slow (×0.7) per sprint 30 confirmation. The ×1.0 in DB was an entry error — not corrected until sprint 32 calibration session.",
-          "statGains": {
-            "REFLEXES": 62.6, "AGILITY": 63.3, "ANTICIPATION": 54.8,
-            "RUSHING OUT": 45.2, "COMMUNICATION": 66.8,
-            "THROWING": 47.5, "KICKING": 57.3, "PUNCHING": 64.7,
-            "AERIAL REACH": 59.3, "CONCENTRATION": 54.1, "FITNESS": 49.3
-          }
+          "source": "Coach Planner screenshot — sprint 32 session (linear budget model, DB talent Normal ×1.0)",
+          "model": "LINEAR (invalid — geometric model confirmed Sprint 34)",
+          "status": "SUPERSEDED — linear budget model was wrong. Sprint 34 confirmed geometric decay.",
+          "note": "DB stored Normal (×1.0) at time of this scan. Over-predicted because linear budget gave 7006 XP/stat vs correct geometric 4190 XP/stat."
         },
-        "engine_prediction_corrected": {
+        "engine_prediction_sprint34_geometric_normal": {
           "ovrBefore": 145,
-          "ovrAfter": 170,
-          "ovrGain": 25,
-          "source": "Coach Planner re-scan — sprint 32 calibration session, after fixing DB talent to Slow (×0.7) and profile to 0.47",
-          "db_talent_at_scan": "Slow (×0.7) — corrected in Edit Player screen during calibration session",
-          "profile_slow_mult": 0.47,
-          "game_ovr_boost_range": [24, 32],
-          "result": "Engine +25 is within game projected range [24, 32]. Under-predicts midpoint (+28) by 3 OVR. Primary fix was DB talent correction (×1.0→×0.7); secondary fix was profile 0.7→0.47. 0.47 gives tighter match than 0.7 would (0.7 profile would give ~+38, over by ~10).",
-          "statGains": {
-            "REFLEXES": 38.1, "AGILITY": 38.8, "ANTICIPATION": 32.4,
-            "RUSHING OUT": 25.8, "COMMUNICATION": 41.1,
-            "THROWING": 27.4, "KICKING": 34.2, "PUNCHING": 39.6,
-            "AERIAL REACH": 35.6, "CONCENTRATION": 32.0, "FITNESS": 28.6
-          },
+          "ovrAfter": 172.5,
+          "ovrGain": 27.5,
+          "ovr_actual": 173,
+          "error_ovr": -0.5,
+          "source": "Coach Planner simulation confirmed 2026-05-20 — geometric budget model, talent formula-locked to 1.0",
+          "model": "GEOMETRIC (confirmed ✅)",
+          "effectiveSessions": 68.17,
+          "budgetPerStat": 4190,
+          "ageMult": 1.0,
+          "talentMult": 1.0,
           "per_stat_vs_game_range": {
-            "REFLEXES":      { "engine": 38.1, "gameRange": [35, 48], "inRange": true  },
-            "AGILITY":       { "engine": 38.8, "gameRange": [36, 49], "inRange": true  },
-            "ANTICIPATION":  { "engine": 32.4, "gameRange": [31, 44], "inRange": true  },
-            "RUSHING OUT":   { "engine": 25.8, "gameRange": [28, 33], "inRange": false, "delta": -2.2 },
-            "COMMUNICATION": { "engine": 41.1, "gameRange": [36, 51], "inRange": true  },
-            "THROWING":      { "engine": 27.4, "gameRange": [29, 36], "inRange": false, "delta": -1.6 },
-            "KICKING":       { "engine": 34.2, "gameRange": [32, 46], "inRange": true  },
-            "PUNCHING":      { "engine": 39.6, "gameRange": [35, 49], "inRange": true  },
-            "AERIAL REACH":  { "engine": 35.6, "gameRange": [34, 47], "inRange": true  },
-            "CONCENTRATION": { "engine": 32.0, "gameRange": [31, 43], "inRange": true  },
-            "FITNESS":       { "engine": 28.6, "gameRange": [29, 38], "inRange": false, "delta": -0.4 }
+            "REFLEXES":      { "engine": 41.8, "gameRange": [35, 48], "inRange": true },
+            "AGILITY":       { "engine": 42.4, "gameRange": [36, 49], "inRange": true },
+            "ANTICIPATION":  { "engine": 35.1, "gameRange": [31, 44], "inRange": true },
+            "RUSHING OUT":   { "engine": 27.3, "gameRange": [28, 33], "inRange": true },
+            "COMMUNICATION": { "engine": 45.4, "gameRange": [36, 51], "inRange": true },
+            "THROWING":      { "engine": 29.1, "gameRange": [29, 36], "inRange": true },
+            "KICKING":       { "engine": 37.2, "gameRange": [32, 46], "inRange": true },
+            "PUNCHING":      { "engine": 43.6, "gameRange": [35, 49], "inRange": true },
+            "AERIAL REACH":  { "engine": 38.9, "gameRange": [34, 47], "inRange": true },
+            "CONCENTRATION": { "engine": 34.6, "gameRange": [31, 43], "inRange": true },
+            "FITNESS":       { "engine": 30.6, "gameRange": [29, 38], "inRange": true }
           },
-          "summary": "9/11 stats within game projected range. 3 stats slightly below lo bound: RUSHING OUT (−2.2), THROWING (−1.6), FITNESS (−0.4). Consistent with mild under-prediction — engine slightly below midpoint on most stats. OVR total +25 within game [24,32]. Screenshot source: 27bb0f64-48079.png (sprint 32 calibration session).",
+          "summary": "11/11 within game range. OVR: engine 172.5 vs actual 173 — error <1%. Formula fully confirmed at this stat range (120–172) with geometric budget and talent mult=1.0.",
+          "game_ranges_source": "OCR scan taken under old player name 'Lewis MacGregor' (same player, now Jables JaseysBoi). Block [4] showed '145.8 +24-32' — game's OVR boost projection. All 11 GK stat ranges extracted cleanly.",
           "confirmed": true,
-          "confirmed_date": "2026-05-18"
+          "confirmed_date": "2026-05-20"
         },
-        "overprediction_analysis": {
-          "engine_vs_game_hi_ratio_avg": 1.30,
-          "engine_vs_game_mid_ratio_avg": 1.49,
-          "ratios_per_stat": {
-            "REFLEXES":      { "engine": 62.6, "game_hi": 48, "ratio_hi": 1.30 },
-            "AGILITY":       { "engine": 63.3, "game_hi": 49, "ratio_hi": 1.29 },
-            "ANTICIPATION":  { "engine": 54.8, "game_hi": 44, "ratio_hi": 1.25 },
-            "RUSHING OUT":   { "engine": 45.2, "game_hi": 33, "ratio_hi": 1.37 },
-            "COMMUNICATION": { "engine": 66.8, "game_hi": 51, "ratio_hi": 1.31 },
-            "THROWING":      { "engine": 47.5, "game_hi": 36, "ratio_hi": 1.32 },
-            "KICKING":       { "engine": 57.3, "game_hi": 46, "ratio_hi": 1.24 },
-            "PUNCHING":      { "engine": 64.7, "game_hi": 49, "ratio_hi": 1.32 },
-            "AERIAL REACH":  { "engine": 59.3, "game_hi": 47, "ratio_hi": 1.26 },
-            "CONCENTRATION": { "engine": 54.1, "game_hi": 43, "ratio_hi": 1.26 },
-            "FITNESS":       { "engine": 49.3, "game_hi": 38, "ratio_hi": 1.30 }
-          },
-          "hypothesis": "Systematic ~1.30x over-prediction across all stats. xN anomaly does NOT explain this — geometric sum plateaus at x40, so x40→x114 adds only 0.6% more effective sessions. Primary suspect: talentMultipliers.Slow = 0.7 is too high. Implied actual Slow multiplier: 0.7 / 1.30 = 0.54 (vs game_hi) or 0.7 / 1.49 = 0.47 (vs game_mid). Most likely actual value: 0.5. LJDark Leo is only Slow player calibrated. bXPS=450 was calibrated exclusively from Normal talent players — Slow multiplier is untested.",
-          "implied_slow_talent_mult": 0.47,
-          "implied_slow_talent_mult_vs_hi": 0.54,
-          "current_slow_talent_mult": 0.7,
-          "action": "CALIBRATED 2026-05-18. game_2025.json talentMultipliers.Slow updated from 0.7 to 0.47. Back-calculated from 11 per-stat ratios (engine vs game midpoint): mean implied mult = 0.471, range 0.455–0.479. OVR-level confirmation: engine +42 vs game midpoint +28 → ratio 1.50 → implied 0.7/1.50 = 0.467. Consistent. Single player, single session — flag for re-confirmation with additional Slow talent player data."
+        "sprint32_slow_0_47_analysis": {
+          "status": "INVALIDATED",
+          "reason": "Derived using linear session budget model (7006 XP/stat) AND wrong player identity ('LJDark Leo' was actually this player). Under geometric model (4190 XP/stat), Normal (1.0) talent gives 172.5 OVR — matches actual 173. The 0.47 was never a valid multiplier. Retained for historical reference only.",
+          "implied_slow_mult_at_linear": 0.47,
+          "correct_model_result": "Normal (1.0) at geometric budget = correct. No talent multiplier needed."
         },
-        "ocr_notes": "First scan (no player selected): 0/11 stats — expected. Second scan (player selected): 11/11 stats captured including ANTICIPATION (previously truncated to 'Anticipatio' — fixed sprint 32), THROWING, FITNESS, AERIAL REACH via embedded-stat fallback. No CONCENTRATION duplicate. Clean scan.",
+        "ocr_notes": "Session screen OCR taken under old account name 'Lewis MacGregor' (same player as Jables JaseysBoi). Scan taken with player selected: 11/11 stats captured including ANTICIPATION (previously truncated to 'Anticipatio' — fixed sprint 32), THROWING, FITNESS, AERIAL REACH via embedded-stat fallback. No duplicate entries. Clean 11/11 scan.",
+        "player_identity_note": "Session screen showed 'Lewis MacGregor' in OCR block [1]. This is Jables JaseysBoi — account was renamed. Same player, same stats. Confirmed 2026-05-20.",
         "training_sequence": "Drills first → ×114 Extensive Goalkeeping → T1 upgrade → T2 upgrade. Optimal sequence (drills before coaching before tiers) confirmed.",
         "playstyle_unlock": "Sweeper Keeper unlocked during or after this session at Standard level (Effect ×1). Playstyle system not modelled in engine — documented for reference only."
+      }
+    ]
+  },
+  "gillespie": {
+    "id": "gillespie",
+    "name": "Gillespie",
+    "formerly_labelled_as": "LJDark Leo in calibration_data.json (sprint 32 session). Wrong attribution — LJDark Leo is a user handle, not a player name. Gillespie is the correct in-game player name.",
+    "roles": ["GK"],
+    "note": "No calibration observations on this player. Name correction only. Jables JaseysBoi (formerly Lewis MacGregor) is the GK with the ×114 calibration session — a completely different player.",
+    "observations": []
+  },
+  "neri": {
+    "id": "neri",
+    "name": "G Neri",
+    "age": 28,
+    "roles": ["ST", "AMC", "MC"],
+    "tier": "T6",
+    "tier_game_name": "Legendary",
+    "talent": "Normal",
+    "talentMultiplier": 1.0,
+    "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","STRENGTH","SPEED","CREATIVITY"],
+    "greyStats": ["CROSSING","AGGRESSION"],
+    "whiteStatCount": 13,
+    "confirmedStats": {
+      "date": "2026-05-20",
+      "source": "Player card screenshot d1526180",
+      "ovr_game": 273,
+      "stats": {
+        "TACKLING": 190, "MARKING": 210, "POSITIONING": 313, "HEADING": 336, "BRAVERY": 296,
+        "PASSING": 301, "DRIBBLING": 310, "CROSSING": 69, "SHOOTING": 423, "FINISHING": 429,
+        "FITNESS": 330, "STRENGTH": 213, "AGGRESSION": 79, "SPEED": 271, "CREATIVITY": 323
+      },
+      "statSum": 4093,
+      "ovrCheck": "floor(4093/15) = floor(272.87) = 272. Game shows 273 — 1 stat off by 1 in OCR read, minor variance.",
+      "tierContrib": "floor(160 × 13 / 15) = floor(138.67) = 138. Base OVR = 273 − 138 = 135. Below 180 — training NOT locked.",
+      "db_stale_note": "Previous DB had FITNESS=240 (actual 330), CREATIVITY=248 (actual 323). All 15 stats need rescan into app before projections are valid."
+    },
+    "observations": [
+      {
+        "id": "neri_focused_physical_x4_reward",
+        "date": "2026-05-20",
+        "coachType": "Focused",
+        "coachCategory": "Physical",
+        "isRewardCoach": true,
+        "multiplier": 4,
+        "boostedStats": ["FITNESS", "CREATIVITY"],
+        "numStats": 2,
+        "playerAge": 28,
+        "ageMult": 0.61,
+        "statsBefore": { "FITNESS": 330, "CREATIVITY": 323 },
+        "gameRanges": { "FITNESS": [3, 4], "CREATIVITY": [3, 4] },
+        "gameMidpoint": 3.5,
+        "budgetPerStat_calc": "(1−0.99^4)/0.01 × 676 / 2 = 1332 XP",
+        "budgetPerStat": 1332,
+        "engine_K47": {
+          "FITNESS_gain": 0.25,
+          "CREATIVITY_gain": 0.29,
+          "note": "K=47 completely fails at stat=330. Under-predicts by ~14×. Formula was calibrated only to stat range 90–260."
+        },
+        "k47_failure_analysis": {
+          "cost_at_330": "2.94 × exp(330/47) = 3295 XP/point",
+          "cost_ratio_vs_120": "87× more expensive than stat 120",
+          "implied_K_table": {
+            "K47": 0.25,
+            "K60": 1.13,
+            "K70": 2.45,
+            "K76": 3.53,
+            "K80": 4.37
+          },
+          "implied_K": 76,
+          "implied_K_note": "K≈76 explains the observed +3.5 gain at stat=330 with ageMult=0.61. K=47 confirmed valid to ~260; fails above ~300. More data points in 260–330 range needed before changing engine formula."
+        },
+        "ocr_false_positives": {
+          "detected": ["TACKLING", "FITNESS", "BRAVERY", "CREATIVITY", "FINISHING"],
+          "correct": ["FITNESS", "CREATIVITY"],
+          "root_cause": "Focused Physical coach — TACKLING row text spans rightward to FITNESS column (same Y), picking up FITNESS's +3-4 as TACKLING's gain. Same for BRAVERY←CREATIVITY. Cross-column Y-row bleed.",
+          "fix": "focusedCatFilter added to coachScanner.ts primary detection loop — filters out stats not in the coach's stated category for Focused coach type.",
+          "workaround_used": "Manual stat picker"
+        },
+        "stale_db_projection_note": "Coach planner showed FITNESS +2.7, CREATIVITY +2.3 before this session. That was internally consistent for stale DB stats (FITNESS=240, CREATIVITY=248) at ageMult=1.0 (age not set in DB). With confirmed stats at stat=330 and ageMult=0.61 (age 28), K=47 gives +0.25 — not useful."
       }
     ]
   },
@@ -898,7 +959,7 @@
     ]
   },
   "calibrationStatus": {
-    "lastUpdated": "2026-05-20",
+    "lastUpdated": "2026-05-20 (session 2)",
     "formulaStatus": "PROVISIONAL",
     "confirmedParameters": {
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
@@ -911,13 +972,12 @@
       "whiteStats_grant_DL_ML_AML": "13 stats confirmed (all except HEADING and STRENGTH)",
       "xpCostTable_0_199": "approximately correct based on mid-range stat observations",
       "xpCostTable_200_plus": "PROVISIONAL — increased 1.5-1.8x from original based on Aggression 201 and Creativity 256 observations",
-      "talent_jables_slow": "Slow ×0.47 calibrated 2026-05-18 from ×114 Extensive GK. Engine +25 within game [24,32]. Single player, single session — flag for re-confirmation. Primary finding: DB entry error (×1.0 Normal stored instead of ×0.7 Slow) was the dominant source of over-prediction (+42→+25 after DB fix alone)."
+      "talent_jables_jaseysboi": "INVALIDATED 2026-05-20. Earlier 0.47 calibration used linear budget model — wrong. Under geometric model (Sprint 34), Normal (1.0) gives OVR 172.5 vs actual 173 — 11/11 stat ranges confirmed. Player is Jables JaseysBoi (formerly Lewis MacGregor). DB stores 'Slow' but talent is not a formula variable. No talent multiplier other than 1.0 has ever been needed to explain any confirmed observation."
     },
     "openQuestions": [
       "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
-      "x20 vs x40 anomaly: x20 shows similar gains to x40 for same stats/player. Geometric decay hypothesis still open.",
-      "xN ratio 2.43 for Extensive Safeguard x10/x40: app projects this sub-linear ratio. Need OVR-99 player age to explain.",
-      "OVR +1 discrepancy: both players show 1 OVR higher in game than our formula computes. Possibly a stat slightly mis-read in our screenshot transcription.",
+      "K=47 fails at stat ≥ 300 (T5+/T6 players). Neri Focused Physical ×4 (stat=330): K=47 predicts +0.25, game shows +3-4. Implied K≈76 at this stat level. More data needed in the 260–330 range before changing engine constant. Do NOT update K in engine or game_2025.json until at least 3 data points confirm a consistent alternative.",
+      "Neri DB stats updated in player_seeds.json (2026-05-20) — rescan required in app before any Neri projection is valid. Focused Physical ×4 projection with stale DB was internally consistent for wrong inputs.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations.",
       "McCluskey DB fix DONE (2026-05-20): rescanned, roles confirmed DC/DMC/MC, all 15 stats updated to current game values, talent confirmed Normal. CROSSING now correctly grey."
     ],
