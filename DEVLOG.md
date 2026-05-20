@@ -6,6 +6,76 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 35 — Calibration Corrections + Focused-Coach OCR Fix
+**2026-05-20**
+
+Branch: `claude/test-connection-I2s8B` (commit `4f2c7d1`)
+
+### Shipped
+
+**Player identity — corrected throughout (`profiles/calibration_data.json`, `profiles/player_seeds.json`, `CALIBRATION_RECORD.md`)**
+
+Three names were tangled:
+
+- **Jables JaseysBoi** — the GK who did the ×114 Extensive GK session. Account was previously named Lewis MacGregor; renamed since. Same player. Previously mislabelled as "LJDark Leo" in calibration_data.json.
+- **Gillespie** — the actual in-game name for the player known as "LJDark Leo". No calibration observations on Gillespie.
+- **Lewis MacGregor** — not a separate player. Old account name for Jables JaseysBoi; appears in session screen OCR and the Player Academy Update screenshot.
+
+`ljdark_leo` key renamed to `jables_jaseysboi` everywhere. `gillespie` entry added (name correction only, no observations). No `lewis_macgregor` entry — that was the same person.
+
+**Formula re-confirmed 11/11 GK stats — ×114 Extensive GK**
+
+With geometric budget (sessionBudgetDecay=0.99), K=47, C₀=2.94, bXPS=676, ageMult=1.0 (age 18), talent=1.0:
+
+- effectiveSessions = 68.17, budget/stat = 4190 XP
+- All 11 GK stat engine projections inside game-displayed +lo/+hi ranges
+- OVR: engine 172.5 vs actual 173. Error < 1%.
+
+Session screen OCR was recorded under old name "Lewis MacGregor" — same scan, same result. Formula is clean.
+
+**Slow ×0.47 invalidated — reverted to 0.70 (`profiles/game_2025.json`)**
+
+The 0.47 (Sprint 33) was back-calculated from this same ×114 session using the **linear** budget model. Sprint 34 confirmed the geometric model. Under geometric budget, Normal (1.0) explains the result fully. 0.47 was never valid.
+
+`talentMultipliers.Slow` reverted 0.47 → 0.70 (community estimate, informational display only). The formula uses 1.0 for all players regardless of DB talent label — this is confirmed behaviour, not an assumption.
+
+**Neri — confirmed stats + K=47 failure documented (`profiles/calibration_data.json`, `profiles/player_seeds.json`)**
+
+Player card screenshot (d1526180) confirmed all 15 stats for G Neri (Age 28, T6 Legendary, OVR 273). Previous DB had Fitness=240 (actual 330), Creativity=248 (actual 323) — significantly stale.
+
+Focused Physical ×4 Reward Coach result: game shows FITNESS +3–4, CREATIVITY +3–4. Engine with K=47: +0.25 and +0.29. Under-prediction ~14×.
+
+K=47 was calibrated from stat range 90–260. At stat=330 (T6), the exponential cost is 87× higher than at stat=120. Implied K≈76 from this data point. K=47 remains unchanged in the engine — one player, one session is not enough to commit to a new constant. Documented in Outstanding (CALIBRATION_RECORD.md item 6).
+
+*Action required:* Rescan Neri's player card in the app — DB still holds the old stale values.
+
+**Focused-coach cross-column gain bleed fix (`src/logic/coachScanner.ts`)**
+
+In the 3-column game layout (Defence / Attack / Physical), stats on the same row in different columns share a Y coordinate. When a Focused Physical coach highlights FITNESS and CREATIVITY, the TACKLING row text extends rightward to the FITNESS column — the scanner was picking up FITNESS's +3-4 as TACKLING's gain range, and similarly BRAVERY was picking up CREATIVITY's.
+
+Result: 5 stats returned instead of 2 (TACKLING, BRAVERY, FINISHING were false positives). Workaround: manual stat picker.
+
+Fix: added `CATEGORY_STAT_SETS` filter in the primary detection loop for Focused coaches only. After a stat name is identified, if the coach is Focused, any stat not in the coach's stated category is skipped before gain detection runs. Standard and Extensive coaches are unaffected (they use the pipeline's full-category override).
+
+### Files changed
+
+| File | Change |
+|---|---|
+| `src/logic/coachScanner.ts` | `CATEGORY_STAT_SETS` filter in primary loop for Focused coaches |
+| `profiles/game_2025.json` | `talentMultipliers.Slow`: 0.47 → 0.70 |
+| `profiles/calibration_data.json` | `ljdark_leo` → `jables_jaseysboi`; add `gillespie`; add `neri`; invalidate Slow 0.47 analysis |
+| `profiles/player_seeds.json` | Jables JaseysBoi (rename + talent note); Neri confirmed stats (age 28, all 15 current) |
+| `CALIBRATION_RECORD.md` | Jables identity, Gillespie note, K=47 high-stat failure, Slow talent status |
+
+### Open / Next Sprint
+
+- **Rescan Neri in app** — DB still stale. Projections for Neri are wrong until player card is rescanned.
+- **K=47 at T5+/T6** — implied K≈76 from Neri at stat=330. Need 2+ more data points in the 260–330 range before changing the engine constant. Any T5+ player with a regular (non-Focused) coach scan in that stat range qualifies.
+- **Jables talent from edit screen** — DB says Slow; formula-confirmed at 1.0 rate. True talent label (from Personal Trainer tab) still not captured. Doesn't affect projections but worth confirming for the record.
+- King Alfie talent still Unknown — screenshot edit screen for Fastest/Fast/Average/Normal/Slow.
+
+---
+
 ## Sprint 34 — Geometric Budget Model + Formula Fix
 **2026-05-20**
 
