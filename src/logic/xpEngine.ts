@@ -32,6 +32,7 @@ export {
   statGainFromBudget,
   ovrFromStats,
   ovrFromStatsWithPadding,
+  estimateTalentFromGain,
 } from '../engine/engineMath';
 
 // ─── GameProfile wrappers (backward compatibility) ───────────────────────────

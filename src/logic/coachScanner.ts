@@ -23,6 +23,7 @@ const CATEGORY_STAT_SETS: Record<string, Set<string>> = {
 };
 
  // two-word stat name detection (RUSHING OUT, AERIAL REACH)
+const Y_TOL_NAME = 25; // two-word stat name token pairing — wider than Y_TOL_VAL to handle slight misalignment
 const Y_TOL_VAL  = 18; // gain range row lookup — tighter than row spacing to prevent adjacent-row bleed
 const GAIN_RE_STAT = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/; // + optional: OCR drops it on bright teal backgrounds
 const GAIN_RE_OVR  = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;  // + required for OVR boost (avoids N-N false matches)
@@ -56,6 +57,7 @@ export interface CoachScanResult {
   ovrBoostHi?: number;
   isRewardCoach?: boolean;
   isTrainingCamp?: boolean;
+  isAllRound?: boolean;
   stats: StatCapture[];
   _debugBlocks?: string;
 }
@@ -112,6 +114,7 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
 
   const isRewardCoach   = /\breward\s*coach\b/i.test(fullText);
   const isTrainingCamp  = /\btraining\s*camp\b/i.test(fullText);
+  const isAllRound      = /\ball[\s\-]*round\b/i.test(fullText);
 
   const ageMatch  = /\bAge\s*:?\s*(\d{2})\b/i.exec(fullText);
   const playerAge = ageMatch ? parseInt(ageMatch[1]) : undefined;
@@ -248,5 +251,5 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
     .join(' | ');
 
   const stats = Array.from(captureMap.values());
-  return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, isRewardCoach, isTrainingCamp, stats, _debugBlocks };
+  return { coachType, coachCategory, multiplier, playerName, playerAge, talentTier, ovrBefore, ovrBoostLo, ovrBoostHi, isRewardCoach, isTrainingCamp, isAllRound, stats, _debugBlocks };
 }

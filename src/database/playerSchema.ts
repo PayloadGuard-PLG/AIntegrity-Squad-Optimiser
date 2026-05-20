@@ -28,7 +28,7 @@ export const INITIAL_PLAYER_STATE: Player = {
   age: 18,
   overall: 40,
   tier: 'T0',
-  talent: 'Normal',
+  talent: 'Unknown',
   stats: {},
   isMutantCandidate: false,
   snapshot: null,

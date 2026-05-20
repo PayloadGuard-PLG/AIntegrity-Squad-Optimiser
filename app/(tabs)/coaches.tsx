@@ -3,7 +3,8 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert 
 import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
-import { resolveCoachStats, CATEGORY_STATS, TRAINING_CAMP_SENTINEL } from '../../src/logic/coachPipeline';
+import { resolveCoachStats, CATEGORY_STATS, TRAINING_CAMP_SENTINEL, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
+import { estimateTalentFromGain } from '../../src/engine/engineMath';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -26,7 +27,7 @@ import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/
 const profile = gameProfileJson as unknown as GameProfile;
 
 const TALENT_LABEL: Record<TalentTier, string> = {
-  Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7',
+  Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.47', Unknown: '?',
 };
 
 const STAT_COLS = {
@@ -59,6 +60,10 @@ export default function CoachesScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
+  const [talentEstimate, setTalentEstimate] = useState<{ tier: string; fromStat: string; confidence: 'high' | 'low' } | null>(null);
+  // Gain ranges captured directly from the game's coach preview (+lo-hi per stat).
+  // When present, projection uses (lo+hi)/2 directly instead of the XP formula.
+  const [scannedGainRanges, setScannedGainRanges] = useState<Record<string, { lo: number; hi: number }>>({});
   const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
@@ -89,6 +94,8 @@ export default function CoachesScreen() {
     setResult(null);
     setSaveConfirmed(false);
     setScanStatus('');
+    setTalentEstimate(null);
+    setScannedGainRanges({});
   }, [manager]);
 
   function buildStatus(stats: string[], type: string, cat: string, prefix: string) {
@@ -105,6 +112,7 @@ export default function CoachesScreen() {
     setCoachType(next);
     setFocusedStatSel(new Set());
     setResult(null);
+    setScannedGainRanges({});
     if (next && next !== 'Focused' && coachCategory) {
       const stats = CATEGORY_STATS[coachCategory] ?? [];
       setScannedStats(stats);
@@ -180,6 +188,19 @@ export default function CoachesScreen() {
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
 
+      // Extract gain ranges BEFORE resolveCoachStats discards them.
+      // These are the game's own projected gains (+lo-hi) from the coach preview.
+      // runProjection uses (lo+hi)/2 directly for stats where this data exists.
+      const gainRanges: Record<string, { lo: number; hi: number; statBefore: number }> = {};
+      for (const cap of scan.stats) {
+        if (cap.gainLo > 0 && cap.gainHi > 0 && cap.statBefore > 0) {
+          gainRanges[cap.statName] = { lo: cap.gainLo, hi: cap.gainHi, statBefore: cap.statBefore };
+        }
+      }
+      setScannedGainRanges(Object.fromEntries(
+        Object.entries(gainRanges).map(([k, v]) => [k, { lo: v.lo, hi: v.hi }])
+      ));
+
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
 
       if (statNames[0] === TRAINING_CAMP_SENTINEL) {
@@ -188,11 +209,53 @@ export default function CoachesScreen() {
         return;
       }
 
+      if (statNames[0] === ALL_ROUND_SENTINEL) {
+        const allEnteredStats = Object.keys(player!.stats);
+        setScannedStats(allEnteredStats.length > 0 ? allEnteredStats : []);
+        const rangeCt = Object.keys(gainRanges).length;
+        setScanStatus(allEnteredStats.length > 0
+          ? `ALL-ROUND ×${scan.multiplier ?? parseInt(sessions, 10)} · ${allEnteredStats.length} STATS · ${rangeCt} RANGES`
+          : 'ALL-ROUND — enter player stats to project');
+        setIsScanning(false);
+        return;
+      }
+
       setScannedStats(statNames);
+
+      // Talent back-calculation from observed gain ranges
+      if (player && Object.keys(gainRanges).length > 0) {
+        const sessionCount = scan.multiplier ?? parseInt(sessions, 10) || 1;
+        const numStats = statNames.length || 1;
+        // Prefer white stats with no near-cap values for clearest signal
+        const gainCandidates = Object.entries(gainRanges)
+          .filter(([s, g]) => isWhiteStat(player!.role, s) && g.statBefore < (profile.statCap ?? 450) - 20)
+          .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
+        // Fall back to any stat if no white stat has gains
+        const candidates = gainCandidates.length > 0 ? gainCandidates
+          : Object.entries(gainRanges).filter(([, g]) => g.statBefore < (profile.statCap ?? 450) - 20)
+              .sort((a, b) => (b[1].lo + b[1].hi) - (a[1].lo + a[1].hi));
+        if (candidates.length > 0) {
+          const [bestStat, { lo, hi, statBefore }] = candidates[0];
+          const gainMid = (lo + hi) / 2;
+          const est = estimateTalentFromGain({
+            statBefore, gainMid,
+            sessions: sessionCount,
+            numStats,
+            age: player!.age,
+            isWhite: isWhiteStat(player!.role, bestStat),
+            twoxAd: false,
+            drillLevelMult: 1.0,
+          });
+          if (__DEV__) console.log('[TALENT EST]', est.bestTier, est.confidence, est.candidateScores);
+          setTalentEstimate({ tier: est.bestTier, fromStat: bestStat, confidence: est.confidence });
+        }
+      }
 
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
       parts.push(`${statNames.length} STATS`);
+      const rangeCt2 = Object.keys(gainRanges).length;
+      if (rangeCt2 > 0) parts.push(`${rangeCt2} RANGES`);
       if (scan.coachType) parts.push(scan.coachType.toUpperCase());
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
@@ -210,8 +273,11 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    const drillMult = 1.0; // coaches have no intensity level — only talent and age apply
+    const drillMult = 1.0;
     const budget = coachBudgetPerStat(sessionCount, scannedStats.length);
+    // Effective talent: use back-calculated estimate if available, fall back to stored value.
+    // Unknown talent falls back to Normal (1.0) — matches TALENT_MULTS fallback in engineMath.
+    const projTalent: TalentTier = (talentEstimate?.tier as TalentTier) ?? (player.talent === 'Unknown' ? 'Normal' : player.talent);
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
@@ -219,7 +285,15 @@ export default function CoachesScreen() {
       const from = player.stats[statName];
       if (from === undefined) continue;
       const isWhite = isWhiteStat(player.role, statName);
-      const gain = estimateStatGainPct(budget, from, player.age, 0, player.talent, isWhite, false, drillMult, profile);
+      let gain: number;
+      // Use game-captured lo/hi range directly when available — avoids re-deriving what the
+      // game already computed. Falls back to XP formula for stats without scan data.
+      const scannedRange = scannedGainRanges[statName];
+      if (scannedRange) {
+        gain = (scannedRange.lo + scannedRange.hi) / 2;
+      } else {
+        gain = estimateStatGainPct(budget, from, player.age, 0, projTalent, isWhite, false, drillMult, profile);
+      }
       if (gain > 0) {
         postCoachStats[statName] = Math.min(from + gain, profile.statCap);
         gains.push({ stat: statName, from, gain: Number(gain.toFixed(1)), isWhite });
@@ -385,16 +459,27 @@ export default function CoachesScreen() {
                 </View>
               </View>
 
-              {/* Talent — read from player card */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
-                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
-                    {TALENT_LABEL[player.talent] ?? player.talent}
-                  </Text>
-                </View>
-                <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
-              </View>
+              {/* Talent — stored value with scan-estimated override shown when available */}
+              {(() => {
+                const displayTier = (talentEstimate?.tier as TalentTier) ?? player.talent;
+                const isEstimated = !!talentEstimate;
+                const isUnknown = player.talent === 'Unknown' && !talentEstimate;
+                const displayLabel = TALENT_LABEL[displayTier] ?? displayTier;
+                const borderCol = isUnknown ? theme.hot : isEstimated ? theme.pos : theme.steelLight;
+                const textCol = isUnknown ? theme.hot : isEstimated ? theme.pos : theme.steelLight;
+                const subLabel = isUnknown ? 'SCAN TO ESTIMATE' : isEstimated ? `EST · ${talentEstimate.fromStat}${talentEstimate.confidence === 'low' ? '?' : ''}` : 'FROM CARD';
+                return (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                    <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
+                    <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: borderCol }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: textCol }}>
+                        {isUnknown ? 'UNKNOWN' : displayLabel}
+                      </Text>
+                    </View>
+                    <MonoLabel size={8} color={textCol}>{subLabel}</MonoLabel>
+                  </View>
+                );
+              })()}
 
               {/* Scan button lives here — separate from PROJECT */}
               <Pressable onPress={scanCoach} disabled={isScanning}
