@@ -753,19 +753,21 @@
   },
   "neri": {
     "id": "neri",
-    "name": "G Neri",
+    "name": "Nerimala",
     "age": 28,
     "roles": ["ST", "AMC", "MC"],
     "tier": "T6",
     "tier_game_name": "Legendary",
     "talent": "Normal",
     "talentMultiplier": 1.0,
+    "talentConfirmed": true,
+    "talentSource": "Training Rate shown as Normal in Edit Player screen — screenshot 53d01ca8 (2026-05-20).",
     "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","STRENGTH","SPEED","CREATIVITY"],
     "greyStats": ["CROSSING","AGGRESSION"],
     "whiteStatCount": 13,
     "confirmedStats": {
       "date": "2026-05-20",
-      "source": "Player card screenshot d1526180",
+      "source": "Player card screenshot d1526180. Rescanned into app (screenshot c164c20b) — 15 stats updated, DB is current.",
       "ovr_game": 273,
       "stats": {
         "TACKLING": 190, "MARKING": 210, "POSITIONING": 313, "HEADING": 336, "BRAVERY": 296,
@@ -977,7 +979,7 @@
     "openQuestions": [
       "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
       "K=47 fails at stat ≥ 300 (T5+/T6 players). Neri Focused Physical ×4 (stat=330): K=47 predicts +0.25, game shows +3-4. Implied K≈76 at this stat level. More data needed in the 260–330 range before changing engine constant. Do NOT update K in engine or game_2025.json until at least 3 data points confirm a consistent alternative.",
-      "Neri DB stats updated in player_seeds.json (2026-05-20) — rescan required in app before any Neri projection is valid. Focused Physical ×4 projection with stale DB was internally consistent for wrong inputs.",
+      "Nerimala DB stats rescanned and confirmed (2026-05-20, screenshot c164c20b) — 15 stats current in app DB. Training Rate confirmed Normal from edit screen (53d01ca8). K=47 failure at stat=330 documented.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations.",
       "McCluskey DB fix DONE (2026-05-20): rescanned, roles confirmed DC/DMC/MC, all 15 stats updated to current game values, talent confirmed Normal. CROSSING now correctly grey."
     ],

@@ -113,7 +113,7 @@
       "last_updated": "2026-05-16"
     },
     {
-      "name": "Neri",
+      "name": "Nerimala",
       "age": 28,
       "roles": ["ST", "AMC", "MC"],
       "roles_note": "Select ST + AMC + MC in the position grid. Roles visible in test protocol screenshots. OCR likely emits 'STAMCMC' as concatenated token — greedy role parser (Sprint 28 fix 1) required to detect all 3.",
@@ -121,9 +121,13 @@
       "tier_game_name": "Legendary",
       "talent": "Normal",
       "talentMultiplier": 1.0,
+      "talentConfirmed": true,
+      "talentSource": "Training Rate shown as Normal in Edit Player screen — screenshot 53d01ca8 (2026-05-20).",
       "isMutantCandidate": false,
       "ovr_game": 273,
-      "stats_note": "Confirmed from player card screenshot d1526180 (2026-05-20). Sum=4093, floor(4093/15)=272 — 1 below game OVR 273, likely minor OCR read variance on one stat. Previous DB stats (Fitness 240, Creativity 248 etc.) were significantly stale — update DB from these values.",
+      "app_ovr_post_rescan": 272,
+      "app_ovr_note": "App shows 272 after rescan — floor(4093/15)=272 ✓. Game shows 273 — one stat 1 point higher than OCR read, minor variance.",
+      "stats_note": "Confirmed from player card screenshot d1526180 (2026-05-20). Rescanned into app — 15 stats updated (screenshot c164c20b). DB is current.",
       "stats": {
         "TACKLING": 190,
         "MARKING": 210,
