@@ -4,7 +4,6 @@ import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats, CATEGORY_STATS, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
-import { estimateTalentFromGain } from '../../src/engine/engineMath';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -418,27 +417,16 @@ export default function CoachesScreen() {
                 </View>
               </View>
 
-              {/* Talent — stored value with scan-estimated override shown when available */}
-              {(() => {
-                const displayTier = (talentEstimate?.tier as TalentTier) ?? player.talent;
-                const isEstimated = !!talentEstimate;
-                const isUnknown = player.talent === 'Unknown' && !talentEstimate;
-                const displayLabel = TALENT_LABEL[displayTier] ?? displayTier;
-                const borderCol = isUnknown ? theme.hot : isEstimated ? theme.pos : theme.steelLight;
-                const textCol = isUnknown ? theme.hot : isEstimated ? theme.pos : theme.steelLight;
-                const subLabel = isUnknown ? 'SCAN TO ESTIMATE' : isEstimated ? `EST · ${talentEstimate.fromStat}${talentEstimate.confidence === 'low' ? '?' : ''}` : 'FROM CARD';
-                return (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                    <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
-                    <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: borderCol }}>
-                      <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: textCol }}>
-                        {isUnknown ? 'UNKNOWN' : displayLabel}
-                      </Text>
-                    </View>
-                    <MonoLabel size={8} color={textCol}>{subLabel}</MonoLabel>
-                  </View>
-                );
-              })()}
+              {/* Talent — informational display from player card */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
+                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
+                    {TALENT_LABEL[player.talent as TalentTier] ?? player.talent}
+                  </Text>
+                </View>
+                <MonoLabel size={8} color={theme.steelLight}>FROM CARD</MonoLabel>
+              </View>
 
               {/* Scan button lives here — separate from PROJECT */}
               <Pressable onPress={scanCoach} disabled={isScanning}
