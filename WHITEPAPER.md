@@ -58,12 +58,19 @@ xpNeededFor1Pct(
 ): number
 ```
 
-**XP budget per stat — coach session:**
+**XP budget per stat — coach session (geometric decay model):**
 ```
-xpBudget = sessionCount × baseXpPerSession / selectedStats.count
+effectiveSessions = (1 − 0.99^N) / (1 − 0.99)
+xpBudget = effectiveSessions × baseXpPerSession / selectedStats.count
 ```
 
-Budget divided equally across all stats the coach covers. A 5-stat coach block for ×40 sessions gives each stat `40 × 676 / 5 = 5,408 XP`.
+Each successive coaching session delivers 0.99× the previous session's XP (`sessionBudgetDecay = 0.99`, confirmed Sprint 34). Budget divided equally across all stats the coach covers.
+
+| Sessions (N) | Effective | Example: 5-stat coach |
+|---|---|---|
+| ×4 | 3.94 | 3.94 × 676 / 5 = 532 XP/stat |
+| ×40 | 33.1 | 33.1 × 676 / 5 = 4,475 XP/stat |
+| ×114 | 68.2 | 68.2 × 676 / 11 = 4,191 XP/stat (GK) |
 
 **XP budget per stat — drill session (Sprint 30):**
 ```
@@ -88,9 +95,14 @@ Four independent data points across two players (Cptn Dallas ×4 Safeguard, Rick
 
 After further recalibration against Grant's full 5-stat Standard Defending ×40 (all stats within game range), `baseXpPerSession` was updated to **676**. This is the value currently in `profiles/game_2025.json`. The exponential cost model (K=47, C₀=2.94) was also re-fitted simultaneously — all five Defending stats landing inside game ranges validates both parameters together.
 
-**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, Slow talent ×0.47) — Sprint 33:**
+**Calibration — ×114 Extensive GK (Lewis MacGregor, age 18, talent unknown) — Sprint 34:**
 
-Before: 143 OVR (T0). Session: ×114 Extensive GK. Engine at Slow=0.47 → projected +25 OVR; actual game range: +24–32 ✓. 9/11 GK stats within game range; 3 stats marginally below lo bound, suggesting true Slow multiplier may be 0.49–0.52. Single data point — needs a second Slow player to confirm.
+Before: 145 OVR (T0). Actual game result: **173 OVR (+28)**. This data point resolved the ×N anomaly and confirmed `sessionBudgetDecay = 0.99`:
+
+- Linear model (pre-Sprint 34): `114 × 676 / 11 = 7,006 XP/stat` → projects 182 OVR. Error +9. **Wrong.**
+- Geometric model (confirmed): `68.2 × 676 / 11 = 4,191 XP/stat` → projects 172 OVR. Error −1. **Correct.**
+
+MacGregor's talent is **unknown** — the Playstyle icon visible in screenshots is NOT the talent tier. Talent is shown on the Personal Trainer tab of the edit screen. With geometric budget and Normal (1.0) talent, the projection lands within 1 OVR of actual. If MacGregor is Slow, a recalibration of the Slow multiplier is required using the geometric formula.
 
 **Calibration — exponential model derivation:**
 
@@ -171,7 +183,7 @@ Values marked ✅ are confirmed from game data. Values marked ⚠️ are communi
 | Fast | 1.25 | ⚠️ Community estimate — not empirically confirmed |
 | Average | 1.10 | ⚠️ Community estimate — not empirically confirmed |
 | Normal | 1.00 | ✅ Confirmed (Grant, Rogers, McGinty — multiple sessions) |
-| Slow | 0.47 | ⚠️ Single data point (MacGregor ×114 Extensive GK, Sprint 33) — needs second Slow player |
+| Slow | 0.47 | ❌ INVALIDATED — derived from MacGregor ×114 using linear budget. With geometric budget, MacGregor is consistent with Normal (1.0). No confirmed Slow data point. |
 
 ### 3.6 Drill level multipliers (XP — drills only)
 
@@ -202,7 +214,7 @@ starsGained = floor(ovrGainedSoFarInSession / 20)
 sessionMult = starDecayPerSession ^ starsGained
 ```
 
-`starDecayPerSession = 0.85`. `starOvrThreshold = 20` is confirmed. The ×N anomaly (×20 and ×40 sessions producing nearly identical projected gains) is consistent with the geometric sum plateau: `Σ(0.85^k, k=0..N-1)` converges to `1/(1-0.85) = 6.67` at large N, meaning sessions beyond ~20 contribute diminishing returns. This is a model characteristic, not a bug — empirical confirmation pending.
+`starDecayPerSession = 0.85`. `starOvrThreshold = 20` is confirmed. Note: the ×N anomaly (×20 and ×40 sessions producing nearly identical projected gains) was previously attributed to this star decay plateau — **that hypothesis is superseded**. The anomaly is fully explained by `sessionBudgetDecay = 0.99` (geometric session budget decay, §3.2, confirmed Sprint 34). Star decay is a within-session mechanism (OVR threshold crossings during a single run) and is orthogonal to cross-session budget decay.
 
 In `applyDrillSessionsToStats`, `starsGained` is computed from cumulative OVR gained since the start of the call (`runningOvr - ovrBefore`) and passed into `estimateStatGainPct`. This means each stat's gain calculation accounts for the decay earned by all preceding stats and drills in the same session.
 
@@ -475,7 +487,7 @@ This strategy compounds three mechanics simultaneously:
 
 Each player role defines:
 - **Essential stats** (white) — directly drive OVR for this role; receive full weight (`greyMult = 1.0`)
-- **Secondary stats** (grey) — trained at half weight (`greyMult = 0.5`)
+- **Secondary stats** (grey) — trained at reduced weight (`greyMult = 0.22`) — approximately 4.5× more XP per point than white stats
 
 Every role maps exactly 15 stats (essential + secondary = 15). Verified from game screenshots (Sprint 17).
 
@@ -611,13 +623,14 @@ interface InvestmentPlan {
 
 | Item | Status |
 |---|---|
-| OVR formula | `Math.ceil` — confirmed Sprint 27 from 4 data points (McGinty, Rogers, Grant T2, Grant T3). Fixed in `qualityPctToOvr()`. |
-| Coach XP baseline | `baseXpPerSession = 450` — recalibrated Sprint 31 from four Dallas/Grant data points (implied 409–495, mean 443). Original 220 was calibrated against stepped cost table; exponential model (Sprint 25) required higher bXPS. |
+| OVR formula | `Math.floor` — confirmed Sprint 32 from Grant T2→T3 clean tier upgrade. `floor(2615/15) = 174` ✓. `ceil = 175` ✗. Fixed in `qualityPctToOvr()`. |
+| Session budget decay | `sessionBudgetDecay = 0.99` confirmed Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. MacGregor ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. |
+| Coach XP baseline | `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). |
 | Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
-| XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=55 — confirmed Sprint 25 from observed gain ratio. |
-| Talent multipliers | Normal (×1.0) confirmed for Ricky Grant and Ryan Rogers (Sprint 26). Fastest (×1.5) and Fast (×1.25) are community estimates — empirical calibration against known-Fastest/Fast players pending. |
-| ×N anomaly | ×20 and ×40 sessions produce nearly equal projected gains. Geometric sum plateau hypothesis (sessions beyond ~20 contribute < 4% additional XP) is the working model. Empirical test needed. Do not change budget formula until confirmed. |
-| Star decay curve | `starDecayPerSession = 0.85`. Near-linear empirical observation at low session counts is consistent with the geometric sum plateau model — distinguish by testing ×10 vs ×40 on the same player. |
+| XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=47 — K confirmed via CV minimisation across 5 Grant ×40 observations (CV=3.2%). C₀ confirmed from Tackling/Positioning gain ratio. |
+| Talent multipliers | Normal (×1.0) confirmed for Grant, Rogers, McGinty. Slow (0.47) **invalidated** — derived from linear budget; geometric model shows MacGregor is consistent with Normal. No confirmed Slow data point. Fastest/Fast/Average are community estimates. |
+| ×N anomaly | **RESOLVED** Sprint 34 — explained by `sessionBudgetDecay = 0.99`. Not a plateau artefact. |
+| Star decay curve | `starDecayPerSession = 0.85`. Within-session only (OVR star thresholds). Separate from session budget decay. |
 | GK white stat list | 11 white (REFLEXES, AGILITY, ANTICIPATION, RUSHING OUT, COMMUNICATION, THROWING, KICKING, PUNCHING, AERIAL REACH, CONCENTRATION, FITNESS) + 4 grey (STRENGTH, AGGRESSION, SPEED, CREATIVITY). Confirmed Sprint 17. |
 | Tier bonus scope | White (essential) stats only — confirmed Sprint 16. Grey role stats and off-role stats receive 0 increment. |
 | Individual stat entry | Drill-level projection requires per-stat values. Players with only an OVR get drill gains skipped; projection falls back to tier-only estimate with a warning. |
@@ -743,6 +756,8 @@ The coach preview section displays three read-only tables side by side: OFFERING
 | 2.0 | Sprints 26–27 | Talent confirmed Normal for both calibration players. `player_seeds.json` created. Rogers 3rd role corrected AMC → DL (identical white stats to Grant). Role detection anchored to Roles: label Y-band. Kevin McGinty identified (age 27, AMC). OVR formula fixed `Math.floor` → `Math.ceil` — confirmed from 4 data points. |
 | 2.1 | Sprints 28–30 | Animated splash + per-tab background art. Focused coach scan fix (normalise OCR case). Concatenated role token greedy parser. GK category always-reload fix. `drillLevelMult` removed from coach projection (coaches use 1.0, not VH×1.7). `drillXpFactor = 0.3` added for drill budget scaling. Coaches tab tier section removed. Results tab rewritten as combined drill+coach+tier hub with history pickers. `coachHistoryService` + `drillPlanHistoryService` + new DB tables. Lewis MacGregor ×114 Extensive GK at bXPS=220 gives 143→191 OVR match (pre-recalibration). |
 | 2.2 | Sprints 31–32 | **Sprint 31:** `baseXpPerSession` recalibrated 220→450 (exponential model re-baseline from 4 data points). Coaches tab crash on sessions input fixed (stale `setSelectedTier`). CROSSING detection fixed (secondary embedded-stat scan). DMC STRENGTH moved to secondary. `OCR_STAT_CORRECTIONS` for TACKLING misreads. Three new calibration players: Cptn Dallas, Rayne, age-24 DMC. **Sprint 32:** `customCoachEngine.ts` rewritten — deprecated `calculateDynamicGain` shim replaced with `estimateStatGainPct`; `PlayerStats` gains `statValue`+`talent`; function gains `profile` parameter. Branch transition to `claude/test-connection-I2s8B`. |
+| 2.3 | Sprint 33 | OVR formula fixed `Math.ceil` → `Math.floor` (confirmed clean integer tier upgrade). Duplicate stat capture fixed (Map-based dedup + nearest-number baseline). Safeguard category corrected to DEF stats. Standard/Extensive full-category override (arrow-only rows excluded from OCR count). Reward Coach detection (`isRewardCoach`). `bXPS` recalibrated 450→676 (Grant ×40 all 5 stats). K re-fitted 55→47 (CV minimisation across 5 Grant observations). `greyWeightMultiplier` confirmed 0.22. Garry McCluskey (age 24) + King Alfie seeds added. ageMult=0.72 confirmed for age 24. Training Camp detection + sentinel. |
+| 2.4 | Sprint 34 | `sessionBudgetDecay = 0.99` confirmed from MacGregor ×114 actual result 173 OVR (geometric model error −1 ✓, linear error +9 ✗). ×N anomaly resolved. Slow (0.47) invalidated — derived from linear budget; MacGregor consistent with Normal under geometric model. Scan-ranges bypass removed from `runProjection` — formula works for blank-coach scans. CI syntax fix (`coaches.tsx:227`). |
 
 ---
 
@@ -791,7 +806,8 @@ drillLevelMult = profile.drillLevelMultipliers[drill.intensity]
 
 **Coach budget in projection:**
 ```
-budget = entry.sessions × baseXpPerSession / entry.stats.length
+effectiveSessions = (1 − 0.99^N) / (1 − 0.99)
+budget = effectiveSessions × baseXpPerSession / entry.stats.length
 drillLevelMult = 1.0
 ```
 
