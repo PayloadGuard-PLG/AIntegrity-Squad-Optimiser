@@ -270,13 +270,18 @@ export function estimateTalentFromGain(params: {
   gainMid: number;
   sessions: number;
   statNames: string[];
+  categorySize: number;
   age: number;
   isWhite: boolean;
   twoxAd: boolean;
   drillLevelMult: number;
 }): { bestTier: string; confidence: 'high' | 'low'; candidateScores: Record<string, number> } {
-  const { statBefore, gainMid, sessions, statNames, age, isWhite, twoxAd, drillLevelMult } = params;
-  const budget = coachBudgetPerStat(sessions, statNames);
+  const { statBefore, gainMid, sessions, categorySize, age, isWhite, twoxAd, drillLevelMult } = params;
+  const decay = SESSION_BUDGET_DECAY;
+  const effectiveSessions = (decay >= 1.0 || sessions <= 0)
+    ? sessions
+    : (1 - Math.pow(decay, sessions)) / (1 - decay);
+  const budget = (effectiveSessions * BASE_XPS) / categorySize;
   const tiers = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
   const candidateScores: Record<string, number> = {};
 

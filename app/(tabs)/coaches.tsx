@@ -231,10 +231,12 @@ export default function CoachesScreen() {
         if (candidates.length > 0) {
           const [bestStat, { lo, hi, statBefore }] = candidates[0];
           const gainMid = (lo + hi) / 2;
+          const categorySize = scan.coachCategory === 'GK' ? 11 : 5;
           const est = estimateTalentFromGain({
             statBefore, gainMid,
             sessions: sessionCount,
             statNames,
+            categorySize,
             age: player!.age,
             isWhite: isWhiteStat(player!.role, bestStat),
             twoxAd: false,
@@ -269,9 +271,11 @@ export default function CoachesScreen() {
 
     const drillMult = 1.0;
     const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    // Effective talent: use back-calculated estimate if available, fall back to stored value.
-    // Unknown talent falls back to Normal (1.0) — matches TALENT_MULTS fallback in engineMath.
-    const projTalent: TalentTier = (talentEstimate?.tier as TalentTier) ?? (player.talent === 'Unknown' ? 'Normal' : player.talent);
+    if (!talentEstimate) {
+      setScanStatus('SCAN A COACH — talent needed to project');
+      return;
+    }
+    const projTalent: TalentTier = talentEstimate.tier as TalentTier;
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
