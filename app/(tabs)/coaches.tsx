@@ -247,7 +247,7 @@ export default function CoachesScreen() {
 
     const drillMult = 1.0;
     const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    const projTalent: TalentTier = (player.talent === 'Unknown' || !player.talent) ? 'Normal' : player.talent as TalentTier;
+    const projTalent: TalentTier = 'Normal';
     const gains: StatGain[] = [];
     const postCoachStats = { ...player.stats };
 
