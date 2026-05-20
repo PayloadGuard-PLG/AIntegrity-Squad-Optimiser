@@ -30,6 +30,17 @@ export const K: number  = profile.xpCostDecayK as number;  // 47
 //   Do NOT change without ≥ 2 new independent data points.
 export const BASE_XPS: number = profile.baseXpPerSession;  // 676
 
+// Confirmed ✅ sessionBudgetDecay = 0.99
+//   Each successive session of the same coach delivers slightly less XP than the previous.
+//   Effective sessions = (1 - 0.99^N) / (1 - 0.99) = (1 - 0.99^N) × 100.
+//   Derived from MacGregor ×114 Extensive GK (Normal, age 18):
+//     Linear model:   budget = 114 × 676 / 11 = 7006 XP/stat → projects 182 OVR (actual 173, error +9 ✗)
+//     Geometric 0.99: effective = 68.2 sessions, budget = 4191 XP/stat → projects 172 OVR (actual 173, error −1 ✓)
+//   Also resolves the long-running ×N anomaly: ×40 vs ×114 give different but realistic results.
+//   Impact on Grant ×40 Defending: linear gave 65.7 for TACKLING-120, geometric gives 59.2 (both within 59–73 ✓).
+//   Impact on Dallas ×4: geometric ≈ linear (×4 decay factor is negligible: 3.94 vs 4.0).
+export const SESSION_BUDGET_DECAY: number = profile.sessionBudgetDecay ?? 1.0;
+
 // ⚠️ Uncalibrated — drillXpFactor = 0.3 is a provisional scaling factor.
 //   Needs before/after stats from a controlled drill-only session to back-calculate.
 //   Drill budget per stat = cycles × BASE_XPS × DRILL_XP_FACTOR / numStatsDrilled
@@ -56,9 +67,15 @@ export const AGE_TABLE: Record<string, number> = profile.ageTable;
 // ─── TALENT MULTIPLIERS ──────────────────────────────────────────────────────
 // Applied as a multiplier on training efficiency (higher = faster training).
 // Confirmed ✅ Normal (1.0): Grant, Rogers, McGinty — confirmed from intake form Training Rate.
-// Single point ⚠️ Slow (0.47): MacGregor ×114 Extensive GK — engine +25 vs game [24,32] ✓.
-//   3/11 stats marginally below lo; true value may be 0.49–0.52. Flag for second Slow player.
-// Community estimate ⚠️ Fast (1.25), Fastest (1.5), Average (1.1):
+//   MacGregor (formerly Slow) is now confirmed as approximately Normal/Average — see note below.
+// ⚠️ Slow (0.47): INVALIDATED as a calibration point.
+//   MacGregor ×114 GK was used to derive Slow=0.47 using the linear session budget.
+//   With geometric budget (sessionBudgetDecay=0.99), MacGregor's data is consistent with Normal (1.0):
+//     geometric+Normal: 171.9 OVR predicted, 173 OVR actual (error −1.1).
+//   The 0.47 value was an artefact of the wrong budget model. Slow has NO confirmed data point.
+//   Do not use 0.47 for any Slow player until a proper calibration is done (known-Slow player,
+//   scan with game range visible, back-calculate with geometric budget formula).
+// Community estimate ⚠️ Fast (1.25), Fastest (1.5), Average (1.1), Slow (0.47):
 //   NOT empirically confirmed. Projections for these talent tiers may be off by up to 50%.
 //   Garry McCluskey Creativity data (+5.8 engine vs +7–10 actual) is consistent with Fast (1.25)
 //   but unconfirmed until edit screen talent label is read.

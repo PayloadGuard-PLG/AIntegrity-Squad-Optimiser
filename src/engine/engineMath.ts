@@ -31,7 +31,7 @@
 
 import {
   C0, K,
-  BASE_XPS, DRILL_XP_FACTOR,
+  BASE_XPS, DRILL_XP_FACTOR, SESSION_BUDGET_DECAY,
   GREY_MULT,
   AGE_TABLE,
   TALENT_MULTS,
@@ -127,10 +127,17 @@ export function combinedMultiplier(params: {
 // budget = sessions × BASE_XPS / numStats
 // Standard/Extensive: numStats = 5 (full category). Focused: numStats = 1 or 2.
 // Reward Coach: numStats = actual boosted stats detected by OCR.
-// Tune: update baseXpPerSession in game_2025.json. Does not affect cost curve.
+// Tune: update baseXpPerSession or sessionBudgetDecay in game_2025.json.
+// Each successive session delivers SESSION_BUDGET_DECAY × the previous session's XP.
+// effectiveSessions = (1 - decay^N) / (1 - decay) — plateaus at 1/(1-decay) for large N.
+// With decay=0.99: ×4 ≈ 3.94, ×40 ≈ 33.1, ×114 ≈ 68.2 (vs linear 4, 40, 114).
 export function coachBudgetPerStat(sessions: number, numStats: number): number {
   if (numStats <= 0) return 0;
-  return (sessions * BASE_XPS) / numStats;
+  const decay = SESSION_BUDGET_DECAY;
+  const effectiveSessions = (decay >= 1.0 || sessions <= 0)
+    ? sessions
+    : (1 - Math.pow(decay, sessions)) / (1 - decay);
+  return (effectiveSessions * BASE_XPS) / numStats;
 }
 
 // ─── STAGE 4b: DRILL BUDGET ──────────────────────────────────────────────────

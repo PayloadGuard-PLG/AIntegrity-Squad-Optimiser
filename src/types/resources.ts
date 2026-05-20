@@ -47,6 +47,13 @@ export interface GameProfile {
   baseXpPerSession: number;
   /** Scaling factor for drill budget vs coach budget — UNCALIBRATED, needs real drill data */
   drillXpFactor?: number;
+  /**
+   * Per-session budget decay — each successive session of the same coach gives slightly less XP.
+   * Effective sessions = (1 - decay^N) / (1 - decay) instead of N.
+   * Confirmed ✅ 0.99 from MacGregor ×114 GK: linear gives 182 OVR (wrong), geometric gives 172 OVR (actual: 173 ✓).
+   * Explains the long-running ×N anomaly: at large N the geometric sum plateaus (~100 effective sessions max).
+   */
+  sessionBudgetDecay?: number;
   twoxAdMultiplier: number;
   starDecayPerSession: number;
   /** OVR gain per star threshold — decay applies each time cumulative session OVR gain crosses a multiple of this */
