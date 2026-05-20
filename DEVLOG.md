@@ -15,7 +15,7 @@ Branch: `claude/test-connection-I2s8B` (commits `cffe933`, `4a35400`)
 
 **Session budget: geometric decay model confirmed (`profiles/game_2025.json`, `src/engine/engineConstants.ts`, `src/engine/engineMath.ts`)**
 
-Root cause of the ×N over-projection confirmed from Lewis MacGregor's actual game result: 145 OVR → **173 OVR (+28)** from ×114 Extensive GK.
+Root cause of the ×N over-projection confirmed from LJDark Leo's actual game result: 145 OVR → **173 OVR (+28)** from ×114 Extensive GK.
 
 - **Linear model** (old): budget = N × bXPS / numStats → projects 182 OVR. Error +9. **Wrong.**
 - **Geometric model** (new): `effectiveSessions = (1 − 0.99^N) / (1 − 0.99)` → for N=114: 68.2 effective sessions → projects 172 OVR. Error −1. **Correct.**
@@ -25,13 +25,13 @@ Each successive coaching session of the same coach delivers 0.99× the previous 
 Impact by session count:
 - ×4: 3.94 effective (negligible — Dallas calibration preserved)
 - ×40: 33.1 effective (Grant TACKLING-120 projects 59.2 vs actual 59–73 ✓)
-- ×114: 68.2 effective (MacGregor 145 → 172 OVR projected, actual 173 ✓)
+- ×114: 68.2 effective (LJDark Leo 145 → 172 OVR projected, actual 173 ✓)
 
 Added `"sessionBudgetDecay": 0.99` to `profiles/game_2025.json`. Added `SESSION_BUDGET_DECAY` constant (confirmed ✅) to `engineConstants.ts`. Updated `coachBudgetPerStat()` in `engineMath.ts` to use the geometric formula.
 
 **Slow (0.47) talent multiplier invalidated**
 
-The 0.47 value (Sprint 33) was back-calculated from MacGregor ×114 using the linear budget model. With geometric budget (0.99 decay), MacGregor's actual result (173 OVR) is consistent with Normal (1.0) talent — the 0.47 was an artefact of the wrong model. Slow has **no confirmed data point** until a player with confirmed-Slow talent is tested under the geometric budget formula. Updated `engineConstants.ts` JSDoc to reflect this.
+The 0.47 value (Sprint 33) was back-calculated from LJDark Leo ×114 using the linear budget model. With geometric budget (0.99 decay), LJDark Leo's actual result (173 OVR) is consistent with Normal (1.0) talent — the 0.47 was an artefact of the wrong model. Slow has **no confirmed data point** until a player with confirmed-Slow talent is tested under the geometric budget formula. Updated `engineConstants.ts` JSDoc to reflect this.
 
 **Scan-ranges bypass removed from `runProjection` (`app/(tabs)/coaches.tsx`)**
 
@@ -53,7 +53,7 @@ The previous push (`6a51a46`) used `(lo+hi)/2` from scan ranges directly in the 
 
 ### Open / Next Sprint
 
-- **MacGregor talent unknown** — Playstyle icon ≠ talent. Check Personal Trainer tab for Fastest/Fast/Average/Normal/Slow label. If Normal: 0.47 was artefact only. If Slow: need to recalibrate from scratch with geometric budget.
+- **LJDark Leo talent unknown** — Playstyle icon ≠ talent. Check Personal Trainer tab for Fastest/Fast/Average/Normal/Slow label. If Normal: 0.47 was artefact only. If Slow: need to recalibrate from scratch with geometric budget.
 - **Slow talent has no confirmed data point** — 0.47 is invalidated. Scan any confirmed-Slow player's Extensive coach with game ranges visible, back-calculate with geometric budget formula.
 - Confirm talent tier for Garry McCluskey and King Alfie from edit screen
 - Creativity underprediction for Garry (+5.8 vs +7–10): if Fast (×1.25), predicted = +7.1 ✓ — talent confirmation will resolve this
@@ -115,7 +115,7 @@ Also fixed baseline selection: was taking `rowNums[0]` (first number in merged 3
 
 **Slow talent multiplier calibrated: 0.70 → 0.47 (`profiles/game_2025.json`)**
 
-Lewis MacGregor (GK, Age 18, Slow): ×114 Extensive GK, engine at Slow=0.47 → +25 OVR projected, game range +24–32. 9/11 stats within game range. Single data point — 3 stats marginally below lo bound, true value may be 0.49–0.52. Flagged for confirmation from a second Slow player.
+LJDark Leo (GK, Age 18, Slow): ×114 Extensive GK, engine at Slow=0.47 → +25 OVR projected, game range +24–32. 9/11 stats within game range. Single data point — 3 stats marginally below lo bound, true value may be 0.49–0.52. Flagged for confirmation from a second Slow player.
 
 **Safeguard category fix (`src/logic/coachPipeline.ts`)**
 
@@ -131,7 +131,7 @@ Secondary embedded-stat scan was capturing out-of-category stats from merged OCR
 
 Reward Coaches use the Standard/Extensive label but boost custom cross-category stats. Detection: scanner sets `isRewardCoach: true` when "REWARD COACH" found in OCR. Pipeline skips full-category override for Reward Coaches; scanner bypasses category filter in embedded pass. XP budget confirmed same as regular Standard coach.
 
-**Lewis MacGregor seed + calibration data (`profiles/player_seeds.json`, `profiles/calibration_data.json`)**
+**LJDark Leo seed + calibration data (`profiles/player_seeds.json`, `profiles/calibration_data.json`)**
 
 T2 snapshot added. Full ×114 GK session per-stat breakdown recorded with predicted vs actual ranges.
 
@@ -143,8 +143,8 @@ T2 snapshot added. Full ×114 GK session per-stat breakdown recorded with predic
 | `src/logic/coachScanner.ts` | Map-based dedup + nearest-number baseline + CATEGORY_STAT_SETS + Reward Coach detection |
 | `src/logic/coachPipeline.ts` | Safeguard = DEF stats; Standard/Extensive full-category override; Reward Coach exclusion |
 | `profiles/game_2025.json` | `talentMultipliers.Slow` 0.70 → 0.47 |
-| `profiles/calibration_data.json` | MacGregor per-stat data; Prentice xN projections; Reward Coach observation |
-| `profiles/player_seeds.json` | Lewis MacGregor T2 snapshot |
+| `profiles/calibration_data.json` | LJDark Leo per-stat data; Prentice xN projections; Reward Coach observation |
+| `profiles/player_seeds.json` | LJDark Leo T2 snapshot |
 
 ### Open / Next Sprint
 
@@ -332,7 +332,7 @@ Flag is in `profiles/game_2025.json` and `src/types/resources.ts` (`drillXpFacto
 
 ### Calibration confirmed
 
-Lewis MacGregor (Age 18, GK, Normal ×1.0, T0 → T2):
+LJDark Leo (Age 18, GK, Normal ×1.0, T0 → T2):
 - Before: 143 OVR
 - After ×114 Extensive Goalkeeping + T1 + T2: **191 OVR confirmed in-game**
 - App projection: 191 ✓ — coach formula validated for GK category

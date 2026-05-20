@@ -50,7 +50,7 @@ export interface GameProfile {
   /**
    * Per-session budget decay — each successive session of the same coach gives slightly less XP.
    * Effective sessions = (1 - decay^N) / (1 - decay) instead of N.
-   * Confirmed ✅ 0.99 from MacGregor ×114 GK: linear gives 182 OVR (wrong), geometric gives 172 OVR (actual: 173 ✓).
+   * Confirmed ✅ 0.99 from LJDark Leo ×114 GK: linear gives 182 OVR (wrong), geometric gives 172 OVR (actual: 173 ✓).
    * Explains the long-running ×N anomaly: at large N the geometric sum plateaus (~100 effective sessions max).
    */
   sessionBudgetDecay?: number;

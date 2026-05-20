@@ -67,9 +67,9 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 | 1 | drillXpFactor calibration | `drillXpFactor = 0.3` is provisional. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. Do not change without real data. | High |
 | 1a | Age-24 DMC player name | Saved as "Team: Insidious FC" — scanner read club name. Correct in DB. | Quick |
 | 4 | New role — manual entry | `player/new.tsx` and `player/[id].tsx` have no UI fields for `newRole`/`newRolePoints`. Scanner populates on scan; manual entry not exposed. | Quick |
-| 5 | Slow talent — no confirmed data point | Slow (0.47) **invalidated Sprint 34** — derived from MacGregor ×114 using linear budget. With geometric budget (`sessionBudgetDecay=0.99`), MacGregor result is consistent with Normal (1.0). Back-calculate from a confirmed-Slow player. | High |
+| 5 | Slow talent — no confirmed data point | Slow (0.47) **invalidated Sprint 34** — derived from LJDark Leo ×114 using linear budget. With geometric budget (`sessionBudgetDecay=0.99`), LJDark Leo result is consistent with Normal (1.0). Back-calculate from a confirmed-Slow player. | High |
 | 6 | Fastest/Fast talent calibration | Currently community estimates (1.5 / 1.25). Needs known-talent players to confirm. | Medium |
-| 9 | MacGregor talent unknown | Playstyle icon ≠ talent. Check Personal Trainer tab for the explicit Fastest/Fast/Average/Normal/Slow label. Determines whether MacGregor is the Slow recalibration candidate. | High |
+| 9 | LJDark Leo talent unknown | Playstyle icon ≠ talent. Check Personal Trainer tab for the explicit Fastest/Fast/Average/Normal/Slow label. Determines whether LJDark Leo is the Slow recalibration candidate. | High |
 | 7 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery cooldown reduction not modelled. | Low |
 | 8 | Seasons planner | Project player across one full season including drills, tier, ~20% OVR decay. No implementation. | Low |
 
@@ -80,7 +80,7 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 | File | Purpose |
 |---|---|
 | `profiles/game_2025.json` | ALL game constants — XP table, age/talent/drill multipliers, `baseXpPerSession=676`, `sessionBudgetDecay=0.99`, `drillXpFactor=0.3`, tier additions, condition model |
-| `profiles/calibration_data.json` | Raw calibration observations — Ricky Grant, Ryan Rogers, Lewis MacGregor, Kevin McGinty |
+| `profiles/calibration_data.json` | Raw calibration observations — Ricky Grant, Ryan Rogers, LJDark Leo, Kevin McGinty |
 | `profiles/player_seeds.json` | Definitive player records for DB re-entry if device is wiped |
 | `src/types/resources.ts` | All TypeScript interfaces: GameProfile, DrillSession, InvestmentPlan, TierName, DrillLevel, TalentTier |
 | `src/logic/xpEngine.ts` | XP math: `estimateStatGainPct` (fractional float), `qualityPctToOvr` (Math.floor), `applyTierBonusToStats` |
@@ -240,9 +240,9 @@ Multi-role white union: `isWhiteStat(roles, stat)` returns true if essential for
 
 **baseXpPerSession = 450** — recalibrated Sprint 31 from four Dallas/Grant data points (implied 409–495, mean 443). Previous value 220 was calibrated against the stepped cost table; Sprint 25 switched to the exponential model without re-calibrating, causing systematic under-prediction.
 
-**Lewis MacGregor:** Age 18, Slow talent (×0.7), T0→T2 after ×114 Extensive GK + T1 + T2. Before: 143 OVR. After: 191 OVR. App prediction matched.
+**LJDark Leo:** Age 18, Slow talent (×0.7), T0→T2 after ×114 Extensive GK + T1 + T2. Before: 143 OVR. After: 191 OVR. App prediction matched.
 
-**Calibration players:** Ricky Grant (DL/ML/AML, age 20, Normal ×1.0), Ryan Rogers (AML/ML/DL, age 20, Normal ×1.0), Kevin McGinty (AMC, age 27, Normal ×1.0), Lewis MacGregor (GK, age 18, Slow ×0.7), Cptn Dallas (AMR/MR/DR, age 23, Normal ×1.0), Rayne (ML/DL/DC, age 21, Normal ×1.0).
+**Calibration players:** Ricky Grant (DL/ML/AML, age 20, Normal ×1.0), Ryan Rogers (AML/ML/DL, age 20, Normal ×1.0), Kevin McGinty (AMC, age 27, Normal ×1.0), LJDark Leo (GK, age 18, Slow ×0.7), Cptn Dallas (AMR/MR/DR, age 23, Normal ×1.0), Rayne (ML/DL/DC, age 21, Normal ×1.0).
 
 ---
 
