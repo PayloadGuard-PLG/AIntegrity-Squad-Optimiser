@@ -769,12 +769,56 @@
     "roles": ["DC", "DMC", "MC"],
     "tier": "T3",
     "talent": "Normal",
-    "talentConfirmed": false,
-    "talentNote": "Assumed Normal — Fitness gain prediction +3.5 vs actual +2-3. Creativity underpredicts (+5.8 vs +7-10), suggesting talent may be Fast (1.25 → predicted +7.1 ✓). Confirm from edit screen.",
+    "talentConfirmed": true,
+    "talentSource": "Training Rate shown as Normal in Edit Player screen — screenshot c7a9fe54 (2026-05-20). Prior Creativity underprediction (+5.8 vs +7-10) was caused by stale DB stats, not talent. Stats now updated to current game values from rescan.",
     "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","FITNESS","STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
     "greyStats": ["CROSSING","FINISHING","SHOOTING"],
     "whiteStatCount": 12,
     "tier_note": "12 white key attrs (not 13 as roleWeights.ts union would give) — game treats SHOOTING as grey for DC/DMC/MC combo. floor(50×12/15)=40 tier OVR ✓.",
+    "currentStats_confirmed": {
+      "date": "2026-05-20",
+      "source": "Game card screenshot 2f3ce8eb",
+      "ovr_game": 197,
+      "tier": "T3",
+      "tierBonus": 50,
+      "stats": {
+        "TACKLING": 274, "MARKING": 207, "POSITIONING": 272, "HEADING": 255, "BRAVERY": 244,
+        "PASSING": 191, "DRIBBLING": 213, "CROSSING": 83, "SHOOTING": 165, "FINISHING": 104,
+        "FITNESS": 213, "STRENGTH": 181, "AGGRESSION": 186, "SPEED": 180, "CREATIVITY": 189
+      },
+      "statSum": 2957,
+      "ovrCheck": "floor(2957/15) = floor(197.13) = 197 ✓",
+      "tierContrib": "floor(50×12/15) = 40. Base OVR = 197−40 = 157.",
+      "crossingConfirmed": "CROSSING = 83 with NO tier bonus — confirms CROSSING is GREY for DC/DMC/MC. T3 adds +50 to white stats only. CROSSING not in white list → stays at base value 83."
+    },
+    "app_db_fix": {
+      "date": "2026-05-20",
+      "issue": "App DB had stale stats and wrong roles (DL or DR included → CROSSING treated as white). Screenshots 20589430 and 2304efe0 showed CROSSING 162 white, projecting +21.3 — incorrect for DC/DMC/MC.",
+      "resolution": "Rescanned player card (screenshots c7a9fe54, 9da46a92). 15 stats updated. Roles confirmed as DC/DMC/MC only. CROSSING now 83 (grey). Training Rate confirmed Normal. DB is current."
+    },
+    "formula_verification_std_atk_x20": {
+      "id": "mccluskey_std_atk_x20_formula_verification",
+      "date": "2026-05-20",
+      "type": "APP_PROJECTION_CONSISTENCY — not actual game data",
+      "source": "Research document + app screenshots 20589430, 2304efe0, bc08332c",
+      "note": "Projection was based on stale app DB data: CROSSING=162 (not 83), roles include DL/DR (not DC/DMC/MC only). CROSSING was treated as WHITE — incorrect for this player. The formula math is internally consistent, but the inputs were wrong.",
+      "coachType": "Standard",
+      "coachCategory": "Attacking",
+      "sessionCount": 20,
+      "effectiveSessions": 18.209,
+      "budgetPerStat_xps": 2462,
+      "budgetGrey_xps": 541,
+      "statsProjected": {
+        "PASSING":   { "statBefore": 149, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 7.2,  "formulaResult": 7.23  },
+        "DRIBBLING": { "statBefore": 158, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 6.0,  "formulaResult": 6.05  },
+        "CROSSING":  { "statBefore": 162, "isWhiteInAppDB": true,  "greyMult": 1.0,  "appProjection": 21.3, "formulaResult": 21.30, "_note": "Treated as white due to DB role error — actual CROSSING is grey (83) for DC/DMC/MC" },
+        "SHOOTING":  { "statBefore": 147, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 7.5,  "formulaResult": 7.52  },
+        "FINISHING": { "statBefore": 102, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 17.5, "formulaResult": 17.53 }
+      },
+      "ovrProjected": { "before": 193, "after": 197.2, "gain": 4.2 },
+      "formulaVerified": "All 5 projections match formula output to within 0.1 pts. Confirms C₀=2.94, K=47, greyMult=0.22, sessionBudgetDecay=0.99, bXPS=676 are internally consistent.",
+      "keyFinding": "greyMult=0.22 is ABSORPTION not redistribution. Grey budget = 2462×0.22 = 541 XP. The 78% is lost — not added to CROSSING. FINISHING (stat 102, grey) still gains +17.5 because it sits on the cheap part of the exponential curve; CROSSING (stat 162, white) gains +21.3 on full budget but the expensive curve partially offsets the white advantage."
+    },
     "observations": [
       {
         "id": "mccluskey_4x_focused_physical_drill",
@@ -854,7 +898,7 @@
     ]
   },
   "calibrationStatus": {
-    "lastUpdated": "2026-05-19",
+    "lastUpdated": "2026-05-20",
     "formulaStatus": "PROVISIONAL",
     "confirmedParameters": {
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
@@ -874,7 +918,8 @@
       "x20 vs x40 anomaly: x20 shows similar gains to x40 for same stats/player. Geometric decay hypothesis still open.",
       "xN ratio 2.43 for Extensive Safeguard x10/x40: app projects this sub-linear ratio. Need OVR-99 player age to explain.",
       "OVR +1 discrepancy: both players show 1 OVR higher in game than our formula computes. Possibly a stat slightly mis-read in our screenshot transcription.",
-      "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations."
+      "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations.",
+      "McCluskey DB fix DONE (2026-05-20): rescanned, roles confirmed DC/DMC/MC, all 15 stats updated to current game values, talent confirmed Normal. CROSSING now correctly grey."
     ],
     "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21. Subsequently K recalibrated 55→47, bXPS re-derived 450→676."
   }

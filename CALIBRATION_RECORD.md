@@ -80,7 +80,7 @@ OVR = floor(sum of all 15 stats / 15)
 | 17 | 1.1 | ⚠️ ASSUMED — no data |
 | 18–21 | 1.0 | ✅ 18–20 CONFIRMED (Grant age 20). Age 21 extended from confirmed trend — young players train at full rate. Needs one age-21 data point to lock in. |
 | 22–23 | 0.85 | ⚠️ ASSUMED — no data. Dallas age 23 confirmed 0.85 but sits at the boundary. |
-| 24–25 | 0.72 | ✅ CONFIRMED — McCluskey age 24, Focused Physical ×4 |
+| 24–25 | 0.72 | ✅ CONFIRMED — McCluskey age 24, Focused Physical ×4. Talent Normal confirmed 2026-05-20. |
 | 26–28 | 0.61 | ✅ CONFIRMED — McGinty age 27 |
 | 29 | 0.50 | ⚠️ ASSUMED — no data |
 | 30+ | 0.0 | ⚠️ ASSUMED — no data |
@@ -182,8 +182,11 @@ Confirmed ageMult 0.85 for age 23 and bXPS=676.
 ### Kevin McGinty — age 27, AMC, T0
 Controlled Extensive Safeguard test. Confirmed ageMult=0.61 for age 26–28.
 
-### Garry McCluskey — age 24
-Focused Physical ×4. Fitness 213 → engine +3.5, actual +2–3. Confirmed ageMult=0.72.
+### Garry McCluskey — age 24, DC/DMC/MC, T3, Normal talent ✅
+Focused Physical ×4. Fitness 213 → engine +3.5, actual +2–3. Confirmed ageMult=0.72 for age 24.
+Talent confirmed Normal from Training Rate in Edit Player screen (2026-05-20).
+DB rescanned 2026-05-20: all 15 stats current, roles corrected to DC/DMC/MC only (was incorrectly
+including DL/DR, causing CROSSING to project as white — now correctly grey at stat value 83).
 
 ### Unknown GK — age 18, T0/T1
 ×114 Extensive GK: predicted 172.5 OVR, actual 173 OVR. Error −0.5 (<1%).
