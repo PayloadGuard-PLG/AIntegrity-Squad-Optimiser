@@ -12,9 +12,13 @@ jobs:
   payloadguard:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
 
       - name: PayloadGuard Analysis
         uses: PayloadGuard-PLG/payload-consequence-analyser@d8435494e71ee713a7c7d4160bae182e14aef399
