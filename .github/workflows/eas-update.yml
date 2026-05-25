@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: PayloadGuard Analysis
-        uses: PLG/payload-consequence-analyser@v1.1.0
+        uses: PayloadGuard-PLG/payload-consequence-analyser@d8435494e71ee713a7c7d4160bae182e14aef399
 
   update:
     if: github.event_name == 'push'
