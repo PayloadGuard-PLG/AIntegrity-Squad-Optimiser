@@ -90,7 +90,7 @@
     "Fast": 1.25,
     "Average": 1.1,
     "Normal": 1.0,
-    "Slow": 0.7
+    "Slow": 0.47
   },
   "drillLevelMultipliers": {
     "Very Easy": 1.0,
