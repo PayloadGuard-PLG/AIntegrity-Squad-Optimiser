@@ -65,20 +65,21 @@ export const GREY_MULT: number = profile.greyWeightMultiplier;  // 0.22
 export const AGE_TABLE: Record<string, number> = profile.ageTable;
 
 // ─── TALENT MULTIPLIERS ──────────────────────────────────────────────────────
-// Applied as a multiplier on training efficiency (higher = faster training).
-// Confirmed ✅ Normal (1.0): Grant, Rogers, McGinty — confirmed from intake form Training Rate.
-//   LJDark Leo (formerly Slow) is now confirmed as approximately Normal/Average — see note below.
-// ⚠️ Slow (0.47): INVALIDATED as a calibration point.
-//   LJDark Leo ×114 GK was used to derive Slow=0.47 using the linear session budget.
-//   With geometric budget (sessionBudgetDecay=0.99), LJDark Leo's data is consistent with Normal (1.0):
-//     geometric+Normal: 171.9 OVR predicted, 173 OVR actual (error −1.1).
-//   The 0.47 value was an artefact of the wrong budget model. Slow has NO confirmed data point.
-//   Do not use 0.47 for any Slow player until a proper calibration is done (known-Slow player,
-//   scan with game range visible, back-calculate with geometric budget formula).
-// Community estimate ⚠️ Fast (1.25), Fastest (1.5), Average (1.1), Slow (0.47):
-//   NOT empirically confirmed. Projections for these talent tiers may be off by up to 50%.
-//   Garry McCluskey Creativity data (+5.8 engine vs +7–10 actual) is consistent with Fast (1.25)
-//   but unconfirmed until edit screen talent label is read.
+// Applied as a multiplier on training efficiency (higher = faster = more gains per XP).
+// Talent IS a confirmed formula variable — see calibration_data.json → cieran_morgan.
+//
+// Confirmed ✅ Normal (1.0): Grant, Rogers, McGinty, Dallas, McCluskey, Jables
+//   Confirmed from intake form Training Rate / edit screen for each player.
+//   Jables DB stores "Slow" — this is a mislabel. All 11 GK stat ranges fit Normal only.
+//
+// ⚠️ Slow (0.47): PROVISIONAL — re-confirmed from Cieran Morgan ×30 Standard ATK.
+//   All 5 ATK stats within game range at mult=0.47. Normal (1.0) over-predicts by 1.48–1.95×.
+//   Mean implied mult from back-calculation across 5 stats = 0.46 ≈ 0.47.
+//   Edit screen not yet confirmed. If Cieran's talent shows "Slow" → confirmed.
+//   Note: 0.47 was first derived in Sprint 33 from Jables ×114 using LINEAR budget (invalid).
+//         Now re-derived independently under the correct GEOMETRIC budget model.
+//
+// ⚠️ Fast (1.25), Average (1.1), Fastest (1.5): community estimates, no empirical data.
 export const TALENT_MULTS: Record<string, number> = profile.talentMultipliers;
 
 // ─── STAR DECAY ──────────────────────────────────────────────────────────────
