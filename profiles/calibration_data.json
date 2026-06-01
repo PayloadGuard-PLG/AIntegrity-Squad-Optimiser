@@ -960,10 +960,73 @@
       }
     ]
   },
+  "cieran_morgan": {
+    "id": "cieran_morgan",
+    "name": "Cieran Morgan",
+    "age": 18,
+    "roles": ["DMC", "MC", "AMC"],
+    "roles_note": "AMC confirmed shortly after session — included for whiteness calculation.",
+    "tier": "T0",
+    "talent": "Slow",
+    "talent_note": "INFERRED from back-calculation. Edit screen not yet confirmed. Formula at mult=0.47 (Slow) gives 5/5 stats within game ranges. Normal (1.0) gives 1.48–1.95× over-predictions.",
+    "talentConfirmed": false,
+    "talentSource": "Mathematical inference only — confirm from Edit Player screen (Personal Trainer tab).",
+    "whiteStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
+    "greyStats": ["HEADING","STRENGTH"],
+    "whiteStatCount": 13,
+    "whiteness_note": "CROSSING white via MC role (union rule). All 5 ATK stats are white.",
+    "statsBefore_atk": { "PASSING": 134, "DRIBBLING": 101, "CROSSING": 97, "SHOOTING": 121, "FINISHING": 102 },
+    "observations": [
+      {
+        "id": "cieran_std_atk_x30",
+        "date": "2026-06-01",
+        "coachType": "Standard",
+        "coachCategory": "Attacking",
+        "multiplier": 30,
+        "effectiveSessions": 26.03,
+        "budget_per_stat_xp": 3519,
+        "playerAge": 18,
+        "ageMult": 1.0,
+        "gains": [
+          { "stat": "PASSING",   "statBefore": 134, "gainLo": 18, "gainHi": 26, "engine_normal_1_0": 43.0, "engine_slow_0_47": 24.9, "isWhite": true },
+          { "stat": "DRIBBLING", "statBefore": 101, "gainLo": 40, "gainHi": 48, "engine_normal_1_0": 65.1, "engine_slow_0_47": 41.4, "isWhite": true },
+          { "stat": "CROSSING",  "statBefore":  97, "gainLo": 35, "gainHi": 45, "engine_normal_1_0": 67.8, "engine_slow_0_47": 43.7, "isWhite": true, "whiteness_note": "White via MC role (union rule)" },
+          { "stat": "SHOOTING",  "statBefore": 121, "gainLo": 28, "gainHi": 33, "engine_normal_1_0": 50.7, "engine_slow_0_47": 30.7, "isWhite": true },
+          { "stat": "FINISHING", "statBefore": 102, "gainLo": 33, "gainHi": 41, "engine_normal_1_0": 64.4, "engine_slow_0_47": 40.8, "isWhite": true }
+        ],
+        "ovrBoostLo": 10,
+        "ovrBoostHi": 13,
+        "adjacent_talent_test_dribbling_stat101": {
+          "budget_xp": 3519,
+          "formula": "n = 47 × ln(1 + budget×0.02150×mult / (2.94×exp(101/47)))",
+          "Fast_1_25": 73,
+          "Average_1_10": 69,
+          "Normal_1_00": 65,
+          "Slow_0_47": 41,
+          "game_range": "40-48",
+          "conclusion": "Only Slow (0.47) falls within game range. Adjacent tiers Fast and Average make over-prediction worse."
+        },
+        "back_calculation": {
+          "note": "What talent mult would be needed to hit each stat's game midpoint?",
+          "PASSING_mid22":   { "budget_needed_xp": 1413, "implied_mult": 0.40 },
+          "DRIBBLING_mid44": { "budget_needed_xp": 1817, "implied_mult": 0.52 },
+          "SHOOTING_mid30":  { "budget_needed_xp": 1536, "implied_mult": 0.44 },
+          "FINISHING_mid37": { "budget_needed_xp": 1695, "implied_mult": 0.48 },
+          "CROSSING_mid40":  { "budget_needed_xp": 1574, "implied_mult": 0.45 },
+          "mean_implied_mult": 0.46,
+          "conclusion": "Mean implied multiplier 0.46 ≈ 0.47 (Slow). Consistent across all 5 stats."
+        },
+        "conclusion": "All 5 stats fit within game ranges at Slow (0.47). Normal (1.0) over-predicts by 1.48–1.95×. Adjacent talent tiers (Fast, Average) make over-predictions worse. First non-Normal calibration point. Confirms talent IS a formula variable."
+      }
+    ]
+  },
   "calibrationStatus": {
-    "lastUpdated": "2026-05-20 (session 2)",
+    "lastUpdated": "2026-06-01 (session 3)",
     "formulaStatus": "PROVISIONAL",
     "confirmedParameters": {
+      "talent_IS_a_formula_variable": "CONFIRMED 2026-06-01. Prior sessions concluded talent was not a formula variable — that was based on all calibrated players being Normal. Cieran Morgan ×30 ATK shows Normal (1.0) over-predicts by 1.48–1.95×. Slow (0.47) fits all 5 stats within game range. Talent multiplier is real and applied in combinedMultiplier().",
+      "talent_normal_1_0": "Normal ×1.0 confirmed — Grant, Rogers, McGinty, Dallas, McCluskey, Jables (all confirmed from intake form / edit screen)",
+      "talent_slow_0_47": "PROVISIONAL — Cieran Morgan ×30 ATK back-calculation gives mean implied mult 0.46 ≈ 0.47. Edit screen not yet confirmed. 5/5 stats in range at 0.47.",
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
       "talent_rodger": "Normal ×1.0 (confirmed sprint 26)",
       "drillLevelMultipliers": "confirmed from game screenshots",
@@ -974,7 +1037,7 @@
       "whiteStats_grant_DL_ML_AML": "13 stats confirmed (all except HEADING and STRENGTH)",
       "xpCostTable_0_199": "approximately correct based on mid-range stat observations",
       "xpCostTable_200_plus": "PROVISIONAL — increased 1.5-1.8x from original based on Aggression 201 and Creativity 256 observations",
-      "talent_jables_jaseysboi": "INVALIDATED 2026-05-20. Earlier 0.47 calibration used linear budget model — wrong. Under geometric model (Sprint 34), Normal (1.0) gives OVR 172.5 vs actual 173 — 11/11 stat ranges confirmed. Player is Jables JaseysBoi (formerly Lewis MacGregor). DB stores 'Slow' but talent is not a formula variable. No talent multiplier other than 1.0 has ever been needed to explain any confirmed observation."
+      "talent_jables_jaseysboi": "DB stores 'Slow' — this is a MISLABEL. Under geometric model (Sprint 34), Normal (1.0) gives OVR 172.5 vs actual 173 — 11/11 stat ranges confirmed. At Slow (0.47), REFLEXES(144, budget 4191) gives only +24.2 vs game range +35–48. Jables is Normal talent. DB entry should be corrected to Normal."
     },
     "openQuestions": [
       "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",

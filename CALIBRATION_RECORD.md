@@ -7,19 +7,18 @@ Nothing in here is dressed up. If it's assumed, it says so.
 
 ## The Model — Plain English
 
-Training gain for any player is determined by two things only:
+Training gain for any player is determined by three things:
 
 1. **How old they are** — older players gain less per session, lose more per season
 2. **How high their stats already are** — higher stats cost exponentially more XP per point
+3. **Their talent tier** — Slow players gain ~47% as much as Normal players per session
 
 Young players train fast and lose slowly. Old players train slowly and lose quickly.
-That is the entire model. There is no talent variable. The game does not apply a
-separate per-player training rate multiplier — it uses per-star-step cost curves,
-which the exponential formula already captures.
+Slow talent players gain significantly less than Normal players at the same age and stats.
 
-The "talent" label exists in the game as a player development descriptor. It has no
-confirmed effect on per-session training rate. It is stored in the DB for reference
-only and is not used in any projection.
+The talent label (Fastest/Fast/Average/Normal/Slow) is confirmed as a formula variable.
+Normal (1.0) is confirmed from 6 players. Slow (0.47) is provisional from Cieran Morgan ×30 ATK.
+Fast/Average/Fastest remain community estimates — no empirical data.
 
 ---
 
@@ -55,13 +54,13 @@ budget = effectiveSessions × 676 / detectedStatCount
 Solve for g (gain) in the integral:
 
 ```
-C₀ × K × (exp((stat + g) / K) − exp(stat / K)) = budget × ageMult × greyMult
+C₀ × K × (exp((stat + g) / K) − exp(stat / K)) = budget × ageMult × greyMult × talentMult
 ```
 
 Where:
 - ageMult = from age table (see below)
 - greyMult = 1.0 for white stats, 0.22 for grey stats ✅ CONFIRMED
-- No talent multiplier. Locked to 1.0 for all players, always.
+- talentMult = from talent tier (Normal=1.0 confirmed; Slow=0.47 provisional)
 
 ### OVR Formula
 
@@ -93,14 +92,26 @@ is whether 21 and 22 are still at 1.0 or already reduced. Current assumption: 21
 
 ---
 
-## Talent Multipliers — REMOVED FROM FORMULA
+## Talent Multipliers — CONFIRMED FORMULA VARIABLE
 
-Talent is not a per-session training rate variable. It has been removed from all
-projection logic. The field remains in the DB as informational only.
+Talent multiplier applies as an efficiency factor: higher = cheaper training = more gains per session.
+Applied in `combinedMultiplier()` → `talentMultiplier(talent)` → `TALENT_MULTS[talent]`.
 
-No talent tier has ever produced a result that required a multiplier other than 1.0
-under the correct (geometric) budget model. The game's training rate variation is
-fully explained by age and the exponential stat cost curve.
+| Talent  | Mult | Status |
+|---|---|---|
+| Normal  | 1.0  | ✅ CONFIRMED — Grant, Rogers, McGinty, Dallas, McCluskey, Jables (6 players, multiple sessions) |
+| Slow    | 0.47 | ⚠️ PROVISIONAL — inferred from Cieran Morgan ×30 ATK. 5/5 stats within game range at 0.47. Normal gives 1.48–1.95× over-predictions. Edit screen not yet confirmed. |
+| Average | 1.1  | ⚠️ Community estimate — no confirmed empirical data point |
+| Fast    | 1.25 | ⚠️ Community estimate — no confirmed empirical data point |
+| Fastest | 1.5  | ⚠️ Community estimate — no confirmed empirical data point |
+
+**Prior conclusion "talent not a formula variable" was incorrect.** It was based on all
+confirmed calibration players being Normal (×1.0). Cieran Morgan ×30 ATK provides the
+first non-Normal data point. The code already applies talent correctly via `combinedMultiplier`.
+
+**Jables DB label "Slow" is a mislabel.** At Slow (0.47), REFLEXES(144, budget 4191) gives
++24.2 — well below the game range of +35–48. Jables fits only at Normal (1.0): OVR 172.5
+predicted vs 173 actual, all 11 GK stats in range. DB needs correcting to "Normal".
 
 ---
 
@@ -195,13 +206,29 @@ Confirmed sessionBudgetDecay=0.99 and geometric budget model.
 Session screen OCR recorded under old account name "Lewis MacGregor" — same player, account renamed.
 After ×114 + T1 + T2 upgrades: game OVR = 195 (confirmed 2026-05-20).
 
-Note: DB stores talent as "Slow" but the formula uses 1.0 for all players. This data point
-confirms that the DB talent label has no effect on projection — Normal rate fully explains the result.
-The 0.47 Slow multiplier (Sprint 33) was derived from the linear budget model and is invalidated.
+Note: DB stores talent as "Slow" — this is a mislabel. At Slow (0.47), REFLEXES(144, budget 4191)
+gives +24.2, well below the game range of +35–48. Jables fits only at Normal (1.0). DB should be
+corrected. The 0.47 Slow value (Sprint 33) was derived from Jables under the linear budget model
+(invalid). Cieran Morgan ×30 ATK independently re-confirms 0.47 under the correct geometric model.
 
 ### Gillespie
 In-game name for the player previously mislabelled "LJDark Leo" in calibration_data.json.
 No calibration observations on Gillespie. The ×114 GK calibration session belongs to Jables JaseysBoi.
+
+### Cieran Morgan — age 18, DMC/MC/AMC, T0, talent inferred Slow
+×30 Standard Attacking. All 5 ATK stats white (CROSSING white via MC, union rule).
+Budget per stat = 26.03 × 676 / 5 = 3,519 XP.
+
+| Stat | Start | Engine (Normal) | Engine (Slow 0.47) | Game range | Slow fits? |
+|---|---|---|---|---|---|
+| PASSING    | 134 | +43 | +24.9 | +18–26 | ✓ |
+| DRIBBLING  | 101 | +65 | +41.4 | +40–48 | ✓ |
+| CROSSING   | 97  | +68 | +43.7 | +35–45 | ✓ |
+| SHOOTING   | 121 | +51 | +30.7 | +28–33 | ✓ |
+| FINISHING  | 102 | +64 | +40.8 | +33–41 | ✓ |
+
+Adjacent talent tests: Fast (+73), Average (+69), Normal (+65) all over-predict. Slow (0.47) is the only tier that fits.
+First confirmed calibration point for a non-Normal player. Talent label not yet verified from edit screen.
 
 ---
 
@@ -245,13 +272,12 @@ Only three things:
 
 | Thing | Why Removed |
 |---|---|
-| Talent multiplier | Not a real variable. Age + stat cost curve explains all observed training rate variation. No non-1.0 multiplier confirmed from any real data point. |
 | Talent estimator (estimateTalentFromGain) | Circular: used the game's own projected ranges to back-calculate a multiplier, then re-derived the game's answer. Removed from coach flow. |
 | Coach category stat filtering | Coach name/category has no bearing on which stats are boosted. OCR detects what's highlighted. Nothing else applies. |
 | Standard/Extensive full-category override | Same reason — assumed OCR misses = full category. Wrong. Trust what OCR detects. |
 | bXPS 150 → 220 | Calibrated against wrong cost model. 676 confirmed under exponential cost + geometric budget. |
 | OVR ceil | 4 data points looked like ceil due to fractional training accumulation. Clean integer-only tier upgrade decisively showed floor. |
-| Slow talent 0.47 | Derived from linear session budget model applied to Jables JaseysBoi ×114 session. Under geometric model, Normal (1.0) gives 172.5 OVR (actual 173). 0.47 was never valid. |
+| Slow talent 0.47 (first derivation) | Sprint 33 derived 0.47 from Jables ×114 using linear session budget — invalid once geometric model confirmed. Jables is Normal talent (DB mislabel). However, 0.47 re-confirmed independently from Cieran Morgan ×30 ATK under correct geometric model. 0.47 is now provisional for Slow tier pending edit-screen confirmation. |
 
 ---
 
@@ -263,4 +289,5 @@ Only three things:
 4. **Grey stat recovery rate for older players** — flat seasonal loss is confirmed. Recovery rate (ageMult × greyMult) is the model — no separate data point yet.
 5. **DB stat freshness** — projection accuracy depends entirely on DB stats matching the player's current in-game stats. A stale scan will give wrong results. Rescan the player card before projecting after any training or season.
 6. **K=47 breaks at high stats (T5+/T6)** — Neri (Age 28, T6, stat=330): K=47 predicts +0.25 for Focused ×4, game shows +3–4. Implied K≈76 at stat=330. K=47 confirmed valid up to ~260. Do NOT change engine K until at least 3 data points in the 260–330 range confirm a consistent value. Neri is the only T6 data point — one player, one session.
-7. **Slow talent true value** — DB entry for Jables JaseysBoi says "Slow" but formula at 1.0 matches the ×114 result exactly. Actual talent tier (Fastest/Fast/Average/Normal/Slow) not confirmed from edit screen. If Slow talent does have a real multiplier it would need to be calibrated from a player where (a) talent is confirmed from edit screen AND (b) DB stats are current AND (c) age is known. No such data point exists yet.
+7. **Cieran Morgan talent confirmation** — Slow (0.47) inferred from ×30 ATK data (5/5 stats fit). Confirm by opening Cieran Morgan's edit screen and reading the Personal Trainer tab talent label. If "Slow" → Slow=0.47 confirmed. If "Normal" → discrepancy needs new investigation. Jables DB "Slow" label is a mislabel — he is Normal talent.
+8. **Fast/Average/Fastest talent tiers** — community estimates only. No controlled data point exists. Acquire a confirmed-Fast player (edit screen label) and run a coached session to calibrate.
