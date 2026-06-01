@@ -7,6 +7,10 @@
 //   effectiveSessions = (1 - decay^N) / (1 - decay)   when 0 < decay < 1, N > 0
 //   budget = effectiveSessions × baseXps / numStats
 //
+// EffSessions is defined here as the equivalent geometric sum Σ_{k=0}^{N-1} decay^k.
+// The two forms are mathematically identical; the recursive form avoids symbolic
+// division, which Z3's quantifier-free nonlinear real arithmetic cannot discharge.
+//
 // Tool:   Dafny 4.x — discharges VCs via Boogie + Z3
 // Verify: dafny verify verification/dafny/budget_model.dfy
 //
@@ -42,10 +46,6 @@ lemma RealPowInUnit(base: real, n: nat)
         assert RealPow(base, 0) == 1.0;
     } else {
         RealPowInUnit(base, n - 1);
-        // IH: 0 < base^(n-1) < 1
-        // base^n = base × base^(n-1)
-        // Lower: base > 0, base^(n-1) > 0  →  base^n > 0
-        // Upper: base^n = base × base^(n-1) < 1 × base^(n-1) < 1 × 1 = 1
         var prev := RealPow(base, n - 1);
         assert RealPow(base, n) == base * prev;
     }
@@ -58,28 +58,25 @@ lemma RealPowDecreasing(base: real, n: nat)
 {
     RealPowPositive(base, n);
     assert RealPow(base, n + 1) == base * RealPow(base, n);
-    // base < 1, RealPow(base, n) > 0  →  base × RealPow(base,n) < RealPow(base,n)
 }
 
 // ── Effective sessions ─────────────────────────────────────────────────────────
-// Models (1 - decay^N) / (1 - decay)
+// Geometric sum: Σ_{k=0}^{n-1} decay^k  (= (1 - decay^n) / (1 - decay))
+// Defined recursively to avoid symbolic division in proofs.
 
 ghost function EffSessions(decay: real, n: nat): real
     requires 0.0 < decay < 1.0
+    decreases n
 {
-    (1.0 - RealPow(decay, n)) / (1.0 - decay)
+    if n == 0 then 0.0
+    else RealPow(decay, n - 1) + EffSessions(decay, n - 1)
 }
 
 // ── P4: sessions = 0 → effectiveSessions = 0 → budget = 0 ─────────────────────
 lemma P4_ZeroSessionsZeroBudget(decay: real)
     requires 0.0 < decay < 1.0
     ensures  EffSessions(decay, 0) == 0.0
-{
-    assert RealPow(decay, 0) == 1.0;
-    assert 1.0 - decay > 0.0;
-    // (1 - 1) / (1 - decay) == 0.0 / (1 - decay) == 0.0
-    assert (1.0 - 1.0) / (1.0 - decay) == 0.0;
-}
+{ }
 
 // ── P1: sessions ≥ 1 → effectiveSessions > 0 → budget > 0 ─────────────────────
 lemma P1_PositiveBudget(decay: real, n: nat)
@@ -87,9 +84,8 @@ lemma P1_PositiveBudget(decay: real, n: nat)
     requires n >= 1
     ensures  EffSessions(decay, n) > 0.0
 {
-    RealPowInUnit(decay, n);
-    // 0 < decay^n < 1  →  1 - decay^n > 0
-    // 1 - decay > 0    →  (1 - decay^n) / (1 - decay) > 0
+    RealPowPositive(decay, n - 1);
+    if n > 1 { P1_PositiveBudget(decay, n - 1); }
 }
 
 // ── P2: sessions₁ > sessions₂ → effectiveSessions₁ > effectiveSessions₂ ────────
@@ -104,7 +100,6 @@ lemma P2_Monotone(decay: real, n1: nat, n2: nat)
         P1_PositiveBudget(decay, n1);
         P4_ZeroSessionsZeroBudget(decay);
     } else {
-        // Reduce to step of 1: prove EffSessions(n) > EffSessions(n-1)
         if n1 == n2 + 1 {
             P2_OneStep(decay, n2);
         } else {
@@ -114,15 +109,13 @@ lemma P2_Monotone(decay: real, n1: nat, n2: nat)
     }
 }
 
+// EffSessions(n+1) = RealPow(decay,n) + EffSessions(n) > EffSessions(n)
+// since RealPow(decay,n) > 0 (decay > 0).
 lemma P2_OneStep(decay: real, n: nat)
     requires 0.0 < decay < 1.0
-    requires n >= 1
     ensures  EffSessions(decay, n + 1) > EffSessions(decay, n)
 {
-    RealPowDecreasing(decay, n);
-    assert 1.0 - decay > 0.0;
-    assert 1.0 - RealPow(decay, n + 1) > 1.0 - RealPow(decay, n);
-    assert (1.0 - RealPow(decay, n + 1)) / (1.0 - decay) > (1.0 - RealPow(decay, n)) / (1.0 - decay);
+    RealPowPositive(decay, n);
 }
 
 // Edge case: one step from 0
@@ -130,8 +123,7 @@ lemma P2_OneStepFromZero(decay: real)
     requires 0.0 < decay < 1.0
     ensures  EffSessions(decay, 1) > EffSessions(decay, 0)
 {
-    P4_ZeroSessionsZeroBudget(decay);
-    P1_PositiveBudget(decay, 1);
+    P2_OneStep(decay, 0);
 }
 
 // ── P3: effectiveSessions ≤ sessions (geometric ≤ linear) ─────────────────────
@@ -141,39 +133,23 @@ lemma P3_GeomLeqLinear(decay: real, n: nat)
     decreases n
 {
     if n == 0 {
-        P4_ZeroSessionsZeroBudget(decay);
+        // EffSessions(decay, 0) == 0.0 == 0 as real
     } else {
         P3_GeomLeqLinear(decay, n - 1);
-        RealPowInUnit(decay, n);
-        // IH: EffSessions(n-1) ≤ n-1
-        // EffSessions(n) = (1 - decay^n)/(1-decay)
-        //                = EffSessions(n-1) + decay^(n-1)
-        // Wait, let me verify this identity holds:
-        // (1 - decay^n)/(1-decay) = (1 - decay^(n-1))/(1-decay) + decay^(n-1)
-        // ↔ 1 - decay^n = 1 - decay^(n-1) + decay^(n-1)(1-decay)
-        // ↔ 1 - decay^n = 1 - decay^(n-1) + decay^(n-1) - decay^n
-        // ↔ 1 - decay^n = 1 - decay^n  ✓
-        P3_StepIdentity(decay, n - 1);
-        // Now: EffSessions(n) = EffSessions(n-1) + decay^(n-1)
-        // By IH:  EffSessions(n-1) ≤ (n-1) as real
-        // And:    decay^(n-1) ≤ 1  (since 0 < decay < 1)
-        RealPowPositive(decay, n - 1);
+        // EffSessions(n) = RealPow(decay, n-1) + EffSessions(n-1)
+        //   <= 1.0 + (n-1 as real) = n as real
+        // Need: RealPow(decay, n-1) <= 1.0
+        if n == 1 {
+            assert RealPow(decay, 0) == 1.0;
+        } else {
+            RealPowInUnit(decay, n - 1);
+        }
     }
 }
 
 // Identity: EffSessions(n+1) = EffSessions(n) + decay^n
+// Trivially true from the recursive definition (addition is commutative).
 lemma P3_StepIdentity(decay: real, n: nat)
     requires 0.0 < decay < 1.0
     ensures  EffSessions(decay, n + 1) == EffSessions(decay, n) + RealPow(decay, n)
-{
-    var d := 1.0 - decay;
-    var pn := RealPow(decay, n);
-    assert d > 0.0;
-    assert d != 0.0;
-    assert RealPow(decay, n + 1) == decay * pn;
-    // (1 - decay*pn) = (1 - pn) + pn*(1 - decay) = (1 - pn) + pn*d
-    assert 1.0 - decay * pn == (1.0 - pn) + pn * d;
-    // Dividing both sides by d:
-    // (1 - decay*pn)/d = (1 - pn)/d + pn
-    assert (1.0 - decay * pn) / d == (1.0 - pn) / d + pn;
-}
+{ }
