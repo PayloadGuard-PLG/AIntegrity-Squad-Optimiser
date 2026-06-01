@@ -1,5 +1,44 @@
 # AIntegrity Squad Optimiser — Developer Notes
 
+---
+
+## For the Next Claude — Read This First
+
+**Active branch:** `claude/test-connection-I2s8B`
+**Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
+
+### Formal Verification Layer (added Sprint 35)
+
+A three-layer proof stack (Z3 + Crosshair + Dafny) is now on `main`. It gates every PR to main via CI.
+
+**Files:**
+- `verification/constants_pure.py` — engine constants loaded from `profiles/game_2025.json`
+- `verification/engine_pure.py` — pure Python spec of `src/engine/engineMath.ts` with PEP 316 contracts
+- `verification/multipliers_pure.py` — multiplier helper functions
+- `verification/dafny/budget_model.dfy` — Dafny proofs P1–P4 (budget model)
+- `verification/dafny/gain_engine.dfy` — Dafny proofs P5–P6 (gain loop)
+- `tests/proofs/test_z3_properties.py` — Z3 SMT proofs P7, P10–P15, P18–P19
+- `tests/proofs/test_crosshair_contracts.py` — Crosshair symbolic contracts P5, P6, P8, P9, P16, P17
+- `.github/workflows/proofs.yml` — CI workflow (both jobs must pass before merge to main)
+
+**To run proofs locally:**
+```bash
+pip install z3-solver crosshair-tool pytest pytest-timeout
+pytest tests/proofs/ -m proof -v --timeout=30
+```
+```bash
+dotnet tool install --global dafny
+dafny verify verification/dafny/budget_model.dfy
+dafny verify verification/dafny/gain_engine.dfy
+```
+
+**Rules:**
+- Do NOT modify `src/engine/engineMath.ts` or `profiles/game_2025.json` to make proofs pass — a failing proof is a finding to report, not a reason to weaken the property or change the engine.
+- The proof files verify the engine as it exists. If Z3/Crosshair/Dafny cannot discharge a property, report it explicitly.
+- The full verification spec (all 19 properties, tool assignments, rationale) is in the plan file at `/root/.claude/plans/silly-dreaming-crab.md`.
+
+---
+
 Persistent findings from game-play analysis and OCR debugging. Read this before touching scanner logic.
 
 ---
