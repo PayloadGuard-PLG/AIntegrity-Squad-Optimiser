@@ -1,0 +1,63 @@
+name: Engine Proofs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+# Proof failures block merge to main.
+# Nothing in this workflow modifies the source — it is read-only verification.
+#
+# Two independent jobs:
+#   z3-crosshair : Z3 SMT proofs (P7, P10–P15, P18–P19) +
+#                  Crosshair symbolic contracts (P5, P6, P8, P9, P16, P17)
+#   dafny        : machine-checked algorithm proofs (P1–P6 via budget_model.dfy + gain_engine.dfy)
+#
+# Both must pass green before a PR can merge to main.
+
+jobs:
+  z3-crosshair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install proof dependencies
+        run: pip install z3-solver crosshair-tool pytest pytest-timeout
+
+      - name: Run Z3 and Crosshair proofs
+        run: pytest tests/proofs/ -m proof -v --timeout=30
+        # A proof returning `unknown` (Z3 timeout) is a hard failure — see _check() in test_z3_properties.py.
+        # A Crosshair counterexample prints the violating inputs before failing.
+
+  dafny:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET (required for Dafny)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+
+      - name: Install Dafny
+        run: dotnet tool install --global dafny
+
+      - name: Verify budget model (P1–P4)
+        run: dafny verify verification/dafny/budget_model.dfy
+        # Expected: "Dafny program verifier finished with N verified, 0 errors"
+
+      - name: Verify gain engine (P5–P6)
+        run: dafny verify verification/dafny/gain_engine.dfy
+        # Expected: "Dafny program verifier finished with N verified, 0 errors"
