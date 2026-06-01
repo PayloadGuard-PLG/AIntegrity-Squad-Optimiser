@@ -95,21 +95,18 @@ lemma P7_ZeroBudgetZeroGain(current: nat, stat_cap: nat, mult: real, fuel: nat)
 }
 
 // ── Main theorem: the loop is safe ────────────────────────────────────────────
-// Combines P5 and P6 for any number of fuel steps sufficient to complete the run.
-// In practice, fuel = stat_cap - start_stat whole iterations is always sufficient
-// (plus one fractional step that doesn't increment current).
+// Combines P5 and P6 for fuel = stat_cap - start (sufficient for all integer steps).
+// Uses two plain ensures rather than an existential to avoid Z3 trigger problems:
+// real-valued existentials have no function-application trigger, so Z3 cannot
+// reliably instantiate the negated universal with the local witness.
 lemma GainLoopIsSafe(start: nat, stat_cap: nat, budget: real, mult: real)
     requires mult > 0.0
     requires budget >= 0.0
     requires start <= stat_cap
-    ensures exists gain: real ::
-        gain >= 0.0 &&
-        gain < (stat_cap - start) as real + 1.0
+    ensures  GainRec(start, stat_cap, budget, mult, stat_cap - start) >= 0.0
+    ensures  GainRec(start, stat_cap, budget, mult, stat_cap - start) < (stat_cap - start) as real + 1.0
 {
     var fuel := stat_cap - start;
-    var g    := GainRec(start, stat_cap, budget, mult, fuel);
     P5_GainNonNegative(start, stat_cap, budget, mult, fuel);
     P6_GainBounded(start, stat_cap, budget, mult, fuel);
-    // Explicit witness assertion so Dafny can close the existential with g.
-    assert g >= 0.0 && g < (stat_cap - start) as real + 1.0;
 }
