@@ -7,29 +7,32 @@
 **Active branch:** `claude/test-connection-I2s8B`
 **Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
 
-### Formal Verification Layer (added Sprint 35)
+### Formal Verification Layer (added Sprint 35, extended Sprint 36)
 
-A three-layer proof stack (Z3 + Crosshair + Dafny) is now on `main`. It gates every PR to main via CI.
+A three-layer proof stack (Z3 + Crosshair + Dafny) + Hypothesis differential tests are on `main`. All gate every PR to main via CI.
 
 **Files:**
 - `verification/constants_pure.py` — engine constants loaded from `profiles/game_2025.json`
 - `verification/engine_pure.py` — pure Python spec of `src/engine/engineMath.ts` with PEP 316 contracts
 - `verification/multipliers_pure.py` — multiplier helper functions
+- `verification/run_ts.ts` — persistent Node.js subprocess runner; called by equivalence tests
 - `verification/dafny/budget_model.dfy` — Dafny proofs P1–P4 (budget model)
-- `verification/dafny/gain_engine.dfy` — Dafny proofs P5–P6 (gain loop)
+- `verification/dafny/gain_engine.dfy` — Dafny proofs P5–P6 (gain loop); NLSAT solver enabled
 - `tests/proofs/test_z3_properties.py` — Z3 SMT proofs P7, P10–P15, P18–P19
 - `tests/proofs/test_crosshair_contracts.py` — Crosshair symbolic contracts P5, P6, P8, P9, P16, P17
+- `tests/proofs/test_ts_equivalence.py` — Hypothesis differential tests: Python spec vs TS engine, ε=1e-10, 200 examples × 7 functions (Gap 3)
 - `.github/workflows/proofs.yml` — CI workflow (both jobs must pass before merge to main)
 
 **To run proofs locally:**
 ```bash
-pip install z3-solver crosshair-tool pytest pytest-timeout
-pytest tests/proofs/ -m proof -v --timeout=30
+npm ci
+pip install z3-solver crosshair-tool pytest pytest-timeout hypothesis
+pytest tests/proofs/ -m proof -v --timeout=60
 ```
 ```bash
 dotnet tool install --global dafny
 dafny verify verification/dafny/budget_model.dfy
-dafny verify verification/dafny/gain_engine.dfy
+dafny verify --boogie /proverOpt:O:smt.arith.solver=6 verification/dafny/gain_engine.dfy
 ```
 
 **Rules:**
