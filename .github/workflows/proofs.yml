@@ -54,15 +54,12 @@ jobs:
         run: dotnet tool install --global dafny
 
       - name: Install Z3 4.12.1 (required by Dafny 4.x)
-        # dotnet tool install does not bundle Z3; download the official release binary.
-        # Placed next to the dafny binary so Dafny finds it without --solver-path.
+        # dotnet tool install does not bundle Z3; download the official release binary
+        # and add it to PATH — Dafny searches PATH for the z3 executable.
         run: |
           curl -fsSL https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip -o z3.zip
           unzip -q z3.zip
-          DAFNY_DIR=$(dirname "$(which dafny)")
-          mkdir -p "$DAFNY_DIR/z3/bin"
-          cp z3-4.12.1-x64-glibc-2.35/bin/z3 "$DAFNY_DIR/z3/bin/z3-4.12.1"
-          chmod +x "$DAFNY_DIR/z3/bin/z3-4.12.1"
+          echo "$PWD/z3-4.12.1-x64-glibc-2.35/bin" >> "$GITHUB_PATH"
 
       - name: Verify budget model (P1–P4)
         run: dafny verify verification/dafny/budget_model.dfy
