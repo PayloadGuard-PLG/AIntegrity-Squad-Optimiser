@@ -54,17 +54,18 @@ jobs:
         run: dotnet tool install --global dafny
 
       - name: Install Z3 4.12.1 (required by Dafny 4.x)
-        # dotnet tool install does not bundle Z3; download the official release binary
-        # and add it to PATH — Dafny searches PATH for the z3 executable.
+        # dotnet tool install does not bundle Z3; download the official release binary.
+        # Export the path explicitly — passed to dafny via --solver-path below.
         run: |
           curl -fsSL https://github.com/Z3Prover/z3/releases/download/z3-4.12.1/z3-4.12.1-x64-glibc-2.35.zip -o z3.zip
           unzip -q z3.zip
-          echo "$PWD/z3-4.12.1-x64-glibc-2.35/bin" >> "$GITHUB_PATH"
+          chmod +x z3-4.12.1-x64-glibc-2.35/bin/z3
+          echo "Z3_EXE=$PWD/z3-4.12.1-x64-glibc-2.35/bin/z3" >> "$GITHUB_ENV"
 
       - name: Verify budget model (P1–P4)
-        run: dafny verify verification/dafny/budget_model.dfy
+        run: dafny verify --solver-path "$Z3_EXE" verification/dafny/budget_model.dfy
         # Expected: "Dafny program verifier finished with N verified, 0 errors"
 
       - name: Verify gain engine (P5–P6)
-        run: dafny verify verification/dafny/gain_engine.dfy
+        run: dafny verify --solver-path "$Z3_EXE" verification/dafny/gain_engine.dfy
         # Expected: "Dafny program verifier finished with N verified, 0 errors"
