@@ -10,7 +10,8 @@ on:
 #
 # Two independent jobs:
 #   z3-crosshair : Z3 SMT proofs (P7, P10–P15, P18–P19) +
-#                  Crosshair symbolic contracts (P5, P6, P8, P9, P16, P17)
+#                  Crosshair symbolic contracts (P5, P6, P8, P9, P16, P17) +
+#                  Hypothesis differential tests (Python spec vs TypeScript engine, Gap 3)
 #   dafny        : machine-checked algorithm proofs (P1–P6 via budget_model.dfy + gain_engine.dfy)
 #
 # Both must pass green before a PR can merge to main.
@@ -29,13 +30,22 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install proof dependencies
-        run: pip install z3-solver crosshair-tool pytest pytest-timeout
+      - name: Set up Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
 
-      - name: Run Z3 and Crosshair proofs
-        run: pytest tests/proofs/ -m proof -v --timeout=30
-        # A proof returning `unknown` (Z3 timeout) is a hard failure — see _check() in test_z3_properties.py.
-        # A Crosshair counterexample prints the violating inputs before failing.
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install proof dependencies
+        run: pip install z3-solver crosshair-tool pytest pytest-timeout hypothesis
+
+      - name: Run Z3, Crosshair and equivalence proofs
+        run: pytest tests/proofs/ -m proof -v --timeout=60
+        # Z3: `unknown` (timeout) is a hard failure — see _check() in test_z3_properties.py.
+        # Crosshair: counterexample prints violating inputs before failing.
+        # Equivalence: Python spec vs TypeScript engine, ε = 1e-10.
 
   dafny:
     runs-on: ubuntu-latest
@@ -67,5 +77,9 @@ jobs:
         # Expected: "Dafny program verifier finished with N verified, 0 errors"
 
       - name: Verify gain engine (P5–P6)
-        run: dafny verify --solver-path "$Z3_EXE" verification/dafny/gain_engine.dfy
+        run: dafny verify --solver-path "$Z3_EXE" --boogie /proverOpt:O:smt.arith.solver=6 verification/dafny/gain_engine.dfy
+        # --boogie /proverOpt:O:smt.arith.solver=6 enables Z3's NLSAT solver for nonlinear real arithmetic.
+        # This may discharge the exact fractional-gain case (remaining/cost < 1) that the default
+        # linear solver cannot handle symbolically. Current proof still holds without it (conservative 0.0
+        # model); the flag is additive — it cannot break an existing valid proof.
         # Expected: "Dafny program verifier finished with N verified, 0 errors"
