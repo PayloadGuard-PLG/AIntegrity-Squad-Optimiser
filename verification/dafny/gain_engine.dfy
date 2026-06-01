@@ -36,7 +36,7 @@ ghost function GainRec(
     stat_cap: nat,
     remaining: real,
     mult:     real,
-    fuel:     nat,
+    fuel:     nat
 ) : (gain: real)
     requires mult > 0.0
     requires remaining >= 0.0
