@@ -75,8 +75,10 @@ lemma P4_ZeroSessionsZeroBudget(decay: real)
     requires 0.0 < decay < 1.0
     ensures  EffSessions(decay, 0) == 0.0
 {
-    // RealPow(decay, 0) = 1.0, so (1 - 1) / (1 - decay) = 0
     assert RealPow(decay, 0) == 1.0;
+    assert 1.0 - decay > 0.0;
+    // (1 - 1) / (1 - decay) == 0.0 / (1 - decay) == 0.0
+    assert (1.0 - 1.0) / (1.0 - decay) == 0.0;
 }
 
 // ── P1: sessions ≥ 1 → effectiveSessions > 0 → budget > 0 ─────────────────────
@@ -118,9 +120,9 @@ lemma P2_OneStep(decay: real, n: nat)
     ensures  EffSessions(decay, n + 1) > EffSessions(decay, n)
 {
     RealPowDecreasing(decay, n);
-    // decay^(n+1) < decay^n
-    // 1 - decay^(n+1) > 1 - decay^n
-    // dividing by the same positive (1 - decay) preserves the inequality
+    assert 1.0 - decay > 0.0;
+    assert 1.0 - RealPow(decay, n + 1) > 1.0 - RealPow(decay, n);
+    assert (1.0 - RealPow(decay, n + 1)) / (1.0 - decay) > (1.0 - RealPow(decay, n)) / (1.0 - decay);
 }
 
 // Edge case: one step from 0
@@ -164,9 +166,14 @@ lemma P3_StepIdentity(decay: real, n: nat)
     requires 0.0 < decay < 1.0
     ensures  EffSessions(decay, n + 1) == EffSessions(decay, n) + RealPow(decay, n)
 {
-    // (1 - decay^(n+1))/(1-d) = (1 - decay^n)/(1-d) + decay^n
-    // ↔ 1 - decay^(n+1) = (1 - decay^n) + decay^n × (1-d)
-    // ↔ 1 - decay^(n+1) = 1 - decay^n + decay^n - decay^(n+1)
-    // ↔ 1 - decay^(n+1) = 1 - decay^(n+1)  ✓
-    assert RealPow(decay, n + 1) == decay * RealPow(decay, n);
+    var d := 1.0 - decay;
+    var pn := RealPow(decay, n);
+    assert d > 0.0;
+    assert d != 0.0;
+    assert RealPow(decay, n + 1) == decay * pn;
+    // (1 - decay*pn) = (1 - pn) + pn*(1 - decay) = (1 - pn) + pn*d
+    assert 1.0 - decay * pn == (1.0 - pn) + pn * d;
+    // Dividing both sides by d:
+    // (1 - decay*pn)/d = (1 - pn)/d + pn
+    assert (1.0 - decay * pn) / d == (1.0 - pn) / d + pn;
 }
