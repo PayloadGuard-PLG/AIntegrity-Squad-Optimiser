@@ -129,6 +129,55 @@ throughout the codebase when cloning for logistics:
 | Standard/Focused/Extensive coach | Standard/Targeted/Intensive investment | Budget multiplier names |
 | Restorer | Recovery kit / replenishment | Readiness restoration item |
 
+### 2.1.1 The Invest-then-Upgrade Rule (critical — do not reverse this)
+
+**Investment always happens before classification upgrade. The system enforces this — it is not a convention.**
+
+```
+1. INVEST   — asset CCI is below ceiling (maxBaseOvr). Run investment cycles.
+              Use the projection engine before committing resources.
+
+2. LOCK     — base CCI reaches maxBaseOvr. Investment is now blocked by the engine.
+
+3. UPGRADE  — classify the asset to the next lifecycle stage.
+              Each stage adds a flat bonus to all primary metrics.
+              Total CCI now exceeds maxBaseOvr — this is correct and expected.
+```
+
+**Why the order is fixed:** A classification upgrade raises total CCI above the ceiling. Once upgraded, base CCI is distorted by the stage bonus, and investment is locked because the total exceeds `maxBaseOvr`. You cannot invest into an asset that has already been upgraded past its investment ceiling. The engine enforces this in `ovrProjector.ts`.
+
+**Consequence for projection workflow:** When an operator asks "what will this asset look like after the next upgrade?", the answer is always:
+1. Run investment projection first (what does the coaching/maintenance cycle deliver?)
+2. Apply the classification upgrade bonus to the post-investment metrics
+3. Report the combined result
+
+The UI plan tab implements this two-step sequence. Do not collapse it into one step.
+
+**Empirical validation (source system) — Jables (GK, Age 18):**
+
+| Stage | Predicted | Actual |
+|---|---|---|
+| Base CCI before investment | 145 | 145 |
+| After ×114 investment cycles | 172.5 | 173 |
+| After natural in-service operation | — | ~180 (investment locked) |
+| After Stage 0→2 upgrade | 194 | 195–196 |
+| After Stage 2→4 upgrade | engine-checked | **238** |
+
+Largest error: 0.5 CCI. Final 238 = `floor(3572/15)` ✓. All stages projected in advance.
+
+**Confirmed classification upgrade increments:**
+
+| Upgrade | Per-primary-metric bonus | Cumulative from Stage 0 |
+|---|---|---|
+| Stage 0 → Stage 1 | +10 | +10 |
+| Stage 1 → Stage 2 | +20 | +30 |
+| Stage 2 → Stage 3 | +20 | +50 |
+| Stage 3 → Stage 4 | +30 | +80 |
+| Stage 4 → Stage 5 | ⚠️ unconfirmed | — |
+| Stage 5 → Stage 6 | ⚠️ unconfirmed | — |
+
+Secondary metrics receive **zero** upgrade bonus at every stage. Only primary metrics are affected.
+
 ### 2.2 Data model changes in `src/types/resources.ts`
 
 **Current `Player` type → new `Asset` type:**

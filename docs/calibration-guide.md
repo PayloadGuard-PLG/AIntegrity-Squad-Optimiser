@@ -571,6 +571,60 @@ typically a domain constraint, not something you calibrate empirically.
 
 ---
 
+## The Invest-then-Upgrade Rule
+
+**Always invest first. Always upgrade the classification after. This is the only valid order — the system enforces it.**
+
+```
+Step 1 — INVEST
+  Asset CCI is below the ceiling (maxBaseOvr).
+  Use the app to project investment outcomes before committing.
+  Run the investment cycle(s).
+
+Step 2 — NATURAL PROGRESSION (optional)
+  In-service operation may further improve metrics up to the ceiling.
+  This is not modelled by the engine — it is observed post-investment.
+
+Step 3 — CCI LOCKS
+  When base CCI reaches maxBaseOvr, further investment is blocked.
+  The app shows this state; no more cycles can run.
+
+Step 4 — CLASSIFICATION UPGRADE
+  Upgrade the asset's lifecycle stage (tier up).
+  Each upgrade adds a flat bonus to all primary metrics.
+  Total CCI now exceeds maxBaseOvr — this is expected and correct.
+  (e.g. an asset at CCI 180 base + Stage 3 bonus = CCI 238 total)
+```
+
+**Why the order cannot be reversed:** A classification upgrade raises the asset's total CCI above the ceiling. If you upgrade first, the base CCI calculation would be distorted by the upgrade bonus — and investment is locked because the total CCI exceeds `maxBaseOvr`. You cannot invest into an already-upgraded asset at ceiling. The game enforces this; the engine models it.
+
+**Empirical confirmation — Jables (GK, Age 18):**
+
+| Stage | Predicted | Actual |
+|---|---|---|
+| Base CCI before investment | 145 | 145 |
+| After ×114 investment cycles | 172.5 | 173 |
+| After natural in-service operation | — | ~180 (investment locked) |
+| After T0→T2 (Stage 2) upgrade | 194 | 195–196 |
+| After T2→T4 (Stage 4 / Master) upgrade | engine-checked | **238** |
+
+Largest error: 0.5 CCI at the investment stage. Final 238 = `floor(3572/15)` ✓. All stages projected in advance without internal system access.
+
+**Confirmed classification upgrade increments (source system):**
+
+| Upgrade | Per-primary-metric increment | Cumulative from Stage 0 |
+|---|---|---|
+| Stage 0 → Stage 1 | +10 | +10 |
+| Stage 1 → Stage 2 | +20 | +30 |
+| Stage 2 → Stage 3 | +20 | +50 |
+| Stage 3 → Stage 4 | +30 | +80 |
+| Stage 4 → Stage 5 | ⚠️ unconfirmed | — |
+| Stage 5 → Stage 6 | ⚠️ unconfirmed | — |
+
+Grey / secondary metrics receive **zero** upgrade bonus at every stage. Only primary metrics are affected.
+
+---
+
 ## Putting It Together — Calibration Sequence
 
 When calibrating a new domain from scratch, work in this order:
