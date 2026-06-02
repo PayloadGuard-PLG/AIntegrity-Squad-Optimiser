@@ -62,8 +62,8 @@ backing a value, it is ASSUMED and must be labelled as such.
 | greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
 | sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
 | talentMultipliers.Normal | 1.0 | ✅ Confirmed formula variable | Normal=1.0 confirmed from Grant, Rogers, McGinty, Dallas, McCluskey, Jables (all Normal players). |
-| talentMultipliers.Slow | 0.47 | ⚠️ Provisional | Inferred from Cieran Morgan ×30 ATK (5/5 stats in range at 0.47; Normal gives 1.48–1.95× over-predictions). Edit screen not yet confirmed. |
-| talentMultipliers.Fast/Average/Fastest | 1.25/1.1/1.5 | ⚠️ Community estimates | No confirmed empirical data point for any non-Normal/non-Slow tier. |
+| talentMultipliers.Slow | 0.47 | ⚠️ INVALIDATED | Originally inferred from Cieran Morgan ×30 ATK scan, but that calibration used the pre-Sprint-34 linear budget model. Re-run with the confirmed geometric model (sessionBudgetDecay=0.99, bXPS=676) shows values 0.35–0.47 both fit the scan; the original inference was not stable. Cieran Morgan's talent has never been confirmed from the Personal Trainer edit screen. All projections for Morgan should use Normal (1.0) until the edit screen is checked. No confirmed Slow data point exists in the codebase. |
+| talentMultipliers.Fast/Average/Fastest | 1.25/1.1/1.5 | ⚠️ Community estimates | No confirmed empirical data point for any non-Normal tier. |
 | ageTable 18–21 | 1.0 | ✅ 18–20 confirmed (Grant). 21 extended from trend — young players train at full rate. ⚠️ Age 21 needs one clean data point to lock. |
 | ageTable 22–23 | 0.85 | ⚠️ ASSUMED. Dallas age 23 confirms 0.85 exists by 23. Boundary (22 vs 23) unknown. |
 | ageTable 24–25 | 0.72 | ✅ Confirmed | McCluskey age 24, Focused Physical ×4, Fitness 213 → engine +3.5 vs actual +2–3. |
