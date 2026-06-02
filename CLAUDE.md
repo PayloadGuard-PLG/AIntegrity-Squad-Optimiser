@@ -61,9 +61,11 @@ backing a value, it is ASSUMED and must be labelled as such.
 | baseXpPerSession | 676 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (all 5 stats within game range) |
 | greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
 | sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
-| talentMultipliers.Normal | 1.0 | ✅ Confirmed formula variable | Normal=1.0 confirmed from Grant, Rogers, McGinty, Dallas, McCluskey, Jables (all Normal players). |
-| talentMultipliers.Slow | 0.47 | ⚠️ Provisional | Inferred from Cieran Morgan ×30 ATK (5/5 stats in range at 0.47; Normal gives 1.48–1.95× over-predictions). Edit screen not yet confirmed. |
-| talentMultipliers.Fast/Average/Fastest | 1.25/1.1/1.5 | ⚠️ Community estimates | No confirmed empirical data point for any non-Normal/non-Slow tier. |
+| talentMultipliers.Normal | 1.0 | ✅ Confirmed — USE THIS FOR ALL PROJECTIONS | Normal=1.0 confirmed from Grant, Rogers, McGinty, Dallas, McCluskey, Jables. Every real-world coaching result back-calculates to Normal (1.0). All other talent multipliers are community estimates that produce incorrect predictions. |
+| talentMultipliers.Slow | 0.47 | ❌ DO NOT USE | Community-derived. Produces incorrect results. Originally inferred from Cieran Morgan ×30 ATK scan using the pre-Sprint-34 linear budget model — the inference was not stable. Cieran Morgan's talent has never been confirmed from the Personal Trainer edit screen. |
+| talentMultipliers.Fast/Average/Fastest | 1.25/1.1/1.5 | ❌ DO NOT USE | Community estimates. No confirmed empirical data point for any non-Normal tier. These values produce incorrect results in practice. |
+
+**TALENT MULTIPLIER RULE: Default ALL projections to Normal (1.0) regardless of what the DB stores for talent tier, unless talent has been confirmed from the Personal Trainer tab on the player edit screen AND back-calculated from actual before/after coaching data. "The game shows Fast" is not confirmation — only the Personal Trainer tab label + matching empirical result counts.**
 | ageTable 18–21 | 1.0 | ✅ 18–20 confirmed (Grant). 21 extended from trend — young players train at full rate. ⚠️ Age 21 needs one clean data point to lock. |
 | ageTable 22–23 | 0.85 | ⚠️ ASSUMED. Dallas age 23 confirms 0.85 exists by 23. Boundary (22 vs 23) unknown. |
 | ageTable 24–25 | 0.72 | ✅ Confirmed | McCluskey age 24, Focused Physical ×4, Fitness 213 → engine +3.5 vs actual +2–3. |
@@ -284,6 +286,19 @@ Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts`.
 
 Enforced in `src/logic/ovrProjector.ts`: `projectOvr()` checks base OVR before drill simulation.
 The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
+
+### Coach-then-Tier: The Only Valid Sequence
+
+**Always coach first. Always tier after. This is how the app works and the only logical order.**
+
+1. **Coach** while base OVR < 180 (training is open). Use the app to project gains before committing.
+2. **Natural in-game progression** may fill remaining headroom up to the 180 base OVR limit.
+3. **Training locks** at base OVR = 180. No further coaching or drills possible.
+4. **Tier up** — adds flat bonuses to white stats, pushing total OVR well past 180.
+
+If a player has already been tiered, their tier bonus is baked into their stats. Coaching projections run against current stats regardless of tier — the engine doesn't care about tier, only stat values and base OVR.
+
+Reversed order is impossible: you cannot coach a player whose base OVR is already 180+ (locked), so coaching before tiering is not a choice — it is a constraint enforced by the game.
 
 ### Other Notes
 
