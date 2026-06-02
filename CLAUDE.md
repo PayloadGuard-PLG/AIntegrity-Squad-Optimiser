@@ -287,6 +287,19 @@ Fixed in `qualityPctToOvr()` in `src/logic/xpEngine.ts`.
 Enforced in `src/logic/ovrProjector.ts`: `projectOvr()` checks base OVR before drill simulation.
 The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
 
+### Coach-then-Tier: The Only Valid Sequence
+
+**Always coach first. Always tier after. This is how the app works and the only logical order.**
+
+1. **Coach** while base OVR < 180 (training is open). Use the app to project gains before committing.
+2. **Natural in-game progression** may fill remaining headroom up to the 180 base OVR limit.
+3. **Training locks** at base OVR = 180. No further coaching or drills possible.
+4. **Tier up** — adds flat bonuses to white stats, pushing total OVR well past 180.
+
+If a player has already been tiered, their tier bonus is baked into their stats. Coaching projections run against current stats regardless of tier — the engine doesn't care about tier, only stat values and base OVR.
+
+Reversed order is impossible: you cannot coach a player whose base OVR is already 180+ (locked), so coaching before tiering is not a choice — it is a constraint enforced by the game.
+
 ### Other Notes
 
 - **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
