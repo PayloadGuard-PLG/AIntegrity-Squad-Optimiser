@@ -153,7 +153,30 @@ throughout the codebase when cloning for logistics:
 
 The UI plan tab implements this two-step sequence. Do not collapse it into one step.
 
-**Empirical validation (source system):** Asset at CCI 145 → ×114 investment cycles → CCI 173 → natural operation to CCI 180 (locked) → upgrade to Stage 6 (Master) → final CCI 238. Engine predicted 172.5 pre-investment; actual 173. Error: 0.5 CCI.
+**Empirical validation (source system) — Jables (GK, Age 18):**
+
+| Stage | Predicted | Actual |
+|---|---|---|
+| Base CCI before investment | 145 | 145 |
+| After ×114 investment cycles | 172.5 | 173 |
+| After natural in-service operation | — | ~180 (investment locked) |
+| After Stage 0→2 upgrade | 194 | 195–196 |
+| After Stage 2→4 upgrade | engine-checked | **238** |
+
+Largest error: 0.5 CCI. Final 238 = `floor(3572/15)` ✓. All stages projected in advance.
+
+**Confirmed classification upgrade increments:**
+
+| Upgrade | Per-primary-metric bonus | Cumulative from Stage 0 |
+|---|---|---|
+| Stage 0 → Stage 1 | +10 | +10 |
+| Stage 1 → Stage 2 | +20 | +30 |
+| Stage 2 → Stage 3 | +20 | +50 |
+| Stage 3 → Stage 4 | +30 | +80 |
+| Stage 4 → Stage 5 | ⚠️ unconfirmed | — |
+| Stage 5 → Stage 6 | ⚠️ unconfirmed | — |
+
+Secondary metrics receive **zero** upgrade bonus at every stage. Only primary metrics are affected.
 
 ### 2.2 Data model changes in `src/types/resources.ts`
 

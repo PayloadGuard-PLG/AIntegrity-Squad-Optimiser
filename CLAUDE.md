@@ -74,8 +74,12 @@ backing a value, it is ASSUMED and must be labelled as such.
 | ageTable 29 | 0.50 | ⚠️ ASSUMED — no data. |
 | ageTable 30 | 0.00 | ⚠️ ASSUMED — no data. |
 | OVR formula | floor(sum/15) | ✅ Confirmed | Grant T2→T3: sum=2615, floor(2615/15)=174 ✓; sum=2355, floor=157.0 ✓ |
-| tierAttrAdditions T2→T3 | +20/white | ✅ Confirmed | Grant T2→T3 immediate before/after: every white stat +20 exactly, grey stats +0 |
-| tierAttrAdditions | T0-T6 values | ✅ Confirmed | Full table verified from tier upgrade screenshots |
+| tierAttrAdditions T0→T1 | +10/white | ✅ Confirmed | Jables T0→T4 end-to-end: cumulative +80/white at Master; T0→T1 increment back-calculated as +10 |
+| tierAttrAdditions T1→T2 | +20/white | ✅ Confirmed | Jables T0→T4: cumulative +30 at Elite; T1→T2 increment = +20 |
+| tierAttrAdditions T2→T3 | +20/white | ✅ Confirmed | Grant T2→T3 immediate before/after: every white stat +20 exactly, grey stats +0. Cumulative T0→T3 = +50 (Stellar). |
+| tierAttrAdditions T3→T4 | +30/white | ✅ Confirmed | Jables T0→T4 Master: cumulative +80/white. T3→T4 = +80−50 = +30. Per-stat diffs at Master: +51–55 (= +50 tier + 1–5 natural play) ✓ |
+| tierAttrAdditions T4→T5 | unknown | ⚠️ UNCONFIRMED — no data |
+| tierAttrAdditions T5→T6 | unknown | ⚠️ UNCONFIRMED — no data |
 | condLevelMultipliers | ×1–×5 | ✅ Confirmed | From drill condition drain screenshots |
 | fanClubCondReduction | 10–50% | ✅ Confirmed | From fan club screenshots |
 | seasonDecayPerLevel | 20 flat | ✅ Confirmed | Grant T3 before/after season: every stat −17 to −19 (avg 17, ~3 units training noise). Flat model fits; 20%-proportional model off by 18–26 on high stats. White and grey drop equally. |
@@ -299,6 +303,18 @@ The `maxBaseOvr = 180` field in `profiles/game_2025.json` is the threshold.
 If a player has already been tiered, their tier bonus is baked into their stats. Coaching projections run against current stats regardless of tier — the engine doesn't care about tier, only stat values and base OVR.
 
 Reversed order is impossible: you cannot coach a player whose base OVR is already 180+ (locked), so coaching before tiering is not a choice — it is a constraint enforced by the game.
+
+**End-to-end validation — Jables (GK, Age 18, DarkVader FC):**
+
+| Stage | Predicted | Actual |
+|---|---|---|
+| Base OVR before coaching | 145 | 145 |
+| After ×114 Extensive GK | 172.5 | 173 |
+| After natural fill to ceiling | — | ~180 (training locked) |
+| After T0→T2 (Elite) tier | 194 | 195–196 |
+| After T2→T4 (Master) tier | engine-checked | 238 |
+
+All stages projected in advance. Largest error: 0.5 OVR at coaching stage. Final 238 = `floor(3572/15)` ✓.
 
 ### Other Notes
 

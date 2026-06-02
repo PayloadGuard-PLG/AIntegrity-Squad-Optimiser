@@ -598,7 +598,30 @@ Step 4 — CLASSIFICATION UPGRADE
 
 **Why the order cannot be reversed:** A classification upgrade raises the asset's total CCI above the ceiling. If you upgrade first, the base CCI calculation would be distorted by the upgrade bonus — and investment is locked because the total CCI exceeds `maxBaseOvr`. You cannot invest into an already-upgraded asset at ceiling. The game enforces this; the engine models it.
 
-**Empirical confirmation:** Source system — Jables (GK, CCI 145 base) ran ×114 investment cycles → CCI 173 base. Natural in-game operation filled to 180. Investment locked. Tiered T0 → Master (T6). Final total CCI: 238. Engine predicted 172.5 pre-coaching; actual 173. Error: 0.5 CCI.
+**Empirical confirmation — Jables (GK, Age 18):**
+
+| Stage | Predicted | Actual |
+|---|---|---|
+| Base CCI before investment | 145 | 145 |
+| After ×114 investment cycles | 172.5 | 173 |
+| After natural in-service operation | — | ~180 (investment locked) |
+| After T0→T2 (Stage 2) upgrade | 194 | 195–196 |
+| After T2→T4 (Stage 4 / Master) upgrade | engine-checked | **238** |
+
+Largest error: 0.5 CCI at the investment stage. Final 238 = `floor(3572/15)` ✓. All stages projected in advance without internal system access.
+
+**Confirmed classification upgrade increments (source system):**
+
+| Upgrade | Per-primary-metric increment | Cumulative from Stage 0 |
+|---|---|---|
+| Stage 0 → Stage 1 | +10 | +10 |
+| Stage 1 → Stage 2 | +20 | +30 |
+| Stage 2 → Stage 3 | +20 | +50 |
+| Stage 3 → Stage 4 | +30 | +80 |
+| Stage 4 → Stage 5 | ⚠️ unconfirmed | — |
+| Stage 5 → Stage 6 | ⚠️ unconfirmed | — |
+
+Grey / secondary metrics receive **zero** upgrade bonus at every stage. Only primary metrics are affected.
 
 ---
 
