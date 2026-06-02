@@ -129,6 +129,32 @@ throughout the codebase when cloning for logistics:
 | Standard/Focused/Extensive coach | Standard/Targeted/Intensive investment | Budget multiplier names |
 | Restorer | Recovery kit / replenishment | Readiness restoration item |
 
+### 2.1.1 The Invest-then-Upgrade Rule (critical — do not reverse this)
+
+**Investment always happens before classification upgrade. The system enforces this — it is not a convention.**
+
+```
+1. INVEST   — asset CCI is below ceiling (maxBaseOvr). Run investment cycles.
+              Use the projection engine before committing resources.
+
+2. LOCK     — base CCI reaches maxBaseOvr. Investment is now blocked by the engine.
+
+3. UPGRADE  — classify the asset to the next lifecycle stage.
+              Each stage adds a flat bonus to all primary metrics.
+              Total CCI now exceeds maxBaseOvr — this is correct and expected.
+```
+
+**Why the order is fixed:** A classification upgrade raises total CCI above the ceiling. Once upgraded, base CCI is distorted by the stage bonus, and investment is locked because the total exceeds `maxBaseOvr`. You cannot invest into an asset that has already been upgraded past its investment ceiling. The engine enforces this in `ovrProjector.ts`.
+
+**Consequence for projection workflow:** When an operator asks "what will this asset look like after the next upgrade?", the answer is always:
+1. Run investment projection first (what does the coaching/maintenance cycle deliver?)
+2. Apply the classification upgrade bonus to the post-investment metrics
+3. Report the combined result
+
+The UI plan tab implements this two-step sequence. Do not collapse it into one step.
+
+**Empirical validation (source system):** Asset at CCI 145 → ×114 investment cycles → CCI 173 → natural operation to CCI 180 (locked) → upgrade to Stage 6 (Master) → final CCI 238. Engine predicted 172.5 pre-investment; actual 173. Error: 0.5 CCI.
+
 ### 2.2 Data model changes in `src/types/resources.ts`
 
 **Current `Player` type → new `Asset` type:**
