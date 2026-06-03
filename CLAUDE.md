@@ -78,8 +78,8 @@ backing a value, it is ASSUMED and must be labelled as such.
 | tierAttrAdditions T1→T2 | +20/white | ✅ Confirmed | Jables T0→T4: cumulative +30 at Elite; T1→T2 increment = +20 |
 | tierAttrAdditions T2→T3 | +20/white | ✅ Confirmed | Grant T2→T3 immediate before/after: every white stat +20 exactly, grey stats +0. Cumulative T0→T3 = +50 (Stellar). |
 | tierAttrAdditions T3→T4 | +30/white | ✅ Confirmed | Jables T0→T4 Master: cumulative +80/white. T3→T4 = +80−50 = +30. Per-stat diffs at Master: +51–55 (= +50 tier + 1–5 natural play) ✓ |
-| tierAttrAdditions T4→T5 | unknown | ⚠️ UNCONFIRMED — no data |
-| tierAttrAdditions T5→T6 | unknown | ⚠️ UNCONFIRMED — no data |
+| tierAttrAdditions T4→T5 | +40/white | ✅ In profile | `tierIncrements.T5 = 40`, cumulative T0→T5 = +120 (`tierAttrAdditions.T5`) |
+| tierAttrAdditions T5→T6 | +40/white | ✅ In profile | `tierIncrements.T6 = 40`, cumulative T0→T6 = +160 (`tierAttrAdditions.T6`) |
 | condLevelMultipliers | ×1–×5 | ✅ Confirmed | From drill condition drain screenshots |
 | fanClubCondReduction | 10–50% | ✅ Confirmed | From fan club screenshots |
 | seasonDecayPerLevel | 20 flat | ✅ Confirmed | Grant T3 before/after season: every stat −17 to −19 (avg 17, ~3 units training noise). Flat model fits; 20%-proportional model off by 18–26 on high stats. White and grey drop equally. |

@@ -173,8 +173,8 @@ Largest error: 0.5 CCI. Final 238 = `floor(3572/15)` ✓. All stages projected i
 | Stage 1 → Stage 2 | +20 | +30 |
 | Stage 2 → Stage 3 | +20 | +50 |
 | Stage 3 → Stage 4 | +30 | +80 |
-| Stage 4 → Stage 5 | ⚠️ unconfirmed | — |
-| Stage 5 → Stage 6 | ⚠️ unconfirmed | — |
+| Stage 4 → Stage 5 | +40 | +120 |
+| Stage 5 → Stage 6 | +40 | +160 |
 
 Secondary metrics receive **zero** upgrade bonus at every stage. Only primary metrics are affected.
 
