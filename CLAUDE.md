@@ -190,6 +190,16 @@ Runtime fallback for DB rows with legacy values: `normaliseTier()` in `src/servi
 `getAllStatKeys(roles)` returns only role-relevant stats — NOT all 15 game stats.
 Example: `getAllStatKeys(['DL','ML','AML'])` does NOT include HEADING.
 
+### Role Count Trade-off (player strategy — do not "optimise" this away)
+
+More roles = more white stats = XP budget divided across more stats = smaller gain per stat but a more well-rounded player. Fewer roles = budget concentrated = deeper specialisation in a narrow set (e.g. a pure ST with just the ST role will develop Shooting/Finishing faster than ST/AMC/MC).
+
+Neither approach is wrong — it is a deliberate squad management choice based on how the player uses that position and what the opposing squad demands. The engine correctly models this via `budget / numStats`. Do not suggest a "correct" role count.
+
+**New-role tier bonus:** When a role is added, any stat newly promoted to white immediately receives the full cumulative tier bonus for the player's current tier. A player at Legendary (+160 cumulative) who opens a role adding 3 new white stats gains +160 on each of those stats instantly. This makes role expansion more valuable at higher tiers — but the timing relative to coaching and tiering is a player choice, not an engine constraint.
+
+**Coaching order is fixed. Role expansion is not.**
+
 **Consequence for coach scanner:** A DEFENDING coach may highlight HEADING on a DL/ML/AML player.
 The scanner captures it correctly; the UI shows it amber with `· NOT IN ROLE` label.
 
