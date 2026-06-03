@@ -78,8 +78,8 @@ backing a value, it is ASSUMED and must be labelled as such.
 | tierAttrAdditions T1→T2 | +20/white | ✅ Confirmed | Jables T0→T4: cumulative +30 at Elite; T1→T2 increment = +20 |
 | tierAttrAdditions T2→T3 | +20/white | ✅ Confirmed | Grant T2→T3 immediate before/after: every white stat +20 exactly, grey stats +0. Cumulative T0→T3 = +50 (Stellar). |
 | tierAttrAdditions T3→T4 | +30/white | ✅ Confirmed | Jables T0→T4 Master: cumulative +80/white. T3→T4 = +80−50 = +30. Per-stat diffs at Master: +51–55 (= +50 tier + 1–5 natural play) ✓ |
-| tierAttrAdditions T4→T5 | unknown | ⚠️ UNCONFIRMED — no data |
-| tierAttrAdditions T5→T6 | unknown | ⚠️ UNCONFIRMED — no data |
+| tierAttrAdditions T4→T5 | +40/white | ✅ In profile | `tierIncrements.T5 = 40`, cumulative T0→T5 = +120 (`tierAttrAdditions.T5`) |
+| tierAttrAdditions T5→T6 | +40/white | ✅ In profile | `tierIncrements.T6 = 40`, cumulative T0→T6 = +160 (`tierAttrAdditions.T6`) |
 | condLevelMultipliers | ×1–×5 | ✅ Confirmed | From drill condition drain screenshots |
 | fanClubCondReduction | 10–50% | ✅ Confirmed | From fan club screenshots |
 | seasonDecayPerLevel | 20 flat | ✅ Confirmed | Grant T3 before/after season: every stat −17 to −19 (avg 17, ~3 units training noise). Flat model fits; 20%-proportional model off by 18–26 on high stats. White and grey drop equally. |
@@ -189,6 +189,16 @@ Runtime fallback for DB rows with legacy values: `normaliseTier()` in `src/servi
 
 `getAllStatKeys(roles)` returns only role-relevant stats — NOT all 15 game stats.
 Example: `getAllStatKeys(['DL','ML','AML'])` does NOT include HEADING.
+
+### Role Count Trade-off (player strategy — do not "optimise" this away)
+
+More roles = more white stats = XP budget divided across more stats = smaller gain per stat but a more well-rounded player. Fewer roles = budget concentrated = deeper specialisation in a narrow set (e.g. a pure ST with just the ST role will develop Shooting/Finishing faster than ST/AMC/MC).
+
+Neither approach is wrong — it is a deliberate squad management choice based on how the player uses that position and what the opposing squad demands. The engine correctly models this via `budget / numStats`. Do not suggest a "correct" role count.
+
+**New-role tier bonus:** When a role is added, any stat newly promoted to white immediately receives the full cumulative tier bonus for the player's current tier. A player at Legendary (+160 cumulative) who opens a role adding 3 new white stats gains +160 on each of those stats instantly. This makes role expansion more valuable at higher tiers — but the timing relative to coaching and tiering is a player choice, not an engine constraint.
+
+**Coaching order is fixed. Role expansion is not.**
 
 **Consequence for coach scanner:** A DEFENDING coach may highlight HEADING on a DL/ML/AML player.
 The scanner captures it correctly; the UI shows it amber with `· NOT IN ROLE` label.
