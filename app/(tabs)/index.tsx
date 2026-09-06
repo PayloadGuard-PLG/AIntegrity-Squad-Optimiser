@@ -80,7 +80,7 @@ function PlayerRow({ player, index }: { player: Player; index: number }) {
           )}
         </View>
         {player.newRole && (
-          <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} />
+          <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} specialAbilities={player.specialAbilities} />
         )}
       </View>
       <Text style={{ color: isSelected ? theme.steelLight : theme.inkMuted, fontFamily: theme.mono, fontSize: 14 }}>›</Text>

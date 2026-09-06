@@ -57,6 +57,8 @@ const m0006 = `CREATE TABLE IF NOT EXISTS \`drill_presets\` (\n  \`id\` text PRI
 
 const m0007 = `ALTER TABLE \`players\` ADD \`new_role\` text;\nALTER TABLE \`players\` ADD \`new_role_points\` integer NOT NULL DEFAULT 0;`;
 
+const m0008 = `ALTER TABLE \`players\` ADD \`playstyle\` text;\nALTER TABLE \`players\` ADD \`special_abilities\` text;\nALTER TABLE \`players\` ADD \`boosts\` text;`;
+
 export default {
   journal,
   migrations: {
@@ -68,5 +70,6 @@ export default {
     m0005,
     m0006,
     m0007,
+    m0008,
   },
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
-import { useDbMigration, ensureSnapshotColumn, ensureNewRoleColumns, ensureCoachHistoryTable, ensureDrillPlanHistoryTable } from '../src/db';
+import { useDbMigration, ensureSnapshotColumn, ensureNewRoleColumns, ensureGlyphStateColumns, ensureCoachHistoryTable, ensureDrillPlanHistoryTable } from '../src/db';
 import { ManagerProvider } from '../src/context/ManagerContext';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { SplashAnimation } from '../src/components/SplashAnimation';
@@ -14,6 +14,7 @@ export default function RootLayout() {
     if (success) {
       ensureSnapshotColumn();
       ensureNewRoleColumns();
+      ensureGlyphStateColumns();
       ensureCoachHistoryTable();
       ensureDrillPlanHistoryTable();
     }

@@ -5,3 +5,8 @@ dist/
 .env
 .env.local
 players.json
+
+# Real game screenshots used to derive src/logic/glyphCalibration.json.
+# Never committed: the repo stays free of source-game imagery (see CLAUDE.md).
+# Put labelled captures here as card-<name>.png, then run `npm run calibrate`.
+calibration-captures/

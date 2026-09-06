@@ -12,9 +12,15 @@ const SEG_COLORS = ['#3d4a66', '#5b6b8a', '#7a90af', '#9eb0d4', '#7eb89a'];
 type Props = {
   roleName: string;
   points: number; // 0–50
+  /**
+   * Ability template ids read from the card. `undefined` means the strip was
+   * never read (nothing is shown); `[]` means it was read and is genuinely
+   * empty (shown as a dash). The two are not the same state.
+   */
+  specialAbilities?: string[];
 };
 
-export function NewRoleBar({ roleName, points }: Props) {
+export function NewRoleBar({ roleName, points, specialAbilities }: Props) {
   const clamped = Math.min(Math.max(points, 0), UNLOCK);
   const ptsPerSeg = UNLOCK / N_SEGS;
 
@@ -46,7 +52,19 @@ export function NewRoleBar({ roleName, points }: Props) {
           })}
         </View>
       </View>
-      {/* bottom 8px intentionally empty — reserved for second ability display */}
+      {/* bottom half of the slot: special abilities read from the card */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 8 }}>
+        {specialAbilities !== undefined && (
+          <>
+            <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.8, color: theme.inkMuted, lineHeight: 8 }}>
+              SA
+            </Text>
+            <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 0.5, color: theme.steelLight, lineHeight: 8 }}>
+              {specialAbilities.length > 0 ? specialAbilities.join(' ') : '—'}
+            </Text>
+          </>
+        )}
+      </View>
     </View>
   );
 }
