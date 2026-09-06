@@ -2,7 +2,7 @@ import { db } from '../db';
 import { players } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
-import { Player, PlayerSnapshot } from '../database/playerSchema';
+import { Player, PlayerSnapshot, PlaystyleFamily, StatBoost } from '../database/playerSchema';
 import { TierName, TalentTier } from '../types/resources';
 
 type PlayerRow = typeof players.$inferSelect;
@@ -21,6 +21,10 @@ function toRow(p: Player): PlayerRow {
     snapshot: p.snapshot ? JSON.stringify(p.snapshot) : null,
     newRole: p.newRole ?? null,
     newRolePoints: p.newRolePoints ?? 0,
+    playstyle: p.playstyle ?? null,
+    specialAbilities: p.specialAbilities ? JSON.stringify(p.specialAbilities) : null,
+    // Boosts persist ALONGSIDE stats; stats stays base. Never collapse the two.
+    boosts: p.boosts ? JSON.stringify(p.boosts) : null,
     createdAt: Date.now(),
   };
 }
@@ -39,6 +43,11 @@ function normaliseTier(t: string): TierName {
 
 function normaliseTalent(t: string): TalentTier {
   return (LEGACY_TALENT_MAP[t] ?? t) as TalentTier;
+}
+
+function parseJson<T>(raw: string | null | undefined): T | undefined {
+  if (!raw) return undefined;
+  try { return JSON.parse(raw) as T; } catch { return undefined; }
 }
 
 function fromRow(row: PlayerRow): Player {
@@ -62,6 +71,9 @@ function fromRow(row: PlayerRow): Player {
       snapshot,
       newRole: row.newRole ?? null,
       newRolePoints: row.newRolePoints ?? 0,
+      playstyle: (row.playstyle ?? undefined) as PlaystyleFamily | undefined,
+      specialAbilities: parseJson<string[]>(row.specialAbilities),
+      boosts: parseJson<Record<string, StatBoost>>(row.boosts),
     };
   } catch {
     return {

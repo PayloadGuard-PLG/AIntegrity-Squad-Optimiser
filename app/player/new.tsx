@@ -8,7 +8,7 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
-import { useScanner } from '../../src/hooks/useScanner';
+import { useScanner, ReviewFlag, PlaystyleFamily, StatBoost } from '../../src/hooks/useScanner';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile } from '../../src/types/resources';
@@ -19,6 +19,15 @@ const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'];
 const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow', Unknown: 'Unknown' };
 const TALENT_INFO = 'Training rate — how quickly this player gains stats per session. Detected automatically from player card scan.';
+
+const REVIEW_LABEL: Record<ReviewFlag['reason'], string> = {
+  region_unread: 'NOT READ',
+  ambiguous_color: 'AMBIGUOUS',
+  chip_state_unclear: 'CHIP UNCLEAR',
+  boost_split_unclear: 'BOOST UNCLEAR',
+  unmatched_icon: 'UNKNOWN ICON',
+  low_confidence: 'LOW CONFIDENCE',
+};
 
 const ROLE_GRID = [
   [null,  'ST',  null ],
@@ -58,6 +67,10 @@ export default function NewPlayerScreen() {
   const [scanRejected, setScanRejected] = useState(false);
   const [newRole, setNewRole] = useState<string | null>(null);
   const [newRolePoints, setNewRolePoints] = useState(0);
+  const [playstyle, setPlaystyle] = useState<PlaystyleFamily>('unknown');
+  const [specialAbilities, setSpecialAbilities] = useState<string[] | undefined>(undefined);
+  const [boosts, setBoosts] = useState<Record<string, StatBoost> | undefined>(undefined);
+  const [review, setReview] = useState<ReviewFlag[]>([]);
 
   const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
@@ -105,7 +118,9 @@ export default function NewPlayerScreen() {
           None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
           T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
         };
-        setTier(TIER_MAP[data.tier ?? ''] ?? 'T0');
+        // An unread banner leaves the tier alone and raises a review flag; it must
+        // not silently become T0. `data.tier` is only set when the region was read.
+        if (data.tier) setTier(TIER_MAP[data.tier] ?? 'T0');
         const TALENT_MAP: Record<string, TalentTier> = {
           FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
           Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
@@ -122,7 +137,21 @@ export default function NewPlayerScreen() {
         }
         setStatInputs(inputs);
         recomputeOvr(inputs);
-        if (data.newRole) { setNewRole(data.newRole); setNewRolePoints(data.newRolePoints ?? 0); }
+        // Established roles win over the flat text-derived list when the chips
+        // were actually read. A learning role never enters selectedRoles.
+        if (data.establishedRoles && data.establishedRoles.length > 0) {
+          setPositionStates(Object.fromEntries(data.establishedRoles.map(r => [r, 2 as const])));
+        }
+        if (data.learningRole) {
+          setNewRole(data.learningRole.role);
+          setNewRolePoints(data.learningRole.points);
+        } else if (data.newRole) {
+          setNewRole(data.newRole); setNewRolePoints(data.newRolePoints ?? 0);
+        }
+        if (data.playstyle) setPlaystyle(data.playstyle);
+        if (data.specialAbilities) setSpecialAbilities(data.specialAbilities);
+        if (data.boosts && Object.keys(data.boosts).length > 0) setBoosts(data.boosts);
+        setReview(data.review ?? []);
         setScanned(true);
         setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
@@ -212,6 +241,10 @@ export default function NewPlayerScreen() {
         isMutantCandidate: mutant,
         newRole: newRole ?? undefined,
         newRolePoints: newRolePoints,
+        playstyle,
+        specialAbilities,
+        // Base values stay in `stats`; the overlay is stored separately.
+        boosts,
       });
       router.back();
     } catch (err) {
@@ -279,6 +312,40 @@ export default function NewPlayerScreen() {
 
         {scanError && (
           <MonoLabel size={9} color={theme.neg} style={{ marginBottom: 8 }}>⚠ {scanError}</MonoLabel>
+        )}
+
+        {/* NEEDS REVIEW — every field the readers abstained on rather than guessed.
+            An entry here means "not read", never "read as empty". */}
+        {scanned && review.length > 0 && (
+          <View style={{ padding: 10, borderWidth: 1, borderColor: theme.hot + '66', backgroundColor: theme.hot + '0d', marginBottom: 10 }}>
+            <MonoLabel size={9} color={theme.hot}>NEEDS REVIEW · {review.length} FIELD{review.length > 1 ? 'S' : ''} NOT READ</MonoLabel>
+            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>
+              THE SCANNER ABSTAINED RATHER THAN GUESS — CONFIRM BELOW OR RE-SHOOT
+            </MonoLabel>
+            {review.map((f, i) => (
+              <View key={`${f.field}-${f.reason}-${i}`} style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
+                <MonoLabel size={8} color={theme.hot}>{REVIEW_LABEL[f.reason]}</MonoLabel>
+                <MonoLabel size={8} color={theme.inkMuted}>{f.field.toUpperCase()}</MonoLabel>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Read-only summary of the glyph-read state that has no form control yet. */}
+        {scanned && review.length === 0 && (playstyle !== 'unknown' || specialAbilities || boosts) && (
+          <View style={{ padding: 10, borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
+            <MonoLabel size={8} color={theme.inkGhost}>CARD STATE READ</MonoLabel>
+            <MonoLabel size={9} color={theme.inkMuted} style={{ marginTop: 3 }}>
+              PLAYSTYLE {playstyle.toUpperCase()}
+              {specialAbilities ? ` · ${specialAbilities.length} ABILIT${specialAbilities.length === 1 ? 'Y' : 'IES'}` : ''}
+              {newRole ? ` · LEARNING ${newRole} ${newRolePoints}/50` : ''}
+            </MonoLabel>
+            {boosts && Object.entries(boosts).map(([stat, b]) => (
+              <MonoLabel key={stat} size={8} color={b.active ? theme.pos : theme.inkGhost} style={{ marginTop: 2 }}>
+                {stat} +{b.amount} {b.active ? 'ACTIVE' : 'INACTIVE'} · NOT ADDED TO BASE
+              </MonoLabel>
+            ))}
+          </View>
         )}
 
         {/* Scanned stats preview — DEF / ATT / PHY 3-col */}

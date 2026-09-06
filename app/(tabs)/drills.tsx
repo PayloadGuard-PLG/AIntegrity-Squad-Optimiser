@@ -196,7 +196,7 @@ export default function DrillsScreen() {
 
         {selectedPlayer?.newRole && (
           <View style={{ marginBottom: 8, paddingHorizontal: 2 }}>
-            <NewRoleBar roleName={selectedPlayer.newRole} points={selectedPlayer.newRolePoints ?? 0} />
+            <NewRoleBar roleName={selectedPlayer.newRole} points={selectedPlayer.newRolePoints ?? 0} specialAbilities={selectedPlayer.specialAbilities} />
           </View>
         )}
 

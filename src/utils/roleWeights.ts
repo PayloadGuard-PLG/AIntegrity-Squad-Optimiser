@@ -127,9 +127,40 @@ export function validateRoleAdjacency(roles: string[]): boolean {
 }
 
 /**
+ * ROLE CONTRACT (load-bearing — see the OCR/state-model spec §3.1)
+ *
+ * Every function below consumes ESTABLISHED roles only: unlocked, gold/green
+ * chips. A role being learned lives in `player.newRole` + `newRolePoints`
+ * (0–50) and contributes ZERO white stats until it reaches 50, at which point
+ * it graduates into the roles array. Empty role slots (the `+` add-role button)
+ * are not roles at all.
+ *
+ * Passing a learning role in here promotes its essentials to white early and
+ * silently corrupts every downstream projection. `assertEstablishedRoles` is
+ * the cheap guard for call sites that have a learning role to hand.
+ */
+
+/**
+ * Development guard: throws if a learning role has been mixed into an
+ * established-role list. Cheap enough to call on any path that has both.
+ */
+export function assertEstablishedRoles(roles: string[], newRole?: string | null): void {
+  if (!newRole) return;
+  const nr = newRole.toUpperCase();
+  if (roles.some(r => r.toUpperCase() === nr)) {
+    throw new Error(
+      `roleWeights: "${nr}" is still being learned but was passed as an established role. ` +
+      'A learning role contributes no white stats until newRolePoints reaches 50.'
+    );
+  }
+}
+
+/**
  * Returns true only if the skill is in the ESSENTIAL (white) list for any of
  * the player's roles. Secondary (grey) stats return false — they receive ×0.5
  * XP efficiency, not full white efficiency.
+ *
+ * `roles` must contain established roles only — see the ROLE CONTRACT above.
  */
 export function isWhiteStat(roles: string[], skillName: string): boolean {
   const normalized = skillName.toUpperCase();

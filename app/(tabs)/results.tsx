@@ -277,7 +277,7 @@ export default function ResultsScreen() {
                 <Text style={{ fontFamily: theme.display, fontSize: 17, fontWeight: '700', color: theme.ink }}>{player.name}</Text>
                 <MonoLabel size={9} color={theme.inkSec}>AGE {player.age} · {player.role.join(' / ')} · {player.tier ?? 'NO TIER'}</MonoLabel>
                 {player.newRole && (
-                  <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} />
+                  <NewRoleBar roleName={player.newRole} points={player.newRolePoints ?? 0} specialAbilities={player.specialAbilities} />
                 )}
               </View>
               <View style={{ alignItems: 'flex-end' }}>

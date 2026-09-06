@@ -13,6 +13,9 @@ export const players = sqliteTable('players', {
   snapshot: text('snapshot'),  // JSON: PlayerSnapshot | null — pre-apply state for revert
   newRole: text('new_role'),                                       // role currently being trained (e.g. "DMC")
   newRolePoints: integer('new_role_points').notNull().default(0), // training progress 0–50; unlocks at 50
+  playstyle: text('playstyle'),                                    // PlaystyleFamily | null (null = never read)
+  specialAbilities: text('special_abilities'),                     // JSON: string[] | null
+  boosts: text('boosts'),                                          // JSON: Record<string, StatBoost> | null
   createdAt: integer('created_at').notNull(),
 });
 

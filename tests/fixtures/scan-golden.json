@@ -1,0 +1,142 @@
+{
+  "lurinsky": {
+    "name": "Mark Lurinsky",
+    "age": 18,
+    "roles": [
+      "MC"
+    ],
+    "overall": 147,
+    "stats": {
+      "TACKLING": 157,
+      "MARKING": 171,
+      "POSITIONING": 154,
+      "HEADING": 123,
+      "BRAVERY": 159,
+      "PASSING": 166,
+      "DRIBBLING": 156,
+      "CROSSING": 119,
+      "SHOOTING": 152,
+      "FINISHING": 134,
+      "FITNESS": 161,
+      "STRENGTH": 132,
+      "AGGRESSION": 129,
+      "SPEED": 150,
+      "CREATIVITY": 138
+    },
+    "_debug": "Mark Lurinsky | OVR 147 | Age: 18 | Roles: MC | Team: DarkVader FC | Special ability: | Overview | Skills | Playstyle | Goal Celebrations | Stats | Personal trainer | Contract | DEFENCE 153 | ATTACK 145 | PHYSICAL 142 | Tackling 157 | Marking 171 | Positioning 154 | Heading 123 | Bravery 159 | Passi"
+  },
+  "moore": {
+    "name": "Darren Moore",
+    "age": 18,
+    "roles": [
+      "DC",
+      "DMC",
+      "MC"
+    ],
+    "overall": 207,
+    "tier": "T3",
+    "stats": {
+      "TACKLING": 242,
+      "MARKING": 251,
+      "POSITIONING": 265,
+      "HEADING": 245,
+      "BRAVERY": 254,
+      "PASSING": 224,
+      "DRIBBLING": 154,
+      "CROSSING": 138,
+      "SHOOTING": 159,
+      "FINISHING": 144,
+      "FITNESS": 224,
+      "STRENGTH": 217,
+      "AGGRESSION": 217,
+      "SPEED": 158,
+      "CREATIVITY": 213
+    },
+    "_debug": "Darren Moore | OVR 207 | STELLAR | Age: 18 | Roles: DC DMC MC 1/50 | Team: DarkVader FC | Special ability: | Overview | Skills | Playstyle | Goal Celebrations | Stats | Personal trainer | Contract | DEFENCE 251 | ATTACK 164 | PHYSICAL 206 | Tackling 242 | Marking 251 | Positioning 265 | Heading 245 "
+  },
+  "blakie": {
+    "name": "Ryan Blakie",
+    "age": 20,
+    "roles": [
+      "MC",
+      "AMC",
+      "AML"
+    ],
+    "overall": 210,
+    "tier": "T3",
+    "stats": {
+      "TACKLING": 195,
+      "MARKING": 181,
+      "POSITIONING": 194,
+      "HEADING": 214,
+      "BRAVERY": 174,
+      "PASSING": 261,
+      "DRIBBLING": 242,
+      "CROSSING": 266,
+      "SHOOTING": 268,
+      "FINISHING": 276,
+      "FITNESS": 198,
+      "STRENGTH": 107,
+      "AGGRESSION": 108,
+      "SPEED": 221,
+      "CREATIVITY": 240
+    },
+    "_debug": "Ryan Blakie | OVR 210 | STELLAR | Age: 20 | Roles: AML AMC MC | Team: DarkVader FC | Special ability: | Overview | Skills | Playstyle | Goal Celebrations | Stats | Personal trainer | Contract | DEFENCE 192 | ATTACK 263 | PHYSICAL 175 | Tackling 195 | Marking 181 | Positioning 194 | Heading 214 | Bra"
+  },
+  "finlayson": {
+    "name": "Danny Finlayson",
+    "age": 19,
+    "roles": [
+      "MC",
+      "ML",
+      "AMC"
+    ],
+    "overall": 211,
+    "tier": "T3",
+    "stats": {
+      "TACKLING": 186,
+      "MARKING": 168,
+      "POSITIONING": 187,
+      "HEADING": 239,
+      "BRAVERY": 159,
+      "PASSING": 274,
+      "DRIBBLING": 289,
+      "CROSSING": 137,
+      "SHOOTING": 276,
+      "FINISHING": 308,
+      "FITNESS": 218,
+      "STRENGTH": 137,
+      "AGGRESSION": 134,
+      "SPEED": 223,
+      "CREATIVITY": 226
+    },
+    "_debug": "Danny Finlayson | OVR 211 | STELLAR | Age: 19 | Roles: AMC MC ML 29/50 | Team: DarkVader FC | Special ability: | Overview | Skills | Playstyle | Goal Celebrations | Stats | Personal trainer | Contract | DEFENCE 187 | ATTACK 257 | PHYSICAL 188 | Tackling 186 | Marking 168 | Positioning 187 | Heading "
+  },
+  "gilmartin": {
+    "name": "Ryan Gilmartin",
+    "age": 18,
+    "roles": [
+      "MC"
+    ],
+    "overall": 198,
+    "tier": "T3",
+    "stats": {
+      "TACKLING": 204,
+      "MARKING": 211,
+      "POSITIONING": 217,
+      "HEADING": 118,
+      "BRAVERY": 206,
+      "PASSING": 268,
+      "DRIBBLING": 261,
+      "CROSSING": 169,
+      "SHOOTING": 249,
+      "FINISHING": 172,
+      "FITNESS": 233,
+      "STRENGTH": 119,
+      "AGGRESSION": 137,
+      "SPEED": 203,
+      "CREATIVITY": 209
+    },
+    "_debug": "Ryan Gilmartin | OVR 198 | STELLAR | Age: 18 | Roles: MC | Team: DarkVader FC | Special ability: | Overview | Skills | Playstyle | Goal Celebrations | Stats | Personal trainer | Contract | DEFENCE 191 | ATTACK 224 | PHYSICAL 180 | Tackling 204 | Marking 211 | Positioning 217 | Heading 118 | Bravery "
+  }
+}

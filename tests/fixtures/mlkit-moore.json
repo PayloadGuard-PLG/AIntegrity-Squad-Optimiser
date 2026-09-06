@@ -1,0 +1,1427 @@
+{
+ "text": "Darren Moore\nOVR 207\nSTELLAR\nAge: 18\nRoles: DC DMC MC 1/50\nTeam: DarkVader FC\nSpecial ability:\nOverview\nSkills\nPlaystyle\nGoal Celebrations\nStats\nPersonal trainer\nContract\nDEFENCE 251\nATTACK 164\nPHYSICAL 206\nTackling 242\nMarking 251\nPositioning 265\nHeading 245\nBravery 254 +25\nPassing 224\nDribbling 154\nCrossing 138\nShooting 159\nFinishing 144\nFitness 224\nStrength 217\nAggression 217\nSpeed 158\nCreativity 213\nSTELLAR: +50 permanent increase on all key attributes",
+ "blocks": [
+  {
+   "text": "Darren Moore",
+   "frame": {
+    "left": 845,
+    "top": 263,
+    "width": 186,
+    "height": 24
+   },
+   "lines": [
+    {
+     "text": "Darren Moore",
+     "frame": {
+      "left": 845,
+      "top": 263,
+      "width": 186,
+      "height": 24
+     },
+     "elements": [
+      {
+       "text": "Darren Moore",
+       "frame": {
+        "left": 845,
+        "top": 263,
+        "width": 186,
+        "height": 24
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "OVR 207",
+   "frame": {
+    "left": 878,
+    "top": 320,
+    "width": 175,
+    "height": 21
+   },
+   "lines": [
+    {
+     "text": "OVR 207",
+     "frame": {
+      "left": 878,
+      "top": 320,
+      "width": 175,
+      "height": 21
+     },
+     "elements": [
+      {
+       "text": "OVR",
+       "frame": {
+        "left": 878,
+        "top": 320,
+        "width": 41,
+        "height": 21
+       }
+      },
+      {
+       "text": "207",
+       "frame": {
+        "left": 993,
+        "top": 310,
+        "width": 60,
+        "height": 34
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "STELLAR",
+   "frame": {
+    "left": 1440,
+    "top": 319,
+    "width": 150,
+    "height": 21
+   },
+   "lines": [
+    {
+     "text": "STELLAR",
+     "frame": {
+      "left": 1440,
+      "top": 319,
+      "width": 150,
+      "height": 21
+     },
+     "elements": [
+      {
+       "text": "STELLAR",
+       "frame": {
+        "left": 1440,
+        "top": 319,
+        "width": 150,
+        "height": 21
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Age: 18",
+   "frame": {
+    "left": 842,
+    "top": 375,
+    "width": 75,
+    "height": 22
+   },
+   "lines": [
+    {
+     "text": "Age: 18",
+     "frame": {
+      "left": 842,
+      "top": 375,
+      "width": 75,
+      "height": 22
+     },
+     "elements": [
+      {
+       "text": "Age:",
+       "frame": {
+        "left": 842,
+        "top": 375,
+        "width": 50,
+        "height": 22
+       }
+      },
+      {
+       "text": "18",
+       "frame": {
+        "left": 900,
+        "top": 375,
+        "width": 17,
+        "height": 22
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Roles: DC DMC MC 1/50",
+   "frame": {
+    "left": 1197,
+    "top": 375,
+    "width": 303,
+    "height": 18
+   },
+   "lines": [
+    {
+     "text": "Roles: DC DMC MC 1/50",
+     "frame": {
+      "left": 1197,
+      "top": 375,
+      "width": 303,
+      "height": 18
+     },
+     "elements": [
+      {
+       "text": "Roles:",
+       "frame": {
+        "left": 1197,
+        "top": 375,
+        "width": 59,
+        "height": 18
+       }
+      },
+      {
+       "text": "DC",
+       "frame": {
+        "left": 1276,
+        "top": 375,
+        "width": 38,
+        "height": 18
+       }
+      },
+      {
+       "text": "DMC",
+       "frame": {
+        "left": 1332,
+        "top": 375,
+        "width": 40,
+        "height": 18
+       }
+      },
+      {
+       "text": "MC",
+       "frame": {
+        "left": 1390,
+        "top": 375,
+        "width": 38,
+        "height": 18
+       }
+      },
+      {
+       "text": "1/50",
+       "frame": {
+        "left": 1450,
+        "top": 375,
+        "width": 50,
+        "height": 18
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Team: DarkVader FC",
+   "frame": {
+    "left": 843,
+    "top": 428,
+    "width": 195,
+    "height": 18
+   },
+   "lines": [
+    {
+     "text": "Team: DarkVader FC",
+     "frame": {
+      "left": 843,
+      "top": 428,
+      "width": 195,
+      "height": 18
+     },
+     "elements": [
+      {
+       "text": "Team:",
+       "frame": {
+        "left": 843,
+        "top": 428,
+        "width": 60,
+        "height": 18
+       }
+      },
+      {
+       "text": "DarkVader",
+       "frame": {
+        "left": 915,
+        "top": 428,
+        "width": 90,
+        "height": 18
+       }
+      },
+      {
+       "text": "FC",
+       "frame": {
+        "left": 1012,
+        "top": 428,
+        "width": 26,
+        "height": 18
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Special ability:",
+   "frame": {
+    "left": 1196,
+    "top": 428,
+    "width": 149,
+    "height": 23
+   },
+   "lines": [
+    {
+     "text": "Special ability:",
+     "frame": {
+      "left": 1196,
+      "top": 428,
+      "width": 149,
+      "height": 23
+     },
+     "elements": [
+      {
+       "text": "Special",
+       "frame": {
+        "left": 1196,
+        "top": 428,
+        "width": 70,
+        "height": 23
+       }
+      },
+      {
+       "text": "ability:",
+       "frame": {
+        "left": 1272,
+        "top": 428,
+        "width": 73,
+        "height": 23
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Overview",
+   "frame": {
+    "left": 645,
+    "top": 490,
+    "width": 55,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Overview",
+     "frame": {
+      "left": 645,
+      "top": 490,
+      "width": 55,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Overview",
+       "frame": {
+        "left": 645,
+        "top": 490,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Skills",
+   "frame": {
+    "left": 645,
+    "top": 529,
+    "width": 55,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Skills",
+     "frame": {
+      "left": 645,
+      "top": 529,
+      "width": 55,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Skills",
+       "frame": {
+        "left": 645,
+        "top": 529,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Playstyle",
+   "frame": {
+    "left": 645,
+    "top": 568,
+    "width": 55,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Playstyle",
+     "frame": {
+      "left": 645,
+      "top": 568,
+      "width": 55,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Playstyle",
+       "frame": {
+        "left": 645,
+        "top": 568,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Goal Celebrations",
+   "frame": {
+    "left": 645,
+    "top": 607,
+    "width": 115,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Goal Celebrations",
+     "frame": {
+      "left": 645,
+      "top": 607,
+      "width": 115,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Goal",
+       "frame": {
+        "left": 645,
+        "top": 607,
+        "width": 55,
+        "height": 20
+       }
+      },
+      {
+       "text": "Celebrations",
+       "frame": {
+        "left": 705,
+        "top": 607,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Stats",
+   "frame": {
+    "left": 645,
+    "top": 646,
+    "width": 55,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Stats",
+     "frame": {
+      "left": 645,
+      "top": 646,
+      "width": 55,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Stats",
+       "frame": {
+        "left": 645,
+        "top": 646,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Personal trainer",
+   "frame": {
+    "left": 645,
+    "top": 685,
+    "width": 115,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Personal trainer",
+     "frame": {
+      "left": 645,
+      "top": 685,
+      "width": 115,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Personal",
+       "frame": {
+        "left": 645,
+        "top": 685,
+        "width": 55,
+        "height": 20
+       }
+      },
+      {
+       "text": "trainer",
+       "frame": {
+        "left": 705,
+        "top": 685,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Contract",
+   "frame": {
+    "left": 645,
+    "top": 724,
+    "width": 55,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "Contract",
+     "frame": {
+      "left": 645,
+      "top": 724,
+      "width": 55,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "Contract",
+       "frame": {
+        "left": 645,
+        "top": 724,
+        "width": 55,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "DEFENCE 251",
+   "frame": {
+    "left": 852,
+    "top": 490,
+    "width": 232,
+    "height": 21
+   },
+   "lines": [
+    {
+     "text": "DEFENCE 251",
+     "frame": {
+      "left": 852,
+      "top": 490,
+      "width": 232,
+      "height": 21
+     },
+     "elements": [
+      {
+       "text": "DEFENCE",
+       "frame": {
+        "left": 852,
+        "top": 490,
+        "width": 91,
+        "height": 21
+       }
+      },
+      {
+       "text": "251",
+       "frame": {
+        "left": 1056,
+        "top": 493,
+        "width": 28,
+        "height": 14
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "ATTACK 164",
+   "frame": {
+    "left": 1106,
+    "top": 490,
+    "width": 232,
+    "height": 21
+   },
+   "lines": [
+    {
+     "text": "ATTACK 164",
+     "frame": {
+      "left": 1106,
+      "top": 490,
+      "width": 232,
+      "height": 21
+     },
+     "elements": [
+      {
+       "text": "ATTACK",
+       "frame": {
+        "left": 1106,
+        "top": 490,
+        "width": 78,
+        "height": 21
+       }
+      },
+      {
+       "text": "164",
+       "frame": {
+        "left": 1310,
+        "top": 493,
+        "width": 28,
+        "height": 14
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "PHYSICAL 206",
+   "frame": {
+    "left": 1359,
+    "top": 490,
+    "width": 231,
+    "height": 21
+   },
+   "lines": [
+    {
+     "text": "PHYSICAL 206",
+     "frame": {
+      "left": 1359,
+      "top": 490,
+      "width": 231,
+      "height": 21
+     },
+     "elements": [
+      {
+       "text": "PHYSICAL",
+       "frame": {
+        "left": 1359,
+        "top": 490,
+        "width": 104,
+        "height": 21
+       }
+      },
+      {
+       "text": "206",
+       "frame": {
+        "left": 1562,
+        "top": 493,
+        "width": 28,
+        "height": 14
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Tackling 242",
+   "frame": {
+    "left": 859,
+    "top": 537,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Tackling 242",
+     "frame": {
+      "left": 859,
+      "top": 537,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Tackling",
+       "frame": {
+        "left": 859,
+        "top": 537,
+        "width": 64,
+        "height": 15
+       }
+      },
+      {
+       "text": "242",
+       "frame": {
+        "left": 1053,
+        "top": 537,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Marking 251",
+   "frame": {
+    "left": 859,
+    "top": 578,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Marking 251",
+     "frame": {
+      "left": 859,
+      "top": 578,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Marking",
+       "frame": {
+        "left": 859,
+        "top": 578,
+        "width": 56,
+        "height": 15
+       }
+      },
+      {
+       "text": "251",
+       "frame": {
+        "left": 1053,
+        "top": 578,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Positioning 265",
+   "frame": {
+    "left": 859,
+    "top": 619,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Positioning 265",
+     "frame": {
+      "left": 859,
+      "top": 619,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Positioning",
+       "frame": {
+        "left": 859,
+        "top": 619,
+        "width": 88,
+        "height": 15
+       }
+      },
+      {
+       "text": "265",
+       "frame": {
+        "left": 1053,
+        "top": 619,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Heading 245",
+   "frame": {
+    "left": 859,
+    "top": 660,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Heading 245",
+     "frame": {
+      "left": 859,
+      "top": 660,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Heading",
+       "frame": {
+        "left": 859,
+        "top": 660,
+        "width": 56,
+        "height": 15
+       }
+      },
+      {
+       "text": "245",
+       "frame": {
+        "left": 1053,
+        "top": 660,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Bravery 254 +25",
+   "frame": {
+    "left": 859,
+    "top": 701,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Bravery 254 +25",
+     "frame": {
+      "left": 859,
+      "top": 701,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Bravery",
+       "frame": {
+        "left": 859,
+        "top": 701,
+        "width": 56,
+        "height": 15
+       }
+      },
+      {
+       "text": "254",
+       "frame": {
+        "left": 1020,
+        "top": 700,
+        "width": 31,
+        "height": 16
+       }
+      },
+      {
+       "text": "+25",
+       "frame": {
+        "left": 1055,
+        "top": 702,
+        "width": 27,
+        "height": 13
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Passing 224",
+   "frame": {
+    "left": 1113,
+    "top": 537,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Passing 224",
+     "frame": {
+      "left": 1113,
+      "top": 537,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Passing",
+       "frame": {
+        "left": 1113,
+        "top": 537,
+        "width": 56,
+        "height": 15
+       }
+      },
+      {
+       "text": "224",
+       "frame": {
+        "left": 1307,
+        "top": 537,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Dribbling 154",
+   "frame": {
+    "left": 1113,
+    "top": 578,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Dribbling 154",
+     "frame": {
+      "left": 1113,
+      "top": 578,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Dribbling",
+       "frame": {
+        "left": 1113,
+        "top": 578,
+        "width": 72,
+        "height": 15
+       }
+      },
+      {
+       "text": "154",
+       "frame": {
+        "left": 1307,
+        "top": 578,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Crossing 138",
+   "frame": {
+    "left": 1113,
+    "top": 619,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Crossing 138",
+     "frame": {
+      "left": 1113,
+      "top": 619,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Crossing",
+       "frame": {
+        "left": 1113,
+        "top": 619,
+        "width": 64,
+        "height": 15
+       }
+      },
+      {
+       "text": "138",
+       "frame": {
+        "left": 1307,
+        "top": 619,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Shooting 159",
+   "frame": {
+    "left": 1113,
+    "top": 660,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Shooting 159",
+     "frame": {
+      "left": 1113,
+      "top": 660,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Shooting",
+       "frame": {
+        "left": 1113,
+        "top": 660,
+        "width": 64,
+        "height": 15
+       }
+      },
+      {
+       "text": "159",
+       "frame": {
+        "left": 1307,
+        "top": 660,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Finishing 144",
+   "frame": {
+    "left": 1113,
+    "top": 701,
+    "width": 223,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Finishing 144",
+     "frame": {
+      "left": 1113,
+      "top": 701,
+      "width": 223,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Finishing",
+       "frame": {
+        "left": 1113,
+        "top": 701,
+        "width": 72,
+        "height": 15
+       }
+      },
+      {
+       "text": "144",
+       "frame": {
+        "left": 1307,
+        "top": 701,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Fitness 224",
+   "frame": {
+    "left": 1366,
+    "top": 537,
+    "width": 222,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Fitness 224",
+     "frame": {
+      "left": 1366,
+      "top": 537,
+      "width": 222,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Fitness",
+       "frame": {
+        "left": 1366,
+        "top": 537,
+        "width": 56,
+        "height": 15
+       }
+      },
+      {
+       "text": "224",
+       "frame": {
+        "left": 1559,
+        "top": 537,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Strength 217",
+   "frame": {
+    "left": 1366,
+    "top": 578,
+    "width": 222,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Strength 217",
+     "frame": {
+      "left": 1366,
+      "top": 578,
+      "width": 222,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Strength",
+       "frame": {
+        "left": 1366,
+        "top": 578,
+        "width": 64,
+        "height": 15
+       }
+      },
+      {
+       "text": "217",
+       "frame": {
+        "left": 1559,
+        "top": 578,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Aggression 217",
+   "frame": {
+    "left": 1366,
+    "top": 619,
+    "width": 222,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Aggression 217",
+     "frame": {
+      "left": 1366,
+      "top": 619,
+      "width": 222,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Aggression",
+       "frame": {
+        "left": 1366,
+        "top": 619,
+        "width": 80,
+        "height": 15
+       }
+      },
+      {
+       "text": "217",
+       "frame": {
+        "left": 1559,
+        "top": 619,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Speed 158",
+   "frame": {
+    "left": 1366,
+    "top": 660,
+    "width": 222,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Speed 158",
+     "frame": {
+      "left": 1366,
+      "top": 660,
+      "width": 222,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Speed",
+       "frame": {
+        "left": 1366,
+        "top": 660,
+        "width": 40,
+        "height": 15
+       }
+      },
+      {
+       "text": "158",
+       "frame": {
+        "left": 1559,
+        "top": 660,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "Creativity 213",
+   "frame": {
+    "left": 1366,
+    "top": 701,
+    "width": 222,
+    "height": 15
+   },
+   "lines": [
+    {
+     "text": "Creativity 213",
+     "frame": {
+      "left": 1366,
+      "top": 701,
+      "width": 222,
+      "height": 15
+     },
+     "elements": [
+      {
+       "text": "Creativity",
+       "frame": {
+        "left": 1366,
+        "top": 701,
+        "width": 80,
+        "height": 15
+       }
+      },
+      {
+       "text": "213",
+       "frame": {
+        "left": 1559,
+        "top": 701,
+        "width": 29,
+        "height": 15
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  },
+  {
+   "text": "STELLAR: +50 permanent increase on all key attributes",
+   "frame": {
+    "left": 760,
+    "top": 770,
+    "width": 555,
+    "height": 20
+   },
+   "lines": [
+    {
+     "text": "STELLAR: +50 permanent increase on all key attributes",
+     "frame": {
+      "left": 760,
+      "top": 770,
+      "width": 555,
+      "height": 20
+     },
+     "elements": [
+      {
+       "text": "STELLAR:",
+       "frame": {
+        "left": 760,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "+50",
+       "frame": {
+        "left": 830,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "permanent",
+       "frame": {
+        "left": 900,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "increase",
+       "frame": {
+        "left": 970,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "on",
+       "frame": {
+        "left": 1040,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "all",
+       "frame": {
+        "left": 1110,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "key",
+       "frame": {
+        "left": 1180,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      },
+      {
+       "text": "attributes",
+       "frame": {
+        "left": 1250,
+        "top": 770,
+        "width": 65,
+        "height": 20
+       }
+      }
+     ],
+     "recognizedLanguages": []
+    }
+   ],
+   "recognizedLanguages": []
+  }
+ ]
+}

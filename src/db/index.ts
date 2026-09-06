@@ -30,6 +30,12 @@ export function ensureNewRoleColumns() {
   try { expoDb.execSync('ALTER TABLE players ADD COLUMN new_role_points integer NOT NULL DEFAULT 0;'); } catch {}
 }
 
+export function ensureGlyphStateColumns() {
+  try { expoDb.execSync('ALTER TABLE players ADD COLUMN playstyle text;'); } catch {}
+  try { expoDb.execSync('ALTER TABLE players ADD COLUMN special_abilities text;'); } catch {}
+  try { expoDb.execSync('ALTER TABLE players ADD COLUMN boosts text;'); } catch {}
+}
+
 export function ensureCoachHistoryTable() {
   try {
     expoDb.execSync(`CREATE TABLE IF NOT EXISTS coach_scan_history (

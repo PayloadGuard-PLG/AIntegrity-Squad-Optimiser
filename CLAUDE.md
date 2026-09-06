@@ -7,6 +7,44 @@
 **Active branch:** `claude/test-connection-I2s8B`
 **Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
 
+### Glyph Readers & Calibration (OCR/state-model pass)
+
+**Calibration evidence lives outside the repo.** Real game screenshots are never
+committed — the IP-scrubbing policy below applies to imagery too. Labelled captures
+go in `calibration-captures/` (gitignored) as `card-<name>.png`.
+
+**Only derived numbers are committed**, in `src/logic/glyphCalibration.json`:
+median HSV samples, ink-contrast ratios, and 8×8 icon feature grids. Regenerate with
+`npm run calibrate` — it measures using the reader's own sampling functions, so the
+corpus cannot drift from the matcher. Never hand-edit that file.
+
+**Adding a labelled sample is how you tighten a boundary.** Drop the capture in
+`calibration-captures/`, add its ML Kit fixture to `tests/fixtures/`, label its chip
+states / badge family / boost states in `LABELS` in `tests/fixtures/build-calibration.ts`,
+and re-run `npm run calibrate`. Class boundaries are **derived** at load time by
+`deriveCalibration()` in `glyphReader.ts` — envelopes widen or tighten automatically
+from the corpus. Do NOT hand-tune a threshold to make a case pass; that is the failure
+mode this design exists to prevent.
+
+**N=1 classes are provisional.** `badgePossession`, `badgeDefensive` and `boostActive`
+each rest on a single observation (see `_sampleCounts`). The current gaps between
+classes are abstention territory, not evidence the boundaries are universally right.
+Margins scale with sample count, so these narrow as captures accumulate.
+
+**Chips are classified by state, not colour.** dark + `X/50` = learning; dark with no
+counter = empty slot; a confidently present, non-dark chip = established, whatever hue
+it is. Do not add a per-colour class — established chips render in more than one colour.
+
+**Two pixel sources in `npm run test:scanner`.** Synthetic canvases are rebuilt from the
+committed corpus and always run, but are painted from the same numbers the boundaries
+derive from — they prove the machinery, not the boundaries. The real-capture pass runs
+only when `calibration-captures/` is populated; that is the non-circular check.
+
+**`tests/fixtures/scan-golden.json` is frozen.** It is the pre-refactor text-pass output.
+If a change makes it fail, the change is wrong — do not regenerate it.
+
+---
+
 ### Formal Verification Layer (added Sprint 35, extended Sprint 36)
 
 A three-layer proof stack (Z3 + Crosshair + Dafny) + Hypothesis differential tests are on `main`. All gate every PR to main via CI.
