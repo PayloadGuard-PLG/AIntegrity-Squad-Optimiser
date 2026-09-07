@@ -10,3 +10,7 @@ players.json
 # Never committed: the repo stays free of source-game imagery (see CLAUDE.md).
 # Put labelled captures here as card-<name>.png, then run `npm run calibrate`.
 calibration-captures/
+
+# Python bytecode from local proof runs
+__pycache__/
+*.py[cod]

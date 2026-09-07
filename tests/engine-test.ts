@@ -1,6 +1,6 @@
 import { estimateStatGainPct, xpNeededFor1Pct, xpBaseForStat, getAgeMultiplier, projectSeasonDecay } from '../src/logic/xpEngine';
 import { applyTierBonusToStats } from '../src/logic/xpEngine';
-import { calculateActualLoss } from '../src/utils/conditionEngine';
+import { calculateActualLoss, rawDrillDrain } from '../src/utils/conditionEngine';
 import gameProfileJson from '../profiles/game_2025.json';
 import { GameProfile } from '../src/types/resources';
 
@@ -172,11 +172,22 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 {
   console.log('\n[6] Condition drain (confirmed from screenshots)');
   const baseLoss = 0.75;
-  assertClose('Very Easy L4 = 0.375 (zero-drain eligible)', calculateActualLoss(baseLoss, 4, 'Very Easy'), 0.375, 0.001);
-  assertClose('Easy L4 = 0.750',       calculateActualLoss(baseLoss, 4, 'Easy'),     0.750, 0.001);
-  assertClose('Very Hard L0 = 3.375',  calculateActualLoss(baseLoss, 0, 'Very Hard'), 3.375, 0.001);
-  assert('Very Easy L4 < zero-drain threshold (0.38)', calculateActualLoss(baseLoss, 4, 'Very Easy') < 0.38);
-  assert('Easy L4 >= zero-drain threshold',             calculateActualLoss(baseLoss, 4, 'Easy') >= 0.38);
+  const L4 = { perfectConditionsActive: true, perfectConditionsLevel: 4 as const };
+  const OFF = { perfectConditionsActive: false, perfectConditionsLevel: 0 as const };
+
+  // RAW drain — the mechanical cost, unchanged from the values back-calculated
+  // from the drill condition screenshots.
+  assertClose('raw: Very Easy, surge L4 = 0.375', rawDrillDrain(baseLoss, 'Very Easy', L4), 0.375, 0.001);
+  assertClose('raw: Easy, surge L4 = 0.750',      rawDrillDrain(baseLoss, 'Easy', L4),      0.750, 0.001);
+  assertClose('raw: Very Hard, surge off = 3.750', rawDrillDrain(baseLoss, 'Very Hard', OFF), 3.750, 0.001);
+
+  // CHARGED drain — what the game deducts. The 0% loophole was patched; every
+  // session costs at least 1%. Confirmed from training history: single drills
+  // with raw 0.750% are charged -1.00%.
+  assertClose('charged: Very Easy, surge L4 = 1.00 (floored)', calculateActualLoss(baseLoss, 'Very Easy', L4), 1.00, 0.001);
+  assertClose('charged: Very Easy, surge off = 1.00 (floored)', calculateActualLoss(baseLoss, 'Very Easy', OFF), 1.00, 0.001);
+  assertClose('charged: Very Hard, surge off = 3.750 (above floor)', calculateActualLoss(baseLoss, 'Very Hard', OFF), 3.750, 0.001);
+  assert('no drill is ever free', calculateActualLoss(baseLoss, 'Very Easy', L4) > 0);
 }
 
 // ─── 7. Seasonal decay ───────────────────────────────────────────────────────

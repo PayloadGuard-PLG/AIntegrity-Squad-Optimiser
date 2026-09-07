@@ -6,7 +6,8 @@ interface DrillRow {
   statsHit: string[];
   efficiency: number;
   conditionCost: number;
-  isZeroDrain?: boolean;
+  /** True when raw drain was below the 1% floor and the cost was rounded UP to it. */
+  isFloored?: boolean;
 }
 
 const TYPE_COLOURS: Record<string, string> = {
@@ -26,10 +27,10 @@ export function DrillTable({ drills }: { drills: DrillRow[] }) {
         <View
           key={i}
           style={{
-            backgroundColor: d.isZeroDrain ? '#22c55e11' : '#1a1d27',
+            backgroundColor: '#1a1d27',
             borderRadius: 10,
             padding: 12,
-            borderWidth: d.isZeroDrain ? 1 : 0,
+            borderWidth: 0,
             borderColor: '#22c55e44',
             gap: 6,
           }}
@@ -39,9 +40,9 @@ export function DrillTable({ drills }: { drills: DrillRow[] }) {
               <Text style={{ color: TYPE_COLOURS[d.type] ?? '#6b7280', fontSize: 10, fontWeight: '700' }}>{d.type.toUpperCase()}</Text>
             </View>
             <Text style={{ color: '#e2e8f0', fontWeight: '700', fontSize: 14, flex: 1 }}>{d.name}</Text>
-            {d.isZeroDrain && (
-              <View style={{ backgroundColor: '#22c55e33', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
-                <Text style={{ color: '#22c55e', fontSize: 10, fontWeight: '700' }}>ZERO DRAIN</Text>
+            {d.isFloored && (
+              <View style={{ backgroundColor: '#f59e0b33', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 }}>
+                <Text style={{ color: '#f59e0b', fontSize: 10, fontWeight: '700' }}>MIN CHARGE</Text>
               </View>
             )}
           </View>

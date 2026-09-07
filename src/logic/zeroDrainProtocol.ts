@@ -1,23 +1,33 @@
-import { calculateDrillConditionCost } from '../utils/modifiers';
+import { SurgeState, SURGE_STATE_SEASON_START } from '../types/resources';
+import { findSubFloorBundle } from './zeroDrainEngine';
 
 /**
- * AIntegrity Zero-Drain Protocol
- * Specifically monitors for the 0.00% condition loss exploit.
+ * RETIRED: the 0.00% condition-loss strategy no longer exists.
+ *
+ * The game patched it. Every training session is now charged a minimum of 1%,
+ * confirmed from training history: single drills whose raw drain is 0.750% are
+ * charged -1.00%. Chasing sub-threshold drills is now a PENALTY, not an exploit —
+ * a 0.375% drill costs the same 1% as a 0.750% one.
+ *
+ * The replacement optimisation is bundling: see findSubFloorBundle.
  */
-export function validateZeroDrain(
-  drillIntensity: 'VERY_EASY',
-  fanLevel: 'LEVEL_4',
-  activeChants: number
-): boolean {
-  const cost = calculateDrillConditionCost(drillIntensity, fanLevel, activeChants);
-  return cost === 0.00;
-}
-
 export function getZeroDrainStrategy() {
   return {
-    strategy: "Exploit 0% condition loss via repetitive Very Easy drills.",
-    requirement: "Level 4 Fan Club + Active Chants",
-    // Zero drain is only achievable with exactly ONE active drill per session
-    limit: "Exactly ONE active drill per session"
+    status: 'retired' as const,
+    reason: 'The 0% condition-loss loophole was patched. All sessions are charged a 1% minimum.',
+    replacement: 'findSubFloorBundle — pack several drills under one minimum charge.',
   };
+}
+
+/** @deprecated Always false. Retained so callers fail loudly rather than silently. */
+export function validateZeroDrain(): boolean {
+  return false;
+}
+
+/**
+ * Whether the bundling optimisation is available in the given surge state.
+ * True only when Perfect Conditions is active at level 4.
+ */
+export function isBundlingAvailable(surge: SurgeState = SURGE_STATE_SEASON_START): boolean {
+  return findSubFloorBundle(surge) !== null;
 }

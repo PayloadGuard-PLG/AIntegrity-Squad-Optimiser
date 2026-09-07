@@ -1047,5 +1047,114 @@
       "McCluskey DB fix DONE (2026-05-20): rescanned, roles confirmed DC/DMC/MC, all 15 stats updated to current game values, talent confirmed Normal. CROSSING now correctly grey."
     ],
     "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21. Subsequently K recalibrated 55→47, bXPS re-derived 450→676."
+  },
+  "fan_club_surges": {
+    "_source": "Direct in-game observation (Fan Club surge panels + training history), captured 2026-09-07. Values are read off the game UI, not inferred.",
+    "observed_at": "2026-09-07",
+    "club_state": {
+      "loyalty": 10379.77,
+      "loyaltyRatePerHour": 155,
+      "maintenanceRatePerHour": 135,
+      "competitionsRatePerHour": 20,
+      "chantsHeld": 0,
+      "tokensHeld": 14,
+      "season": "start — loyalty resets to 0 each season, so all surges begin inactive"
+    },
+    "board": {
+      "perfectConditions": {
+        "state": "INACTIVE",
+        "level": 0,
+        "levels_pct": [
+          -10,
+          -15,
+          -20,
+          -25,
+          -50
+        ],
+        "effect": "condition drain reduction"
+      },
+      "roleAccelerator": {
+        "state": "INACTIVE",
+        "level": 0,
+        "levels_pct": [
+          20,
+          40,
+          60,
+          80,
+          100
+        ],
+        "effect": "new-role point speed"
+      },
+      "teamplayPower": {
+        "state": "ACTIVE",
+        "level": 0,
+        "levels_pct": [
+          30,
+          50,
+          60,
+          70,
+          80
+        ],
+        "effect": "teamplay form effectiveness, League matches"
+      },
+      "respectableAttendance": {
+        "state": "ACTIVE",
+        "level": 0,
+        "levels_pct": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "effect": "home possession"
+      },
+      "packedAttendance": {
+        "state": "INACTIVE",
+        "level": 0,
+        "levels_pct": [
+          2,
+          4,
+          6,
+          8,
+          10
+        ],
+        "effect": "home possession"
+      },
+      "buzzingAttendance": {
+        "state": "INACTIVE",
+        "level": 0,
+        "levels_pct": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "effect": "home possession"
+      }
+    },
+    "condition_drain": {
+      "minimum_charged_pct": 1.0,
+      "evidence": "Training history: single-drill sessions (1 drill, 1 player) charged -1.00% at surge-inactive, where raw drain is 0.750%. Observed for both 1-player and 34-player rows.",
+      "status": "CONFIRMED — replaces the obsolete zeroDrainThreshold 0.38 rule",
+      "zero_drain_loophole": "PATCHED. No session costs 0%. Sub-floor drills are charged the 1% minimum, so cheaper drills are penalised rather than rewarded."
+    },
+    "chants": {
+      "mechanic": "A chant upgrades ONE surge chosen at random by one level. Chants come from tokens or the campus ball.",
+      "token_prices": {
+        "1": 29,
+        "3": 79,
+        "5": 99
+      },
+      "expiry": "Unused chants expire at end of season; loyalty also resets.",
+      "odds": "UNOBSERVED — campus ball probabilities not yet captured. Must not be assumed uniform."
+    },
+    "open_questions": [
+      "Which loyalty threshold activates each surge (ring shows 3000/8000/10K/13K/18K/23K but only 2 surges read ACTIVE at loyalty 10379).",
+      "Whether the 1% floor applies per drill or to the summed session. Discriminating test: 2 Very Easy drills, one player, one session — per-session predicts -1.50%, per-drill predicts -2.00% at surge-inactive.",
+      "Campus ball chant odds per surge.",
+      "Role Accelerator: base new-role point accrual rate is uncalibrated, so the +20..+100% cannot yet be applied."
+    ]
   }
 }
