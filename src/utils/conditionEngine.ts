@@ -54,10 +54,23 @@ export function rawDrillDrain(
   return baseLoss * diffMult * (1 - conditionReduction(surge));
 }
 
-/** Apply the minimum-charge floor. Zero raw (no drills) stays zero. */
+/**
+ * Convert raw drain to what the game actually deducts.
+ *
+ * charged = max(1, floor(raw)) — truncated to a whole percent, minimum 1.
+ *
+ * Confirmed from training history vs the pre-confirm dialog, surge inactive:
+ *   the drill picker shows RAW (-0.75% Very Easy, -2.25% Medium) while the
+ *   history shows CHARGED (-1.00%, -2.00%, -3.00%). Only floor-with-minimum
+ *   reproduces exactly {1, 2, 3} and nothing else; max(raw,1) would predict
+ *   1.50 / 2.25 / 3.75 and rounding would predict 4.00, none of which occur.
+ *
+ * Consequence: the fractional part of every drill above 1% is FREE, while
+ * sub-1% drills are rounded up and overcharged.
+ */
 export function chargedDrain(raw: number): number {
   if (raw <= 0) return 0;
-  return Math.max(raw, MIN_CONDITION_DRAIN_PCT);
+  return Math.max(MIN_CONDITION_DRAIN_PCT, Math.floor(raw));
 }
 
 export interface SessionDrain {

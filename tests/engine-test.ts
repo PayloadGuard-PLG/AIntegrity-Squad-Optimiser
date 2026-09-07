@@ -186,8 +186,11 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   // with raw 0.750% are charged -1.00%.
   assertClose('charged: Very Easy, surge L4 = 1.00 (floored)', calculateActualLoss(baseLoss, 'Very Easy', L4), 1.00, 0.001);
   assertClose('charged: Very Easy, surge off = 1.00 (floored)', calculateActualLoss(baseLoss, 'Very Easy', OFF), 1.00, 0.001);
-  assertClose('charged: Very Hard, surge off = 3.750 (above floor)', calculateActualLoss(baseLoss, 'Very Hard', OFF), 3.750, 0.001);
+  assertClose('charged: Very Hard, surge off = 3.00 (fraction truncated)', calculateActualLoss(baseLoss, 'Very Hard', OFF), 3.00, 0.001);
+  assertClose('charged: Medium, surge off = 2.00 (observed)', calculateActualLoss(baseLoss, 'Medium', OFF), 2.00, 0.001);
   assert('no drill is ever free', calculateActualLoss(baseLoss, 'Very Easy', L4) > 0);
+  assert('Very Easy is strictly dominated by Easy — same charge, double intensity',
+    calculateActualLoss(baseLoss, 'Easy', OFF) === calculateActualLoss(baseLoss, 'Very Easy', OFF));
 }
 
 // ─── 7. Seasonal decay ───────────────────────────────────────────────────────

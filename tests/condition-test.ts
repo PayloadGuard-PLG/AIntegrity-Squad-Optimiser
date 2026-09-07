@@ -52,8 +52,15 @@ close(calculateActualLoss(0.75, 'Very Easy', SURGE_STATE_SEASON_START), 1.00,
   'observed: single VE at season start is charged -1.00%');
 close(calculateActualLoss(0.75, 'Very Easy', surge(true, 4)), 1.00,
   'a cheaper 0.375% drill still costs 1.00% — sub-floor is penalised, not rewarded');
-close(calculateActualLoss(0.75, 'Very Hard', SURGE_STATE_SEASON_START), 3.75,
-  'above the floor, charged = raw');
+close(calculateActualLoss(0.75, 'Very Hard', SURGE_STATE_SEASON_START), 3.00,
+  'Very Hard raw 3.75% is charged 3.00% — the fraction is truncated, not paid');
+close(calculateActualLoss(0.75, 'Medium', SURGE_STATE_SEASON_START), 2.00,
+  'observed: Medium raw 2.25% is charged -2.00%');
+close(calculateActualLoss(0.75, 'Easy', SURGE_STATE_SEASON_START), 1.00,
+  'observed: Easy raw 1.50% is charged -1.00%');
+ok(calculateActualLoss(0.75, 'Easy', SURGE_STATE_SEASON_START)
+   === calculateActualLoss(0.75, 'Very Easy', SURGE_STATE_SEASON_START),
+  'Easy and Very Easy cost the SAME charged 1.00% — Very Easy is strictly dominated');
 close(chargedDrain(0), 0, 'no drills = no charge');
 ok(calculateActualLoss(0.75, 'Very Easy', surge(true, 4)) > 0, 'no drill is ever free');
 
@@ -87,12 +94,12 @@ console.log('\n[6] sessionDrain flags the unresolved aggregation rule');
   ];
   const off = sessionDrain(two, SURGE_STATE_SEASON_START);
   close(off.raw, 1.50, 'season start, 2x VE: raw 1.500%');
-  close(off.chargedPerSession, 1.50, '  per-session reading 1.50%');
+  close(off.chargedPerSession, 1.00, '  per-session reading 1.00% (floor of 1.500)');
   close(off.chargedPerDrill, 2.00, '  per-drill reading 2.00%');
   ok(off.floorRule === 'ambiguous', '  flagged ambiguous — this is the experiment to run');
 
   const one = sessionDrain([{ baseLoss: 0.75, intensity: 'Very Hard' }], SURGE_STATE_SEASON_START);
-  ok(one.floorRule === 'settled', 'single above-floor drill: both readings agree, settled');
+  ok(one.floorRule === 'settled', 'single drill: both readings agree, settled');
 }
 
 console.log('\n' + '═'.repeat(60));

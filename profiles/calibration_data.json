@@ -20,13 +20,34 @@
       "id": "ricky_grant",
       "name": "Ricky Grant",
       "age": 20,
-      "roles": ["DL", "ML", "AML"],
+      "roles": [
+        "DL",
+        "ML",
+        "AML"
+      ],
       "talent": "Normal",
       "talentMultiplier": 1.0,
       "talentConfirmed": true,
       "talentSource": "Intake form Training Rate selection ×1.0 (sprint 26 screenshots)",
-      "whiteStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","CROSSING","FITNESS","AGGRESSION","SPEED","PASSING","DRIBBLING","SHOOTING","FINISHING","CREATIVITY"],
-      "greyStats": ["HEADING","STRENGTH"],
+      "whiteStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "BRAVERY",
+        "CROSSING",
+        "FITNESS",
+        "AGGRESSION",
+        "SPEED",
+        "PASSING",
+        "DRIBBLING",
+        "SHOOTING",
+        "FINISHING",
+        "CREATIVITY"
+      ],
+      "greyStats": [
+        "HEADING",
+        "STRENGTH"
+      ],
       "whiteStatCount": 13,
       "greyStatCount": 2,
       "whiteStatConfirmed": true,
@@ -39,12 +60,21 @@
           "tierAttrAddition": 30,
           "ovr_game": 157,
           "stats": {
-            "TACKLING": 100, "MARKING": 117, "POSITIONING": 208,
-            "HEADING": 154, "BRAVERY": 194,
-            "PASSING": 110, "DRIBBLING": 203, "CROSSING": 134,
-            "SHOOTING": 130, "FINISHING": 144,
-            "FITNESS": 240, "STRENGTH": 64, "AGGRESSION": 181,
-            "SPEED": 140, "CREATIVITY": 236
+            "TACKLING": 100,
+            "MARKING": 117,
+            "POSITIONING": 208,
+            "HEADING": 154,
+            "BRAVERY": 194,
+            "PASSING": 110,
+            "DRIBBLING": 203,
+            "CROSSING": 134,
+            "SHOOTING": 130,
+            "FINISHING": 144,
+            "FITNESS": 240,
+            "STRENGTH": 64,
+            "AGGRESSION": 181,
+            "SPEED": 140,
+            "CREATIVITY": 236
           },
           "source": "screenshot 73944ea2 — in-game player card"
         },
@@ -58,24 +88,45 @@
           "ovr_discrepancy": 1,
           "ovr_discrepancy_note": "floor(2631/15)=175, game shows 176. Likely 1 stat off by 1 in our read, or game uses different rounding.",
           "stats": {
-            "TACKLING": 121, "MARKING": 139, "POSITIONING": 230,
-            "HEADING": 155, "BRAVERY": 215,
-            "PASSING": 130, "DRIBBLING": 224, "CROSSING": 155,
-            "SHOOTING": 151, "FINISHING": 165,
-            "FITNESS": 261, "STRENGTH": 65, "AGGRESSION": 202,
-            "SPEED": 161, "CREATIVITY": 257
+            "TACKLING": 121,
+            "MARKING": 139,
+            "POSITIONING": 230,
+            "HEADING": 155,
+            "BRAVERY": 215,
+            "PASSING": 130,
+            "DRIBBLING": 224,
+            "CROSSING": 155,
+            "SHOOTING": 151,
+            "FINISHING": 165,
+            "FITNESS": 261,
+            "STRENGTH": 65,
+            "AGGRESSION": 202,
+            "SPEED": 161,
+            "CREATIVITY": 257
           },
           "source": "screenshots ddff3ed8 (game card) + 97ebc223 (intake form scan)"
         }
       ],
       "tier_increment_verification": {
-        "from": "T2", "to": "T3",
+        "from": "T2",
+        "to": "T3",
         "expected_increment_per_white_stat": 20,
         "observed": {
-          "TACKLING": 21, "MARKING": 22, "POSITIONING": 22, "BRAVERY": 21,
-          "PASSING": 20, "DRIBBLING": 21, "CROSSING": 21, "SHOOTING": 21,
-          "FINISHING": 21, "FITNESS": 21, "AGGRESSION": 21, "SPEED": 21, "CREATIVITY": 21,
-          "HEADING": 1, "STRENGTH": 1
+          "TACKLING": 21,
+          "MARKING": 22,
+          "POSITIONING": 22,
+          "BRAVERY": 21,
+          "PASSING": 20,
+          "DRIBBLING": 21,
+          "CROSSING": 21,
+          "SHOOTING": 21,
+          "FINISHING": 21,
+          "FITNESS": 21,
+          "AGGRESSION": 21,
+          "SPEED": 21,
+          "CREATIVITY": 21,
+          "HEADING": 1,
+          "STRENGTH": 1
         },
         "note": "Extra +1-2 beyond tier increment = training between snapshots. Heading and Strength only got +1 (no tier bonus = grey confirmed)."
       },
@@ -88,17 +139,46 @@
           "playerOvr": 177,
           "playerAge": 20,
           "statsBefore": {
-            "TACKLING": 122, "MARKING": 140, "POSITIONING": 230,
-            "HEADING": 155, "BRAVERY": 216
+            "TACKLING": 122,
+            "MARKING": 140,
+            "POSITIONING": 230,
+            "HEADING": 155,
+            "BRAVERY": 216
           },
           "gains": [
-            { "stat": "TACKLING",    "gainLo": 57, "gainHi": 71, "isWhite": true  },
-            { "stat": "MARKING",     "gainLo": 48, "gainHi": 56, "isWhite": true  },
-            { "stat": "POSITIONING", "gainLo": 10, "gainHi": 15, "isWhite": true  },
-            { "stat": "HEADING",     "gainLo": 11, "gainHi": 15, "isWhite": false },
-            { "stat": "BRAVERY",     "gainLo": 12, "gainHi": 18, "isWhite": true  }
+            {
+              "stat": "TACKLING",
+              "gainLo": 57,
+              "gainHi": 71,
+              "isWhite": true
+            },
+            {
+              "stat": "MARKING",
+              "gainLo": 48,
+              "gainHi": 56,
+              "isWhite": true
+            },
+            {
+              "stat": "POSITIONING",
+              "gainLo": 10,
+              "gainHi": 15,
+              "isWhite": true
+            },
+            {
+              "stat": "HEADING",
+              "gainLo": 11,
+              "gainHi": 15,
+              "isWhite": false
+            },
+            {
+              "stat": "BRAVERY",
+              "gainLo": 12,
+              "gainHi": 18,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 9, "ovrBoostHi": 12
+          "ovrBoostLo": 9,
+          "ovrBoostHi": 12
         },
         {
           "screenshot": "46927_std_atk_x30_ovr177",
@@ -108,17 +188,47 @@
           "playerOvr": 177,
           "playerAge": 20,
           "statsBefore": {
-            "PASSING": 132, "DRIBBLING": 225, "CROSSING": 156,
-            "SHOOTING": 153, "FINISHING": 167
+            "PASSING": 132,
+            "DRIBBLING": 225,
+            "CROSSING": 156,
+            "SHOOTING": 153,
+            "FINISHING": 167
           },
           "gains": [
-            { "stat": "PASSING",    "gainLo": 52, "gainHi": 63, "isWhite": true },
-            { "stat": "DRIBBLING",  "gainLo": 11, "gainHi": null, "isWhite": true, "_note": "hi value unclear from OCR" },
-            { "stat": "CROSSING",   "gainLo": 37, "gainHi": 44, "isWhite": true },
-            { "stat": "SHOOTING",   "gainLo": 39, "gainHi": 46, "isWhite": true },
-            { "stat": "FINISHING",  "gainLo": 29, "gainHi": 36, "isWhite": true }
+            {
+              "stat": "PASSING",
+              "gainLo": 52,
+              "gainHi": 63,
+              "isWhite": true
+            },
+            {
+              "stat": "DRIBBLING",
+              "gainLo": 11,
+              "gainHi": null,
+              "isWhite": true,
+              "_note": "hi value unclear from OCR"
+            },
+            {
+              "stat": "CROSSING",
+              "gainLo": 37,
+              "gainHi": 44,
+              "isWhite": true
+            },
+            {
+              "stat": "SHOOTING",
+              "gainLo": 39,
+              "gainHi": 46,
+              "isWhite": true
+            },
+            {
+              "stat": "FINISHING",
+              "gainLo": 29,
+              "gainHi": 36,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 11, "ovrBoostHi": 14
+          "ovrBoostLo": 11,
+          "ovrBoostHi": 14
         },
         {
           "screenshot": "46928_std_phy_x35_ovr177",
@@ -128,17 +238,41 @@
           "playerOvr": 177,
           "playerAge": 20,
           "statsBefore": {
-            "FITNESS": null, "STRENGTH": 66, "AGGRESSION": 203,
-            "SPEED": 163, "CREATIVITY": 257
+            "FITNESS": null,
+            "STRENGTH": 66,
+            "AGGRESSION": 203,
+            "SPEED": 163,
+            "CREATIVITY": 257
           },
           "_note": "FITNESS stat value unclear from OCR",
           "gains": [
-            { "stat": "STRENGTH",   "gainLo": 51, "gainHi": 66, "isWhite": false },
-            { "stat": "AGGRESSION", "gainLo": 13, "gainHi": 20, "isWhite": true  },
-            { "stat": "SPEED",      "gainLo": 32, "gainHi": 39, "isWhite": true  },
-            { "stat": "CREATIVITY", "gainLo": 5,  "gainHi": 7,  "isWhite": true  }
+            {
+              "stat": "STRENGTH",
+              "gainLo": 51,
+              "gainHi": 66,
+              "isWhite": false
+            },
+            {
+              "stat": "AGGRESSION",
+              "gainLo": 13,
+              "gainHi": 20,
+              "isWhite": true
+            },
+            {
+              "stat": "SPEED",
+              "gainLo": 32,
+              "gainHi": 39,
+              "isWhite": true
+            },
+            {
+              "stat": "CREATIVITY",
+              "gainLo": 5,
+              "gainHi": 7,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 7, "ovrBoostHi": 9
+          "ovrBoostLo": 7,
+          "ovrBoostHi": 9
         },
         {
           "screenshot": "46929_foc_atk_x3_ovr177",
@@ -148,12 +282,26 @@
           "playerOvr": 177,
           "playerAge": 20,
           "coachLabel": "REWARD COACH",
-          "statsBefore": { "PASSING": 132, "CROSSING": 156 },
+          "statsBefore": {
+            "PASSING": 132,
+            "CROSSING": 156
+          },
           "gains": [
-            { "stat": "PASSING",  "gainLo": 18, "gainHi": 25, "isWhite": true },
-            { "stat": "CROSSING", "gainLo": 14, "gainHi": 19, "isWhite": true }
+            {
+              "stat": "PASSING",
+              "gainLo": 18,
+              "gainHi": 25,
+              "isWhite": true
+            },
+            {
+              "stat": "CROSSING",
+              "gainLo": 14,
+              "gainHi": 19,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 2, "ovrBoostHi": 3
+          "ovrBoostLo": 2,
+          "ovrBoostHi": 3
         },
         {
           "screenshot": "46930_foc_phy_x2_ovr177",
@@ -163,11 +311,19 @@
           "playerOvr": 177,
           "playerAge": 20,
           "coachLabel": "REWARD COACH",
-          "statsBefore": { "AGGRESSION": 203 },
+          "statsBefore": {
+            "AGGRESSION": 203
+          },
           "gains": [
-            { "stat": "AGGRESSION", "gainLo": 4, "gainHi": 6, "isWhite": true }
+            {
+              "stat": "AGGRESSION",
+              "gainLo": 4,
+              "gainHi": 6,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 0, "ovrBoostHi": 1
+          "ovrBoostLo": 0,
+          "ovrBoostHi": 1
         },
         {
           "screenshot": "46931_foc_def_x2_ovr177",
@@ -176,12 +332,26 @@
           "multiplier": 2,
           "playerOvr": 177,
           "playerAge": 20,
-          "statsBefore": { "MARKING": 140, "POSITIONING": 230 },
+          "statsBefore": {
+            "MARKING": 140,
+            "POSITIONING": 230
+          },
           "gains": [
-            { "stat": "MARKING",     "gainLo": 12, "gainHi": 17, "isWhite": true },
-            { "stat": "POSITIONING", "gainLo": 2,  "gainHi": 3,  "isWhite": true }
+            {
+              "stat": "MARKING",
+              "gainLo": 12,
+              "gainHi": 17,
+              "isWhite": true
+            },
+            {
+              "stat": "POSITIONING",
+              "gainLo": 2,
+              "gainHi": 3,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 1, "ovrBoostHi": 2
+          "ovrBoostLo": 1,
+          "ovrBoostHi": 2
         },
         {
           "screenshot": "46694_std_def_x40_ovr175",
@@ -191,17 +361,46 @@
           "playerOvr": 175.0,
           "playerAge": 20,
           "statsBefore": {
-            "TACKLING": 120, "MARKING": 137, "POSITIONING": 228,
-            "HEADING": 154, "BRAVERY": 214
+            "TACKLING": 120,
+            "MARKING": 137,
+            "POSITIONING": 228,
+            "HEADING": 154,
+            "BRAVERY": 214
           },
           "gains": [
-            { "stat": "TACKLING",    "gainLo": 59, "gainHi": 73, "isWhite": true  },
-            { "stat": "MARKING",     "gainLo": 49, "gainHi": 59, "isWhite": true  },
-            { "stat": "POSITIONING", "gainLo": 11, "gainHi": 16, "isWhite": true  },
-            { "stat": "HEADING",     "gainLo": 11, "gainHi": 15, "isWhite": false },
-            { "stat": "BRAVERY",     "gainLo": 13, "gainHi": 18, "isWhite": true  }
+            {
+              "stat": "TACKLING",
+              "gainLo": 59,
+              "gainHi": 73,
+              "isWhite": true
+            },
+            {
+              "stat": "MARKING",
+              "gainLo": 49,
+              "gainHi": 59,
+              "isWhite": true
+            },
+            {
+              "stat": "POSITIONING",
+              "gainLo": 11,
+              "gainHi": 16,
+              "isWhite": true
+            },
+            {
+              "stat": "HEADING",
+              "gainLo": 11,
+              "gainHi": 15,
+              "isWhite": false
+            },
+            {
+              "stat": "BRAVERY",
+              "gainLo": 13,
+              "gainHi": 18,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 10, "ovrBoostHi": 12,
+          "ovrBoostLo": 10,
+          "ovrBoostHi": 12,
           "_calibration_note": "Tackling 120 +59-73 vs Positioning 228 +11-16 from same budget. Used to fit exponential K. With Normal talent (now confirmed), bXPS=220 gives ~62 predicted for Tackling (within observed range 59-73)."
         },
         {
@@ -213,16 +412,40 @@
           "playerAge": 20,
           "_anomaly": "x20 shows similar gains to x40 (46694) for same stats — possible OCR error or non-linear N scaling",
           "statsBefore": {
-            "TACKLING": 120, "MARKING": 137, "POSITIONING": 228,
-            "HEADING": 154, "BRAVERY": 214
+            "TACKLING": 120,
+            "MARKING": 137,
+            "POSITIONING": 228,
+            "HEADING": 154,
+            "BRAVERY": 214
           },
           "gains": [
-            { "stat": "TACKLING",    "gainLo": 66, "gainHi": 77, "isWhite": true  },
-            { "stat": "MARKING",     "gainLo": 54, "gainHi": 63, "isWhite": true  },
-            { "stat": "HEADING",     "gainLo": 13, "gainHi": 18, "isWhite": false },
-            { "stat": "BRAVERY",     "gainLo": 15, "gainHi": 22, "isWhite": true  }
+            {
+              "stat": "TACKLING",
+              "gainLo": 66,
+              "gainHi": 77,
+              "isWhite": true
+            },
+            {
+              "stat": "MARKING",
+              "gainLo": 54,
+              "gainHi": 63,
+              "isWhite": true
+            },
+            {
+              "stat": "HEADING",
+              "gainLo": 13,
+              "gainHi": 18,
+              "isWhite": false
+            },
+            {
+              "stat": "BRAVERY",
+              "gainLo": 15,
+              "gainHi": 22,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 10, "ovrBoostHi": 12
+          "ovrBoostLo": 10,
+          "ovrBoostHi": 12
         },
         {
           "screenshot": "46346_std_atk_x30_ovr175",
@@ -232,17 +455,46 @@
           "playerOvr": 175.0,
           "playerAge": 20,
           "statsBefore": {
-            "PASSING": 130, "DRIBBLING": 223, "CROSSING": 154,
-            "SHOOTING": 150, "FINISHING": 164
+            "PASSING": 130,
+            "DRIBBLING": 223,
+            "CROSSING": 154,
+            "SHOOTING": 150,
+            "FINISHING": 164
           },
           "gains": [
-            { "stat": "PASSING",   "gainLo": 53, "gainHi": 64, "isWhite": true },
-            { "stat": "DRIBBLING", "gainLo": 11, "gainHi": 17, "isWhite": true },
-            { "stat": "CROSSING",  "gainLo": 38, "gainHi": 46, "isWhite": true },
-            { "stat": "SHOOTING",  "gainLo": 41, "gainHi": 48, "isWhite": true },
-            { "stat": "FINISHING", "gainLo": 31, "gainHi": 38, "isWhite": true }
+            {
+              "stat": "PASSING",
+              "gainLo": 53,
+              "gainHi": 64,
+              "isWhite": true
+            },
+            {
+              "stat": "DRIBBLING",
+              "gainLo": 11,
+              "gainHi": 17,
+              "isWhite": true
+            },
+            {
+              "stat": "CROSSING",
+              "gainLo": 38,
+              "gainHi": 46,
+              "isWhite": true
+            },
+            {
+              "stat": "SHOOTING",
+              "gainLo": 41,
+              "gainHi": 48,
+              "isWhite": true
+            },
+            {
+              "stat": "FINISHING",
+              "gainLo": 31,
+              "gainHi": 38,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 12, "ovrBoostHi": 14
+          "ovrBoostLo": 12,
+          "ovrBoostHi": 14
         },
         {
           "screenshot": "46345_std_phy_x35_ovr175",
@@ -252,17 +504,46 @@
           "playerOvr": 175.0,
           "playerAge": 20,
           "statsBefore": {
-            "FITNESS": 260, "STRENGTH": 64, "AGGRESSION": 201,
-            "SPEED": 160, "CREATIVITY": 256
+            "FITNESS": 260,
+            "STRENGTH": 64,
+            "AGGRESSION": 201,
+            "SPEED": 160,
+            "CREATIVITY": 256
           },
           "gains": [
-            { "stat": "FITNESS",    "gainLo": 6,  "gainHi": 8,  "isWhite": true  },
-            { "stat": "STRENGTH",   "gainLo": 52, "gainHi": 67, "isWhite": false },
-            { "stat": "AGGRESSION", "gainLo": 14, "gainHi": 21, "isWhite": true  },
-            { "stat": "SPEED",      "gainLo": 34, "gainHi": 41, "isWhite": true  },
-            { "stat": "CREATIVITY", "gainLo": 5,  "gainHi": 7,  "isWhite": true  }
+            {
+              "stat": "FITNESS",
+              "gainLo": 6,
+              "gainHi": 8,
+              "isWhite": true
+            },
+            {
+              "stat": "STRENGTH",
+              "gainLo": 52,
+              "gainHi": 67,
+              "isWhite": false
+            },
+            {
+              "stat": "AGGRESSION",
+              "gainLo": 14,
+              "gainHi": 21,
+              "isWhite": true
+            },
+            {
+              "stat": "SPEED",
+              "gainLo": 34,
+              "gainHi": 41,
+              "isWhite": true
+            },
+            {
+              "stat": "CREATIVITY",
+              "gainLo": 5,
+              "gainHi": 7,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 7, "ovrBoostHi": 10
+          "ovrBoostLo": 7,
+          "ovrBoostHi": 10
         },
         {
           "screenshot": "46372_foc_def_x2_ovr175",
@@ -271,12 +552,26 @@
           "multiplier": 2,
           "playerOvr": 175.0,
           "playerAge": 20,
-          "statsBefore": { "MARKING": 137, "POSITIONING": 228 },
+          "statsBefore": {
+            "MARKING": 137,
+            "POSITIONING": 228
+          },
           "gains": [
-            { "stat": "MARKING",     "gainLo": 13, "gainHi": 18, "isWhite": true },
-            { "stat": "POSITIONING", "gainLo": 2,  "gainHi": 3,  "isWhite": true }
+            {
+              "stat": "MARKING",
+              "gainLo": 13,
+              "gainHi": 18,
+              "isWhite": true
+            },
+            {
+              "stat": "POSITIONING",
+              "gainLo": 2,
+              "gainHi": 3,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 1, "ovrBoostHi": 2
+          "ovrBoostLo": 1,
+          "ovrBoostHi": 2
         }
       ]
     },
@@ -284,14 +579,35 @@
       "id": "ryan_rodger",
       "name": "Ryan Rodger",
       "age": 18,
-      "roles": ["AML", "ML", "DL"],
+      "roles": [
+        "AML",
+        "ML",
+        "DL"
+      ],
       "roles_updated": "Sprint 27 — intake form screenshot 64c4b2e2 confirms DL (not AMC). All 3 roles now entered in app.",
       "talent": "Normal",
       "talentMultiplier": 1.0,
       "talentConfirmed": true,
       "talentSource": "Intake form Training Rate selection ×1.0 (sprint 26 screenshots)",
-      "whiteStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
-      "greyStats": ["HEADING","STRENGTH"],
+      "whiteStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "BRAVERY",
+        "PASSING",
+        "DRIBBLING",
+        "CROSSING",
+        "SHOOTING",
+        "FINISHING",
+        "FITNESS",
+        "AGGRESSION",
+        "SPEED",
+        "CREATIVITY"
+      ],
+      "greyStats": [
+        "HEADING",
+        "STRENGTH"
+      ],
       "_note": "Pre-sprint-27 observations (46697–46703) were made with AMC in Rogers' role set — isWhite flags in those observations reflect AMC-era whiteness and should be treated as historical. With DL replacing AMC, TACKLING/MARKING/BRAVERY/AGGRESSION are now white; HEADING is now grey. Both Rogers and Grant now have identical role sets (DL+ML+AML) and identical white stats (13 white, 2 grey).",
       "snapshots": [
         {
@@ -299,12 +615,21 @@
           "tier": "T0",
           "ovr_game": 116.4,
           "stats": {
-            "TACKLING": 68, "MARKING": 85, "POSITIONING": 148,
-            "HEADING": 108, "BRAVERY": 70,
-            "PASSING": 121, "DRIBBLING": 136, "CROSSING": 132,
-            "SHOOTING": 129, "FINISHING": 127,
-            "FITNESS": 148, "STRENGTH": 87, "AGGRESSION": 108,
-            "SPEED": 106, "CREATIVITY": 166
+            "TACKLING": 68,
+            "MARKING": 85,
+            "POSITIONING": 148,
+            "HEADING": 108,
+            "BRAVERY": 70,
+            "PASSING": 121,
+            "DRIBBLING": 136,
+            "CROSSING": 132,
+            "SHOOTING": 129,
+            "FINISHING": 127,
+            "FITNESS": 148,
+            "STRENGTH": 87,
+            "AGGRESSION": 108,
+            "SPEED": 106,
+            "CREATIVITY": 166
           },
           "source": "original calibration screenshots (sprint 24)"
         },
@@ -315,12 +640,21 @@
           "ovr_app": 120.0,
           "ovr_discrepancy": 1,
           "stats": {
-            "TACKLING": 70, "MARKING": 88, "POSITIONING": 155,
-            "HEADING": 113, "BRAVERY": 74,
-            "PASSING": 125, "DRIBBLING": 143, "CROSSING": 136,
-            "SHOOTING": 134, "FINISHING": 132,
-            "FITNESS": 154, "STRENGTH": 90, "AGGRESSION": 111,
-            "SPEED": 112, "CREATIVITY": 172
+            "TACKLING": 70,
+            "MARKING": 88,
+            "POSITIONING": 155,
+            "HEADING": 113,
+            "BRAVERY": 74,
+            "PASSING": 125,
+            "DRIBBLING": 143,
+            "CROSSING": 136,
+            "SHOOTING": 134,
+            "FINISHING": 132,
+            "FITNESS": 154,
+            "STRENGTH": 90,
+            "AGGRESSION": 111,
+            "SPEED": 112,
+            "CREATIVITY": 172
           },
           "source": "screenshots 5a725abb/f6b8ddf9 (sprint 26) — player has been trained since original snapshots"
         }
@@ -334,17 +668,46 @@
           "playerOvr": 116.4,
           "playerAge": 18,
           "statsBefore": {
-            "PASSING": 121, "DRIBBLING": 136, "CROSSING": 132,
-            "SHOOTING": 129, "FINISHING": 127
+            "PASSING": 121,
+            "DRIBBLING": 136,
+            "CROSSING": 132,
+            "SHOOTING": 129,
+            "FINISHING": 127
           },
           "gains": [
-            { "stat": "PASSING",   "gainLo": 26, "gainHi": 34, "isWhite": true },
-            { "stat": "DRIBBLING", "gainLo": 17, "gainHi": 25, "isWhite": true },
-            { "stat": "CROSSING",  "gainLo": 20, "gainHi": 27, "isWhite": true },
-            { "stat": "SHOOTING",  "gainLo": 21, "gainHi": 29, "isWhite": true },
-            { "stat": "FINISHING", "gainLo": 23, "gainHi": 30, "isWhite": true }
+            {
+              "stat": "PASSING",
+              "gainLo": 26,
+              "gainHi": 34,
+              "isWhite": true
+            },
+            {
+              "stat": "DRIBBLING",
+              "gainLo": 17,
+              "gainHi": 25,
+              "isWhite": true
+            },
+            {
+              "stat": "CROSSING",
+              "gainLo": 20,
+              "gainHi": 27,
+              "isWhite": true
+            },
+            {
+              "stat": "SHOOTING",
+              "gainLo": 21,
+              "gainHi": 29,
+              "isWhite": true
+            },
+            {
+              "stat": "FINISHING",
+              "gainLo": 23,
+              "gainHi": 30,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 7, "ovrBoostHi": 9
+          "ovrBoostLo": 7,
+          "ovrBoostHi": 9
         },
         {
           "screenshot": "46697_std_def_x40_ovr116",
@@ -354,18 +717,47 @@
           "playerOvr": 116.4,
           "playerAge": 18,
           "statsBefore": {
-            "TACKLING": 68, "MARKING": 85, "POSITIONING": 148,
-            "HEADING": 108, "BRAVERY": 70
+            "TACKLING": 68,
+            "MARKING": 85,
+            "POSITIONING": 148,
+            "HEADING": 108,
+            "BRAVERY": 70
           },
           "_note": "Tackling/Marking/Bravery are GREY for AML/ML/AMC. Positioning white via ML only, Heading white via AMC only.",
           "gains": [
-            { "stat": "TACKLING",    "gainLo": 50, "gainHi": 64, "isWhite": false },
-            { "stat": "MARKING",     "gainLo": 41, "gainHi": 55, "isWhite": false },
-            { "stat": "POSITIONING", "gainLo": 14, "gainHi": 20, "isWhite": true  },
-            { "stat": "HEADING",     "gainLo": 35, "gainHi": 43, "isWhite": true  },
-            { "stat": "BRAVERY",     "gainLo": 49, "gainHi": 63, "isWhite": false }
+            {
+              "stat": "TACKLING",
+              "gainLo": 50,
+              "gainHi": 64,
+              "isWhite": false
+            },
+            {
+              "stat": "MARKING",
+              "gainLo": 41,
+              "gainHi": 55,
+              "isWhite": false
+            },
+            {
+              "stat": "POSITIONING",
+              "gainLo": 14,
+              "gainHi": 20,
+              "isWhite": true
+            },
+            {
+              "stat": "HEADING",
+              "gainLo": 35,
+              "gainHi": 43,
+              "isWhite": true
+            },
+            {
+              "stat": "BRAVERY",
+              "gainLo": 49,
+              "gainHi": 63,
+              "isWhite": false
+            }
           ],
-          "ovrBoostLo": 13, "ovrBoostHi": 16
+          "ovrBoostLo": 13,
+          "ovrBoostHi": 16
         },
         {
           "screenshot": "46698_std_phy_x35_ovr116",
@@ -375,18 +767,47 @@
           "playerOvr": 116.4,
           "playerAge": 18,
           "statsBefore": {
-            "FITNESS": 148, "STRENGTH": 87, "AGGRESSION": 108,
-            "SPEED": 106, "CREATIVITY": 166
+            "FITNESS": 148,
+            "STRENGTH": 87,
+            "AGGRESSION": 108,
+            "SPEED": 106,
+            "CREATIVITY": 166
           },
           "_note": "Strength and Aggression are GREY for AML/ML/AMC.",
           "gains": [
-            { "stat": "FITNESS",    "gainLo": 14, "gainHi": 21, "isWhite": true  },
-            { "stat": "STRENGTH",   "gainLo": 40, "gainHi": 53, "isWhite": false },
-            { "stat": "AGGRESSION", "gainLo": 31, "gainHi": 37, "isWhite": false },
-            { "stat": "SPEED",      "gainLo": 36, "gainHi": 44, "isWhite": true  },
-            { "stat": "CREATIVITY", "gainLo": 12, "gainHi": 17, "isWhite": true  }
+            {
+              "stat": "FITNESS",
+              "gainLo": 14,
+              "gainHi": 21,
+              "isWhite": true
+            },
+            {
+              "stat": "STRENGTH",
+              "gainLo": 40,
+              "gainHi": 53,
+              "isWhite": false
+            },
+            {
+              "stat": "AGGRESSION",
+              "gainLo": 31,
+              "gainHi": 37,
+              "isWhite": false
+            },
+            {
+              "stat": "SPEED",
+              "gainLo": 36,
+              "gainHi": 44,
+              "isWhite": true
+            },
+            {
+              "stat": "CREATIVITY",
+              "gainLo": 12,
+              "gainHi": 17,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 9, "ovrBoostHi": 11
+          "ovrBoostLo": 9,
+          "ovrBoostHi": 11
         },
         {
           "screenshot": "46700_foc_atk_x3_ovr116",
@@ -396,12 +817,26 @@
           "playerOvr": 116.4,
           "playerAge": 18,
           "coachLabel": "REWARD COACH",
-          "statsBefore": { "PASSING": 121, "CROSSING": 132 },
+          "statsBefore": {
+            "PASSING": 121,
+            "CROSSING": 132
+          },
           "gains": [
-            { "stat": "PASSING",  "gainLo": 10, "gainHi": 15, "isWhite": true },
-            { "stat": "CROSSING", "gainLo": 8,  "gainHi": 10, "isWhite": true }
+            {
+              "stat": "PASSING",
+              "gainLo": 10,
+              "gainHi": 15,
+              "isWhite": true
+            },
+            {
+              "stat": "CROSSING",
+              "gainLo": 8,
+              "gainHi": 10,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 1, "ovrBoostHi": 2
+          "ovrBoostLo": 1,
+          "ovrBoostHi": 2
         },
         {
           "screenshot": "46701_foc_def_x2_ovr116_a",
@@ -410,12 +845,26 @@
           "multiplier": 2,
           "playerOvr": 116.4,
           "playerAge": 18,
-          "statsBefore": { "MARKING": 85, "POSITIONING": 148 },
+          "statsBefore": {
+            "MARKING": 85,
+            "POSITIONING": 148
+          },
           "gains": [
-            { "stat": "MARKING",     "gainLo": 10, "gainHi": 15, "isWhite": false },
-            { "stat": "POSITIONING", "gainLo": 2,  "gainHi": 4,  "isWhite": true  }
+            {
+              "stat": "MARKING",
+              "gainLo": 10,
+              "gainHi": 15,
+              "isWhite": false
+            },
+            {
+              "stat": "POSITIONING",
+              "gainLo": 2,
+              "gainHi": 4,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 1, "ovrBoostHi": 1
+          "ovrBoostLo": 1,
+          "ovrBoostHi": 1
         },
         {
           "screenshot": "46702_foc_phy_x2_ovr116",
@@ -425,11 +874,19 @@
           "playerOvr": 116.4,
           "playerAge": 18,
           "coachLabel": "REWARD COACH",
-          "statsBefore": { "AGGRESSION": 108 },
+          "statsBefore": {
+            "AGGRESSION": 108
+          },
           "gains": [
-            { "stat": "AGGRESSION", "gainLo": 12, "gainHi": 16, "isWhite": false }
+            {
+              "stat": "AGGRESSION",
+              "gainLo": 12,
+              "gainHi": 16,
+              "isWhite": false
+            }
           ],
-          "ovrBoostLo": 1, "ovrBoostHi": 1
+          "ovrBoostLo": 1,
+          "ovrBoostHi": 1
         },
         {
           "screenshot": "46703_foc_atk_x3_ovr116_b",
@@ -439,12 +896,26 @@
           "playerOvr": 116.4,
           "playerAge": 18,
           "coachLabel": "REWARD COACH",
-          "statsBefore": { "PASSING": 121, "CROSSING": 132 },
+          "statsBefore": {
+            "PASSING": 121,
+            "CROSSING": 132
+          },
           "gains": [
-            { "stat": "PASSING",  "gainLo": 10, "gainHi": 15, "isWhite": true },
-            { "stat": "CROSSING", "gainLo": 8,  "gainHi": 10, "isWhite": true }
+            {
+              "stat": "PASSING",
+              "gainLo": 10,
+              "gainHi": 15,
+              "isWhite": true
+            },
+            {
+              "stat": "CROSSING",
+              "gainLo": 8,
+              "gainHi": 10,
+              "isWhite": true
+            }
           ],
-          "ovrBoostLo": 1, "ovrBoostHi": 2
+          "ovrBoostLo": 1,
+          "ovrBoostHi": 2
         }
       ]
     }
@@ -453,23 +924,51 @@
     "id": "kevin_mcginty",
     "name": "Kevin McGinty",
     "age": 27,
-    "roles": ["AMC"],
+    "roles": [
+      "AMC"
+    ],
     "talent": "Normal",
     "talentMultiplier": 1.0,
     "talentConfirmed": true,
     "talentSource": "Intake form Training Rate selection ×1.0 (sprint 27 screenshot 60724dba)",
     "tier": "T0",
-    "whiteStats": ["HEADING","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","SPEED","CREATIVITY"],
-    "greyStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","CROSSING","STRENGTH","AGGRESSION"],
+    "whiteStats": [
+      "HEADING",
+      "PASSING",
+      "DRIBBLING",
+      "SHOOTING",
+      "FINISHING",
+      "FITNESS",
+      "SPEED",
+      "CREATIVITY"
+    ],
+    "greyStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "BRAVERY",
+      "CROSSING",
+      "STRENGTH",
+      "AGGRESSION"
+    ],
     "whiteStatCount": 8,
     "ageMultiplier": 0.61,
     "stats": {
-      "TACKLING": 92, "MARKING": 78, "POSITIONING": 75,
-      "HEADING": 103, "BRAVERY": 99,
-      "PASSING": 128, "DRIBBLING": 101, "CROSSING": 91,
-      "SHOOTING": 102, "FINISHING": 115,
-      "FITNESS": 108, "STRENGTH": 90, "AGGRESSION": 103,
-      "SPEED": 94, "CREATIVITY": 114
+      "TACKLING": 92,
+      "MARKING": 78,
+      "POSITIONING": 75,
+      "HEADING": 103,
+      "BRAVERY": 99,
+      "PASSING": 128,
+      "DRIBBLING": 101,
+      "CROSSING": 91,
+      "SHOOTING": 102,
+      "FINISHING": 115,
+      "FITNESS": 108,
+      "STRENGTH": 90,
+      "AGGRESSION": 103,
+      "SPEED": 94,
+      "CREATIVITY": 114
     },
     "ovr_game": 100,
     "ovr_app_ceil": 100,
@@ -482,11 +981,52 @@
     "formula": "Math.floor(sum_of_all_stats / totalAttributeCount)",
     "confirmedFrom": "Sprint 27 (4 data points, apparent ceil) + Sprint 32 (clean tier upgrade, decisive floor)",
     "dataPoints": [
-      { "player": "Kevin McGinty T0",  "statSum": 1493, "divBy15": 99.53,  "floor": 99,  "ceil": 100, "game": 100, "_note": "Ambiguous — floor 99 ≠ game 100. Sprint 27 concluded ceil. Explained: internal sum > displayed sum due to fractional stat accumulation from training." },
-      { "player": "Ryan Rodger T0",    "statSum": 1809, "divBy15": 120.6,  "floor": 120, "ceil": 121, "game": 121, "_note": "Ambiguous — same explanation as McGinty." },
-      { "player": "Ricky Grant T2",    "statSum": 2355, "divBy15": 157.00, "floor": 157, "ceil": 157, "game": 157, "_note": "Integer mean — floor and ceil agree. Not diagnostic." },
-      { "player": "Ricky Grant T3",    "statSum": 2631, "divBy15": 175.4,  "floor": 175, "ceil": 176, "game": 176, "_note": "Sprint 27 used displayed sum 2631. But Sprint 27 concluded ceil=176 ✓. HOWEVER: displayed sum was lower than internal sum — fractional training gains pushed internal sum high enough that floor(internal/15)=176 also. Not a clean test." },
-      { "player": "Ricky Grant T2→T3 CLEAN", "statSum": 2615, "divBy15": 174.33, "floor": 174, "ceil": 175, "game": 174, "match": "floor", "_note": "DECISIVE. Clean tier upgrade only — no training between snapshots. Integer stat changes. floor(2615/15)=floor(174.33)=174 ✓. ceil=175 ✗. Resolves ambiguity conclusively." }
+      {
+        "player": "Kevin McGinty T0",
+        "statSum": 1493,
+        "divBy15": 99.53,
+        "floor": 99,
+        "ceil": 100,
+        "game": 100,
+        "_note": "Ambiguous — floor 99 ≠ game 100. Sprint 27 concluded ceil. Explained: internal sum > displayed sum due to fractional stat accumulation from training."
+      },
+      {
+        "player": "Ryan Rodger T0",
+        "statSum": 1809,
+        "divBy15": 120.6,
+        "floor": 120,
+        "ceil": 121,
+        "game": 121,
+        "_note": "Ambiguous — same explanation as McGinty."
+      },
+      {
+        "player": "Ricky Grant T2",
+        "statSum": 2355,
+        "divBy15": 157.0,
+        "floor": 157,
+        "ceil": 157,
+        "game": 157,
+        "_note": "Integer mean — floor and ceil agree. Not diagnostic."
+      },
+      {
+        "player": "Ricky Grant T3",
+        "statSum": 2631,
+        "divBy15": 175.4,
+        "floor": 175,
+        "ceil": 176,
+        "game": 176,
+        "_note": "Sprint 27 used displayed sum 2631. But Sprint 27 concluded ceil=176 ✓. HOWEVER: displayed sum was lower than internal sum — fractional training gains pushed internal sum high enough that floor(internal/15)=176 also. Not a clean test."
+      },
+      {
+        "player": "Ricky Grant T2→T3 CLEAN",
+        "statSum": 2615,
+        "divBy15": 174.33,
+        "floor": 174,
+        "ceil": 175,
+        "game": 174,
+        "match": "floor",
+        "_note": "DECISIVE. Clean tier upgrade only — no training between snapshots. Integer stat changes. floor(2615/15)=floor(174.33)=174 ✓. ceil=175 ✗. Resolves ambiguity conclusively."
+      }
     ],
     "conclusion": "Game uses Math.floor. Sprint 27's apparent ceil confirmation was an artefact: fractional stat accumulation from training inflated the internal sum above the displayed screenshot sum, making floor(internal) equal ceil(displayed) for those cases. The clean Grant T2→T3 tier upgrade (no training, integer-only stat changes) is the only unambiguous test. floor wins. Fixed in qualityPctToOvr() sprint 32.",
     "ljdark_leo_confirmation": "LJDark Leo T2: displayed sum=2181, game OVR=145. floor(2181/15)=floor(145.4)=145 ✓. Consistent with floor formula."
@@ -497,29 +1037,88 @@
     "evidence": [
       {
         "player": "Cptn Dallas",
-        "age": 23, "ageMult": 0.85,
-        "talent": "Normal", "talentMult": 1.0,
-        "roles": ["AMR","MR","DR"],
-        "coachType": "Standard", "coachCategory": "Safeguard",
-        "sessionCount": 4, "numStats": 3,
+        "age": 23,
+        "ageMult": 0.85,
+        "talent": "Normal",
+        "talentMult": 1.0,
+        "roles": [
+          "AMR",
+          "MR",
+          "DR"
+        ],
+        "coachType": "Standard",
+        "coachCategory": "Safeguard",
+        "sessionCount": 4,
+        "numStats": 3,
         "stats": [
-          { "stat": "MARKING",    "value": 139, "isWhite": true, "gameRange": [11,16], "gameMid": 13.5, "impliedBxps": 495 },
-          { "stat": "POSITIONING","value": 194, "isWhite": true, "gameRange": [4,6],   "gameMid": 5.0,  "impliedBxps": 455 },
-          { "stat": "AGGRESSION", "value": 189, "isWhite": true, "gameRange": [4,6],   "gameMid": 5.0,  "impliedBxps": 414 }
+          {
+            "stat": "MARKING",
+            "value": 139,
+            "isWhite": true,
+            "gameRange": [
+              11,
+              16
+            ],
+            "gameMid": 13.5,
+            "impliedBxps": 495
+          },
+          {
+            "stat": "POSITIONING",
+            "value": 194,
+            "isWhite": true,
+            "gameRange": [
+              4,
+              6
+            ],
+            "gameMid": 5.0,
+            "impliedBxps": 455
+          },
+          {
+            "stat": "AGGRESSION",
+            "value": 189,
+            "isWhite": true,
+            "gameRange": [
+              4,
+              6
+            ],
+            "gameMid": 5.0,
+            "impliedBxps": 414
+          }
         ],
         "impliedBxpsAvg": 455,
-        "screenshots": ["5d0a44a1 (app scan)", "71118e85 (game preview)"],
+        "screenshots": [
+          "5d0a44a1 (app scan)",
+          "71118e85 (game preview)"
+        ],
         "sessionDate": "2026-05-18"
       },
       {
         "player": "Ricky Grant",
-        "age": 20, "ageMult": 1.0,
-        "talent": "Normal", "talentMult": 1.0,
-        "roles": ["DL","ML","AML"],
-        "coachType": "Standard", "coachCategory": "Defending",
-        "sessionCount": 40, "numStats": 5,
+        "age": 20,
+        "ageMult": 1.0,
+        "talent": "Normal",
+        "talentMult": 1.0,
+        "roles": [
+          "DL",
+          "ML",
+          "AML"
+        ],
+        "coachType": "Standard",
+        "coachCategory": "Defending",
+        "sessionCount": 40,
+        "numStats": 5,
         "stats": [
-          { "stat": "TACKLING", "value": 120, "isWhite": true, "actualRange": [59,73], "actualMid": 66, "impliedBxps": 409 }
+          {
+            "stat": "TACKLING",
+            "value": 120,
+            "isWhite": true,
+            "actualRange": [
+              59,
+              73
+            ],
+            "actualMid": 66,
+            "impliedBxps": 409
+          }
         ],
         "impliedBxpsAvg": 409,
         "note": "Grant data is actual before/after stats, not game-predicted range. Mid-range used as best estimate.",
@@ -529,10 +1128,38 @@
     "chosenBxps": 676,
     "rationale": "Mean of 4 estimates: 495, 455, 414, 409 → mean 443. Initially set to 450. After K was recalibrated from 55 to 47 via CV minimisation across 5 Grant ×40 observations (CV=3.2%), bXPS was re-derived using the integral form of the XP budget equation: gain = C₀×K×[exp((stat+gain)/K) - exp(stat/K)] / ageMult. Solving the Grant Tackling 120 ×40 observation (budget = 40×bXPS/5 = 8×bXPS total, divided across 5 stats) gives bXPS=676: budget integral yields gain=65.7 (actual 59–73 ✓). All Dallas observations also validate at bXPS=676 with budget=4×676/3=901 XP/stat (MARKING 139 → 11.9 ✓ vs [11,16], POSITIONING 194 → 4.1 ✓ vs [4,6], AGGRESSION 189 → 4.5 ✓ vs [4,6]).",
     "validationWithNewBxps": {
-      "dallas_marking_139": { "predicted": 11.9, "gameRange": [11,16], "pass": true },
-      "dallas_positioning_194": { "predicted": 4.1, "gameRange": [4,6], "pass": true },
-      "dallas_aggression_189": { "predicted": 4.5, "gameRange": [4,6], "pass": true },
-      "grant_tackling_120": { "predicted": 65.7, "actualRange": [59,73], "pass": true }
+      "dallas_marking_139": {
+        "predicted": 11.9,
+        "gameRange": [
+          11,
+          16
+        ],
+        "pass": true
+      },
+      "dallas_positioning_194": {
+        "predicted": 4.1,
+        "gameRange": [
+          4,
+          6
+        ],
+        "pass": true
+      },
+      "dallas_aggression_189": {
+        "predicted": 4.5,
+        "gameRange": [
+          4,
+          6
+        ],
+        "pass": true
+      },
+      "grant_tackling_120": {
+        "predicted": 65.7,
+        "actualRange": [
+          59,
+          73
+        ],
+        "pass": true
+      }
     }
   },
   "controlled_tests": [
@@ -541,7 +1168,9 @@
       "description": "Controlled x10 vs x40 session count test to measure gain non-linearity.",
       "player": "Kevin McGinty — confirmed sprint 27 screenshots (60724dba, 4588b6a9, 1862c396)",
       "playerAge": 27,
-      "playerRole": ["AMC"],
+      "playerRole": [
+        "AMC"
+      ],
       "playerTier": "T0",
       "playerTalent": "Normal",
       "statTested": "FITNESS",
@@ -552,8 +1181,16 @@
       "drillLevel": "Very Hard",
       "drillLevelMult": 1.7,
       "observations": [
-        { "sessionCount": 10, "appProjectedGain": 3.7, "budget_xps": 200 },
-        { "sessionCount": 40, "appProjectedGain": 9.0, "budget_xps": 800 }
+        {
+          "sessionCount": 10,
+          "appProjectedGain": 3.7,
+          "budget_xps": 200
+        },
+        {
+          "sessionCount": 40,
+          "appProjectedGain": 9.0,
+          "budget_xps": 800
+        }
       ],
       "gainRatio_40_to_10": 2.43,
       "expectedRatioLinear": 4.0,
@@ -573,19 +1210,67 @@
       "playerAgeSource": "Confirmed by user 2026-05-18. Age 22 → bracket 21–23 → ageMult 0.85.",
       "roles": "DMC MC DC (inferred from white stat pattern)",
       "stats": {
-        "TACKLING": 114, "MARKING": 126, "POSITIONING": 127, "HEADING": 107, "BRAVERY": 124,
-        "PASSING": 115, "DRIBBLING": 117, "CROSSING": 96, "SHOOTING": 125, "FINISHING": 99,
-        "FITNESS": 130, "STRENGTH": 96, "AGGRESSION": 105, "SPEED": 131, "CREATIVITY": 120
+        "TACKLING": 114,
+        "MARKING": 126,
+        "POSITIONING": 127,
+        "HEADING": 107,
+        "BRAVERY": 124,
+        "PASSING": 115,
+        "DRIBBLING": 117,
+        "CROSSING": 96,
+        "SHOOTING": 125,
+        "FINISHING": 99,
+        "FITNESS": 130,
+        "STRENGTH": 96,
+        "AGGRESSION": 105,
+        "SPEED": 131,
+        "CREATIVITY": 120
       },
       "sum": 1732,
       "ovrCheck": "floor(1732/15) = 115 ✓",
       "coach": "Standard Safeguard x4 (same scan reused; session count changed manually to x20, x40)",
       "numStats": 5,
-      "statsCoached": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY"],
+      "statsCoached": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY"
+      ],
       "engine_projections": {
-        "x4":  { "ovrGain": 3,  "ovrAfter": 118.0, "statGains": { "TACKLING": 11.8, "MARKING": 9.7,  "POSITIONING": 9.6,  "HEADING": 7.0,  "BRAVERY": 10.0 } },
-        "x20": { "ovrGain": 12, "ovrAfter": 127.0, "statGains": { "TACKLING": 43.4, "MARKING": 37.2, "POSITIONING": 36.7, "HEADING": 28.6, "BRAVERY": 38.2 } },
-        "x40": { "ovrGain": 19, "ovrAfter": 134.0, "statGains": { "TACKLING": 67.4, "MARKING": 59.2, "POSITIONING": 58.5, "HEADING": 47.3, "BRAVERY": 60.5 } }
+        "x4": {
+          "ovrGain": 3,
+          "ovrAfter": 118.0,
+          "statGains": {
+            "TACKLING": 11.8,
+            "MARKING": 9.7,
+            "POSITIONING": 9.6,
+            "HEADING": 7.0,
+            "BRAVERY": 10.0
+          }
+        },
+        "x20": {
+          "ovrGain": 12,
+          "ovrAfter": 127.0,
+          "statGains": {
+            "TACKLING": 43.4,
+            "MARKING": 37.2,
+            "POSITIONING": 36.7,
+            "HEADING": 28.6,
+            "BRAVERY": 38.2
+          }
+        },
+        "x40": {
+          "ovrGain": 19,
+          "ovrAfter": 134.0,
+          "statGains": {
+            "TACKLING": 67.4,
+            "MARKING": 59.2,
+            "POSITIONING": 58.5,
+            "HEADING": 47.3,
+            "BRAVERY": 60.5
+          }
+        }
       },
       "xN_ratios_engine": {
         "x20_vs_x4_ovr": 4.0,
@@ -595,7 +1280,7 @@
       },
       "geometric_decay_prediction": {
         "starDecayPerSession": 0.85,
-        "effectiveSessions_x4":  3.24,
+        "effectiveSessions_x4": 3.24,
         "effectiveSessions_x20": 6.38,
         "effectiveSessions_x40": 6.66,
         "x40_vs_x20_effective_ratio": 1.044,
@@ -606,9 +1291,19 @@
       "reward_coach_observation": {
         "date": "2026-05-18",
         "note": "Reward Coach Standard Safeguard x4. Reward Coaches assumed to use same XP budget as regular Standard coaches — no evidence of extra boost (user confirmed). Only 3 stats boosted (cross-category): MARKING, POSITIONING, AGGRESSION. Regular Standard Safeguard boosts all 5 DEF stats.",
-        "statsCoached": ["MARKING", "POSITIONING", "AGGRESSION"],
+        "statsCoached": [
+          "MARKING",
+          "POSITIONING",
+          "AGGRESSION"
+        ],
         "numStats": 3,
-        "engine_projection_x4": { "MARKING": 15.4, "POSITIONING": 15.1, "AGGRESSION": 11.6, "ovrGain": 3, "ovrAfter": 118.0 },
+        "engine_projection_x4": {
+          "MARKING": 15.4,
+          "POSITIONING": 15.1,
+          "AGGRESSION": 11.6,
+          "ovrGain": 3,
+          "ovrAfter": 118.0
+        },
         "budget_per_stat": 600,
         "actual_needed": "Run this Reward Coach x4, screenshot after. Compare vs +15.4/+15.1/+11.6."
       }
@@ -619,7 +1314,9 @@
     "name": "Jables JaseysBoi",
     "formerly_known_as": "Lewis MacGregor (same player — account renamed between sprint 32 and this session)",
     "age": 18,
-    "roles": ["GK"],
+    "roles": [
+      "GK"
+    ],
     "talent": "Slow",
     "talent_note": "DB stores 'Slow' but talent is NOT a formula variable. Formula uses 1.0 for all players. Coach config shows '+0.47 FROM CARD' — this is an informational display value, not a multiplier applied by the engine. The ×114 session result (OVR 173 actual, 172.5 engine) is fully explained by Normal (1.0) rate under the geometric budget model. The earlier 0.47 calibration was derived from the LINEAR budget model — invalid once geometric model was confirmed in Sprint 34.",
     "talentMultiplier_formula": 1.0,
@@ -628,8 +1325,25 @@
     "talentConfirmed": false,
     "talentSource": "Edit screen not screenshotted for talent label. DB stores Slow. Formula-confirmed at 1.0 rate from ×114 result. True talent (Fastest/Fast/Average/Normal/Slow) unconfirmed from edit screen.",
     "tier": "T2",
-    "whiteStats": ["REFLEXES","AGILITY","ANTICIPATION","RUSHING OUT","COMMUNICATION","THROWING","KICKING","PUNCHING","AERIAL REACH","CONCENTRATION","FITNESS"],
-    "greyStats": ["STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
+    "whiteStats": [
+      "REFLEXES",
+      "AGILITY",
+      "ANTICIPATION",
+      "RUSHING OUT",
+      "COMMUNICATION",
+      "THROWING",
+      "KICKING",
+      "PUNCHING",
+      "AERIAL REACH",
+      "CONCENTRATION",
+      "FITNESS"
+    ],
+    "greyStats": [
+      "STRENGTH",
+      "AGGRESSION",
+      "SPEED",
+      "CREATIVITY"
+    ],
     "whiteStatCount": 11,
     "snapshots": [
       {
@@ -637,9 +1351,21 @@
         "tier": "T0",
         "note": "Back-calculated by subtracting T2 cumulative tier bonus (+30 per white stat) from confirmed T2 stats. Represents state after ×114 Extensive Goalkeeping, before tier upgrades.",
         "stats": {
-          "REFLEXES": 114, "AGILITY": 113, "ANTICIPATION": 126, "RUSHING OUT": 142, "COMMUNICATION": 108,
-          "THROWING": 138, "KICKING": 122, "PUNCHING": 111, "AERIAL REACH": 119, "CONCENTRATION": 127,
-          "FITNESS": 135, "STRENGTH": 129, "AGGRESSION": 132, "SPEED": 124, "CREATIVITY": 111
+          "REFLEXES": 114,
+          "AGILITY": 113,
+          "ANTICIPATION": 126,
+          "RUSHING OUT": 142,
+          "COMMUNICATION": 108,
+          "THROWING": 138,
+          "KICKING": 122,
+          "PUNCHING": 111,
+          "AERIAL REACH": 119,
+          "CONCENTRATION": 127,
+          "FITNESS": 135,
+          "STRENGTH": 129,
+          "AGGRESSION": 132,
+          "SPEED": 124,
+          "CREATIVITY": 111
         },
         "sum": 1851,
         "ovr_calc": 123,
@@ -651,9 +1377,21 @@
         "tierGameName": "Elite",
         "tierAttrAddition": 30,
         "stats": {
-          "REFLEXES": 144, "AGILITY": 143, "ANTICIPATION": 156, "RUSHING OUT": 172, "COMMUNICATION": 138,
-          "THROWING": 168, "KICKING": 152, "PUNCHING": 141, "AERIAL REACH": 149, "CONCENTRATION": 157,
-          "FITNESS": 165, "STRENGTH": 129, "AGGRESSION": 132, "SPEED": 124, "CREATIVITY": 111
+          "REFLEXES": 144,
+          "AGILITY": 143,
+          "ANTICIPATION": 156,
+          "RUSHING OUT": 172,
+          "COMMUNICATION": 138,
+          "THROWING": 168,
+          "KICKING": 152,
+          "PUNCHING": 141,
+          "AERIAL REACH": 149,
+          "CONCENTRATION": 157,
+          "FITNESS": 165,
+          "STRENGTH": 129,
+          "AGGRESSION": 132,
+          "SPEED": 124,
+          "CREATIVITY": 111
         },
         "sum": 2181,
         "ovr_calc": 145,
@@ -676,20 +1414,89 @@
         "talentMult_profile": 0.47,
         "talentMult_profile_note": "Profile value at time of corrected calibration. Was 0.7 (community estimate) at initial scan.",
         "numStats": 11,
-        "game_ovr_boost_range": [24, 32],
+        "game_ovr_boost_range": [
+          24,
+          32
+        ],
         "game_ovr_boost_note": "Block [4] in OCR: '145.8 +24-32' — game's own projection for ×114 session",
         "gains": [
-          { "stat": "REFLEXES",      "statBefore": 144, "gainLo": 35, "gainHi": 48, "isWhite": true  },
-          { "stat": "AGILITY",       "statBefore": 143, "gainLo": 36, "gainHi": 49, "isWhite": true  },
-          { "stat": "ANTICIPATION",  "statBefore": 156, "gainLo": 31, "gainHi": 44, "isWhite": true  },
-          { "stat": "RUSHING OUT",   "statBefore": 172, "gainLo": 28, "gainHi": 33, "isWhite": true  },
-          { "stat": "COMMUNICATION", "statBefore": 138, "gainLo": 36, "gainHi": 51, "isWhite": true  },
-          { "stat": "THROWING",      "statBefore": 168, "gainLo": 29, "gainHi": 36, "isWhite": true  },
-          { "stat": "KICKING",       "statBefore": 152, "gainLo": 32, "gainHi": 46, "isWhite": true  },
-          { "stat": "PUNCHING",      "statBefore": 141, "gainLo": 35, "gainHi": 49, "isWhite": true  },
-          { "stat": "AERIAL REACH",  "statBefore": 149, "gainLo": 34, "gainHi": 47, "isWhite": true  },
-          { "stat": "CONCENTRATION", "statBefore": 157, "gainLo": 31, "gainHi": 43, "isWhite": true  },
-          { "stat": "FITNESS",       "statBefore": 165, "gainLo": 29, "gainHi": 38, "isWhite": true  }
+          {
+            "stat": "REFLEXES",
+            "statBefore": 144,
+            "gainLo": 35,
+            "gainHi": 48,
+            "isWhite": true
+          },
+          {
+            "stat": "AGILITY",
+            "statBefore": 143,
+            "gainLo": 36,
+            "gainHi": 49,
+            "isWhite": true
+          },
+          {
+            "stat": "ANTICIPATION",
+            "statBefore": 156,
+            "gainLo": 31,
+            "gainHi": 44,
+            "isWhite": true
+          },
+          {
+            "stat": "RUSHING OUT",
+            "statBefore": 172,
+            "gainLo": 28,
+            "gainHi": 33,
+            "isWhite": true
+          },
+          {
+            "stat": "COMMUNICATION",
+            "statBefore": 138,
+            "gainLo": 36,
+            "gainHi": 51,
+            "isWhite": true
+          },
+          {
+            "stat": "THROWING",
+            "statBefore": 168,
+            "gainLo": 29,
+            "gainHi": 36,
+            "isWhite": true
+          },
+          {
+            "stat": "KICKING",
+            "statBefore": 152,
+            "gainLo": 32,
+            "gainHi": 46,
+            "isWhite": true
+          },
+          {
+            "stat": "PUNCHING",
+            "statBefore": 141,
+            "gainLo": 35,
+            "gainHi": 49,
+            "isWhite": true
+          },
+          {
+            "stat": "AERIAL REACH",
+            "statBefore": 149,
+            "gainLo": 34,
+            "gainHi": 47,
+            "isWhite": true
+          },
+          {
+            "stat": "CONCENTRATION",
+            "statBefore": 157,
+            "gainLo": 31,
+            "gainHi": 43,
+            "isWhite": true
+          },
+          {
+            "stat": "FITNESS",
+            "statBefore": 165,
+            "gainLo": 29,
+            "gainHi": 38,
+            "isWhite": true
+          }
         ],
         "engine_prediction_sprint32_linear_model": {
           "ovrBefore": 145,
@@ -713,17 +1520,94 @@
           "ageMult": 1.0,
           "talentMult": 1.0,
           "per_stat_vs_game_range": {
-            "REFLEXES":      { "engine": 41.8, "gameRange": [35, 48], "inRange": true },
-            "AGILITY":       { "engine": 42.4, "gameRange": [36, 49], "inRange": true },
-            "ANTICIPATION":  { "engine": 35.1, "gameRange": [31, 44], "inRange": true },
-            "RUSHING OUT":   { "engine": 27.3, "gameRange": [28, 33], "inRange": true },
-            "COMMUNICATION": { "engine": 45.4, "gameRange": [36, 51], "inRange": true },
-            "THROWING":      { "engine": 29.1, "gameRange": [29, 36], "inRange": true },
-            "KICKING":       { "engine": 37.2, "gameRange": [32, 46], "inRange": true },
-            "PUNCHING":      { "engine": 43.6, "gameRange": [35, 49], "inRange": true },
-            "AERIAL REACH":  { "engine": 38.9, "gameRange": [34, 47], "inRange": true },
-            "CONCENTRATION": { "engine": 34.6, "gameRange": [31, 43], "inRange": true },
-            "FITNESS":       { "engine": 30.6, "gameRange": [29, 38], "inRange": true }
+            "REFLEXES": {
+              "engine": 41.8,
+              "gameRange": [
+                35,
+                48
+              ],
+              "inRange": true
+            },
+            "AGILITY": {
+              "engine": 42.4,
+              "gameRange": [
+                36,
+                49
+              ],
+              "inRange": true
+            },
+            "ANTICIPATION": {
+              "engine": 35.1,
+              "gameRange": [
+                31,
+                44
+              ],
+              "inRange": true
+            },
+            "RUSHING OUT": {
+              "engine": 27.3,
+              "gameRange": [
+                28,
+                33
+              ],
+              "inRange": true
+            },
+            "COMMUNICATION": {
+              "engine": 45.4,
+              "gameRange": [
+                36,
+                51
+              ],
+              "inRange": true
+            },
+            "THROWING": {
+              "engine": 29.1,
+              "gameRange": [
+                29,
+                36
+              ],
+              "inRange": true
+            },
+            "KICKING": {
+              "engine": 37.2,
+              "gameRange": [
+                32,
+                46
+              ],
+              "inRange": true
+            },
+            "PUNCHING": {
+              "engine": 43.6,
+              "gameRange": [
+                35,
+                49
+              ],
+              "inRange": true
+            },
+            "AERIAL REACH": {
+              "engine": 38.9,
+              "gameRange": [
+                34,
+                47
+              ],
+              "inRange": true
+            },
+            "CONCENTRATION": {
+              "engine": 34.6,
+              "gameRange": [
+                31,
+                43
+              ],
+              "inRange": true
+            },
+            "FITNESS": {
+              "engine": 30.6,
+              "gameRange": [
+                29,
+                38
+              ],
+              "inRange": true
+            }
           },
           "summary": "11/11 within game range. OVR: engine 172.5 vs actual 173 — error <1%. Formula fully confirmed at this stat range (120–172) with geometric budget and talent mult=1.0.",
           "game_ranges_source": "OCR scan taken under old player name 'Lewis MacGregor' (same player, now Jables JaseysBoi). Block [4] showed '145.8 +24-32' — game's OVR boost projection. All 11 GK stat ranges extracted cleanly.",
@@ -747,7 +1631,9 @@
     "id": "gillespie",
     "name": "Gillespie",
     "formerly_labelled_as": "LJDark Leo in calibration_data.json (sprint 32 session). Wrong attribution — LJDark Leo is a user handle, not a player name. Gillespie is the correct in-game player name.",
-    "roles": ["GK"],
+    "roles": [
+      "GK"
+    ],
     "note": "No calibration observations on this player. Name correction only. Jables JaseysBoi (formerly Lewis MacGregor) is the GK with the ×114 calibration session — a completely different player.",
     "observations": []
   },
@@ -755,24 +1641,57 @@
     "id": "neri",
     "name": "Nerimala",
     "age": 28,
-    "roles": ["ST", "AMC", "MC"],
+    "roles": [
+      "ST",
+      "AMC",
+      "MC"
+    ],
     "tier": "T6",
     "tier_game_name": "Legendary",
     "talent": "Normal",
     "talentMultiplier": 1.0,
     "talentConfirmed": true,
     "talentSource": "Training Rate shown as Normal in Edit Player screen — screenshot 53d01ca8 (2026-05-20).",
-    "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","SHOOTING","FINISHING","FITNESS","STRENGTH","SPEED","CREATIVITY"],
-    "greyStats": ["CROSSING","AGGRESSION"],
+    "whiteStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "HEADING",
+      "BRAVERY",
+      "PASSING",
+      "DRIBBLING",
+      "SHOOTING",
+      "FINISHING",
+      "FITNESS",
+      "STRENGTH",
+      "SPEED",
+      "CREATIVITY"
+    ],
+    "greyStats": [
+      "CROSSING",
+      "AGGRESSION"
+    ],
     "whiteStatCount": 13,
     "confirmedStats": {
       "date": "2026-05-20",
       "source": "Player card screenshot d1526180. Rescanned into app (screenshot c164c20b) — 15 stats updated, DB is current.",
       "ovr_game": 273,
       "stats": {
-        "TACKLING": 190, "MARKING": 210, "POSITIONING": 313, "HEADING": 336, "BRAVERY": 296,
-        "PASSING": 301, "DRIBBLING": 310, "CROSSING": 69, "SHOOTING": 423, "FINISHING": 429,
-        "FITNESS": 330, "STRENGTH": 213, "AGGRESSION": 79, "SPEED": 271, "CREATIVITY": 323
+        "TACKLING": 190,
+        "MARKING": 210,
+        "POSITIONING": 313,
+        "HEADING": 336,
+        "BRAVERY": 296,
+        "PASSING": 301,
+        "DRIBBLING": 310,
+        "CROSSING": 69,
+        "SHOOTING": 423,
+        "FINISHING": 429,
+        "FITNESS": 330,
+        "STRENGTH": 213,
+        "AGGRESSION": 79,
+        "SPEED": 271,
+        "CREATIVITY": 323
       },
       "statSum": 4093,
       "ovrCheck": "floor(4093/15) = floor(272.87) = 272. Game shows 273 — 1 stat off by 1 in OCR read, minor variance.",
@@ -787,12 +1706,27 @@
         "coachCategory": "Physical",
         "isRewardCoach": true,
         "multiplier": 4,
-        "boostedStats": ["FITNESS", "CREATIVITY"],
+        "boostedStats": [
+          "FITNESS",
+          "CREATIVITY"
+        ],
         "numStats": 2,
         "playerAge": 28,
         "ageMult": 0.61,
-        "statsBefore": { "FITNESS": 330, "CREATIVITY": 323 },
-        "gameRanges": { "FITNESS": [3, 4], "CREATIVITY": [3, 4] },
+        "statsBefore": {
+          "FITNESS": 330,
+          "CREATIVITY": 323
+        },
+        "gameRanges": {
+          "FITNESS": [
+            3,
+            4
+          ],
+          "CREATIVITY": [
+            3,
+            4
+          ]
+        },
         "gameMidpoint": 3.5,
         "budgetPerStat_calc": "(1−0.99^4)/0.01 × 676 / 2 = 1332 XP",
         "budgetPerStat": 1332,
@@ -815,8 +1749,17 @@
           "implied_K_note": "K≈76 explains the observed +3.5 gain at stat=330 with ageMult=0.61. K=47 confirmed valid to ~260; fails above ~300. More data points in 260–330 range needed before changing engine formula."
         },
         "ocr_false_positives": {
-          "detected": ["TACKLING", "FITNESS", "BRAVERY", "CREATIVITY", "FINISHING"],
-          "correct": ["FITNESS", "CREATIVITY"],
+          "detected": [
+            "TACKLING",
+            "FITNESS",
+            "BRAVERY",
+            "CREATIVITY",
+            "FINISHING"
+          ],
+          "correct": [
+            "FITNESS",
+            "CREATIVITY"
+          ],
           "root_cause": "Focused Physical coach — TACKLING row text spans rightward to FITNESS column (same Y), picking up FITNESS's +3-4 as TACKLING's gain. Same for BRAVERY←CREATIVITY. Cross-column Y-row bleed.",
           "fix": "focusedCatFilter added to coachScanner.ts primary detection loop — filters out stats not in the coach's stated category for Focused coach type.",
           "workaround_used": "Manual stat picker"
@@ -829,13 +1772,34 @@
     "id": "garry_mccluskey",
     "name": "Garry McCluskey",
     "age": 24,
-    "roles": ["DC", "DMC", "MC"],
+    "roles": [
+      "DC",
+      "DMC",
+      "MC"
+    ],
     "tier": "T3",
     "talent": "Normal",
     "talentConfirmed": true,
     "talentSource": "Training Rate shown as Normal in Edit Player screen — screenshot c7a9fe54 (2026-05-20). Prior Creativity underprediction (+5.8 vs +7-10) was caused by stale DB stats, not talent. Stats now updated to current game values from rescan.",
-    "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","DRIBBLING","FITNESS","STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
-    "greyStats": ["CROSSING","FINISHING","SHOOTING"],
+    "whiteStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "HEADING",
+      "BRAVERY",
+      "PASSING",
+      "DRIBBLING",
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION",
+      "SPEED",
+      "CREATIVITY"
+    ],
+    "greyStats": [
+      "CROSSING",
+      "FINISHING",
+      "SHOOTING"
+    ],
     "whiteStatCount": 12,
     "tier_note": "12 white key attrs (not 13 as roleWeights.ts union would give) — game treats SHOOTING as grey for DC/DMC/MC combo. floor(50×12/15)=40 tier OVR ✓.",
     "currentStats_confirmed": {
@@ -845,9 +1809,21 @@
       "tier": "T3",
       "tierBonus": 50,
       "stats": {
-        "TACKLING": 274, "MARKING": 207, "POSITIONING": 272, "HEADING": 255, "BRAVERY": 244,
-        "PASSING": 191, "DRIBBLING": 213, "CROSSING": 83, "SHOOTING": 165, "FINISHING": 104,
-        "FITNESS": 213, "STRENGTH": 181, "AGGRESSION": 186, "SPEED": 180, "CREATIVITY": 189
+        "TACKLING": 274,
+        "MARKING": 207,
+        "POSITIONING": 272,
+        "HEADING": 255,
+        "BRAVERY": 244,
+        "PASSING": 191,
+        "DRIBBLING": 213,
+        "CROSSING": 83,
+        "SHOOTING": 165,
+        "FINISHING": 104,
+        "FITNESS": 213,
+        "STRENGTH": 181,
+        "AGGRESSION": 186,
+        "SPEED": 180,
+        "CREATIVITY": 189
       },
       "statSum": 2957,
       "ovrCheck": "floor(2957/15) = floor(197.13) = 197 ✓",
@@ -872,13 +1848,48 @@
       "budgetPerStat_xps": 2462,
       "budgetGrey_xps": 541,
       "statsProjected": {
-        "PASSING":   { "statBefore": 149, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 7.2,  "formulaResult": 7.23  },
-        "DRIBBLING": { "statBefore": 158, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 6.0,  "formulaResult": 6.05  },
-        "CROSSING":  { "statBefore": 162, "isWhiteInAppDB": true,  "greyMult": 1.0,  "appProjection": 21.3, "formulaResult": 21.30, "_note": "Treated as white due to DB role error — actual CROSSING is grey (83) for DC/DMC/MC" },
-        "SHOOTING":  { "statBefore": 147, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 7.5,  "formulaResult": 7.52  },
-        "FINISHING": { "statBefore": 102, "isWhiteInAppDB": false, "greyMult": 0.22, "appProjection": 17.5, "formulaResult": 17.53 }
+        "PASSING": {
+          "statBefore": 149,
+          "isWhiteInAppDB": false,
+          "greyMult": 0.22,
+          "appProjection": 7.2,
+          "formulaResult": 7.23
+        },
+        "DRIBBLING": {
+          "statBefore": 158,
+          "isWhiteInAppDB": false,
+          "greyMult": 0.22,
+          "appProjection": 6.0,
+          "formulaResult": 6.05
+        },
+        "CROSSING": {
+          "statBefore": 162,
+          "isWhiteInAppDB": true,
+          "greyMult": 1.0,
+          "appProjection": 21.3,
+          "formulaResult": 21.3,
+          "_note": "Treated as white due to DB role error — actual CROSSING is grey (83) for DC/DMC/MC"
+        },
+        "SHOOTING": {
+          "statBefore": 147,
+          "isWhiteInAppDB": false,
+          "greyMult": 0.22,
+          "appProjection": 7.5,
+          "formulaResult": 7.52
+        },
+        "FINISHING": {
+          "statBefore": 102,
+          "isWhiteInAppDB": false,
+          "greyMult": 0.22,
+          "appProjection": 17.5,
+          "formulaResult": 17.53
+        }
       },
-      "ovrProjected": { "before": 193, "after": 197.2, "gain": 4.2 },
+      "ovrProjected": {
+        "before": 193,
+        "after": 197.2,
+        "gain": 4.2
+      },
       "formulaVerified": "All 5 projections match formula output to within 0.1 pts. Confirms C₀=2.94, K=47, greyMult=0.22, sessionBudgetDecay=0.99, bXPS=676 are internally consistent.",
       "keyFinding": "greyMult=0.22 is ABSORPTION not redistribution. Grey budget = 2462×0.22 = 541 XP. The 78% is lost — not added to CROSSING. FINISHING (stat 102, grey) still gains +17.5 because it sits on the cheap part of the exponential curve; CROSSING (stat 162, white) gains +21.3 on full budget but the expensive curve partially offsets the white advantage."
     },
@@ -890,7 +1901,10 @@
         "coachCategory": "Physical",
         "sessionType": "DRILL_SESSION_REWARD_COACH",
         "sessionCount": 4,
-        "boostedStats": ["FITNESS", "CREATIVITY"],
+        "boostedStats": [
+          "FITNESS",
+          "CREATIVITY"
+        ],
         "numBoostedStats": 2,
         "budgetPerStat_xpEngine": 1352,
         "playerStats_at_time": {
@@ -898,8 +1912,14 @@
           "CREATIVITY": 188
         },
         "actualGains": {
-          "FITNESS": { "lo": 2, "hi": 3 },
-          "CREATIVITY": { "lo": 7, "hi": 10 }
+          "FITNESS": {
+            "lo": 2,
+            "hi": 3
+          },
+          "CREATIVITY": {
+            "lo": 7,
+            "hi": 10
+          }
         },
         "enginePredictions_Normal_age24": {
           "FITNESS": 3.5,
@@ -911,7 +1931,10 @@
         },
         "analysis": "Fitness +3.5 predicted vs +2-3 actual: slightly above upper bound, consistent with Normal talent and ageMult=0.72. Validates ageMult=0.72 for age 24. Creativity +5.8 predicted vs +7-10 actual: ~20% under. If talent is Fast (1.25), Creativity prediction becomes +7.1 which hits the lower bound exactly. Need talent confirmation from edit screen.",
         "ageMult_validated": "0.72 for age 24 — CONFIRMED from Fitness data point",
-        "source_screenshots": ["db505607 (player card)", "8c4b75ee (Focused Physical ×4 Drill Session Reward Coach preview)"]
+        "source_screenshots": [
+          "db505607 (player card)",
+          "8c4b75ee (Focused Physical ×4 Drill Session Reward Coach preview)"
+        ]
       }
     ]
   },
@@ -919,14 +1942,39 @@
     "id": "king_alfie",
     "name": "King Alfie",
     "age": 19,
-    "roles": ["DC", "DL", "DMC"],
+    "roles": [
+      "DC",
+      "DL",
+      "DMC"
+    ],
     "tier": "T3",
     "talent": "Unknown",
     "talentNote": "Not confirmed. Confirm Fastest/Fast/Average/Normal/Slow from edit screen.",
-    "whiteStats": ["TACKLING","MARKING","POSITIONING","HEADING","BRAVERY","PASSING","CROSSING","FITNESS","STRENGTH","AGGRESSION","SPEED","CREATIVITY"],
-    "greyStats": ["DRIBBLING","SHOOTING","FINISHING"],
+    "whiteStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "HEADING",
+      "BRAVERY",
+      "PASSING",
+      "CROSSING",
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION",
+      "SPEED",
+      "CREATIVITY"
+    ],
+    "greyStats": [
+      "DRIBBLING",
+      "SHOOTING",
+      "FINISHING"
+    ],
     "whiteStatCount": 12,
-    "ovrSplit": { "base": 160, "tierContrib": 40, "totalDisplayed": 200 },
+    "ovrSplit": {
+      "base": 160,
+      "tierContrib": 40,
+      "totalDisplayed": 200
+    },
     "observations": [
       {
         "id": "alfie_20x_standard_attacking_training_camp",
@@ -936,7 +1984,11 @@
         "sessionType": "TRAINING_CAMP",
         "sessionType_note": "Game UI showed 'TRAINING CAMP' header. This is a distinct session type — NOT a regular coaching session. Budget distribution and stat selection rules differ. Engine CANNOT project Training Camp sessions.",
         "sessionCount": 20,
-        "boostedStats_observed": ["DRIBBLING", "CROSSING", "FINISHING"],
+        "boostedStats_observed": [
+          "DRIBBLING",
+          "CROSSING",
+          "FINISHING"
+        ],
         "note_on_stat_count": "Only 3 of 5 ATK stats were highlighted (Passing and Shooting had no gain arrows). Training Camp appears to boost a subset of the category, not all 5 stats.",
         "playerStats_at_time": {
           "DRIBBLING": 103,
@@ -946,9 +1998,18 @@
           "SHOOTING": 116
         },
         "gamePreviewRanges": {
-          "DRIBBLING": { "lo": 42, "hi": 51 },
-          "CROSSING": { "lo": 30, "hi": 40 },
-          "FINISHING": { "lo": 45, "hi": 54 },
+          "DRIBBLING": {
+            "lo": 42,
+            "hi": 51
+          },
+          "CROSSING": {
+            "lo": 30,
+            "hi": 40
+          },
+          "FINISHING": {
+            "lo": 45,
+            "hi": 54
+          },
           "PASSING": "no arrow shown",
           "SHOOTING": "no arrow shown"
         },
@@ -956,7 +2017,12 @@
         "ovrFromPreviewRanges": "≈+8.4 OVR from 3 stats only: (46+35+49)/15=8.7 ✓",
         "engine_cannot_project": true,
         "action_taken": "Added Training Camp detection to coachScanner.ts — scanner now sets isTrainingCamp=true, pipeline returns TRAINING_CAMP_SENTINEL, UI shows warning instead of bad projection.",
-        "source_screenshots": ["f0cb496c (player card)", "fee4aa1e (OVR 160+40 breakdown)", "bc9621f6 (Training Camp preview)", "9e423651 (Training Camp no-player)"]
+        "source_screenshots": [
+          "f0cb496c (player card)",
+          "fee4aa1e (OVR 160+40 breakdown)",
+          "bc9621f6 (Training Camp preview)",
+          "9e423651 (Training Camp no-player)"
+        ]
       }
     ]
   },
@@ -964,18 +2030,45 @@
     "id": "cieran_morgan",
     "name": "Cieran Morgan",
     "age": 18,
-    "roles": ["DMC", "MC", "AMC"],
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
     "roles_note": "AMC confirmed shortly after session — included for whiteness calculation.",
     "tier": "T0",
     "talent": "Slow",
     "talent_note": "INFERRED from back-calculation. Edit screen not yet confirmed. Formula at mult=0.47 (Slow) gives 5/5 stats within game ranges. Normal (1.0) gives 1.48–1.95× over-predictions.",
     "talentConfirmed": false,
     "talentSource": "Mathematical inference only — confirm from Edit Player screen (Personal Trainer tab).",
-    "whiteStats": ["TACKLING","MARKING","POSITIONING","BRAVERY","PASSING","DRIBBLING","CROSSING","SHOOTING","FINISHING","FITNESS","AGGRESSION","SPEED","CREATIVITY"],
-    "greyStats": ["HEADING","STRENGTH"],
+    "whiteStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "BRAVERY",
+      "PASSING",
+      "DRIBBLING",
+      "CROSSING",
+      "SHOOTING",
+      "FINISHING",
+      "FITNESS",
+      "AGGRESSION",
+      "SPEED",
+      "CREATIVITY"
+    ],
+    "greyStats": [
+      "HEADING",
+      "STRENGTH"
+    ],
     "whiteStatCount": 13,
     "whiteness_note": "CROSSING white via MC role (union rule). All 5 ATK stats are white.",
-    "statsBefore_atk": { "PASSING": 134, "DRIBBLING": 101, "CROSSING": 97, "SHOOTING": 121, "FINISHING": 102 },
+    "statsBefore_atk": {
+      "PASSING": 134,
+      "DRIBBLING": 101,
+      "CROSSING": 97,
+      "SHOOTING": 121,
+      "FINISHING": 102
+    },
     "observations": [
       {
         "id": "cieran_std_atk_x30",
@@ -988,11 +2081,52 @@
         "playerAge": 18,
         "ageMult": 1.0,
         "gains": [
-          { "stat": "PASSING",   "statBefore": 134, "gainLo": 18, "gainHi": 26, "engine_normal_1_0": 43.0, "engine_slow_0_47": 24.9, "isWhite": true },
-          { "stat": "DRIBBLING", "statBefore": 101, "gainLo": 40, "gainHi": 48, "engine_normal_1_0": 65.1, "engine_slow_0_47": 41.4, "isWhite": true },
-          { "stat": "CROSSING",  "statBefore":  97, "gainLo": 35, "gainHi": 45, "engine_normal_1_0": 67.8, "engine_slow_0_47": 43.7, "isWhite": true, "whiteness_note": "White via MC role (union rule)" },
-          { "stat": "SHOOTING",  "statBefore": 121, "gainLo": 28, "gainHi": 33, "engine_normal_1_0": 50.7, "engine_slow_0_47": 30.7, "isWhite": true },
-          { "stat": "FINISHING", "statBefore": 102, "gainLo": 33, "gainHi": 41, "engine_normal_1_0": 64.4, "engine_slow_0_47": 40.8, "isWhite": true }
+          {
+            "stat": "PASSING",
+            "statBefore": 134,
+            "gainLo": 18,
+            "gainHi": 26,
+            "engine_normal_1_0": 43.0,
+            "engine_slow_0_47": 24.9,
+            "isWhite": true
+          },
+          {
+            "stat": "DRIBBLING",
+            "statBefore": 101,
+            "gainLo": 40,
+            "gainHi": 48,
+            "engine_normal_1_0": 65.1,
+            "engine_slow_0_47": 41.4,
+            "isWhite": true
+          },
+          {
+            "stat": "CROSSING",
+            "statBefore": 97,
+            "gainLo": 35,
+            "gainHi": 45,
+            "engine_normal_1_0": 67.8,
+            "engine_slow_0_47": 43.7,
+            "isWhite": true,
+            "whiteness_note": "White via MC role (union rule)"
+          },
+          {
+            "stat": "SHOOTING",
+            "statBefore": 121,
+            "gainLo": 28,
+            "gainHi": 33,
+            "engine_normal_1_0": 50.7,
+            "engine_slow_0_47": 30.7,
+            "isWhite": true
+          },
+          {
+            "stat": "FINISHING",
+            "statBefore": 102,
+            "gainLo": 33,
+            "gainHi": 41,
+            "engine_normal_1_0": 64.4,
+            "engine_slow_0_47": 40.8,
+            "isWhite": true
+          }
         ],
         "ovrBoostLo": 10,
         "ovrBoostHi": 13,
@@ -1008,11 +2142,26 @@
         },
         "back_calculation": {
           "note": "What talent mult would be needed to hit each stat's game midpoint?",
-          "PASSING_mid22":   { "budget_needed_xp": 1413, "implied_mult": 0.40 },
-          "DRIBBLING_mid44": { "budget_needed_xp": 1817, "implied_mult": 0.52 },
-          "SHOOTING_mid30":  { "budget_needed_xp": 1536, "implied_mult": 0.44 },
-          "FINISHING_mid37": { "budget_needed_xp": 1695, "implied_mult": 0.48 },
-          "CROSSING_mid40":  { "budget_needed_xp": 1574, "implied_mult": 0.45 },
+          "PASSING_mid22": {
+            "budget_needed_xp": 1413,
+            "implied_mult": 0.4
+          },
+          "DRIBBLING_mid44": {
+            "budget_needed_xp": 1817,
+            "implied_mult": 0.52
+          },
+          "SHOOTING_mid30": {
+            "budget_needed_xp": 1536,
+            "implied_mult": 0.44
+          },
+          "FINISHING_mid37": {
+            "budget_needed_xp": 1695,
+            "implied_mult": 0.48
+          },
+          "CROSSING_mid40": {
+            "budget_needed_xp": 1574,
+            "implied_mult": 0.45
+          },
           "mean_implied_mult": 0.46,
           "conclusion": "Mean implied multiplier 0.46 ≈ 0.47 (Slow). Consistent across all 5 stats."
         },
@@ -1135,10 +2284,38 @@
       }
     },
     "condition_drain": {
-      "minimum_charged_pct": 1.0,
-      "evidence": "Training history: single-drill sessions (1 drill, 1 player) charged -1.00% at surge-inactive, where raw drain is 0.750%. Observed for both 1-player and 34-player rows.",
-      "status": "CONFIRMED — replaces the obsolete zeroDrainThreshold 0.38 rule",
-      "zero_drain_loophole": "PATCHED. No session costs 0%. Sub-floor drills are charged the 1% minimum, so cheaper drills are penalised rather than rewarded."
+      "charged_rule": "charged = max(1, floor(raw)) — truncated to a whole percent, minimum 1",
+      "status": "CONFIRMED",
+      "evidence": "The drill pre-confirm dialog shows RAW; the training history shows CHARGED. Observed surge-inactive, 1 drill / 1 player: picker -0.75% (Very Easy) and -2.25% (Medium); history rows -1.00%, -2.00%, -3.00% only.",
+      "discrimination": "Only floor-with-minimum yields exactly {1,2,3}. max(raw,1) would yield 1.50/2.25/3.75 and rounding would yield 4.00 for Very Hard; neither value ever appears in the history.",
+      "raw_to_charged_surge_inactive": {
+        "Very Easy": {
+          "raw": 0.75,
+          "charged": 1.0,
+          "note": "overcharged +33%"
+        },
+        "Easy": {
+          "raw": 1.5,
+          "charged": 1.0,
+          "note": "best value: 2x the intensity of Very Easy for the SAME charge"
+        },
+        "Medium": {
+          "raw": 2.25,
+          "charged": 2.0
+        },
+        "Hard": {
+          "raw": 3.0,
+          "charged": 3.0
+        },
+        "Very Hard": {
+          "raw": 3.75,
+          "charged": 3.0,
+          "note": "fraction truncated, effectively -20%"
+        }
+      },
+      "strategic_consequence": "Very Easy is now STRICTLY DOMINATED by Easy — identical charged cost (1.00%), double the drill intensity. The old zero-drain strategy of spamming Very Easy is not merely weaker, it is the worst available choice.",
+      "zero_drain_loophole": "PATCHED. No session costs 0%.",
+      "open": "Whether floor applies per drill or to the summed session is still unresolved. Also unresolved: floor vs round is inferred from the absence of any -4.00% row; a confirmed Very Hard single-drill session would settle it (floor predicts -3.00%, round predicts -4.00%)."
     },
     "chants": {
       "mechanic": "A chant upgrades ONE surge chosen at random by one level. Chants come from tokens or the campus ball.",
@@ -1151,10 +2328,12 @@
       "odds": "UNOBSERVED — campus ball probabilities not yet captured. Must not be assumed uniform."
     },
     "open_questions": [
-      "Which loyalty threshold activates each surge (ring shows 3000/8000/10K/13K/18K/23K but only 2 surges read ACTIVE at loyalty 10379).",
-      "Whether the 1% floor applies per drill or to the summed session. Discriminating test: 2 Very Easy drills, one player, one session — per-session predicts -1.50%, per-drill predicts -2.00% at surge-inactive.",
+      "Whether the 1% floor and integer truncation apply per drill or to the summed session. Test: 2 Very Easy drills, one player, one session — per-session floor predicts -1.00% (floor of 1.50), per-drill predicts -2.00%.",
+      "Confirm floor vs round: a single Very Hard drill predicts -3.00% under floor, -4.00% under rounding.",
+      "Which loyalty threshold activates each surge (only 2 of 6 read ACTIVE at loyalty 10379).",
       "Campus ball chant odds per surge.",
-      "Role Accelerator: base new-role point accrual rate is uncalibrated, so the +20..+100% cannot yet be applied."
+      "Role Accelerator: base new-role point accrual rate is uncalibrated, so +20..+100% cannot yet be applied.",
+      "Full Training (multi-drill, whole-squad) charges fractional values (-10.63% for 6 drills / 38 players) and does not follow the integer rule — appears to be a separate mechanic."
     ]
   }
 }
