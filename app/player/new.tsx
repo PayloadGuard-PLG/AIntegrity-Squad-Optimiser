@@ -9,6 +9,8 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
 import { useScanner, ReviewFlag, PlaystyleFamily, StatBoost } from '../../src/hooks/useScanner';
+import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError } from '../../src/logic/playerScanState';
+import { PlayerScanReview } from '../../src/components/PlayerScanReview';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile } from '../../src/types/resources';
@@ -19,15 +21,6 @@ const TIERS: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'];
 const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'Fastest', Fast: 'Fast', Average: 'Average', Normal: 'Normal', Slow: 'Slow', Unknown: 'Unknown' };
 const TALENT_INFO = 'Training rate — how quickly this player gains stats per session. Detected automatically from player card scan.';
-
-const REVIEW_LABEL: Record<ReviewFlag['reason'], string> = {
-  region_unread: 'NOT READ',
-  ambiguous_color: 'AMBIGUOUS',
-  chip_state_unclear: 'CHIP UNCLEAR',
-  boost_split_unclear: 'BOOST UNCLEAR',
-  unmatched_icon: 'UNKNOWN ICON',
-  low_confidence: 'LOW CONFIDENCE',
-};
 
 const ROLE_GRID = [
   [null,  'ST',  null ],
@@ -71,6 +64,9 @@ export default function NewPlayerScreen() {
   const [specialAbilities, setSpecialAbilities] = useState<string[] | undefined>(undefined);
   const [boosts, setBoosts] = useState<Record<string, StatBoost> | undefined>(undefined);
   const [review, setReview] = useState<ReviewFlag[]>([]);
+  const [rolesPending, setRolesPending] = useState(false);
+  const [tierPending, setTierPending] = useState(false);
+  const cardState = { role: selectedRoles, tier, newRole, newRolePoints, playstyle, specialAbilities, boosts };
 
   const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
@@ -99,7 +95,7 @@ export default function NewPlayerScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
       if (result.canceled || !result.assets?.[0]?.uri) return;
 
       const uri = result.assets[0].uri;
@@ -111,47 +107,33 @@ export default function NewPlayerScreen() {
       const data = await scanPlayerScreenshot(uri);
       if (!data) return;
 
-      if (data.stats && Object.keys(data.stats).length > 0) {
+      if (Object.keys(data.stats).length > 0 || data.overall) {
         if (data.name) setName(data.name);
         if (data.age) setAge(data.age.toString());
-        const TIER_MAP: Record<string, TierName> = {
-          None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
-          T0: 'T0', T1: 'T1', T2: 'T2', T3: 'T3', T4: 'T4', T5: 'T5', T6: 'T6',
-        };
-        // An unread banner leaves the tier alone and raises a review flag; it must
-        // not silently become T0. `data.tier` is only set when the region was read.
-        if (data.tier) setTier(TIER_MAP[data.tier] ?? 'T0');
+        const next = mergePlayerScanState(cardState, data);
+        setPositionStates(Object.fromEntries(next.role.map(r => [r, 2 as const])));
+        setTier(next.tier);
+        setNewRole(next.newRole ?? null);
+        setNewRolePoints(next.newRolePoints ?? 0);
+        setPlaystyle(next.playstyle ?? 'unknown');
+        setSpecialAbilities(next.specialAbilities);
+        setBoosts(next.boosts);
+        setRolesPending(needsRoleReview(data));
+        setTierPending(needsTierReview(data));
         const TALENT_MAP: Record<string, TalentTier> = {
           FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
           Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
         };
         if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Unknown');
-        if (data.roles && data.roles.length > 0) {
-          setPositionStates(Object.fromEntries(data.roles.map(r => [r, 2 as const])));
-        }
+        setReview(data.review);
+      }
+
+      if (Object.keys(data.stats).length > 0) {
         const inputs = Object.fromEntries(
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         );
-        if ((!data.roles || data.roles.length === 0) && inputs['REFLEXES'] !== undefined && inputs['TACKLING'] === undefined) {
-          setPositionStates({ GK: 2 });
-        }
         setStatInputs(inputs);
         recomputeOvr(inputs);
-        // Established roles win over the flat text-derived list when the chips
-        // were actually read. A learning role never enters selectedRoles.
-        if (data.establishedRoles && data.establishedRoles.length > 0) {
-          setPositionStates(Object.fromEntries(data.establishedRoles.map(r => [r, 2 as const])));
-        }
-        if (data.learningRole) {
-          setNewRole(data.learningRole.role);
-          setNewRolePoints(data.learningRole.points);
-        } else if (data.newRole) {
-          setNewRole(data.newRole); setNewRolePoints(data.newRolePoints ?? 0);
-        }
-        if (data.playstyle) setPlaystyle(data.playstyle);
-        if (data.specialAbilities) setSpecialAbilities(data.specialAbilities);
-        if (data.boosts && Object.keys(data.boosts).length > 0) setBoosts(data.boosts);
-        setReview(data.review ?? []);
         setScanned(true);
         setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
@@ -204,8 +186,8 @@ export default function NewPlayerScreen() {
       return;
     }
 
-    // Off → partial, or partial → active
-    const next = (current + 1) as 1 | 2;
+    // The grid holds established roles only; learning is entered separately.
+    const next = 2;
     if (next === 2) {
       const newActive = [...selectedRoles, role];
       if (newActive.length > 3) { setRoleError('MAX 3 ROLES'); return; }
@@ -217,7 +199,9 @@ export default function NewPlayerScreen() {
 
   function save() {
     if (!name.trim()) { Alert.alert('NAME REQUIRED'); return; }
-    if (selectedRoles.length === 0) { Alert.alert('PICK A ROLE'); return; }
+    const invalidRoles = playerRoleError(cardState);
+    if (invalidRoles) { Alert.alert('CHECK ROLES', invalidRoles); return; }
+    if (rolesPending || tierPending) { Alert.alert('REVIEW SCAN', 'Check the roles and tier in the card-state panel before saving.'); return; }
     const ageNum = parseInt(age, 10);
     const ovrNum = parseFloat(overall);
     if (isNaN(ageNum) || ageNum < 14 || ageNum > 40) { Alert.alert('Age 14–40'); return; }
@@ -314,40 +298,6 @@ export default function NewPlayerScreen() {
           <MonoLabel size={9} color={theme.neg} style={{ marginBottom: 8 }}>⚠ {scanError}</MonoLabel>
         )}
 
-        {/* NEEDS REVIEW — every field the readers abstained on rather than guessed.
-            An entry here means "not read", never "read as empty". */}
-        {scanned && review.length > 0 && (
-          <View style={{ padding: 10, borderWidth: 1, borderColor: theme.hot + '66', backgroundColor: theme.hot + '0d', marginBottom: 10 }}>
-            <MonoLabel size={9} color={theme.hot}>NEEDS REVIEW · {review.length} FIELD{review.length > 1 ? 'S' : ''} NOT READ</MonoLabel>
-            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 3 }}>
-              THE SCANNER ABSTAINED RATHER THAN GUESS — CONFIRM BELOW OR RE-SHOOT
-            </MonoLabel>
-            {review.map((f, i) => (
-              <View key={`${f.field}-${f.reason}-${i}`} style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
-                <MonoLabel size={8} color={theme.hot}>{REVIEW_LABEL[f.reason]}</MonoLabel>
-                <MonoLabel size={8} color={theme.inkMuted}>{f.field.toUpperCase()}</MonoLabel>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Read-only summary of the glyph-read state that has no form control yet. */}
-        {scanned && review.length === 0 && (playstyle !== 'unknown' || specialAbilities || boosts) && (
-          <View style={{ padding: 10, borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>
-            <MonoLabel size={8} color={theme.inkGhost}>CARD STATE READ</MonoLabel>
-            <MonoLabel size={9} color={theme.inkMuted} style={{ marginTop: 3 }}>
-              PLAYSTYLE {playstyle.toUpperCase()}
-              {specialAbilities ? ` · ${specialAbilities.length} ABILIT${specialAbilities.length === 1 ? 'Y' : 'IES'}` : ''}
-              {newRole ? ` · LEARNING ${newRole} ${newRolePoints}/50` : ''}
-            </MonoLabel>
-            {boosts && Object.entries(boosts).map(([stat, b]) => (
-              <MonoLabel key={stat} size={8} color={b.active ? theme.pos : theme.inkGhost} style={{ marginTop: 2 }}>
-                {stat} +{b.amount} {b.active ? 'ACTIVE' : 'INACTIVE'} · NOT ADDED TO BASE
-              </MonoLabel>
-            ))}
-          </View>
-        )}
-
         {/* Scanned stats preview — DEF / ATT / PHY 3-col */}
         {scanned && Object.keys(statInputs).length > 0 && (
           <View style={{ flexDirection: 'row', gap: 4, marginBottom: 16 }}>
@@ -420,7 +370,7 @@ export default function NewPlayerScreen() {
 
         {/* POSITION GRID */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <MonoLabel color={theme.steelLight}>POSITION GRID</MonoLabel>
+          <MonoLabel color={theme.steelLight}>ESTABLISHED ROLES</MonoLabel>
           <MonoLabel size={9} color={theme.inkMuted}>· MAX 3</MonoLabel>
         </View>
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 4, backgroundColor: theme.surface }}>
@@ -463,6 +413,15 @@ export default function NewPlayerScreen() {
         {roleError ? (
           <MonoLabel size={10} color={theme.neg} style={{ marginBottom: 6 }}>⚠ {roleError}</MonoLabel>
         ) : null}
+
+        <PlayerScanReview state={cardState} review={review}
+          rolesPending={rolesPending} tierPending={tierPending}
+          onConfirmRoles={() => {
+            const error = playerRoleError(cardState);
+            if (error) Alert.alert('CHECK ROLES', error); else setRolesPending(false);
+          }}
+          onConfirmTier={() => setTierPending(false)}
+          onLearningChange={(role, points) => { setNewRole(role); setNewRolePoints(role ? points : 0); }} />
 
         {/* TIER */}
         <View style={{ marginTop: 18 }}>

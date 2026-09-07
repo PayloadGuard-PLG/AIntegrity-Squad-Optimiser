@@ -476,6 +476,20 @@ export function roleChips(img: RgbaImage | null, ctx: GlyphContext): RoleChipsRe
   // partial list as if it were the whole truth.
   if (sawUnread) return { review };
 
+  // Every player carries at least one established role. An empty established set
+  // with nothing flagged to explain it is therefore a failed read, not an
+  // observation, and publishing [] would let it clear the stored roles and the
+  // learning progress alongside them. When a flag already explains the gap the
+  // list stays as-is: the caller's review gate has what it needs.
+  if (established.length === 0 && review.length === 0) {
+    review.push(roleToks.length === 0
+      ? { field: 'roles', reason: 'region_unread',
+          detail: 'no role chip tokens found on the Roles: row' }
+      : { field: 'roles', reason: 'low_confidence',
+          detail: 'no chip classified as established; every player has at least one' });
+    return { review };
+  }
+
   return { establishedRoles: established, learningRole: learning, review };
 }
 
