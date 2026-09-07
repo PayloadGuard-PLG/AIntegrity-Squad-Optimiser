@@ -8,7 +8,10 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
-import { useScanner } from '../../src/hooks/useScanner';
+import { useScanner, ReviewFlag } from '../../src/hooks/useScanner';
+import { Player } from '../../src/database/playerSchema';
+import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../../src/logic/playerScanState';
+import { PlayerScanReview } from '../../src/components/PlayerScanReview';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile } from '../../src/types/resources';
@@ -57,8 +60,14 @@ export default function EditPlayerScreen() {
   const [scanOk, setScanOk] = useState(false);
   const [scannedUri, setScannedUri] = useState<string | null>(null);
   const [scanRejected, setScanRejected] = useState(false);
+  const [loadedPlayer, setLoadedPlayer] = useState<Player | null>(null);
+  const [cardDetails, setCardDetails] = useState<Omit<PlayerCardState, 'role' | 'tier'>>({});
+  const [review, setReview] = useState<ReviewFlag[]>([]);
+  const [rolesPending, setRolesPending] = useState(false);
+  const [tierPending, setTierPending] = useState(false);
+  const cardState: PlayerCardState = { ...cardDetails, role: selectedRoles, tier };
 
-  const { scanPlayerScreenshot, isScanning } = useScanner();
+  const { scanPlayerScreenshot, isScanning, scanError } = useScanner();
 
   const isGK = selectedRoles.includes('GK');
   const statList = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
@@ -67,6 +76,11 @@ export default function EditPlayerScreen() {
     if (!id) return;
     const p = playerService.getById(id);
     if (!p) return;
+    setLoadedPlayer(p);
+    setCardDetails({ newRole: p.newRole, newRolePoints: p.newRolePoints, playstyle: p.playstyle, specialAbilities: p.specialAbilities, boosts: p.boosts });
+    setReview([]);
+    setRolesPending(false);
+    setTierPending(false);
     setName(p.name);
     setSelectedRoles(p.role);
     setAge(p.age.toString());
@@ -111,7 +125,7 @@ export default function EditPlayerScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') { Alert.alert('Permission required', 'Allow photo library access in settings.'); return; }
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
       if (result.canceled || !result.assets?.[0]?.uri) return;
 
       setScannedUri(result.assets[0].uri);
@@ -126,12 +140,14 @@ export default function EditPlayerScreen() {
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         )};
         setStatInputs(updated);
-        // Infer GK when role OCR fails (stripe background) but GK stats are clearly present
-        if ((!data.roles || data.roles.length === 0) && updated['REFLEXES'] !== undefined && updated['TACKLING'] === undefined) {
-          setSelectedRoles(['GK']);
-        } else if (data.roles && data.roles.length > 0) {
-          setSelectedRoles(data.roles);
-        }
+        const next = mergePlayerScanState(cardState, data);
+        setSelectedRoles(next.role);
+        setTier(next.tier);
+        setCardDetails({ newRole: next.newRole, newRolePoints: next.newRolePoints,
+          playstyle: next.playstyle, specialAbilities: next.specialAbilities, boosts: next.boosts });
+        setReview(data.review);
+        setRolesPending(needsRoleReview(data));
+        setTierPending(needsTierReview(data));
         // Auto-recompute OVR from merged stats
         const statsObj: Record<string, number> = {};
         for (const [k, v] of Object.entries(updated)) {
@@ -156,7 +172,10 @@ export default function EditPlayerScreen() {
   }
 
   function save() {
-    if (!id || !name.trim()) { Alert.alert('NAME REQUIRED'); return; }
+    if (!id || !loadedPlayer || !name.trim()) { Alert.alert('NAME REQUIRED'); return; }
+    const invalidRoles = playerRoleError(cardState);
+    if (invalidRoles) { Alert.alert('CHECK ROLES', invalidRoles); return; }
+    if (rolesPending || tierPending) { Alert.alert('REVIEW SCAN', 'Check the roles and tier in the card-state panel before saving.'); return; }
     const ageNum = parseInt(age, 10);
     const ovrNum = parseFloat(overall);
     if (isNaN(ageNum) || ageNum < 14 || ageNum > 40) { Alert.alert('Age 14–40'); return; }
@@ -169,6 +188,8 @@ export default function EditPlayerScreen() {
     }
 
     playerService.update({
+      ...loadedPlayer,
+      ...cardDetails,
       id,
       name: name.trim(),
       role: selectedRoles,
@@ -259,7 +280,7 @@ export default function EditPlayerScreen() {
 
         {/* POSITION GRID */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <MonoLabel color={theme.steelLight}>POSITION GRID</MonoLabel>
+          <MonoLabel color={theme.steelLight}>ESTABLISHED ROLES</MonoLabel>
           <MonoLabel size={9} color={theme.inkMuted}>· MAX 3</MonoLabel>
         </View>
         <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 4, backgroundColor: theme.surface }}>
@@ -303,6 +324,15 @@ export default function EditPlayerScreen() {
         {roleError ? (
           <MonoLabel size={10} color={theme.neg} style={{ marginBottom: 6 }}>⚠ {roleError}</MonoLabel>
         ) : null}
+
+        <PlayerScanReview state={cardState} review={review}
+          rolesPending={rolesPending} tierPending={tierPending}
+          onConfirmRoles={() => {
+            const error = playerRoleError(cardState);
+            if (error) Alert.alert('CHECK ROLES', error); else setRolesPending(false);
+          }}
+          onConfirmTier={() => setTierPending(false)}
+          onLearningChange={(role, points) => setCardDetails(prev => ({ ...prev, newRole: role, newRolePoints: role ? points : 0 }))} />
 
         {/* TIER */}
         <View style={{ marginTop: 18 }}>
@@ -387,6 +417,8 @@ export default function EditPlayerScreen() {
             </View>
           </View>
         )}
+
+        {scanError && <MonoLabel size={9} color={theme.neg} style={{ marginBottom: 8 }}>{scanError}</MonoLabel>}
 
         {scanMsg !== '' && !scanRejected && (
           <View style={{ padding: 10, borderWidth: 1, borderColor: (scanOk ? theme.pos : theme.neg) + '55', backgroundColor: (scanOk ? theme.pos : theme.neg) + '0d', marginBottom: 12 }}>

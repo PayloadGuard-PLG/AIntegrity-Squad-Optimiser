@@ -53,7 +53,9 @@ def _runner() -> subprocess.Popen:
     global _proc
     if _proc is None or _proc.poll() is not None:
         _proc = subprocess.Popen(
-            ['npx', 'tsx', _RUNNER],
+            # Load the same TS runtime directly; the tsx CLI opens an unrelated
+            # IPC socket, which is forbidden in some local verification sandboxes.
+            ['node', '--import', 'tsx', _RUNNER],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             text=True, bufsize=1,
         )

@@ -7,6 +7,26 @@
 **Active branch:** `claude/test-connection-I2s8B`
 **Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
 
+### Live scanner integration (2026-09-07 follow-up)
+
+The glyph readers are now reached by both live player scan screens. `playerScanner.ts`
+prepares a lossless PNG through `preparePlayerScreenshot.ts`, gives **that same URI**
+to ML Kit, and sends its RGBA pixels through `playerScanPipeline.ts`. Do not OCR the
+original while sampling a separately rotated/resized bitmap. If preparation fails,
+text remains available but role/tier state must be reviewed before saving.
+
+`playerScanState.ts` is the shared add/rescan boundary: no text-role promotion;
+undefined/flagged partial reads preserve state; observed empty values clear it.
+Both forms have separate learning-role controls. Edit saves preserve loaded glyph
+metadata instead of erasing it. The text-pass golden and calibration are unchanged.
+
+`test:scanner` also runs `tests/player-scan-state-test.ts`: independent PNG encoding,
+matched OCR/pixel input, failure cleanup, abstention/absence, learning-role whiteness,
+base/boost separation and persistence. No real captures are committed.
+
+Current pipeline map, validation limits and deferred recommendation gaps:
+[`docs/SESSION_STATE_2026-09-07.md`](docs/SESSION_STATE_2026-09-07.md).
+
 ### Glyph Readers & Calibration (OCR/state-model pass)
 
 **Calibration evidence lives outside the repo.** Real game screenshots are never
