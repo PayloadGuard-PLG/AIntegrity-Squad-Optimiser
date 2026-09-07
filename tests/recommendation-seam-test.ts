@@ -498,12 +498,49 @@ test('an unobserved starting fraction is reported as a lower bound, never as a k
   const flag = scanned.reasons.find(r => r.code === 'training.hiddenProgress');
   assert.ok(flag, 'the unobserved fraction must be surfaced');
   assert.equal(flag!.evidence, 'unavailable');
+});
 
-  // Stats that already carry engine-computed progress ARE known exactly.
+test('a model-generated fraction does NOT upgrade the evidence to exact', () => {
+  // REGRESSION GUARD against uncertainty laundering.
+  //
+  // This test previously asserted the opposite — that stats carrying decimals
+  // were "known exactly". They are not. A decimal here was produced by our own
+  // projection, and a model-generated fraction is not an observation. The true
+  // position is (s + ε) + g against our estimate s + g: the error is still ε.
+  // Adding a known gain to an unknown baseline cannot reduce the uncertainty.
   const advanced = withOverall({ ...flatStats(150), TACKLING: 150.4 });
   const known = projectCoachAction({ player: advanced, stats: STATS, sessions: 4, profile });
-  assert.equal(known.starBand.positionEvidence, 'exact');
-  assert.equal(known.reasons.some(r => r.code === 'training.hiddenProgress'), false);
+  assert.equal(known.starBand.positionEvidence, 'lower-bound',
+    'a decimal proves only that our model produced it, never that the position is known');
+  assert.ok(known.reasons.some(r => r.code === 'training.hiddenProgress'),
+    'the hidden-fraction caveat must survive the projection that created the decimal');
+});
+
+test('an incomplete stat set abstains: padding cannot locate a star threshold', () => {
+  // paddedStatSum substitutes the player's overall for every unread attribute.
+  // That is a fair coarse display fallback, but a band position computed from
+  // invented values is not a bound in either direction — the real player may sit
+  // on either side of the threshold — so the position abstains outright.
+  const partial = player({ stats: { TACKLING: 150, MARKING: 150, POSITIONING: 150 }, overall: 150 });
+  const r = projectCoachAction({ player: partial, stats: STATS, sessions: 4, profile });
+  assert.equal(r.starBand.positionEvidence, 'unknown');
+  const flag = r.reasons.find(r2 => r2.code === 'training.paddedPosition');
+  assert.ok(flag, 'padding-derived positions must say so');
+  assert.equal(flag!.evidence, 'unavailable');
+  // And it must NOT masquerade as the merely-hidden-fraction case, which is a
+  // genuine one-sided bound; this one is not a bound at all.
+  assert.equal(r.reasons.some(r2 => r2.code === 'training.hiddenProgress'), false);
+});
+
+test('the star-decay reason is graded assumed, matching engineConstants', () => {
+  // engineConstants records starDecayPerSession = 0.85 as a model characteristic
+  // with empirical confirmation PENDING. Observing that training gets harder past
+  // a star establishes the sign of the effect, not the numerical factor, so the
+  // reason may not claim 'calibrated'.
+  const near = projectCoachAction({ player: nearBoundary(), stats: STATS, sessions: 6, profile });
+  const decay = near.reasons.find(r => r.code === 'training.starDecay');
+  assert.ok(decay, 'crossing a threshold must be reported');
+  assert.equal(decay!.evidence, 'assumed');
 });
 
 test('chained drill presets keep the star-band position across the chain', () => {
@@ -518,8 +555,11 @@ test('chained drill presets keep the star-band position across the chain', () =>
   assert.ok(second.starBand.ovrToNextThreshold < first.starBand.ovrToNextThreshold + 20);
   assert.ok(second.starBand.index >= first.starBand.index,
     'the second preset must not fall back into an earlier band');
-  // Progress carried forward is exact, so the second action knows its position.
-  assert.equal(second.starBand.positionEvidence, 'exact');
+  // Progress carried forward is RELATIVE progress: the chain's own arithmetic is
+  // sound, but the absolute position still sits on the unobserved starting
+  // fraction, so the evidence grade must not improve along the chain.
+  assert.equal(second.starBand.positionEvidence, 'lower-bound');
+  assert.equal(first.starBand.positionEvidence, 'lower-bound');
 });
 
 test('a two-preset Drills chain agrees with the projectOvr path across a threshold', () => {

@@ -35,7 +35,7 @@ import {
   starBandIndex, tierOvrContribExact, paddedStatSum, exactOvrFromSum, baseOvrFromTotal,
   isTrainingLocked,
 } from '../engine/engineMath';
-import { STAR_OVR_THRESHOLD } from '../engine/engineConstants';
+import { STAR_OVR_THRESHOLD, TOTAL_ATTRS } from '../engine/engineConstants';
 import { isWhiteStat, getWhiteStatKeys } from '../utils/roleWeights';
 import { sessionDrain, SessionDrain } from '../utils/conditionEngine';
 import { DRILL_LIST } from '../database/drillDatabase';
@@ -111,10 +111,18 @@ export interface StarBandPosition {
   index: number;
   /** Base OVR remaining before the next threshold, from the values we hold. */
   ovrToNextThreshold: number;
-  /** 'exact' when the stats carry real sub-integer progress this engine
-   *  computed; 'lower-bound' when every stored value is an integer, so the
-   *  hidden fraction is unknown and the crossing may arrive earlier. */
-  positionEvidence: 'exact' | 'lower-bound';
+  /**
+   * How well the ABSOLUTE position in the band is known.
+   *  - 'lower-bound' — every attribute was read, but the sub-integer progress
+   *    behind those integers is not displayed by the game, so the threshold may
+   *    arrive sooner than `ovrToNextThreshold` says. This is the normal case.
+   *  - 'unknown'     — some attributes were never read and were padded with the
+   *    player's overall. The position is then a function of invented values and
+   *    is not a bound in EITHER direction.
+   *  - 'exact'       — reserved for a source that has genuinely observed the
+   *    fraction. Nothing does today; see positionEvidenceOf.
+   */
+  positionEvidence: 'exact' | 'lower-bound' | 'unknown';
 }
 
 export interface RecommendationResult {
@@ -169,31 +177,68 @@ function talentReasons(policy: TalentPolicy): RecommendationReason[] {
 }
 
 /**
- * Is the player's position inside the star band actually known?
+ * Is the player's ABSOLUTE position inside the star band actually known?
  *
- * A card scan yields integers. Real internal progress carries a fraction the
- * card never shows, so unless the stats we hold came from a projection this
- * engine computed (and therefore carry that fraction), the position is a LOWER
- * bound and the next threshold may arrive sooner than we can say. The missing
- * fraction is never assumed to be zero.
+ * It is not, and running a projection does not make it so.
+ *
+ * A player card shows integer attributes. The sub-integer training progress
+ * behind them is never displayed, so every projection starts from an unknown
+ * fraction and adds a gain it computed. Writing that as
+ *
+ *     true position = (s + ε) + g        ε ∈ [0,1) per attribute, unobserved
+ *     our estimate  =  s      + g
+ *
+ * the error is still exactly ε. Adding a known quantity to an unknown baseline
+ * leaves the uncertainty precisely where it was: it neither grows nor cancels.
+ *
+ * This function previously returned 'exact' whenever any stat carried a decimal.
+ * That was uncertainty laundering. The only thing a decimal establishes is that
+ * OUR OWN model produced it — and a model-generated fraction is not an
+ * observation. It made the guarantee strictly worse the longer a chain ran: the
+ * first projection turned integers into decimals, and every later step then
+ * called the accumulated, still-unknown-by-ε position 'exact'.
+ *
+ * `observedFraction` is the honest escape hatch: a caller that has genuinely
+ * measured the fraction may declare it. Nothing in this codebase can, because
+ * the game does not show it, so in practice the answer is always a bound.
+ *
+ * Padding is worse still. When attributes are missing, paddedStatSum substitutes
+ * the player's overall for each unread one, and a position derived from invented
+ * values is not a bound in either direction — the real player may sit on either
+ * side of it. That case abstains with 'unknown'.
  */
-function positionEvidenceOf(stats: Record<string, number>): StarBandPosition['positionEvidence'] {
-  return Object.values(stats).some(v => !Number.isInteger(v)) ? 'exact' : 'lower-bound';
+function positionEvidenceOf(
+  stats: Record<string, number>,
+  observedFraction = false,
+): StarBandPosition['positionEvidence'] {
+  if (Object.keys(stats).length < TOTAL_ATTRS) return 'unknown';
+  return observedFraction ? 'exact' : 'lower-bound';
 }
 
 function starReasons(band: StarBandPosition, starsCrossed: number): RecommendationReason[] {
   const out: RecommendationReason[] = [];
   if (starsCrossed > 0) {
+    // 'assumed', not 'calibrated'. engineConstants records starDecayPerSession
+    // = 0.85 as a model characteristic with empirical confirmation PENDING.
+    // Observing that training gets harder after a star does not calibrate the
+    // numerical factor — it only establishes the sign of the effect.
     out.push({
       code: 'training.starDecay',
-      detail: `Projection crosses ${starsCrossed} star threshold${starsCrossed > 1 ? 's' : ''}; training past each one is charged at the reduced rate.`,
-      evidence: 'calibrated',
+      detail: `Projection crosses ${starsCrossed} star threshold${starsCrossed > 1 ? 's' : ''}; training past each one is charged at a reduced rate. The direction is observed; the 0.85 factor itself is an uncalibrated model characteristic.`,
+      evidence: 'assumed',
     });
   }
   if (band.positionEvidence === 'lower-bound') {
     out.push({
       code: 'training.hiddenProgress',
-      detail: `Sub-integer training progress is not visible on a player card, so the ${band.ovrToNextThreshold.toFixed(2)} base OVR shown to the next star threshold is an upper bound — the threshold may be reached sooner.`,
+      detail: `Sub-integer training progress is not visible on a player card, so the ${band.ovrToNextThreshold.toFixed(2)} base OVR shown to the next star threshold is an upper bound — the threshold may be reached sooner. Running a projection does not resolve this: the computed gain is added to the same unobserved starting fraction.`,
+      evidence: 'unavailable',
+    });
+  }
+  if (band.positionEvidence === 'unknown') {
+    out.push({
+      code: 'training.paddedPosition',
+      detail: `Some attributes were never read and were padded with the player's overall, so this star-band position rests on invented values. It is not a bound in either direction — the player may sit on either side of the threshold. Scan the full attribute list to locate the band.`,
       evidence: 'unavailable',
     });
   }

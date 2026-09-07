@@ -440,13 +440,23 @@ conflated two different mechanics**, and the correction is to restore it:
 | Constant | What it governs |
 |---|---|
 | `sessionBudgetDecay` = 0.99 | How much XP a long coaching run delivers. Explains the ×20/×40 plateau. |
-| `starDecayPerSession` = 0.85 | How much harder training gets **after a star/OVR threshold is crossed**. |
+| `starDecayPerSession` = 0.85 | How much harder training gets **after a star/OVR threshold is crossed**. ⚠️ The *direction* is observed; the *number* is not calibrated. |
 
 Sprint 34 established only that star decay was *not* the explanation for the
 session-budget anomaly. It never falsified star decay itself. Direct in-game
-observation confirms the mechanic: gaining a new star makes subsequent training
-progress harder. `starsGainedFromOvrGain`, `starDecayMultiplier` and
+observation confirms the **mechanic**: gaining a new star makes subsequent
+training progress harder. `starsGainedFromOvrGain`, `starDecayMultiplier` and
 `combinedMultiplier` remain authoritative and are used again.
+
+**But observing that training gets harder does not calibrate 0.85.** It fixes the
+sign of the effect, not its magnitude — any factor in `(0, 1)` is consistent with
+the same observation. `engineConstants.ts` states this plainly: *"model
+characteristic, empirical confirmation pending"*, with no controlled ×4 vs ×20
+same-player test yet run. The `training.starDecay` reason is therefore graded
+**`assumed`**, not `calibrated`, and a test pins that grade. Do not promote it
+without a controlled experiment that measures the magnitude; the ledger entry for
+`bXPS` — an admitted interval rather than a convenient midpoint — is the standard
+to match.
 
 **Restoring a constant starting value would not have been enough.** A long run
 crosses thresholds *during* the projection, so sampling the star count once at
@@ -532,7 +542,7 @@ Coach ×40 on 5 stats, all stats 90, age 18 (a run that crosses a threshold):
 |---|---|---|
 | Sum of stat deltas | 300.0 (flat, `starsGained: 0`) | 400.0 (stepped) |
 | Projected OVR delta | +20.0 | +26.7 |
-| Crossing reported | no | `training.starDecay` |
+| Crossing reported | no | `training.starDecay` (graded `assumed`) |
 
 A short run stays identical: coach ×40 from stat 120 gains the same +59.5 as
 before, because it never leaves the first star band — the correction perturbs
@@ -605,16 +615,41 @@ are two different quantities and the code keeps them apart by construction:
 
 `RecommendationResult.starBand` carries `positionEvidence`:
 
-- **`exact`** — the stats hold real sub-integer progress this engine computed, so
-  the position inside the band is known.
-- **`lower-bound`** — every stored value is an integer, i.e. it came from a card
-  scan. Real internal progress carries a fraction the card never shows, so
-  `ovrToNextThreshold` is an **upper** bound and the crossing may arrive sooner.
+- **`lower-bound`** — every attribute was read, but the sub-integer progress
+  behind those integers is not displayed by the game, so `ovrToNextThreshold` is
+  an **upper** bound and the crossing may arrive sooner. This is the normal case.
+- **`unknown`** — some attributes were never read, so `paddedStatSum` substituted
+  the player's overall for each. A position derived from invented values is **not
+  a bound in either direction**: the real player may sit on either side of the
+  threshold. Emits `training.paddedPosition`, graded `unavailable`.
+- **`exact`** — reserved for a source that has genuinely *observed* the fraction.
+  Nothing in this codebase can, because the game does not display it.
 
-The unobserved case emits a `training.hiddenProgress` reason graded
-`unavailable`. The missing fraction is **never assumed to be .0** and never
-reported as a known figure — the projection uses what it has and says the figure
-is a bound.
+The unobserved case emits `training.hiddenProgress`, graded `unavailable`. The
+missing fraction is **never assumed to be .0**.
+
+#### Why a projection does not make the position exact
+
+An earlier revision returned `exact` whenever any stat carried a decimal. That
+was **uncertainty laundering**, and it is the same methodological offence as
+averaging an interval down to a convenient point:
+
+```
+true position = (s + ε) + g     ε ∈ [0,1) per attribute, never observed
+our estimate  =  s      + g
+```
+
+The error is still exactly `ε`. Adding a known gain to an unknown baseline leaves
+the uncertainty precisely where it was — it neither grows nor cancels. The only
+thing a decimal establishes is that **our own model produced it**, and a
+model-generated fraction is not an observation. The old rule made the guarantee
+worse the longer a chain ran: the first projection turned integers into decimals,
+and every step after that called a still-unknown-by-`ε` position "exact".
+
+Chaining is still sound for *relative* progress — the Drills chain's own
+arithmetic is exact — but the **absolute** band position inherits `ε` for the
+whole chain, so the grade never improves along it. `tests/recommendation-seam-test.ts`
+pins this, and a mutation reintroducing the old rule fails three of its tests.
 
 ### 17.5 How Drills chaining was corrected
 
