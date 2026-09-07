@@ -215,4 +215,8 @@ def condition_drain_pct(drill_intensity: str, fan_level: int) -> float:
     """
     int_mult = COND_LEVEL_MULTS.get(drill_intensity, 1.0)
     fan_red  = FAN_COND_REDUCTION[fan_level]
-    return BASE_LOSS_PER_DRILL * int_mult * (1.0 - fan_red / 100.0)
+    # FAN_COND_REDUCTION holds fractions of 1 (.10 … .50), as the surge panel states
+    # them. Dividing by 100 again understated the reduction by a factor of 100 —
+    # 0.74625 instead of 0.375 for Very Easy at L4. engineMath.ts carried the same
+    # defect, so this differential test certified the two against each other.
+    return BASE_LOSS_PER_DRILL * int_mult * (1.0 - fan_red)

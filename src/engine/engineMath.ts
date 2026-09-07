@@ -226,15 +226,31 @@ export function isTrainingLocked(baseOvr: number): boolean {
 }
 
 // ─── STAGE 9: CONDITION DRAIN ────────────────────────────────────────────────
-// conditionLoss = baseLoss × intensityMult × (1 − fanClubReduction / 100)
-// Zero-drain fires when loss < ZERO_DRAIN_THRESHOLD (0.375%).
-// Only Very Easy + Fan Club L4 qualifies (0.375%).
+// conditionLoss = baseLoss × intensityMult × (1 − fanClubReduction)
+//
+// fanClubCondReduction holds FRACTIONS of 1 — .10 .15 .20 .25 .50 — exactly as the
+// in-game surge panel states them (-10% … -50%). Dividing by 100 again was a defect:
+// it returned 0.74625 for Very Easy at L4 where the true drain is 0.375, an error of
+// a factor of two at the top level. verification/engine_pure.py carried the identical
+// mistake, so the differential test compared two wrong implementations and passed.
+// Both are corrected together.
+//
+// This is the RAW drain. What the game actually charges is not a deterministic
+// function of it — see src/utils/conditionEngine.ts, which is the runtime path and
+// additionally applies the 1% session minimum and surge gating (a banked surge level
+// grants nothing while the surge is inactive; fanLevel here presumes it is active).
 export function conditionDrainPct(drillIntensity: string, fanLevel: number): number {
   const intMult = COND_LEVEL_MULTS[drillIntensity] ?? 1;
   const fanRed  = FAN_COND_REDUCTION[fanLevel] ?? 0;
-  return BASE_LOSS_PER_DRILL * intMult * (1 - fanRed / 100);
+  return BASE_LOSS_PER_DRILL * intMult * (1 - fanRed);
 }
 
+/**
+ * @deprecated The 0% drain mechanic was patched out of the game. Every session is
+ * now charged a 1% minimum (MIN_CONDITION_DRAIN_PCT), so a sub-threshold drill is a
+ * penalty rather than an exploit. Retained only because it is part of the verified
+ * surface; it has no callers. Use conditionEngine.chargedDrainRange instead.
+ */
 export function isZeroDrain(drainPct: number): boolean {
   return drainPct < ZERO_DRAIN_THRESHOLD;
 }

@@ -106,7 +106,8 @@ SHOOTING and SPEED are grey purely because MC sits at 2/50. Completing it turns 
 three white, each immediately taking the full +50 T3 cumulative tier bonus
 (134→184, 139→189, 138→188): **+150 stat points and +10 OVR instantly**, confirmed
 two ways (`floor(3042/15)−floor(2892/15)` and `floor(50×13/15)−floor(50×10/15)`),
-plus they stop costing 2× XP thereafter.
+plus they stop costing ~4.55× XP thereafter (grey weight 0.22, not the 0.5 the older
+notes claimed — see the grey-multiplier note below).
 
 Plumbing is already correct: `playerCardParse.ts` sets
 `roles = glyph.establishedRoles ?? base.roles`. The ML Kit text list **does** include
@@ -441,7 +442,11 @@ All stages projected in advance. Largest error: 0.5 OVR at coaching stage. Final
 
 ### Other Notes
 
-- **Grey stats cost 2× XP** (grey weight = 0.5 multiplier vs white)
+- **Grey stats cost ~4.55× XP**, not 2×. `greyWeightMultiplier = 0.22` divides the
+  efficiency multiplier, so a grey point costs `1/0.22 ≈ 4.55×` a white one. The
+  "0.5 / 2×" figure came from community data in Sprint 25 and was superseded by the
+  0.22 back-calculated from Grant ×40 grey HEADING. **0.22 is the calibrated value and
+  the one the engine uses** — the code was always right; only these notes disagreed.
 - **Tier bonus** applies to WHITE (essential) stats only — grey role stats and off-role stats receive 0 (confirmed from direct game observation)
 - **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
 - **Condition (restorers)**: restores condition only — zero OVR change; +15% per restorer (confirmed)
@@ -642,7 +647,7 @@ This maps exactly to `xpNeededFor1Pct`'s divisor. No structural changes needed.
 | Finding | Status | Code impact |
 |---|---|---|
 | Formula structure confirmed | ✅ Confirmed | None — already correct |
-| `greyWeightMultiplier = 0.5` ("white ~2× XP") | ✅ Confirmed | None |
+| `greyWeightMultiplier = 0.5` ("white ~2× XP") | ❌ **Superseded** — community figure, never confirmed. Back-calculation from Grant ×40 grey HEADING gives **0.22** (≈4.55×), which is what the profile and engine carry. | None |
 | Age multiplier table (discrete 3-year slabs) | ✅ Confirmed | None |
 | ~20% seasonal quality reset | ✅ Confirmed | Unmodeled (intentional) |
 | Fast Trainer = 1.5–2× effective | ⚠️ Range only | talentMultipliers may need update |
