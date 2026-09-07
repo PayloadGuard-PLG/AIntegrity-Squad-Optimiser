@@ -19,6 +19,8 @@
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { coachBudgetPerStat } from '../src/engine/engineMath';
 import { estimateStatGainPct } from '../src/logic/xpEngine';
 import { sessionDrain, calculateActualLoss, chargedDrainRange, MIN_CONDITION_DRAIN_PCT } from '../src/utils/conditionEngine';
@@ -103,4 +105,179 @@ test('charged condition cost is a range carrying its confidence; a scalar discar
   assert.equal(scalar, chargedDrainRange(
     sessionDrain([drills[0]], SURGE_STATE_SEASON_START).raw, 1).expected);
   assert.ok(asRange.high > scalar);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Consolidation contract. These cover behaviour introduced by routing Drills,
+// Coaches, Results and ovrProjector through src/logic/recommendation.ts.
+// ─────────────────────────────────────────────────────────────────────────────
+
+import {
+  projectCoachAction, projectDrillAction, resolveTalentPolicy,
+} from '../src/logic/recommendation';
+import { projectOvr } from '../src/logic/ovrProjector';
+import { getRecommendedDrills } from '../src/logic/controller';
+import type { Player } from '../src/database/playerSchema';
+import type { DrillSession, TierName } from '../src/types/resources';
+
+const OUTFIELD: Record<string, number> = {
+  TACKLING: 120, MARKING: 120, POSITIONING: 120, HEADING: 120, BRAVERY: 120,
+  PASSING: 120, DRIBBLING: 120, CROSSING: 120, SHOOTING: 120, FINISHING: 120,
+  FITNESS: 120, STRENGTH: 120, AGGRESSION: 120, SPEED: 120, CREATIVITY: 120,
+};
+
+const player = (over: Partial<Player> = {}): Player => ({
+  id: 'p1', name: 'Subject', role: ['DC', 'DMC'], age: 20, overall: 120,
+  tier: 'T0', talent: 'Normal', stats: { ...OUTFIELD }, isMutantCandidate: false,
+  ...over,
+});
+
+test('the same coach scenario cannot produce conflicting projections', () => {
+  // The Coaches screen projects a run; Results re-projects the recorded entry.
+  // Both now call projectCoachAction, so the numbers are identical by
+  // construction — and identical regardless of the talent on the record, which
+  // is what previously drove them apart (+59.5 vs +42.1 for a stored Slow).
+  const scenario = { stats: STATS, sessions: 40, profile };
+  const asCoachesRuns = projectCoachAction({ player: player(), ...scenario });
+
+  for (const stored of ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'] as TalentTier[]) {
+    const asResultsReprojects = projectCoachAction({ player: player({ talent: stored }), ...scenario });
+    assert.deepEqual(asResultsReprojects.statDeltas, asCoachesRuns.statDeltas,
+      `stored talent ${stored} must not change the projection`);
+    assert.equal(asResultsReprojects.ovrDelta, asCoachesRuns.ovrDelta);
+    assert.equal(asResultsReprojects.talent.applied, 'Normal');
+    assert.equal(asResultsReprojects.talent.stored, stored);
+  }
+});
+
+test('the shared coach projection uses the geometric budget, not the linear one', () => {
+  const viaSeam = projectCoachAction({ player: player(), stats: STATS, sessions: 40, profile });
+  const seamGain = viaSeam.statDeltas.find(d => d.stat === 'TACKLING')!.delta;
+
+  const geometric = estimateStatGainPct(coachBudgetPerStat(40, STATS), 120, 20, 0, 'Normal', true, false, 1.0, profile);
+  const linear = estimateStatGainPct(linearCoachBudget(40, STATS.length), 120, 20, 0, 'Normal', true, false, 1.0, profile);
+  assert.equal(seamGain, Number(geometric.toFixed(1)));
+  assert.notEqual(seamGain, Number(linear.toFixed(1)));
+});
+
+test('talent policy is resolved in exactly one place and is reported by the result', () => {
+  // resolveTalentPolicy is the only decision point. A result always says which
+  // multiplier it used and which one the card claims — 'Unknown' included, which
+  // lands on Normal by policy rather than by a missing multiplier-table entry.
+  assert.deepEqual(resolveTalentPolicy({ talent: 'Slow' }),
+    { applied: 'Normal', stored: 'Slow', source: 'normal-default-policy' });
+  assert.deepEqual(resolveTalentPolicy({ talent: 'Unknown' }),
+    { applied: 'Normal', stored: 'Unknown', source: 'normal-default-policy' });
+
+  const drill = projectDrillAction({ player: player({ talent: 'Fast' }), drillNames: ['Touch Training'], cycles: 10, profile });
+  assert.equal(drill.talent.applied, 'Normal');
+  assert.ok(drill.reasons.some(r => r.code === 'talent.substituted'));
+});
+
+test('the 180 base-OVR training lock survives on every action, not just projectOvr', () => {
+  const lockedStats = Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, 180]));
+  const locked = player({ stats: lockedStats, overall: 180 });
+
+  for (const result of [
+    projectCoachAction({ player: locked, stats: STATS, sessions: 40, profile }),
+    projectDrillAction({ player: locked, drillNames: ['Touch Training'], cycles: 50, profile }),
+  ]) {
+    assert.equal(result.trainingLocked, true);
+    assert.deepEqual(result.statDeltas, []);
+    assert.equal(result.ovrDelta, 0);
+    assert.deepEqual(result.projectedStats, lockedStats);
+    assert.ok(result.reasons.some(r => r.code === 'training.locked'));
+  }
+
+  // And the pre-existing plan path still reports it — see also
+  // tests/projection-test.ts §5, which owns the end-to-end assertion.
+  const sessions: DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 50, drillLevel: 'Very Easy' }];
+  const { finalOvr, warnings } = projectOvr(locked, sessions, 'Normal', 'Very Easy', null, 0, false, profile);
+  assert.ok(finalOvr <= 180);
+  assert.ok(warnings.some(w => w.toLowerCase().includes('cap')));
+});
+
+test('condition stays a range through the shared result and is never multiplied out', () => {
+  const cycles = 7;
+  const result = projectDrillAction({ player: player(), drillNames: ['Target Practice', 'Run & Strike'], cycles, profile });
+
+  assert.equal(result.conditionBasis, 'per-cycle');
+  const charge = result.condition!.charge;
+  assert.equal(charge.confidence, 'observed-envelope');
+  assert.ok(charge.low <= charge.expected && charge.expected <= charge.high);
+
+  // The per-cycle envelope must NOT have been scaled by the cycle count: the
+  // charge over N cycles has never been observed and is not synthesised here.
+  const oneCycle = projectDrillAction({ player: player(), drillNames: ['Target Practice', 'Run & Strike'], cycles: 1, profile });
+  assert.deepEqual(result.condition!.charge, oneCycle.condition!.charge);
+  assert.ok(result.reasons.some(r => r.code === 'condition.envelope' && r.evidence === 'observed-envelope'));
+
+  // A coach action has no modelled condition mechanic. That is stated, not zeroed.
+  const coach = projectCoachAction({ player: player(), stats: STATS, sessions: 4, profile });
+  assert.equal(coach.condition, null);
+  assert.equal(coach.conditionBasis, 'not-applicable');
+});
+
+test('drill ranking exposes the charge envelope instead of a point cost', () => {
+  const rows = getRecommendedDrills(player());
+  assert.ok(rows.length > 0);
+  for (const row of rows) {
+    // No scalar `conditionCost` remains for a consumer to print as "the" cost.
+    assert.equal('conditionCost' in row, false);
+    assert.equal(row.condition.confidence, 'observed-envelope');
+    assert.ok(row.condition.low <= row.condition.expected && row.condition.expected <= row.condition.high);
+    // ROI is ordinal and says so, and carries the envelope's effect on itself.
+    assert.equal(row.roiBasis, 'expected-charge');
+    assert.ok(row.roiRange.low <= row.roi && row.roi <= row.roiRange.high);
+  }
+});
+
+test('unread stats are excluded and reported, never treated as zero', () => {
+  // A player whose CREATIVITY was never entered must not be projected from 0.
+  const partial = { ...OUTFIELD };
+  delete partial.CREATIVITY;
+  const result = projectDrillAction({ player: player({ stats: partial }), drillNames: ['Touch Training'], cycles: 10, profile });
+
+  assert.ok(!result.statDeltas.some(d => d.stat === 'CREATIVITY'));
+  assert.equal('CREATIVITY' in result.projectedStats, false);
+  assert.ok(result.reasons.some(r => r.code === 'stats.unread' && r.evidence === 'unavailable'));
+
+  const coach = projectCoachAction({ player: player({ stats: partial }), stats: ['CREATIVITY'], sessions: 10, profile });
+  assert.deepEqual(coach.statDeltas, []);
+  assert.ok(coach.reasons.some(r => r.code === 'stats.unread'));
+});
+
+test('the drill XP factor is reported as an assumption, not a calibration', () => {
+  const result = projectDrillAction({ player: player(), drillNames: ['Touch Training'], cycles: 10, profile });
+  const factor = result.reasons.find(r => r.code === 'drill.xpFactor');
+  assert.ok(factor);
+  assert.equal(factor!.evidence, 'assumed');
+  // Nothing in a projection may claim calibration for an uncalibrated input.
+  assert.ok(!result.reasons.some(r => r.code === 'drill.xpFactor' && r.evidence === 'calibrated'));
+});
+
+test('screens consume the seam and cannot substitute their own projection math', () => {
+  // A structural guard, deliberately blunt. The divergence this consolidation
+  // removed was created by inlining budget/multiplier math in a screen, so the
+  // cheapest way to stop it returning is to forbid the imports and formulas that
+  // make it possible. If a screen legitimately needs one of these, it belongs in
+  // src/logic/recommendation.ts and the screen consumes the result.
+  const screens = ['app/(tabs)/drills.tsx', 'app/(tabs)/coaches.tsx', 'app/(tabs)/results.tsx'];
+  const forbidden: Array<[RegExp, string]> = [
+    [/estimateStatGainPct/, 'gain kernel called directly'],
+    [/statGainFromBudget|combinedMultiplier/, 'engine multiplier used directly'],
+    [/coachBudgetPerStat|drillBudgetPerStat/, 'budget computed in a screen'],
+    [/baseXpPerSession/, 'XP budget formula inlined'],
+    [/drillXpFactor/, 'drill XP factor applied in a screen'],
+    [/starsGained/, 'star decay reintroduced'],
+    [/talentMultipliers|TalentTier\s*=\s*'Normal'/, 'talent policy decided in a screen'],
+  ];
+  for (const file of screens) {
+    const source = readFileSync(join(__dirname, '..', file), 'utf8');
+    for (const [pattern, why] of forbidden) {
+      assert.equal(pattern.test(source), false, `${file}: ${why} (${pattern})`);
+    }
+    assert.ok(/from '\.\.\/\.\.\/src\/logic\/recommendation'/.test(source),
+      `${file} must consume the shared recommendation seam`);
+  }
 });

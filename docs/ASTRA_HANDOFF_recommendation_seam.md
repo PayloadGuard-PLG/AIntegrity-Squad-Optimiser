@@ -1,5 +1,11 @@
 # Astra handoff — shared recommendation result
 
+> **STATUS: the consolidation described in §11 q1 has been implemented on this
+> branch.** §§1–7 below are the original evidence and remain accurate as the
+> *before* picture. §15 records what was built, what became authoritative and
+> what is still open. Read §15 first, then §8 (the contract, unchanged), then
+> §§1–7 only if you need the original divergence evidence.
+
 **Baseline main HEAD: `ef61637616fb743bae4e8122c9fd70a0f0033d7b`** (merge of PR #125).
 Prepared by tracing actual call sites, not names. No engine, profile or calibration
 change was made. This is a map, not an implementation.
@@ -299,3 +305,122 @@ Found while tracing; **not** fixed, because this was not a repair pass:
   in presentation asserting a calibration value.
 - `engineMath.projectCoachGains` has no callers.
 - No screen among Drills / Coaches / Results applies the 180 base-OVR training lock.
+
+---
+
+## 15. Implemented consolidation
+
+### Architecture chosen
+
+**`src/logic/recommendation.ts` is a single domain seam that sits BENEATH
+`projectOvr`, not beside it.** The seam answers one question — *what will this
+one action do?* — and `projectOvr` becomes a consumer that chains those answers
+into a plan. That is why this eliminates paths instead of adding a fifth:
+
+- `projectOvr`'s inline drill loop is **gone**; `applyDrillSessionsToStats` now
+  calls `projectDrillAction` and maps the result to `InvestmentStep`.
+- Coaches, Drills and Results **no longer contain any budget, multiplier, talent
+  or OVR mathematics**. Each calls the seam and formats what it is handed.
+- The seam itself implements no mathematics. It composes
+  `projectCoachGains`, `drillBudgetPerStat`, `statGainFromBudget`,
+  `combinedMultiplier`, `paddedStatSum`/`exactOvrFromSum`,
+  `baseOvrFromTotal`/`isTrainingLocked`, and `conditionEngine.sessionDrain`.
+
+Net path count: **4 projection implementations → 1**, plus one consumer
+(`ovrProjector`) that composes it into plans.
+
+### What became authoritative
+
+| Concern | Now authoritative | Was |
+|---|---|---|
+| Coach gains | `engineMath.projectCoachGains` (had **zero** callers) | 2 inline loops |
+| Coach budget | `coachBudgetPerStat` (geometric) | geometric on Coaches, linear on Results |
+| Drill gains | `recommendation.projectDrillAction` | 3 inline loops |
+| Drill budget | `engineMath.drillBudgetPerStat` | 2 inline copies of the formula |
+| Talent policy | `recommendation.resolveTalentPolicy` | 1 screen forcing Normal, 3 paths honouring stored |
+| 180 lock | `engineMath.baseOvrFromTotal` + `isTrainingLocked`, applied in the seam | `projectOvr` only, re-derived inline |
+| OVR padding | `engineMath.paddedStatSum` + `exactOvrFromSum` | 3 rounding variants |
+| Drill condition | `conditionEngine.chargedDrainRange` carried end-to-end | scalar centre printed as the cost |
+
+### Duplication removed
+
+- Two competing coach budgets → one. **Results now matches Coaches.**
+- Three inline drill loops → one.
+- Three OVR-after variants → the result asserts `ovrBefore` (floored, matches the
+  game's integer), `ovrAfterExact` (unfloored, preserves the fractional view
+  Coaches relied on) and `ovrAfterFloored`. Consumers pick a field; none computes.
+- Two stale, mutually contradicting `TALENT_LABEL` multiplier tables → tier
+  **names** only. A multiplier is now reported by the result that used it.
+- `projectOvr`'s hardcoded `'Slow — 0.70×'` warning (contradicted the profile's
+  0.47 and an invalidated tier) → a policy-substitution warning.
+- `controller`'s scalar `conditionCost` field is **gone**, so no consumer can
+  print the charge centre as "the" cost. It returns the `ChargedRange`, plus
+  `roiBasis: 'expected-charge'` and `roiRange` so a caller can see when two
+  drills are not separable by the envelope.
+
+### Behavioural changes, deliberate
+
+1. **Results' coach projections change** (e.g. +66.1 → +59.5 on the §5 scenario).
+   The linear budget was the falsified model. Saved history entries are inputs,
+   not stored projections, so nothing was migrated — but a user who noted an old
+   number will see a different one.
+2. **Star decay is no longer applied anywhere.** Only Results applied it. Sprint 34
+   attributed the ×N plateau to geometric budget decay, and Sprint 31 fitted four
+   data points without star decay. Its semantic placement is unsupported, so per
+   rule 9 it was dropped rather than preserved for compatibility.
+   `starDecayPerSession` remains in the profile and `starDecayMultiplier` remains
+   in the verified surface — unused, not deleted.
+3. **The 2× ad multiplier survives**, as an explicit seam input. It is a modelled
+   manager-level mechanic (`ManagerProfile.twoxAdActive`, `TWOX_AD_MULT`, and a
+   factor of `combinedMultiplier`), so its placement *is* supported. Results keeps
+   its toggle and passes it in; it is no longer a screen-local behaviour.
+4. **The 180 lock now applies on all three screens.** A locked player projects as
+   *no gain* with a `training.locked` reason, rather than gains the game will not
+   deliver.
+
+### Epistemic carriers in the result
+
+`condition: SessionDrain | null` with `conditionBasis: 'per-cycle' | 'not-applicable'`
+— a coach action states it has no modelled condition mechanic rather than
+reporting 0. The per-cycle envelope is **never multiplied by the cycle count**:
+the charge over N cycles has not been observed, and the seam refuses to
+synthesise it (asserted by test).
+`reasons[]` carry an `EvidenceGrade` of `calibrated | assumed | observed-envelope
+| unavailable`, so `drillXpFactor = 0.3` reaches the UI labelled an assumption
+and an unread stat is reported as excluded rather than projected from zero.
+
+### Tests
+
+`tests/recommendation-seam-test.ts` — 12 tests, gated by `npm run test:projection`.
+Tests 1–3 are the original contract; 4–12 cover the consolidation: identical
+coach projections across screens and across every stored talent tier; geometric
+budget in use; single talent decision point; the lock on every action; condition
+staying a range and not being scaled; the ranking exposing the envelope; unread
+stats excluded and reported; `drillXpFactor` graded as an assumption. Test 12 is
+a **structural guard** that greps the three screens for the imports and formulas
+that made divergence possible — all three would have failed it before this change
+(3, 5 and 7 forbidden hits respectively).
+
+### Validation
+
+typecheck · logic · engine 49 · projection 53 · seam 12 · scanner 60 + 16 ·
+condition 33 · Z3/Crosshair/differential 24, no skips. Calibrated constants,
+the frozen golden and the glyph corpus are untouched.
+
+### Unresolved — genuinely needs Astra
+
+1. **`tests/investment-test.ts` fails 14/40 at baseline and still does** — identical
+   counts before and after, so this change caused none of them. They are stale
+   expectations from superseded models (grey at 2× rather than 0.22, Slow 0.7,
+   the old stepped XP table, a per-stat rather than base-OVR 180 rule). It is not
+   in CI. Deciding whether it is retired or corrected is calibration work, out of
+   scope here.
+2. **`plan.tsx` still offers a talent selector** whose value is now surfaced as a
+   warning rather than applied. Either remove the control or reframe it as
+   "what-if", which is a product decision.
+3. **Whether ROI should be shown at all.** `roiRange` now exposes how far the
+   envelope moves it. If adjacent drills routinely overlap, the honest UI is an
+   ordered list with no number.
+4. **Coach condition cost.** The seam states academy coaching has no modelled
+   condition mechanic. If the game does charge condition for coaching, that is an
+   unmodelled mechanic to observe, not to assume.

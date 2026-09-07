@@ -187,18 +187,37 @@ export function ovrFromStats(stats: Record<string, number>): number {
   return Math.floor(sum / (TOTAL_ATTRS * OVR_DIVISOR));
 }
 
+// Attribute sum with missing stats padded to the known overall. Extracted so the
+// floored (game-displayed) and unfloored (fractional-progress) views of the same
+// projection are derived from one sum rather than two padding implementations.
+// Returns null when there is nothing to sum — the caller must decide what an
+// absent stat set means rather than being handed a 0.
+export function paddedStatSum(
+  stats: Record<string, number>,
+  knownOverall: number,
+): number | null {
+  const keys = Object.keys(stats);
+  if (keys.length === 0) return null;
+  const entered      = Object.values(stats).reduce((a, b) => a + b, 0);
+  const missingCount = Math.max(0, TOTAL_ATTRS - keys.length);
+  return entered + knownOverall * missingCount;
+}
+
+// Exact (unfloored) OVR from a padded stat sum. The game displays the floor of
+// this; the fraction is real internal progress, so projections may show it.
+export function exactOvrFromSum(sum: number): number {
+  return sum / (TOTAL_ATTRS * OVR_DIVISOR);
+}
+
 // OVR from stats map with padding for missing stats (uses known overall as baseline).
 // Needed when only some stats are entered — avoids treating missing stats as 0.
 export function ovrFromStatsWithPadding(
   stats: Record<string, number>,
   knownOverall: number,
 ): number {
-  const keys = Object.keys(stats);
-  if (keys.length === 0) return knownOverall;
-  const entered      = Object.values(stats).reduce((a, b) => a + b, 0);
-  const missingCount = Math.max(0, TOTAL_ATTRS - keys.length);
-  const sum          = entered + knownOverall * missingCount;
-  return Math.floor(sum / (TOTAL_ATTRS * OVR_DIVISOR));
+  const sum = paddedStatSum(stats, knownOverall);
+  if (sum === null) return knownOverall;
+  return Math.floor(exactOvrFromSum(sum));
 }
 
 // ─── STAGE 7: TIER CONTRIBUTION ──────────────────────────────────────────────

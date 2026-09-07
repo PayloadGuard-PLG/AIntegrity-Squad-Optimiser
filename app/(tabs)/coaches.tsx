@@ -12,11 +12,9 @@ import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
-import { isWhiteStat, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
+import { OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
-import { estimateStatGainPct } from '../../src/logic/xpEngine';
-import { coachBudgetPerStat } from '../../src/engine/engineMath';
-import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
+import { projectCoachAction } from '../../src/logic/recommendation';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, GameProfile } from '../../src/types/resources';
 import { playerService } from '../../src/services/playerService';
@@ -25,8 +23,10 @@ import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/
 
 const profile = gameProfileJson as unknown as GameProfile;
 
+// Tier NAME only. The multiplier a projection actually used is reported by the
+// domain result (RecommendationResult.talent), never asserted by this screen.
 const TALENT_LABEL: Record<TalentTier, string> = {
-  Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.47', Unknown: '?',
+  Fastest: 'FASTEST', Fast: 'FAST', Average: 'AVERAGE', Normal: 'NORMAL', Slow: 'SLOW', Unknown: 'UNKNOWN',
 };
 
 const STAT_COLS = {
@@ -42,7 +42,7 @@ function statColor(stat: string): string {
 }
 
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
-type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
+type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number>; reasons: string[]; trainingLocked: boolean };
 
 export default function CoachesScreen() {
   const { squad } = useSquad();
@@ -247,30 +247,23 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    const drillMult = 1.0;
-    const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    const projTalent: TalentTier = 'Normal';
-    const gains: StatGain[] = [];
-    const postCoachStats = { ...player.stats };
+    // One domain answer. No budget, multiplier, talent or OVR math on this screen.
+    const projection = projectCoachAction({ player, stats: scannedStats, sessions: sessionCount, profile });
+    const gains: StatGain[] = projection.statDeltas.map(d => ({
+      stat: d.stat, from: d.from, gain: d.delta, isWhite: d.isWhite,
+    }));
 
-    for (const statName of scannedStats) {
-      const from = player.stats[statName];
-      if (from === undefined) continue;
-      const isWhite = isWhiteStat(player.role, statName);
-      const gain = estimateStatGainPct(budget, from, player.age, 0, projTalent, isWhite, false, drillMult, profile);
-      if (gain > 0) {
-        postCoachStats[statName] = Math.min(from + gain, profile.statCap);
-        gains.push({ stat: statName, from, gain: Number(gain.toFixed(1)), isWhite });
-      }
-    }
-
-    const ovrBefore = computeOvrFromStats(player, profile);
-    // Projected OVR uses raw sum/15 (no floor) so fractional progress is visible to 0.1.
-    // ovrBefore stays floored to match the game's displayed integer OVR.
-    const projSum = Object.values(postCoachStats).reduce((a, b) => a + b, 0)
-      + player.overall * Math.max(0, profile.totalAttributeCount - Object.keys(postCoachStats).length);
-    const ovrAfter = Number((projSum / profile.totalAttributeCount).toFixed(1));
-    setResult({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)), postCoachStats });
+    setResult({
+      gains,
+      ovrBefore: projection.ovrBefore,
+      // ovrAfter is the domain's unfloored view; ovrBefore stays floored to match
+      // the game's displayed integer. Both are asserted by the projection.
+      ovrAfter: projection.ovrAfterExact,
+      ovrGain: projection.ovrDelta,
+      postCoachStats: projection.projectedStats,
+      reasons: projection.reasons.map(r => r.detail),
+      trainingLocked: projection.trainingLocked,
+    });
     setSaveConfirmed(false);
     if (!scanStatus.startsWith('SCANNED')) {
       saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true);
@@ -516,6 +509,9 @@ export default function CoachesScreen() {
             {result && (
               <>
                 <View style={{ borderWidth: 1, borderColor: result.ovrGain > 0 ? theme.pos + '55' : theme.hairline2, padding: 14, marginBottom: 14 }}>
+                  {result.reasons.map((reason, i) => (
+                    <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 4 }}>{reason}</MonoLabel>
+                  ))}
                   <MonoLabel color={theme.steelLight} style={{ marginBottom: 12 }}>PROJECTION — ×{parseInt(sessions, 10) || 0} SESSIONS</MonoLabel>
 
                   {/* OVR summary */}
