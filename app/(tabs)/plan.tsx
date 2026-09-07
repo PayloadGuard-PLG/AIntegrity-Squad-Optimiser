@@ -87,7 +87,6 @@ export default function PlanScreen() {
   const [drillRows, setDrillRows] = useState<DrillSession[]>([]);
   const [talent, setTalent] = useState<TalentTier>('Normal');
   const [drillLevel, setDrillLevel] = useState<DrillLevel>('Medium');
-  const [twoxAd, setTwoxAd] = useState(false);
   const [style, setStyle] = useState<ManagerStyle>('FTP');
   const [restorers, setRestorers] = useState(0);
   const [isPremiumSponsor, setIsPremiumSponsor] = useState(false);
@@ -168,7 +167,7 @@ export default function PlanScreen() {
     const managerProfile = {
       style,
       tierPoints,
-      restorers, isPremiumSponsor, twoxAdActive: twoxAd, talentTier: talent, drillLevel,
+      restorers, isPremiumSponsor, twoxAdActive: false, talentTier: talent, drillLevel,
       matchAdvisorActive,
       teamPlayPillars: Object.fromEntries(
         TEAM_PLAY_PILLARS.map(p => [p, parseInt(teamPlayInputs[p] ?? '0', 10) || 0])
@@ -294,13 +293,6 @@ export default function PlanScreen() {
                   {TALENT_TIERS.map(t => <Chip key={t} active={talent === t} onPress={() => { setTalent(t); invalidate(); }}>{TALENT_LABEL[t]}</Chip>)}
                 </View>
               </View>
-
-              {/* 2× AD toggle */}
-              <Pressable onPress={() => { setTwoxAd(v => !v); invalidate(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: twoxAd ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 12, paddingHorizontal: 14, marginBottom: 10 }}>
-                <View style={{ width: 16, height: 16, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1.4, fontWeight: '700', color: twoxAd ? theme.hot : theme.ink, flex: 1 }}>2× AD MULTIPLIER</Text>
-                <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: twoxAd ? theme.hot : theme.inkSec }}>×2.00 XP</Text>
-              </Pressable>
 
               {/* SESSIONS card */}
               <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 10 }}>

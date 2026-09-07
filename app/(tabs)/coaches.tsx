@@ -12,11 +12,9 @@ import { Chip } from '../../src/components/atoms/Chip';
 import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { theme } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
-import { isWhiteStat, OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
+import { OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
-import { estimateStatGainPct } from '../../src/logic/xpEngine';
-import { coachBudgetPerStat } from '../../src/engine/engineMath';
-import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
+import { projectCoachAction } from '../../src/logic/recommendation';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, GameProfile } from '../../src/types/resources';
 import { playerService } from '../../src/services/playerService';
@@ -25,8 +23,10 @@ import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/
 
 const profile = gameProfileJson as unknown as GameProfile;
 
+// Tier NAME only. The multiplier a projection actually used is reported by the
+// domain result (RecommendationResult.talent), never asserted by this screen.
 const TALENT_LABEL: Record<TalentTier, string> = {
-  Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.47', Unknown: '?',
+  Fastest: 'FASTEST', Fast: 'FAST', Average: 'AVERAGE', Normal: 'NORMAL', Slow: 'SLOW', Unknown: 'UNKNOWN',
 };
 
 const STAT_COLS = {
@@ -42,7 +42,7 @@ function statColor(stat: string): string {
 }
 
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
-type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number> };
+type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number>; reasons: string[]; trainingLocked: boolean };
 
 export default function CoachesScreen() {
   const { squad } = useSquad();
@@ -59,9 +59,6 @@ export default function CoachesScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
-  // Gain ranges captured directly from the game's coach preview (+lo-hi per stat).
-  // When present, projection uses (lo+hi)/2 directly instead of the XP formula.
-  const [scannedGainRanges, setScannedGainRanges] = useState<Record<string, { lo: number; hi: number }>>({});
   const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
@@ -103,7 +100,6 @@ export default function CoachesScreen() {
     setResult(null);
     setSaveConfirmed(false);
     setScanStatus('');
-    setScannedGainRanges({});
   }, [manager]);
 
   function buildStatus(stats: string[], type: string, cat: string, prefix: string) {
@@ -120,7 +116,6 @@ export default function CoachesScreen() {
     setCoachType(next);
     setFocusedStatSel(new Set());
     setResult(null);
-    setScannedGainRanges({});
     if (next && next !== 'Focused' && coachCategory) {
       const stats = CATEGORY_STATS[coachCategory] ?? [];
       setScannedStats(stats);
@@ -196,19 +191,17 @@ export default function CoachesScreen() {
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
 
-      // Extract gain ranges BEFORE resolveCoachStats discards them.
-      // These are the game's own projected gains (+lo-hi) from the coach preview.
-      // runProjection uses (lo+hi)/2 directly for stats where this data exists.
+      // Counted for the scan status line only. The projection does NOT consume
+      // these: the game's displayed +lo-hi is an interval, and its midpoint is
+      // not a stated expected value. Treating it as one is an assumption, not an
+      // observation, so it never enters the math. See calibration_data.json →
+      // bxps_recalibration.midpointAssumption.
       const gainRanges: Record<string, { lo: number; hi: number; statBefore: number }> = {};
       for (const cap of scan.stats) {
         if (cap.gainLo > 0 && cap.gainHi > 0 && cap.statBefore > 0) {
           gainRanges[cap.statName] = { lo: cap.gainLo, hi: cap.gainHi, statBefore: cap.statBefore };
         }
       }
-      setScannedGainRanges(Object.fromEntries(
-        Object.entries(gainRanges).map(([k, v]) => [k, { lo: v.lo, hi: v.hi }])
-      ));
-
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
 
       if (statNames[0] === ALL_ROUND_SENTINEL) {
@@ -247,30 +240,23 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    const drillMult = 1.0;
-    const budget = coachBudgetPerStat(sessionCount, scannedStats);
-    const projTalent: TalentTier = 'Normal';
-    const gains: StatGain[] = [];
-    const postCoachStats = { ...player.stats };
+    // One domain answer. No budget, multiplier, talent or OVR math on this screen.
+    const projection = projectCoachAction({ player, stats: scannedStats, sessions: sessionCount, profile });
+    const gains: StatGain[] = projection.statDeltas.map(d => ({
+      stat: d.stat, from: d.from, gain: d.delta, isWhite: d.isWhite,
+    }));
 
-    for (const statName of scannedStats) {
-      const from = player.stats[statName];
-      if (from === undefined) continue;
-      const isWhite = isWhiteStat(player.role, statName);
-      const gain = estimateStatGainPct(budget, from, player.age, 0, projTalent, isWhite, false, drillMult, profile);
-      if (gain > 0) {
-        postCoachStats[statName] = Math.min(from + gain, profile.statCap);
-        gains.push({ stat: statName, from, gain: Number(gain.toFixed(1)), isWhite });
-      }
-    }
-
-    const ovrBefore = computeOvrFromStats(player, profile);
-    // Projected OVR uses raw sum/15 (no floor) so fractional progress is visible to 0.1.
-    // ovrBefore stays floored to match the game's displayed integer OVR.
-    const projSum = Object.values(postCoachStats).reduce((a, b) => a + b, 0)
-      + player.overall * Math.max(0, profile.totalAttributeCount - Object.keys(postCoachStats).length);
-    const ovrAfter = Number((projSum / profile.totalAttributeCount).toFixed(1));
-    setResult({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)), postCoachStats });
+    setResult({
+      gains,
+      ovrBefore: projection.ovrBefore,
+      // ovrAfter is the domain's unfloored view; ovrBefore stays floored to match
+      // the game's displayed integer. Both are asserted by the projection.
+      ovrAfter: projection.ovrAfterExact,
+      ovrGain: projection.ovrDelta,
+      postCoachStats: projection.projectedStats,
+      reasons: projection.reasons.map(r => r.detail),
+      trainingLocked: projection.trainingLocked,
+    });
     setSaveConfirmed(false);
     if (!scanStatus.startsWith('SCANNED')) {
       saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true);
@@ -516,6 +502,9 @@ export default function CoachesScreen() {
             {result && (
               <>
                 <View style={{ borderWidth: 1, borderColor: result.ovrGain > 0 ? theme.pos + '55' : theme.hairline2, padding: 14, marginBottom: 14 }}>
+                  {result.reasons.map((reason, i) => (
+                    <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 4 }}>{reason}</MonoLabel>
+                  ))}
                   <MonoLabel color={theme.steelLight} style={{ marginBottom: 12 }}>PROJECTION — ×{parseInt(sessions, 10) || 0} SESSIONS</MonoLabel>
 
                   {/* OVR summary */}

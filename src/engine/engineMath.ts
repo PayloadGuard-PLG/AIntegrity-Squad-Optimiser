@@ -93,6 +93,18 @@ export function starsGainedFromOvrGain(sessionOvrGain: number): number {
   return Math.floor(sessionOvrGain / STAR_OVR_THRESHOLD);
 }
 
+// Which star band a BASE OVR sits in. Bands are absolute: boundaries fall at
+// fixed multiples of STAR_OVR_THRESHOLD, not at +threshold from wherever a
+// projection happened to start. A player already 19.4 into a band crosses the
+// next boundary after 0.6 OVR, not after another 20.
+//
+// Takes BASE OVR (star quality, which caps at MAX_BASE_OVR) — not total OVR.
+// Tier bonuses raise individual stat VALUES, and therefore what each further
+// point costs, but they are not star-quality progress.
+export function starBandIndex(baseOvr: number): number {
+  return Math.floor(baseOvr / STAR_OVR_THRESHOLD);
+}
+
 export function starDecayMultiplier(starsGained: number): number {
   return Math.pow(STAR_DECAY, starsGained);
 }
@@ -105,11 +117,19 @@ export function starDecayMultiplier(starsGained: number): number {
 //
 // Each factor is independent — tuning one does not change any other.
 // This is the single place where compounding effects are composed.
+// ⚠️ `twoxAd` is RETAINED for the verified signature only and must be passed
+// false by every permanent-attribute projection. The doubling item it modelled
+// is a match-form / teamplay effect, acquired several ways (advert, sponsor
+// reward, token purchase, a teamplay drill) and distinct from the academy
+// development coaches. It does not multiply permanent attributes, permanent OVR
+// or academy coaching gain. Slated for semantic migration once the match-form
+// subsystem is modelled; not removed here because it is part of the proof surface.
 export function combinedMultiplier(params: {
   age: number;
   talent: string;
   isWhite: boolean;
   starsGained: number;
+  /** @deprecated Match-form effect — never a permanent-attribute multiplier. Pass false. */
   twoxAd: boolean;
   drillLevelMult: number;
 }): number {
@@ -187,18 +207,37 @@ export function ovrFromStats(stats: Record<string, number>): number {
   return Math.floor(sum / (TOTAL_ATTRS * OVR_DIVISOR));
 }
 
+// Attribute sum with missing stats padded to the known overall. Extracted so the
+// floored (game-displayed) and unfloored (fractional-progress) views of the same
+// projection are derived from one sum rather than two padding implementations.
+// Returns null when there is nothing to sum — the caller must decide what an
+// absent stat set means rather than being handed a 0.
+export function paddedStatSum(
+  stats: Record<string, number>,
+  knownOverall: number,
+): number | null {
+  const keys = Object.keys(stats);
+  if (keys.length === 0) return null;
+  const entered      = Object.values(stats).reduce((a, b) => a + b, 0);
+  const missingCount = Math.max(0, TOTAL_ATTRS - keys.length);
+  return entered + knownOverall * missingCount;
+}
+
+// Exact (unfloored) OVR from a padded stat sum. The game displays the floor of
+// this; the fraction is real internal progress, so projections may show it.
+export function exactOvrFromSum(sum: number): number {
+  return sum / (TOTAL_ATTRS * OVR_DIVISOR);
+}
+
 // OVR from stats map with padding for missing stats (uses known overall as baseline).
 // Needed when only some stats are entered — avoids treating missing stats as 0.
 export function ovrFromStatsWithPadding(
   stats: Record<string, number>,
   knownOverall: number,
 ): number {
-  const keys = Object.keys(stats);
-  if (keys.length === 0) return knownOverall;
-  const entered      = Object.values(stats).reduce((a, b) => a + b, 0);
-  const missingCount = Math.max(0, TOTAL_ATTRS - keys.length);
-  const sum          = entered + knownOverall * missingCount;
-  return Math.floor(sum / (TOTAL_ATTRS * OVR_DIVISOR));
+  const sum = paddedStatSum(stats, knownOverall);
+  if (sum === null) return knownOverall;
+  return Math.floor(exactOvrFromSum(sum));
 }
 
 // ─── STAGE 7: TIER CONTRIBUTION ──────────────────────────────────────────────
@@ -207,6 +246,19 @@ export function ovrFromStatsWithPadding(
 export function tierOvrContrib(tier: string, whiteStatCount: number): number {
   const bonus = TIER_ADDITIONS[tier] ?? 0;
   return Math.floor((bonus * whiteStatCount) / TOTAL_ATTRS);
+}
+
+// Unfloored tier contribution.
+//
+// tierOvrContrib floors, which is right for the integer the game displays and
+// for the training-lock comparison. It is WRONG as a subtrahend when recovering
+// exact fractional BASE OVR, because the floor residue lands squarely in the
+// fraction: T3 (+50) over 10 white stats is 33.333…, floored to 33, so a base of
+// 159.8 recovers as 160.133 and reads a star band it has not reached. Use this
+// wherever the fraction decides something — star-band position above all.
+export function tierOvrContribExact(tier: string, whiteStatCount: number): number {
+  const bonus = TIER_ADDITIONS[tier] ?? 0;
+  return (bonus * whiteStatCount) / TOTAL_ATTRS;
 }
 
 // ─── STAGE 8: TRAINING LOCK ──────────────────────────────────────────────────
@@ -317,6 +369,11 @@ export function estimateTalentFromGain(params: {
 }
 
 // ─── FULL COACHING PROJECTION ─────────────────────────────────────────────────
+// ⚠️ @deprecated — samples the star count ONCE from sessionOvrGainSoFar, so a run
+// long enough to cross a star threshold keeps the cheaper pre-threshold rate for
+// its whole length. src/logic/recommendation.ts steps across thresholds instead
+// and is the authoritative coach path. Retained for reference; no callers.
+//
 // Composed pipeline for a single coaching session.
 // Input: session params + current stat values for the coached stats.
 // Output: projected gain (fractional) per stat name.

@@ -14,9 +14,7 @@ import { drillPlanHistoryService } from '../../src/services/drillPlanHistoryServ
 import { findSubFloorBundle } from '../../src/logic/zeroDrainEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { sessionDrain, MIN_CONDITION_DRAIN_PCT } from '../../src/utils/conditionEngine';
-import { estimateStatGainPct } from '../../src/logic/xpEngine';
-import { isWhiteStat } from '../../src/utils/roleWeights';
-import { computeOvrWithPadding } from '../../src/logic/ovrProjector';
+import { projectDrillAction } from '../../src/logic/recommendation';
 import { theme } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
 import { GameProfile, SurgeState, SurgeLevel } from '../../src/types/resources';
@@ -34,7 +32,7 @@ const INTENSITY_COLORS: Record<string, string> = {
 
 type Preset = { id: string; name: string; drillNames: string[] };
 type DrillGain = { stat: string; from: number; gain: number; isWhite: boolean };
-type DrillProjection = { gains: DrillGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number };
+type DrillProjection = { gains: DrillGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; reasons: string[]; trainingLocked: boolean };
 
 export default function DrillsScreen() {
   const { squad } = useSquad();
@@ -132,29 +130,33 @@ export default function DrillsScreen() {
   function projectDrillPlan() {
     if (!selectedPlayer) return;
     const selected = savedPresets.filter(p => selectedPresetIds.has(p.id));
-    let currentStats = { ...selectedPlayer.stats };
+    let stats = { ...selectedPlayer.stats };
     const gainMap: Record<string, { from: number; total: number; isWhite: boolean }> = {};
+    const reasons = new Map<string, string>();
+    let ovrBefore: number | null = null;
+    let ovrAfter = 0;
+    let locked = false;
 
+    // One domain answer per preset. No budget or multiplier math on this screen.
     for (const preset of selected) {
       const cycles = presetCycles[preset.id] ?? 0;
       if (cycles === 0) continue;
-
-      for (const drillName of preset.drillNames) {
-        const drill = DRILL_LIST.find(d => d.name === drillName);
-        if (!drill) continue;
-        const drillMult = (profile.drillLevelMultipliers as Record<string, number>)[drill.intensity] ?? 1.0;
-        const budget = cycles * profile.baseXpPerSession * (profile.drillXpFactor ?? 1.0) / drill.stats.length;
-
-        for (const stat of drill.stats) {
-          const from = currentStats[stat];
-          if (from === undefined) continue;
-          const isWhite = isWhiteStat(selectedPlayer.role, stat);
-          const gain = estimateStatGainPct(budget, from, selectedPlayer.age, 0, selectedPlayer.talent, isWhite, false, drillMult, profile);
-          if (!gainMap[stat]) gainMap[stat] = { from: selectedPlayer.stats[stat] ?? from, total: 0, isWhite };
-          currentStats[stat] = Math.min(from + gain, profile.statCap);
-          gainMap[stat].total += gain;
-        }
+      const projection = projectDrillAction({
+        player: { ...selectedPlayer, stats },
+        drillNames: preset.drillNames,
+        cycles,
+        profile,
+        surge,
+      });
+      if (ovrBefore === null) ovrBefore = projection.ovrBefore;
+      ovrAfter = projection.ovrAfterExact;
+      locked = locked || projection.trainingLocked;
+      for (const r of projection.reasons) reasons.set(r.code, r.detail);
+      for (const d of projection.statDeltas) {
+        if (!gainMap[d.stat]) gainMap[d.stat] = { from: selectedPlayer.stats[d.stat] ?? d.from, total: 0, isWhite: d.isWhite };
+        gainMap[d.stat].total += d.delta;
       }
+      stats = projection.projectedStats;
     }
 
     const gains = Object.entries(gainMap)
@@ -162,9 +164,15 @@ export default function DrillsScreen() {
       .map(([stat, v]) => ({ stat, from: v.from, gain: Number(v.total.toFixed(1)), isWhite: v.isWhite }))
       .sort((a, b) => b.gain - a.gain);
 
-    const ovrBefore = Number(computeOvrWithPadding(selectedPlayer.stats, selectedPlayer.overall, profile).toFixed(1));
-    const ovrAfter = Number(computeOvrWithPadding(currentStats, selectedPlayer.overall, profile).toFixed(1));
-    setDrillProjection({ gains, ovrBefore, ovrAfter, ovrGain: Number((ovrAfter - ovrBefore).toFixed(1)) });
+    const before = ovrBefore ?? 0;
+    setDrillProjection({
+      gains,
+      ovrBefore: before,
+      ovrAfter: ovrBefore === null ? before : ovrAfter,
+      ovrGain: ovrBefore === null ? 0 : Number((ovrAfter - before).toFixed(1)),
+      reasons: [...reasons.values()],
+      trainingLocked: locked,
+    });
   }
 
   function pushToResults() {
@@ -320,7 +328,8 @@ export default function DrillsScreen() {
                     <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{Math.round(d.efficiency * 100)}%</Text>
                     <MonoLabel size={8} color={theme.inkGhost}>EFF</MonoLabel>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.conditionCost < 2 ? theme.hot : theme.neg }}>{d.conditionCost.toFixed(2)}%</Text>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.condition.expected < 2 ? theme.hot : theme.neg }}>{d.rawLoss.toFixed(2)}%</Text>
+                    <MonoLabel size={7} color={theme.inkGhost}>{d.condition.low}–{d.condition.high} BILLED</MonoLabel>
                     <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>
                     {d.isFloored && (
                       <View style={{ paddingHorizontal: 5, paddingVertical: 2, borderWidth: 1, borderColor: theme.hot + '66', backgroundColor: theme.hot + '12' }}>
@@ -434,6 +443,9 @@ export default function DrillsScreen() {
               {/* Projection results */}
               {drillProjection && (
                 <View style={{ borderWidth: 1, borderColor: theme.pos + '55', padding: 14, marginBottom: 10 }}>
+                  {drillProjection.reasons.map((reason, i) => (
+                    <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 4 }}>{reason}</MonoLabel>
+                  ))}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
                     <View>
                       <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 2 }}>BEFORE</MonoLabel>

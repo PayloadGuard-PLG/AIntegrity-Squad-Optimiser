@@ -200,7 +200,7 @@ backing a value, it is ASSUMED and must be labelled as such.
 |---|---|---|---|
 | xpCostBase (C₀) | 2.94 | ✅ Confirmed | Derived from Tackling-120 / Positioning-228 gain ratio (same session, same budget) |
 | xpCostDecayK (K) | 47 | ✅ Confirmed | Calibration solver: minimises CV across 5 Grant ×40 observations (K=47, CV=3.2%) |
-| baseXpPerSession | 676 | ✅ Confirmed | Back-calculated from Grant ×40 Standard Defending (all 5 stats within game range) |
+| baseXpPerSession | 676 | ⚠️ **Interval, not a point** — 676 is the FLOOR | The four calibration observations, re-solved from their stated intervals rather than midpoints, admit **675–930**. 676 came from solving one stat (Grant TACKLING ×40) at its midpoint; the game states a range and never says where the expectation sits in it. Every projection is therefore at the conservative end of what the evidence permits. See `calibration_data.json → bxps_recalibration.intervalRederivation`. |
 | greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
 | sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
 | talentMultipliers.Normal | 1.0 | ✅ Confirmed — USE THIS FOR ALL PROJECTIONS | Normal=1.0 confirmed from Grant, Rogers, McGinty, Dallas, McCluskey, Jables. Every real-world coaching result back-calculates to Normal (1.0). All other talent multipliers are community estimates that produce incorrect predictions. |
@@ -228,6 +228,20 @@ backing a value, it is ASSUMED and must be labelled as such.
 
 **When adding or changing any constant:** record the empirical evidence in `profiles/calibration_data.json`
 and update the table above. "Community says X" is not evidence.
+
+**A displayed `+lo-hi` is an interval, not a measurement of its midpoint.** The game states a range and
+has never stated where the expectation sits inside it. Back-calculating a constant from `(lo+hi)/2`
+manufactures a point estimate the observation does not contain — and averaging several such estimates
+compounds it, because it hides how wide each one actually was. Solve each observation for the constant
+that reproduces its **lower** bound and its **upper** bound, then intersect across observations. If the
+intersection is empty, a mechanic is missing; report that rather than averaging past it. Two Dallas rows
+show the identical interval `[4,6]` at different stat values — proof that these ranges are far too coarse
+to carry the precision a midpoint implies.
+
+**Coach budget divisor — confirmed by falsification.** `coachBudgetPerStat` divides by the stats showing
+visible gain ranges, not by the full category. Re-solving the Dallas ×4 Safeguard observation with a
+5-stat divisor makes the calibration set self-contradictory (requires bXPS ≥1125 and ≤989 at once), so
+the full-category alternative is ruled out.
 
 ---
 

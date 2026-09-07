@@ -9,18 +9,20 @@ import { QualityMeter } from '../../src/components/atoms/QualityMeter';
 import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
-import { isWhiteStat, getWhiteStatKeys } from '../../src/utils/roleWeights';
-import { estimateStatGainPct, applyTierBonusToStats, projectSeasonDecay } from '../../src/logic/xpEngine';
+import { getWhiteStatKeys } from '../../src/utils/roleWeights';
+import { applyTierBonusToStats, projectSeasonDecay } from '../../src/logic/xpEngine';
+import { projectCoachAction, projectDrillAction } from '../../src/logic/recommendation';
 import { playerService } from '../../src/services/playerService';
 import { computeOvrFromStats, computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, TierName, GameProfile } from '../../src/types/resources';
 import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
 import { drillPlanHistoryService, type DrillPlanEntry } from '../../src/services/drillPlanHistoryService';
-import { DRILL_LIST } from '../../src/database/drillDatabase';
 
 const profile = gameProfileJson as unknown as GameProfile;
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7', Unknown: '×1.0?' };
+// Tier NAME only. The multiplier a projection actually used is reported by the
+// domain result (RecommendationResult.talent), never asserted by this screen.
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'FASTEST', Fast: 'FAST', Average: 'AVERAGE', Normal: 'NORMAL', Slow: 'SLOW', Unknown: 'UNKNOWN' };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
 const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;
@@ -40,7 +42,6 @@ type StepResult = {
 export default function ResultsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [twoxAd, setTwoxAd] = useState(false);
   const [selectedCoachIds, setSelectedCoachIds] = useState<Set<string>>(new Set());
   const [selectedDrillPlanIds, setSelectedDrillPlanIds] = useState<Set<string>>(new Set());
   const [excludedTiers, setExcludedTiers] = useState<Set<TierName>>(new Set());
@@ -109,72 +110,56 @@ export default function ResultsScreen() {
     const steps: StepResult[] = [];
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
-    const ovrBase = currentOvr;
 
     // 1. Drill plans (pushed from drills tab)
+    // Both stages below call the SAME domain seam the Drills and Coaches screens
+    // call. A coach run recorded on the Coaches tab and re-projected here can no
+    // longer produce a different number.
     for (const planId of selectedDrillPlanIds) {
       const plan = drillPlanHistory.find(p => p.id === planId);
       if (!plan || plan.cycles === 0) continue;
-      const gainParts: string[] = [];
-
-      for (const drillName of plan.drillNames) {
-        const drill = DRILL_LIST.find(d => d.name === drillName);
-        if (!drill) continue;
-        const drillMult = (profile.drillLevelMultipliers as Record<string, number>)[drill.intensity] ?? 1.0;
-        const budget = plan.cycles * profile.baseXpPerSession * (profile.drillXpFactor ?? 1.0) / drill.stats.length;
-        for (const stat of drill.stats) {
-          const from = currentStats[stat];
-          if (from === undefined) continue;
-          const isWhite = isWhiteStat(player.role, stat);
-          const starsGained = Math.floor((currentOvr - ovrBase) / (profile.starOvrThreshold ?? 20));
-          const gain = estimateStatGainPct(budget, from, player.age, starsGained, player.talent, isWhite, twoxAd, drillMult, profile);
-          if (gain > 0) {
-            currentStats[stat] = Math.min(from + gain, profile.statCap);
-            gainParts.push(`${stat} +${gain.toFixed(1)}`);
-          }
-        }
-      }
-
-      const ovrAfter = Number(computeOvrWithPadding(currentStats, player.overall, profile).toFixed(1));
-      steps.push({
+      const projection = projectDrillAction({
+        player: { ...player, stats: currentStats },
+        drillNames: plan.drillNames,
+        cycles: plan.cycles,
+        profile,
         label: `DRILL: ${plan.label}`,
+      });
+      currentStats = projection.projectedStats;
+      steps.push({
+        label: projection.action.label,
         ovrBefore: currentOvr,
-        ovrAfter,
-        detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no stat gains',
+        ovrAfter: projection.ovrAfterExact,
+        detail: projection.statDeltas.length > 0
+          ? projection.statDeltas.map(d => `${d.stat} +${d.delta.toFixed(1)}`).join(' · ')
+          : (projection.trainingLocked ? 'training locked — no gains' : 'no stat gains'),
         color: DRILL_AMBER,
       });
-      currentOvr = ovrAfter;
+      currentOvr = projection.ovrAfterExact;
     }
 
     // 2. Coach sessions
     for (const coachId of selectedCoachIds) {
       const entry = coachHistory.find(e => e.id === coachId);
       if (!entry || entry.stats.length === 0 || entry.sessions === 0) continue;
-      const drillMult = 1.0;
-      const budget = entry.sessions * profile.baseXpPerSession / entry.stats.length;
-      const gainParts: string[] = [];
-
-      for (const stat of entry.stats) {
-        const from = currentStats[stat];
-        if (from === undefined) continue;
-        const isWhite = isWhiteStat(player.role, stat);
-        const starsGained = Math.floor((currentOvr - ovrBase) / (profile.starOvrThreshold ?? 20));
-        const gain = estimateStatGainPct(budget, from, player.age, starsGained, player.talent, isWhite, twoxAd, drillMult, profile);
-        if (gain > 0) {
-          currentStats[stat] = Math.min(from + gain, profile.statCap);
-          gainParts.push(`${stat} +${gain.toFixed(1)}`);
-        }
-      }
-
-      const ovrAfter = Number(computeOvrWithPadding(currentStats, player.overall, profile).toFixed(1));
-      steps.push({
+      const projection = projectCoachAction({
+        player: { ...player, stats: currentStats },
+        stats: entry.stats,
+        sessions: entry.sessions,
+        profile,
         label: `COACH ×${entry.sessions} — ${entry.label}`,
+      });
+      currentStats = projection.projectedStats;
+      steps.push({
+        label: projection.action.label,
         ovrBefore: currentOvr,
-        ovrAfter,
-        detail: gainParts.length > 0 ? gainParts.join(' · ') : 'no stat gains',
+        ovrAfter: projection.ovrAfterExact,
+        detail: projection.statDeltas.length > 0
+          ? projection.statDeltas.map(d => `${d.stat} +${d.delta.toFixed(1)}`).join(' · ')
+          : (projection.trainingLocked ? 'training locked — no gains' : 'no stat gains'),
         color: theme.steelLight,
       });
-      currentOvr = ovrAfter;
+      currentOvr = projection.ovrAfterExact;
     }
 
     // 3. Tier upgrades
@@ -297,12 +282,6 @@ export default function ResultsScreen() {
                 </View>
                 <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
-              <Pressable onPress={() => { setTwoxAd(v => !v); setResult(null); setFinalStats(null); }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 8, backgroundColor: twoxAd ? theme.surface2 : 'transparent' }}>
-                <View style={{ width: 12, height: 12, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.2, color: twoxAd ? theme.hot : theme.inkSec }}>2× AD ACTIVE</Text>
-                {twoxAd && <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.hot, marginLeft: 'auto' }}>×2.0</Text>}
-              </Pressable>
             </View>
 
             {/* ── DRILL PLANS ── */}

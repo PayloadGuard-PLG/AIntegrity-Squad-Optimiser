@@ -69,7 +69,7 @@ console.log(`\n  Top-${TOP_N} drills by ROI:\n`);
 topDrills.forEach((d, i) => {
   console.log(
     `  ${i + 1}. ${d.name.padEnd(22)} [${d.intensity.padEnd(9)}]  ` +
-    `eff=${d.efficiency.toFixed(2)}  cond=${d.conditionCost.toFixed(3)}%  ROI=${d.roi.toFixed(3)}`
+    `eff=${d.efficiency.toFixed(2)}  cond=${d.rawLoss.toFixed(3)}% billed ${d.condition.low}-${d.condition.high}%  ROI=${d.roi.toFixed(3)}`
   );
 });
 
