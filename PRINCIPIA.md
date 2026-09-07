@@ -309,13 +309,23 @@ simultaneously.
 `ρ` takes the values .10, .15, .20, .25, .50 — as the surge panel states them —
 and enters as `(1 − ρ)`.
 
-*Scholium.* A parallel copy of this formula in the verification layer divides `ρ` by
-100 again, computing `(1 − ρ/100)`. It therefore returns 0.746 where the truth is
-0.375 — an error of a factor of two at level 4. Its Python specification contains the
-identical mistake, so the differential test compares the two wrong implementations
-and passes. **This function has no runtime callers**, so no user has ever seen its
-output; but it is certified as verified and is not. It is reported here rather than
-corrected, the engine being under quarantine.
+*Scholium — corrected.* A parallel copy of this formula in the verification layer
+divided `ρ` by 100 again, computing `(1 − ρ/100)`, and so returned 0.746 where the
+truth is 0.375 — an error of a factor of two at level 4. Its Python specification
+contained the identical mistake, so the differential test compared two wrong
+implementations against each other and passed. The function had no runtime callers,
+so no user ever saw its output; but it stood certified as verified and was not.
+
+Both sides have now been corrected together, which is the only way the differential
+test remains meaningful. Two checks establish it: the corrected engine agrees with
+the runtime path to within 1e-12 across all five intensities at both L0 and L4, every
+cell matching the confirmed drain table; and reintroducing the fault on one side
+alone now fails with a concrete counterexample where before it passed in silence.
+
+*The general lesson is worth more than the fix.* A differential test between an
+implementation and a specification proves only that the two agree. When the same
+misreading is made twice — once in each — agreement is guaranteed and the test is
+vacuous. Such a test cannot be trusted until a mutation shows it can fail.
 
 ### Proposition XV. The charge is not a function of the raw drain.
 
