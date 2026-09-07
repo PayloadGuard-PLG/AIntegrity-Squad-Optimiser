@@ -184,13 +184,24 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
   // CHARGED drain — what the game deducts. The 0% loophole was patched; every
   // session costs at least 1%. Confirmed from training history: single drills
   // with raw 0.750% are charged -1.00%.
-  assertClose('charged: Very Easy, surge L4 = 1.00 (floored)', calculateActualLoss(baseLoss, 'Very Easy', L4), 1.00, 0.001);
-  assertClose('charged: Very Easy, surge off = 1.00 (floored)', calculateActualLoss(baseLoss, 'Very Easy', OFF), 1.00, 0.001);
-  assertClose('charged: Very Hard, surge off = 3.00 (fraction truncated)', calculateActualLoss(baseLoss, 'Very Hard', OFF), 3.00, 0.001);
-  assertClose('charged: Medium, surge off = 2.00 (observed)', calculateActualLoss(baseLoss, 'Medium', OFF), 2.00, 0.001);
+  //
+  // calculateActualLoss returns the EXPECTED charge, which is raw itself once
+  // the 1% minimum is applied — the observed means track raw, they do not track
+  // any rounding of it. An earlier truncation rule (max(1, floor(raw))) is
+  // falsified; see conditionEngine for the full list of dead models.
+  assertClose('charged: Very Easy, surge L4 = 1.00 (minimum)', calculateActualLoss(baseLoss, 'Very Easy', L4), 1.00, 0.001);
+  assertClose('charged: Very Easy, surge off = 1.00 (minimum)', calculateActualLoss(baseLoss, 'Very Easy', OFF), 1.00, 0.001);
+  assertClose('charged: Very Hard, surge off = 3.75 (above the minimum, so raw)', calculateActualLoss(baseLoss, 'Very Hard', OFF), 3.75, 0.001);
+  assertClose('charged: Medium, surge off = 2.25 (matches the pre-confirm dialog)', calculateActualLoss(baseLoss, 'Medium', OFF), 2.25, 0.001);
   assert('no drill is ever free', calculateActualLoss(baseLoss, 'Very Easy', L4) > 0);
-  assert('Very Easy is strictly dominated by Easy — same charge, double intensity',
-    calculateActualLoss(baseLoss, 'Easy', OFF) === calculateActualLoss(baseLoss, 'Very Easy', OFF));
+
+  // RETRACTED: "Very Easy is strictly dominated by Easy — same charge". That was
+  // a consequence of the truncation rule, not an observation. Below the 1%
+  // minimum the two DO cost the same, but only there.
+  assert('Very Easy is cheaper than Easy once both clear the 1% minimum',
+    calculateActualLoss(baseLoss, 'Very Easy', OFF) < calculateActualLoss(baseLoss, 'Easy', OFF));
+  assert('below the minimum they cost the same — that is the patched loophole',
+    calculateActualLoss(baseLoss, 'Very Easy', L4) === calculateActualLoss(0.375, 'Very Easy', L4));
 }
 
 // ─── 7. Seasonal decay ───────────────────────────────────────────────────────

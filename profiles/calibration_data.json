@@ -2197,6 +2197,69 @@
     ],
     "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21. Subsequently K recalibrated 55→47, bXPS re-derived 450→676."
   },
+  "role_whiteness_card_evidence": {
+    "_source": "Four player cards, DarkVader FC, 2026-09-07. White/grey read by sampling the coloured key-attribute bar at the left edge of each stat row (DEF x=692, ATT x=1087, PHY x=1481; row centres y=515/580/645/710/775 at 2244x1008). 60 individual classifications.",
+    "_result": "roleWeights.ts reproduces all four cards exactly. No change made to the role table.",
+    "learning_role_rule": {
+      "finding": "A LEARNING role confers NO white stats until it completes. Established roles only.",
+      "evidence": "Darren Moore and SD Faye have the identical DC/DMC/MC role set. Faye (all three established) shows 13 white. Moore, whose MC chip is dark with a 2/50 counter, shows 10 white — exactly the DC+DMC union. The three-stat difference is entirely attributable to MC being incomplete.",
+      "code_status": "Already handled. playerCardParse.ts sets roles = glyph.establishedRoles ?? base.roles, so when the glyph reader runs, player.role is established-only. The ML Kit text list (which does include the learning chip, as it sits inside the Roles: Y-band) is the fallback path only."
+    },
+    "cards": [
+      {
+        "name": "King Alfie", "age": 23, "tier": "T4", "tierBonusLabel": "MASTER +80", "ovr_game": 206,
+        "rolesEstablished": ["DC", "DL", "DMC"], "learningRole": null,
+        "whiteStatCount": 12,
+        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "CROSSING", "FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"],
+        "grey": ["DRIBBLING", "SHOOTING", "FINISHING"],
+        "note": "CROSSING white via DL. SHOOTING grey — no role here supplies it."
+      },
+      {
+        "name": "Darren Moore", "age": 19, "tier": "T3", "tierBonusLabel": "STELLAR +50", "ovr_game": 193,
+        "rolesEstablished": ["DC", "DMC"], "learningRole": { "role": "MC", "points": 2, "outOf": 50 },
+        "whiteStatCount": 10,
+        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "FITNESS", "STRENGTH", "AGGRESSION", "CREATIVITY"],
+        "grey": ["DRIBBLING", "CROSSING", "SHOOTING", "FINISHING", "SPEED"],
+        "stats": { "TACKLING": 233, "MARKING": 242, "POSITIONING": 256, "HEADING": 236, "BRAVERY": 245, "PASSING": 214, "DRIBBLING": 134, "CROSSING": 118, "SHOOTING": 139, "FINISHING": 124, "FITNESS": 214, "STRENGTH": 207, "AGGRESSION": 199, "SPEED": 138, "CREATIVITY": 193 },
+        "statSum": 2892,
+        "incomplete_role_cost": {
+          "_question": "What white/grey differences exist purely because MC is at 2/50 rather than complete?",
+          "greyOnlyBecauseMcIncomplete": ["DRIBBLING", "SHOOTING", "SPEED"],
+          "onCompletion": {
+            "DRIBBLING": { "now": 134, "after": 184 },
+            "SHOOTING": { "now": 139, "after": 189 },
+            "SPEED": { "now": 138, "after": 188 }
+          },
+          "immediateStatTotal": "+150 (2892 -> 3042), from the +50 T3 cumulative tier bonus applying to each newly-white stat at the moment it turns white",
+          "ovrGain": "+10. Two independent routes agree: floor(3042/15)-floor(2892/15) = 202-192 = +10, and tier contribution floor(50x13/15)-floor(50x10/15) = 43-33 = +10.",
+          "ongoingEffect": "Those three stats also stop costing 2x XP (grey weighting) for all future coaching and drills.",
+          "actionable": "Completing Moore's MC role is worth +150 stat points and +10 OVR instantly, before any training."
+        }
+      },
+      {
+        "name": "SD Faye", "age": 29, "tier": "T4", "tierBonusLabel": "MASTER +80", "ovr_game": 167,
+        "rolesEstablished": ["DMC", "MC", "DC"], "learningRole": null,
+        "whiteStatCount": 13,
+        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "DRIBBLING", "SHOOTING", "FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"],
+        "grey": ["CROSSING", "FINISHING"],
+        "note": "The control for Moore: same role set, all three established. SHOOTING, DRIBBLING and SPEED are white here."
+      },
+      {
+        "name": "Cieran Morgan", "age": 22, "tier": "T4", "tierBonusLabel": "MASTER +80", "ovr_game": 221,
+        "rolesEstablished": ["DMC", "MC", "AMC"], "learningRole": null,
+        "whiteStatCount": 14,
+        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "DRIBBLING", "SHOOTING", "FINISHING", "FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"],
+        "grey": ["CROSSING"],
+        "note": "FINISHING white via AMC. Confirms Cieran Morgan is T4/MASTER and age 22, correcting the T0 recorded elsewhere in this file."
+      }
+    ],
+    "conflict_with_garry_mccluskey_record": {
+      "issue": "The garry_mccluskey entry records DC/DMC/MC as 12 white with SHOOTING grey. SD Faye has the same role set and shows 13 white with SHOOTING white.",
+      "resolution": "The card evidence takes precedence — it is a direct read of the game's own rendering, whereas the McCluskey whiteStats list appears to have been inferred. The most likely explanation is that one of McCluskey's roles was a learning role when that record was taken, exactly as Moore's MC is now. roleWeights.ts is NOT being changed on the strength of the McCluskey record.",
+      "action": "Re-scan Garry McCluskey's card and check whether any role chip carries an X/50 counter. If it does, that record's whiteStatCount should be re-derived from established roles only."
+    },
+    "supersedes": "The Sprint 31 open question 'MC: SHOOTING is essential — confirmed or needs checking?' is now CONFIRMED essential, from SD Faye and Cieran Morgan."
+  },
   "fan_club_surges": {
     "_source": "Direct in-game observation (Fan Club surge panels + training history), captured 2026-09-07. Values are read off the game UI, not inferred.",
     "observed_at": "2026-09-07",

@@ -43,7 +43,7 @@ const GK_COL = {
 } as const;
 
 const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7', Unknown: '×1.0?' };
 
 const COACH_TYPES = ['STANDARD', 'FOCUSED', 'EXTENSIVE'];
 const COACH_CATEGORIES = ['ATTACKING', 'DEFENDING', 'PHYSICAL', 'SAFEGUARD'];

@@ -8,10 +8,10 @@
  *  - fan club panel:   Perfect Conditions -10/-15/-20/-25/-50%, currently INACTIVE
  */
 import {
-  conditionReduction, rawDrillDrain, chargedDrain, calculateActualLoss,
+  conditionReduction, rawDrillDrain, chargedDrainRange,
   sessionDrain, MIN_CONDITION_DRAIN_PCT,
 } from '../src/utils/conditionEngine';
-import { findSubFloorBundle } from '../src/logic/zeroDrainEngine';
+import { findSubFloorBundle, bundlingStatus } from '../src/logic/zeroDrainEngine';
 import { isBundlingAvailable, validateZeroDrain } from '../src/logic/zeroDrainProtocol';
 import { SurgeState, SURGE_STATE_SEASON_START, SurgeLevel } from '../src/types/resources';
 
@@ -46,60 +46,76 @@ close(rawDrillDrain(0.75, 'Very Hard', surge(true, 4)), 1.875, 'VH, active L4  =
 ok(Math.abs(rawDrillDrain(0.75, 'Very Easy', surge(true, 4)) - 0.74625) > 0.1,
   'reduction is a fraction, not a percentage (no /100 bug)');
 
-console.log('\n[3] Minimum charged drain — the patched loophole');
-close(MIN_CONDITION_DRAIN_PCT, 1.0, 'floor is 1.00%');
-close(calculateActualLoss(0.75, 'Very Easy', SURGE_STATE_SEASON_START), 1.00,
-  'observed: single VE at season start is charged -1.00%');
-close(calculateActualLoss(0.75, 'Very Easy', surge(true, 4)), 1.00,
-  'a cheaper 0.375% drill still costs 1.00% — sub-floor is penalised, not rewarded');
-close(calculateActualLoss(0.75, 'Very Hard', SURGE_STATE_SEASON_START), 3.00,
-  'Very Hard raw 3.75% is charged 3.00% — the fraction is truncated, not paid');
-close(calculateActualLoss(0.75, 'Medium', SURGE_STATE_SEASON_START), 2.00,
-  'observed: Medium raw 2.25% is charged -2.00%');
-close(calculateActualLoss(0.75, 'Easy', SURGE_STATE_SEASON_START), 1.00,
-  'observed: Easy raw 1.50% is charged -1.00%');
-ok(calculateActualLoss(0.75, 'Easy', SURGE_STATE_SEASON_START)
-   === calculateActualLoss(0.75, 'Very Easy', SURGE_STATE_SEASON_START),
-  'Easy and Very Easy cost the SAME charged 1.00% — Very Easy is strictly dominated');
-close(chargedDrain(0), 0, 'no drills = no charge');
-ok(calculateActualLoss(0.75, 'Very Easy', surge(true, 4)) > 0, 'no drill is ever free');
+console.log('\n[3] Charged drain is a RANGE, not a point');
+{
+  // Observed: the same 3-drill preset (raw 6.00) charged 5, 6 and 7 across n=19.
+  const r = chargedDrainRange(6.00, 3);
+  close(r.raw, 6.00, 'raw is deterministic and matches the pre-confirm dialog');
+  close(r.expected, 6, 'expected charge is the centre, 6% — the observed mean was 6.16');
+  ok(r.low <= 5 && r.high >= 7, 'envelope covers every observed value 5-7',
+    `got ${r.low}-${r.high}`);
+  ok(r.confidence === 'observed-envelope', 'envelope is labelled as observed, not derived');
 
-console.log('\n[4] Zero-drain is retired, not merely renamed');
+  // Minimum still holds: nothing is ever free.
+  const tiny = chargedDrainRange(0.375, 1);
+  ok(tiny.low >= MIN_CONDITION_DRAIN_PCT, 'sub-1% raw never charges below the 1% minimum');
+  ok(tiny.expected >= MIN_CONDITION_DRAIN_PCT, 'and its expectation is the minimum, not the raw');
+  close(chargedDrainRange(0, 0).expected, 0, 'no drills = no charge');
+
+  // The envelope widens with DRILL COUNT, not with raw. Two Very Easy drills and
+  // one Easy drill have the same raw 1.50 but were not observed to behave alike.
+  const oneDrill = chargedDrainRange(1.50, 1);
+  const twoDrills = chargedDrainRange(1.50, 2);
+  ok(twoDrills.high > oneDrill.high, 'same raw, more drills = wider envelope',
+    `1 drill ${oneDrill.low}-${oneDrill.high}, 2 drills ${twoDrills.low}-${twoDrills.high}`);
+  close(twoDrills.expected, oneDrill.expected, 'but the same expectation — raw is unchanged');
+}
+
+console.log('\n[4] Raw is still deterministic and surge-driven');
+close(rawDrillDrain(0.75, 'Medium', SURGE_STATE_SEASON_START), 2.25,
+  'observed: lone Medium pre-confirm reads -2.25%');
+{
+  const three = sessionDrain([
+    { baseLoss: 0.75, intensity: 'Easy' },
+    { baseLoss: 0.75, intensity: 'Medium' },
+    { baseLoss: 0.75, intensity: 'Medium' },
+  ], SURGE_STATE_SEASON_START);
+  close(three.raw, 6.00, 'observed: Easy+Medium+Medium pre-confirm reads -6%');
+  ok(three.charge.low <= 5 && three.charge.high >= 7,
+    'its charge envelope spans the observed 5-7%', `got ${three.charge.low}-${three.charge.high}`);
+
+  // The tightest raw confirmation available: six drills across three intensities.
+  // 1.5 + 2.25 + 2.25 + 1.5 + 2.25 + 3.0 = 12.75, matching the dialog exactly.
+  // This pins baseLoss=0.75 and the Easy/Medium/Hard multipliers 2/3/4 together.
+  const six = sessionDrain([
+    { baseLoss: 0.75, intensity: 'Easy' },
+    { baseLoss: 0.75, intensity: 'Medium' },
+    { baseLoss: 0.75, intensity: 'Medium' },
+    { baseLoss: 0.75, intensity: 'Easy' },
+    { baseLoss: 0.75, intensity: 'Medium' },
+    { baseLoss: 0.75, intensity: 'Hard' },
+  ], SURGE_STATE_SEASON_START);
+  close(six.raw, 12.75, 'observed: 6-drill preset pre-confirm reads -12.75%');
+  ok(six.charge.low <= 10 && six.charge.high >= 14,
+    'its charge envelope spans the observed 10-14%', `got ${six.charge.low}-${six.charge.high}`);
+  // Regression guard for the model this replaced: per-drill floor/ceil dithering
+  // predicts [11..16] here, which excludes the observed -10.00% row.
+  ok(six.charge.low < 11, 'the falsified per-drill floor/ceil band (11-16) is not what we ship',
+    `low is ${six.charge.low}`);
+}
+
+console.log('\n[5] Zero-drain retired; bundling withheld rather than guessed');
 ok(validateZeroDrain() === false, 'validateZeroDrain always false');
-ok(findSubFloorBundle(SURGE_STATE_SEASON_START) === null, 'no bundle at season start');
-for (const lvl of [0, 1, 2, 3] as SurgeLevel[]) {
-  ok(findSubFloorBundle(surge(true, lvl)) === null, `no bundle at active L${lvl}`);
-}
-ok(isBundlingAvailable(surge(true, 4)), 'bundling available only at active L4');
-
-console.log('\n[5] Bundling reports BOTH floor readings, never one');
 {
-  const b = findSubFloorBundle(surge(true, 4));
-  ok(b !== null && b.intensities.length === 2, '2 Very Easy drills fit under the floor at L4',
-    `got ${b ? b.intensities.length : 'null'}`);
-  if (b) {
-    close(b.rawTotal, 0.75, 'raw total 0.750% < 1.00%');
-    close(b.chargedPerSession, 1.00, 'if the floor is per session: 1.00%');
-    close(b.chargedPerDrill, 2.00, 'if the floor is per drill: 2.00%');
-    ok(b.chargedPerSession !== b.chargedPerDrill,
-      'the two readings differ — caller must treat this as unsettled');
+  const st = bundlingStatus();
+  ok(st.available === false, 'bundling reports unavailable');
+  ok(/not a deterministic function/.test(st.reason), 'and says why, in the reason string');
+  for (const lvl of [0, 1, 2, 3, 4] as SurgeLevel[]) {
+    ok(findSubFloorBundle(surge(true, lvl)) === null,
+      `no bundle recommended at active L${lvl} — premise unproven`);
   }
-}
-
-console.log('\n[6] sessionDrain flags the unresolved aggregation rule');
-{
-  const two = [
-    { baseLoss: 0.75, intensity: 'Very Easy' },
-    { baseLoss: 0.75, intensity: 'Very Easy' },
-  ];
-  const off = sessionDrain(two, SURGE_STATE_SEASON_START);
-  close(off.raw, 1.50, 'season start, 2x VE: raw 1.500%');
-  close(off.chargedPerSession, 1.00, '  per-session reading 1.00% (floor of 1.500)');
-  close(off.chargedPerDrill, 2.00, '  per-drill reading 2.00%');
-  ok(off.floorRule === 'ambiguous', '  flagged ambiguous — this is the experiment to run');
-
-  const one = sessionDrain([{ baseLoss: 0.75, intensity: 'Very Hard' }], SURGE_STATE_SEASON_START);
-  ok(one.floorRule === 'settled', 'single drill: both readings agree, settled');
+  ok(isBundlingAvailable(surge(true, 4)) === false,
+    'not even at L4: the deterministic premise it relied on is disproved');
 }
 
 console.log('\n' + '═'.repeat(60));

@@ -14,7 +14,7 @@ import { calculateFixtureCycles, calculateRestorersBridge } from '../src/logic/f
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, validateRoleAdjacency } from '../src/utils/roleWeights';
 import { DRILL_LIST } from '../src/database/drillDatabase';
 import gameProfileJson from '../profiles/game_2025.json';
-import { GameProfile, DrillSession, TalentTier } from '../src/types/resources';
+import { GameProfile, DrillSession, TalentTier, TierName } from '../src/types/resources';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
@@ -55,7 +55,7 @@ function section(title: string) {
 function player(overrides: {
   role?: string[];
   overall?: number;
-  tier?: string;
+  tier?: TierName;
   age?: number;
   stats?: Record<string, number>;
 }) {
@@ -67,6 +67,10 @@ function player(overrides: {
     tier: overrides.tier ?? 'T0',
     age: overrides.age ?? 18,
     stats: overrides.stats ?? {},
+    // Present only to satisfy the Player type. projectOvr takes talent as its
+    // own argument, so this field is not what these tests are varying.
+    talent: 'Normal' as const,
+    isMutantCandidate: false,
   };
 }
 
@@ -251,10 +255,55 @@ section('6. Grey stats gain at greyWeightMultiplier fraction of white stat XP');
 section('7. Role weight classification');
 
 {
-  // DMC confirmed: 10 white + 5 grey = 15 total
+  // ── Card-anchored white/grey truth ────────────────────────────────────────
+  // Read off four player cards by sampling the coloured key-attribute bar at the
+  // left edge of each stat row (2026-09-07). 60 individual classifications; the
+  // role table must reproduce every one. This is the non-circular check on
+  // roleWeights — it comes from the game's own rendering, not from our tables.
+  //
+  // Darren Moore is listed as DC/DMC only: his third chip (MC) is a LEARNING role
+  // at 2/50, and a learning role confers no white stats until it completes. He is
+  // the observation that establishes that rule.
+  const CARD_TRUTH: Array<[string, string[], string[]]> = [
+    ['King Alfie DC/DL/DMC', ['DC', 'DL', 'DMC'],
+      ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'CROSSING',
+       'FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY']],
+    ['Darren Moore DC/DMC (MC learning 2/50)', ['DC', 'DMC'],
+      ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING',
+       'FITNESS', 'STRENGTH', 'AGGRESSION', 'CREATIVITY']],
+    ['SD Faye DMC/MC/DC', ['DMC', 'MC', 'DC'],
+      ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'DRIBBLING',
+       'SHOOTING', 'FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY']],
+    ['Cieran Morgan DMC/MC/AMC', ['DMC', 'MC', 'AMC'],
+      ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'DRIBBLING',
+       'SHOOTING', 'FINISHING', 'FITNESS', 'STRENGTH', 'AGGRESSION', 'SPEED', 'CREATIVITY']],
+  ];
+  for (const [label, roles, cardWhite] of CARD_TRUTH) {
+    const code = getWhiteStatKeys(roles);
+    const missing = cardWhite.filter(x => !code.includes(x));
+    const extra   = code.filter(x => !cardWhite.includes(x));
+    assert(`${label}: ${cardWhite.length} white, matches the card exactly`,
+      missing.length === 0 && extra.length === 0);
+  }
+  // Faye and Moore share the DC/DMC/MC role set; the ONLY difference is that
+  // Moore's MC is incomplete. Completing it must add exactly DRIBBLING, SHOOTING,
+  // SPEED — the three stats the app should be telling him he is missing.
+  {
+    const incomplete = getWhiteStatKeys(['DC', 'DMC']);
+    const complete   = getWhiteStatKeys(['DC', 'DMC', 'MC']);
+    const unlocked   = complete.filter(x => !incomplete.includes(x)).sort();
+    assert('completing a learning MC unlocks exactly DRIBBLING, SHOOTING, SPEED',
+      unlocked.join(',') === 'DRIBBLING,SHOOTING,SPEED');
+    assert('and nothing already white is lost',
+      incomplete.every(x => complete.includes(x)));
+  }
+
+  // DMC confirmed: 9 white + 6 grey = 15 total.
+  // Was 10 white until Sprint 31 moved STRENGTH to secondary — the game shows it
+  // grey for a pure DMC. This assertion tracks that correction, not a regression.
   const dmcWhite = getWhiteStatKeys(['DMC']);
   const dmcAll   = getAllStatKeys(['DMC']);
-  assert(`DMC white stat count = 10`, dmcWhite.length === 10);
+  assert(`DMC white stat count = 9 (STRENGTH grey since Sprint 31)`, dmcWhite.length === 9);
   assert(`DMC total stat count = 15`, dmcAll.length === 15);
   assert('TACKLING is white for DMC', isWhiteStat(['DMC'], 'TACKLING'));
   assert('SPEED is grey for DMC',    !isWhiteStat(['DMC'], 'SPEED'));

@@ -45,6 +45,81 @@ If a change makes it fail, the change is wrong — do not regenerate it.
 
 ---
 
+### Condition Model v2 — the 1% minimum (Sprint 37)
+
+The 0% drain loophole was patched. Every session is charged a **1% minimum**, so
+chasing sub-threshold drills is now a penalty, not an exploit: a 0.375% drill costs
+the same 1% as a 0.750% one. `minimumConditionDrainPct` in the profile.
+
+**Raw is exact. Charged is not.** Keep the two separate — `src/utils/conditionEngine.ts`.
+
+- **RAW** = `baseLoss × intensityMult × (1 − surgeReduction)`, summed over drills.
+  It matches the game's pre-confirm dialog exactly. Confirmed at three sizes:
+  lone Medium −2.25%, Easy+Medium+Medium −6.00%, and a 6-drill mixed preset
+  −12.75% (`1.5+2.25+2.25+1.5+2.25+3.0`), which pins `baseLoss=0.75` and the
+  Easy/Medium/Hard multipliers 2/3/4 simultaneously.
+- **CHARGED** is a distribution. The same repeated preset produced 5/6/7 (n=19,
+  raw 6.00) and 10–14 (n=9, raw 12.75). Per-player charge is an integer; the
+  displayed figure is the **mean across players**, which is why the old −10.63%
+  row (404/38) never fitted any single-player rule.
+
+Dispersion scales with **drill count**, not raw. The committed envelope is
+±0.5 per drill about raw, rounded outward, clamped at the 1% minimum — an
+**outer bound** containing every observation, deliberately wider than the data.
+
+**Models already falsified — do not re-propose:** `max(raw,1)`; `max(1,floor(raw))`;
+per-drill floor/ceil dithering (predicts 11–16 for the 6-drill preset, but a
+−10.00% row exists). Two claims derived from the dead truncation rule are
+**retracted**: "Very Easy is strictly dominated by Easy" (true only below the 1%
+minimum) and the "2 Very Easy drills" discriminating experiment.
+
+Bundling advice is **withheld** (`bundlingStatus()`), because it assumed a
+deterministic charge. What drives the spread is still unknown — candidates are
+current condition and drill variety. Never report a point estimate as the cost.
+
+**Fan Club surges** (`src/logic/surges.ts`, six surges in the profile): two
+independent axes — `active` is loyalty-gated and resets each season, `level` is
+chant-driven. A banked level confers **nothing** while inactive. Only
+`perfectConditions` is consumed by the engine. Campus-ball chant probabilities are
+not yet observed; the slot is `chantOdds: {kind:"unobserved"}` — fill it, don't guess it.
+
+---
+
+### Learning Roles Confer No White Stats (Sprint 37)
+
+A role chip that is dark with an `X/50` counter is **learning** and contributes
+**zero** white stats until it completes. Established roles only.
+
+Established from four cards (see `role_whiteness_card_evidence` in
+`calibration_data.json`; 60 white/grey classifications, all reproduced by
+`roleWeights.ts` — **the role table needed no change**):
+
+| Player | Roles | White | Note |
+|---|---|---|---|
+| King Alfie | DC/DL/DMC | 12 | CROSSING white via DL |
+| Darren Moore | DC/DMC + **MC learning 2/50** | 10 | = the DC+DMC union exactly |
+| SD Faye | DMC/MC/DC | 13 | same role set as Moore, all established |
+| Cieran Morgan | DMC/MC/AMC | 14 | FINISHING white via AMC |
+
+Moore vs Faye is the controlled pair. **Cost of Moore's incomplete MC:** DRIBBLING,
+SHOOTING and SPEED are grey purely because MC sits at 2/50. Completing it turns all
+three white, each immediately taking the full +50 T3 cumulative tier bonus
+(134→184, 139→189, 138→188): **+150 stat points and +10 OVR instantly**, confirmed
+two ways (`floor(3042/15)−floor(2892/15)` and `floor(50×13/15)−floor(50×10/15)`),
+plus they stop costing 2× XP thereafter.
+
+Plumbing is already correct: `playerCardParse.ts` sets
+`roles = glyph.establishedRoles ?? base.roles`. The ML Kit text list **does** include
+the learning chip (it sits inside the `Roles:` Y-band), so it is the fallback only —
+if the glyph reader does not run, `player.role` will over-count. Sprint 31's open
+question "MC: SHOOTING essential?" is **confirmed essential**.
+
+⚠️ The `garry_mccluskey` record says DC/DMC/MC = 12 white with SHOOTING grey, which
+contradicts Faye. Most likely one of his roles was learning at the time. The card
+evidence wins; re-scan his card before using that record.
+
+---
+
 ### Formal Verification Layer (added Sprint 35, extended Sprint 36)
 
 A three-layer proof stack (Z3 + Crosshair + Dafny) + Hypothesis differential tests are on `main`. All gate every PR to main via CI.

@@ -9,21 +9,22 @@ const profile = gameProfileJson as unknown as GameProfile;
  * Sub-floor bundle finder (replaces the old Zero-Drain Engine).
  *
  * There are no zero-drain drills any more — the game patched that loophole and
- * charges a 1% minimum instead. The surviving optimisation is different: because
- * the floor is a MINIMUM per charge, several cheap drills whose RAW total still
- * sits under the floor can share one charge.
+ * charges a 1% minimum instead.
  *
- * IMPORTANT: this only pays if the floor applies to the session total rather than
- * per drill, which is NOT yet established from game observation. Callers get the
- * bundle plus both cost readings and must present it as conditional until a
- * multi-drill session settles the rule. See conditionEngine.sessionDrain.
+ * THIS CURRENTLY ABSTAINS, DELIBERATELY. The bundling idea assumed the charge is
+ * a deterministic function of raw drain, so that packing several drills under one
+ * threshold would buy a single cheap charge. The training history disproves that
+ * premise: the same 3-drill preset (raw 6.00) was charged 5%, 6% and 7% across 19
+ * runs. Until the driver of that spread is identified, any bundle recommendation
+ * would be advice built on a model we know to be incomplete.
+ *
+ * findSubFloorBundle therefore returns null in every state and records why, rather
+ * than returning a plausible-looking bundle. See conditionEngine for the evidence.
  */
 export interface SubFloorBundle {
   intensities: Array<keyof typeof DRILL_BASE_COSTS>;
   rawTotal: number;
-  /** Cost if the floor applies once to the session. */
   chargedPerSession: number;
-  /** Cost if the floor applies to each drill. */
   chargedPerDrill: number;
 }
 
@@ -36,7 +37,24 @@ const INTENSITY_NAME: Record<keyof typeof DRILL_BASE_COSTS, string> = {
  * Returns null when no combination does — which is the case at every Perfect
  * Conditions state except active at level 4.
  */
+export function bundlingStatus(): { available: false; reason: string } {
+  return {
+    available: false,
+    reason:
+      'Charged condition is not a deterministic function of raw drain — the same ' +
+      '3-drill preset (raw 6.00) was charged 5-7% across 19 observed runs. ' +
+      'Bundling advice is withheld until the driver of that spread is identified.',
+  };
+}
+
 export function findSubFloorBundle(
+  _surge: SurgeState = SURGE_STATE_SEASON_START,
+  _maxDrills = 6
+): SubFloorBundle | null {
+  return null; // see bundlingStatus()
+}
+
+function findSubFloorBundleUnused(
   surge: SurgeState = SURGE_STATE_SEASON_START,
   maxDrills = 6
 ): SubFloorBundle | null {

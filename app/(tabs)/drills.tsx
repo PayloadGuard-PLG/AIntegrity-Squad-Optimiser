@@ -117,15 +117,16 @@ export default function DrillsScreen() {
     setDrillProjection(null);
   }
 
-  // Per-cycle condition cost. Reported as the per-drill reading, which is the
-  // conservative one: if the floor turns out to apply per session instead, the
-  // real cost is lower, never higher.
-  function calcCondPerCycle(drillNames: string[]): number {
+  // Per-cycle condition cost. RAW is exact and is what the game's own
+  // pre-confirm dialog shows; the CHARGE is not deterministic (see
+  // conditionEngine), so the envelope is shown alongside rather than a single
+  // number that will not be what the player is actually billed.
+  function calcCondPerCycle(drillNames: string[]) {
     const drills = drillNames
       .map(name => DRILL_LIST.find(d => d.name === name))
       .filter((d): d is NonNullable<typeof d> => !!d)
       .map(d => ({ baseLoss: d.baseLoss, intensity: d.intensity }));
-    return sessionDrain(drills, surge).chargedPerDrill;
+    return sessionDrain(drills, surge);
   }
 
   function projectDrillPlan() {
@@ -371,7 +372,9 @@ export default function DrillsScreen() {
                     {/* Name row */}
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                       <Text style={{ flex: 1, fontFamily: theme.mono, fontSize: 11, letterSpacing: 1, color: theme.ink, fontWeight: '700' }}>{preset.name}</Text>
-                      <MonoLabel size={8} color={theme.inkGhost}>{condPerCycle.toFixed(2)}%/CYCLE</MonoLabel>
+                      <MonoLabel size={8} color={theme.inkGhost}>
+                        {condPerCycle.raw.toFixed(2)}%/CYCLE · {condPerCycle.charge.low}–{condPerCycle.charge.high} BILLED
+                      </MonoLabel>
                       <Pressable onPress={() => deletePreset(preset.id)} style={{ paddingHorizontal: 6, paddingVertical: 2 }}>
                         <MonoLabel size={9} color={theme.neg}>✕</MonoLabel>
                       </Pressable>

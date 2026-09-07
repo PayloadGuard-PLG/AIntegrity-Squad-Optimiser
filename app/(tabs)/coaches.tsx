@@ -66,6 +66,10 @@ export default function CoachesScreen() {
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
 
+  // Declared before the effects below: their dependency arrays read player?.id
+  // during render, so a const declared after them is a temporal-dead-zone throw.
+  const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
+
   useEffect(() => {
     if (incomingPlayerId) manager.setSelectedPlayerId(incomingPlayerId);
   }, []);
@@ -82,8 +86,6 @@ export default function CoachesScreen() {
     else setResult(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions]);
-
-  const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
 
   const allStats = useMemo(() => {
     if (!player) return OUTFIELD_STATS as readonly string[];
