@@ -248,6 +248,19 @@ export function tierOvrContrib(tier: string, whiteStatCount: number): number {
   return Math.floor((bonus * whiteStatCount) / TOTAL_ATTRS);
 }
 
+// Unfloored tier contribution.
+//
+// tierOvrContrib floors, which is right for the integer the game displays and
+// for the training-lock comparison. It is WRONG as a subtrahend when recovering
+// exact fractional BASE OVR, because the floor residue lands squarely in the
+// fraction: T3 (+50) over 10 white stats is 33.333…, floored to 33, so a base of
+// 159.8 recovers as 160.133 and reads a star band it has not reached. Use this
+// wherever the fraction decides something — star-band position above all.
+export function tierOvrContribExact(tier: string, whiteStatCount: number): number {
+  const bonus = TIER_ADDITIONS[tier] ?? 0;
+  return (bonus * whiteStatCount) / TOTAL_ATTRS;
+}
+
 // ─── STAGE 8: TRAINING LOCK ──────────────────────────────────────────────────
 // Base OVR = total OVR − tier OVR contribution.
 // Training locks when base OVR ≥ MAX_BASE_OVR (180).

@@ -392,7 +392,7 @@ test('the drill level / intensity conflation is reported as unresolved, not mode
 
 import { projectDrillAction as drillAction } from '../src/logic/recommendation';
 import { applyDrillSessionsToStats } from '../src/logic/ovrProjector';
-import { starBandIndex, tierOvrContrib } from '../src/engine/engineMath';
+import { starBandIndex, tierOvrContrib, tierOvrContribExact } from '../src/engine/engineMath';
 import { getWhiteStatKeys } from '../src/utils/roleWeights';
 
 const flatStats = (v: number) => Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, v]));
@@ -536,4 +536,42 @@ test('a two-preset Drills chain agrees with the projectOvr path across a thresho
   }
   assert.deepEqual(stats, viaPlan.updatedStats,
     'the Drills chain and the plan path must produce identical progression');
+});
+
+test('a fractional tier contribution must not be floored into the band position', () => {
+  // DC+DMC has 10 white stats; T3 adds +50 each, so the tier's OVR contribution
+  // is 500/15 = 33.333…  Flooring it to 33 pushes the recovered base OVR up by
+  // 0.333 — straight into the fraction the whole absolute-band model depends on.
+  // A player at a genuine base of 159.8 then reads as 160.13 and is charged the
+  // harder rate before reaching the boundary at all.
+  const whites = getWhiteStatKeys(['DC', 'DMC']);
+  assert.equal(whites.length, 10);
+  const exact = tierOvrContribExact('T3', whites.length);
+  assert.equal(exact, 500 / 15);
+  assert.ok(!Number.isInteger(exact), 'this fixture is only meaningful with a fractional contribution');
+  assert.equal(tierOvrContrib('T3', whites.length), 33);   // the display/lock value, unchanged
+
+  // Build a tiered player whose genuine base OVR is exactly 159.8.
+  for (const [genuineBase, expectedBand] of [[159.6, 7], [159.8, 7]] as const) {
+    const target = genuineBase + exact;                     // required exact TOTAL ovr
+    const stats = Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, target]));
+    const subject = player({ stats, tier: 'T3', role: ['DC', 'DMC'], overall: Math.floor(target) });
+
+    const result = projectCoachAction({ player: subject, stats: STATS, sessions: 1, profile });
+    assert.equal(result.starBand.index, expectedBand,
+      `base ${genuineBase} sits in band ${expectedBand}, not ${result.starBand.index}`);
+    // The distance must be exact, not off by the floor residue.
+    assert.ok(Math.abs(result.starBand.ovrToNextThreshold - (160 - genuineBase)) < 1e-9,
+      `base ${genuineBase} is ${(160 - genuineBase).toFixed(2)} from the boundary, ` +
+      `reported ${result.starBand.ovrToNextThreshold}`);
+  }
+
+  // The untiered control lands identically — tier changes cost, never position.
+  const plainStats = Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, 159.8]));
+  const plain = projectCoachAction({
+    player: player({ stats: plainStats, tier: 'T0', role: ['DC', 'DMC'], overall: 159 }),
+    stats: STATS, sessions: 1, profile,
+  });
+  assert.equal(plain.starBand.index, 7);
+  assert.ok(Math.abs(plain.starBand.ovrToNextThreshold - 0.2) < 1e-9);
 });

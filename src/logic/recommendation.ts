@@ -32,7 +32,7 @@
 
 import {
   coachBudgetPerStat, drillBudgetPerStat, statGainFromBudget, combinedMultiplier,
-  starBandIndex, tierOvrContrib, paddedStatSum, exactOvrFromSum, baseOvrFromTotal,
+  starBandIndex, tierOvrContribExact, paddedStatSum, exactOvrFromSum, baseOvrFromTotal,
   isTrainingLocked,
 } from '../engine/engineMath';
 import { STAR_OVR_THRESHOLD } from '../engine/engineConstants';
@@ -200,12 +200,13 @@ function starReasons(band: StarBandPosition, starsCrossed: number): Recommendati
   return out;
 }
 
-/** Band position for a training-locked player: reported, but no run happens. */
-function lockedBand(player: Player, baseOvr: number): StarBandPosition {
-  const index = starBandIndex(baseOvr);
+/** Band position for a training-locked player: reported, but no run happens.
+ *  Takes the EXACT base OVR — a floored one would misreport the distance. */
+function lockedBand(player: Player, exactBaseOvr: number): StarBandPosition {
+  const index = starBandIndex(exactBaseOvr);
   return {
     index,
-    ovrToNextThreshold: (index + 1) * STAR_OVR_THRESHOLD - baseOvr,
+    ovrToNextThreshold: (index + 1) * STAR_OVR_THRESHOLD - exactBaseOvr,
     positionEvidence: positionEvidenceOf(player.stats),
   };
 }
@@ -215,9 +216,13 @@ function evaluateLock(player: Player, profile: GameProfile) {
   const sum = paddedStatSum(player.stats, player.overall);
   const totalOvr = sum === null ? player.overall : Math.floor(exactOvrFromSum(sum));
   const whiteCount = getWhiteStatKeys(player.role).length;
+  // The lock compares the integer the game displays — floored contribution.
   const baseOvr = baseOvrFromTotal(totalOvr, player.tier, whiteCount);
+  // Band position needs the fraction, so the contribution must NOT be floored.
+  const exactBaseOvr = (sum === null ? player.overall : exactOvrFromSum(sum))
+    - tierOvrContribExact(player.tier, whiteCount);
   void profile;
-  return { totalOvr, baseOvr, locked: isTrainingLocked(baseOvr) };
+  return { totalOvr, baseOvr, exactBaseOvr, locked: isTrainingLocked(baseOvr) };
 }
 
 function ovrView(stats: Record<string, number>, knownOverall: number, ovrBefore: number) {
@@ -323,7 +328,9 @@ function runTraining(params: {
   slots: TrainingSlot[];
   baseStats: Record<string, number>;
   knownOverall: number;
-  /** Subtracted from total OVR to get star-quality (base) OVR. */
+  /** Subtracted from total OVR to get star-quality (base) OVR. MUST be the
+   *  unfloored contribution (tierOvrContribExact): a floored one puts its
+   *  residue straight into the fraction that decides the boundary. */
   tierOvrOffset: number;
   age: number;
   talent: TalentTier;
@@ -447,11 +454,11 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
   const resources: ResourceRequirement[] = [
     { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
   ];
-  const { baseOvr, totalOvr, locked } = evaluateLock(player, profile);
+  const { baseOvr, totalOvr, exactBaseOvr, locked } = evaluateLock(player, profile);
   const maxBaseOvr = profile.maxBaseOvr ?? 180;
 
   if (locked) {
-    return lockedResult(action, player, totalOvr, lockedBand(player, baseOvr), null, 'not-applicable', resources, talent, baseOvr, maxBaseOvr);
+    return lockedResult(action, player, totalOvr, lockedBand(player, exactBaseOvr), null, 'not-applicable', resources, talent, baseOvr, maxBaseOvr);
   }
 
   const statValues: Record<string, number> = {};
@@ -472,7 +479,7 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
     age: player.age,
     talent: talent.applied,
     statCap: profile.statCap,
-    tierOvrOffset: tierOvrContrib(player.tier, getWhiteStatKeys(player.role).length),
+    tierOvrOffset: tierOvrContribExact(player.tier, getWhiteStatKeys(player.role).length),
   });
 
   const starBand: StarBandPosition = {
@@ -555,10 +562,10 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     : null;
   const conditionBasis: ConditionBasis = condition ? 'per-cycle' : 'not-applicable';
 
-  const { baseOvr, totalOvr, locked } = evaluateLock(player, profile);
+  const { baseOvr, totalOvr, exactBaseOvr, locked } = evaluateLock(player, profile);
   const maxBaseOvr = profile.maxBaseOvr ?? 180;
   if (locked) {
-    return lockedResult(action, player, totalOvr, lockedBand(player, baseOvr), condition, conditionBasis, resources, talent, baseOvr, maxBaseOvr);
+    return lockedResult(action, player, totalOvr, lockedBand(player, exactBaseOvr), condition, conditionBasis, resources, talent, baseOvr, maxBaseOvr);
   }
 
   // One slot per stat per drill. Star decay is evaluated across the whole run,
@@ -587,7 +594,7 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     age: player.age,
     talent: talent.applied,
     statCap: profile.statCap,
-    tierOvrOffset: tierOvrContrib(player.tier, getWhiteStatKeys(player.role).length),
+    tierOvrOffset: tierOvrContribExact(player.tier, getWhiteStatKeys(player.role).length),
   });
 
   const starBand: StarBandPosition = {

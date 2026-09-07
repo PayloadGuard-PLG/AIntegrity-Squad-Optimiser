@@ -577,13 +577,14 @@ From the player's **current stats**, exactly:
 
 ```
 exactTotal = exactOvrFromSum(paddedStatSum(stats, overall))
-baseOvr    = exactTotal − tierOvrContrib(tier, whiteStatCount)
+baseOvr    = exactTotal − tierOvrContribExact(tier, whiteStatCount)   // UNFLOORED
 band       = starBandIndex(baseOvr)
 ```
 
+The contribution **must not be floored here** — see §18.
+
 Base, not total: stars are star-quality, which caps at 180; tier bonuses push
-total OVR past that without being star progress. `tierOvrContrib` is an integer,
-so subtracting it preserves the fraction that decides a near crossing.
+total OVR past that without being star progress.
 
 The decay **exponent** still counts boundaries crossed *within* the run and so
 starts at 0 — only the *distance to the first boundary* comes from the absolute
@@ -639,3 +640,39 @@ typecheck · logic · engine 49 · projection 53 · seam 27 · scanner 60 + 16 �
 condition 33 · Z3 + CrossHair + TS↔Python differential 24, no skips. No
 calibrated constant, cost model, frozen golden or glyph corpus touched. The
 drill level/intensity calibration gap of §16.3 is untouched and still open.
+
+---
+
+## 18. The tier contribution must be unfloored for band position
+
+`78e683c` subtracted `tierOvrContrib(tier, whiteCount)` — which floors — from an
+exact total OVR and called the result an exact base OVR. The floor residue lands
+squarely in the fraction the absolute-band model exists to protect.
+
+DC+DMC carries 10 white stats; T3 adds +50 each, so the true contribution is
+`500 / 15 = 33.333…`, floored to `33`. Every tiered player's base OVR was
+therefore overstated by the residue:
+
+| Genuine base | Floored offset → | Band | Exact offset → | Band |
+|---|---|---|---|---|
+| 159.6 | 159.933 | 7 | 159.600 | 7 |
+| 159.8 | **160.133** | **8** | 159.800 | 7 |
+
+At 159.8 the run is charged the harder rate before reaching the boundary at all,
+and the reported distance to the threshold was 0.067 instead of 0.40.
+
+**Fix.** `engineMath.tierOvrContribExact` returns the unfloored value and is used
+for band position and for `lockedBand`'s reported distance. `tierOvrContrib`
+keeps flooring and keeps its two legitimate jobs: the integer the game displays,
+and the training-lock comparison — the lock is a threshold on the displayed
+integer, so its behaviour is deliberately unchanged.
+
+**Why the earlier test missed it.** §17.6's tier test asserted only that the
+tiered and untiered players share a band *index*. A 0.333 offset rarely moves the
+index, so the assertion passed while the distance was wrong. The new regression
+uses a white count that produces a fractional contribution and asserts **both**
+the index and the exact `ovrToNextThreshold`. Reverting only the source makes it
+fail on the distance, not on a missing symbol.
+
+Seam tests 27 → 28. No constant changed; `engine 49 · projection 53 · condition 33
+· Z3/CrossHair/differential 24` all still pass.
