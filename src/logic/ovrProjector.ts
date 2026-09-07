@@ -74,7 +74,6 @@ export function applyDrillSessionsToStats(
   const roleStats = new Set(getAllStatKeys(player.role));
   let updatedStats = { ...player.stats };
   let runningOvr = computeOvrFromStats(player, profile);
-  const ovrAtPlanStart = runningOvr;
 
   // `_talentTier` is advisory only. Talent policy is resolved once, inside
   // recommendation.resolveTalentPolicy — see projectOvr, which surfaces the
@@ -103,8 +102,6 @@ export function applyDrillSessionsToStats(
       drillNames: [session.drillName],
       cycles: session.sessionCount,
       profile,
-      // Stars accrue across the whole plan, not per drill session.
-      sessionOvrGainSoFar: runningOvr - ovrAtPlanStart,
       label: `${session.drillName} ×${session.sessionCount} sessions (${drill.intensity})`,
     });
     results.push(result);

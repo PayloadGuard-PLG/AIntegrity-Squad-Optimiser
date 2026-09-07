@@ -93,6 +93,18 @@ export function starsGainedFromOvrGain(sessionOvrGain: number): number {
   return Math.floor(sessionOvrGain / STAR_OVR_THRESHOLD);
 }
 
+// Which star band a BASE OVR sits in. Bands are absolute: boundaries fall at
+// fixed multiples of STAR_OVR_THRESHOLD, not at +threshold from wherever a
+// projection happened to start. A player already 19.4 into a band crosses the
+// next boundary after 0.6 OVR, not after another 20.
+//
+// Takes BASE OVR (star quality, which caps at MAX_BASE_OVR) — not total OVR.
+// Tier bonuses raise individual stat VALUES, and therefore what each further
+// point costs, but they are not star-quality progress.
+export function starBandIndex(baseOvr: number): number {
+  return Math.floor(baseOvr / STAR_OVR_THRESHOLD);
+}
+
 export function starDecayMultiplier(starsGained: number): number {
   return Math.pow(STAR_DECAY, starsGained);
 }

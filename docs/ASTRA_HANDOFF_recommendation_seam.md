@@ -451,11 +451,15 @@ progress harder. `starsGainedFromOvrGain`, `starDecayMultiplier` and
 **Restoring a constant starting value would not have been enough.** A long run
 crosses thresholds *during* the projection, so sampling the star count once at
 the start keeps the cheap pre-threshold rate for the whole action.
-`runTraining` in `recommendation.ts` therefore advances the budget at a fixed
-star count until the next threshold, recomputes, and charges the remainder at
-the harder rate. `statGainFromBudget` is monotonic in budget, so the crossing is
-located by deterministic bisection. **This is a numerical method, not a new
-formula** — every multiplier and gain still comes from the verified primitives.
+`runTraining` in `recommendation.ts` therefore advances the budget to the next
+threshold, increments the band, and charges the remainder at the harder rate.
+`statGainFromBudget` is monotonic in budget, so the crossing is located by
+deterministic bisection. **This is a numerical method, not a new formula** —
+every multiplier and gain still comes from the verified primitives.
+
+> ⚠️ The *origin* of the threshold described here was wrong in `99b2da8` and is
+> corrected in §17. Thresholds are absolute, not measured from the start of a
+> projection.
 
 OVR is tracked **exactly (unfloored)** throughout, because progress below the
 displayed integer is real internal state and a small gain can carry a player
@@ -549,3 +553,89 @@ The repository is scrubbed of source-game IP and this pass keeps it that way.
 The doubling item is referred to generically as a **match-form / teamplay boost**
 throughout the code and these notes; the source game's product name for it is
 not written anywhere in the repository.
+
+---
+
+## 17. Star thresholds are absolute (correction to §16.1)
+
+`99b2da8` measured the first threshold as +20 OVR **from the start of the
+projection**. That handed every projection a free cheap band regardless of where
+the player already stood.
+
+### 17.1 Threshold definition implemented
+
+A boundary sits at a fixed multiple of `STAR_OVR_THRESHOLD` (20) in the player's
+**base OVR**. `engineMath.starBandIndex(baseOvr) = floor(baseOvr / 20)`. A run
+crosses a boundary when that index increases.
+
+A player at base OVR 159.6 is **0.4** from the 160 boundary and crosses it on the
+next fraction of a point — not after another 20.
+
+### 17.2 How the starting band position is derived
+
+From the player's **current stats**, exactly:
+
+```
+exactTotal = exactOvrFromSum(paddedStatSum(stats, overall))
+baseOvr    = exactTotal − tierOvrContrib(tier, whiteStatCount)
+band       = starBandIndex(baseOvr)
+```
+
+Base, not total: stars are star-quality, which caps at 180; tier bonuses push
+total OVR past that without being star progress. `tierOvrContrib` is an integer,
+so subtracting it preserves the fraction that decides a near crossing.
+
+The decay **exponent** still counts boundaries crossed *within* the run and so
+starts at 0 — only the *distance to the first boundary* comes from the absolute
+position. A player deep in a band is not permanently penalised for the stars they
+already hold.
+
+### 17.3 How tier-added stats are treated in XP cost
+
+Untouched, and deliberately so. `statGainFromBudget` is called on the **actual
+current stat value including tier additions**. A tier-inflated 400 white stat is
+genuinely expensive and correctly projects +0 at a normal session count while
+lower stats on the same card still move. **Tier is subtracted only from the OVR
+used to read the band — never from a stat value used to price a point.** These
+are two different quantities and the code keeps them apart by construction:
+`tierOvrOffset` reaches only `exactBaseOvr`, never `applyFraction`.
+
+### 17.4 How unknown hidden fractional progress is represented
+
+`RecommendationResult.starBand` carries `positionEvidence`:
+
+- **`exact`** — the stats hold real sub-integer progress this engine computed, so
+  the position inside the band is known.
+- **`lower-bound`** — every stored value is an integer, i.e. it came from a card
+  scan. Real internal progress carries a fraction the card never shows, so
+  `ovrToNextThreshold` is an **upper** bound and the crossing may arrive sooner.
+
+The unobserved case emits a `training.hiddenProgress` reason graded
+`unavailable`. The missing fraction is **never assumed to be .0** and never
+reported as a known figure — the projection uses what it has and says the figure
+is a bound.
+
+### 17.5 How Drills chaining was corrected
+
+Absolute bands removed the need for the `sessionOvrGainSoFar` parameter
+introduced in `99b2da8`; it is deleted. Each action reads its band from the stats
+it is handed, so threading updated stats — which the Drills screen already did —
+carries the position automatically. A second preset can no longer restart
+mid-band, and the Drills chain now produces stats **identical** to
+`applyDrillSessionsToStats` / `projectOvr` for the same work (asserted).
+
+### 17.6 Regression tests added (19 → 27)
+
+Near-boundary crossing on the remaining gain; no decay safely inside a band;
+tier-inflated stats costed at full value; equal star position with different tier
+additions crossing the same boundary at different per-stat cost; fractional
+progress preserved; an unobserved fraction reported as a lower bound rather than
+a known zero; chained presets keeping band position; the Drills chain agreeing
+with the plan path across a threshold.
+
+### 17.7 Validation
+
+typecheck · logic · engine 49 · projection 53 · seam 27 · scanner 60 + 16 ·
+condition 33 · Z3 + CrossHair + TS↔Python differential 24, no skips. No
+calibrated constant, cost model, frozen golden or glyph corpus touched. The
+drill level/intensity calibration gap of §16.3 is untouched and still open.

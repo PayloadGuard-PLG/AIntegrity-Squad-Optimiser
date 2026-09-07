@@ -32,9 +32,10 @@
 
 import {
   coachBudgetPerStat, drillBudgetPerStat, statGainFromBudget, combinedMultiplier,
-  starsGainedFromOvrGain, paddedStatSum, exactOvrFromSum, baseOvrFromTotal,
+  starBandIndex, tierOvrContrib, paddedStatSum, exactOvrFromSum, baseOvrFromTotal,
   isTrainingLocked,
 } from '../engine/engineMath';
+import { STAR_OVR_THRESHOLD } from '../engine/engineConstants';
 import { isWhiteStat, getWhiteStatKeys } from '../utils/roleWeights';
 import { sessionDrain, SessionDrain } from '../utils/conditionEngine';
 import { DRILL_LIST } from '../database/drillDatabase';
@@ -95,6 +96,27 @@ export type RecommendedAction =
  */
 export type ConditionBasis = 'per-cycle' | 'not-applicable';
 
+/**
+ * Star-band position at the start of an action.
+ *
+ * `positionEvidence` is the honest part. Training progress below the displayed
+ * integer is real internal state, but a card scan only ever shows integers, so
+ * the true position inside the band is usually NOT observable. When it is not,
+ * `ovrToNextThreshold` is an UPPER bound: the real crossing may come sooner.
+ * It is never silently reported as a known figure, and the missing fraction is
+ * never assumed to be .0.
+ */
+export interface StarBandPosition {
+  /** Absolute band index of base (star-quality) OVR. */
+  index: number;
+  /** Base OVR remaining before the next threshold, from the values we hold. */
+  ovrToNextThreshold: number;
+  /** 'exact' when the stats carry real sub-integer progress this engine
+   *  computed; 'lower-bound' when every stored value is an integer, so the
+   *  hidden fraction is unknown and the crossing may arrive earlier. */
+  positionEvidence: 'exact' | 'lower-bound';
+}
+
 export interface RecommendationResult {
   action: RecommendedAction;
   statDeltas: StatDelta[];
@@ -107,6 +129,9 @@ export interface RecommendationResult {
   ovrAfterFloored: number;
   /** ovrAfterExact − ovrBefore. */
   ovrDelta: number;
+  /** Where the player sits in the absolute star-band structure at the start of
+   *  this action, and how far the next difficulty threshold is. */
+  starBand: StarBandPosition;
   condition: SessionDrain | null;
   conditionBasis: ConditionBasis;
   resources: ResourceRequirement[];
@@ -143,13 +168,46 @@ function talentReasons(policy: TalentPolicy): RecommendationReason[] {
   return out;
 }
 
-function starReasons(starsCrossed: number): RecommendationReason[] {
-  if (starsCrossed <= 0) return [];
-  return [{
-    code: 'training.starDecay',
-    detail: `Projection crosses ${starsCrossed} star threshold${starsCrossed > 1 ? 's' : ''}; training past each one is charged at the reduced rate.`,
-    evidence: 'calibrated',
-  }];
+/**
+ * Is the player's position inside the star band actually known?
+ *
+ * A card scan yields integers. Real internal progress carries a fraction the
+ * card never shows, so unless the stats we hold came from a projection this
+ * engine computed (and therefore carry that fraction), the position is a LOWER
+ * bound and the next threshold may arrive sooner than we can say. The missing
+ * fraction is never assumed to be zero.
+ */
+function positionEvidenceOf(stats: Record<string, number>): StarBandPosition['positionEvidence'] {
+  return Object.values(stats).some(v => !Number.isInteger(v)) ? 'exact' : 'lower-bound';
+}
+
+function starReasons(band: StarBandPosition, starsCrossed: number): RecommendationReason[] {
+  const out: RecommendationReason[] = [];
+  if (starsCrossed > 0) {
+    out.push({
+      code: 'training.starDecay',
+      detail: `Projection crosses ${starsCrossed} star threshold${starsCrossed > 1 ? 's' : ''}; training past each one is charged at the reduced rate.`,
+      evidence: 'calibrated',
+    });
+  }
+  if (band.positionEvidence === 'lower-bound') {
+    out.push({
+      code: 'training.hiddenProgress',
+      detail: `Sub-integer training progress is not visible on a player card, so the ${band.ovrToNextThreshold.toFixed(2)} base OVR shown to the next star threshold is an upper bound — the threshold may be reached sooner.`,
+      evidence: 'unavailable',
+    });
+  }
+  return out;
+}
+
+/** Band position for a training-locked player: reported, but no run happens. */
+function lockedBand(player: Player, baseOvr: number): StarBandPosition {
+  const index = starBandIndex(baseOvr);
+  return {
+    index,
+    ovrToNextThreshold: (index + 1) * STAR_OVR_THRESHOLD - baseOvr,
+    positionEvidence: positionEvidenceOf(player.stats),
+  };
 }
 
 /** Shared lock evaluation. Base OVR = total − the tier's OVR contribution. */
@@ -176,6 +234,7 @@ function lockedResult(
   action: RecommendedAction,
   player: Player,
   ovrBefore: number,
+  starBand: StarBandPosition,
   condition: SessionDrain | null,
   conditionBasis: ConditionBasis,
   resources: ResourceRequirement[],
@@ -191,6 +250,7 @@ function lockedResult(
     ovrAfterExact: ovrBefore,
     ovrAfterFloored: Math.floor(ovrBefore),
     ovrDelta: 0,
+    starBand,
     condition,
     conditionBasis,
     resources,
@@ -225,49 +285,73 @@ const MAX_STAR_SEGMENTS = 64;
 
 /**
  * Applies the slots' budgets, re-evaluating star decay as the projection crosses
- * star thresholds.
+ * star-band boundaries.
  *
- * Why this is not `starsGained: 0`, and not a single sample either:
- * `starDecayPerSession` and `sessionBudgetDecay` are two different mechanics.
+ * THRESHOLDS ARE ABSOLUTE. A band boundary sits at a fixed multiple of
+ * STAR_OVR_THRESHOLD in the player's BASE OVR (star quality). A player already
+ * 19.4 into a band crosses the next boundary after 0.6 OVR of progress, not
+ * after a fresh 20 from wherever this projection began. Deriving the first
+ * boundary from the start of the run — as an earlier version did — handed every
+ * projection a free cheap band.
+ *
+ * Two different quantities, deliberately kept apart:
+ *   BAND POSITION decides WHEN the next difficulty threshold is crossed, and is
+ *   read from BASE OVR (total minus the tier's OVR contribution).
+ *   STAT VALUES decide HOW EXPENSIVE each point is, and are the actual current
+ *   values INCLUDING tier additions — a tier-inflated 400 stat is genuinely
+ *   expensive. Tier is never stripped out of a cost input.
+ *
+ * `starDecayPerSession` and `sessionBudgetDecay` remain separate mechanics:
  * Sprint 34 established that geometric SESSION-BUDGET decay explains the ×20/×40
- * plateau; it said nothing about star decay, which applies when a player crosses
- * an OVR/star threshold and makes subsequent training harder. Sampling the star
- * count once at the start would let a long run cross a threshold and keep the
- * cheaper pre-threshold rate for the whole action.
+ * plateau, and said nothing about star decay, which makes training harder after
+ * a threshold is crossed.
+ *
+ * The decay exponent counts boundaries crossed WITHIN this run and so starts at
+ * zero; only the distance to the first boundary comes from the absolute position.
  *
  * The method is numerical, not a new formula: the budget is advanced at a fixed
- * star count until the next threshold is reached, the star count is recomputed,
- * and the remainder continues at the new rate. `statGainFromBudget` is monotonic
- * in budget, so the crossing point is found by bisection on the fraction of the
- * remaining budget. Every multiplier and every gain still comes from the
- * verified engine primitives.
+ * band until the next boundary is reached, the band is incremented, and the
+ * remainder continues at the harder rate. `statGainFromBudget` is monotonic in
+ * budget, so the crossing point is found by bisection. Every multiplier and every
+ * gain still comes from the verified engine primitives.
  *
  * OVR is tracked EXACTLY (unfloored) throughout: progress below the displayed
  * integer is real internal state, and a small gain can carry a player across a
- * threshold the floored value would hide.
+ * boundary the floored value would hide.
  */
 function runTraining(params: {
   slots: TrainingSlot[];
   baseStats: Record<string, number>;
   knownOverall: number;
+  /** Subtracted from total OVR to get star-quality (base) OVR. */
+  tierOvrOffset: number;
   age: number;
   talent: TalentTier;
   statCap: number;
-  /** OVR already gained earlier in the same session/plan, so stars keep accruing
-   *  across chained actions instead of resetting at each one. */
-  sessionOvrGainSoFar: number;
-}): { projectedStats: Record<string, number>; deltas: Record<string, number>; starsCrossed: number } {
-  const { slots, baseStats, knownOverall, age, talent, statCap, sessionOvrGainSoFar } = params;
+}): {
+  projectedStats: Record<string, number>;
+  deltas: Record<string, number>;
+  starsCrossed: number;
+  startBandIndex: number;
+  ovrToNextThreshold: number;
+} {
+  const { slots, baseStats, knownOverall, tierOvrOffset, age, talent, statCap } = params;
+
+  // Base (star-quality) OVR, exact. Tier contribution is an integer, so
+  // subtracting it preserves the fractional part that decides a near crossing.
+  const exactBaseOvr = (stats: Record<string, number>) => {
+    const sum = paddedStatSum(stats, knownOverall);
+    return (sum === null ? knownOverall : exactOvrFromSum(sum)) - tierOvrOffset;
+  };
+  const startOvr = exactBaseOvr(baseStats);
+  const startBandIndex = starBandIndex(startOvr);
+  const ovrToNextThreshold = (startBandIndex + 1) * STAR_OVR_THRESHOLD - startOvr;
+
   const projectedStats = { ...baseStats };
   const deltas: Record<string, number> = {};
-  if (slots.length === 0) return { projectedStats, deltas, starsCrossed: 0 };
-
-  const exactOvr = (stats: Record<string, number>) => {
-    const sum = paddedStatSum(stats, knownOverall);
-    return sum === null ? knownOverall : exactOvrFromSum(sum);
-  };
-  // Offsetting by the gain already banked keeps threshold counting continuous.
-  const ovrAtStart = exactOvr(baseStats) - sessionOvrGainSoFar;
+  if (slots.length === 0) {
+    return { projectedStats, deltas, starsCrossed: 0, startBandIndex, ovrToNextThreshold };
+  }
 
   // Applies `fraction` of each slot's remaining budget to a scratch copy.
   const applyFraction = (from: Record<string, number>, remaining: number[], fraction: number, stars: number) => {
@@ -275,6 +359,8 @@ function runTraining(params: {
     slots.forEach((slot, i) => {
       const budget = remaining[i] * fraction;
       if (budget <= 0) return;
+      // The ACTUAL current value, tier additions included: that is what the
+      // cost curve is indexed on, and why a tiered 400 stat barely moves.
       const current = next[slot.stat];
       if (current === undefined || current >= statCap) return;
       const mult = combinedMultiplier({
@@ -289,40 +375,40 @@ function runTraining(params: {
     return next;
   };
 
+  const bandsCrossed = (stats: Record<string, number>) => starBandIndex(exactBaseOvr(stats)) - startBandIndex;
+
   let remaining = slots.map(s => s.budget);
   let current = projectedStats;
-  let starsCrossed = 0;
-  // The star count is carried, not re-derived from the running OVR. Bisection
-  // lands the run just BELOW the threshold, so re-deriving would read the old
-  // band back and the run would converge on the boundary without ever passing it.
-  let stars = starsGainedFromOvrGain(sessionOvrGainSoFar);
+  // Boundaries crossed so far in THIS run — the decay exponent, which starts at
+  // zero however far into a band the player already is.
+  let stars = 0;
 
   for (let segment = 0; segment < MAX_STAR_SEGMENTS; segment++) {
     const full = applyFraction(current, remaining, 1, stars);
-    if (starsGainedFromOvrGain(exactOvr(full) - ovrAtStart) <= stars) {
-      current = full;                       // the rest of the run stays inside this star band
+    if (bandsCrossed(full) <= stars) {
+      current = full;                       // the rest of the run stays inside this band
       break;
     }
-    // The run reaches a threshold. Advance to it, then charge the remainder at
-    // the next star count.
+    // The run reaches a boundary. Advance to it, then charge the remainder at
+    // the next band's rate. Bisection lands just below, so the band is carried
+    // rather than re-derived — re-deriving would read the old band back and the
+    // run would converge on the boundary without ever passing it.
     let lo = 0;
     let hi = 1;
     for (let i = 0; i < THRESHOLD_BISECTIONS; i++) {
       const mid = (lo + hi) / 2;
-      const probe = applyFraction(current, remaining, mid, stars);
-      if (starsGainedFromOvrGain(exactOvr(probe) - ovrAtStart) <= stars) lo = mid; else hi = mid;
+      if (bandsCrossed(applyFraction(current, remaining, mid, stars)) <= stars) lo = mid; else hi = mid;
     }
     current = applyFraction(current, remaining, lo, stars);
     remaining = remaining.map(b => b * (1 - lo));
     stars++;
-    starsCrossed++;
   }
 
   for (const stat of new Set(slots.map(s => s.stat))) {
     const delta = (current[stat] ?? 0) - (baseStats[stat] ?? 0);
     if (delta > 0) deltas[stat] = delta;
   }
-  return { projectedStats: current, deltas, starsCrossed };
+  return { projectedStats: current, deltas, starsCrossed: stars, startBandIndex, ovrToNextThreshold };
 }
 
 // ── Coach action ─────────────────────────────────────────────────────────────
@@ -333,9 +419,6 @@ export interface CoachActionInput {
   stats: string[];
   sessions: number;
   profile: GameProfile;
-  /** OVR gained earlier in the same plan; keeps star thresholds accruing across
-   *  chained actions. Defaults to 0 for a standalone projection. */
-  sessionOvrGainSoFar?: number;
   label?: string;
 }
 
@@ -353,7 +436,7 @@ export interface CoachActionInput {
  * Modelling the match-form subsystem is future work, not this function's job.
  */
 export function projectCoachAction(input: CoachActionInput): RecommendationResult {
-  const { player, stats, sessions, profile, sessionOvrGainSoFar = 0 } = input;
+  const { player, stats, sessions, profile } = input;
   const talent = resolveTalentPolicy(player);
   const action: RecommendedAction = {
     kind: 'coach',
@@ -368,7 +451,7 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
   const maxBaseOvr = profile.maxBaseOvr ?? 180;
 
   if (locked) {
-    return lockedResult(action, player, totalOvr, null, 'not-applicable', resources, talent, baseOvr, maxBaseOvr);
+    return lockedResult(action, player, totalOvr, lockedBand(player, baseOvr), null, 'not-applicable', resources, talent, baseOvr, maxBaseOvr);
   }
 
   const statValues: Record<string, number> = {};
@@ -380,7 +463,7 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
 
   const whiteStats = new Set(stats.filter(s => isWhiteStat(player.role, s)));
   const budget = coachBudgetPerStat(sessions, Object.keys(statValues));
-  const { projectedStats, deltas, starsCrossed } = runTraining({
+  const { projectedStats, deltas, starsCrossed, startBandIndex, ovrToNextThreshold } = runTraining({
     slots: Object.keys(statValues).map(stat => ({
       stat, budget, drillLevelMult: 1.0, isWhite: whiteStats.has(stat),
     })),
@@ -389,8 +472,14 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
     age: player.age,
     talent: talent.applied,
     statCap: profile.statCap,
-    sessionOvrGainSoFar,
+    tierOvrOffset: tierOvrContrib(player.tier, getWhiteStatKeys(player.role).length),
   });
+
+  const starBand: StarBandPosition = {
+    index: startBandIndex,
+    ovrToNextThreshold,
+    positionEvidence: positionEvidenceOf(player.stats),
+  };
 
   const statDeltas: StatDelta[] = Object.entries(deltas)
     .map(([stat, delta]) => ({
@@ -400,7 +489,7 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
     .sort((a, b) => b.delta - a.delta);
 
   const reasons = talentReasons(talent);
-  reasons.push(...starReasons(starsCrossed));
+  reasons.push(...starReasons(starBand, starsCrossed));
   if (missing.length > 0) {
     reasons.push({
       code: 'stats.unread',
@@ -415,6 +504,7 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
     projectedStats,
     ovrBefore: totalOvr,
     ...ovrView(projectedStats, player.overall, totalOvr),
+    starBand,
     // Academy coaching has no modelled condition cost. Stated, not zeroed.
     condition: null,
     conditionBasis: 'not-applicable',
@@ -433,8 +523,6 @@ export interface DrillActionInput {
   cycles: number;
   profile: GameProfile;
   surge?: SurgeState;
-  /** OVR gained earlier in the same plan; see CoachActionInput. */
-  sessionOvrGainSoFar?: number;
   label?: string;
 }
 
@@ -450,7 +538,7 @@ export function findDrill(drillName: string) {
  * done here and must not be done by a consumer.
  */
 export function projectDrillAction(input: DrillActionInput): RecommendationResult {
-  const { player, drillNames, cycles, profile, surge = SURGE_STATE_SEASON_START, sessionOvrGainSoFar = 0 } = input;
+  const { player, drillNames, cycles, profile, surge = SURGE_STATE_SEASON_START } = input;
   const talent = resolveTalentPolicy(player);
   const drills = drillNames.map(findDrill).filter((d): d is NonNullable<ReturnType<typeof findDrill>> => d !== null);
   const action: RecommendedAction = {
@@ -470,7 +558,7 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
   const { baseOvr, totalOvr, locked } = evaluateLock(player, profile);
   const maxBaseOvr = profile.maxBaseOvr ?? 180;
   if (locked) {
-    return lockedResult(action, player, totalOvr, condition, conditionBasis, resources, talent, baseOvr, maxBaseOvr);
+    return lockedResult(action, player, totalOvr, lockedBand(player, baseOvr), condition, conditionBasis, resources, talent, baseOvr, maxBaseOvr);
   }
 
   // One slot per stat per drill. Star decay is evaluated across the whole run,
@@ -492,15 +580,21 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     }
   }
 
-  const { projectedStats, deltas, starsCrossed } = runTraining({
+  const { projectedStats, deltas, starsCrossed, startBandIndex, ovrToNextThreshold } = runTraining({
     slots,
     baseStats: player.stats,
     knownOverall: player.overall,
     age: player.age,
     talent: talent.applied,
     statCap: profile.statCap,
-    sessionOvrGainSoFar,
+    tierOvrOffset: tierOvrContrib(player.tier, getWhiteStatKeys(player.role).length),
   });
+
+  const starBand: StarBandPosition = {
+    index: startBandIndex,
+    ovrToNextThreshold,
+    positionEvidence: positionEvidenceOf(player.stats),
+  };
 
   const statDeltas: StatDelta[] = Object.entries(deltas)
     .map(([stat, delta]) => ({
@@ -511,7 +605,7 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     .sort((a, b) => b.delta - a.delta);
 
   const reasons = talentReasons(talent);
-  reasons.push(...starReasons(starsCrossed));
+  reasons.push(...starReasons(starBand, starsCrossed));
   if (condition) {
     reasons.push({
       code: 'condition.envelope',
@@ -556,6 +650,7 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     projectedStats,
     ovrBefore: totalOvr,
     ...ovrView(projectedStats, player.overall, totalOvr),
+    starBand,
     condition,
     conditionBasis,
     resources,

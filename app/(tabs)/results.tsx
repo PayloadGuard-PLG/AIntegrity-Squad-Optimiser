@@ -110,7 +110,6 @@ export default function ResultsScreen() {
     const steps: StepResult[] = [];
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
-    const ovrAtStart = currentOvr;
 
     // 1. Drill plans (pushed from drills tab)
     // Both stages below call the SAME domain seam the Drills and Coaches screens
@@ -124,7 +123,6 @@ export default function ResultsScreen() {
         drillNames: plan.drillNames,
         cycles: plan.cycles,
         profile,
-        sessionOvrGainSoFar: currentOvr - ovrAtStart,
         label: `DRILL: ${plan.label}`,
       });
       currentStats = projection.projectedStats;
@@ -149,7 +147,6 @@ export default function ResultsScreen() {
         stats: entry.stats,
         sessions: entry.sessions,
         profile,
-        sessionOvrGainSoFar: currentOvr - ovrAtStart,
         label: `COACH ×${entry.sessions} — ${entry.label}`,
       });
       currentStats = projection.projectedStats;

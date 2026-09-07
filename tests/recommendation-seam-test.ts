@@ -384,3 +384,156 @@ test('the drill level / intensity conflation is reported as unresolved, not mode
   assert.ok(flag, 'the uncalibrated intensity→training-effect mapping must be surfaced');
   assert.equal(flag!.evidence, 'assumed');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Absolute star bands. A threshold sits at a fixed multiple of the star OVR
+// step in BASE OVR — not at +20 from wherever a projection started.
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { projectDrillAction as drillAction } from '../src/logic/recommendation';
+import { applyDrillSessionsToStats } from '../src/logic/ovrProjector';
+import { starBandIndex, tierOvrContrib } from '../src/engine/engineMath';
+import { getWhiteStatKeys } from '../src/utils/roleWeights';
+
+const flatStats = (v: number) => Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, v]));
+const withOverall = (stats: Record<string, number>, over: Partial<Player> = {}): Player =>
+  player({ stats, overall: Math.floor(Object.values(stats).reduce((a, b) => a + b, 0) / 15), ...over });
+
+/** Base OVR 159.6 — four tenths short of the 160 boundary. */
+const nearBoundary = () => {
+  const s = flatStats(159);
+  s.TACKLING = 168;                       // sum 2394 → 159.6
+  return withOverall(s);
+};
+/** Base OVR 150.0 — ten clear of the next boundary. */
+const midBand = () => withOverall(flatStats(150));
+
+test('a player just short of a boundary crosses it on the remaining gain, not after a fresh 20', () => {
+  const near = projectCoachAction({ player: nearBoundary(), stats: STATS, sessions: 6, profile });
+  assert.equal(near.starBand.index, starBandIndex(159.6));
+  assert.ok(Math.abs(near.starBand.ovrToNextThreshold - 0.4) < 0.01,
+    `0.4 OVR to the threshold, got ${near.starBand.ovrToNextThreshold}`);
+  assert.ok(near.reasons.some(r => r.code === 'training.starDecay'),
+    'a small gain from 159.6 must cross 160 and be charged the reduced rate');
+
+  // The remainder is genuinely charged at the harder rate: the same action on a
+  // player mid-band, with the same stat values in play, gains more.
+  const mid = projectCoachAction({ player: midBand(), stats: STATS, sessions: 6, profile });
+  assert.equal(mid.reasons.some(r => r.code === 'training.starDecay'), false);
+  assert.ok(near.ovrDelta < mid.ovrDelta,
+    `crossing run (+${near.ovrDelta}) must gain less than the non-crossing run (+${mid.ovrDelta})`);
+});
+
+test('a player safely inside a band receives no star decay', () => {
+  const mid = projectCoachAction({ player: midBand(), stats: STATS, sessions: 6, profile });
+  assert.equal(mid.starBand.ovrToNextThreshold, 10);
+  assert.equal(mid.reasons.some(r => r.code === 'training.starDecay'), false);
+  // and matches the plain un-decayed gain exactly
+  const expected = estimateStatGainPct(coachBudgetPerStat(6, STATS), 150, 20, 0, 'Normal', true, false, 1.0, profile);
+  assert.equal(mid.statDeltas.find(d => d.stat === 'TACKLING')!.delta, Number(expected.toFixed(1)));
+});
+
+test('tier-inflated stats keep their full value as the XP cost input', () => {
+  // A heavily tiered white stat is genuinely expensive: the cost curve is indexed
+  // on the ACTUAL value, tier included. Tier is never subtracted before costing.
+  const tiered = withOverall({ ...flatStats(120), TACKLING: 400 }, { tier: 'T4' });
+
+  // At a realistic session count the 400 stat projects nothing at all, while the
+  // low stats on the SAME player still move — the observed pattern on a heavily
+  // tiered card.
+  const modest = projectCoachAction({ player: tiered, stats: STATS, sessions: 4, profile });
+  assert.equal(modest.statDeltas.some(d => d.stat === 'TACKLING'), false,
+    'a 400 stat must project +0 at a normal session count');
+  assert.ok(modest.statDeltas.find(d => d.stat === 'MARKING')!.delta > 0,
+    'a 120 stat on the same player stays trainable');
+
+  // The value itself is never rebased: the cost curve is indexed on 400, not on
+  // 400 minus the tier addition.
+  const heavy = projectCoachAction({ player: tiered, stats: ['TACKLING', 'MARKING'], sessions: 40, profile });
+  const at400 = heavy.statDeltas.find(d => d.stat === 'TACKLING')?.delta ?? 0;
+  const at120 = heavy.statDeltas.find(d => d.stat === 'MARKING')!.delta;
+  assert.ok(at400 < at120 / 20, `the 400 stat (+${at400}) must gain far less than the 120 stat (+${at120})`);
+  assert.ok(heavy.projectedStats.TACKLING >= 400, 'the 400 value is preserved, not rebased');
+});
+
+test('equal star position with different tier-added stats: same boundary, different per-stat cost', () => {
+  // Two players at the same base (star-quality) OVR. One carries tier additions
+  // on its white stats, so each further point costs more — but the tier does NOT
+  // move where the star boundary sits.
+  const plain = withOverall(flatStats(150));
+  const whites = getWhiteStatKeys(plain.role);
+  const bumped = { ...flatStats(150) };
+  for (const k of whites) bumped[k] += 50;                       // T3 additions
+  const tiered = withOverall(bumped, { tier: 'T3' });
+
+  const a = projectCoachAction({ player: plain, stats: STATS, sessions: 40, profile });
+  const b = projectCoachAction({ player: tiered, stats: STATS, sessions: 40, profile });
+
+  // Same underlying band: the tier contribution is removed from OVR before the
+  // band is read, so tier does not buy or cost star progress.
+  assert.equal(b.starBand.index, a.starBand.index);
+  assert.ok(tierOvrContrib('T3', whites.length) > 0, 'the tiered player really does carry a tier OVR contribution');
+
+  // But every tiered white stat is more expensive to train.
+  for (const stat of STATS.filter(s => whites.includes(s))) {
+    const plainGain = a.statDeltas.find(d => d.stat === stat)!.delta;
+    const tieredGain = b.statDeltas.find(d => d.stat === stat)!.delta;
+    assert.ok(tieredGain < plainGain,
+      `${stat}: tiered (+${tieredGain}) must gain less than untiered (+${plainGain})`);
+  }
+});
+
+test('projected stat progress stays fractional', () => {
+  const result = projectCoachAction({ player: midBand(), stats: ['TACKLING'], sessions: 4, profile });
+  const value = result.projectedStats.TACKLING;
+  assert.ok(value > 150);
+  assert.equal(Number.isInteger(value), false, 'sub-integer progress must survive the projection');
+});
+
+test('an unobserved starting fraction is reported as a lower bound, never as a known zero', () => {
+  // Card-scanned integers: the hidden fraction is unknown, so the distance to the
+  // next threshold is an upper bound and the projection says so.
+  const scanned = projectCoachAction({ player: midBand(), stats: STATS, sessions: 4, profile });
+  assert.equal(scanned.starBand.positionEvidence, 'lower-bound');
+  const flag = scanned.reasons.find(r => r.code === 'training.hiddenProgress');
+  assert.ok(flag, 'the unobserved fraction must be surfaced');
+  assert.equal(flag!.evidence, 'unavailable');
+
+  // Stats that already carry engine-computed progress ARE known exactly.
+  const advanced = withOverall({ ...flatStats(150), TACKLING: 150.4 });
+  const known = projectCoachAction({ player: advanced, stats: STATS, sessions: 4, profile });
+  assert.equal(known.starBand.positionEvidence, 'exact');
+  assert.equal(known.reasons.some(r => r.code === 'training.hiddenProgress'), false);
+});
+
+test('chained drill presets keep the star-band position across the chain', () => {
+  // The Drills screen runs one action per preset, threading stats forward. The
+  // second action must see the position the first one left, not restart mid-band.
+  const start = nearBoundary();
+  const first = drillAction({ player: start, drillNames: ['Touch Training'], cycles: 40, profile });
+  const second = drillAction({
+    player: { ...start, stats: first.projectedStats },
+    drillNames: ['Touch Training'], cycles: 40, profile,
+  });
+  assert.ok(second.starBand.ovrToNextThreshold < first.starBand.ovrToNextThreshold + 20);
+  assert.ok(second.starBand.index >= first.starBand.index,
+    'the second preset must not fall back into an earlier band');
+  // Progress carried forward is exact, so the second action knows its position.
+  assert.equal(second.starBand.positionEvidence, 'exact');
+});
+
+test('a two-preset Drills chain agrees with the projectOvr path across a threshold', () => {
+  const start = nearBoundary();
+  const sessions: DrillSession[] = [
+    { drillName: 'Touch Training', sessionCount: 40, drillLevel: 'Very Easy' },
+    { drillName: 'Touch Training', sessionCount: 40, drillLevel: 'Very Easy' },
+  ];
+  const viaPlan = applyDrillSessionsToStats(start, sessions, 'Normal', false, profile);
+
+  let stats = start.stats;
+  for (let i = 0; i < 2; i++) {
+    stats = drillAction({ player: { ...start, stats }, drillNames: ['Touch Training'], cycles: 40, profile }).projectedStats;
+  }
+  assert.deepEqual(stats, viaPlan.updatedStats,
+    'the Drills chain and the plan path must produce identical progression');
+});
