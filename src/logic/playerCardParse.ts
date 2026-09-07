@@ -306,9 +306,21 @@ function toGlyphToken(e: OcrElement): GlyphToken | null {
  */
 function findBoostCandidates(tokens: GlyphToken[]): BoostCandidate[] {
   const out: BoostCandidate[] = [];
-  for (const tok of tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    const tok = tokens[i];
     const upper = OCR_STAT_CORRECTIONS[tok.text.toUpperCase()] ?? tok.text.toUpperCase();
-    if (!ALL_STATS.has(upper as never)) continue;
+    // Two-word GK stats (RUSHING OUT, AERIAL REACH) arrive as two elements, the
+    // same way the frozen text pass sees them. Without this they are structurally
+    // unreachable, so a boost on them could never be observed.
+    let stat = ALL_STATS.has(upper as never) ? upper : '';
+    if (!stat && i + 1 < tokens.length) {
+      const next = tokens[i + 1];
+      const twoWord = `${upper} ${next.text.toUpperCase()}`;
+      if (ALL_STATS.has(twoWord as never) && Math.abs(next.frame.top - tok.frame.top) < Y_TOL) {
+        stat = twoWord;
+      }
+    }
+    if (!stat) continue;
     const row = tokens
       .filter(t => t !== tok && Math.abs(t.frame.top - tok.frame.top) < Y_TOL_VAL && t.frame.left > tok.frame.left)
       .sort((a, b) => a.frame.left - b.frame.left);
@@ -325,7 +337,7 @@ function findBoostCandidates(tokens: GlyphToken[]): BoostCandidate[] {
     const m = BOOST_TOKEN_RE.exec(boostTok.text);
     if (!m) continue;
     out.push({
-      stat: upper,
+      stat,
       amount: parseInt(m[1], 10),
       baseBox: baseTok.frame,
       boostBox: boostTok.frame,

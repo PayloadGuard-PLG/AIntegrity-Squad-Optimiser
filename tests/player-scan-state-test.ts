@@ -7,7 +7,8 @@ import { decodeScreenshotPng } from '../src/logic/screenshotPixels';
 import { scanPlayerInput } from '../src/logic/playerScanPipeline';
 import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
 import { parsePlayerCard, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
-import { RgbaImage } from '../src/logic/glyphReader';
+import { RgbaImage, roleChips, CALIBRATION } from '../src/logic/glyphReader';
+import { blankImage, hsvToRgb } from './helpers/png';
 import { buildSyntheticCard } from './helpers/syntheticCard';
 import { getWhiteStatKeys, isWhiteStat } from '../src/utils/roleWeights';
 import { playerService } from '../src/services/playerService.web';
@@ -203,4 +204,65 @@ test('web create/read/edit preserves the complete card state and base stats', ()
     if (oldStorage) Object.defineProperty(globalThis, 'localStorage', oldStorage); else Reflect.deleteProperty(globalThis, 'localStorage');
     if (oldWindow) Object.defineProperty(globalThis, 'window', oldWindow); else Reflect.deleteProperty(globalThis, 'window');
   }
+});
+
+test('an unreadable role row abstains instead of publishing an empty established set', () => {
+  // Pixels are present and the "Roles:" anchor is found, but no chip token was
+  // recognised. Every player has at least one established role, so [] here would
+  // be a failed read masquerading as an observation — and would clear the stored
+  // roles and the learning progress with it.
+  const blank: RgbaImage = { width: 1, height: 1, data: [0, 0, 0, 255] };
+  const frame = { left: 10, top: 10, width: 40, height: 14 };
+  const unreadable = roleChips(blank, {
+    tokens: [{ text: 'Roles:', frame }],
+    knownRoles: ['DC', 'DMC', 'MC'],
+  });
+  assert.equal(unreadable.establishedRoles, undefined);
+  assert.equal(unreadable.learningRole, undefined);
+  assert.ok(unreadable.review.some(f => f.field === 'roles' && f.reason === 'region_unread'));
+
+  const asScan = scan({ establishedRoles: unreadable.establishedRoles,
+    learningRole: unreadable.learningRole, review: unreadable.review });
+  assert.equal(needsRoleReview(asScan), true);
+  assert.deepEqual(mergePlayerScanState(before, asScan), before);
+});
+
+test('a dark-only role row abstains rather than reporting no established roles', () => {
+  // A learning chip with an X/50 counter and no established chip alongside it is
+  // not a valid card state: it means the established chips were misclassified.
+  // Nothing else flags this, so without the guard it publishes [] as fact.
+  const { img, fill: paint } = blankImage(400, 200, hsvToRgb(127, 0.30, 0.98));
+  paint(100, 40, 180, 90, hsvToRgb(49, 0.52, CALIBRATION.chip.darkValueMax / 2));
+  const result = roleChips(img, {
+    tokens: [
+      { text: 'Roles:', frame: { left: 20, top: 60, width: 50, height: 18 } },
+      { text: 'MC', frame: { left: 120, top: 60, width: 30, height: 18 } },
+      { text: '2/50', frame: { left: 200, top: 60, width: 40, height: 18 } },
+    ],
+    knownRoles: ['MC', 'DC', 'DMC'],
+  });
+  assert.equal(result.establishedRoles, undefined);
+  assert.equal(result.learningRole, undefined);
+  assert.ok(result.review.some(f => f.field === 'roles' && f.reason === 'low_confidence'));
+  assert.equal(needsRoleReview(scan({ review: result.review })), true);
+});
+
+test('two-word GK stat rows can carry an observable boost overlay', () => {
+  // RUSHING OUT / AERIAL REACH reach OCR as two elements, exactly as the frozen
+  // text pass sees them. Without two-word matching a boost on them is structurally
+  // unreachable, and boosts would then read {} — an absence that was never observed.
+  const el = (text: string, left: number, top: number, width: number) =>
+    ({ text, frame: { left, top, width, height: 16 } });
+  const row = [el('AERIAL', 0, 100, 60), el('REACH', 62, 100, 50),
+    el('120', 200, 100, 30), el('+15', 232, 100, 26)];
+  const gkOcr: OcrResult = {
+    text: 'AERIAL REACH 120 +15',
+    blocks: [{ text: 'AERIAL REACH 120 +15', lines: [{ text: 'AERIAL REACH 120 +15', elements: row }] }],
+  };
+  // No image: the overlay cannot be classified, so it must abstain by name rather
+  // than silently vanish from the candidate list.
+  const noPixels = parsePlayerCard(gkOcr, null);
+  assert.equal(noPixels.stats['AERIAL REACH'], 120);
+  assert.ok(noPixels.review.some(f => f.field === 'boosts.AERIAL REACH'));
+  assert.equal(noPixels.boosts, undefined);
 });

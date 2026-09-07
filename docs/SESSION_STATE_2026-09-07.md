@@ -64,3 +64,25 @@ range, resource requirements and reasons together. It must consistently apply th
 Normal-talent policy, expose drill-XP uncertainty and avoid point-cost claims.
 The existing duplicate projection paths should consume that shared result before
 adding new game mechanics.
+
+## Hardening pass (follow-up on 38e84d3)
+
+Two demonstrable defects in the observation layer, each with a regression test
+that fails against 38e84d3:
+
+- `roleChips` returned `establishedRoles: []` with an empty review whenever no
+  chip classified as established — a role row OCR missed entirely, or one whose
+  only classified chip was a dark learning chip. `[]` is an observation the merge
+  layer acts on, so a failed read cleared the stored established roles *and* the
+  learning role and its progress. It now abstains with a `roles` flag unless a
+  flag already explains the empty set (the ambiguous-chip case is unchanged).
+- `findBoostCandidates` matched single-token stat names only, so the two-word GK
+  stats `RUSHING OUT` and `AERIAL REACH` could never carry a boost. A boost on
+  those rows was silently absent rather than observed or flagged.
+
+Base stats, calibration, the frozen text golden, the engine and the game profile
+are unchanged. Verified after the change: typecheck; logic, engine 49, projection
+53, condition 33, scanner 60, scan/state 16. Z3 + Crosshair + TS↔Python
+differential: 24 passed, no skips. Dafny remains unrun here (not installed); the
+change touches no engine math those proofs cover. Real-capture scanner validation
+is still absent by policy, so pixel boundaries remain synthetically exercised only.

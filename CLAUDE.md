@@ -20,6 +20,14 @@ undefined/flagged partial reads preserve state; observed empty values clear it.
 Both forms have separate learning-role controls. Edit saves preserve loaded glyph
 metadata instead of erasing it. The text-pass golden and calibration are unchanged.
 
+An **empty established-role set is not an observation**. Every player carries at
+least one established role, so `roleChips` publishes `[]` only when a review flag
+already explains the gap; an otherwise-empty read abstains with a `roles` flag so
+a failed chip read cannot clear the stored roles or the learning progress with
+them. Boost candidates match two-word GK stats (`RUSHING OUT`, `AERIAL REACH`)
+the same way the frozen text pass does, so a boost on those rows is observable
+rather than structurally invisible.
+
 `test:scanner` also runs `tests/player-scan-state-test.ts`: independent PNG encoding,
 matched OCR/pixel input, failure cleanup, abstention/absence, learning-role whiteness,
 base/boost separation and persistence. No real captures are committed.
