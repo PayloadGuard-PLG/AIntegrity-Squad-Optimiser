@@ -281,3 +281,106 @@ test('screens consume the seam and cannot substitute their own projection math',
       `${file} must consume the shared recommendation seam`);
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Semantic correction pass. Star-threshold decay is a real mechanic, separate
+// from session-budget decay; the match-form doubling item is not a permanent
+// attribute multiplier.
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { starDecayMultiplier, combinedMultiplier } from '../src/engine/engineMath';
+
+test('star-threshold decay is applied, and is not the same mechanic as session-budget decay', () => {
+  // Two different constants for two different things. sessionBudgetDecay (0.99)
+  // shapes how much XP a long coaching run delivers; starDecayPerSession (0.85)
+  // makes training harder once a star threshold has been crossed. Neither
+  // substitutes for the other.
+  assert.notEqual(profile.sessionBudgetDecay, profile.starDecayPerSession);
+  assert.equal(starDecayMultiplier(0), 1);
+  assert.ok(starDecayMultiplier(1) < 1);
+
+  const base = { age: 20, talent: 'Normal', isWhite: true, twoxAd: false, drillLevelMult: 1.0 };
+  assert.ok(combinedMultiplier({ ...base, starsGained: 1 }) < combinedMultiplier({ ...base, starsGained: 0 }),
+    'crossing a star must make subsequent training less efficient');
+});
+
+test('a run crossing a star threshold is charged the reduced rate for the remainder', () => {
+  // A run long enough to cross a 20-OVR threshold must not be projected entirely
+  // at the pre-threshold rate. Compare against the same total budget delivered as
+  // two halves with the player advanced in between: the stepped projection must
+  // not exceed a flat-rate projection of the same size.
+  const subject = player({ age: 18, overall: 90, stats: Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, 90])) });
+  const long = projectCoachAction({ player: subject, stats: STATS, sessions: 400, profile });
+
+  assert.ok(long.ovrDelta > 20, `the run must actually cross a threshold (got +${long.ovrDelta})`);
+  assert.ok(long.reasons.some(r => r.code === 'training.starDecay'),
+    'a crossing must be reported, not silently absorbed');
+
+  // Flat-rate control: the same budget with stars pinned at 0 throughout.
+  const budget = coachBudgetPerStat(400, STATS);
+  const flat = STATS.reduce((sum, stat) =>
+    sum + estimateStatGainPct(budget, subject.stats[stat], 18, 0, 'Normal', true, false, 1.0, profile), 0);
+  const stepped = long.statDeltas.reduce((sum, d) => sum + d.delta, 0);
+  assert.ok(stepped < flat,
+    `stepped projection (${stepped.toFixed(1)}) must be below the flat starsGained=0 projection (${flat.toFixed(1)})`);
+});
+
+test('a run that stays inside one star band is unaffected by the stepping', () => {
+  // The correction must not perturb short runs: below the first threshold the
+  // projection is still exactly the un-decayed gain.
+  const short = projectCoachAction({ player: player(), stats: STATS, sessions: 40, profile });
+  assert.ok(short.ovrDelta < 20);
+  assert.equal(short.reasons.some(r => r.code === 'training.starDecay'), false);
+  const expected = estimateStatGainPct(coachBudgetPerStat(40, STATS), 120, 20, 0, 'Normal', true, false, 1.0, profile);
+  assert.equal(short.statDeltas.find(d => d.stat === 'TACKLING')!.delta, Number(expected.toFixed(1)));
+});
+
+test('fractional progress below the displayed integer is preserved across a projection', () => {
+  const result = projectCoachAction({ player: player(), stats: ['TACKLING'], sessions: 4, profile });
+  const projected = result.projectedStats.TACKLING;
+  assert.ok(projected > 120);
+  // Not rounded to an integer: sub-integer progress is real internal state and a
+  // later small gain can carry the player over a hidden threshold.
+  assert.notEqual(projected, Math.round(projected));
+  assert.ok(Math.abs(result.ovrAfterExact - Math.floor(result.ovrAfterExact)) >= 0);
+});
+
+test('the match-form doubling item cannot change permanent drill stat gain', () => {
+  // The doubling item is a match-form / teamplay effect however it was acquired.
+  // It is not a development coach and must not touch permanent attributes. The
+  // seam accepts no input for it at all, so the only way it could leak in is
+  // through combinedMultiplier — which every permanent-XP path pins to false.
+  const withoutBoost = projectDrillAction({ player: player(), drillNames: ['Touch Training'], cycles: 30, profile });
+  const attempted = projectDrillAction({
+    player: player(), drillNames: ['Touch Training'], cycles: 30, profile,
+    // @ts-expect-error the seam must not accept a match-form boost as an input
+    twoxAd: true,
+  });
+  assert.deepEqual(attempted.statDeltas, withoutBoost.statDeltas);
+  assert.equal(attempted.ovrDelta, withoutBoost.ovrDelta);
+  assert.deepEqual(attempted.projectedStats, withoutBoost.projectedStats);
+});
+
+test('the match-form doubling item cannot change academy coach stat gain', () => {
+  const withoutBoost = projectCoachAction({ player: player(), stats: STATS, sessions: 40, profile });
+  const attempted = projectCoachAction({
+    player: player(), stats: STATS, sessions: 40, profile,
+    // @ts-expect-error the seam must not accept a match-form boost as an input
+    twoxAd: true,
+  });
+  assert.deepEqual(attempted.statDeltas, withoutBoost.statDeltas);
+  assert.equal(attempted.ovrDelta, withoutBoost.ovrDelta);
+
+  // And the plan path ignores the manager-profile flag for the same reason.
+  const sessions: DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 30, drillLevel: 'Very Easy' }];
+  const off = projectOvr(player(), sessions, 'Normal', 'Very Easy', null, 0, false, profile);
+  const on = projectOvr(player(), sessions, 'Normal', 'Very Easy', null, 0, true, profile);
+  assert.equal(on.finalOvr, off.finalOvr);
+});
+
+test('the drill level / intensity conflation is reported as unresolved, not modelled away', () => {
+  const result = projectDrillAction({ player: player(), drillNames: ['Touch Training'], cycles: 10, profile });
+  const flag = result.reasons.find(r => r.code === 'drill.levelVsIntensity');
+  assert.ok(flag, 'the uncalibrated intensity→training-effect mapping must be surfaced');
+  assert.equal(flag!.evidence, 'assumed');
+});

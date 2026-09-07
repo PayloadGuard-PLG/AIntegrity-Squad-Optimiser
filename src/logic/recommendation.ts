@@ -4,7 +4,9 @@
  * This module composes existing, proven machinery. It implements no mathematics
  * of its own:
  *
- *   gains        → engineMath.projectCoachGains / drillBudgetPerStat + statGainFromBudget
+ *   gains        → engineMath.coachBudgetPerStat / drillBudgetPerStat, then
+ *                  statGainFromBudget + combinedMultiplier, stepped across star
+ *                  thresholds by runTraining below
  *   OVR          → engineMath.paddedStatSum / exactOvrFromSum
  *   training lock→ engineMath.baseOvrFromTotal + isTrainingLocked
  *   condition    → conditionEngine.sessionDrain (a RANGE, never a scalar)
@@ -20,12 +22,18 @@
  *     published per cycle and never multiplied out;
  *   - talent policy is resolved once, in resolveTalentPolicy, never by a screen;
  *   - a training-locked player is projected as no gain, not as gain-plus-a-warning;
- *   - "no condition mechanic for this action" is stated, not encoded as zero.
+ *   - "no condition mechanic for this action" is stated, not encoded as zero;
+ *   - star-threshold decay is applied as the projection crosses thresholds, not
+ *     sampled once at the start (see runTraining);
+ *   - stat values stay fractional throughout. Progress below the displayed
+ *     integer is real internal state and a small gain can carry a player over a
+ *     threshold, so nothing is rounded until presentation.
  */
 
 import {
-  projectCoachGains, drillBudgetPerStat, statGainFromBudget, combinedMultiplier,
-  paddedStatSum, exactOvrFromSum, baseOvrFromTotal, isTrainingLocked,
+  coachBudgetPerStat, drillBudgetPerStat, statGainFromBudget, combinedMultiplier,
+  starsGainedFromOvrGain, paddedStatSum, exactOvrFromSum, baseOvrFromTotal,
+  isTrainingLocked,
 } from '../engine/engineMath';
 import { isWhiteStat, getWhiteStatKeys } from '../utils/roleWeights';
 import { sessionDrain, SessionDrain } from '../utils/conditionEngine';
@@ -135,6 +143,15 @@ function talentReasons(policy: TalentPolicy): RecommendationReason[] {
   return out;
 }
 
+function starReasons(starsCrossed: number): RecommendationReason[] {
+  if (starsCrossed <= 0) return [];
+  return [{
+    code: 'training.starDecay',
+    detail: `Projection crosses ${starsCrossed} star threshold${starsCrossed > 1 ? 's' : ''}; training past each one is charged at the reduced rate.`,
+    evidence: 'calibrated',
+  }];
+}
+
 /** Shared lock evaluation. Base OVR = total − the tier's OVR contribution. */
 function evaluateLock(player: Player, profile: GameProfile) {
   const sum = paddedStatSum(player.stats, player.overall);
@@ -187,6 +204,127 @@ function lockedResult(
   };
 }
 
+// ── Star-threshold training runner ───────────────────────────────────────────
+
+/**
+ * One unit of training: a stat, the XP budget aimed at it, and the drill-level
+ * multiplier that applies. Coaching produces one slot per scanned stat; a drill
+ * plan produces one slot per stat per drill.
+ */
+interface TrainingSlot {
+  stat: string;
+  budget: number;
+  drillLevelMult: number;
+  isWhite: boolean;
+}
+
+/** Bisection steps used to land exactly on a star threshold. Deterministic. */
+const THRESHOLD_BISECTIONS = 60;
+/** Guard against a pathological loop; each pass consumes at least one star. */
+const MAX_STAR_SEGMENTS = 64;
+
+/**
+ * Applies the slots' budgets, re-evaluating star decay as the projection crosses
+ * star thresholds.
+ *
+ * Why this is not `starsGained: 0`, and not a single sample either:
+ * `starDecayPerSession` and `sessionBudgetDecay` are two different mechanics.
+ * Sprint 34 established that geometric SESSION-BUDGET decay explains the ×20/×40
+ * plateau; it said nothing about star decay, which applies when a player crosses
+ * an OVR/star threshold and makes subsequent training harder. Sampling the star
+ * count once at the start would let a long run cross a threshold and keep the
+ * cheaper pre-threshold rate for the whole action.
+ *
+ * The method is numerical, not a new formula: the budget is advanced at a fixed
+ * star count until the next threshold is reached, the star count is recomputed,
+ * and the remainder continues at the new rate. `statGainFromBudget` is monotonic
+ * in budget, so the crossing point is found by bisection on the fraction of the
+ * remaining budget. Every multiplier and every gain still comes from the
+ * verified engine primitives.
+ *
+ * OVR is tracked EXACTLY (unfloored) throughout: progress below the displayed
+ * integer is real internal state, and a small gain can carry a player across a
+ * threshold the floored value would hide.
+ */
+function runTraining(params: {
+  slots: TrainingSlot[];
+  baseStats: Record<string, number>;
+  knownOverall: number;
+  age: number;
+  talent: TalentTier;
+  statCap: number;
+  /** OVR already gained earlier in the same session/plan, so stars keep accruing
+   *  across chained actions instead of resetting at each one. */
+  sessionOvrGainSoFar: number;
+}): { projectedStats: Record<string, number>; deltas: Record<string, number>; starsCrossed: number } {
+  const { slots, baseStats, knownOverall, age, talent, statCap, sessionOvrGainSoFar } = params;
+  const projectedStats = { ...baseStats };
+  const deltas: Record<string, number> = {};
+  if (slots.length === 0) return { projectedStats, deltas, starsCrossed: 0 };
+
+  const exactOvr = (stats: Record<string, number>) => {
+    const sum = paddedStatSum(stats, knownOverall);
+    return sum === null ? knownOverall : exactOvrFromSum(sum);
+  };
+  // Offsetting by the gain already banked keeps threshold counting continuous.
+  const ovrAtStart = exactOvr(baseStats) - sessionOvrGainSoFar;
+
+  // Applies `fraction` of each slot's remaining budget to a scratch copy.
+  const applyFraction = (from: Record<string, number>, remaining: number[], fraction: number, stars: number) => {
+    const next = { ...from };
+    slots.forEach((slot, i) => {
+      const budget = remaining[i] * fraction;
+      if (budget <= 0) return;
+      const current = next[slot.stat];
+      if (current === undefined || current >= statCap) return;
+      const mult = combinedMultiplier({
+        age, talent, isWhite: slot.isWhite, starsGained: stars,
+        drillLevelMult: slot.drillLevelMult,
+        // Match-form boosts are NOT a permanent-attribute mechanic — see the
+        // note on CoachActionInput. Nothing here may pass one in.
+        twoxAd: false,
+      });
+      next[slot.stat] = Math.min(current + statGainFromBudget(current, budget, mult), statCap);
+    });
+    return next;
+  };
+
+  let remaining = slots.map(s => s.budget);
+  let current = projectedStats;
+  let starsCrossed = 0;
+  // The star count is carried, not re-derived from the running OVR. Bisection
+  // lands the run just BELOW the threshold, so re-deriving would read the old
+  // band back and the run would converge on the boundary without ever passing it.
+  let stars = starsGainedFromOvrGain(sessionOvrGainSoFar);
+
+  for (let segment = 0; segment < MAX_STAR_SEGMENTS; segment++) {
+    const full = applyFraction(current, remaining, 1, stars);
+    if (starsGainedFromOvrGain(exactOvr(full) - ovrAtStart) <= stars) {
+      current = full;                       // the rest of the run stays inside this star band
+      break;
+    }
+    // The run reaches a threshold. Advance to it, then charge the remainder at
+    // the next star count.
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < THRESHOLD_BISECTIONS; i++) {
+      const mid = (lo + hi) / 2;
+      const probe = applyFraction(current, remaining, mid, stars);
+      if (starsGainedFromOvrGain(exactOvr(probe) - ovrAtStart) <= stars) lo = mid; else hi = mid;
+    }
+    current = applyFraction(current, remaining, lo, stars);
+    remaining = remaining.map(b => b * (1 - lo));
+    stars++;
+    starsCrossed++;
+  }
+
+  for (const stat of new Set(slots.map(s => s.stat))) {
+    const delta = (current[stat] ?? 0) - (baseStats[stat] ?? 0);
+    if (delta > 0) deltas[stat] = delta;
+  }
+  return { projectedStats: current, deltas, starsCrossed };
+}
+
 // ── Coach action ─────────────────────────────────────────────────────────────
 
 export interface CoachActionInput {
@@ -195,21 +333,27 @@ export interface CoachActionInput {
   stats: string[];
   sessions: number;
   profile: GameProfile;
-  twoxAd?: boolean;
+  /** OVR gained earlier in the same plan; keeps star thresholds accruing across
+   *  chained actions. Defaults to 0 for a standalone projection. */
+  sessionOvrGainSoFar?: number;
   label?: string;
 }
 
 /**
- * Coach projection. Budget comes from engineMath.coachBudgetPerStat via
- * projectCoachGains — the geometric model confirmed in Sprint 34. The linear
- * model is falsified; do not reintroduce it.
+ * Academy coach projection. Budget comes from engineMath.coachBudgetPerStat —
+ * the geometric model confirmed in Sprint 34. The linear model is falsified; do
+ * not reintroduce it.
  *
- * starsGained is 0: Sprint 34 attributed the ×N plateau to geometric budget
- * decay, not in-session star decay, and Sprint 31 fitted four data points
- * without it. It is therefore not applied to any projection.
+ * NO MATCH-FORM BOOST. The doubling item some squads carry (however acquired —
+ * advert, sponsor reward, token purchase or a teamplay drill) is a MATCH-FORM /
+ * teamplay effect. It is a different mechanic from the academy development
+ * coaches this function projects, and it does not multiply permanent attributes,
+ * permanent OVR, or academy coaching gain. It was previously fed into
+ * combinedMultiplier's ad slot; that interpretation is falsified and removed.
+ * Modelling the match-form subsystem is future work, not this function's job.
  */
 export function projectCoachAction(input: CoachActionInput): RecommendationResult {
-  const { player, stats, sessions, profile, twoxAd = false } = input;
+  const { player, stats, sessions, profile, sessionOvrGainSoFar = 0 } = input;
   const talent = resolveTalentPolicy(player);
   const action: RecommendedAction = {
     kind: 'coach',
@@ -235,28 +379,28 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
   }
 
   const whiteStats = new Set(stats.filter(s => isWhiteStat(player.role, s)));
-  const gains = projectCoachGains({
-    sessions,
-    statValues,
-    whiteStats,
+  const budget = coachBudgetPerStat(sessions, Object.keys(statValues));
+  const { projectedStats, deltas, starsCrossed } = runTraining({
+    slots: Object.keys(statValues).map(stat => ({
+      stat, budget, drillLevelMult: 1.0, isWhite: whiteStats.has(stat),
+    })),
+    baseStats: player.stats,
+    knownOverall: player.overall,
     age: player.age,
     talent: talent.applied,
-    sessionOvrGainSoFar: 0,
-    twoxAd,
-    drillLevelMult: 1.0,
+    statCap: profile.statCap,
+    sessionOvrGainSoFar,
   });
 
-  const projectedStats = { ...player.stats };
-  const statDeltas: StatDelta[] = [];
-  for (const [stat, delta] of Object.entries(gains)) {
-    if (delta <= 0) continue;
-    const from = statValues[stat];
-    projectedStats[stat] = Math.min(from + delta, profile.statCap);
-    statDeltas.push({ stat, from, delta: Number(delta.toFixed(1)), isWhite: whiteStats.has(stat) });
-  }
-  statDeltas.sort((a, b) => b.delta - a.delta);
+  const statDeltas: StatDelta[] = Object.entries(deltas)
+    .map(([stat, delta]) => ({
+      stat, from: statValues[stat], delta: Number(delta.toFixed(1)), isWhite: whiteStats.has(stat),
+    }))
+    .filter(d => d.delta > 0)
+    .sort((a, b) => b.delta - a.delta);
 
   const reasons = talentReasons(talent);
+  reasons.push(...starReasons(starsCrossed));
   if (missing.length > 0) {
     reasons.push({
       code: 'stats.unread',
@@ -289,7 +433,8 @@ export interface DrillActionInput {
   cycles: number;
   profile: GameProfile;
   surge?: SurgeState;
-  twoxAd?: boolean;
+  /** OVR gained earlier in the same plan; see CoachActionInput. */
+  sessionOvrGainSoFar?: number;
   label?: string;
 }
 
@@ -305,7 +450,7 @@ export function findDrill(drillName: string) {
  * done here and must not be done by a consumer.
  */
 export function projectDrillAction(input: DrillActionInput): RecommendationResult {
-  const { player, drillNames, cycles, profile, surge = SURGE_STATE_SEASON_START, twoxAd = false } = input;
+  const { player, drillNames, cycles, profile, surge = SURGE_STATE_SEASON_START, sessionOvrGainSoFar = 0 } = input;
   const talent = resolveTalentPolicy(player);
   const drills = drillNames.map(findDrill).filter((d): d is NonNullable<ReturnType<typeof findDrill>> => d !== null);
   const action: RecommendedAction = {
@@ -328,38 +473,45 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     return lockedResult(action, player, totalOvr, condition, conditionBasis, resources, talent, baseOvr, maxBaseOvr);
   }
 
-  const projectedStats = { ...player.stats };
-  const totals: Record<string, { from: number; delta: number; isWhite: boolean }> = {};
+  // One slot per stat per drill. Star decay is evaluated across the whole run,
+  // not per drill, because a threshold crossed by drill 1 must make drill 2 harder.
+  const slots: TrainingSlot[] = [];
   const unread = new Set<string>();
-
+  const firstValue: Record<string, number> = {};
   for (const drill of drills) {
     const drillLevelMult = (profile.drillLevelMultipliers as Record<string, number>)[drill.intensity] ?? 1.0;
     const budget = drillBudgetPerStat(cycles, drill.stats.length);
     for (const rawStat of drill.stats) {
       const stat = rawStat.toUpperCase();
-      const from = projectedStats[stat];
+      const from = player.stats[stat];
       // An absent stat is unread, not zero: it is excluded and reported.
       if (from === undefined) { unread.add(stat); continue; }
       if (from >= profile.statCap) continue;
-      const isWhite = isWhiteStat(player.role, stat);
-      const mult = combinedMultiplier({
-        age: player.age, talent: talent.applied, isWhite,
-        starsGained: 0, twoxAd, drillLevelMult,
-      });
-      const delta = statGainFromBudget(from, budget, mult);
-      if (delta <= 0) continue;
-      if (!totals[stat]) totals[stat] = { from: player.stats[stat] ?? from, delta: 0, isWhite };
-      projectedStats[stat] = Math.min(from + delta, profile.statCap);
-      totals[stat].delta += delta;
+      firstValue[stat] = from;
+      slots.push({ stat, budget, drillLevelMult, isWhite: isWhiteStat(player.role, stat) });
     }
   }
 
-  const statDeltas: StatDelta[] = Object.entries(totals)
-    .map(([stat, v]) => ({ stat, from: v.from, delta: Number(v.delta.toFixed(1)), isWhite: v.isWhite }))
+  const { projectedStats, deltas, starsCrossed } = runTraining({
+    slots,
+    baseStats: player.stats,
+    knownOverall: player.overall,
+    age: player.age,
+    talent: talent.applied,
+    statCap: profile.statCap,
+    sessionOvrGainSoFar,
+  });
+
+  const statDeltas: StatDelta[] = Object.entries(deltas)
+    .map(([stat, delta]) => ({
+      stat, from: firstValue[stat], delta: Number(delta.toFixed(1)),
+      isWhite: isWhiteStat(player.role, stat),
+    }))
     .filter(d => d.delta > 0)
     .sort((a, b) => b.delta - a.delta);
 
   const reasons = talentReasons(talent);
+  reasons.push(...starReasons(starsCrossed));
   if (condition) {
     reasons.push({
       code: 'condition.envelope',
@@ -384,6 +536,17 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
   reasons.push({
     code: 'drill.xpFactor',
     detail: `Drill XP factor ${profile.drillXpFactor ?? 1.0} is assumed, not calibrated — drill gain magnitudes are provisional.`,
+    evidence: 'assumed',
+  });
+  // Unresolved model issue, recorded rather than guessed at. The game shows a
+  // drill's INTENSITY (which drives condition cost) separately from its LEVEL /
+  // training effect (which drives how much training a drill delivers). This code
+  // indexes drillLevelMultipliers by intensity, conflating the two. The mapping
+  // from displayed training effect to permanent XP has never been calibrated, so
+  // no replacement formula is invented here — the magnitude is simply flagged.
+  reasons.push({
+    code: 'drill.levelVsIntensity',
+    detail: 'Training magnitude is derived from drill intensity, which the game shows separately from drill level / training effect. That mapping is uncalibrated — treat drill gain magnitude as provisional.',
     evidence: 'assumed',
   });
 

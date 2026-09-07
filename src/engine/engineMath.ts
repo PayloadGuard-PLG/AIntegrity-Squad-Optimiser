@@ -105,11 +105,19 @@ export function starDecayMultiplier(starsGained: number): number {
 //
 // Each factor is independent — tuning one does not change any other.
 // This is the single place where compounding effects are composed.
+// ⚠️ `twoxAd` is RETAINED for the verified signature only and must be passed
+// false by every permanent-attribute projection. The doubling item it modelled
+// is a match-form / teamplay effect, acquired several ways (advert, sponsor
+// reward, token purchase, a teamplay drill) and distinct from the academy
+// development coaches. It does not multiply permanent attributes, permanent OVR
+// or academy coaching gain. Slated for semantic migration once the match-form
+// subsystem is modelled; not removed here because it is part of the proof surface.
 export function combinedMultiplier(params: {
   age: number;
   talent: string;
   isWhite: boolean;
   starsGained: number;
+  /** @deprecated Match-form effect — never a permanent-attribute multiplier. Pass false. */
   twoxAd: boolean;
   drillLevelMult: number;
 }): number {
@@ -336,6 +344,11 @@ export function estimateTalentFromGain(params: {
 }
 
 // ─── FULL COACHING PROJECTION ─────────────────────────────────────────────────
+// ⚠️ @deprecated — samples the star count ONCE from sessionOvrGainSoFar, so a run
+// long enough to cross a star threshold keeps the cheaper pre-threshold rate for
+// its whole length. src/logic/recommendation.ts steps across thresholds instead
+// and is the authoritative coach path. Retained for reference; no callers.
+//
 // Composed pipeline for a single coaching session.
 // Input: session params + current stat values for the coached stats.
 // Output: projected gain (fractional) per stat name.

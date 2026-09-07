@@ -424,3 +424,128 @@ the frozen golden and the glyph corpus are untouched.
 4. **Coach condition cost.** The seam states academy coaching has no modelled
    condition mechanic. If the game does charge condition for coaching, that is an
    unmodelled mechanic to observe, not to assume.
+
+---
+
+## 16. Semantic correction pass (game-evidence)
+
+The consolidation in §15 was architecturally accepted but carried two wrong
+game-semantics assumptions. Both are corrected; the architecture is unchanged.
+
+### 16.1 Star-threshold decay was wrongly disabled
+
+§15 dropped star decay entirely, reasoning from Sprint 34. **That reasoning
+conflated two different mechanics**, and the correction is to restore it:
+
+| Constant | What it governs |
+|---|---|
+| `sessionBudgetDecay` = 0.99 | How much XP a long coaching run delivers. Explains the ×20/×40 plateau. |
+| `starDecayPerSession` = 0.85 | How much harder training gets **after a star/OVR threshold is crossed**. |
+
+Sprint 34 established only that star decay was *not* the explanation for the
+session-budget anomaly. It never falsified star decay itself. Direct in-game
+observation confirms the mechanic: gaining a new star makes subsequent training
+progress harder. `starsGainedFromOvrGain`, `starDecayMultiplier` and
+`combinedMultiplier` remain authoritative and are used again.
+
+**Restoring a constant starting value would not have been enough.** A long run
+crosses thresholds *during* the projection, so sampling the star count once at
+the start keeps the cheap pre-threshold rate for the whole action.
+`runTraining` in `recommendation.ts` therefore advances the budget at a fixed
+star count until the next threshold, recomputes, and charges the remainder at
+the harder rate. `statGainFromBudget` is monotonic in budget, so the crossing is
+located by deterministic bisection. **This is a numerical method, not a new
+formula** — every multiplier and gain still comes from the verified primitives.
+
+OVR is tracked **exactly (unfloored)** throughout, because progress below the
+displayed integer is real internal state and a small gain can carry a player
+across a threshold the floored value would hide. Stat values stay fractional;
+nothing is rounded before presentation.
+
+Stars accrue across a whole plan, not per action: `sessionOvrGainSoFar` is
+threaded through `ovrProjector` and Results so a threshold crossed by step 1
+makes step 2 harder.
+
+`engineMath.projectCoachGains` is now **@deprecated and again uncalled** — it
+samples the star count once and cannot express a crossing. Said plainly rather
+than left looking authoritative.
+
+### 16.2 The doubling item is not a permanent-attribute multiplier
+
+`twoxAd` fed `combinedMultiplier` and therefore multiplied permanent stat gain.
+Direct in-game evidence falsifies that reading:
+
+- the mechanic is a **match-form / teamplay** effect, not a development coach;
+- the advert is only one acquisition route — it also comes from premium/elite
+  sponsor rewards, token purchase, and a teamplay training drill;
+- the game labels it as a teamplay **form** effect;
+- it is distinct from the Standard/Focused attacking/defending/physical coaches
+  that develop players.
+
+So it must not multiply permanent attributes, permanent OVR, or academy coaching
+gain. Removed from `projectCoachAction` and from permanent stat gain in
+`projectDrillAction` — **the seam accepts no input for it at all**, so the
+compiler rejects any attempt to pass one. `projectOvr` still takes the manager
+flag for signature compatibility and deliberately ignores it. The controls that
+advertised "×2.00 XP" on permanent attributes are removed from Results and Plan
+rather than left toggling nothing.
+
+`TWOX_AD_MULT` and `combinedMultiplier`'s `twoxAd` parameter are **retained and
+deprecated**, not deleted: they are part of the proof surface. Every
+permanent-XP path pins the parameter to `false`. Modelling the match-form
+subsystem properly is future work; nothing was invented here.
+
+### 16.3 Unresolved: drill level vs drill intensity
+
+A genuine model defect, **recorded, not guessed at**. The game shows two
+different things:
+
+- **intensity** — drives the condition cost (e.g. an Easy drill at −1.5%);
+- **level / training effect** — drives how much training a drill delivers
+  (e.g. a world-class drill at +30 training effect).
+
+`recommendation.ts` indexes `profile.drillLevelMultipliers` by `drill.intensity`,
+conflating the two. Drill training XP is real and lands in hidden fractional
+attribute progress, but the mapping from displayed training effect to permanent
+XP has **never been calibrated**, and the repository holds no evidence
+sufficient to resolve it. No replacement formula was invented. Projections now
+carry a `drill.levelVsIntensity` reason graded `assumed` so the magnitude reaches
+the UI flagged as provisional. Resolving it needs controlled before/after drill
+observations — the same gap as `drillXpFactor = 0.3`.
+
+### 16.4 Confirmed: the 180 lock is a real game invariant
+
+Direct in-game confirmation: at base OVR 180 no further attributes **or
+positional-role points** can be gained; only tier progression remains until the
+end-of-season drop. §15 extended the lock to all three screens, which was flagged
+there as a judgement call — it is now confirmed as game truth, not scope creep.
+
+### 16.5 Behavioural examples
+
+Coach ×40 on 5 stats, all stats 90, age 18 (a run that crosses a threshold):
+
+| | Before this pass | After |
+|---|---|---|
+| Sum of stat deltas | 300.0 (flat, `starsGained: 0`) | 400.0 (stepped) |
+| Projected OVR delta | +20.0 | +26.7 |
+| Crossing reported | no | `training.starDecay` |
+
+A short run stays identical: coach ×40 from stat 120 gains the same +59.5 as
+before, because it never leaves the first star band — the correction perturbs
+only runs that actually cross.
+
+Longer runs now saturate rather than scaling freely (×200 → +39.1 OVR, ×400 →
++40.7, ×800 → +40.9), which is what compounding 0.85-per-star decay should do.
+
+### 16.6 Validation
+
+typecheck · logic · engine 49 · projection 53 · seam 19 · scanner 60 + 16 ·
+condition 33 · Z3 + CrossHair + TS↔Python differential 24, no skips. No
+calibrated constant, frozen golden or glyph corpus touched.
+
+### 16.7 Note on naming
+
+The repository is scrubbed of source-game IP and this pass keeps it that way.
+The doubling item is referred to generically as a **match-form / teamplay boost**
+throughout the code and these notes; the source game's product name for it is
+not written anywhere in the repository.

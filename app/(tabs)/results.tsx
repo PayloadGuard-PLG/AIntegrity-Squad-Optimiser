@@ -42,7 +42,6 @@ type StepResult = {
 export default function ResultsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [twoxAd, setTwoxAd] = useState(false);
   const [selectedCoachIds, setSelectedCoachIds] = useState<Set<string>>(new Set());
   const [selectedDrillPlanIds, setSelectedDrillPlanIds] = useState<Set<string>>(new Set());
   const [excludedTiers, setExcludedTiers] = useState<Set<TierName>>(new Set());
@@ -111,6 +110,7 @@ export default function ResultsScreen() {
     const steps: StepResult[] = [];
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
+    const ovrAtStart = currentOvr;
 
     // 1. Drill plans (pushed from drills tab)
     // Both stages below call the SAME domain seam the Drills and Coaches screens
@@ -124,7 +124,7 @@ export default function ResultsScreen() {
         drillNames: plan.drillNames,
         cycles: plan.cycles,
         profile,
-        twoxAd,
+        sessionOvrGainSoFar: currentOvr - ovrAtStart,
         label: `DRILL: ${plan.label}`,
       });
       currentStats = projection.projectedStats;
@@ -149,7 +149,7 @@ export default function ResultsScreen() {
         stats: entry.stats,
         sessions: entry.sessions,
         profile,
-        twoxAd,
+        sessionOvrGainSoFar: currentOvr - ovrAtStart,
         label: `COACH ×${entry.sessions} — ${entry.label}`,
       });
       currentStats = projection.projectedStats;
@@ -285,12 +285,6 @@ export default function ResultsScreen() {
                 </View>
                 <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
               </View>
-              <Pressable onPress={() => { setTwoxAd(v => !v); setResult(null); setFinalStats(null); }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline2, padding: 8, backgroundColor: twoxAd ? theme.surface2 : 'transparent' }}>
-                <View style={{ width: 12, height: 12, backgroundColor: twoxAd ? theme.hot : 'transparent', borderWidth: 1, borderColor: twoxAd ? theme.hot : theme.hairline3 }} />
-                <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1.2, color: twoxAd ? theme.hot : theme.inkSec }}>2× AD ACTIVE</Text>
-                {twoxAd && <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.hot, marginLeft: 'auto' }}>×2.0</Text>}
-              </Pressable>
             </View>
 
             {/* ── DRILL PLANS ── */}

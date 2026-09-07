@@ -1,6 +1,6 @@
 import { getTierAttrAddition, getTierCost } from '../utils/math';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys } from '../utils/roleWeights';
-import { estimateStatGainPct, applyTierBonusToStats, statsToQualityPct, qualityPctToOvr } from './xpEngine';
+import { applyTierBonusToStats, statsToQualityPct, qualityPctToOvr } from './xpEngine';
 import { ovrFromStatsWithPadding as engineOvrPadded } from '../engine/engineMath';
 import { projectDrillAction, RecommendationResult } from './recommendation';
 import { DrillSession, GameProfile, TalentTier, DrillLevel, TierName, InvestmentStep } from '../types/resources';
@@ -65,7 +65,7 @@ export function applyDrillSessionsToStats(
   player: Player,
   drillSessions: DrillSession[],
   _talentTier: TalentTier,
-  twoxAdActive: boolean,
+  _matchFormBoost: boolean,
   profile: GameProfile
 ): { steps: InvestmentStep[]; updatedStats: Record<string, number>; finalOvr: number; skippedDrills: SkippedDrillInfo[]; results: RecommendationResult[] } {
   const steps: InvestmentStep[] = [];
@@ -74,6 +74,7 @@ export function applyDrillSessionsToStats(
   const roleStats = new Set(getAllStatKeys(player.role));
   let updatedStats = { ...player.stats };
   let runningOvr = computeOvrFromStats(player, profile);
+  const ovrAtPlanStart = runningOvr;
 
   // `_talentTier` is advisory only. Talent policy is resolved once, inside
   // recommendation.resolveTalentPolicy — see projectOvr, which surfaces the
@@ -102,7 +103,8 @@ export function applyDrillSessionsToStats(
       drillNames: [session.drillName],
       cycles: session.sessionCount,
       profile,
-      twoxAd: twoxAdActive,
+      // Stars accrue across the whole plan, not per drill session.
+      sessionOvrGainSoFar: runningOvr - ovrAtPlanStart,
       label: `${session.drillName} ×${session.sessionCount} sessions (${drill.intensity})`,
     });
     results.push(result);
@@ -220,6 +222,9 @@ export function projectOvr(
   if (sessions.length > 0 && !trainingLocked) {
     const { steps: drillSteps, updatedStats, finalOvr: postDrillOvr, skippedDrills, results } =
       applyDrillSessionsToStats({ ...player, stats: currentStats }, sessions, talentTier, twoxAdActive, profile);
+    // `twoxAdActive` is accepted for signature compatibility and deliberately
+    // ignored: the doubling item is a match-form effect, not a development-coach
+    // effect, and does not multiply permanent attributes. See recommendation.ts.
     steps.push(...drillSteps);
     currentStats = updatedStats;
     currentOvr = postDrillOvr;
