@@ -1032,7 +1032,7 @@
     "ljdark_leo_confirmation": "LJDark Leo T2: displayed sum=2181, game OVR=145. floor(2181/15)=floor(145.4)=145 ✓. Consistent with floor formula."
   },
   "bxps_recalibration": {
-    "finding": "bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally. K was subsequently recalibrated from 55 to 47 via CV minimisation across 5 Grant ×40 observations (CV=3.2%). bXPS was then re-derived at 676 — the integral form of the XP budget equation with K=47 gives Grant Tackling 120 ×40 gain=65.7 (actual 59–73 ✓).",
+    "finding": "SUPERSEDED IN PART — see midpointAssumption and intervalRederivation below. bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally. K was subsequently recalibrated from 55 to 47 via CV minimisation across 5 Grant ×40 observations (CV=3.2%). bXPS was then re-derived at 676 — the integral form of the XP budget equation with K=47 gives Grant Tackling 120 ×40 gain=65.7 (actual 59–73 ✓).",
     "newValue": 676,
     "evidence": [
       {
@@ -1160,7 +1160,73 @@
         ],
         "pass": true
       }
-    }
+    },
+    "midpointAssumption": {
+      "removed": true,
+      "whatWasAssumed": "Every impliedBxps figure in `evidence` was obtained by treating the midpoint of the game's displayed +lo-hi as the expected gain (gameMid/actualMid). The game states an INTERVAL. It has never stated where the expectation sits inside it, so the midpoint is an assumption, not an observation. Two of the Dallas rows (POSITIONING 194 and AGGRESSION 189) show the IDENTICAL interval [4,6] at different stat values, so the interval is far too coarse to separate them.",
+      "whyItMattered": "The assumption is what made a point estimate possible at all. Without it each observation constrains an interval, not a value.",
+      "staleFigures": "The per-stat impliedBxps values (495/455/414/409) and impliedBxpsAvg were computed under the SUPERSEDED cost curve K=55. They do not apply to the current K=47 engine and must not be re-used. The 'mean of 4 estimates -> 443' line in `rationale` is therefore not a derivation of anything; it is arithmetic over numbers from a model that no longer exists."
+    },
+    "intervalRederivation": {
+      "method": "Each observation re-solved under the CURRENT engine (C0=2.94, K=47, geometric session budget, confirmed age and grey multipliers, Normal talent) for the bXPS that reproduces the interval's lower bound and its upper bound. No midpoint used.",
+      "perObservation": [
+        {
+          "observation": "Dallas MARKING 139",
+          "gameRange": [
+            11,
+            16
+          ],
+          "bxpsAdmitted": [
+            622,
+            956
+          ]
+        },
+        {
+          "observation": "Dallas POSITIONING 194",
+          "gameRange": [
+            4,
+            6
+          ],
+          "bxpsAdmitted": [
+            675,
+            1034
+          ]
+        },
+        {
+          "observation": "Dallas AGGRESSION 189",
+          "gameRange": [
+            4,
+            6
+          ],
+          "bxpsAdmitted": [
+            607,
+            930
+          ]
+        },
+        {
+          "observation": "Grant TACKLING 120",
+          "gameRange": [
+            59,
+            73
+          ],
+          "bxpsAdmitted": [
+            666,
+            989
+          ]
+        }
+      ],
+      "intersection": [
+        675,
+        930
+      ],
+      "verdict": "All four observations are mutually consistent. They admit bXPS anywhere in 675-930. The value in the profile, 676, sits at the extreme LOWER EDGE of that band - it is admissible, but it is the floor, not the centre. It was obtained by solving one stat (Grant TACKLING) at its midpoint. CONSEQUENCE: every projection the app produces is at the conservative end of what this evidence equally permits; a value near 800 is no less supported. Do not treat 676 as measured.",
+      "divisorTest": {
+        "question": "Is the coach XP budget divided by the stats SHOWING ranges, or by the full category?",
+        "result": "Re-solving with the Dallas Safeguard divisor set to 5 (full category) instead of 3 (rows with visible ranges) makes the four observations INCONSISTENT: they would require bXPS >= 1125 and <= 989 simultaneously.",
+        "conclusion": "The 'rows showing ranges' convention used by coachBudgetPerStat is SUPPORTED - the full-category alternative is arithmetically impossible against this evidence. This is a positive finding, not an assumption."
+      }
+    },
+    "status": "bXPS is an interval (675-930), not a point. Profile holds the floor of that interval."
   },
   "controlled_tests": [
     {
@@ -2207,28 +2273,112 @@
     },
     "cards": [
       {
-        "name": "King Alfie", "age": 23, "tier": "T4", "tierBonusLabel": "MASTER +80", "ovr_game": 206,
-        "rolesEstablished": ["DC", "DL", "DMC"], "learningRole": null,
+        "name": "King Alfie",
+        "age": 23,
+        "tier": "T4",
+        "tierBonusLabel": "MASTER +80",
+        "ovr_game": 206,
+        "rolesEstablished": [
+          "DC",
+          "DL",
+          "DMC"
+        ],
+        "learningRole": null,
         "whiteStatCount": 12,
-        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "CROSSING", "FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"],
-        "grey": ["DRIBBLING", "SHOOTING", "FINISHING"],
+        "white": [
+          "TACKLING",
+          "MARKING",
+          "POSITIONING",
+          "HEADING",
+          "BRAVERY",
+          "PASSING",
+          "CROSSING",
+          "FITNESS",
+          "STRENGTH",
+          "AGGRESSION",
+          "SPEED",
+          "CREATIVITY"
+        ],
+        "grey": [
+          "DRIBBLING",
+          "SHOOTING",
+          "FINISHING"
+        ],
         "note": "CROSSING white via DL. SHOOTING grey — no role here supplies it."
       },
       {
-        "name": "Darren Moore", "age": 19, "tier": "T3", "tierBonusLabel": "STELLAR +50", "ovr_game": 193,
-        "rolesEstablished": ["DC", "DMC"], "learningRole": { "role": "MC", "points": 2, "outOf": 50 },
+        "name": "Darren Moore",
+        "age": 19,
+        "tier": "T3",
+        "tierBonusLabel": "STELLAR +50",
+        "ovr_game": 193,
+        "rolesEstablished": [
+          "DC",
+          "DMC"
+        ],
+        "learningRole": {
+          "role": "MC",
+          "points": 2,
+          "outOf": 50
+        },
         "whiteStatCount": 10,
-        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "FITNESS", "STRENGTH", "AGGRESSION", "CREATIVITY"],
-        "grey": ["DRIBBLING", "CROSSING", "SHOOTING", "FINISHING", "SPEED"],
-        "stats": { "TACKLING": 233, "MARKING": 242, "POSITIONING": 256, "HEADING": 236, "BRAVERY": 245, "PASSING": 214, "DRIBBLING": 134, "CROSSING": 118, "SHOOTING": 139, "FINISHING": 124, "FITNESS": 214, "STRENGTH": 207, "AGGRESSION": 199, "SPEED": 138, "CREATIVITY": 193 },
+        "white": [
+          "TACKLING",
+          "MARKING",
+          "POSITIONING",
+          "HEADING",
+          "BRAVERY",
+          "PASSING",
+          "FITNESS",
+          "STRENGTH",
+          "AGGRESSION",
+          "CREATIVITY"
+        ],
+        "grey": [
+          "DRIBBLING",
+          "CROSSING",
+          "SHOOTING",
+          "FINISHING",
+          "SPEED"
+        ],
+        "stats": {
+          "TACKLING": 233,
+          "MARKING": 242,
+          "POSITIONING": 256,
+          "HEADING": 236,
+          "BRAVERY": 245,
+          "PASSING": 214,
+          "DRIBBLING": 134,
+          "CROSSING": 118,
+          "SHOOTING": 139,
+          "FINISHING": 124,
+          "FITNESS": 214,
+          "STRENGTH": 207,
+          "AGGRESSION": 199,
+          "SPEED": 138,
+          "CREATIVITY": 193
+        },
         "statSum": 2892,
         "incomplete_role_cost": {
           "_question": "What white/grey differences exist purely because MC is at 2/50 rather than complete?",
-          "greyOnlyBecauseMcIncomplete": ["DRIBBLING", "SHOOTING", "SPEED"],
+          "greyOnlyBecauseMcIncomplete": [
+            "DRIBBLING",
+            "SHOOTING",
+            "SPEED"
+          ],
           "onCompletion": {
-            "DRIBBLING": { "now": 134, "after": 184 },
-            "SHOOTING": { "now": 139, "after": 189 },
-            "SPEED": { "now": 138, "after": 188 }
+            "DRIBBLING": {
+              "now": 134,
+              "after": 184
+            },
+            "SHOOTING": {
+              "now": 139,
+              "after": 189
+            },
+            "SPEED": {
+              "now": 138,
+              "after": 188
+            }
           },
           "immediateStatTotal": "+150 (2892 -> 3042), from the +50 T3 cumulative tier bonus applying to each newly-white stat at the moment it turns white",
           "ovrGain": "+10. Two independent routes agree: floor(3042/15)-floor(2892/15) = 202-192 = +10, and tier contribution floor(50x13/15)-floor(50x10/15) = 43-33 = +10.",
@@ -2237,19 +2387,71 @@
         }
       },
       {
-        "name": "SD Faye", "age": 29, "tier": "T4", "tierBonusLabel": "MASTER +80", "ovr_game": 167,
-        "rolesEstablished": ["DMC", "MC", "DC"], "learningRole": null,
+        "name": "SD Faye",
+        "age": 29,
+        "tier": "T4",
+        "tierBonusLabel": "MASTER +80",
+        "ovr_game": 167,
+        "rolesEstablished": [
+          "DMC",
+          "MC",
+          "DC"
+        ],
+        "learningRole": null,
         "whiteStatCount": 13,
-        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "DRIBBLING", "SHOOTING", "FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"],
-        "grey": ["CROSSING", "FINISHING"],
+        "white": [
+          "TACKLING",
+          "MARKING",
+          "POSITIONING",
+          "HEADING",
+          "BRAVERY",
+          "PASSING",
+          "DRIBBLING",
+          "SHOOTING",
+          "FITNESS",
+          "STRENGTH",
+          "AGGRESSION",
+          "SPEED",
+          "CREATIVITY"
+        ],
+        "grey": [
+          "CROSSING",
+          "FINISHING"
+        ],
         "note": "The control for Moore: same role set, all three established. SHOOTING, DRIBBLING and SPEED are white here."
       },
       {
-        "name": "Cieran Morgan", "age": 22, "tier": "T4", "tierBonusLabel": "MASTER +80", "ovr_game": 221,
-        "rolesEstablished": ["DMC", "MC", "AMC"], "learningRole": null,
+        "name": "Cieran Morgan",
+        "age": 22,
+        "tier": "T4",
+        "tierBonusLabel": "MASTER +80",
+        "ovr_game": 221,
+        "rolesEstablished": [
+          "DMC",
+          "MC",
+          "AMC"
+        ],
+        "learningRole": null,
         "whiteStatCount": 14,
-        "white": ["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY", "PASSING", "DRIBBLING", "SHOOTING", "FINISHING", "FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"],
-        "grey": ["CROSSING"],
+        "white": [
+          "TACKLING",
+          "MARKING",
+          "POSITIONING",
+          "HEADING",
+          "BRAVERY",
+          "PASSING",
+          "DRIBBLING",
+          "SHOOTING",
+          "FINISHING",
+          "FITNESS",
+          "STRENGTH",
+          "AGGRESSION",
+          "SPEED",
+          "CREATIVITY"
+        ],
+        "grey": [
+          "CROSSING"
+        ],
         "note": "FINISHING white via AMC. Confirms Cieran Morgan is T4/MASTER and age 22, correcting the T0 recorded elsewhere in this file."
       }
     ],

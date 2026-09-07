@@ -59,9 +59,6 @@ export default function CoachesScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
-  // Gain ranges captured directly from the game's coach preview (+lo-hi per stat).
-  // When present, projection uses (lo+hi)/2 directly instead of the XP formula.
-  const [scannedGainRanges, setScannedGainRanges] = useState<Record<string, { lo: number; hi: number }>>({});
   const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
@@ -103,7 +100,6 @@ export default function CoachesScreen() {
     setResult(null);
     setSaveConfirmed(false);
     setScanStatus('');
-    setScannedGainRanges({});
   }, [manager]);
 
   function buildStatus(stats: string[], type: string, cat: string, prefix: string) {
@@ -120,7 +116,6 @@ export default function CoachesScreen() {
     setCoachType(next);
     setFocusedStatSel(new Set());
     setResult(null);
-    setScannedGainRanges({});
     if (next && next !== 'Focused' && coachCategory) {
       const stats = CATEGORY_STATS[coachCategory] ?? [];
       setScannedStats(stats);
@@ -196,19 +191,17 @@ export default function CoachesScreen() {
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
 
-      // Extract gain ranges BEFORE resolveCoachStats discards them.
-      // These are the game's own projected gains (+lo-hi) from the coach preview.
-      // runProjection uses (lo+hi)/2 directly for stats where this data exists.
+      // Counted for the scan status line only. The projection does NOT consume
+      // these: the game's displayed +lo-hi is an interval, and its midpoint is
+      // not a stated expected value. Treating it as one is an assumption, not an
+      // observation, so it never enters the math. See calibration_data.json →
+      // bxps_recalibration.midpointAssumption.
       const gainRanges: Record<string, { lo: number; hi: number; statBefore: number }> = {};
       for (const cap of scan.stats) {
         if (cap.gainLo > 0 && cap.gainHi > 0 && cap.statBefore > 0) {
           gainRanges[cap.statName] = { lo: cap.gainLo, hi: cap.gainHi, statBefore: cap.statBefore };
         }
       }
-      setScannedGainRanges(Object.fromEntries(
-        Object.entries(gainRanges).map(([k, v]) => [k, { lo: v.lo, hi: v.hi }])
-      ));
-
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
 
       if (statNames[0] === ALL_ROUND_SENTINEL) {
