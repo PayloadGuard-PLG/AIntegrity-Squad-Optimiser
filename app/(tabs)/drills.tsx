@@ -11,14 +11,15 @@ import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { drillPlanHistoryService } from '../../src/services/drillPlanHistoryService';
+import { findSubFloorBundle } from '../../src/logic/zeroDrainEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
-import { calculateActualLoss } from '../../src/utils/conditionEngine';
+import { sessionDrain, MIN_CONDITION_DRAIN_PCT } from '../../src/utils/conditionEngine';
 import { estimateStatGainPct } from '../../src/logic/xpEngine';
 import { isWhiteStat } from '../../src/utils/roleWeights';
 import { computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import { theme } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
-import { FanLevel, GameProfile } from '../../src/types/resources';
+import { GameProfile, SurgeState, SurgeLevel } from '../../src/types/resources';
 import gameProfileJson from '../../profiles/game_2025.json';
 
 const profile = gameProfileJson as unknown as GameProfile;
@@ -38,7 +39,13 @@ type DrillProjection = { gains: DrillGain[]; ovrBefore: number; ovrAfter: number
 export default function DrillsScreen() {
   const { squad } = useSquad();
   const manager = useManager();
-  const [fanLevel, setFanLevel] = useState<FanLevel>(2);
+  // Perfect Conditions SURGE state. Defaults to season start: inactive, level 0.
+  // Loyalty resets every season, so "off" is the correct default, not L2.
+  const [surgeActive, setSurgeActive] = useState(false);
+  const [surgeLevel, setSurgeLevel] = useState<SurgeLevel>(0);
+  const surge: SurgeState = { perfectConditionsActive: surgeActive, perfectConditionsLevel: surgeLevel };
+  // Sub-floor bundle only exists at Perfect Conditions active L4; null otherwise.
+  const bundle = findSubFloorBundle(surge);
   const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
 
   // Preset build mode
@@ -69,9 +76,9 @@ export default function DrillsScreen() {
 
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
-    return getDrillRecommendations(selectedPlayer, fanLevel)
+    return getDrillRecommendations(selectedPlayer, surge)
       .filter(d => d.intensity === drillLevel);
-  }, [selectedPlayer, fanLevel, drillLevel]);
+  }, [selectedPlayer, surgeActive, surgeLevel, drillLevel]);
 
   function togglePresetDrill(name: string) {
     setPresetSelection(prev => {
@@ -110,12 +117,16 @@ export default function DrillsScreen() {
     setDrillProjection(null);
   }
 
-  function calcCondPerCycle(drillNames: string[]): number {
-    return drillNames.reduce((sum, name) => {
-      const drill = DRILL_LIST.find(d => d.name === name);
-      if (!drill) return sum;
-      return sum + calculateActualLoss(drill.baseLoss, fanLevel, drill.intensity);
-    }, 0);
+  // Per-cycle condition cost. RAW is exact and is what the game's own
+  // pre-confirm dialog shows; the CHARGE is not deterministic (see
+  // conditionEngine), so the envelope is shown alongside rather than a single
+  // number that will not be what the player is actually billed.
+  function calcCondPerCycle(drillNames: string[]) {
+    const drills = drillNames
+      .map(name => DRILL_LIST.find(d => d.name === name))
+      .filter((d): d is NonNullable<typeof d> => !!d)
+      .map(d => ({ baseLoss: d.baseLoss, intensity: d.intensity }));
+    return sessionDrain(drills, surge);
   }
 
   function projectDrillPlan() {
@@ -167,7 +178,7 @@ export default function DrillsScreen() {
         presetName: preset.name,
         drillNames: preset.drillNames,
         cycles: presetCycles[preset.id] ?? 1,
-        fanLevel: fanLevel as number,
+        fanLevel: surgeActive ? (surgeLevel as number) : -1,
       });
     }
     setPushSuccess(true);
@@ -215,23 +226,39 @@ export default function DrillsScreen() {
           })}
         </View>
 
-        {/* Fan Club selector */}
+        {/* Perfect Conditions surge selector */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <MonoLabel color={theme.steelLight}>FAN CLUB</MonoLabel>
+          <MonoLabel color={theme.steelLight}>PERFECT CONDITIONS</MonoLabel>
           <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-          {drills.some(d => d.isZeroDrain) && <MonoLabel size={9} color={theme.pos}>ZERO-DRAIN UNLOCKED</MonoLabel>}
+          {bundle
+            ? <MonoLabel size={9} color={theme.pos}>BUNDLE: {bundle.intensities.length} DRILLS / 1 CHARGE</MonoLabel>
+            : <MonoLabel size={9} color={theme.inkGhost}>MIN CHARGE {MIN_CONDITION_DRAIN_PCT.toFixed(2)}%</MonoLabel>}
         </View>
-        <View style={{ flexDirection: 'row', marginBottom: 18, borderWidth: 1, borderColor: theme.hairline2 }}>
-          {([0, 1, 2, 3, 4] as FanLevel[]).map(l => {
-            const sel = fanLevel === l;
+        {/* Surge activation — loyalty resets each season, so OFF is the default */}
+        <View style={{ flexDirection: 'row', marginBottom: 8, borderWidth: 1, borderColor: theme.hairline2 }}>
+          {[false, true].map(a => (
+            <Pressable key={String(a)} onPress={() => setSurgeActive(a)} style={{
+              flex: 1, paddingVertical: 10, alignItems: 'center',
+              backgroundColor: surgeActive === a ? theme.ink : 'transparent',
+              borderRightWidth: a ? 0 : 1, borderRightColor: theme.hairline2,
+            }}>
+              <Text style={{ fontFamily: theme.mono, fontSize: 11, letterSpacing: 1, color: surgeActive === a ? theme.bg : theme.inkSec }}>
+                {a ? 'ACTIVE' : 'INACTIVE'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <View style={{ flexDirection: 'row', marginBottom: 6, borderWidth: 1, borderColor: theme.hairline2, opacity: surgeActive ? 1 : 0.4 }}>
+          {([0, 1, 2, 3, 4] as SurgeLevel[]).map(l => {
+            const sel = surgeLevel === l;
             return (
-              <Pressable key={l} onPress={() => setFanLevel(l)} style={{
+              <Pressable key={l} disabled={!surgeActive} onPress={() => setSurgeLevel(l)} style={{
                 flex: 1, paddingVertical: 12, alignItems: 'center',
                 backgroundColor: sel ? theme.ink : 'transparent',
                 borderRightWidth: l < 4 ? 1 : 0, borderRightColor: theme.hairline2,
                 position: 'relative',
               }}>
-                {l === 4 && !sel && (
+                {l === 4 && !sel && surgeActive && (
                   <View style={{ position: 'absolute', top: 3, right: 4, width: 5, height: 5, backgroundColor: theme.pos, borderRadius: 3 }} />
                 )}
                 <Text style={{ fontFamily: theme.mono, fontSize: 12, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>L{l}</Text>
@@ -293,15 +320,12 @@ export default function DrillsScreen() {
                     <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{Math.round(d.efficiency * 100)}%</Text>
                     <MonoLabel size={8} color={theme.inkGhost}>EFF</MonoLabel>
-                    {d.isZeroDrain ? (
-                      <View style={{ paddingHorizontal: 5, paddingVertical: 2, borderWidth: 1, borderColor: theme.pos + '66', backgroundColor: theme.pos + '12' }}>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.pos }}>0·DRAIN</Text>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.conditionCost < 2 ? theme.hot : theme.neg }}>{d.conditionCost.toFixed(2)}%</Text>
+                    <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>
+                    {d.isFloored && (
+                      <View style={{ paddingHorizontal: 5, paddingVertical: 2, borderWidth: 1, borderColor: theme.hot + '66', backgroundColor: theme.hot + '12' }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.hot }}>MIN</Text>
                       </View>
-                    ) : (
-                      <>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.conditionCost < 2 ? theme.hot : theme.neg }}>{d.conditionCost.toFixed(2)}%</Text>
-                        <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>
-                      </>
                     )}
                   </View>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
@@ -348,7 +372,9 @@ export default function DrillsScreen() {
                     {/* Name row */}
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                       <Text style={{ flex: 1, fontFamily: theme.mono, fontSize: 11, letterSpacing: 1, color: theme.ink, fontWeight: '700' }}>{preset.name}</Text>
-                      <MonoLabel size={8} color={theme.inkGhost}>{condPerCycle.toFixed(2)}%/CYCLE</MonoLabel>
+                      <MonoLabel size={8} color={theme.inkGhost}>
+                        {condPerCycle.raw.toFixed(2)}%/CYCLE · {condPerCycle.charge.low}–{condPerCycle.charge.high} BILLED
+                      </MonoLabel>
                       <Pressable onPress={() => deletePreset(preset.id)} style={{ paddingHorizontal: 6, paddingVertical: 2 }}>
                         <MonoLabel size={9} color={theme.neg}>✕</MonoLabel>
                       </Pressable>

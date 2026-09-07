@@ -20,7 +20,7 @@ import { drillPlanHistoryService, type DrillPlanEntry } from '../../src/services
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 
 const profile = gameProfileJson as unknown as GameProfile;
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7' };
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7', Unknown: '×1.0?' };
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const TIER_COSTS: Record<TierName, number> = profile.tierPointsRequired as Record<TierName, number>;
 const TIER_ADDITIONS: Record<TierName, number> = profile.tierAttrAdditions as Record<TierName, number>;

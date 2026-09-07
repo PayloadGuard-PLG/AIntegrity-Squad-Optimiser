@@ -71,6 +71,15 @@ def _stop_runner() -> None:
             _proc.kill()
 
 
+# These tests cross a process boundary into the Node engine runner. The FIRST
+# call pays tsx/Node start-up (~900ms) while every later call is sub-millisecond,
+# which trips Hypothesis's 200ms per-example deadline non-deterministically.
+# Wall time is not the property under test — the ε=1e-10 equivalence is — so the
+# deadline is disabled and the runner is warmed once before any example runs.
+# max_examples is unchanged at 200.
+DIFF_SETTINGS = settings(max_examples=200, deadline=None)
+
+
 def _ts(fn: str, args: Any) -> Any:
     proc = _runner()
     proc.stdin.write(json.dumps({'fn': fn, 'args': args}) + '\n')
@@ -112,7 +121,7 @@ s_intensity  = st.sampled_from(_INTENSITIES)
 
 @pytest.mark.proof
 @given(s_sessions, s_num_stats)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_coach_budget_per_stat(sessions: float, num_stats: int) -> None:
     py = coach_budget_per_stat(sessions, num_stats)
     ts = _ts('coachBudgetPerStat', [sessions, num_stats])
@@ -121,7 +130,7 @@ def test_coach_budget_per_stat(sessions: float, num_stats: int) -> None:
 
 @pytest.mark.proof
 @given(s_stat, s_budget, s_mult)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_stat_gain_from_budget(start_stat: float, budget: float, mult: float) -> None:
     py = stat_gain_from_budget(start_stat, budget, mult)
     ts = _ts('statGainFromBudget', [start_stat, budget, mult])
@@ -130,7 +139,7 @@ def test_stat_gain_from_budget(start_stat: float, budget: float, mult: float) ->
 
 @pytest.mark.proof
 @given(s_stat_list)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_ovr_from_stats(stat_values: list[float]) -> None:
     py = ovr_from_stats(stat_values)
     ts = _ts('ovrFromStats', [stat_values])
@@ -139,7 +148,7 @@ def test_ovr_from_stats(stat_values: list[float]) -> None:
 
 @pytest.mark.proof
 @given(s_age, s_talent, st.booleans(), s_stars, st.booleans(), s_drill_mult)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_combined_multiplier(
     age: float, talent: str, is_white: bool,
     stars_gained: int, twox_ad: bool, drill_level_mult: float,
@@ -158,7 +167,7 @@ def test_combined_multiplier(
 
 @pytest.mark.proof
 @given(s_stat_list, s_levels, s_decay)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_apply_season_decay(stat_values: list[float], levels: int, decay_per_level: float) -> None:
     py = apply_season_decay(stat_values, levels, decay_per_level)
     ts = _ts('applySeasonDecay', [stat_values, levels, decay_per_level])
@@ -169,7 +178,7 @@ def test_apply_season_decay(stat_values: list[float], levels: int, decay_per_lev
 
 @pytest.mark.proof
 @given(s_base_ovr)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_is_training_locked(base_ovr: float) -> None:
     py = is_training_locked(base_ovr)
     ts = _ts('isTrainingLocked', [base_ovr])
@@ -178,8 +187,19 @@ def test_is_training_locked(base_ovr: float) -> None:
 
 @pytest.mark.proof
 @given(s_intensity, s_fan)
-@settings(max_examples=200)
+@DIFF_SETTINGS
 def test_condition_drain_pct(drill_intensity: str, fan_level: int) -> None:
     py = condition_drain_pct(drill_intensity, fan_level)
     ts = _ts('conditionDrainPct', [drill_intensity, fan_level])
     assert _eq(py, ts), f'conditionDrainPct({drill_intensity!r}, {fan_level}): py={py} ts={ts}'
+
+
+@pytest.fixture(scope='session', autouse=True)
+def _warm_runner():
+    """Start the Node runner and make one throwaway call before timing matters.
+
+    Without this the first Hypothesis example absorbs tsx/Node start-up and the
+    suite fails intermittently on DeadlineExceeded rather than on a real
+    Python-vs-TypeScript disagreement.
+    """
+    _ts('isTrainingLocked', [100.0])

@@ -59,7 +59,7 @@ const TWOX_AD     = false;
 
 // ─── Pick top-N drills by ROI ─────────────────────────────────────────────────
 
-const ranked = getRecommendedDrills(ALA as any, FAN_LEVEL as 0|1|2|3|4);
+const ranked = getRecommendedDrills(ALA as any, { perfectConditionsActive: true, perfectConditionsLevel: FAN_LEVEL as 0|1|2|3|4 });
 const topDrills = ranked.slice(0, TOP_N);
 
 console.log('\n──────────────────────────────────────────────────────────────');

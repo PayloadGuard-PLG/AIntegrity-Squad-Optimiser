@@ -129,10 +129,13 @@ export const MAX_BASE_OVR: number = profile.maxBaseOvr;  // 180
 export const SEASON_DECAY: number = profile.seasonDecayPerLevel ?? 20;
 
 // ─── CONDITION SYSTEM ────────────────────────────────────────────────────────
-// Confirmed ✅ conditionLoss = baseLoss × intensityMult × (1 − fanClubReduction/100)
+// Confirmed ✅ conditionLoss = baseLoss × intensityMult × (1 − fanClubReduction)
 // Confirmed ✅ condLevelMultipliers: ×1 (VE) → ×5 (VH) from game screenshots.
-// Confirmed ✅ fanClubCondReduction: L0=10%, L1=15%, L2=20%, L3=25%, L4=50%.
-// Confirmed ✅ zeroDrainThreshold: Very Easy + L4 = 0.375% rounds to 0.00% in-game.
+// Confirmed ✅ fanClubCondReduction: L0=10%, L1=15%, L2=20%, L3=25%, L4=50% — stored
+//             as FRACTIONS of 1 (.10 … .50) and applied as (1 − r), not (1 − r/100).
+// Retired  ❌ zeroDrainThreshold: the 0% drain mechanic was patched out. Every session
+//             is charged a 1% minimum (minimumConditionDrainPct). Kept so the constant
+//             is not re-derived; nothing should branch on it.
 // Confirmed ✅ conditionPerRestorer = 15%.
 export const COND_LEVEL_MULTS: Record<string, number> = profile.condLevelMultipliers;
 export const FAN_COND_REDUCTION: number[]             = profile.fanClubCondReduction;

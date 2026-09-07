@@ -1,13 +1,17 @@
 import { isWhiteStat, validateRoleAdjacency, getWhiteStatKeys } from '../utils/roleWeights';
 import { DRILL_LIST } from '../database/drillDatabase';
-import { calculateActualLoss } from '../utils/conditionEngine';
+import { calculateActualLoss, rawDrillDrain } from '../utils/conditionEngine';
+import { SurgeState, SURGE_STATE_SEASON_START } from '../types/resources';
 import { Player } from '../database/playerSchema';
 import { FanLevel, GameProfile } from '../types/resources';
 import gameProfileJson from '../../profiles/game_2025.json';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4) {
+export function getRecommendedDrills(
+    player: Player,
+    surge: SurgeState = SURGE_STATE_SEASON_START
+) {
     if (!validateRoleAdjacency(player.role)) {
         throw new Error(`Invalid combination: Roles must be adjacent.`);
     }
@@ -15,12 +19,17 @@ export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4)
     const whiteStats = new Set(getWhiteStatKeys(player.role));
 
     return DRILL_LIST.map(drill => {
-        const actualLoss = calculateActualLoss(drill.baseLoss, fanClubLevel, drill.intensity);
-        const isZeroDrain = actualLoss < profile.zeroDrainThreshold;
+        // Charged cost: never zero. The 0% drain loophole was patched; drills
+        // below the floor are charged the 1% minimum, not made free.
+        const rawLoss = rawDrillDrain(drill.baseLoss, drill.intensity, surge);
+        const actualLoss = calculateActualLoss(drill.baseLoss, drill.intensity, surge);
+        const isFloored = actualLoss > rawLoss;
         const whiteDrillStats = drill.stats.filter(s => whiteStats.has(s.toUpperCase()));
         const efficiency = drill.stats.length > 0 ? whiteDrillStats.length / drill.stats.length : 0;
-        const conditionCost = isZeroDrain ? 0 : actualLoss;
-        const roi = conditionCost === 0 ? efficiency * 1000 : efficiency / conditionCost;
+        const conditionCost = actualLoss;
+        // No free-drill branch: conditionCost >= MIN_CONDITION_DRAIN_PCT whenever a
+        // drill runs, so ROI is always a real ratio.
+        const roi = efficiency / conditionCost;
 
         const vals = whiteDrillStats.map(s => player.stats[s]).filter((v): v is number => v !== undefined);
         const avgWhiteStatValue = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : Infinity;
@@ -31,7 +40,8 @@ export function getRecommendedDrills(player: Player, fanClubLevel: FanLevel = 4)
             intensity: drill.intensity,
             efficiency,
             conditionCost,
-            isZeroDrain,
+            rawLoss,
+            isFloored,
             roi,
             avgWhiteStatValue,
             statsHit: drill.stats,

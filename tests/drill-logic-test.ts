@@ -18,7 +18,7 @@ console.log("--- AIntegrity 2026: Drill Logic Test ---");
 console.log("Scenario: Fan Club Level 4 (-50% Condition Drain)\n");
 
 try {
-    const recommendations = getBestDrillSelections(monsterPlayer as any, 4);
+    const recommendations = getBestDrillSelections(monsterPlayer as any, { perfectConditionsActive: true, perfectConditionsLevel: 4 });
     console.table(recommendations);
     console.log("\n✔ Logic execution successful.");
 } catch (error: any) {

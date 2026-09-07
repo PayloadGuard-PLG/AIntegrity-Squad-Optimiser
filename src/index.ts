@@ -73,7 +73,7 @@ async function startApp() {
     const p = players.find(pl => pl.name.toLowerCase() === name.toLowerCase());
     if (p) {
       console.log(`\nDrill Recommendations for ${p.name} (Fan Club Lvl 4):\n`);
-      console.table(getBestDrillSelections(p, 4));
+      console.table(getBestDrillSelections(p, { perfectConditionsActive: true, perfectConditionsLevel: 4 }));
     } else {
       console.log(`Player "${name}" not found.`);
     }
