@@ -30,7 +30,12 @@ export const K: number  = profile.xpCostDecayK as number;  // 47
 //   Do NOT change without ≥ 2 new independent data points.
 export const BASE_XPS: number = profile.baseXpPerSession;  // 676
 
-// Confirmed ✅ sessionBudgetDecay = 0.99
+// ⚠️ WORKING VALUE, not separately identified: sessionBudgetDecay = 0.99
+//    Consistent with the long-run observation, but coach type is confounded with
+//    session count in the corpus — the only Extensive run (Jables ×114) is also
+//    the only high-N one. A linear model with an Extensive rate of 0.60× the
+//    Standard per-session rate reproduces the same budget (7006 × 0.598 = 4191)
+//    and the same OVR. Needs a low-N Extensive or high-N Standard run to break.
 //   Each successive session of the same coach delivers slightly less XP than the previous.
 //   Effective sessions = (1 - 0.99^N) / (1 - 0.99) = (1 - 0.99^N) × 100.
 //   Derived from LJDark Leo ×114 Extensive GK (Normal, age 18):

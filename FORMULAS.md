@@ -46,7 +46,7 @@ Effective session counts at key N values:
 
 Example: 5-stat coach block for ×40 sessions: `33.1 × 676 / 5 = 4,476 XP per stat`.
 
-**Calibration:** `baseXpPerSession = 676` — the **floor of an admitted 675–930 interval** (see the box in §3), derived from Grant ×40 Standard Defending (all 5 stats within game range) at the conservative end, not a confirmed point. `sessionBudgetDecay = 0.99` — confirmed Sprint 34 from LJDark Leo ×114 Extensive GK: linear model projects 182 OVR (actual 173, error +9 ✗); geometric model (68.2 effective) projects 172 OVR (error −1 ✓).
+**Calibration:** `baseXpPerSession = 676` — the **floor of an admitted 675–930 interval** (see the box in §3), derived from Grant ×40 Standard Defending (all 5 stats within game range) at the conservative end, not a confirmed point. `sessionBudgetDecay = 0.99` — **current working value, not separately identified.** Sprint 34 showed the geometric form fits the Jables ×114 Extensive GK result (172 vs actual 173) where the linear one does not (182, error +9). But coach type is **confounded with session count**: that is the only Extensive observation and also the only high-N one, and a linear model in which an Extensive coach pays 0.60× the Standard per-session rate gives the identical budget (7006 × 0.598 = 4191 XP/stat) and hence the identical OVR. A **low-N Extensive** or **high-N Standard** observation is needed to separate the two.
 
 ### 2.2 XP budget per stat — drill session
 
@@ -207,16 +207,19 @@ a live defect in the verification layer until Sprint 38.
 | condLevelMultipliers | `condLevelMultipliers` | VE=1, Easy=2, Medium=3, Hard=4, VH=5 |
 | fanClubCondReduction | `fanClubCondReduction` | [0.10, 0.15, 0.20, 0.25, 0.50] (L0–L4) |
 
-> ⚠️ **`baseXpPerSession = 676` is an INTERVAL, not a point.** 676 is the FLOOR.
+> ⚠️ **`baseXpPerSession = 676` is a point chosen from an interval.** The admitted
+> range is **675–930**, and 676 is deliberately retained near its lower edge.
 > Re-solving the calibration observations from their stated `+lo–hi` intervals
 > rather than their midpoints admits **675–930**. The game states a range and
 > never says where the expectation sits inside it, so back-calculating from
 > `(lo+hi)/2` manufactures a precision the observation does not contain — and
 > averaging several such estimates compounds it, because it hides how wide each
 > one was. Solve each observation for the constant reproducing its lower bound
-> AND its upper bound, then intersect. Every projection is therefore at the
-> conservative end of what the evidence permits. 676 is deliberately left
-> unchanged rather than swapped for another convenient point.
+> AND its upper bound, then intersect. The consequence is bounded to what the
+> constant actually governs: the **coach XP budget contribution** sits near the
+> conservative edge of the admitted range, conditional on the rest of the model
+> being right. 676 is deliberately left unchanged rather than swapped for another
+> convenient point.
 
 **Note:** `condLevelMultipliers` and `drillLevelMultipliers` are separate tables with different purposes. Condition drain and XP gain are independent systems.
 
@@ -244,7 +247,7 @@ pin the shape:
 
 ```
 charge ∈ [ max(1, floor(RAW − 0.5·n)) , max(1, ceil(RAW + 0.5·n)) ]     n = drill count
-expected = max(1, RAW)
+centre ≈ max(1, RAW)      model centre, NOT a measured expectation
 ```
 
 Dispersion scales with the **number of drills**, not with raw: two Very Easy

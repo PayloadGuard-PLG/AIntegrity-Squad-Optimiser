@@ -268,7 +268,7 @@ breaks after a constant change is a CI finding, not a merge blocker to silence.
 | Cost curve base | `xpCostBase` | 2.94 | ✅ Confirmed — two-metric gain ratio, controlled observation |
 | Cost curve decay | `xpCostDecayK` | 47 | ✅ Confirmed — CV minimisation, 5 independent observations (CV 3.2%) |
 | Base resource units per cycle | `baseXpPerSession` | 676 | ✅ Confirmed — back-calculated across two independent asset/session datasets |
-| Cycle budget decay | `sessionBudgetDecay` | 0.99 | ✅ Confirmed — geometric model matches ×114 cycle result to ±1 CCI unit; resolves ×N anomaly |
+| Cycle budget decay | `sessionBudgetDecay` | 0.99 | ⚠️ Working value — geometric matches the ×114 cycle result to ±1 CCI unit, but is not separately identified: coach type is confounded with cycle count (only Extensive run is also the only high-N one). |
 | Secondary metric weight | `greyWeightMultiplier` | 0.22 | ✅ Confirmed — controlled secondary metric observation |
 | Maturity table | `ageTable` | Bracketed | ✅ Brackets 18–20, 24–25, 26–28 confirmed; 21–23 validated by use; 17, 29, 30+ assumed |
 | Efficiency class multipliers | `talentMultipliers` | 5 tiers | ✅ Mid-tier (1.0) confirmed across 6 assets; lowest tier (0.47) provisional; upper tiers unconfirmed |

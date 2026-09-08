@@ -44,7 +44,7 @@ budget = effectiveSessions × 676 / detectedStatCount
 
 - baseXpPerSession = 676 ✅ CONFIRMED
   Back-calculated from Grant ×40 Standard Defending. All 5 stats within game range.
-- sessionBudgetDecay = 0.99 ✅ CONFIRMED
+- sessionBudgetDecay = 0.99 ⚠️ WORKING VALUE — not separately identified (coach type confounded with session count; needs a low-N Extensive or high-N Standard run)
   Unknown GK ×114 Extensive: predicted 172.5 OVR, actual 173. Linear model gave 182 (error +9).
 - detectedStatCount = whatever OCR detects with gain ranges. No assumed category sizes.
   Coach name, type, and category have no bearing on this number.
