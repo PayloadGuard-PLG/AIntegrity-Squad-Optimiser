@@ -22,6 +22,20 @@ jobs:
 
       - name: PayloadGuard Analysis
         uses: PayloadGuard-PLG/payload-consequence-analyser@d8435494e71ee713a7c7d4160bae182e14aef399
+        with:
+          # REQUIRED for Layer 5b (Semantic Transparency), which compares the PR's
+          # stated intent against the measured severity of its diff. The action
+          # cannot read the body itself by design — it takes it as an input, and
+          # that input defaults to "". Omitting this does NOT fail the scan: it
+          # silently reports UNVERIFIED and the run still comes back green, so the
+          # one layer built to catch a low-impact description over a high-impact
+          # diff is switched off without anything saying so. Every scan in this
+          # repository ran that way until 2026-09-08.
+          #
+          # Safe to interpolate: the action assigns it to the PG_PR_DESCRIPTION
+          # env var and expands it quoted, so the body never reaches the shell as
+          # command text, and analyze.py sanitises it before parsing.
+          pr-description: ${{ github.event.pull_request.body }}
 
   update:
     if: github.event_name == 'push'
