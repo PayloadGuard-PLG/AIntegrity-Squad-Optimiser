@@ -2280,7 +2280,7 @@
       "talent_jables_jaseysboi": "DB stores 'Slow' — this is a MISLABEL. Under geometric model (Sprint 34), Normal (1.0) gives OVR 172.5 vs actual 173 — 11/11 stat ranges confirmed. At Slow (0.47), REFLEXES(144, budget 4191) gives only +24.2 vs game range +35–48. Jables is Normal talent. DB entry should be corrected to Normal."
     },
     "openQuestions": [
-      "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
+      "K=47 is fitted from Grant ×40 and Dallas ×4 data; bXPS=676 is ADMISSIBLE against them but not identified by them — see intervalRederivation, which shows the same observations admit 675-930. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
       "The former K=47 high-stat failure inference from Neri Focused Physical ×4 used a Reward Coach and is not admissible evidence about the ordinary cost curve. K remains unchanged; obtain ordinary-coach data in the 260-330 range before testing a high-stat alternative.",
       "Nerimala DB stats and Normal training-rate scans remain valid state evidence. The Reward Coach result at stat 330 is retained only as Reward-transfer evidence, not a K calibration.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations.",

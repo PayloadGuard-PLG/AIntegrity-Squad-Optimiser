@@ -54,7 +54,7 @@ fills.
 
 ### The default
 
-The source system uses **676** (empirically confirmed). For a new domain, treat this as
+The source system uses **676** — admissible but *not* empirically identified: its observations admit 675–930 and 676 sits near the lower edge. For a new domain, treat this as
 assumed until you calibrate it.
 
 ### How it affects projections

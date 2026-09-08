@@ -140,7 +140,7 @@ The projection engine is calibrated against observed in-game data, not theoretic
 |---|---|---|
 | OVR formula (`floor`) | ✅ Confirmed | Grant T2→T3 clean tier upgrade: sum 2615, game OVR 174, `floor(174.33)=174` ✓ |
 | XP cost curve (K=47, C₀=2.94) | ✅ Confirmed | K fitted via CV minimisation across 5 sessions; C₀ from gain ratio at stat 120 vs 228 |
-| baseXpPerSession (676) | ✅ Confirmed | Grant ×40 Standard Defending — all 5 stats within game ranges |
+| baseXpPerSession (676) | ⚠️ Admissible, not identified | Grant ×40 Standard Defending — all 5 stats within game ranges, but the observations admit 675–930; 676 is retained near the lower edge |
 | greyWeightMultiplier (0.22) | ✅ Confirmed | Grant HEADING (grey, stat=155) — actual +11–15 matches model |
 | Age 18–20 (×1.0) | ✅ Confirmed | Grant age 20 — multiple sessions match |
 | Age 24–25 (×0.72) | ✅ Confirmed | Garry McCluskey age 24 — Fitness actual +2–3 vs engine +3.5 ✓ |

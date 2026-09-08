@@ -274,7 +274,7 @@ game observation backing a value, it is labelled ASSUMED.
 |---|---|---|---|
 | XP cost curve base (C₀) | `xpCostBase` | 2.94 | ✅ Confirmed — Tackling-120 / Positioning-228 gain ratio (same session, same budget) |
 | XP cost curve decay (K) | `xpCostDecayK` | 47 | ✅ Confirmed — CV minimisation across 5 Grant ×40 observations (CV 3.2%) |
-| Base XP per session | `baseXpPerSession` | 676 | ✅ Confirmed — back-calculated from Grant ×40 Defending and Dallas ×4 Safeguard |
+| Base XP per session | `baseXpPerSession` | 676 | ⚠️ Admissible, not identified — back-calculated from Grant ×40 Defending and Dallas ×4 Safeguard, but those observations admit 675–930; 676 sits near the lower edge |
 | Session budget decay | `sessionBudgetDecay` | 0.99 | ⚠️ Working value — geometric matches the ×114 GK run to ±1 OVR, but is not separately identified: that run is the only Extensive AND the only high-N one, and linear at 0.60× reproduces it. |
 | Grey stat weight multiplier | `greyWeightMultiplier` | 0.22 | ✅ Confirmed — Grant ×40 HEADING (grey, stat=155, +11–15 actual) |
 | Age table | `ageTable` | Bracketed | ✅ Ages 18–20, 24–25, 26–28 confirmed; 21–23 validated by use; 17, 29, 30+ assumed |
