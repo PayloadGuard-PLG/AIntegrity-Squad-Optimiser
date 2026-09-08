@@ -307,7 +307,7 @@ in (0,1) fits the same observation.
 
 **Surges have two independent axes:** `active` (loyalty-gated, resets each season) and `level` (chant-driven). A banked level confers **nothing** while inactive. Only Perfect Conditions is consumed by the engine.
 
-**baseXpPerSession = 676 — an INTERVAL, not a point.** 676 is the FLOOR. Re-solving the calibration observations from their stated intervals rather than their midpoints admits **675–930**. The game states a range and never says where the expectation sits inside it, so back-calculating from `(lo+hi)/2` manufactures a precision the observation does not contain. Every projection is therefore at the conservative end of what the evidence permits. 676 is deliberately left unchanged rather than replaced with another convenient point.
+**baseXpPerSession = 676 — a point chosen from an interval.** The admitted range is **675–930**, and 676 is deliberately retained near its lower edge; 675, not 676, is the endpoint. Re-solving the calibration observations from their stated intervals rather than their midpoints is what produces that range — back-calculating from `(lo+hi)/2` manufactures a precision the observation does not contain. The consequence is bounded to what the constant governs: the coach XP budget sits near the conservative edge of the admitted range, conditional on the rest of the model being right. 676 is left unchanged rather than replaced with another convenient point.
 
 **Budget is geometric, not linear:** `effectiveSessions = (1 − 0.99^N)/(1 − 0.99)`, plateauing at 100. This is what resolves the long-standing ×N anomaly (×20 ≈ ×40); star decay plays no part in the budget.
 

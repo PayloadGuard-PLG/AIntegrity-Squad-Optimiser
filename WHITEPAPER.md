@@ -91,7 +91,7 @@ This data point was originally used to calibrate `baseXpPerSession = 220` (Sprin
 
 Four independent data points across two players (Cptn Dallas ×4 Safeguard, Ricky Grant ×40 Defending) implied bXPS 409–495, mean 443. Set to 450.
 
-**Calibration — current bXPS = 676, the FLOOR of an interval:**
+**Calibration — current bXPS = 676, a point near the lower edge of an interval:**
 
 > ⚠️ **676 is not a point estimate.** Re-solving the four calibration observations
 > from their stated `+lo–hi` intervals rather than their midpoints admits
@@ -111,11 +111,11 @@ After further recalibration against Grant's full 5-stat Standard Defending ×40 
 
 Before: 145 OVR (T0). Actual game result: **173 OVR (+28)**. This data point resolved the ×N anomaly and confirmed `sessionBudgetDecay = 0.99`:
 
-- Linear model (pre-Sprint 34): `114 × 676 / 11 = 7,006 XP/stat` → projects 182 OVR. Error +9. **Wrong.**
+- Linear model (pre-Sprint 34): `114 × 676 / 11 = 7,006 XP/stat` → projects 182 OVR. Error +9. **Wrong at this β with no coach-type term** — see the caveat below.
 - Geometric model: `68.2 × 676 / 11 = 4,191 XP/stat` → projects 172 OVR. Error −1. **Better fit.**
 
-> ⚠️ **This does not separately identify δ.** identified one. It is consistent with the long-run observation, but **coach type is
-> confounded with session count** across the entire corpus: the only Extensive
+> ⚠️ **This does not separately identify δ.** The geometric form is consistent with
+> the long-run observation, but **coach type is confounded with session count** across the entire corpus: the only Extensive
 > observation (Jables ×114) is also the only high-N one, while both Standard
 > observations are low-N (Dallas ×4, Grant ×40). A linear model in which an Extensive
 > coach delivers **0.60×** the Standard per-session rate reproduces the identical
@@ -726,7 +726,7 @@ interface InvestmentPlan {
 |---|---|
 | OVR formula | `Math.floor` — confirmed Sprint 32 from Grant T2→T3 clean tier upgrade. `floor(2615/15) = 174` ✓. `ceil = 175` ✗. Fixed in `qualityPctToOvr()`. |
 | Session budget decay | `sessionBudgetDecay = 0.99` — ⚠️ **Working value — not separately identified.** Geometric fits the ×114 result where linear does not, but coach type is confounded with session count (that run is the only Extensive AND the only high-N one; linear at an Extensive rate of 0.60× gives the same budget and the same OVR). Needs a low-N Extensive or high-N Standard run. Adopted Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. Jables JaseysBoi ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. 11/11 GK stat ranges confirmed Sprint 35. |
-| Coach XP baseline | `baseXpPerSession = 676` — the FLOOR of an admitted **675–930** interval, not a confirmed point. Derived from Grant ×40 Standard Defending (all 5 stats within game range) at the conservative end. |
+| Coach XP baseline | `baseXpPerSession = 676` — a point retained near the **lower edge** of an admitted **675–930** (the endpoint is 675), not a confirmed point. Derived from Grant ×40 Standard Defending, all 5 stats within game range. |
 | Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=47 — K confirmed via CV minimisation across 5 Grant ×40 observations (CV=3.2%). C₀ confirmed from Tackling/Positioning gain ratio. |
 | Talent multipliers | Normal (×1.0) confirmed for Grant, Rogers, McGinty, Nerimala. Talent is not a formula variable — locked to 1.0 for all players. Slow (0.70) is a community estimate placeholder; 0.47 was invalidated (linear budget artefact). Fastest/Fast/Average are community estimates. |
