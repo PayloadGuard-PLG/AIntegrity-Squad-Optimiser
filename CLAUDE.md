@@ -219,9 +219,9 @@ backing a value, it is ASSUMED and must be labelled as such.
 |---|---|---|---|
 | xpCostBase (C₀) | 2.94 | ✅ Confirmed | Derived from Tackling-120 / Positioning-228 gain ratio (same session, same budget) |
 | xpCostDecayK (K) | 47 | ✅ Confirmed | Calibration solver: minimises CV across 5 Grant ×40 observations (K=47, CV=3.2%) |
-| baseXpPerSession | 676 | ⚠️ **Interval, not a point** — 676 is the FLOOR | The four calibration observations, re-solved from their stated intervals rather than midpoints, admit **675–930**. 676 came from solving one stat (Grant TACKLING ×40) at its midpoint; the game states a range and never says where the expectation sits in it. Every projection is therefore at the conservative end of what the evidence permits. See `calibration_data.json → bxps_recalibration.intervalRederivation`. |
+| baseXpPerSession | 676 | ⚠️ **A point chosen from an interval** — retained near its lower edge (the endpoint is 675) | The four calibration observations, re-solved from their stated intervals rather than midpoints, admit **675–930**. 676 came from solving one stat (Grant TACKLING ×40) at its midpoint; the game states a range and never says where the expectation sits in it. The coach XP budget therefore sits near the conservative edge of the admitted range, conditional on the rest of the model. See `calibration_data.json → bxps_recalibration.intervalRederivation`. |
 | greyWeightMultiplier | 0.22 | ✅ Confirmed for ordinary Academy coaching | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual). Reward transfer is separate and unresolved. |
-| sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
+| sessionBudgetDecay | 0.99 | ⚠️ **Working value — not separately identified** | Geometric fits Jables ×114 (172 vs 173) where linear does not (182). But coach type is confounded with session count: that is the only Extensive run AND the only high-N one, and linear with an Extensive rate of 0.60× gives the same budget (7006 × 0.598 = 4191) and the same OVR. Needs a low-N Extensive or high-N Standard run. |
 | talentMultipliers.Normal | 1.0 | ✅ Confirmed — USE THIS FOR ALL PROJECTIONS | Normal=1.0 confirmed from Grant, Rogers, McGinty, Dallas, McCluskey, Jables. Every real-world coaching result back-calculates to Normal (1.0). All other talent multipliers are community estimates that produce incorrect predictions. |
 | talentMultipliers.Slow | 0.47 | ❌ DO NOT USE | Community-derived. Produces incorrect results. Originally inferred from Cieran Morgan ×30 ATK scan using the pre-Sprint-34 linear budget model — the inference was not stable. Cieran Morgan's talent has never been confirmed from the Personal Trainer edit screen. |
 | talentMultipliers.Fast/Average/Fastest | 1.25/1.1/1.5 | ❌ DO NOT USE | Community estimates. No confirmed empirical data point for any non-Normal tier. These values produce incorrect results in practice. |
@@ -1324,7 +1324,7 @@ is within range.
 
 ### What was done (Sprint 34)
 
-**1. `sessionBudgetDecay = 0.99` confirmed** (`profiles/game_2025.json`, `src/engine/engineConstants.ts`, `src/engine/engineMath.ts`)
+**1. `sessionBudgetDecay = 0.99` adopted** (⚠️ later found not separately identified — see the constants table) (`profiles/game_2025.json`, `src/engine/engineConstants.ts`, `src/engine/engineMath.ts`)
 
 LJDark Leo (GK, Age 18) ×114 Extensive GK actual game result: **145 OVR → 173 OVR (+28)**.
 

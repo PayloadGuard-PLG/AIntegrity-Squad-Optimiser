@@ -21,7 +21,11 @@ export const C0: number = profile.xpCostBase as number;    // 2.94
 export const K: number  = profile.xpCostDecayK as number;  // 47
 
 // ─── SESSION BUDGET ───────────────────────────────────────────────────────────
-// Confirmed ✅ baseXpPerSession = 676
+// ⚠️ NOT an empirically identified point: baseXpPerSession = 676
+//    The calibration observations, re-solved from their stated +lo-hi intervals
+//    rather than their midpoints, admit 675-930. 676 is a value retained near
+//    that range's lower edge (the endpoint is 675), obtained by solving one stat
+//    at its midpoint. A value near 800 is no less supported by the evidence.
 //   Back-calculated from Grant ×40 Standard Defending at K=47:
 //   Budget per stat = 40 × 676 / 5 = 5408 XP → gain integral = 65.7 (actual 59–73 ✓).
 //   Also consistent with Dallas ×4 Safeguard: 4 × 676 / 3 = 901 XP/stat →
@@ -30,7 +34,12 @@ export const K: number  = profile.xpCostDecayK as number;  // 47
 //   Do NOT change without ≥ 2 new independent data points.
 export const BASE_XPS: number = profile.baseXpPerSession;  // 676
 
-// Confirmed ✅ sessionBudgetDecay = 0.99
+// ⚠️ WORKING VALUE, not separately identified: sessionBudgetDecay = 0.99
+//    Consistent with the long-run observation, but coach type is confounded with
+//    session count in the corpus — the only Extensive run (Jables ×114) is also
+//    the only high-N one. A linear model with an Extensive rate of 0.60× the
+//    Standard per-session rate reproduces the same budget (7006 × 0.598 = 4191)
+//    and the same OVR. Needs a low-N Extensive or high-N Standard run to break.
 //   Each successive session of the same coach delivers slightly less XP than the previous.
 //   Effective sessions = (1 - 0.99^N) / (1 - 0.99) = (1 - 0.99^N) × 100.
 //   Derived from LJDark Leo ×114 Extensive GK (Normal, age 18):

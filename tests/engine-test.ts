@@ -105,7 +105,8 @@ function assertInRange(label: string, actual: number, lo: number, hi: number) {
 
   // Observations A–D: Grant ×40 Standard Defending — derived K=47, bXPS=676
   // Age 20 (ageMult=1.0 confirmed), Normal (×1.0 confirmed), 5 stats, 40 sessions.
-  // budget per stat = 40 × 676 / 5 = 5408. All confirmed from game screenshots.
+  // budget per stat = 40 × 676 / 5 = 5408. The gain ranges are from game
+  // screenshots; 676 itself is admissible rather than identified (675–930).
   const budgetGrant = 40 * 676 / 5; // 5408
 
   const gainA = estimateStatGainPct(budgetGrant, 122, 20, 0, 'Normal', true,  false, 1.0, profile);

@@ -42,9 +42,9 @@ effectiveSessions = (1 - 0.99^N) / (1 - 0.99)
 budget = effectiveSessions × 676 / detectedStatCount
 ```
 
-- baseXpPerSession = 676 ✅ CONFIRMED
+- baseXpPerSession = 676 ⚠️ NOT AN IDENTIFIED POINT — the observations admit 675–930; 676 is retained near that range's lower edge
   Back-calculated from Grant ×40 Standard Defending. All 5 stats within game range.
-- sessionBudgetDecay = 0.99 ✅ CONFIRMED
+- sessionBudgetDecay = 0.99 ⚠️ WORKING VALUE — not separately identified (coach type confounded with session count; needs a low-N Extensive or high-N Standard run)
   Unknown GK ×114 Extensive: predicted 172.5 OVR, actual 173. Linear model gave 182 (error +9).
 - detectedStatCount = whatever OCR detects with gain ranges. No assumed category sizes.
   Coach name, type, and category have no bearing on this number.
@@ -275,7 +275,7 @@ Only three things:
 | Talent estimator (estimateTalentFromGain) | Circular: used the game's own projected ranges to back-calculate a multiplier, then re-derived the game's answer. Removed from coach flow. |
 | Coach category stat filtering | Coach name/category has no bearing on which stats are boosted. OCR detects what's highlighted. Nothing else applies. |
 | Standard/Extensive full-category override | Same reason — assumed OCR misses = full category. Wrong. Trust what OCR detects. |
-| bXPS 150 → 220 | Calibrated against wrong cost model. 676 confirmed under exponential cost + geometric budget. |
+| bXPS 150 → 220 | Calibrated against wrong cost model. 676 adopted under exponential cost + geometric budget — admissible, not identified (the range is 675–930). |
 | OVR ceil | 4 data points looked like ceil due to fractional training accumulation. Clean integer-only tier upgrade decisively showed floor. |
 | Slow talent 0.47 (first derivation) | Sprint 33 derived 0.47 from Jables ×114 using linear session budget — invalid once geometric model confirmed. Jables is Normal talent (DB mislabel). However, 0.47 re-confirmed independently from Cieran Morgan ×30 ATK under correct geometric model. 0.47 is now provisional for Slow tier pending edit-screen confirmation. |
 

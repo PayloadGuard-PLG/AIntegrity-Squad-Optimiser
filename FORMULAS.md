@@ -31,7 +31,7 @@ budget = effectiveSessions × baseXpPerSession / selectedStats.count
 
 | Constant | JSON key | Value |
 |---|---|---|
-| baseXpPerSession | `baseXpPerSession` | 676 |
+| baseXpPerSession | `baseXpPerSession` | 676 — ⚠️ a **point retained near the lower edge** of an admitted 675–930, see below |
 | sessionBudgetDecay | `sessionBudgetDecay` | 0.99 |
 
 Each successive session of the same coach delivers `0.99×` the previous session's XP. `effectiveSessions` converges to `1 / (1 − 0.99) = 100` for very large N.
@@ -46,7 +46,7 @@ Effective session counts at key N values:
 
 Example: 5-stat coach block for ×40 sessions: `33.1 × 676 / 5 = 4,476 XP per stat`.
 
-**Calibration:** `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). `sessionBudgetDecay = 0.99` — confirmed Sprint 34 from LJDark Leo ×114 Extensive GK: linear model projects 182 OVR (actual 173, error +9 ✗); geometric model (68.2 effective) projects 172 OVR (error −1 ✓).
+**Calibration:** `baseXpPerSession = 676` — a **point retained near the lower edge of an admitted 675–930** (see the box in §3); the lower endpoint is 675. Derived from Grant ×40 Standard Defending (all 5 stats within game range), not a confirmed point. `sessionBudgetDecay = 0.99` — **current working value, not separately identified.** Sprint 34 showed the geometric form fits the Jables ×114 Extensive GK result (172 vs actual 173) where the linear one does not (182, error +9). But coach type is **confounded with session count**: that is the only Extensive observation and also the only high-N one, and a linear model in which an Extensive coach pays 0.60× the Standard per-session rate gives the identical budget (7006 × 0.598 = 4191 XP/stat) and hence the identical OVR. A **low-N Extensive** or **high-N Standard** observation is needed to separate the two.
 
 ### 2.2 XP budget per stat — drill session
 
@@ -188,8 +188,18 @@ Sub-integer progress carries forward as a fractional remainder.
 ## 3. Condition Loss per Drill
 
 ```
-conditionLoss = baseLossPerDrill × condLevelMultipliers[drillLevel] × ( 1 − fanClubCondReduction[fanLevel] )
+RAW = baseLossPerDrill × condLevelMultipliers[drillLevel] × ( 1 − activeSurgeReduction )
 ```
+
+`activeSurgeReduction` is `fanClubCondReduction[level]` **only while the Perfect
+Conditions surge is ACTIVE**, and `0` otherwise. The surge has two independent
+axes — `active` (loyalty-gated, resets each season) and `level` (chant-driven) —
+and **a banked level confers nothing while inactive**. Reading the reduction
+straight off the level is wrong at season start, when levels are held but the
+surge is off.
+
+The reductions are **fractions of 1** and enter as `(1 − r)`. A second `/100` was
+a live defect in the verification layer until Sprint 38.
 
 | Constant | JSON key | Value |
 |---|---|---|
@@ -197,25 +207,68 @@ conditionLoss = baseLossPerDrill × condLevelMultipliers[drillLevel] × ( 1 − 
 | condLevelMultipliers | `condLevelMultipliers` | VE=1, Easy=2, Medium=3, Hard=4, VH=5 |
 | fanClubCondReduction | `fanClubCondReduction` | [0.10, 0.15, 0.20, 0.25, 0.50] (L0–L4) |
 
+> ⚠️ **`baseXpPerSession = 676` is a point chosen from an interval.** The admitted
+> range is **675–930**, and 676 is deliberately retained near its lower edge.
+> Re-solving the calibration observations from their stated `+lo–hi` intervals
+> rather than their midpoints admits **675–930**. The game states a range and
+> never says where the expectation sits inside it, so back-calculating from
+> `(lo+hi)/2` manufactures a precision the observation does not contain — and
+> averaging several such estimates compounds it, because it hides how wide each
+> one was. Solve each observation for the constant reproducing its lower bound
+> AND its upper bound, then intersect. The consequence is bounded to what the
+> constant actually governs: the **coach XP budget contribution** sits near the
+> conservative edge of the admitted range, conditional on the rest of the model
+> being right. 676 is deliberately left unchanged rather than swapped for another
+> convenient point.
+
 **Note:** `condLevelMultipliers` and `drillLevelMultipliers` are separate tables with different purposes. Condition drain and XP gain are independent systems.
 
-### 3.1 Zero-drain threshold
+### 3.1 RAW is not what you are charged
+
+**Zero-drain is RETIRED.** The game patched it. Every session is charged a
+**1% minimum** (`minimumConditionDrainPct`), so a 0.375% drill and a 0.750% drill
+cost the same 1%: chasing sub-threshold drills is now a penalty, not an exploit.
+`zeroDrainThreshold = 0.38` remains in the profile only so it is not re-derived —
+nothing should branch on it.
+
+**RAW is exact.** It matches the game's pre-confirm dialog, confirmed at three
+session sizes, the tightest being a six-drill mixed preset reading −12.75%
+(`1.5+2.25+2.25+1.5+2.25+3.0`), which pins `baseLossPerDrill = 0.75` and the
+Easy/Medium/Hard multipliers 2/3/4 simultaneously.
+
+**CHARGED is a distribution, not a function of RAW.** The same repeated preset was
+charged 5/6/7 across 19 runs (raw 6.00) and 10–14 across 9 runs (raw 12.75). The
+observed means track raw, so raw is the *centre*, not a bound. Two further facts
+pin the shape:
+
+- per-player charge is an **integer**;
+- the displayed figure is the **mean across players** — two players reading
+  −3.50% is the mean of 3 and 4, and −10.63% is `404/38` across thirty-eight.
 
 ```
-isZeroDrain = conditionLoss < zeroDrainThreshold
+charge ∈ [ max(1, floor(RAW − 0.5·n)) , max(1, ceil(RAW + 0.5·n)) ]     n = drill count
+centre ≈ max(1, RAW)      model centre, NOT a measured expectation
 ```
 
-| Constant | JSON key | Value |
-|---|---|---|
-| zeroDrainThreshold | `zeroDrainThreshold` | 0.38 |
+Dispersion scales with the **number of drills**, not with raw: two Very Easy
+drills and one Easy drill share raw 1.50 and do not behave alike. This envelope is
+an **outer bound** containing all 45 observed sessions, deliberately wider than
+the data. Never report a point estimate as the cost.
 
-Only Very Easy + L4 qualifies: `0.75 × 1 × (1 − 0.50) = 0.375 < 0.38` → shown as 0% in-game.
+**Falsified — do not re-propose:** `max(raw,1)`; `max(1,floor(raw))`; per-drill
+floor/ceil dithering (predicts 11–16 for the six-drill preset, but a −10.00% row
+exists).
 
-### 3.2 Drill condition reference table
+### 3.2 RAW drill condition reference table
+
+Values below are **raw**, and assume the Perfect Conditions surge is **active** at
+the stated level. With the surge inactive — the season-start default — every row
+is the undiscounted `0.75 × multiplier`. What is actually billed is the envelope
+in §3.1, minimum 1%.
 
 | Level | L0 (−10%) | L1 (−15%) | L2 (−20%) | L3 (−25%) | L4 (−50%) |
 |---|---|---|---|---|---|
-| Very Easy | 0.675% | 0.638% | 0.600% | 0.563% | **0.375%** → 0 |
+| Very Easy | 0.675% | 0.638% | 0.600% | 0.563% | **0.375%** (still billed ≥1%) |
 | Easy | 1.350% | 1.275% | 1.200% | 1.125% | 0.750% |
 | Medium | 2.025% | 1.913% | 1.800% | 1.688% | 1.125% |
 | Hard | 2.700% | 2.550% | 2.400% | 2.250% | 1.500% |
@@ -352,7 +405,7 @@ whiteStats = ROLE_CONSTRAINTS[role1].essential
 Step 1: Apply drill plans   → new stats after XP gain (drillXpFactor applied)
 Step 2: Apply coach sessions → new stats after XP gain (drillMult = 1.0)
 Step 3: Apply tier upgrade  → white stats += increment
-Step 4: Recalculate OVR     = ceil( sum(all 15 updated stats) / 15 )
+Step 4: Recalculate OVR     = floor( sum(all 15 updated stats) / 15 )
 Step 5: Restorers           = condition step (zero OVR change)
 ```
 

@@ -4,6 +4,23 @@ on:
   pull_request:
     branches:
       - main
+  # Manual trigger, so a branch can be verified without being a PR into main.
+  #
+  # Why this exists: `pull_request` fires only on opened / synchronize / reopened.
+  # A STACKED pull request — one based on another feature branch rather than on
+  # main — matches no branch filter here and gets no run at all, and retargeting
+  # it later emits `edited`, which is not a trigger either. So the lower half of a
+  # stack could previously sit unverified until the moment it was merged.
+  #
+  # Dispatch this against any ref to verify it on demand. It is NOT a way to
+  # re-roll a red run: a failure is a finding, and re-running to get a different
+  # answer is the thing this repository exists to argue against.
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why this branch is being verified out of band (recorded in the run)'
+        required: false
+        default: 'stacked PR — no pull_request trigger applies to this base'
 
 # Proof failures block merge to main.
 # Nothing in this workflow modifies the source — it is read-only verification.

@@ -1031,6 +1031,31 @@
     "conclusion": "Game uses Math.floor. Sprint 27's apparent ceil confirmation was an artefact: fractional stat accumulation from training inflated the internal sum above the displayed screenshot sum, making floor(internal) equal ceil(displayed) for those cases. The clean Grant T2→T3 tier upgrade (no training, integer-only stat changes) is the only unambiguous test. floor wins. Fixed in qualityPctToOvr() sprint 32.",
     "ljdark_leo_confirmation": "LJDark Leo T2: displayed sum=2181, game OVR=145. floor(2181/15)=floor(145.4)=145 ✓. Consistent with floor formula."
   },
+  "session_budget_decay_identifiability": {
+    "_finding": "sessionBudgetDecay = 0.99 is a WORKING VALUE, not a separately identified one. It is consistent with the long-run observation, but the corpus cannot separate it from a coach-type effect.",
+    "_status": "not separately identified",
+    "confound": {
+      "statement": "Coach type is confounded with session count across the entire corpus. The only Extensive observation is also the only high-N one; both Standard observations are low-N.",
+      "corpus": [
+        { "player": "Cptn Dallas", "coachType": "Standard", "sessions": 4 },
+        { "player": "Ricky Grant", "coachType": "Standard", "sessions": 40 },
+        { "player": "Jables JaseysBoi", "coachType": "Extensive", "sessions": 114 }
+      ],
+      "arithmetic": {
+        "geometricBudgetPerStat": "E(114)=68.2 -> 68.2 x 676 / 11 = 4191 XP/stat -> projects 172 OVR (actual 173)",
+        "linearBudgetPerStat": "114 x 676 / 11 = 7006 XP/stat -> projects 182 OVR (error +9)",
+        "ratio": 0.598,
+        "consequence": "A LINEAR model in which an Extensive coach delivers 0.60x the Standard per-session rate yields 7006 x 0.598 = 4191 XP/stat — the identical budget, hence the identical OVR. The x114 observation therefore does not discriminate geometric session decay from a per-coach-type rate difference."
+      }
+    },
+    "whatWouldIdentifyIt": [
+      "A LOW-N Extensive observation (e.g. Extensive x4): under geometric decay E(4)=3.94 is nearly linear, so a coach-type rate difference would show up undiluted by decay.",
+      "A HIGH-N Standard observation (e.g. Standard x114): decay would have to appear without any coach-type change to explain it."
+    ],
+    "whatIsNotClaimed": "This does not falsify geometric decay. The geometric form remains the better-supported working model — it fits the one long-run observation and linear does not, at the profile's bXPS. What is withdrawn is only the CONFIRMED grade: one observation cannot separate two parameters.",
+    "relatedTo": "bxps_recalibration.intervalRederivation — bXPS and sessionBudgetDecay enter the budget only as the product E(N) x beta, so neither is identified independently of the other by a single N.",
+    "recordedBy": "Sprint 38 audit. Raised in review of the WHITEPAPER/FORMULAS audit; not previously recorded anywhere in this repository."
+  },
   "bxps_recalibration": {
     "finding": "SUPERSEDED IN PART — see midpointAssumption and intervalRederivation below. bXPS=220 was calibrated against the stepped xpCostTable model in Sprint 24. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. The exponential model's compounding makes 60-stat-point gains significantly more expensive than the flat table entries, so bXPS needed to increase proportionally. K was subsequently recalibrated from 55 to 47 via CV minimisation across 5 Grant ×40 observations (CV=3.2%). bXPS was then re-derived at 676 — the integral form of the XP budget equation with K=47 gives Grant Tackling 120 ×40 gain=65.7 (actual 59–73 ✓).",
     "newValue": 676,
@@ -1219,14 +1244,14 @@
         675,
         930
       ],
-      "verdict": "All four observations are mutually consistent. They admit bXPS anywhere in 675-930. The value in the profile, 676, sits at the extreme LOWER EDGE of that band - it is admissible, but it is the floor, not the centre. It was obtained by solving one stat (Grant TACKLING) at its midpoint. CONSEQUENCE: every projection the app produces is at the conservative end of what this evidence equally permits; a value near 800 is no less supported. Do not treat 676 as measured.",
+      "verdict": "All four observations are mutually consistent. They admit bXPS anywhere in 675-930. The value in the profile, 676, sits near the LOWER EDGE of that band - it is admissible, but it is not the centre. (Strictly the band's lower endpoint is 675; 676 is a retained point near that edge, not the floor itself.) It was obtained by solving one stat (Grant TACKLING) at its midpoint. CONSEQUENCE: the coach XP budget contribution sits near the conservative edge of what this evidence equally permits, conditional on the rest of the model; a value near 800 is no less supported. Do not treat 676 as measured.",
       "divisorTest": {
         "question": "Is the coach XP budget divided by the stats SHOWING ranges, or by the full category?",
         "result": "Re-solving with the Dallas Safeguard divisor set to 5 (full category) instead of 3 (rows with visible ranges) makes the four observations INCONSISTENT: they would require bXPS >= 1125 and <= 989 simultaneously.",
         "conclusion": "The 'rows showing ranges' convention used by coachBudgetPerStat is SUPPORTED - the full-category alternative is arithmetically impossible against this evidence. This is a positive finding, not an assumption."
       }
     },
-    "status": "bXPS is an interval (675-930), not a point. Profile holds the floor of that interval."
+    "status": "bXPS is admitted over an interval (675-930). The profile holds 676, a point retained near that interval's lower edge; the endpoint itself is 675."
   },
   "controlled_tests": [
     {
@@ -2255,7 +2280,7 @@
       "talent_jables_jaseysboi": "DB stores 'Slow' — this is a MISLABEL. Under geometric model (Sprint 34), Normal (1.0) gives OVR 172.5 vs actual 173 — 11/11 stat ranges confirmed. At Slow (0.47), REFLEXES(144, budget 4191) gives only +24.2 vs game range +35–48. Jables is Normal talent. DB entry should be corrected to Normal."
     },
     "openQuestions": [
-      "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
+      "K=47 is fitted from Grant ×40 and Dallas ×4 data; bXPS=676 is ADMISSIBLE against them but not identified by them — see intervalRederivation, which shows the same observations admit 675-930. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
       "The former K=47 high-stat failure inference from Neri Focused Physical ×4 used a Reward Coach and is not admissible evidence about the ordinary cost curve. K remains unchanged; obtain ordinary-coach data in the 260-330 range before testing a high-stat alternative.",
       "Nerimala DB stats and Normal training-rate scans remain valid state evidence. The Reward Coach result at stat 330 is retained only as Reward-transfer evidence, not a K calibration.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations.",
