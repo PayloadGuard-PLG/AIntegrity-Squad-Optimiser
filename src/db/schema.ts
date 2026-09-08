@@ -41,6 +41,15 @@ export const squadPlanRuns = sqliteTable('squad_plan_runs', {
   selectedStats: text('selected_stats').notNull(),  // JSON: string[]
   ovrBefore: real('ovr_before').notNull(),
   ovrAfter: real('ovr_after').notNull(),
+  // Post-action quality when the run recorded an OBSERVED preview rather than an
+  // engine projection. The game states a range and never states where inside it
+  // the expectation sits, so both bounds are stored and no midpoint is formed.
+  ovrAfterLo: real('ovr_after_lo'),
+  ovrAfterHi: real('ovr_after_hi'),
+  // Provenance of the figures above and of every entry in `gains`, NOT the
+  // figures themselves. Defaults to 'legacy-unknown' so rows that predate the
+  // distinction are never read as engine projections. See runEvidence.ts.
+  gainEvidence: text('gain_evidence').notNull().default('legacy-unknown'),
   gains: text('gains').notNull(),                   // JSON: StatGain[]
   tier: text('tier'),
   createdAt: integer('created_at').notNull(),

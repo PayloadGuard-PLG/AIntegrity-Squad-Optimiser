@@ -46,7 +46,11 @@ function statColor(stat: string): string {
   return COL_COLORS.PHY;
 }
 
-type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
+import type { ProjectedStatGain } from '../../src/logic/runEvidence';
+// Every gain on this screen is an ENGINE output, so it is graded 'projected'.
+// The game's own +lo-hi intervals live in observedGainIntervals and are never
+// collapsed into this shape.
+type StatGain = ProjectedStatGain;
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number>; reasons: string[]; trainingLocked: boolean };
 type RewardPreviewResult = { intervals: CoachPreviewInterval[]; reasons: string[] };
 
@@ -329,7 +333,7 @@ export default function CoachesScreen() {
       return;
     }
     const gains: StatGain[] = projection.statDeltas.map(d => ({
-      stat: d.stat, from: d.from, gain: d.delta, isWhite: d.isWhite,
+      kind: 'projected', stat: d.stat, from: d.from, gain: d.delta, isWhite: d.isWhite,
     }));
 
     setResult({

@@ -12,6 +12,7 @@ import { computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile, TalentTier } from '../../src/types/resources';
 import { squadPlanService } from '../../src/services/squadPlanService';
+import { observedStatGain, type ObservedStatGain } from '../../src/logic/runEvidence';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats } from '../../src/logic/coachPipeline';
 import { Player } from '../../src/database/playerSchema';
@@ -214,20 +215,49 @@ export default function CoachCaptureScreen() {
 
   function saveToLog() {
     if (!player) { Alert.alert('Select a player first'); return; }
+
+    // These are the GAME's displayed +lo-hi previews, not engine output. Both
+    // bounds are carried through untouched.
+    //
+    // This function used to store `(lo + hi) / 2`, and this is the record the
+    // engine constants are back-calculated from — so a midpoint written here
+    // becomes a manufactured precision in the calibration itself, and averaging
+    // several of them compounds it by hiding how wide each observation was
+    // (Principia Prop. XXIV). Two Dallas rows display the identical interval
+    // [4,6] at different attribute values; a centre read off them is an
+    // artefact of the arithmetic, not a measurement.
+    //
+    // observedStatGain does the recording and contains no arithmetic at all; it
+    // returns undefined when a bound is missing, because an interval with one
+    // end unread is not an interval.
     const gainEntries = Object.entries(gains)
-      .filter(([, g]) => g.lo || g.hi)
-      .map(([stat, g]) => ({
+      .map(([stat, g]) => observedStatGain(
         stat,
-        from: parseFloat(statValues[stat] ?? '0') || 0,
-        gain: ((parseFloat(g.hi) || 0) + (parseFloat(g.lo) || 0)) / 2,
-        isWhite: white.includes(stat),
-      }));
+        parseFloat(statValues[stat] ?? '0') || 0,
+        g.lo === '' ? undefined : parseFloat(g.lo),
+        g.hi === '' ? undefined : parseFloat(g.hi),
+        white.includes(stat),
+      ))
+      .filter((g): g is ObservedStatGain => g !== undefined);
+
+    if (gainEntries.length === 0) {
+      Alert.alert('Nothing to log', 'Enter both bounds of at least one observed range.');
+      return;
+    }
+
+    // Same rule for the quality change: the OVR boost derived from those
+    // intervals is itself an interval, and is stored as its two ends. Where a
+    // bound could not be computed the run records no quality outcome rather
+    // than a half-formed one.
+    const bothOvrBounds = ovrBoostLo !== null && ovrBoostHi !== null;
 
     squadPlanService.saveRun(player.id, {
       sessions: parseInt(multiplier, 10) || 30,
-      selectedStats: Object.keys(gains).filter(k => gains[k].lo || gains[k].hi),
+      selectedStats: gainEntries.map(g => g.stat),
       ovrBefore,
-      ovrAfter: ovrBefore + ((ovrBoostLo ?? 0) + (ovrBoostHi ?? 0)) / 2,
+      ...(bothOvrBounds
+        ? { ovrAfterLo: ovrBefore + ovrBoostLo!, ovrAfterHi: ovrBefore + ovrBoostHi! }
+        : {}),
       gains: gainEntries,
       label: `${coachType} ${coachCategory}`,
     });

@@ -614,6 +614,37 @@ convenient one. What follows is bounded to what the constant governs: the coach
 experience budget sits near the conservative edge of the admitted range,
 conditional on the rest of the model being right.
 
+**Scholium — the proposition was being violated by the application that states
+it.** The capture screen, whose whole purpose is to record observations for
+calibration, stored each preview as `(lo + hi) / 2` before writing it, and the
+run's quality change likewise. The midpoint therefore entered the record at the
+point of collection — upstream of every back-calculation, and indistinguishable
+afterwards from a figure the engine had computed. Corollary 3's two Dallas rows
+were the demonstration and were also, in that record, both simply `+5`.
+
+It is now corrected rather than merely reported. Bounds are stored apart and no
+arithmetic runs between them; an interval with one end unread records nothing,
+since half an interval is not one; and a degenerate `[0,0]` is kept, being an
+observation of a zero-width range and not a failure to read.
+
+Two further points, neither optional. First, a saved run now carries the
+**grade** of its figures — `projected`, `observed-interval`, or
+`legacy-unknown` — because a projection and an observation were being stored in
+one column and could not afterwards be told apart. Second, every row written
+before the grades existed reads back as `legacy-unknown` and never as
+`projected`: its scalar may be an engine output or a laundered midpoint, and
+nothing on the row distinguishes them. Some correctly-projected rows are
+demoted with the rest, knowingly, for the reason given in Prop. XX's scholium —
+inferring the grade from the common case would be the same offence in a
+different coat.
+
+*The general lesson stands beside Prop. XXV's.* A principle stated in a document
+is not a property held by a system. This one had been written down, agreed, and
+cited in review while the code that collects the evidence went on averaging;
+what closed the gap was not restating it but a test that fails when the midpoint
+returns. **A proposition is only in force where something can detect its
+violation.**
+
 ### Proposition XXV. Agreement between an implementation and its specification is not correctness.
 
 A differential test establishes that two artefacts agree. Where the same

@@ -257,6 +257,23 @@ intersection is empty, a mechanic is missing; report that rather than averaging 
 show the identical interval `[4,6]` at different stat values — proof that these ranges are far too coarse
 to carry the precision a midpoint implies.
 
+**The calibration record stores intervals as intervals (Sprint 38).** The coach
+capture screen used to write `(lo + hi) / 2` into `squad_plan_runs` — the midpoint
+entered at the point of collection, upstream of every back-calculation. Fixed:
+`src/logic/runEvidence.ts` holds the evidence types and `observedStatGain()`
+records both bounds with no arithmetic between them. A saved run now carries a
+grade — `projected` (engine output, one number), `observed-interval` (the game's
+`+lo-hi`, two numbers), or `legacy-unknown`. Rows written before the grade
+existed read back as `legacy-unknown` and are **not** usable as calibration
+evidence: their scalar may be an engine projection or a laundered midpoint and
+nothing distinguishes them. `ensureRunEvidenceColumns()` in `src/db/index.ts`
+back-fills the provenance column as `legacy-unknown` for the same reason
+`transfer_class_source` exists. Do not generate a drizzle migration for this
+table — drizzle-kit regenerates from a drifted snapshot and emits a
+drop-and-recreate of `players` and `drill_sessions` plus a `migrations.js` that
+imports `.sql` files Metro cannot bundle. `tests/run-evidence-test.ts` fails if a
+midpoint returns anywhere in the record or the display.
+
 **Coach budget divisor — confirmed by falsification.** `coachBudgetPerStat` divides by the stats showing
 visible gain ranges, not by the full category. Re-solving the Dallas ×4 Safeguard observation with a
 5-stat divisor makes the calibration set self-contradictory (requires bXPS ≥1125 and ≤989 at once), so

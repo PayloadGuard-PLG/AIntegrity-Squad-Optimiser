@@ -6,6 +6,7 @@ import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { squadPlanService, SquadPlanRun } from '../../src/services/squadPlanService';
+import { formatGain, formatOvrDelta, EVIDENCE_LABEL } from '../../src/logic/runEvidence';
 import { TierName } from '../../src/types/resources';
 
 function formatDate(ts: number): string {
@@ -74,7 +75,13 @@ export default function SquadPlanScreen() {
               </View>
 
               {runs.map(run => {
-                const ovrGain = run.ovrAfter - run.ovrBefore;
+                // An interval run has no scalar ovrAfter to subtract. formatOvrDelta
+                // returns the change in the shape the evidence actually supports —
+                // a range stays a range — and the grade travels with it.
+                const ovrDelta = formatOvrDelta(run.outcome, run.ovrBefore);
+                const ovrAfterText = run.outcome.kind === 'observed-interval'
+                  ? `${run.outcome.ovrAfterLo.toFixed(1)}–${run.outcome.ovrAfterHi.toFixed(1)}`
+                  : run.outcome.ovrAfter.toFixed(1);
                 const tierColor = run.tier ? (TIER_COLORS[run.tier as TierName] ?? theme.inkSec) : null;
                 return (
                   <View key={run.id} style={{ borderWidth: 1, borderColor: theme.hairline, marginBottom: 6, backgroundColor: theme.surface }}>
@@ -84,11 +91,16 @@ export default function SquadPlanScreen() {
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
                           <Text style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.ink }}>{run.ovrBefore.toFixed(0)}</Text>
                           <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.inkGhost }}>→</Text>
-                          <Text style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.pos }}>{run.ovrAfter.toFixed(1)}</Text>
+                          <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{ovrAfterText}</Text>
                         </View>
-                        <MonoLabel size={8} color={ovrGain > 0 ? theme.pos : theme.inkMuted}>
-                          {ovrGain > 0 ? '+' : ''}{ovrGain.toFixed(1)} OVR
+                        <MonoLabel size={8} color={ovrDelta.grade === 'legacy-unknown' ? theme.inkMuted : theme.pos}>
+                          {ovrDelta.text} OVR
                         </MonoLabel>
+                        {run.outcome.kind !== 'projected' && (
+                          <MonoLabel size={7} color={run.outcome.kind === 'legacy-unknown' ? theme.neg : theme.inkGhost}>
+                            {EVIDENCE_LABEL[run.outcome.kind]}
+                          </MonoLabel>
+                        )}
                       </View>
 
                       {/* Meta */}
@@ -110,12 +122,27 @@ export default function SquadPlanScreen() {
                     {/* Stat gains row */}
                     {run.gains.length > 0 && (
                       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, paddingHorizontal: 12, paddingBottom: 10 }}>
-                        {run.gains.map(g => (
-                          <View key={g.stat} style={{ flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 6, paddingVertical: 3, backgroundColor: theme.surface2, borderWidth: 1, borderColor: theme.hairline }}>
+                        {run.gains.map(g => {
+                          // One formatter for every kind. An observed interval renders
+                          // as an interval; nothing here averages two bounds.
+                          const shown = formatGain(g);
+                          return (
+                          <View key={g.stat} style={{ flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 6, paddingVertical: 3, backgroundColor: theme.surface2, borderWidth: 1, borderColor: shown.grade === 'legacy-unknown' ? theme.neg + '44' : theme.hairline }}>
                             <Text style={{ fontFamily: theme.mono, fontSize: 8, color: theme.inkMuted }}>{g.stat}</Text>
-                            <Text style={{ fontFamily: theme.mono, fontSize: 8, color: theme.pos, fontWeight: '700' }}>+{g.gain}</Text>
+                            <Text style={{ fontFamily: theme.mono, fontSize: 8, color: shown.grade === 'legacy-unknown' ? theme.inkMuted : theme.pos, fontWeight: '700' }}>{shown.text}</Text>
                           </View>
-                        ))}
+                          );
+                        })}
+                      </View>
+                    )}
+
+                    {run.outcome.kind === 'legacy-unknown' && (
+                      <View style={{ paddingHorizontal: 12, paddingBottom: 10 }}>
+                        <MonoLabel size={7} color={theme.inkMuted}>
+                          SAVED BEFORE PROJECTIONS AND OBSERVED RANGES WERE RECORDED SEPARATELY.
+                          THESE FIGURES MAY BE THE MIDPOINT OF A RANGE THE GAME DISPLAYED —
+                          NOT USABLE AS CALIBRATION EVIDENCE.
+                        </MonoLabel>
                       </View>
                     )}
                   </View>
