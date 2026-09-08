@@ -1,10 +1,47 @@
 # Principia
 ### The Mathematical Principles of Squad Optimisation
 
+#### SECOND EDITION, corrected and enlarged
+
 *Being a complete statement of the model by which this application predicts the
 training of players: its definitions, its constants, the laws it assumes, the
 propositions that follow, and — set down with equal care — the places where it
 is guessing.*
+
+---
+
+## To the Second Edition
+
+The first edition described a model. This one describes a model **and the
+discipline that keeps it honest**, because in the interval between the two the
+same fault was caught three times wearing three different coats.
+
+Each time, a quantity that was not known was presented as though it were: an
+unobserved fraction re-labelled *exact* the moment the model's own arithmetic
+produced a decimal; a star position computed from attributes that were never
+read; a constant graded *calibrated* on evidence that fixed only the sign of its
+effect. None was a slip of arithmetic. Each was a category error about what the
+evidence supported — and each survived review until it was stated formally.
+
+So the second edition adds **Book VI, On Knowledge and Its Absence**, which sets
+out these as propositions rather than as advice. A proposition can be checked; a
+sensibility cannot. It also adds **Book V**, on coach transfer, where a class of
+coach was found to falsify the transfer function the app applies to all others.
+
+Corrected in this edition:
+
+- **Prop. XIV** — the `/100` defect is now fixed rather than merely reported,
+  and carries the general lesson about differential tests (now Prop. XXV).
+- **Prop. VI** — the derivation of `K` from a gain ratio is shown to be both
+  arithmetically wrong and a category error, and is retired as evidence.
+- **The constants table** — `baseXpPerSession` is stated as a point retained near
+  the lower edge of an admitted interval, not as a confirmed value; and
+  `sessionBudgetDecay` is regraded a working value, being not separately
+  identified (Prop. III, Scholium).
+- **Prop. XI** — the cost of an incomplete role is given in full.
+
+Nothing in the first edition's mathematics of training required revision. What
+required revision was what we claimed to know about it.
 
 ---
 
@@ -88,8 +125,8 @@ recorded against each; a constant with no game observation behind it is marked s
 |---|---|---|---|
 | `C₀` | xpCostBase | 2.94 | **Confirmed** — from a same-session gain ratio |
 | `K` | xpCostDecayK | 47 | **Confirmed** — solver minimising CV across 5 observations (CV 3.2%) |
-| `β` | baseXpPerSession | 676 | **Confirmed** — back-calculated, Grant ×40 |
-| `δ` | sessionBudgetDecay | 0.99 | **Confirmed** — resolves the ×N anomaly (see Prop. III) |
+| `β` | baseXpPerSession | 676 | **Point from an interval** — admits 675–930, held near its lower edge; Prop. XXIV |
+| `δ` | sessionBudgetDecay | 0.99 | **Working value** — not separately identified; see Prop. III, Scholium |
 | `γ` | greyWeightMultiplier | 0.22 | **Confirmed for ordinary Academy coaching** — Grant, grey HEADING; Reward transfer is separate and unresolved |
 | `α(a)` | ageTable | 1.1 / 1.0 / 0.85 / 0.72 / 0.61 / 0.5 / 0 | **Partly confirmed** — see scholium |
 | `θ(τ)` | talentMultipliers | 1.5 / 1.25 / 1.1 / **1.0** / 0.47 | **Only Normal confirmed** |
@@ -190,6 +227,18 @@ from 20 to 40 raises `E` only from 18.2 to 33.1, and ×114 yields 68.2, not 114.
 **Corollary 2.** This is the resolution of the long-standing "×N anomaly" — that ×20
 and ×40 appeared to give similar gains. They do, and the geometry says why. It is
 not star decay, which plays no part in the budget.
+
+*Scholium — `δ` is not separately identified.* The budget depends on `δ` and `β`
+only through the product `E(N)·β`, so no single session count identifies either
+alone. Worse, the corpus confounds coach class with session count: the sole
+observation that discriminates the geometric form from the linear one (×114) is
+also the sole Extensive one, both Standard runs being low-N. A **linear** model in
+which an Extensive coach pays `0.60×` the Standard per-session rate returns
+`7006 × 0.598 = 4191` experience per attribute — the identical budget, hence the
+identical quality. The geometric form remains the better-supported working model,
+since it fits that observation where the linear one does not at the profile's `β`;
+but it is **adopted, not measured**. A low-N Extensive or a high-N Standard
+observation would separate them.
 
 **Corollary 3.** For drills, `B = n·β·0.3/p`. The factor 0.3 is uncalibrated and
 every drill projection inherits that uncertainty.
@@ -424,6 +473,186 @@ of device.
 
 ---
 
+## Book V — The Transfer of Experience by Coaches
+
+### Proposition XIX. Coach classes do not share a transfer function.
+
+The ordinary Academy transfer — the geometric budget of Prop. III driven through
+the cost curve of Prop. I — is **falsified** for Reward Coaches.
+
+*Demonstration.* Take three matched Reward previews and solve each for the
+ordinary fixed XP budget that would reproduce it, using the interval method of
+Prop. XXIV: each observation is solved at its lower and its upper bound, never at
+a midpoint, and the admitted budgets are then intersected.
+
+| Observation | Efficiency `α·γ` | Admitted ordinary budget |
+|---|---|---|
+| Mehlem, stat 125, age 26, white | 0.610 | [ 359.5, 525.4 ] |
+| Panic, stat 115, age 26, grey | 0.134 | [ 1320.9, 1930.6 ] |
+| Dallas, stat 180, age 27, white | 0.610 | [ 1158.6, 1693.3 ] |
+
+The intersection across all three is `[1320.9, 525.4]` — **empty**. No single
+ordinary budget reproduces the observations, so the ordinary transfer function
+does not describe these coaches.
+
+**Corollary 1.** The contradiction does not rest on the set as a whole. Mehlem
+paired with Panic is empty, and Mehlem paired with Dallas is empty; but Panic
+paired with Dallas is *not*. The Mehlem observation is therefore load-bearing and
+must not be dropped from the corpus.
+
+**Corollary 2.** Falsifying a function does not supply its replacement. None is
+calibrated, so a Reward Coach yields **no** projected attributes and **no**
+post-action quality — only the intervals the game itself displayed. Unchanged
+values would be indistinguishable from a prediction of zero gain, which is a
+claim the evidence does not support either.
+
+### Proposition XX. Classification admits three states, and the third is not the first.
+
+A coach is `ordinary`, `reward`, or `unknown`. The third is not a synonym for the
+first.
+
+An entry recorded before coaches were classified carries no mark of which it was,
+and a Reward Coach wears the same Standard/Extensive label as an ordinary one, so
+after the fact the two are indistinguishable. To project such an entry as ordinary
+would fabricate precisely what Prop. XIX forbids fabricating for a fresh scan. It
+abstains instead, and under its own reason: one class was identified and lacks a
+calibrated transfer, the other was never identified at all.
+
+**Scholium.** The class cannot identify these rows, because the migration that
+introduced the field back-filled every existing row with the literal `ordinary` —
+the information was destroyed at the moment of writing. What identifies them is
+the **provenance** of the classification, recorded separately, of which only
+*observed* is trusted. The cost is accepted knowingly: a few correctly-classified
+rows written in the interval between the two changes are demoted with the rest,
+because nothing distinguishes them. Inferring the class from a label or from the
+common case would be the same offence in a different coat. An un-projectable row
+is honest; a wrong number is not.
+
+### Proposition XXI. A plan containing an un-projectable action has no total.
+
+Where a chain contains an action that cannot be projected, the chain is reported
+untotalled. It is not skipped, and it is not counted as zero. A total assembled
+from the actions that happened to be projectable is a fabricated figure wearing
+the authority of a sum.
+
+---
+
+## Book VI — On Knowledge and Its Absence
+
+*These propositions are not about football. They are the conditions under which
+anything in the preceding five books may be believed.*
+
+### Proposition XXII. Unobserved error is invariant under the addition of a known quantity.
+
+Let a true quantity be `x = s + ε`, where `s` is observed and `ε` is not. Let a
+known `g` be added. Then
+
+```
+true     = (s + ε) + g
+estimate =  s      + g
+error    =  ε                      unchanged, neither grown nor cancelled
+```
+
+**Therefore a computation cannot convert an unknown into a known.** No projection,
+however correct, improves the evidential standing of the baseline it began from.
+
+**Corollary — the laundering fault.** A player card displays integer attributes;
+the sub-integer progress behind them is never shown. A projection adds a computed
+gain to that unobserved fraction, and the result was formerly graded *exact* on
+the grounds that it now carried a decimal. But the only thing a decimal
+establishes is that **our own model produced it**. A model-generated fraction is
+not an observation.
+
+**Corollary — it worsens with iteration.** Under the old rule the first projection
+turned integers into decimals, and every subsequent step in a chain then called a
+still-unknown-by-`ε` position exact. The claim of certainty grew precisely as the
+chain grew, which is the opposite of how error behaves.
+
+**Corollary — what chaining *does* preserve.** Relative progress within a chain is
+exact, because it is computed. Absolute position is not. The two must be graded
+separately, and only the second inherits `ε`.
+
+### Proposition XXIII. Substituted values do not bound.
+
+Where an attribute was never read and its value is replaced by a stand-in, any
+quantity derived from the substituted set is **not a bound in either direction**.
+
+*Demonstration.* A bound requires that the true value lie on a known side of the
+computed one. Substitution supplies no such guarantee: the unread attribute may
+be higher or lower than its stand-in, so the derived position may be reached
+sooner or later than stated, or not at all. It is therefore neither an upper
+bound nor a lower one, and abstention is the only honest report.
+
+**Scholium.** A stand-in may still serve for coarse display, where being roughly
+right is the whole requirement. The error is to carry a display convenience into
+a threshold calculation and let it arrive wearing the authority of a measurement.
+
+### Proposition XXIV. An interval is not its midpoint.
+
+Where the game states a range `[lo, hi]` and never states where the expectation
+lies within it, a constant back-calculated from `(lo+hi)/2` manufactures a
+precision the observation does not contain.
+
+**Corollary 1.** Averaging their midpoints does not justify a narrower uncertainty,
+and conceals the width of the admissible sets. The mean of several midpoints wears
+the appearance of a better estimate than any one of them, and is not: it discards
+precisely the information — each observation's width — that would have shown how
+little the set is constrained.
+
+**Corollary 2.** The sound method is to solve each observation for the constant
+reproducing its **lower** bound and its **upper** bound, then intersect across
+observations. If the intersection is empty, a mechanic is missing — and that is a
+finding, reported, not averaged past. This is the method of Prop. XIX.
+
+**Corollary 3.** Two Dallas rows display the identical interval `[4,6]` at
+different attribute values. These ranges are far too coarse to carry the
+precision a midpoint implies.
+
+**Scholium.** `baseXpPerSession = 676` is accordingly a point deliberately retained
+near the **lower edge** of an admitted `675–930`, rather than replaced by another
+convenient one. What follows is bounded to what the constant governs: the coach
+experience budget sits near the conservative edge of the admitted range,
+conditional on the rest of the model being right.
+
+### Proposition XXV. Agreement between an implementation and its specification is not correctness.
+
+A differential test establishes that two artefacts agree. Where the same
+misreading has been made once in each, agreement is **guaranteed** — and what the
+test then demonstrates is agreement, not external correctness. That is a real
+result, and a far weaker one than it appears: it excludes implementations that
+diverge, while admitting a shared mistake untouched.
+
+*Demonstration.* The condition-drain function divided a reduction already
+expressed as a fraction by a further hundred. Its independent Python
+specification contained the identical mistake. The differential test compared
+them across two hundred generated cases and passed, at an error of a factor of
+two.
+
+**Corollary.** A test of this kind may not be trusted until a **mutation** has
+shown that it can fail. Introducing the fault on one side alone now produces a
+concrete counterexample; before the correction, the same mutation passed in
+silence.
+
+### Proposition XXVI. Evidence admits grades, and they are not interchangeable.
+
+Every reason a projection offers carries a grade: `calibrated` — a confirming game
+observation exists; `observed-envelope` — a measured spread, bounded outward;
+`assumed` — no confirming observation; `unavailable` — the quantity was not
+observed at all.
+
+**Corollary — the sign is not the magnitude.** Direct observation confirms that
+training grows harder once a star is crossed. That fixes the **sign** of the
+effect and nothing more: any factor in `(0,1)` reproduces the same observation.
+The `0.85` is therefore graded `assumed`, and the constants file records it as a
+model characteristic with confirmation pending. Observing that a thing happens is
+not measuring how much of it happens.
+
+**Corollary — the grade is part of the answer.** A figure delivered without its
+grade is not a smaller answer than one delivered with it. It is a different and
+worse one, because it invites a confidence the evidence does not support.
+
+---
+
 ## General Scholium
 
 ### On what is assumed
@@ -468,5 +697,30 @@ Three habits do the work here, and they are worth more than any constant:
   wholly uncalibrated factor in the gain path.
 - An ordinary (non-Reward) matched observation at an unsupported age; Reward
   previews cannot identify the ordinary age table while their transfer is open.
+- A controlled ×4 against ×20 on the same player, which would put a **magnitude**
+  on star decay. Its sign is observed; its `0.85` is not (Prop. XXVI).
+- A matched Reward corpus large enough to identify a replacement transfer
+  function, which would close Prop. XIX.
+
+### On the standard this model is held to
+
+Three habits do the work, and they generalise past this subject entirely:
+
+1. **A failing check is a finding.** The engine is not edited to make a proof pass.
+2. **An assertion may outlive its evidence.** Several tests in this repository
+   encoded expectations their evidence no longer supported, and each looked like
+   a regression when it was in fact a stale belief. A test is a claim about the
+   world and decays like one.
+3. **Withholding is a valid output.** Where a mechanism is unidentified, the
+   honest answer is a range and a reason. A number that merely looks like
+   knowledge is worse than no number, because it cannot be argued with.
+
+To which the second edition adds a fourth, learned the hard way:
+
+4. **Certainty must be traced to an observation, never to a computation.** The
+   three faults corrected in this edition were each a case of arithmetic being
+   mistaken for evidence — a decimal we generated, a value we substituted, a sign
+   we confirmed and a magnitude we did not. Ask always which measurement a claim
+   rests on; if the answer is *our own model*, it is not evidence.
 
 *Hypotheses non fingo.* Where the game has not shown its hand, this model says so.
