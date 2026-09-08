@@ -46,9 +46,15 @@ export function ensureCoachHistoryTable() {
       coach_category TEXT,
       sessions INTEGER,
       stats TEXT NOT NULL DEFAULT '[]',
+      transfer_class TEXT NOT NULL DEFAULT 'ordinary',
+      preview_intervals TEXT NOT NULL DEFAULT '[]',
       is_manual INTEGER NOT NULL DEFAULT 0,
       label TEXT
     );`);
+    // Existing devices already have this table; preserve the transfer class and
+    // observed preview intervals when history is replayed through projection.
+    try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN transfer_class TEXT NOT NULL DEFAULT 'ordinary';"); } catch {}
+    try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN preview_intervals TEXT NOT NULL DEFAULT '[]';"); } catch {}
   } catch {}
 }
 

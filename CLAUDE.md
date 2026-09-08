@@ -4,7 +4,7 @@
 
 ## For the Next Claude — Read This First
 
-**Active branch:** `claude/test-connection-I2s8B`
+**Active branch:** `codex/reward-coach-transfer-seam-20260908`
 **Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
 
 ### Live scanner integration (2026-09-07 follow-up)
@@ -14,6 +14,25 @@ prepares a lossless PNG through `preparePlayerScreenshot.ts`, gives **that same 
 to ML Kit, and sends its RGBA pixels through `playerScanPipeline.ts`. Do not OCR the
 original while sampling a separately rotated/resized bitmap. If preparation fails,
 text remains available but role/tier state must be reviewed before saving.
+
+### Reward Coach transfer split (2026-09-08)
+
+Reward Coaches are **not** ordinary Academy Coaches with a prize label. Matched
+Focused Attacking ×2, `p=1`, Finishing previews make the ordinary fixed-XP
+architecture arithmetically impossible: Mehlem/Panic (same age and action) exclude
+the ordinary grey multiplier 0.22 under a common budget, and Mehlem/Dallas (both
+white, same current age bracket) have disjoint admitted common-budget intervals.
+
+`isRewardCoach` must survive scanning and history persistence into
+`projectCoachAction`. Ordinary actions retain the existing geometric XP transfer.
+Reward actions return `projectionStatus: 'unavailable'` with the observed `+lo-hi`
+intervals and **no** projected stats or post-action OVR. Do not route Reward
+actions through `coachBudgetPerStat` until their transfer is identified.
+
+The Reward age sweep does not calibrate the ordinary age table. Earlier provisional
+age-28, age-29 and common-30+ bounds derived from it are withdrawn. Positive age-31
+and age-35 Reward previews prove only positive Reward output; age-32/stat-407 `+0`
+does not imply a zero multiplier.
 
 `playerScanState.ts` is the shared add/rescan boundary: no text-role promotion;
 undefined/flagged partial reads preserve state; observed empty values clear it.
@@ -201,7 +220,7 @@ backing a value, it is ASSUMED and must be labelled as such.
 | xpCostBase (C₀) | 2.94 | ✅ Confirmed | Derived from Tackling-120 / Positioning-228 gain ratio (same session, same budget) |
 | xpCostDecayK (K) | 47 | ✅ Confirmed | Calibration solver: minimises CV across 5 Grant ×40 observations (K=47, CV=3.2%) |
 | baseXpPerSession | 676 | ⚠️ **Interval, not a point** — 676 is the FLOOR | The four calibration observations, re-solved from their stated intervals rather than midpoints, admit **675–930**. 676 came from solving one stat (Grant TACKLING ×40) at its midpoint; the game states a range and never says where the expectation sits in it. Every projection is therefore at the conservative end of what the evidence permits. See `calibration_data.json → bxps_recalibration.intervalRederivation`. |
-| greyWeightMultiplier | 0.22 | ✅ Confirmed | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual) |
+| greyWeightMultiplier | 0.22 | ✅ Confirmed for ordinary Academy coaching | Back-calculated from Grant ×40 HEADING (grey, stat=155, +11-15 actual). Reward transfer is separate and unresolved. |
 | sessionBudgetDecay | 0.99 | ✅ Confirmed | LJDark Leo ×114 GK actual result 173 OVR: linear model → 182 (error +9 ✗); geometric model → 172 (error −1 ✓). Resolves ×N anomaly. |
 | talentMultipliers.Normal | 1.0 | ✅ Confirmed — USE THIS FOR ALL PROJECTIONS | Normal=1.0 confirmed from Grant, Rogers, McGinty, Dallas, McCluskey, Jables. Every real-world coaching result back-calculates to Normal (1.0). All other talent multipliers are community estimates that produce incorrect predictions. |
 | talentMultipliers.Slow | 0.47 | ❌ DO NOT USE | Community-derived. Produces incorrect results. Originally inferred from Cieran Morgan ×30 ATK scan using the pre-Sprint-34 linear budget model — the inference was not stable. Cieran Morgan's talent has never been confirmed from the Personal Trainer edit screen. |
@@ -210,11 +229,11 @@ backing a value, it is ASSUMED and must be labelled as such.
 **TALENT MULTIPLIER RULE: Default ALL projections to Normal (1.0) regardless of what the DB stores for talent tier, unless talent has been confirmed from the Personal Trainer tab on the player edit screen AND back-calculated from actual before/after coaching data. "The game shows Fast" is not confirmation — only the Personal Trainer tab label + matching empirical result counts.**
 | ageTable 18–21 | 1.0 | ✅ 18–20 confirmed (Grant). 21 extended from trend — young players train at full rate. ⚠️ Age 21 needs one clean data point to lock. |
 | ageTable 22–23 | 0.85 | ⚠️ ASSUMED. Dallas age 23 confirms 0.85 exists by 23. Boundary (22 vs 23) unknown. |
-| ageTable 24–25 | 0.72 | ✅ Confirmed | McCluskey age 24, Focused Physical ×4, Fitness 213 → engine +3.5 vs actual +2–3. |
-| ageTable 26–28 | 0.61 | ✅ Confirmed | McGinty age 27. |
+| ageTable 24–25 | 0.72 | ⚠️ Assumed for ordinary coaching | The former confirmation used a Reward Coach and is withdrawn while Reward transfer is unresolved. |
+| ageTable 26–28 | 0.61 | ⚠️ Partly supported for ordinary coaching | McGinty age 27 supports the current entry; the Reward age-28 preview cannot extend or recalibrate it. |
 | ageTable 17 | 1.1 | ⚠️ ASSUMED — no data. |
-| ageTable 29 | 0.50 | ⚠️ ASSUMED — no data. |
-| ageTable 30 | 0.00 | ⚠️ ASSUMED — no data. |
+| ageTable 29 | 0.50 | ⚠️ ASSUMED — no ordinary-coach data; Reward preview does not identify it. |
+| ageTable 30 | 0.00 | ❌ Invalid placeholder — no ordinary-coach data; positive Reward previews do not identify the ordinary value either. |
 | OVR formula | floor(sum/15) | ✅ Confirmed | Grant T2→T3: sum=2615, floor(2615/15)=174 ✓; sum=2355, floor=157.0 ✓ |
 | tierAttrAdditions T0→T1 | +10/white | ✅ Confirmed | Jables T0→T4 end-to-end: cumulative +80/white at Master; T0→T1 increment back-calculated as +10 |
 | tierAttrAdditions T1→T2 | +20/white | ✅ Confirmed | Jables T0→T4: cumulative +30 at Elite; T1→T2 increment = +20 |
@@ -484,11 +503,12 @@ All stages projected in advance. Largest error: 0.5 OVR at coaching stage. Final
 
 ### Other Notes
 
-- **Grey stats cost ~4.55× XP**, not 2×. `greyWeightMultiplier = 0.22` divides the
+- **Under ordinary Academy coaching, grey stats cost ~4.55× XP**, not 2×. `greyWeightMultiplier = 0.22` divides the
   efficiency multiplier, so a grey point costs `1/0.22 ≈ 4.55×` a white one. The
   "0.5 / 2×" figure came from community data in Sprint 25 and was superseded by the
-  0.22 back-calculated from Grant ×40 grey HEADING. **0.22 is the calibrated value and
-  the one the engine uses** — the code was always right; only these notes disagreed.
+  0.22 back-calculated from Grant ×40 grey HEADING. **0.22 remains the calibrated
+  ordinary value and the one the ordinary engine uses.** Reward evidence excludes
+  treating it as universal; that class currently abstains instead.
 - **Tier bonus** applies to WHITE (essential) stats only — grey role stats and off-role stats receive 0 (confirmed from direct game observation)
 - **Tier OVR contribution**: `floor(tier_bonus × key_count / 15)` — varies by role (10–13 key stats)
 - **Condition (restorers)**: restores condition only — zero OVR change; +15% per restorer (confirmed)
@@ -1237,8 +1257,10 @@ Fix:
 - Pipeline skips the Standard/Extensive full-category override when `isRewardCoach` — falls
   through to contamination check, which correctly handles cross-category detections
 
-Reward Coaches confirmed to use the **same XP budget** as regular Standard coaches — no
-extra boost, just awarded as a prize. No separate `rewardCoachXpMultiplier` needed.
+**Superseded 2026-09-08:** the earlier claim that Reward Coaches use the same XP
+budget as regular Standard coaches was not supported by a completed matched result.
+The new matched preview corpus falsifies that architecture. This does not justify a
+`rewardCoachXpMultiplier`; the whole Reward transfer function is unresolved.
 
 **7. RESEARCH_PROMPT.md created** (project root)
 
@@ -1278,8 +1300,9 @@ is within range.
 
 **Priority action items for next session:**
 
-1. **DONE: ageMult=0.72 for age 24 now confirmed** — Garry McCluskey (age 24) Focused Physical
-   ×4 Drill Session Reward Coach. Fitness 213 → engine predicts +3.5, actual +2-3. ✅
+1. **Withdrawn as an age calibration:** Garry McCluskey's age-24 observation used a
+   Reward Coach. It cannot identify the ordinary age multiplier while Reward transfer
+   is unresolved.
 
 2. **Confirm Garry McCluskey talent** — screenshot the edit screen. Fitness data is consistent
    with Normal (1.0) but Creativity underpredicts (+5.8 vs +7-10). Fast (1.25) would give
@@ -1289,9 +1312,8 @@ is within range.
 
 4. **Training Camp is just a label** — same formula as all other coaches. Stats boosted = whatever OCR detects with visible ranges. No special handling needed.
 
-5. **Run Brandon Prentice's Reward Coach ×4** — screenshot before/after player card.
-   Compare actual gains vs +15.4 MARKING / +15.1 POSITIONING / +11.6 AGGRESSION.
-   Validates ageMult=0.85 (age 22) and confirms Reward Coach budget = Standard budget.
+5. Brandon Prentice's Reward Coach may extend the Reward corpus, but it cannot
+   validate an ordinary age multiplier or ordinary Standard-coach budget.
 
 6. **×N test** — same player, ×4 vs ×20 actual gains from a REGULAR coaching session (not
    Training Camp). Prentice is the candidate. Engine predicts ×20 gives ~4× the ×4 gain.
@@ -1351,9 +1373,9 @@ The geometric budget model is the correct structural fix. The formula now projec
 
 ## Training Camp
 
-"Training Camp" is a resource cost label — it is not a distinct coaching formula.
-All coaches use the same XP budget and the same gain formula regardless of what
-the game calls them. The stats boosted are determined solely by which stats have
-visible +lo-hi ranges in the OCR scan. Coach name and category are irrelevant.
+"Training Camp" remains a resource cost label, not a calibrated transfer class.
+The former statement that **all** coaches use the same XP budget is superseded:
+ordinary Academy Coaches use the geometric XP transfer; Reward Coaches retain their
+visible `+lo-hi` intervals but have no numeric projection until separately identified.
 
 See `RESEARCH_PROMPT.md` for the full issue list with back-calculation formulas.

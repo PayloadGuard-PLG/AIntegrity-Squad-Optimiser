@@ -48,6 +48,7 @@ export default function ResultsScreen() {
   const [restorers, setRestorers] = useState('');
   const [restPacks, setRestPacks] = useState('');
   const [result, setResult] = useState<StepResult[] | null>(null);
+  const [projectionBlock, setProjectionBlock] = useState<string | null>(null);
   const [finalStats, setFinalStats] = useState<Record<string, number> | null>(null);
   const [seasonReset, setSeasonReset] = useState(false);
   const [levelsPromoted, setLevelsPromoted] = useState('1');
@@ -84,6 +85,7 @@ export default function ResultsScreen() {
     setExcludedTiers(new Set());
     setSeasonReset(false);
     setResult(null);
+    setProjectionBlock(null);
     setFinalStats(null);
   }
 
@@ -94,6 +96,7 @@ export default function ResultsScreen() {
       return next;
     });
     setResult(null);
+    setProjectionBlock(null);
   }
 
   function toggleDrillPlan(id: string) {
@@ -103,10 +106,12 @@ export default function ResultsScreen() {
       return next;
     });
     setResult(null);
+    setProjectionBlock(null);
   }
 
   function runProjection() {
     if (!player) return;
+    setProjectionBlock(null);
     const steps: StepResult[] = [];
     let currentStats = { ...player.stats };
     let currentOvr = computeOvrFromStats(player, profile);
@@ -148,7 +153,17 @@ export default function ResultsScreen() {
         sessions: entry.sessions,
         profile,
         label: `COACH ×${entry.sessions} — ${entry.label}`,
+        transferClass: entry.transferClass,
+        observedGainIntervals: entry.observedGainIntervals,
       });
+      if (projection.projectionStatus === 'unavailable') {
+        setResult(null);
+        setFinalStats(null);
+        setProjectionBlock(
+          `${entry.label}: Reward Coach transfer is unresolved. Its observed preview interval cannot be converted into stat or OVR gain, so the full plan was not totalled.`,
+        );
+        return;
+      }
       currentStats = projection.projectedStats;
       steps.push({
         label: projection.action.label,
@@ -502,6 +517,13 @@ export default function ResultsScreen() {
                 </MonoLabel>
               )}
             </Pressable>
+
+            {projectionBlock && (
+              <View style={{ borderWidth: 1, borderColor: theme.hot + '66', padding: 12, marginBottom: 14 }}>
+                <MonoLabel size={9} color={theme.hot}>PLAN NOT TOTALLED</MonoLabel>
+                <MonoLabel size={8} color={theme.inkMuted} style={{ marginTop: 5 }}>{projectionBlock}</MonoLabel>
+              </View>
+            )}
 
             {/* ── RESULTS ── */}
             {result && result.length > 0 && (

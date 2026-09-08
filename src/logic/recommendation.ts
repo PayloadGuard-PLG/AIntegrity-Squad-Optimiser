@@ -4,7 +4,8 @@
  * This module composes existing, proven machinery. It implements no mathematics
  * of its own:
  *
- *   gains        → engineMath.coachBudgetPerStat / drillBudgetPerStat, then
+ *   gains        → ordinary Academy: engineMath.coachBudgetPerStat; drills:
+ *                  drillBudgetPerStat; unresolved Reward Coaches abstain; then
  *                  statGainFromBudget + combinedMultiplier, stepped across star
  *                  thresholds by runTraining below
  *   OVR          → engineMath.paddedStatSum / exactOvrFromSum
@@ -28,6 +29,8 @@
  *   - stat values stay fractional throughout. Progress below the displayed
  *     integer is real internal state and a small gain can carry a player over a
  *     threshold, so nothing is rounded until presentation.
+ *   - Reward Coach preview intervals are observations, not inputs to the
+ *     ordinary Academy transfer; until calibrated they produce no numeric gain.
  */
 
 import {
@@ -126,6 +129,7 @@ export interface StarBandPosition {
 }
 
 export interface RecommendationResult {
+  projectionStatus: 'projected';
   action: RecommendedAction;
   statDeltas: StatDelta[];
   projectedStats: Record<string, number>;
@@ -147,6 +151,43 @@ export interface RecommendationResult {
   trainingLocked: boolean;
   reasons: RecommendationReason[];
 }
+
+/**
+ * Coach classes have different empirical contracts.
+ *
+ * `ordinary` is the Academy transfer function calibrated by the existing
+ * geometric XP-budget evidence. `reward` is a scan classification, not an XP
+ * multiplier: matched Reward Coach previews falsify the ordinary transfer
+ * function, and no replacement function is calibrated yet.
+ */
+export type CoachTransferClass = 'ordinary' | 'reward';
+
+/** One interval printed by the game's coach preview. Never a midpoint. */
+export interface CoachPreviewInterval {
+  stat: string;
+  statBefore: number;
+  gainLo: number;
+  gainHi: number;
+}
+
+/**
+ * Honest Reward Coach result while its transfer function is unresolved.
+ * Deliberately contains no projected stats or post-action OVR: unchanged values
+ * would be indistinguishable from a prediction of zero gain.
+ */
+export interface UnresolvedCoachProjection {
+  projectionStatus: 'unavailable';
+  action: Extract<RecommendedAction, { kind: 'coach' }>;
+  transferClass: 'reward';
+  observedGainIntervals: CoachPreviewInterval[];
+  ovrBefore: number;
+  condition: null;
+  conditionBasis: 'not-applicable';
+  resources: ResourceRequirement[];
+  reasons: RecommendationReason[];
+}
+
+export type CoachProjectionResult = RecommendationResult | UnresolvedCoachProjection;
 
 /**
  * THE talent decision. Every projection in the app resolves talent here.
@@ -293,6 +334,7 @@ function lockedResult(
   maxBaseOvr: number,
 ): RecommendationResult {
   return {
+    projectionStatus: 'projected',
     action,
     statDeltas: [],
     projectedStats: { ...player.stats },
@@ -472,10 +514,15 @@ export interface CoachActionInput {
   sessions: number;
   profile: GameProfile;
   label?: string;
+  /** Defaults to ordinary for legacy/manual entries. Scanner callers must pass it. */
+  transferClass?: CoachTransferClass;
+  /** Required evidence payload for Reward Coaches; ranges are observations. */
+  observedGainIntervals?: CoachPreviewInterval[];
 }
 
 /**
- * Academy coach projection. Budget comes from engineMath.coachBudgetPerStat —
+ * Coach projection boundary. Ordinary Academy budget comes from
+ * engineMath.coachBudgetPerStat —
  * the geometric model confirmed in Sprint 34. The linear model is falsified; do
  * not reintroduce it.
  *
@@ -487,9 +534,16 @@ export interface CoachActionInput {
  * combinedMultiplier's ad slot; that interpretation is falsified and removed.
  * Modelling the match-form subsystem is future work, not this function's job.
  */
-export function projectCoachAction(input: CoachActionInput): RecommendationResult {
+export function projectCoachAction(
+  input: CoachActionInput & { transferClass?: 'ordinary' },
+): RecommendationResult;
+export function projectCoachAction(
+  input: CoachActionInput & { transferClass: 'reward' },
+): UnresolvedCoachProjection;
+export function projectCoachAction(input: CoachActionInput): CoachProjectionResult;
+export function projectCoachAction(input: CoachActionInput): CoachProjectionResult {
   const { player, stats, sessions, profile } = input;
-  const talent = resolveTalentPolicy(player);
+  const transferClass = input.transferClass ?? 'ordinary';
   const action: RecommendedAction = {
     kind: 'coach',
     label: input.label ?? `Coach ×${sessions}`,
@@ -499,6 +553,30 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
   const resources: ResourceRequirement[] = [
     { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
   ];
+  if (transferClass === 'reward') {
+    const observedGainIntervals = (input.observedGainIntervals ?? [])
+      .filter(interval => interval.gainLo >= 0 && interval.gainHi >= interval.gainLo)
+      .map(interval => ({ ...interval }));
+    return {
+      projectionStatus: 'unavailable',
+      action,
+      transferClass,
+      observedGainIntervals,
+      ovrBefore: evaluateLock(player, profile).totalOvr,
+      condition: null,
+      conditionBasis: 'not-applicable',
+      resources,
+      reasons: [{
+        code: 'coach.rewardTransferUnresolved',
+        detail: observedGainIntervals.length > 0
+          ? 'Reward Coach transfer is not calibrated. The scanned +lo–hi ranges are retained as observations; no XP, stat, or OVR prediction is fabricated.'
+          : 'Reward Coach transfer is not calibrated and no usable +lo–hi interval was captured. No XP, stat, or OVR prediction is available.',
+        evidence: 'unavailable',
+      }],
+    };
+  }
+
+  const talent = resolveTalentPolicy(player);
   const { baseOvr, totalOvr, exactBaseOvr, locked } = evaluateLock(player, profile);
   const maxBaseOvr = profile.maxBaseOvr ?? 180;
 
@@ -551,6 +629,7 @@ export function projectCoachAction(input: CoachActionInput): RecommendationResul
   }
 
   return {
+    projectionStatus: 'projected',
     action,
     statDeltas,
     projectedStats,
@@ -697,6 +776,7 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
   });
 
   return {
+    projectionStatus: 'projected',
     action,
     statDeltas,
     projectedStats,

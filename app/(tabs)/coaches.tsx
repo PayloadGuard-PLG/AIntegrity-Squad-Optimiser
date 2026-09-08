@@ -14,7 +14,9 @@ import { theme } from '../../src/constants/theme';
 import { TabBackground } from '../../src/components/TabBackground';
 import { OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
-import { projectCoachAction } from '../../src/logic/recommendation';
+import {
+  projectCoachAction, type CoachPreviewInterval, type CoachTransferClass,
+} from '../../src/logic/recommendation';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, GameProfile } from '../../src/types/resources';
 import { playerService } from '../../src/services/playerService';
@@ -43,6 +45,7 @@ function statColor(stat: string): string {
 
 type StatGain = { stat: string; from: number; gain: number; isWhite: boolean };
 type ProjectionResult = { gains: StatGain[]; ovrBefore: number; ovrAfter: number; ovrGain: number; postCoachStats: Record<string, number>; reasons: string[]; trainingLocked: boolean };
+type RewardPreviewResult = { intervals: CoachPreviewInterval[]; reasons: string[] };
 
 export default function CoachesScreen() {
   const { squad } = useSquad();
@@ -53,7 +56,10 @@ export default function CoachesScreen() {
   const [scannedStats, setScannedStats] = useState<string[]>([]);
   const [coachType, setCoachType] = useState('');
   const [coachCategory, setCoachCategory] = useState('');
+  const [transferClass, setTransferClass] = useState<CoachTransferClass>('ordinary');
+  const [observedGainIntervals, setObservedGainIntervals] = useState<CoachPreviewInterval[]>([]);
   const [result, setResult] = useState<ProjectionResult | null>(null);
+  const [rewardPreviewResult, setRewardPreviewResult] = useState<RewardPreviewResult | null>(null);
   const [saveConfirmed, setSaveConfirmed] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState('');
@@ -80,7 +86,7 @@ export default function CoachesScreen() {
     if (!player || scannedStats.length === 0) return;
     const n = parseInt(sessions, 10);
     if (n > 0) runProjection();
-    else setResult(null);
+    else { setResult(null); setRewardPreviewResult(null); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions]);
 
@@ -96,8 +102,11 @@ export default function CoachesScreen() {
     setScannedStats([]);
     setCoachType('');
     setCoachCategory('');
+    setTransferClass('ordinary');
+    setObservedGainIntervals([]);
     setFocusedStatSel(new Set());
     setResult(null);
+    setRewardPreviewResult(null);
     setSaveConfirmed(false);
     setScanStatus('');
   }, [manager]);
@@ -116,6 +125,9 @@ export default function CoachesScreen() {
     setCoachType(next);
     setFocusedStatSel(new Set());
     setResult(null);
+    setRewardPreviewResult(null);
+    setTransferClass('ordinary');
+    setObservedGainIntervals([]);
     if (next && next !== 'Focused' && coachCategory) {
       const stats = CATEGORY_STATS[coachCategory] ?? [];
       setScannedStats(stats);
@@ -130,6 +142,9 @@ export default function CoachesScreen() {
     setCoachCategory(cat);
     setFocusedStatSel(new Set());
     setResult(null);
+    setRewardPreviewResult(null);
+    setTransferClass('ordinary');
+    setObservedGainIntervals([]);
     if (coachType !== 'Focused') {
       const stats = CATEGORY_STATS[cat] ?? [];
       setScannedStats(stats);
@@ -147,10 +162,15 @@ export default function CoachesScreen() {
     const stats = [...next];
     setScannedStats(stats);
     setResult(null);
+    setRewardPreviewResult(null);
     if (stats.length > 0) buildStatus(stats, coachType, coachCategory, 'MANUAL');
   }
 
-  function saveToHistory(stats: string[], sessCount: number, type: string, cat: string, isManual: boolean) {
+  function saveToHistory(
+    stats: string[], sessCount: number, type: string, cat: string, isManual: boolean,
+    savedTransferClass: CoachTransferClass = 'ordinary',
+    savedIntervals: CoachPreviewInterval[] = [],
+  ) {
     if (!player || stats.length === 0 || sessCount === 0) return;
     coachHistoryService.save({
       id: Date.now().toString(),
@@ -160,6 +180,8 @@ export default function CoachesScreen() {
       coachCategory: cat,
       sessions: sessCount,
       stats,
+      transferClass: savedTransferClass,
+      observedGainIntervals: savedIntervals,
       isManual,
     });
     setCoachHistory(coachHistoryService.getForPlayer(player.id));
@@ -179,14 +201,17 @@ export default function CoachesScreen() {
       if (!recognised && scan.stats.length === 0) {
         setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
         setScannedStats([]); setCoachType(''); setCoachCategory('');
+        setTransferClass('ordinary'); setObservedGainIntervals([]);
         return;
       }
 
       if (scan.multiplier) setSessions(String(scan.multiplier));
       setCoachType(scan.coachType ?? '');
       setCoachCategory(scan.coachCategory ?? '');
+      const scannedTransferClass: CoachTransferClass = scan.isRewardCoach ? 'reward' : 'ordinary';
+      setTransferClass(scannedTransferClass);
       setFocusedStatSel(new Set());
-      setResult(null); setSaveConfirmed(false);
+      setResult(null); setRewardPreviewResult(null); setSaveConfirmed(false);
 
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
@@ -198,10 +223,14 @@ export default function CoachesScreen() {
       // bxps_recalibration.midpointAssumption.
       const gainRanges: Record<string, { lo: number; hi: number; statBefore: number }> = {};
       for (const cap of scan.stats) {
-        if (cap.gainLo > 0 && cap.gainHi > 0 && cap.statBefore > 0) {
+        if (cap.gainLo >= 0 && cap.gainHi >= cap.gainLo && cap.statBefore > 0) {
           gainRanges[cap.statName] = { lo: cap.gainLo, hi: cap.gainHi, statBefore: cap.statBefore };
         }
       }
+      const intervals: CoachPreviewInterval[] = Object.entries(gainRanges).map(([stat, range]) => ({
+        stat, statBefore: range.statBefore, gainLo: range.lo, gainHi: range.hi,
+      }));
+      setObservedGainIntervals(intervals);
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
 
       if (statNames[0] === ALL_ROUND_SENTINEL) {
@@ -211,6 +240,8 @@ export default function CoachesScreen() {
         setScanStatus(allEnteredStats.length > 0
           ? `ALL-ROUND ×${scan.multiplier ?? parseInt(sessions, 10)} · ${allEnteredStats.length} STATS · ${rangeCt} RANGES`
           : 'ALL-ROUND — enter player stats to project');
+        saveToHistory(allEnteredStats, (scan.multiplier ?? parseInt(sessions, 10)) || 0,
+          scan.coachType ?? '', scan.coachCategory ?? '', false, scannedTransferClass, intervals);
         setIsScanning(false);
         return;
       }
@@ -227,7 +258,7 @@ export default function CoachesScreen() {
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
       saveToHistory(statNames, (scan.multiplier ?? parseInt(sessions, 10)) || 0,
-        scan.coachType ?? '', scan.coachCategory ?? '', false);
+        scan.coachType ?? '', scan.coachCategory ?? '', false, scannedTransferClass, intervals);
     } catch {
       setScanStatus('SCAN FAILED');
     } finally {
@@ -241,7 +272,19 @@ export default function CoachesScreen() {
     if (sessionCount === 0) return;
 
     // One domain answer. No budget, multiplier, talent or OVR math on this screen.
-    const projection = projectCoachAction({ player, stats: scannedStats, sessions: sessionCount, profile });
+    const projection = projectCoachAction({
+      player, stats: scannedStats, sessions: sessionCount, profile,
+      transferClass, observedGainIntervals,
+    });
+    if (projection.projectionStatus === 'unavailable') {
+      setResult(null);
+      setRewardPreviewResult({
+        intervals: projection.observedGainIntervals,
+        reasons: projection.reasons.map(r => r.detail),
+      });
+      setSaveConfirmed(false);
+      return;
+    }
     const gains: StatGain[] = projection.statDeltas.map(d => ({
       stat: d.stat, from: d.from, gain: d.delta, isWhite: d.isWhite,
     }));
@@ -257,9 +300,10 @@ export default function CoachesScreen() {
       reasons: projection.reasons.map(r => r.detail),
       trainingLocked: projection.trainingLocked,
     });
+    setRewardPreviewResult(null);
     setSaveConfirmed(false);
     if (!scanStatus.startsWith('SCANNED')) {
-      saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true);
+      saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true, 'ordinary', []);
     }
   }
 
@@ -270,9 +314,12 @@ export default function CoachesScreen() {
     setScannedStats([]);
     setCoachType('');
     setCoachCategory('');
+    setTransferClass('ordinary');
+    setObservedGainIntervals([]);
     setSessions('');
     setSaveConfirmed(false);
     setScanStatus('');
+    setRewardPreviewResult(null);
   }
 
   function saveRun() {
@@ -444,6 +491,11 @@ export default function CoachesScreen() {
                   {scanStatus}
                 </MonoLabel>
               )}
+              {transferClass === 'reward' && (
+                <MonoLabel size={8} color={theme.hot} style={{ marginTop: 4 }}>
+                  REWARD COACH · PREVIEW INTERVALS ONLY · XP TRANSFER UNRESOLVED
+                </MonoLabel>
+              )}
               {scanStatus.startsWith('SCANNED') && coachType === 'Focused' && scannedStats.length === 0 && (
                 <>
                   <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4 }}>
@@ -499,6 +551,19 @@ export default function CoachesScreen() {
             </Pressable>
 
             {/* Result */}
+            {rewardPreviewResult && (
+              <View style={{ borderWidth: 1, borderColor: theme.hot + '66', padding: 14, marginBottom: 14 }}>
+                <MonoLabel color={theme.hot} style={{ marginBottom: 8 }}>REWARD COACH — NO NUMERIC PROJECTION</MonoLabel>
+                {rewardPreviewResult.reasons.map((reason, i) => (
+                  <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 4 }}>{reason}</MonoLabel>
+                ))}
+                {rewardPreviewResult.intervals.map(interval => (
+                  <MonoLabel key={interval.stat} size={9} color={theme.inkSec} style={{ marginTop: 4 }}>
+                    {interval.stat} {interval.statBefore} · +{interval.gainLo}–{interval.gainHi} OBSERVED
+                  </MonoLabel>
+                ))}
+              </View>
+            )}
             {result && (
               <>
                 <View style={{ borderWidth: 1, borderColor: result.ovrGain > 0 ? theme.pos + '55' : theme.hairline2, padding: 14, marginBottom: 14 }}>
@@ -576,9 +641,12 @@ export default function CoachesScreen() {
                   setSessions(String(entry.sessions));
                   setCoachType(entry.coachType);
                   setCoachCategory(entry.coachCategory);
+                  setTransferClass(entry.transferClass);
+                  setObservedGainIntervals(entry.observedGainIntervals);
                   setScannedStats(entry.stats);
                   setFocusedStatSel(new Set());
                   setResult(null);
+                  setRewardPreviewResult(null);
                   setScanStatus(`HISTORY: ${entry.label}`);
                 }}
                   style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 10, marginBottom: 5,

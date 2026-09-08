@@ -21,7 +21,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { coachBudgetPerStat } from '../src/engine/engineMath';
+import { ageMultiplier, coachBudgetPerStat, greyMultiplier, xpCostAtStat } from '../src/engine/engineMath';
 import { estimateStatGainPct } from '../src/logic/xpEngine';
 import { sessionDrain, calculateActualLoss, chargedDrainRange, MIN_CONDITION_DRAIN_PCT } from '../src/utils/conditionEngine';
 import { DRILL_LIST } from '../src/database/drillDatabase';
@@ -130,6 +130,78 @@ const player = (over: Partial<Player> = {}): Player => ({
   id: 'p1', name: 'Subject', role: ['DC', 'DMC'], age: 20, overall: 120,
   tier: 'T0', talent: 'Normal', stats: { ...OUTFIELD }, isMutantCandidate: false,
   ...over,
+});
+
+// A displayed +lo-hi is an interval. With hidden starting progress ε∈[0,1),
+// the least admitted raw XP pays `lo` steps from s; the greatest pays `hi`
+// steps from the limiting start s+1. No midpoint enters this calculation.
+function admittedRawXp(startStat: number, gainLo: number, gainHi: number) {
+  const stepSum = (start: number, points: number) => {
+    let total = 0;
+    for (let i = 0; i < points; i++) total += xpCostAtStat(start + i);
+    return total;
+  };
+  return { low: stepSum(startStat, gainLo), high: stepSum(startStat + 1, gainHi) };
+}
+
+function admittedOrdinaryCoachBudget(
+  startStat: number, gainLo: number, gainHi: number, age: number, isWhite: boolean,
+) {
+  const raw = admittedRawXp(startStat, gainLo, gainHi);
+  const efficiency = ageMultiplier(age) * greyMultiplier(isWhite);
+  return { low: raw.low / efficiency, high: raw.high / efficiency };
+}
+
+function intervalIntersection(...ranges: { low: number; high: number }[]) {
+  return { low: Math.max(...ranges.map(r => r.low)), high: Math.min(...ranges.map(r => r.high)) };
+}
+
+test('Reward matched evidence has no common ordinary fixed-XP coach budget', () => {
+  const mehlemRaw = admittedRawXp(125, 5, 7);
+  const panicRaw = admittedRawXp(115, 5, 7);
+  const dallasRaw = admittedRawXp(180, 5, 7);
+  assert.ok(Math.abs(mehlemRaw.low - 219.29718) < 1e-5);
+  assert.ok(Math.abs(mehlemRaw.high - 320.50754) < 1e-5);
+  assert.ok(Math.abs(panicRaw.low - 177.26785) < 1e-5);
+  assert.ok(Math.abs(panicRaw.high - 259.08076) < 1e-5);
+  assert.ok(Math.abs(dallasRaw.low - 706.72425) < 1e-5);
+  assert.ok(Math.abs(dallasRaw.high - 1032.89267) < 1e-5);
+
+  const mehlem = admittedOrdinaryCoachBudget(125, 5, 7, 26, true);
+  const panic = admittedOrdinaryCoachBudget(115, 5, 7, 26, false);
+  const dallas = admittedOrdinaryCoachBudget(180, 5, 7, 27, true);
+
+  const sameAgeWhiteGrey = intervalIntersection(mehlem, panic);
+  assert.ok(sameAgeWhiteGrey.low > sameAgeWhiteGrey.high,
+    'Mehlem/Panic must have an empty common-budget intersection under ordinary grey ×0.22');
+  const sameAgeBracketWhite = intervalIntersection(mehlem, dallas);
+  assert.ok(sameAgeBracketWhite.low > sameAgeBracketWhite.high,
+    'Mehlem/Dallas must have an empty common-budget intersection under ordinary age 26–27 ×0.61');
+});
+
+test('Reward Coach projection abstains and preserves preview intervals', () => {
+  const intervals = [{ stat: 'FINISHING', statBefore: 125, gainLo: 5, gainHi: 7 }];
+  const reward = projectCoachAction({
+    player: player({ age: 26, role: ['ST'], stats: { ...OUTFIELD, FINISHING: 125 }, overall: 115.3 }),
+    stats: ['FINISHING'], sessions: 1, profile, transferClass: 'reward',
+    observedGainIntervals: intervals,
+  });
+  assert.equal(reward.projectionStatus, 'unavailable');
+  assert.deepEqual(reward.observedGainIntervals, intervals);
+  assert.ok(reward.reasons.some(r => r.code === 'coach.rewardTransferUnresolved'));
+  assert.equal('projectedStats' in reward, false,
+    'unresolved must not masquerade as unchanged stats / zero gain');
+  assert.equal('ovrAfterExact' in reward, false,
+    'unresolved must not fabricate a post-coach OVR');
+
+  // +0 is itself an observed interval at high stat cost, not a missing row.
+  const zero = projectCoachAction({
+    player: player({ age: 32, role: ['ST'], stats: { ...OUTFIELD, FINISHING: 407 } }),
+    stats: ['FINISHING'], sessions: 1, profile, transferClass: 'reward',
+    observedGainIntervals: [{ stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 }],
+  });
+  assert.deepEqual(zero.observedGainIntervals[0],
+    { stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 });
 });
 
 test('the same coach scenario cannot produce conflicting projections', () => {
@@ -282,6 +354,22 @@ test('screens consume the seam and cannot substitute their own projection math',
   }
 });
 
+test('Reward classification and preview intervals survive scan history into projection', () => {
+  const coaches = readFileSync(join(__dirname, '..', 'app/(tabs)/coaches.tsx'), 'utf8');
+  const results = readFileSync(join(__dirname, '..', 'app/(tabs)/results.tsx'), 'utf8');
+  const history = readFileSync(join(__dirname, '..', 'src/services/coachHistoryService.ts'), 'utf8');
+
+  assert.match(coaches, /scan\.isRewardCoach\s*\?\s*'reward'\s*:\s*'ordinary'/);
+  assert.match(coaches, /transferClass, observedGainIntervals/,
+    'Coaches projection must receive the scanner classification and intervals');
+  assert.match(history, /transfer_class/);
+  assert.match(history, /preview_intervals/);
+  assert.match(results, /transferClass:\s*entry\.transferClass/,
+    'Results replay must not erase Reward classification');
+  assert.match(results, /projection\.projectionStatus\s*===\s*'unavailable'/,
+    'a full plan must abstain rather than total an unresolved Reward Coach as zero');
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Semantic correction pass. Star-threshold decay is a real mechanic, separate
 // from session-budget decay; the match-form doubling item is not a permanent
@@ -367,7 +455,7 @@ test('the match-form doubling item cannot change academy coach stat gain', () =>
     player: player(), stats: STATS, sessions: 40, profile,
     // @ts-expect-error the seam must not accept a match-form boost as an input
     twoxAd: true,
-  });
+  }) as ReturnType<typeof projectDrillAction>;
   assert.deepEqual(attempted.statDeltas, withoutBoost.statDeltas);
   assert.equal(attempted.ovrDelta, withoutBoost.ovrDelta);
 
