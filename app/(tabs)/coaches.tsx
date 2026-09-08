@@ -4,6 +4,9 @@ import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats, CATEGORY_STATS, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
+import {
+  ingestScannedIdentity, identityMismatches, type ScannedIdentity,
+} from '../../src/logic/coachIdentityParse';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -65,6 +68,7 @@ export default function CoachesScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [focusedStatSel, setFocusedStatSel] = useState<Set<string>>(new Set());
   const [coachHistory, setCoachHistory] = useState<CoachHistoryEntry[]>([]);
+  const [scannedIdentity, setScannedIdentity] = useState<ScannedIdentity>({});
   const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
   const { playerId: incomingPlayerId, sessions: incomingSessions } = useLocalSearchParams<{ playerId?: string; sessions?: string }>();
@@ -96,6 +100,13 @@ export default function CoachesScreen() {
     return isGK ? GK_STATS_ALL : OUTFIELD_STATS;
   }, [player]);
 
+  const identityConflicts = useMemo(
+    () => identityMismatches(scannedIdentity, player
+      ? { name: player.name, age: player.age, talent: player.talent }
+      : null),
+    [scannedIdentity, player],
+  );
+
   const selectPlayer = useCallback((id: string) => {
     manager.setSelectedPlayerId(id);
     setSessions('');
@@ -104,6 +115,7 @@ export default function CoachesScreen() {
     setCoachCategory('');
     setTransferClass('ordinary');
     setObservedGainIntervals([]);
+    setScannedIdentity({});
     setFocusedStatSel(new Set());
     setResult(null);
     setRewardPreviewResult(null);
@@ -206,6 +218,7 @@ export default function CoachesScreen() {
         setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
         setScannedStats([]); setCoachType(''); setCoachCategory('');
         setTransferClass('ordinary'); setObservedGainIntervals([]);
+        setScannedIdentity({});
         return;
       }
 
@@ -214,6 +227,17 @@ export default function CoachesScreen() {
       setCoachCategory(scan.coachCategory ?? '');
       const scannedTransferClass: CoachTransferClass = scan.isRewardCoach ? 'reward' : 'ordinary';
       setTransferClass(scannedTransferClass);
+
+      // Scanner-observed identity of the card IN THE IMAGE. Held, displayed and
+      // compared — never written into the selected player's record. The preview
+      // shows whichever card the game attached to the coach, so a disagreement
+      // here means the stat intervals read from the same image describe someone
+      // other than the player this screen is about to project. Each field is
+      // written only when observed; an absent one leaves the prior read intact.
+      setScannedIdentity(prev => ingestScannedIdentity(
+        { name: scan.playerName, age: scan.playerAge, talent: scan.talentTier },
+        prev,
+      ));
       setFocusedStatSel(new Set());
       setResult(null); setRewardPreviewResult(null); setSaveConfirmed(false);
 
@@ -335,6 +359,7 @@ export default function CoachesScreen() {
     setCoachCategory('');
     setTransferClass('ordinary');
     setObservedGainIntervals([]);
+    setScannedIdentity({});
     setSessions('');
     setSaveConfirmed(false);
     setScanStatus('');
@@ -509,6 +534,35 @@ export default function CoachesScreen() {
                 <MonoLabel size={9} color={scanStatus.startsWith('SCANNED') ? theme.pos : theme.neg} style={{ marginTop: 8 }}>
                   {scanStatus}
                 </MonoLabel>
+              )}
+
+              {/* Scanned card identity — an observation about the IMAGE, not a
+                  write to the selected player. See coachIdentityParse.ts. */}
+              {(scannedIdentity.name || scannedIdentity.age !== undefined || scannedIdentity.talent) && (
+                <View style={{ borderWidth: 1, borderColor: identityConflicts.length > 0 ? theme.neg : theme.hairline2, padding: 10, marginTop: 8 }}>
+                  <MonoLabel size={8} color={theme.inkGhost}>SCANNED CARD</MonoLabel>
+                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.inkSec, marginTop: 4 }}>
+                    {[
+                      scannedIdentity.name,
+                      scannedIdentity.age !== undefined ? `AGE ${scannedIdentity.age}` : undefined,
+                      scannedIdentity.talent ? scannedIdentity.talent.toUpperCase() : undefined,
+                    ].filter(Boolean).join(' · ')}
+                  </Text>
+                  {identityConflicts.length > 0 && (
+                    <View style={{ marginTop: 6 }}>
+                      <MonoLabel size={8} color={theme.neg}>DOES NOT MATCH SELECTED PLAYER</MonoLabel>
+                      {identityConflicts.map(c => (
+                        <Text key={c.field} style={{ fontFamily: theme.mono, fontSize: 9, color: theme.neg, marginTop: 2 }}>
+                          {c.field.toUpperCase()}: CARD {c.observed} · SELECTED {c.selected}
+                        </Text>
+                      ))}
+                      <Text style={{ fontFamily: theme.mono, fontSize: 8, color: theme.inkMuted, marginTop: 4, letterSpacing: 0.5 }}>
+                        The ranges read from this image belong to the card shown in it.
+                        Select that player, or re-scan a preview for {player.name}.
+                      </Text>
+                    </View>
+                  )}
+                </View>
               )}
               {transferClass === 'reward' && (
                 <MonoLabel size={8} color={theme.hot} style={{ marginTop: 4 }}>

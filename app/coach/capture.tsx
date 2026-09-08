@@ -124,8 +124,20 @@ export default function CoachCaptureScreen() {
         parts.push(`${n} STAT${n !== 1 ? 'S' : ''}`);
       }
 
-      if (!selectedPlayerId && scan.playerAge) setAgeInput(String(scan.playerAge));
+      // Scanner-observed identity. Written only when this scan actually observed
+      // the field, and only while no squad player is selected — a selected player's
+      // stored record is the authority, and these fields become the manual override
+      // path instead. An unobserved field is left exactly as it was.
+      if (!selectedPlayerId && scan.playerName) { setPlayerName(scan.playerName); parts.push(scan.playerName); }
+      if (!selectedPlayerId && scan.playerAge)  { setAgeInput(String(scan.playerAge)); parts.push(`AGE ${scan.playerAge}`); }
       if (!selectedPlayerId && scan.ovrBefore)  setOvrInput(String(scan.ovrBefore));
+      // Display only — saveToLog never persists talent, and project policy holds that
+      // only the Personal Trainer tab confirms it. Populating the selector saves a
+      // manual step; it does not assert the tier is card-confirmed.
+      if (!selectedPlayerId && scan.talentTier && (TALENT_TIERS as string[]).includes(scan.talentTier)) {
+        setTalent(scan.talentTier as TalentTier);
+        parts.push(scan.talentTier.toUpperCase());
+      }
 
       if (parts.length > 0) {
         setScannedUri(null);
