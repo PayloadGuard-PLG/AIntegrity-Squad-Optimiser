@@ -123,8 +123,8 @@ recorded against each; a constant with no game observation behind it is marked s
 |---|---|---|---|
 | `C₀` | xpCostBase | 2.94 | **Confirmed** — from a same-session gain ratio |
 | `K` | xpCostDecayK | 47 | **Confirmed** — solver minimising CV across 5 observations (CV 3.2%) |
-| `β` | baseXpPerSession | 676 | **Interval floor** — admits 675–930; see Prop. XXIV |
-| `δ` | sessionBudgetDecay | 0.99 | **Confirmed** — resolves the ×N anomaly (see Prop. III) |
+| `β` | baseXpPerSession | 676 | **Point from an interval** — admits 675–930, held near its lower edge; Prop. XXIV |
+| `δ` | sessionBudgetDecay | 0.99 | **Working value** — not separately identified; see Prop. III, Scholium |
 | `γ` | greyWeightMultiplier | 0.22 | **Confirmed for ordinary Academy coaching** — Grant, grey HEADING; Reward transfer is separate and unresolved |
 | `α(a)` | ageTable | 1.1 / 1.0 / 0.85 / 0.72 / 0.61 / 0.5 / 0 | **Partly confirmed** — see scholium |
 | `θ(τ)` | talentMultipliers | 1.5 / 1.25 / 1.1 / **1.0** / 0.47 | **Only Normal confirmed** |
@@ -225,6 +225,18 @@ from 20 to 40 raises `E` only from 18.2 to 33.1, and ×114 yields 68.2, not 114.
 **Corollary 2.** This is the resolution of the long-standing "×N anomaly" — that ×20
 and ×40 appeared to give similar gains. They do, and the geometry says why. It is
 not star decay, which plays no part in the budget.
+
+*Scholium — `δ` is not separately identified.* The budget depends on `δ` and `β`
+only through the product `E(N)·β`, so no single session count identifies either
+alone. Worse, the corpus confounds coach class with session count: the sole
+observation that discriminates the geometric form from the linear one (×114) is
+also the sole Extensive one, both Standard runs being low-N. A **linear** model in
+which an Extensive coach pays `0.60×` the Standard per-session rate returns
+`7006 × 0.598 = 4191` experience per attribute — the identical budget, hence the
+identical quality. The geometric form remains the better-supported working model,
+since it fits that observation where the linear one does not at the profile's `β`;
+but it is **adopted, not measured**. A low-N Extensive or a high-N Standard
+observation would separate them.
 
 **Corollary 3.** For drills, `B = n·β·0.3/p`. The factor 0.3 is uncalibrated and
 every drill projection inherits that uncertainty.
@@ -579,8 +591,11 @@ Where the game states a range `[lo, hi]` and never states where the expectation
 lies within it, a constant back-calculated from `(lo+hi)/2` manufactures a
 precision the observation does not contain.
 
-**Corollary 1.** Averaging several such estimates compounds the fault rather than
-reducing it, because it conceals how wide each one was.
+**Corollary 1.** Averaging their midpoints does not justify a narrower uncertainty,
+and conceals the width of the admissible sets. The mean of several midpoints wears
+the appearance of a better estimate than any one of them, and is not: it discards
+precisely the information — each observation's width — that would have shown how
+little the set is constrained.
 
 **Corollary 2.** The sound method is to solve each observation for the constant
 reproducing its **lower** bound and its **upper** bound, then intersect across
@@ -591,16 +606,19 @@ finding, reported, not averaged past. This is the method of Prop. XIX.
 different attribute values. These ranges are far too coarse to carry the
 precision a midpoint implies.
 
-**Scholium.** `baseXpPerSession = 676` is accordingly the **floor** of an admitted
-`675–930`, and is deliberately left unchanged rather than replaced by another
-convenient point. Every projection therefore sits at the conservative end of what
-the evidence permits, and says so.
+**Scholium.** `baseXpPerSession = 676` is accordingly a point deliberately retained
+near the **lower edge** of an admitted `675–930`, rather than replaced by another
+convenient one. What follows is bounded to what the constant governs: the coach
+experience budget sits near the conservative edge of the admitted range,
+conditional on the rest of the model being right.
 
 ### Proposition XXV. Agreement between an implementation and its specification is not correctness.
 
 A differential test establishes that two artefacts agree. Where the same
-misreading has been made once in each, agreement is **guaranteed**, and the test
-proves nothing whatever.
+misreading has been made once in each, agreement is **guaranteed** — and what the
+test then demonstrates is agreement, not external correctness. That is a real
+result, and a far weaker one than it appears: it excludes implementations that
+diverge, while admitting a shared mistake untouched.
 
 *Demonstration.* The condition-drain function divided a reduction already
 expressed as a fraction by a further hundred. Its independent Python
