@@ -31,7 +31,7 @@ budget = effectiveSessions × baseXpPerSession / selectedStats.count
 
 | Constant | JSON key | Value |
 |---|---|---|
-| baseXpPerSession | `baseXpPerSession` | 676 — ⚠️ the **floor of an interval**, see below |
+| baseXpPerSession | `baseXpPerSession` | 676 — ⚠️ a **point retained near the lower edge** of an admitted 675–930, see below |
 | sessionBudgetDecay | `sessionBudgetDecay` | 0.99 |
 
 Each successive session of the same coach delivers `0.99×` the previous session's XP. `effectiveSessions` converges to `1 / (1 − 0.99) = 100` for very large N.
@@ -46,7 +46,7 @@ Effective session counts at key N values:
 
 Example: 5-stat coach block for ×40 sessions: `33.1 × 676 / 5 = 4,476 XP per stat`.
 
-**Calibration:** `baseXpPerSession = 676` — the **floor of an admitted 675–930 interval** (see the box in §3), derived from Grant ×40 Standard Defending (all 5 stats within game range) at the conservative end, not a confirmed point. `sessionBudgetDecay = 0.99` — **current working value, not separately identified.** Sprint 34 showed the geometric form fits the Jables ×114 Extensive GK result (172 vs actual 173) where the linear one does not (182, error +9). But coach type is **confounded with session count**: that is the only Extensive observation and also the only high-N one, and a linear model in which an Extensive coach pays 0.60× the Standard per-session rate gives the identical budget (7006 × 0.598 = 4191 XP/stat) and hence the identical OVR. A **low-N Extensive** or **high-N Standard** observation is needed to separate the two.
+**Calibration:** `baseXpPerSession = 676` — a **point retained near the lower edge of an admitted 675–930** (see the box in §3); the lower endpoint is 675. Derived from Grant ×40 Standard Defending (all 5 stats within game range), not a confirmed point. `sessionBudgetDecay = 0.99` — **current working value, not separately identified.** Sprint 34 showed the geometric form fits the Jables ×114 Extensive GK result (172 vs actual 173) where the linear one does not (182, error +9). But coach type is **confounded with session count**: that is the only Extensive observation and also the only high-N one, and a linear model in which an Extensive coach pays 0.60× the Standard per-session rate gives the identical budget (7006 × 0.598 = 4191 XP/stat) and hence the identical OVR. A **low-N Extensive** or **high-N Standard** observation is needed to separate the two.
 
 ### 2.2 XP budget per stat — drill session
 
