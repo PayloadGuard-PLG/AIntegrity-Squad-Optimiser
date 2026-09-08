@@ -139,11 +139,26 @@ Tables managed by `src/db/index.ts` with idempotent `ensure*` guards:
 
 ## Engine Reference
 
-### OVR formula (confirmed — Math.ceil, Sprint 27)
+### OVR formula (confirmed — Math.floor, Sprint 33)
 ```
-OVR = ceil( sum(all 15 stats) / 15 )
+OVR = floor( sum(all 15 stats) / 15 )
 ```
-Confirmed from 4 data points: McGinty (99.53→100), Rogers (120.6→121), Grant T2 (157.0→157), Grant T3 (175.4→176). Fixed in `qualityPctToOvr()` in `xpEngine.ts`. Any doc that says `floor` is stale.
+⚠️ **This entry previously said `ceil`, and told the reader that "any doc which
+says `floor` is stale". That was backwards** — acting on it would re-break the
+formula, so it is called out rather than silently swapped.
+
+Sprint 27's four-data-point `ceil` confirmation was an artefact. In every one of
+those cases fractional stat accumulation from training had pushed the *internal*
+sum above the *displayed* sum, which made `floor` and `ceil` agree on the
+displayed values. Sprint 33 settled it with a clean integer-only tier upgrade —
+no training, so no fractional component: Grant T2→T3, displayed sum 2615, game
+OVR **174**. `floor(174.33) = 174` ✓; `ceil = 175` ✗.
+
+`qualityPctToOvr()` in `xpEngine.ts` uses `Math.floor`. Do not reinstate `ceil`.
+
+A displayed stat sum can still fall one short of the game's own OVR, because the
+game carries fractional values the card does not show. That is a display
+artefact, not a rounding-mode error — it is the long-suspected "+1 discrepancy".
 
 ### XP model (Sprint 31 — separate budgets for coaches and drills)
 ```
@@ -189,9 +204,14 @@ Step increments: T1=+10, T2=+20, T3=+20, T4=+30, T5=+40, T6=+40.
 | 260–279 | 340 |
 | 280–339 | 440 |
 
-Exponential model (`2.94 × exp(stat/55)`) supersedes this table when `xpCostBase` and `xpCostDecayK` are present in the profile.
+Exponential model (`2.94 × exp(stat/47)`) supersedes this table when `xpCostBase` and `xpCostDecayK` are present in the profile. ⚠️ `K` was re-fitted 55 → **47** in Sprint 33 by minimising CV across five Grant observations; any doc still showing `exp(stat/55)` predates that.
 
-### Role constraints (white = essential = full XP, grey = 0.5× XP)
+### Role constraints (white = essential = full XP, grey ≈ 4.55× XP)
+
+⚠️ The heading previously said "grey = 0.5× XP". The calibrated constant is
+`greyWeightMultiplier = 0.22`, which *divides* the efficiency multiplier, so a
+grey point costs `1/0.22 ≈ 4.55×` a white one — not 2×. The 0.5 came from
+community data in Sprint 25 and was superseded.
 
 ```
 GK:  white(11)=[REFLEXES,AGILITY,ANTICIPATION,RUSHING OUT,COMMUNICATION,THROWING,KICKING,PUNCHING,AERIAL REACH,CONCENTRATION,FITNESS]

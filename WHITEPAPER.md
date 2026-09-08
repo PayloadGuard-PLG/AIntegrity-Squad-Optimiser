@@ -91,7 +91,19 @@ This data point was originally used to calibrate `baseXpPerSession = 220` (Sprin
 
 Four independent data points across two players (Cptn Dallas ×4 Safeguard, Ricky Grant ×40 Defending) implied bXPS 409–495, mean 443. Set to 450.
 
-**Calibration — current bXPS = 676 (post-Sprint 31 re-derivation):**
+**Calibration — current bXPS = 676, the FLOOR of an interval:**
+
+> ⚠️ **676 is not a point estimate.** Re-solving the four calibration observations
+> from their stated `+lo–hi` intervals rather than their midpoints admits
+> **675–930**. The game states a range and has never said where the expectation
+> sits inside it, so back-calculating from `(lo+hi)/2` manufactures a precision
+> the observation does not contain — and averaging several such estimates
+> compounds the error by hiding how wide each one was. Two Dallas rows show the
+> identical interval `[4,6]` at different stat values, which is proof these ranges
+> are far too coarse to carry the precision a midpoint implies. Every projection
+> therefore sits at the conservative end of what the evidence permits. 676 is
+> deliberately left unchanged rather than replaced with another convenient point.
+
 
 After further recalibration against Grant's full 5-stat Standard Defending ×40 (all stats within game range), `baseXpPerSession` was updated to **676**. This is the value currently in `profiles/game_2025.json`. The exponential cost model (K=47, C₀=2.94) was also re-fitted simultaneously — all five Defending stats landing inside game ranges validates both parameters together.
 
@@ -220,7 +232,48 @@ Each drill has one fixed intensity level. The multiplier scales XP yield for tha
 
 Stats outside a player's role essential list (grey stats) receive `greyMult = 0.22` (`profile.greyWeightMultiplier`). They still gain from coaching and drills but at significantly reduced XP efficiency vs white (essential) stats — grey stats cost approximately 4.5× more XP per point gained. Confirmed from Grant ×40 HEADING (grey, stat=155, actual +11–15, model matches with greyMult=0.22).
 
+### 3.7a Learning roles confer no white stats
+
+A role chip that is **dark and carries an `X/50` counter is still being learned**,
+and contributes **zero** white stats until it completes. Whiteness is the union
+over *established* roles only.
+
+Established from four player cards (60 white/grey classifications read off the
+key-attribute bar; `roleWeights.ts` reproduced every one, so the role table needed
+no change):
+
+| Player | Roles | White | Note |
+|---|---|---|---|
+| King Alfie | DC/DL/DMC | 12 | CROSSING white via DL |
+| Darren Moore | DC/DMC + **MC learning 2/50** | 10 | exactly the DC+DMC union |
+| SD Faye | DMC/MC/DC | 13 | same role set as Moore, all established |
+| Cieran Morgan | DMC/MC/AMC | 14 | FINISHING white via AMC |
+
+Moore and Faye are the controlled pair: identical role sets, differing only in
+whether MC is complete.
+
+**Cost of an incomplete role.** Moore's DRIBBLING, SHOOTING and SPEED are grey
+purely because MC sits at 2/50. Completing it turns all three white, each
+immediately taking the full cumulative tier bonus for his tier (+50 at T3):
+134→184, 139→189, 138→188 — **+150 attribute points and +10 OVR instantly**,
+confirmed two ways (`floor(3042/15) − floor(2892/15)` and
+`floor(50×13/15) − floor(50×10/15)`). They also stop costing ~4.55× to train.
+
+**Consequence for the scanner.** The ML Kit text list *does* include the learning
+chip, since it sits inside the `Roles:` Y-band, so `player.role` will over-count
+if the glyph reader does not run. `playerCardParse.ts` takes
+`glyph.establishedRoles ?? base.roles` for exactly this reason.
+
 ### 3.8 Star decay
+
+> ⚠️ **The direction is observed; the number is not calibrated.** Direct in-game
+> observation confirms the *mechanic* — gaining a star makes subsequent training
+> harder — but that fixes only the **sign** of the effect. Any factor in `(0,1)`
+> is consistent with the same observation. `engineConstants.ts` records
+> `starDecayPerSession = 0.85` as a model characteristic with empirical
+> confirmation **pending**, and no controlled ×4 vs ×20 same-player test has been
+> run. Projections therefore grade this reason `assumed`, never `calibrated`.
+> Do not promote it without an experiment that measures the magnitude.
 
 Star decay reduces training efficiency as cumulative OVR gained within a session crosses star thresholds. Each threshold is +20 OVR gained in a session.
 
@@ -298,9 +351,9 @@ If a game is scheduled for the next day, the manager has a known time window and
 
 | Scenario | Optimal use per cycle |
 |---|---|
-| FTP / no Zero-Drain | Main player white stats — maximise XP per condition unit spent |
+| FTP / surge inactive | Main player white stats — maximise XP per condition unit spent |
 | Premium sub, faster cooldown | More cycles per window enables secondary stat or team play form drills between main sessions |
-| Fan Club L4 (Zero-Drain) | Timer irrelevant — condition never drops; unlimited drilling regardless of fixture schedule |
+| Perfect Conditions active, L4 | Drain is halved, but never zero — every session still costs at least 1%. The timer still matters. |
 
 **Premium sponsor — Faster Condition Recovery:** Milestone track grants cooldown reductions (+10% at milestone 6, further at milestone 12), meaning more drill cycles per real-time hour. `ManagerProfile.isPremiumSponsor` is stored but the cooldown reduction is not yet factored into engine output — see §10.
 
@@ -336,14 +389,34 @@ conditionLoss = baseLoss × COND_LEVEL_MULTIPLIERS[drillLevel] × (1 − fanClub
 
 | Level | Fan Club | Formula | Result | Observed |
 |---|---|---|---|---|
-| Very Easy | L4 | 0.75 × 1 × 0.50 | 0.375% | 0% (see zero-drain below) ✓ |
+| Very Easy | L4 | 0.75 × 1 × 0.50 | 0.375% raw | billed 1% minimum — see below ✓ |
 | Easy | L4 | 0.75 × 2 × 0.50 | 0.75% | 0.75% ✓ |
 | Very Hard | L0 | 0.75 × 5 × 0.90 | 3.375% | 3.38% ✓ |
 | Very Hard | L4 | 0.75 × 5 × 0.50 | 1.875% | 1.88% ✓ |
 
-**Zero-Drain Protocol — confirmed:** Very Easy + Fan Club L4 = 0.375%, which falls below the game's display threshold and shows as **0.00%**. Engine `isZeroDrain` fires when `conditionLoss < 0.5%` — which is exclusive to VE+L4 under current fan club and level ranges. Easy+L4 = 0.75% is above the threshold and is not zero drain.
+**Zero-Drain Protocol — RETIRED (patched by the game).** Every training session is
+now charged a **1% minimum**, so a 0.375% drill and a 0.750% drill cost the same
+1%. Chasing sub-threshold drills is a penalty, not an exploit. `zeroDrainThreshold`
+survives in the profile only so it is not re-derived; nothing should branch on it,
+and `isZeroDrain` is deprecated with no callers.
 
-Note: active chants may further reduce condition — not yet modelled.
+**The reduction applies only while the surge is ACTIVE.** Perfect Conditions has
+two independent axes — `active` (loyalty-gated, resets each season) and `level`
+(chant-driven). A banked level confers **nothing** while inactive, so the table
+above is the active-surge case; at season start the undiscounted column applies.
+
+**Raw is exact; charged is not.** Raw matches the pre-confirm dialog and is
+confirmed at three session sizes, the tightest a six-drill mixed preset at
+−12.75%. The charge is a distribution: the same preset was billed 5/6/7 across 19
+runs (raw 6.00) and 10–14 across 9 runs (raw 12.75). Per-player charge is an
+integer and the displayed figure is the **mean across players** — which is why the
+long-puzzling −10.63% row (`404/38`) never fitted any single-player rule. The
+committed envelope is ±0.5 per drill about raw, clamped at the 1% minimum: an
+outer bound containing every observation. See `PRINCIPIA.md` Book III and
+`FORMULAS.md` §3.1.
+
+Chant probabilities from the campus ball are not yet observed; the slot exists in
+the profile and is marked unobserved rather than guessed.
 
 ---
 
@@ -475,12 +548,12 @@ Training Level is a separate progression track from individual player OVR. It is
 
 ## 6a. Validated Season Meta — Squad-Wide Growth
 
-**Observed outcome:** ~+7 OVR per season from sustained Very Easy drills at Fan Club L4.
+**Observed outcome:** ~+7 OVR per season from sustained Very Easy drills at Fan Club L4. ⚠️ **Measured before the 1% minimum was introduced.** Treat it as a historical upper bound, not a current projection.
 
 This strategy compounds three mechanics simultaneously:
 
 ### Training loop
-1. **Zero-drain at L4 + Very Easy** — condition never drops; drill cycles are unlimited regardless of fixture schedule.
+1. **Cheapest drain at L4 + Very Easy** — drain is halved, not eliminated. ⚠️ This step is written from the pre-patch era: drill cycles were *never* unlimited after the 1% minimum landed, and the season figure below predates it. The relative ranking of Very Easy still holds above the minimum; the absolute cycle count does not.
 2. **Spam all low white stats** — train the stats furthest below tier cap first. XP cost is lowest at the bottom of the range; the gain per session is highest here. Once a stat hits the current tier cap, skip it until the next tier upgrade.
 3. **Don't wait for perfect condition** — 50% condition reduction (L4) means you can chain drills continuously; perfect-condition waiting wastes cycles.
 
@@ -640,7 +713,7 @@ interface InvestmentPlan {
 |---|---|
 | OVR formula | `Math.floor` — confirmed Sprint 32 from Grant T2→T3 clean tier upgrade. `floor(2615/15) = 174` ✓. `ceil = 175` ✗. Fixed in `qualityPctToOvr()`. |
 | Session budget decay | `sessionBudgetDecay = 0.99` confirmed Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. Jables JaseysBoi ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. 11/11 GK stat ranges confirmed Sprint 35. |
-| Coach XP baseline | `baseXpPerSession = 676` — confirmed Sprint 33 from Grant ×40 Standard Defending (all 5 stats within game range). |
+| Coach XP baseline | `baseXpPerSession = 676` — the FLOOR of an admitted **675–930** interval, not a confirmed point. Derived from Grant ×40 Standard Defending (all 5 stats within game range) at the conservative end. |
 | Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=47 — K confirmed via CV minimisation across 5 Grant ×40 observations (CV=3.2%). C₀ confirmed from Tackling/Positioning gain ratio. |
 | Talent multipliers | Normal (×1.0) confirmed for Grant, Rogers, McGinty, Nerimala. Talent is not a formula variable — locked to 1.0 for all players. Slow (0.70) is a community estimate placeholder; 0.47 was invalidated (linear budget artefact). Fastest/Fast/Average are community estimates. |
