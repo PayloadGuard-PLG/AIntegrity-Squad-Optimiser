@@ -711,3 +711,89 @@ fail on the distance, not on a missing symbol.
 
 Seam tests 27 → 28. No constant changed; `engine 49 · projection 53 · condition 33
 · Z3/CrossHair/differential 24` all still pass.
+
+---
+
+## 19. Reward Coach is a separate, unresolved transfer class
+
+The new matched Focused Attacking ×2 Reward corpus falsifies the assumption that
+Reward Coaches can use the ordinary Academy fixed-XP transfer. Under the PR #126
+interval method (`K=47`, hidden `ε∈[0,1)`, no midpoints), the decisive admitted
+raw-`Φ` intervals are:
+
+| Player | Control | Raw `Φ` admitted |
+|---|---|---:|
+| Mehlem | age 26, Finishing 125 white, `[5,7]` | `[219.29718, 320.50754]` |
+| Panic | age 26, Finishing 115 grey, `[5,7]` | `[177.26785, 259.08076]` |
+| Dallas | age 27, Finishing 180 white, `[5,7]` | `[706.72425, 1032.89267]` |
+
+Mehlem/Panic cancel age, coach, `N` and `p`; their admitted grey ratio is
+`[0.553,1.181]`, excluding ordinary `γ=0.22` under one budget. Forcing `0.22`
+would require a player-quality budget advantage of `[2.514,5.370]`. Mehlem and
+Dallas are both white and share the current `α=0.61` bracket, yet Dallas requires
+`[2.205,4.710]` times Mehlem's budget. Both common-budget intersections are empty.
+
+### 19.1 Minimum honest architecture
+
+- **Ordinary Academy Coach:** unchanged geometric
+  `coachBudgetPerStat → combinedMultiplier → statGainFromBudget` transfer.
+- **Reward Coach:** preserve `transferClass='reward'` and each scanned
+  `{stat, statBefore, gainLo, gainHi}` interval. Return
+  `projectionStatus='unavailable'` before budget/multiplier math. There are no
+  `projectedStats` or post-action OVR fields on this result.
+
+The class and intervals now survive scanner state and `coach_scan_history` into
+both Coaches and Results. Results refuses to total a full plan containing an
+unresolved Reward action; it does not encode abstention as zero gain. Existing
+history rows migrate as `ordinary` with an empty interval list.
+
+### 19.2 Regression semantics
+
+`tests/recommendation-seam-test.ts` protects two meanings:
+
+1. Recompute all three `Φ` intervals from the shipped stepped `xpCostAtStat` and
+   assert that the Mehlem/Panic and Mehlem/Dallas ordinary common-budget
+   intersections are empty. No stored midpoint or replacement scalar is tested.
+2. A Reward input must return `unavailable`, retain the exact preview interval
+   (including Neri's `[0,0]`), emit `coach.rewardTransferUnresolved`, and expose
+   neither projected stats nor post-action OVR. A mutation routing it through
+   the ordinary branch therefore fails semantically.
+
+No age, grey, `K`, `β`, session decay or star-decay value changed.
+
+### 19.3 Age conclusions withdrawn
+
+The provisional age-28, age-29, age-31, age-35 and common-30+ intervals were
+obtained by inverting the wrong transfer and do not identify `α(a)`. Positive
+Reward previews at 31 and 35 establish positive Reward output only; they do not
+value or independently falsify the ordinary 30+ multiplier. Age-32/stat-407
+`[0,0]` does not imply zero training. The ordinary age table remains unchanged
+pending ordinary-coach evidence.
+
+### 19.4 Next highest-information preview—and its limit
+
+Use the same Focused Attacking ×2 Reward, `p=1`, on an age-26 ST with confirmed
+same talent as Mehlem, white Finishing near 180, the same tier, base OVR within
+0.5 of Mehlem's **independently derived** base OVR, and no possible 20-base-OVR
+crossing. `115.3` is the supplied displayed OVR, not automatically base OVR;
+record Mehlem's tier/full state first. Record role, tier, talent, displayed and
+derived base OVR and Finishing before, and the exact `+lo-hi` preview. Against Mehlem's
+Finishing-125 `[5,7]` control, this changes target-stat cost while holding age,
+whiteness, quality and tier fixed.
+
+- `[5,7]` again supports either direct points or target-cost cancellation, and
+  rules out base-OVR-only/tier-only scaling as the explanation for invariance.
+- A disjoint lower band falsifies direct fixed points and exact cost cancellation.
+
+One preview cannot identify all four candidate mechanics. A direct point grant
+and an exactly stat-cost-scaled XP budget are observationally equivalent when the
+only observable is a point interval. Holding tier fixed cannot value a tier
+effect either. Separate matched tier and matched-base-OVR contrasts—or an
+observable internal XP quantity—are required for those identifications.
+
+### 19.5 Validation
+
+Typecheck · engine 49 · projection 53 · seam 34 · scanner 60 + state 16 ·
+condition 33, all green. The local environment does not contain `pytest` or
+`dafny`, so the formal proof jobs remain for CI. No proof-surface engine function,
+profile constant, frozen text golden or glyph calibration corpus changed.

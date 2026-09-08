@@ -90,7 +90,7 @@ recorded against each; a constant with no game observation behind it is marked s
 | `K` | xpCostDecayK | 47 | **Confirmed** — solver minimising CV across 5 observations (CV 3.2%) |
 | `β` | baseXpPerSession | 676 | **Confirmed** — back-calculated, Grant ×40 |
 | `δ` | sessionBudgetDecay | 0.99 | **Confirmed** — resolves the ×N anomaly (see Prop. III) |
-| `γ` | greyWeightMultiplier | 0.22 | **Confirmed** — Grant, grey HEADING |
+| `γ` | greyWeightMultiplier | 0.22 | **Confirmed for ordinary Academy coaching** — Grant, grey HEADING; Reward transfer is separate and unresolved |
 | `α(a)` | ageTable | 1.1 / 1.0 / 0.85 / 0.72 / 0.61 / 0.5 / 0 | **Partly confirmed** — see scholium |
 | `θ(τ)` | talentMultipliers | 1.5 / 1.25 / 1.1 / **1.0** / 0.47 | **Only Normal confirmed** |
 | `Δ(T)` | tierAttrAdditions | 0/10/30/50/80/120/160 | **Confirmed** end-to-end |
@@ -148,6 +148,11 @@ mechanical drain.
 
 ## Book I — The Training of a Single Attribute
 
+This book defines the calibrated transfer used by **ordinary Academy Coaches**
+and, where explicitly stated, drills. It does not define Reward Coach transfer.
+Matched Reward previews now falsify applying the ordinary fixed-XP architecture
+to that class; see the scholium after Proposition III.
+
 ### Proposition I. The cost curve.
 
 ```
@@ -162,17 +167,18 @@ The cost doubles every `K ln 2 ≈ 32.6` attribute points.
 M = α(a) · θ(τ) · γ(w) · 0.85^{stars} · ad · drill
 ```
 
-where `γ(w) = 1` for white and `0.22` for grey, `ad = 2` if the doubling
-advertisement is taken, else 1. The experience required for one point is then
+where `γ(w) = 1` for white and `0.22` for grey. Permanent-attribute projections
+hold `ad = 1`; the doubling item is a match-form effect. The experience required for one point is then
 `cost(s)/M`; a larger `M` means cheaper training.
 
-**Corollary.** A grey attribute costs `1/0.22 ≈ 4.55×` a white one — not the
+**Corollary.** Under ordinary Academy transfer, a grey attribute costs
+`1/0.22 ≈ 4.55×` a white one — not the
 "2×" repeated in the older architecture notes. *The two statements in the project's
 own documentation disagree; the calibrated constant is 0.22 and is the one in force.*
 
 ### Proposition III. The budget.
 
-For a coach of multiplier `N` acting on `p` attributes:
+For an **ordinary Academy Coach** of multiplier `N` acting on `p` attributes:
 
 ```
 E(N) = (1 − δ^N)/(1 − δ)              B = E(N)·β / p
@@ -187,6 +193,24 @@ not star decay, which plays no part in the budget.
 
 **Corollary 3.** For drills, `B = n·β·0.3/p`. The factor 0.3 is uncalibrated and
 every drill projection inherits that uncertainty.
+
+**Scholium: Reward Coaches are outside this proposition.** For the same Focused
+Attacking ×2 Reward Coach, `p=1`, Finishing previews at 53, 86, 115, 125 and 180
+repeat `[5,7]`. More decisively, the age-26 matched pair Mehlem (125 white) and
+Panic (115 grey) admits a same-age grey ratio `[0.553,1.181]`, excluding `0.22`
+under a player-independent budget. Mehlem and Dallas (180 white), to whom the
+current table assigns the same age multiplier, require budget ratios
+`[2.205,4.710]`. Thus there is no common `B` under the ordinary architecture.
+
+Until a Reward transfer is identified, its mathematical result is only the
+observed preview relation
+
+```
+R(player, attribute, coach) ∈ [lo, hi]
+```
+
+with `lo` and `hi` retained separately. It is not passed through `B`, `M` or the
+training integral, and no post-action stat or OVR is projected.
 
 ### Proposition IV. The training integral.
 
@@ -404,9 +428,14 @@ of device.
 
 ### On what is assumed
 
-The age table is confirmed at 18–20, 24 (Fitness, McCluskey) and 26–28 (McGinty).
-Ages 17, 29 and 30 rest on no observation at all. The boundary between 22 and 23 is
-unknown; only that 0.85 obtains by 23.
+For ordinary Academy transfer, the age table is supported at 18–20 and by the
+existing ordinary observations; its exact bracket boundaries remain only partly
+identified. The recent ages 28, 29, 31, 32 and 35 sweep used Reward Coaches and
+therefore does **not** calibrate `α(a)`: its provisional age-28/29/30+ intervals
+are withdrawn. Positive Reward previews at 31 and 35 prove only that those Reward
+actions can show positive gain. They do not value—or by themselves falsify—the
+ordinary 30+ age multiplier. Neri's age-32, stat-407 `[0,0]` likewise does not
+identify zero training. The boundary between 22 and 23 remains unknown.
 
 **Of the talent multipliers, only Normal (1.0) is confirmed** — and it is confirmed
 repeatedly, from six different players. Every other tier is a community estimate that
@@ -437,6 +466,7 @@ Three habits do the work here, and they are worth more than any constant:
   the surge model.
 - A controlled drill run, which would calibrate `drillXpFactor` and remove the only
   wholly uncalibrated factor in the gain path.
-- One observation at age 21, 29 or 17, each of which is presently extrapolation.
+- An ordinary (non-Reward) matched observation at an unsupported age; Reward
+  previews cannot identify the ordinary age table while their transfer is open.
 
 *Hypotheses non fingo.* Where the game has not shown its hand, this model says so.

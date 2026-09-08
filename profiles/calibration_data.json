@@ -1356,7 +1356,7 @@
       "action_needed": "Run x40 Standard Safeguard on Brandon Prentice. Screenshot before/after player card. If actual OVR gain is ~12–13 → geometric decay confirmed. If ~17–19 → linear model confirmed. This resolves Issue 5 in RESEARCH_PROMPT.md.",
       "reward_coach_observation": {
         "date": "2026-05-18",
-        "note": "Reward Coach Standard Safeguard x4. Reward Coaches assumed to use same XP budget as regular Standard coaches — no evidence of extra boost (user confirmed). Only 3 stats boosted (cross-category): MARKING, POSITIONING, AGGRESSION. Regular Standard Safeguard boosts all 5 DEF stats.",
+        "note": "Reward Coach Standard Safeguard x4. SUPERSEDED 2026-09-08: applying the regular Standard-coach XP budget to Reward Coaches is falsified by the matched Reward corpus. Only the observed stats/ranges remain evidence; this projection is not a calibration target.",
         "statsCoached": [
           "MARKING",
           "POSITIONING",
@@ -1799,7 +1799,7 @@
         "engine_K47": {
           "FITNESS_gain": 0.25,
           "CREATIVITY_gain": 0.29,
-          "note": "K=47 completely fails at stat=330. Under-predicts by ~14×. Formula was calibrated only to stat range 90–260."
+          "note": "SUPERSEDED AS K EVIDENCE 2026-09-08. This is a Reward Coach, whose transfer is now known not to use the ordinary fixed-XP architecture. The mismatch cannot identify failure of ordinary K=47."
         },
         "k47_failure_analysis": {
           "cost_at_330": "2.94 × exp(330/47) = 3295 XP/point",
@@ -1812,7 +1812,7 @@
             "K80": 4.37
           },
           "implied_K": 76,
-          "implied_K_note": "K≈76 explains the observed +3.5 gain at stat=330 with ageMult=0.61. K=47 confirmed valid to ~260; fails above ~300. More data points in 260–330 range needed before changing engine formula."
+          "implied_K_note": "WITHDRAWN. K≈76 was obtained by forcing a Reward preview through the ordinary transfer and taking midpoint 3.5. It is not an admitted K estimate."
         },
         "ocr_false_positives": {
           "detected": [
@@ -1995,8 +1995,8 @@
           "FITNESS": 4.3,
           "CREATIVITY": 7.1
         },
-        "analysis": "Fitness +3.5 predicted vs +2-3 actual: slightly above upper bound, consistent with Normal talent and ageMult=0.72. Validates ageMult=0.72 for age 24. Creativity +5.8 predicted vs +7-10 actual: ~20% under. If talent is Fast (1.25), Creativity prediction becomes +7.1 which hits the lower bound exactly. Need talent confirmation from edit screen.",
-        "ageMult_validated": "0.72 for age 24 — CONFIRMED from Fitness data point",
+        "analysis": "SUPERSEDED AS AGE/TALENT EVIDENCE 2026-09-08. This is a Reward Coach; its intervals cannot validate ordinary age or talent multipliers by comparison with the ordinary XP projection.",
+        "ageMult_validated": "WITHDRAWN — Reward transfer unresolved; 0.72 remains assumed for ordinary age 24.",
         "source_screenshots": [
           "db505607 (player card)",
           "8c4b75ee (Focused Physical ×4 Drill Session Reward Coach preview)"
@@ -2236,8 +2236,8 @@
     ]
   },
   "calibrationStatus": {
-    "lastUpdated": "2026-06-01 (session 3)",
-    "formulaStatus": "PROVISIONAL",
+    "lastUpdated": "2026-09-08",
+    "formulaStatus": "ORDINARY_PROVISIONAL__REWARD_UNRESOLVED",
     "confirmedParameters": {
       "talent_IS_a_formula_variable": "CONFIRMED 2026-06-01. Prior sessions concluded talent was not a formula variable — that was based on all calibrated players being Normal. Cieran Morgan ×30 ATK shows Normal (1.0) over-predicts by 1.48–1.95×. Slow (0.47) fits all 5 stats within game range. Talent multiplier is real and applied in combinedMultiplier().",
       "talent_normal_1_0": "Normal ×1.0 confirmed — Grant, Rogers, McGinty, Dallas, McCluskey, Jables (all confirmed from intake form / edit screen)",
@@ -2245,8 +2245,8 @@
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
       "talent_rodger": "Normal ×1.0 (confirmed sprint 26)",
       "drillLevelMultipliers": "confirmed from game screenshots",
-      "greyWeightMultiplier_0_22": "0.22 confirmed — back-calculated from Grant ×40 HEADING (grey, stat=155, actual +11-15 matches engine at greyMult=0.22). Grey stats cost ~4.5× more XP per point than white.",
-      "ageTable": "18-20 confirmed (Grant). 24-25 confirmed (McCluskey). 26-28 confirmed (McGinty). 21-23 partially validated by use (Dallas age 23 bXPS calibration). 17/29/30+ assumed.",
+      "greyWeightMultiplier_0_22": "0.22 confirmed for ordinary Academy coaching — back-calculated from Grant ×40 HEADING. It is excluded as a universal Reward Coach multiplier by the matched age-26 Reward pair.",
+      "ageTable": "Ordinary-coach support remains at 18-20 and the existing ordinary observations. Former McCluskey/Reward and 2026-09-08 Reward-sweep age inferences are withdrawn. The Reward rows do not calibrate age 24/28/29/30+.",
       "ageTable_21_23_0_85_partial": "Validated by use: Dallas (age 23) ×4 Safeguard observations used ageMult=0.85 and all 3 stats landed inside game ranges at bXPS=676/K=47. Not a standalone controlled test — ageMult and bXPS were solved simultaneously. Treat as partial confirmation pending a dedicated age 21-23 controlled observation.",
       "tierIncrements_T2_T3": "+20 per white stat confirmed from Grant T2→T3 snapshots",
       "whiteStats_grant_DL_ML_AML": "13 stats confirmed (all except HEADING and STRENGTH)",
@@ -2256,12 +2256,61 @@
     },
     "openQuestions": [
       "bXPS=676 and K=47 are confirmed from Grant ×40 and Dallas ×4 data. ageMult=0.85 (21-23 bracket) was assumed in this calibration — a standalone controlled test on an age 21/22/23 player would make this explicit.",
-      "K=47 fails at stat ≥ 300 (T5+/T6 players). Neri Focused Physical ×4 (stat=330): K=47 predicts +0.25, game shows +3-4. Implied K≈76 at this stat level. More data needed in the 260–330 range before changing engine constant. Do NOT update K in engine or game_2025.json until at least 3 data points confirm a consistent alternative.",
-      "Nerimala DB stats rescanned and confirmed (2026-05-20, screenshot c164c20b) — 15 stats current in app DB. Training Rate confirmed Normal from edit screen (53d01ca8). K=47 failure at stat=330 documented.",
+      "The former K=47 high-stat failure inference from Neri Focused Physical ×4 used a Reward Coach and is not admissible evidence about the ordinary cost curve. K remains unchanged; obtain ordinary-coach data in the 260-330 range before testing a high-stat alternative.",
+      "Nerimala DB stats and Normal training-rate scans remain valid state evidence. The Reward Coach result at stat 330 is retained only as Reward-transfer evidence, not a K calibration.",
       "Rogers AMC-era observations (46697–46703): isWhite flags reflect old role set. Re-run projections using new DL whiteness if re-calibrating from these observations.",
       "McCluskey DB fix DONE (2026-05-20): rescanned, roles confirmed DC/DMC/MC, all 15 stats updated to current game values, talent confirmed Normal. CROSSING now correctly grey."
     ],
     "keyInsight": "bXPS RECALIBRATED 2026-05-18: 220 → 450. Sprint 24 calibrated bXPS=220 against the stepped table model. Sprint 25 switched to exponential 2.94*exp(stat/55) without re-calibrating. Four independent back-calculations from Dallas ×4 Safeguard game predictions and Grant ×40 Defending actuals all cluster 409–495, mean 443 → set to 450. Dallas predictions now land inside game ranges on all 3 stats. Rayne ×20 Attacking projections approximately double (e.g. PASSING 223: +4.3→+8.4, DRIBBLING 191: +7.4→+14.3). Rayne profile: ML+DL+DC, T3, Normal, age 21. Subsequently K recalibrated 55→47, bXPS re-derived 450→676."
+  },
+  "reward_coach_transfer_falsification_2026_09_08": {
+    "status": "ORDINARY_FIXED_XP_ARCHITECTURE_FALSIFIED_FOR_REWARD_COACHES",
+    "method": "Displayed +lo-hi values are intervals. With hidden starting progress epsilon in [0,1), the lower raw-Phi endpoint is the stepped K=47 cost of gainLo points from displayed stat s; the upper endpoint is the stepped cost of gainHi points from limiting start s+1. Independent admitted intervals are intersected, never midpoint-fitted.",
+    "controls": "All rows are the same Focused Attacking x2 Reward Coach, p=1, FINISHING only.",
+    "observations": [
+      { "player": "Highland", "age": 17, "statBefore": 115, "whiteness": "grey", "preview": [9, 13] },
+      { "player": "Lurinsky", "age": 18, "statBefore": 134, "whiteness": "grey", "preview": [7, 8] },
+      { "player": "Gavilan", "age": 25, "statBefore": 101, "whiteness": "grey", "preview": [7, 11] },
+      { "player": "Mehlem", "age": 26, "role": "ST", "statBefore": 125, "whiteness": "white", "preview": [5, 7], "displayedOvr": 115.3 },
+      { "player": "Panic", "age": 26, "role": "DC", "statBefore": 115, "whiteness": "grey", "preview": [5, 7], "displayedOvr": 125 },
+      { "player": "Dallas", "age": 27, "statBefore": 180, "whiteness": "white", "preview": [5, 7] },
+      { "player": "McCluskey", "age": 28, "statBefore": 86, "whiteness": "grey", "preview": [5, 7] },
+      { "player": "Faye", "age": 29, "statBefore": 53, "whiteness": "grey", "preview": [5, 7] },
+      { "player": "Galileo", "age": 31, "statBefore": 64, "whiteness": "white", "preview": [3, 5] },
+      { "player": "Neri", "age": 32, "statBefore": 407, "whiteness": "white", "preview": [0, 0] },
+      { "player": "Alfie III", "age": 35, "statBefore": 90, "whiteness": "white", "preview": [2, 3] }
+    ],
+    "decisiveRawPhi": {
+      "Mehlem": [219.29718, 320.50754],
+      "Panic": [177.26785, 259.08076],
+      "Dallas": [706.72425, 1032.89267]
+    },
+    "emptyIntersectionProofs": {
+      "Mehlem_vs_Panic": "Same age/action/N/p. Phi_Panic/Phi_Mehlem admits [0.553,1.181], excluding ordinary gamma=0.22 under one player-independent budget. Preserving 0.22 would require a Panic/Mehlem player-quality budget ratio [2.514,5.370].",
+      "Mehlem_vs_Dallas": "Both white and current alpha(26)=alpha(27)=0.61. A common player-independent budget is impossible: Dallas/Mehlem admits [2.205,4.710], whose lower endpoint exceeds 1.",
+      "regression": "tests/recommendation-seam-test.ts recomputes the stepped intervals from xpCostAtStat, asserts both ordinary-budget intersections are empty, and asserts Reward projection abstains before numeric stat/OVR output."
+    },
+    "architecture": {
+      "ordinaryAcademyCoach": "Retains the calibrated geometric coachBudgetPerStat -> combinedMultiplier -> statGainFromBudget path.",
+      "rewardCoach": "Transfer function unresolved. Preserve class plus observed intervals; emit no XP budget, point estimate, projected stats or post-action OVR.",
+      "candidateMechanics_notInstalled": [
+        "direct stat-point grant bands",
+        "budget proportional to target-stat cost",
+        "player-quality/base-OVR scaling",
+        "tier-specific scaling"
+      ]
+    },
+    "ageInferenceDowngrade": {
+      "withdrawn": "Provisional age-28, age-29, age-31, age-35 and common 30+ multiplier intervals inferred by applying the ordinary transfer to this Reward sweep.",
+      "retainedObservation": "Reward previews are positive at ages 31 and 35; this proves positive Reward output only. Neri age 32/stat 407 +0 is compatible with positive output and does not identify zero training.",
+      "ordinaryAgeTable": "Not recalibrated by these rows. Values in game_2025.json remain unchanged pending ordinary-coach evidence."
+    },
+    "nextHighestInformationPreview": {
+      "setup": "First independently record Mehlem's tier/full state so his base OVR is known rather than equated with displayed OVR 115.3. Then use the same Focused Attacking x2 Reward Coach, p=1, on one new age-26 ST with confirmed same talent, FINISHING white near 180, the same tier, and derived base OVR within 0.5 of Mehlem's. Record full role/tier/talent/displayed and derived base OVR and FINISHING before, plus the exact displayed interval. Avoid a 20-base-OVR boundary.",
+      "comparison": "Mehlem is the existing matched control at FINISHING 125 and [5,7]. The new row changes target-stat cost while holding age, whiteness, player quality and tier fixed.",
+      "interpretation": "Another [5,7] gives strong evidence that target-stat cost is cancelled (direct points or cost-scaled XP) and excludes base-OVR-only or tier-only scaling as the cause of cross-stat invariance. A disjoint/lower band falsifies direct fixed points and exact cost cancellation.",
+      "oneObservationLimit": "No preview-only observation can distinguish a direct point grant from an exactly stat-cost-scaled XP budget when both induce the same point interval; those are observationally equivalent at this output boundary. Holding tier fixed also cannot estimate a tier coefficient. Separate matched tier and matched-base-OVR contrasts are required to identify those effects."
+    }
   },
   "role_whiteness_card_evidence": {
     "_source": "Four player cards, DarkVader FC, 2026-09-07. White/grey read by sampling the coloured key-attribute bar at the left edge of each stat row (DEF x=692, ATT x=1087, PHY x=1481; row centres y=515/580/645/710/775 at 2244x1008). 60 individual classifications.",

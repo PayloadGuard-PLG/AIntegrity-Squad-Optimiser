@@ -388,9 +388,11 @@ per point as primary metrics.
 
 ### The confirmed default
 
-**0.22** (from the source system, back-calculated from specific observations). This may
-be different for your domain. In many maintenance contexts, 0.5 (half efficiency) is a
-reasonable starting assumption.
+**0.22 for ordinary Academy coaching** (from the source system, back-calculated
+from ordinary-coach observations). Reward Coaches are a separate unresolved
+transfer class; their matched evidence excludes treating 0.22 as universal. This
+may be different for your domain. In many maintenance contexts, 0.5 (half
+efficiency) is a reasonable starting assumption.
 
 ### How it affects projections
 
@@ -763,7 +765,7 @@ after every new observation.
 | `sessionBudgetDecay` | 0.99 | ✅ Confirmed | Inherited from source system — verify with long-run test |
 | `ageTable` (each level) | — | ⚠️ Assumed | Calibrate per level |
 | `talentMultipliers` | — | ⚠️ Assumed | Calibrate against Standard baseline |
-| `greyWeightMultiplier` | 0.22 | ⚠️ Assumed | Inherited — verify with secondary metric observation |
+| `greyWeightMultiplier` | 0.22 | ⚠️ Assumed | Inherited ordinary-transfer value — verify per transfer class |
 | `seasonDecayPerLevel` | 20 | ⚠️ Assumed | Verify with one idle-period measurement |
 | `condLevelMultipliers` | [1,2,3,4,5] | ⚠️ Assumed | Measure per intensity level |
 | `fanClubCondReduction` | [10,15,20,25,50] | ⚠️ Assumed | Measure per support level |

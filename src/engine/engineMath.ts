@@ -143,7 +143,9 @@ export function combinedMultiplier(params: {
 }
 
 // ─── STAGE 4a: COACHING BUDGET ───────────────────────────────────────────────
-// XP available per stat for a coaching session.
+// XP available per stat for an ORDINARY Academy coaching session.
+// Reward Coaches have a separately detected, unresolved transfer function and
+// must not call this function (recommendation.ts abstains before this stage).
 // budget = effectiveSessions × BASE_XPS / detectedStatCount
 // detectedStatCount is whatever the scanner found with gain ranges — no assumed category sizes.
 // Tune: update baseXpPerSession or sessionBudgetDecay in game_2025.json.

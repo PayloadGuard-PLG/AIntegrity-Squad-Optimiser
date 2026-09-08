@@ -1,4 +1,5 @@
 import { expoDb } from '../db';
+import type { CoachPreviewInterval, CoachTransferClass } from '../logic/recommendation';
 
 export type CoachHistoryEntry = {
   id: string;
@@ -8,12 +9,15 @@ export type CoachHistoryEntry = {
   coachCategory: string;
   sessions: number;
   stats: string[];
+  transferClass: CoachTransferClass;
+  observedGainIntervals: CoachPreviewInterval[];
   isManual: boolean;
   label: string;
 };
 
 function buildLabel(e: Omit<CoachHistoryEntry, 'id' | 'label'>): string {
   const parts: string[] = [];
+  if (e.transferClass === 'reward') parts.push('REWARD');
   if (e.coachType) parts.push(e.coachType.toUpperCase());
   if (e.coachCategory) parts.push(e.coachCategory.toUpperCase());
   parts.push(`×${e.sessions}`);
@@ -28,10 +32,12 @@ export const coachHistoryService = {
     try {
       expoDb.runSync(
         `INSERT OR REPLACE INTO coach_scan_history
-           (id, player_id, timestamp, coach_type, coach_category, sessions, stats, is_manual, label)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (id, player_id, timestamp, coach_type, coach_category, sessions, stats,
+            transfer_class, preview_intervals, is_manual, label)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [entry.id, entry.playerId, entry.timestamp, entry.coachType, entry.coachCategory,
-         entry.sessions, JSON.stringify(entry.stats), entry.isManual ? 1 : 0, label]
+         entry.sessions, JSON.stringify(entry.stats), entry.transferClass,
+         JSON.stringify(entry.observedGainIntervals), entry.isManual ? 1 : 0, label]
       );
     } catch {}
   },
@@ -50,6 +56,8 @@ export const coachHistoryService = {
         coachCategory: String(r.coach_category ?? ''),
         sessions: Number(r.sessions ?? 30),
         stats: JSON.parse(String(r.stats ?? '[]')) as string[],
+        transferClass: r.transfer_class === 'reward' ? 'reward' : 'ordinary',
+        observedGainIntervals: JSON.parse(String(r.preview_intervals ?? '[]')) as CoachPreviewInterval[],
         isManual: r.is_manual === 1,
         label: String(r.label ?? ''),
       }));
