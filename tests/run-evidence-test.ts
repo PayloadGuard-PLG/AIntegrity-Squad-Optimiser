@@ -157,7 +157,7 @@ test('a genuinely projected row keeps its grade', () => {
 
 test('a run is graded by its weakest part', () => {
   const projected: StatGain = { kind: 'projected', stat: 'A', from: 1, gain: 2, isWhite: true };
-  const legacy: StatGain = { kind: 'legacy-unknown', stat: 'C', from: 1, gain: 2, isWhite: true };
+  const legacy: StatGain = { kind: 'legacy-unknown', stat: 'C', from: 1, unattributableGain: 2, isWhite: true };
   assert.equal(runEvidenceKind([projected]), 'projected');
   assert.equal(runEvidenceKind([projected, DALLAS_A]), 'observed-interval');
   assert.equal(runEvidenceKind([projected, DALLAS_A, legacy]), 'legacy-unknown');

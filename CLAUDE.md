@@ -7,6 +7,75 @@
 **Active branch:** `codex/reward-coach-transfer-seam-20260908`
 **Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
 
+### Stop guessing the fucking answer
+
+This app does not automate a decision by manufacturing a quantity. It reports
+what was observed, predicts only from the calibrated model, and abstains
+otherwise. A number that merely looks like an answer is worse than no number,
+because it cannot be argued with.
+
+This has been made explicit repeatedly and ignored anyway. The recorded
+instances:
+
+- `capture.tsx` reconstructed an OVR outcome by pushing observed stat gains
+  through `computeOvrWithPadding`, which substitutes `player.overall` for every
+  unread attribute. On a Dallas-shaped case (3 of 15 attributes entered) it
+  produced **−1 to −1 where the observation implies +1.27 to +1.87** — wrong in
+  sign — and it was then stored graded `observed-interval`, asserting it had been
+  measured. Removed. Do not reintroduce an OVR derived from gains by `/15`,
+  padding, averaging, capping, or any other reconstruction.
+- The same screen previously stored `(lo + hi) / 2` for every observed interval,
+  putting a manufactured midpoint into the calibration record at the point of
+  collection.
+- A projection graded itself `exact` because it had produced a decimal.
+- A star position was computed from attributes that were never read.
+
+The rule, and it is not negotiable:
+
+1. **Observed** means the game displayed that exact quantity and it was read. An
+   OVR outcome is evidence only if an OVR outcome was itself observed — not if
+   it can be assembled from things that were.
+2. **Predicted** comes from pre-outcome state through the calibrated
+   mathematics, and from nothing else. See the pipeline boundary below.
+3. **Absent** is a valid, and often the correct, third answer. Abstain.
+
+If you cannot tell which of the three a number is, you may not display it, store
+it, or compute with it. Verify against the source; do not infer from the
+plausible case.
+
+### Outcome/prediction pipeline boundary (Sprint 38)
+
+```
+pre-outcome state ──> predictOrdinaryCoachAction ──> prediction
+                                                        │
+observed +lo-hi ────────────────────────────────────────┴──> constrain / falsify
+```
+
+One-directional. The observation exists to test the model; it can never help
+produce the prediction it is testing, or the agreement is guaranteed rather than
+earned (Principia Prop. XXV).
+
+- `predictOrdinaryCoachAction(input: PreOutcomeCoachInput)` is the production
+  prediction. `PreOutcomeCoachInput` types `observedGainIntervals`,
+  `observedOvrBoostLo/Hi` and `ovrAfterLo/Hi` as `never`, so handing it a
+  `CoachActionInput` is a **compile error**, not a convention. TypeScript accepts
+  a wider object where a narrower one is expected, so merely omitting the fields
+  would not have stopped it.
+- `projectCoachAction` is the routing/assembly boundary. It may see observed
+  evidence, and attaches it to the Reward/unknown abstention payload — but it
+  reaches the predictor only through an explicit field pick of pre-outcome state.
+- `calibrationEligible()` in `runEvidence.ts` is a **type guard**, so a
+  calibration path cannot read `gainLo`/`gainHi` without first proving the row is
+  admissible. `projected` and `legacy-unknown` are not calibration evidence:
+  the first would calibrate the model against itself, the second cannot be
+  attributed to either origin.
+- `LegacyStatGain.unattributableGain` is deliberately not named `gain`, so
+  `kind !== 'observed-interval' ? g.gain : …` no longer compiles.
+
+`tests/outcome-boundary-test.ts` enforces all of it, including a test that
+compiles a probe and requires it to FAIL, and one that feeds the correct answer
+back in as captured outcome and requires the prediction not to move.
+
 ### Live scanner integration (2026-09-07 follow-up)
 
 The glyph readers are now reached by both live player scan screens. `playerScanner.ts`

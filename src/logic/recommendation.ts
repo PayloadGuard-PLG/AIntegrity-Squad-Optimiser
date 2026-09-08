@@ -544,6 +544,33 @@ export interface CoachActionInput {
 }
 
 /**
+ * The PRE-OUTCOME state, and the only thing a prediction may see.
+ *
+ * Everything here is knowable before the coach is applied: the player's card,
+ * which attributes the coach affects, how many sessions, and the profile that
+ * carries age, talent, whiteness and the cost curve. Nothing here is a result.
+ *
+ * The `never`-typed fields are the enforcement, not decoration. TypeScript
+ * accepts a wider object where a narrower one is expected, so merely omitting
+ * the observed fields would still let a caller hand the whole CoachActionInput
+ * — evidence included — straight to the predictor. Typed `never`, an
+ * `observedGainIntervals?: CoachPreviewInterval[]` is not assignable, so the
+ * boundary is a compile error rather than a convention.
+ */
+export interface PreOutcomeCoachInput {
+  player: Player;
+  stats: string[];
+  sessions: number;
+  profile: GameProfile;
+  label?: string;
+  observedGainIntervals?: never;
+  observedOvrBoostLo?: never;
+  observedOvrBoostHi?: never;
+  ovrAfterLo?: never;
+  ovrAfterHi?: never;
+}
+
+/**
  * Coach projection boundary. Ordinary Academy budget comes from
  * engineMath.coachBudgetPerStat —
  * the geometric model confirmed in Sprint 34. The linear model is falsified; do
@@ -605,6 +632,40 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
       reasons: [reason],
     };
   }
+
+  // THE BOUNDARY. Only pre-outcome state crosses it. The fields are picked
+  // explicitly rather than spread, so an observation added to CoachActionInput
+  // later cannot arrive here by inheriting the spread — and PreOutcomeCoachInput
+  // would reject it if it tried.
+  return predictOrdinaryCoachAction({
+    player, stats, sessions, profile, label: input.label,
+  });
+}
+
+/**
+ * The production prediction for an ordinary Academy coach.
+ *
+ * It derives the gain from the calibrated mathematics alone: the geometric
+ * budget, the exponential cost curve, age, the Normal-talent policy, and
+ * white/grey status. It has never seen an observed +lo–hi and cannot: the
+ * observation exists to constrain or falsify this output, and a quantity used to
+ * produce a prediction cannot also test it.
+ *
+ * Do not widen this signature to take observed evidence. If a Reward transfer is
+ * ever identified, it becomes a different calibrated function reached through
+ * projectCoachAction's routing — not an observation threaded into this one.
+ */
+function predictOrdinaryCoachAction(input: PreOutcomeCoachInput): RecommendationResult {
+  const { player, stats, sessions, profile } = input;
+  const action: RecommendedAction = {
+    kind: 'coach',
+    label: input.label ?? `Coach ×${sessions}`,
+    stats: [...stats],
+    sessions,
+  };
+  const resources: ResourceRequirement[] = [
+    { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
+  ];
 
   const talent = resolveTalentPolicy(player);
   const { baseOvr, totalOvr, exactBaseOvr, locked } = evaluateLock(player, profile);

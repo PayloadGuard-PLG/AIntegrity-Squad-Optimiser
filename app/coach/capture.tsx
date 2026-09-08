@@ -8,7 +8,6 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { Chip } from '../../src/components/atoms/Chip';
 import { theme } from '../../src/constants/theme';
 import { getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
-import { computeOvrWithPadding } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile, TalentTier } from '../../src/types/resources';
 import { squadPlanService } from '../../src/services/squadPlanService';
@@ -73,6 +72,9 @@ export default function CoachCaptureScreen() {
   const [scanStatus, setScanStatus] = useState('');
   const [scannedUri, setScannedUri] = useState<string | null>(null);
   const [scanRejected, setScanRejected] = useState(false);
+  // Directly observed from the coach preview image; never derived.
+  const [observedOvrBoostLo, setObservedOvrBoostLo] = useState<number | null>(null);
+  const [observedOvrBoostHi, setObservedOvrBoostHi] = useState<number | null>(null);
   const [expandedStats, setExpandedStats] = useState<Set<string>>(new Set());
 
   const player: Player | null = squad.find(p => p.id === selectedPlayerId) ?? null;
@@ -132,6 +134,16 @@ export default function CoachCaptureScreen() {
       if (!selectedPlayerId && scan.playerName) { setPlayerName(scan.playerName); parts.push(scan.playerName); }
       if (!selectedPlayerId && scan.playerAge)  { setAgeInput(String(scan.playerAge)); parts.push(`AGE ${scan.playerAge}`); }
       if (!selectedPlayerId && scan.ovrBefore)  setOvrInput(String(scan.ovrBefore));
+      // The preview's own OVR boost range. An observation in its own right, kept
+      // apart from the stat intervals and never reconstructed from them.
+      if (scan.ovrBoostLo !== undefined && scan.ovrBoostHi !== undefined) {
+        setObservedOvrBoostLo(scan.ovrBoostLo);
+        setObservedOvrBoostHi(scan.ovrBoostHi);
+        parts.push(`OVR +${scan.ovrBoostLo}-${scan.ovrBoostHi}`);
+      } else {
+        setObservedOvrBoostLo(null);
+        setObservedOvrBoostHi(null);
+      }
       // Display only — saveToLog never persists talent, and project policy holds that
       // only the Personal Trainer tab confirms it. Populating the selector saves a
       // manual step; it does not assert the tier is card-confirmed.
@@ -187,31 +199,26 @@ export default function CoachCaptureScreen() {
 
   const ovrBefore = parseFloat(ovrInput) || 0;
 
-  const { ovrBoostLo, ovrBoostHi } = useMemo(() => {
-    if (!player || ovrBefore === 0) return { ovrBoostLo: null, ovrBoostHi: null };
-    const baseStats: Record<string, number> = {};
-    for (const [k, v] of Object.entries(statValues)) {
-      const n = parseFloat(v);
-      if (!isNaN(n)) baseStats[k] = n;
-    }
-
-    let boostedLo = { ...baseStats };
-    let boostedHi = { ...baseStats };
-    for (const [stat, g] of Object.entries(gains)) {
-      const lo = parseFloat(g.lo);
-      const hi = parseFloat(g.hi);
-      const cur = baseStats[stat] ?? 0;
-      if (!isNaN(lo)) boostedLo[stat] = Math.min(cur + lo, profile.statCap);
-      if (!isNaN(hi)) boostedHi[stat] = Math.min(cur + hi, profile.statCap);
-    }
-
-    const loOvr = computeOvrWithPadding(boostedLo, ovrBefore, profile);
-    const hiOvr = computeOvrWithPadding(boostedHi, ovrBefore, profile);
-    return {
-      ovrBoostLo: Math.round(loOvr - ovrBefore),
-      ovrBoostHi: Math.round(hiOvr - ovrBefore),
-    };
-  }, [gains, statValues, ovrBefore, player]);
+  /**
+   * The coach preview's OWN displayed OVR boost, read from the image. Nothing
+   * here is computed.
+   *
+   * This replaces a useMemo that reconstructed an OVR interval by pushing the
+   * observed stat gains through computeOvrWithPadding — which substitutes the
+   * player's overall for every unread attribute (Principia Prop. XXIII:
+   * substituted values do not bound in either direction). On a Dallas-shaped
+   * case with three of fifteen attributes entered it returned −1 to −1 where the
+   * observation implies a positive change: wrong in sign, and stored under a
+   * grade asserting it was measured. The residual it carried,
+   * (Σ base − k·ovrBefore)/15, measures which attributes the user happened to
+   * type and nothing about the coach.
+   *
+   * An outcome is recorded only where the quantity itself was observed. It is
+   * not reconstructed from the stat intervals by division, padding, averaging or
+   * capping, and where the preview did not show one, none is recorded.
+   */
+  const ovrBoostLo = observedOvrBoostLo;
+  const ovrBoostHi = observedOvrBoostHi;
 
   function saveToLog() {
     if (!player) { Alert.alert('Select a player first'); return; }
@@ -245,18 +252,17 @@ export default function CoachCaptureScreen() {
       return;
     }
 
-    // Same rule for the quality change: the OVR boost derived from those
-    // intervals is itself an interval, and is stored as its two ends. Where a
-    // bound could not be computed the run records no quality outcome rather
-    // than a half-formed one.
-    const bothOvrBounds = ovrBoostLo !== null && ovrBoostHi !== null;
+    // The OVR outcome is recorded ONLY when the preview displayed one and both
+    // of its ends were read. It is never derived from the stat intervals above:
+    // an outcome that was not observed is absent, not reconstructed.
+    const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;
 
     squadPlanService.saveRun(player.id, {
       sessions: parseInt(multiplier, 10) || 30,
       selectedStats: gainEntries.map(g => g.stat),
       ovrBefore,
       ...(bothOvrBounds
-        ? { ovrAfterLo: ovrBefore + ovrBoostLo!, ovrAfterHi: ovrBefore + ovrBoostHi! }
+        ? { ovrAfterLo: ovrBefore + observedOvrBoostLo!, ovrAfterHi: ovrBefore + observedOvrBoostHi! }
         : {}),
       gains: gainEntries,
       label: `${coachType} ${coachCategory}`,
@@ -393,14 +399,16 @@ export default function CoachCaptureScreen() {
             </View>
           </View>
 
+          {/* Observed OVR boost, read from the preview. Absent when the image did
+              not show one — no value is reconstructed to fill the gap. */}
           {(ovrBoostLo != null || ovrBoostHi != null) && (
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
               <View style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: theme.pos + '55', backgroundColor: theme.pos + '0d', alignItems: 'center' }}>
-                <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 2 }}>OVR BOOST LO</MonoLabel>
+                <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 2 }}>OVR BOOST LO · OBSERVED</MonoLabel>
                 <Text style={{ fontFamily: theme.mono, fontSize: 16, fontWeight: '700', color: theme.pos }}>{ovrBoostLo != null ? `+${ovrBoostLo}` : '—'}</Text>
               </View>
               <View style={{ flex: 1, padding: 8, borderWidth: 1, borderColor: theme.pos + '55', backgroundColor: theme.pos + '0d', alignItems: 'center' }}>
-                <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 2 }}>OVR BOOST HI</MonoLabel>
+                <MonoLabel size={8} color={theme.pos} style={{ marginBottom: 2 }}>OVR BOOST HI · OBSERVED</MonoLabel>
                 <Text style={{ fontFamily: theme.mono, fontSize: 16, fontWeight: '700', color: theme.pos }}>{ovrBoostHi != null ? `+${ovrBoostHi}` : '—'}</Text>
               </View>
             </View>

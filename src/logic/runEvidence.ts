@@ -49,7 +49,17 @@ export interface LegacyStatGain {
   kind: 'legacy-unknown';
   stat: string;
   from: number;
-  gain: number;
+  /**
+   * Deliberately NOT named `gain`.
+   *
+   * ProjectedStatGain and this interface were otherwise structurally identical,
+   * so `if (g.kind !== 'observed-interval') use g.gain` compiled and silently
+   * consumed unattributable rows as though they were engine output — the grade
+   * was documentation, not a condition. Under a distinct name that expression no
+   * longer type-checks, and a consumer must narrow to a specific kind and mean
+   * it.
+   */
+  unattributableGain: number;
   isWhite: boolean;
 }
 
@@ -91,7 +101,7 @@ export function normaliseStatGain(raw: RawGain): StatGain {
   if (raw?.kind === 'projected') {
     return { kind: 'projected', stat, from, isWhite, gain: num(raw.gain) };
   }
-  return { kind: 'legacy-unknown', stat, from, isWhite, gain: num(raw?.gain) };
+  return { kind: 'legacy-unknown', stat, from, isWhite, unattributableGain: num(raw?.gain) };
 }
 
 /** Reads a run's stored quality columns back into its outcome kind. */
@@ -155,7 +165,7 @@ export function formatGain(g: StatGain): GainDisplay {
     case 'projected':
       return { text: `+${trim(g.gain)}`, grade: g.kind };
     case 'legacy-unknown':
-      return { text: `+${trim(g.gain)}`, grade: g.kind };
+      return { text: `+${trim(g.unattributableGain)}`, grade: g.kind };
   }
 }
 
@@ -173,6 +183,31 @@ export function formatOvrDelta(outcome: RunOutcome, ovrBefore: number): GainDisp
       return { text: `${d > 0 ? '+' : ''}${trim(d)}`, grade: outcome.kind };
     }
   }
+}
+
+/**
+ * THE ELIGIBILITY CONDITION for model derivation, calibration and falsification.
+ *
+ * Only a directly observed interval may constrain or falsify the transfer model.
+ *
+ *   - `projected` is the model's own output. Feeding it back in would calibrate
+ *     the model against itself, and any agreement so obtained is guaranteed
+ *     rather than earned — Prop. XXV's fault with the two artefacts collapsed
+ *     into one.
+ *   - `legacy-unknown` cannot be attributed to either origin, so it cannot
+ *     discharge the role of either.
+ *
+ * This is a type guard, so passing the gate is what gives a caller access to
+ * `gainLo`/`gainHi` at all. A calibration path cannot read the bounds without
+ * first proving the row is entitled to be there.
+ */
+export function calibrationEligible(g: StatGain): g is ObservedStatGain {
+  return g.kind === 'observed-interval';
+}
+
+/** The subset of a run's gains admissible as calibration evidence. */
+export function calibrationEvidence(gains: StatGain[]): ObservedStatGain[] {
+  return gains.filter(calibrationEligible);
 }
 
 /** Short label for the grade, shown beside any figure that is not a projection. */
