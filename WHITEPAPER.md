@@ -93,7 +93,7 @@ Four independent data points across two players (Cptn Dallas ×4 Safeguard, Rick
 
 **Calibration — current bXPS = 676, a point near the lower edge of an interval:**
 
-> ⚠️ **676 is not a point estimate.** Re-solving the four calibration observations
+> ⚠️ **676 is not an empirically identified point value.** Re-solving the four calibration observations
 > from their stated `+lo–hi` intervals rather than their midpoints admits
 > **675–930**. The game states a range and has never said where the expectation
 > sits inside it, so back-calculating from `(lo+hi)/2` manufactures a precision
