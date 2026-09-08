@@ -1,7 +1,7 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
-**Branch:** `claude/test-connection-I2s8B` (dev) / `main` (OTA deploy)
-**As of:** Sprint 34 — 2026-05-20
+**Branch:** feature branches off `main` (dev) / `main` (OTA deploy)
+**As of:** Sprint 38 — 2026-09-08
 **Deploy:** Push to `main` triggers EAS OTA auto-deploy (Android only). NEVER push to `main` directly from dev work — merge only when releasing.
 
 ---
@@ -16,7 +16,7 @@ All tabs functional. Engine calibrated against empirical session data (Normal ta
 
 - **SQUAD tab** — player list, tap → edit/delete, OVR badge, QualityMeter atom (10-bar), tier/age/role display, snapshot revert banner, NewRoleBar for new-role progress
 - **PLAN tab** — select player → configure drills + tier + restorers → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
-- **DRILLS tab** — 40 drills (all roles). Fan Club L0–L4 selector. Zero-drain detection (VE+L4 = 0.375%). Condition cost per drill. Drill presets (saved drill plans). **PUSH TO RESULTS** button saves the active preset to `drill_plan_history` table for import into Results.
+- **DRILLS tab** — 40 drills (all roles). Fan Club surge controls (active flag + level, independent axes). Condition cost per cycle shown as raw plus the billed envelope — the charge is not a deterministic function of raw. Zero-drain is RETIRED (patched out; 1% session minimum). Drill presets (saved drill plans). **PUSH TO RESULTS** button saves the active preset to `drill_plan_history` table for import into Results.
 - **COACHES tab** — stat selector grid (white/grey sections), ×N sessions input, talent read from player card. SCAN button scans a coach preview screenshot (ML Kit OCR). No tier section — tier is in Results only. Per-stat gain projection + OVR delta. APPLY TO PLAYER CARD writes stats back. Coach scan auto-saves to `coach_scan_history` table for import into Results.
 - **RESULTS tab** — the single authoritative plan hub. Chains: **DRILL PLANS** (from drills history, amber, max 10) → **COACHING SESSIONS** (from coach history, max 5) → **TIER UPGRADE** → **CONDITION RESTORE** → PROJECT button → per-step OVR chain → APPLY FULL PLAN TO CARD write-back.
 - **Add Player** (`/player/new`) — SCAN PLAYER CARD screenshot button (ML Kit OCR). 3-col DEF/ATT/PHY scan preview. Role picker, stat grid, tier, talent, save.
@@ -226,19 +226,70 @@ Multi-role white union: `isWhiteStat(roles, stat)` returns true if essential for
 
 ---
 
+## Projection Honesty Contract — read before touching the seam
+
+`src/logic/recommendation.ts` is the single domain seam for Drills, Coaches and
+Results. It implements no mathematics of its own. Four rules are load-bearing;
+each has a test that fails if it is undone.
+
+1. **Coach classification gates the transfer function.** Ordinary Academy coaches
+   use the calibrated geometric budget. Reward Coaches do not — matched previews
+   falsify the ordinary transfer function (empty interval intersection across
+   three observations), and no replacement is calibrated. They return
+   `projectionStatus: 'unavailable'` carrying the observed intervals, with **no**
+   `projectedStats` and **no** post-action OVR: unchanged values would be
+   indistinguishable from a prediction of zero gain.
+
+2. **An unclassified entry abstains — it is not "ordinary".** Coach history
+   recorded before classification existed carries no marker of which kind it was,
+   and Reward Coaches wear the same Standard/Extensive label, so the two are
+   indistinguishable after the fact. Such rows read as `'unknown'` and abstain.
+   They are identified by a `transfer_class_source` column (provenance), **not**
+   by the stored class: an earlier migration already back-filled every
+   pre-existing row with the literal `'ordinary'`, so the value can no longer
+   identify them. Only `'observed'` provenance is trusted.
+
+3. **A plan containing an un-projectable action is not totalled.** Results blocks
+   the whole total and says why, rather than skipping the action or substituting
+   zero. A partial total is a fabricated number.
+
+4. **Star-band position is never laundered into certainty.** A card shows integer
+   attributes; the sub-integer progress behind them is never displayed. A
+   projection adds a computed gain `g` to an unknown starting fraction `ε`, so the
+   result still carries `ε` — adding a known quantity to an unknown baseline
+   leaves the uncertainty exactly where it was. `positionEvidence` is therefore
+   `'lower-bound'`, and does **not** improve because our own model produced a
+   decimal. Where attributes are missing, padding substitutes the player's
+   overall and the position is not a bound in either direction — that abstains as
+   `'unknown'`.
+
+**Evidence grades mean what they say.** `'calibrated'` is reserved for constants
+with a confirming game observation (Normal ×1.0; the 180 training lock).
+`starDecayPerSession = 0.85` is graded `'assumed'`: observing that training gets
+harder past a star fixes the *sign* of the effect, not the magnitude — any factor
+in (0,1) fits the same observation.
+
+---
+
 ## Confirmed Game Data
 
-**OVR:** `Math.ceil(sum/15)` — confirmed 4 data points, Sprint 27.
+**OVR:** `Math.floor(sum/15)` — Sprint 27's `ceil` was an artefact of fractional stat accumulation and was overturned in Sprint 33 by a clean integer-only tier upgrade (sum 2615 → game 174; `ceil` gives 175). Do not reinstate `ceil`.
 
 **Tier bonus:** White (essential) stats only — grey role stats and off-role stats receive 0. Confirmed Sprint 16.
 
-**Zero-drain:** VE + L4 = 0.375% → shown as 0%. Only this combination. Threshold = 0.38.
+**Zero-drain: RETIRED.** The game patched it. Every session is charged a **1% minimum**, so chasing sub-threshold drills is a penalty, not an exploit. `zeroDrainThreshold` remains in the profile only so it is not re-derived; nothing should branch on it.
+
+**Charged condition is not a deterministic function of raw.** Raw is exact and matches the pre-confirm dialog; the charge is a distribution whose spread scales with the number of drills. Report a range, never a point estimate. Full evidence and the falsified models: `PRINCIPIA.md` Book III.
 
 **Condition per restorer:** 15%.
 
-**Fan Club condition reduction:** L0=10%, L1=15%, L2=20%, L3=25%, L4=50%.
+**Fan Club condition reduction:** L0=10%, L1=15%, L2=20%, L3=25%, L4=50% — stored as FRACTIONS of 1 and applied as `(1 − r)`. A second `/100` was a live defect in the verification layer until Sprint 38; it is fixed on both sides.
 
-**baseXpPerSession = 450** — recalibrated Sprint 31 from four Dallas/Grant data points (implied 409–495, mean 443). Previous value 220 was calibrated against the stepped cost table; Sprint 25 switched to the exponential model without re-calibrating, causing systematic under-prediction.
+**Surges have two independent axes:** `active` (loyalty-gated, resets each season) and `level` (chant-driven). A banked level confers **nothing** while inactive. Only Perfect Conditions is consumed by the engine.
+
+**baseXpPerSession = 676 — an INTERVAL, not a point.** 676 is the FLOOR. Re-solving the calibration observations from their stated intervals rather than their midpoints admits **675–930**. The game states a range and never says where the expectation sits inside it, so back-calculating from `(lo+hi)/2` manufactures a precision the observation does not contain. Every projection is therefore at the conservative end of what the evidence permits. 676 is deliberately left unchanged rather than replaced with another convenient point.
+
+**Budget is geometric, not linear:** `effectiveSessions = (1 − 0.99^N)/(1 − 0.99)`, plateauing at 100. This is what resolves the long-standing ×N anomaly (×20 ≈ ×40); star decay plays no part in the budget.
 
 **LJDark Leo:** Age 18, Slow talent (×0.7), T0→T2 after ×114 Extensive GK + T1 + T2. Before: 143 OVR. After: 191 OVR. App prediction matched.
 

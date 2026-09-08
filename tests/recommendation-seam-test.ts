@@ -370,6 +370,58 @@ test('Reward classification and preview intervals survive scan history into proj
     'a full plan must abstain rather than total an unresolved Reward Coach as zero');
 });
 
+test('an unclassified legacy coach entry abstains instead of projecting as ordinary', () => {
+  // Coach history recorded before classification existed carries no marker of
+  // which kind it was, and Reward Coaches wear the same Standard/Extensive label,
+  // so the two are indistinguishable after the fact. Projecting such a row as
+  // ordinary would fabricate exactly the numbers the Reward path refuses to
+  // fabricate for a fresh scan.
+  const legacy = projectCoachAction({
+    player: player(), stats: STATS, sessions: 40, profile, transferClass: 'unknown',
+  });
+  assert.equal(legacy.projectionStatus, 'unavailable');
+  assert.equal(legacy.transferClass, 'unknown');
+  assert.ok(legacy.reasons.some(r => r.code === 'coach.transferClassUnknown'));
+  assert.equal('projectedStats' in legacy, false,
+    'unclassified must not masquerade as unchanged stats / zero gain');
+  assert.equal('ovrAfterExact' in legacy, false,
+    'unclassified must not fabricate a post-coach OVR');
+
+  // It is a DIFFERENT abstention from Reward: one was classified and lacks a
+  // calibrated transfer function, the other was never classified at all.
+  const reward = projectCoachAction({
+    player: player(), stats: STATS, sessions: 40, profile, transferClass: 'reward',
+    observedGainIntervals: [],
+  });
+  assert.equal(reward.reasons.some(r => r.code === 'coach.transferClassUnknown'), false);
+  assert.equal(legacy.reasons.some(r => r.code === 'coach.rewardTransferUnresolved'), false);
+});
+
+test('an unclassified row is identified by provenance, not by its stored class', () => {
+  // The earlier migration back-filled every pre-existing row with the literal
+  // 'ordinary', so the stored class can no longer identify legacy rows. A
+  // separate source column records where the class came from, and only
+  // 'observed' is trusted. Without this, legacy rows silently read as ordinary.
+  const db = readFileSync(join(__dirname, '..', 'src/db/index.ts'), 'utf8');
+  const history = readFileSync(join(__dirname, '..', 'src/services/coachHistoryService.ts'), 'utf8');
+  assert.match(db, /transfer_class_source TEXT NOT NULL DEFAULT 'legacy-default'/,
+    'existing rows must back-fill as unclassified, never as ordinary');
+  assert.match(db, /ALTER TABLE coach_scan_history ADD COLUMN transfer_class_source/,
+    'devices that already ran the earlier migration need the source column too');
+  assert.match(history, /transfer_class_source !== 'observed'[\s\S]{0,80}'unknown'/,
+    'the reader must downgrade any row whose class was never observed');
+  assert.match(history, /'observed'/,
+    'the writer must record that it actually determined the class');
+});
+
+test('an unclassified entry blocks a Results plan total rather than skipping it', () => {
+  const results = readFileSync(join(__dirname, '..', 'app/(tabs)/results.tsx'), 'utf8');
+  assert.match(results, /transferClass === 'unknown'/,
+    'Results must distinguish an unclassified entry from an unresolved Reward Coach');
+  assert.match(results, /projection\.projectionStatus\s*===\s*'unavailable'/,
+    'and must still refuse to total the plan');
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Semantic correction pass. Star-threshold decay is a real mechanic, separate
 // from session-budget decay; the match-form doubling item is not a permanent

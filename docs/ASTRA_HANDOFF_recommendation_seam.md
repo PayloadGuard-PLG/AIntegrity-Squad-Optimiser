@@ -761,6 +761,41 @@ history rows migrate as `ordinary` with an empty interval list.
 
 No age, grey, `K`, `β`, session decay or star-decay value changed.
 
+### 19.2b The unclassified past — a third state, not a synonym for ordinary
+
+`CoachTransferClass` is `'ordinary' | 'reward' | 'unknown'`.
+
+Coach history recorded before classification existed carries **no marker of which
+kind it was**. Reward Coaches wear the same Standard/Extensive label, and
+`coach_type` / `coach_category` therefore do not discriminate either, so such a
+row is genuinely indistinguishable from an ordinary one after the fact.
+Projecting it as ordinary would fabricate precisely the numbers §19 refuses to
+fabricate for a freshly scanned Reward Coach. It abstains instead, emitting
+`coach.transferClassUnknown` — a *different* reason from
+`coach.rewardTransferUnresolved`, because the two are different failures: one was
+classified and lacks a calibrated transfer function, the other was never
+classified at all.
+
+**Identified by provenance, not by value.** The migration that introduced
+`transfer_class` back-filled every pre-existing row with the literal `'ordinary'`,
+so the stored class can no longer identify legacy rows — the information was
+destroyed at write time. A separate `transfer_class_source` column records where
+the class came from, defaulting to `'legacy-default'`; only `'observed'` is
+trusted, and anything else reads as `'unknown'`. Adding the column now means every
+row existing at migration time is marked unclassified, which is the safe
+direction.
+
+**Accepted cost.** Correctly-classified rows written in the short window between
+the two changes are demoted along with genuinely-legacy ones, because nothing
+distinguishes them. Back-filling by inference — sniffing labels, or assuming the
+common case — would be the same offence in a different coat. An un-projectable
+row is honest; a wrong number is not. The remedy is a re-scan.
+
+Tests: an `'unknown'` input must abstain with the distinct reason code and expose
+neither projected stats nor post-action OVR; the reader must downgrade any row
+whose class was never observed; and Results must distinguish the two abstentions
+while still refusing to total the plan.
+
 ### 19.3 Age conclusions withdrawn
 
 The provisional age-28, age-29, age-31, age-35 and common-30+ intervals were

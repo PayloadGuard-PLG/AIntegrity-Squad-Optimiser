@@ -496,6 +496,11 @@ export default function CoachesScreen() {
                   REWARD COACH · PREVIEW INTERVALS ONLY · XP TRANSFER UNRESOLVED
                 </MonoLabel>
               )}
+              {transferClass === 'unknown' && (
+                <MonoLabel size={8} color={theme.hot} style={{ marginTop: 4 }}>
+                  UNCLASSIFIED ENTRY · PREDATES COACH CLASSIFICATION · RE-SCAN TO PROJECT
+                </MonoLabel>
+              )}
               {scanStatus.startsWith('SCANNED') && coachType === 'Focused' && scannedStats.length === 0 && (
                 <>
                   <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4 }}>
