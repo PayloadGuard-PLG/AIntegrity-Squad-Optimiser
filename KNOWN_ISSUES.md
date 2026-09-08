@@ -1,5 +1,27 @@
 # Known Issues
 
+## Open — Coach history predating classification is not projectable
+
+**Impact:** low, self-healing. **Introduced:** Sprint 38, deliberately.
+
+Coach entries recorded before coaches were classified carry no marker of which
+kind they were, and Reward Coaches use the same Standard/Extensive label, so they
+cannot be told apart after the fact. Those rows now abstain rather than being
+projected as ordinary Academy coaches.
+
+A small number of correctly-classified rows written in the short window between
+the Reward-Coach change and the abstention fix are demoted with them, because
+nothing distinguishes them from back-filled ones.
+
+**Remedy:** re-scan the coach. New scans classify correctly and project normally.
+
+**Not a bug to "fix" by inference.** Back-filling a class by sniffing labels or
+assuming the common case would fabricate exactly what the abstention exists to
+prevent.
+
+---
+
+
 ## Open
 
 | # | Area | Description | Priority |

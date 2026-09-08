@@ -160,7 +160,9 @@ export default function ResultsScreen() {
         setResult(null);
         setFinalStats(null);
         setProjectionBlock(
-          `${entry.label}: Reward Coach transfer is unresolved. Its observed preview interval cannot be converted into stat or OVR gain, so the full plan was not totalled.`,
+          projection.transferClass === 'unknown'
+            ? `${entry.label}: this entry predates coach classification, so it was never observed whether it was an ordinary or a Reward Coach. Re-scan it to classify; the full plan was not totalled.`
+            : `${entry.label}: Reward Coach transfer is unresolved. Its observed preview interval cannot be converted into stat or OVR gain, so the full plan was not totalled.`,
         );
         return;
       }

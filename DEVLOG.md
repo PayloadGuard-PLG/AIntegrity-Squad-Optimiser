@@ -6,6 +6,112 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## Sprint 38 — Condition Model v2, Card-Anchored Roles, and Three Honesty Corrections
+**2026-09-08**
+
+The theme of this sprint is the same offence caught three times in different
+clothes: producing a confident number where the evidence does not support one.
+
+### Shipped
+
+**Condition model v2 — the 1% minimum (`src/utils/conditionEngine.ts`)**
+
+The 0% drain loophole was patched by the game. Every session now costs at least
+1%, so chasing sub-threshold drills is a penalty rather than an exploit. Raw and
+charged are kept strictly separate:
+
+- **Raw is exact.** Confirmed at three session sizes against the pre-confirm
+  dialog, the tightest being a six-drill mixed preset at −12.75%, which pins
+  `baseLoss = 0.75` and the Easy/Medium/Hard multipliers 2/3/4 simultaneously.
+- **Charged is a distribution.** The same repeated preset was charged 5/6/7
+  (n=19, raw 6.00) and 10–14 (n=9, raw 12.75). Per-player charge is an integer;
+  the displayed figure is the **mean across players**, which is why the old
+  −10.63% row (404/38) never fitted any single-player rule.
+
+Dispersion scales with drill **count**, not raw. The committed envelope is ±0.5
+per drill about raw, rounded outward — an outer bound containing all 45 observed
+sessions, deliberately wider than the data.
+
+Three rules were proposed and killed by data, recorded so they are not
+re-proposed: `max(raw,1)`; `max(1,floor(raw))`; and per-drill floor/ceil
+dithering, which predicts 11–16 for the six-drill preset when a −10.00% row
+exists. Bundling advice is withheld outright — it assumed a deterministic charge.
+
+**Role whiteness confirmed from cards, not tables (`profiles/calibration_data.json`)**
+
+White/grey read off four player cards by sampling the key-attribute bar at each
+stat row — 60 classifications. `roleWeights.ts` reproduces every one; **the role
+table needed no change.** An interim edit to MC was made on one contradicting
+record and reverted once the cards settled it.
+
+This established that **a learning role confers no white stats**. Moore and Faye
+share DC/DMC/MC; Faye (all established) has 13 white, Moore (MC at 2/50) has 10 —
+exactly the DC+DMC union. Completing Moore's MC turns Dribbling, Shooting and
+Speed white, each taking the +50 T3 bonus immediately: **+150 attribute points
+and +10 OVR before any training**, confirmed two independent ways.
+
+**A verified falsehood, corrected (`src/engine/engineMath.ts`, `verification/engine_pure.py`)**
+
+`conditionDrainPct` divided the Fan Club reduction by 100 a second time, returning
+0.746 where the truth is 0.375. The Python specification carried the identical
+mistake, so the differential test compared two wrong implementations and passed.
+Both corrected together; a mutation on one side alone now fails loudly.
+
+*The general lesson outlives the bug: a differential test proves only that two
+things agree. Where the same misreading sits in both, agreement is guaranteed and
+the test is vacuous. It cannot be trusted until a mutation shows it can fail.*
+
+**Three findings on the recommendation seam**
+
+1. **Uncertainty laundering.** `positionEvidenceOf` returned `'exact'` whenever a
+   stat carried a decimal — and the only decimals in play are ones our own
+   projection created. True position `(s + ε) + g` against our estimate `s + g`
+   leaves the error at exactly `ε`. Worse, it degraded with chain length. Now a
+   bound, and it does not improve along a chain.
+2. **Padding fabricating a star position.** Unread attributes are padded with the
+   player's overall; a position derived from invented values is not a bound in
+   either direction. Now abstains.
+3. **`starDecay` graded `'calibrated'`** while `engineConstants` records the 0.85
+   as confirmation-pending. Regraded `'assumed'`. No constant changed.
+
+**Coach classification and the unclassified past**
+
+Reward Coaches falsify the ordinary transfer function — the admitted-budget
+intervals from three matched observations have an empty intersection. They now
+abstain, keeping the observed preview intervals and fabricating no stat or OVR
+prediction, and a plan containing one is reported un-totalled rather than
+silently totalled without it.
+
+Coach history recorded before classification existed cannot be told apart from an
+ordinary coach after the fact — Reward Coaches wear the same Standard/Extensive
+label, and an earlier migration had already back-filled every pre-existing row
+with the literal `'ordinary'`. Those rows are now identified by the *provenance*
+of their classification rather than its value, and abstain.
+
+### Cost of the honest choice
+
+Coach history predating classification is no longer projectable until re-scanned.
+A small number of correctly-classified rows written in the short window between
+the two changes are demoted with them, because they are indistinguishable from
+back-filled ones. An un-projectable row is honest; a wrong number is not.
+
+### Gates
+
+Typecheck 0 · engine 49 · projection 53 + 37 seam · scanner 85 + 16 · condition
+33 · 24 Z3/Crosshair/Hypothesis proofs. CI gained a `ts-suite` job — typecheck and
+the TypeScript suites were not gated before, only the proofs.
+
+### Next
+
+- One clean before/after from a player of **confirmed** non-Normal talent. Every
+  projection rests on the Normal assumption.
+- Campus-ball chant probabilities — the last unobserved slot in the surge model.
+- A controlled drill run to calibrate `drillXpFactor`, the only wholly
+  uncalibrated factor in the gain path.
+- A controlled ×4 vs ×20 same-player test to put a number on star decay.
+
+---
+
 ## Sprint 35 — Calibration Corrections + Focused-Coach OCR Fix
 **2026-05-20**
 

@@ -48,6 +48,10 @@ export function ensureCoachHistoryTable() {
       stats TEXT NOT NULL DEFAULT '[]',
       transfer_class TEXT NOT NULL DEFAULT 'ordinary',
       preview_intervals TEXT NOT NULL DEFAULT '[]',
+      -- Provenance of transfer_class, NOT the class itself. 'observed' means a
+      -- scan or an explicit choice set it; anything else means nothing ever
+      -- classified this row. See the note on the ALTER below.
+      transfer_class_source TEXT NOT NULL DEFAULT 'legacy-default',
       is_manual INTEGER NOT NULL DEFAULT 0,
       label TEXT
     );`);
@@ -55,6 +59,15 @@ export function ensureCoachHistoryTable() {
     // observed preview intervals when history is replayed through projection.
     try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN transfer_class TEXT NOT NULL DEFAULT 'ordinary';"); } catch {}
     try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN preview_intervals TEXT NOT NULL DEFAULT '[]';"); } catch {}
+    // Why a SOURCE column and not just a different default on transfer_class:
+    // the ALTER above already ran on shipped devices and back-filled every
+    // pre-existing row with the literal 'ordinary'. Those rows are now
+    // indistinguishable BY VALUE from genuinely-ordinary ones, so the class
+    // alone can no longer identify them. This column records where the class
+    // came from. It defaults to 'legacy-default', so every row that exists at
+    // migration time is marked unclassified and abstains; only rows written by
+    // the current writer carry 'observed'.
+    try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN transfer_class_source TEXT NOT NULL DEFAULT 'legacy-default';"); } catch {}
   } catch {}
 }
 

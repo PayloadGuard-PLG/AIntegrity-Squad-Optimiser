@@ -159,8 +159,15 @@ export interface RecommendationResult {
  * geometric XP-budget evidence. `reward` is a scan classification, not an XP
  * multiplier: matched Reward Coach previews falsify the ordinary transfer
  * function, and no replacement function is calibrated yet.
+ *
+ * `unknown` is the third honest state: the entry predates coach classification,
+ * so nothing ever observed which kind it was. It is NOT a synonym for ordinary.
+ * Reward Coaches wear the Standard/Extensive label, so an unclassified history
+ * row is genuinely indistinguishable from an ordinary one, and projecting it as
+ * ordinary would fabricate exactly the numbers this seam refuses to fabricate
+ * for a freshly scanned Reward Coach. It abstains instead.
  */
-export type CoachTransferClass = 'ordinary' | 'reward';
+export type CoachTransferClass = 'ordinary' | 'reward' | 'unknown';
 
 /** One interval printed by the game's coach preview. Never a midpoint. */
 export interface CoachPreviewInterval {
@@ -178,7 +185,9 @@ export interface CoachPreviewInterval {
 export interface UnresolvedCoachProjection {
   projectionStatus: 'unavailable';
   action: Extract<RecommendedAction, { kind: 'coach' }>;
-  transferClass: 'reward';
+  /** 'reward' — classified, but its transfer function is uncalibrated.
+   *  'unknown' — never classified, so no transfer function can be selected. */
+  transferClass: 'reward' | 'unknown';
   observedGainIntervals: CoachPreviewInterval[];
   ovrBefore: number;
   condition: null;
@@ -538,7 +547,7 @@ export function projectCoachAction(
   input: CoachActionInput & { transferClass?: 'ordinary' },
 ): RecommendationResult;
 export function projectCoachAction(
-  input: CoachActionInput & { transferClass: 'reward' },
+  input: CoachActionInput & { transferClass: 'reward' | 'unknown' },
 ): UnresolvedCoachProjection;
 export function projectCoachAction(input: CoachActionInput): CoachProjectionResult;
 export function projectCoachAction(input: CoachActionInput): CoachProjectionResult {
@@ -553,10 +562,23 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
   const resources: ResourceRequirement[] = [
     { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
   ];
-  if (transferClass === 'reward') {
+  if (transferClass === 'reward' || transferClass === 'unknown') {
     const observedGainIntervals = (input.observedGainIntervals ?? [])
       .filter(interval => interval.gainLo >= 0 && interval.gainHi >= interval.gainLo)
       .map(interval => ({ ...interval }));
+    const reason: RecommendationReason = transferClass === 'unknown'
+      ? {
+          code: 'coach.transferClassUnknown',
+          detail: 'This entry was recorded before coaches were classified, so it was never observed whether it was an ordinary Academy coach or a Reward Coach. Reward Coaches carry the same Standard/Extensive label, so the two cannot be told apart after the fact and the ordinary transfer function may not apply. Re-scan the coach to classify it.',
+          evidence: 'unavailable',
+        }
+      : {
+          code: 'coach.rewardTransferUnresolved',
+          detail: observedGainIntervals.length > 0
+            ? 'Reward Coach transfer is not calibrated. The scanned +lo–hi ranges are retained as observations; no XP, stat, or OVR prediction is fabricated.'
+            : 'Reward Coach transfer is not calibrated and no usable +lo–hi interval was captured. No XP, stat, or OVR prediction is available.',
+          evidence: 'unavailable',
+        };
     return {
       projectionStatus: 'unavailable',
       action,
@@ -566,13 +588,7 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
       condition: null,
       conditionBasis: 'not-applicable',
       resources,
-      reasons: [{
-        code: 'coach.rewardTransferUnresolved',
-        detail: observedGainIntervals.length > 0
-          ? 'Reward Coach transfer is not calibrated. The scanned +lo–hi ranges are retained as observations; no XP, stat, or OVR prediction is fabricated.'
-          : 'Reward Coach transfer is not calibrated and no usable +lo–hi interval was captured. No XP, stat, or OVR prediction is available.',
-        evidence: 'unavailable',
-      }],
+      reasons: [reason],
     };
   }
 

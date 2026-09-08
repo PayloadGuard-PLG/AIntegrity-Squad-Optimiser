@@ -23,9 +23,10 @@
 ## ✨ Core Capabilities
 
 - 🎯 **Calibrated OVR Projections** — Models age, role, stat profile, and talent tier to project OVR outcomes for any combination of drill plans, coaching sessions, and tier upgrades — before you spend anything. Core constants (OVR formula, cost curve shape, age 18–20 and 26–28 brackets, Normal talent) are empirically confirmed from game screenshots. Several talent tiers and mid-range age brackets are still being validated — projections show a gain range, not a single guaranteed number.
-- 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details.
-- 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and Fan Club level. Zero-drain detection at L4 + Very Easy.
+- 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details. Roles still being learned are recognised as such and kept separate from established ones, because they do not yet contribute to a player's key attributes. Anything the scan could not read confidently is flagged for review rather than filled in with a guess.
+- 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and current Fan Club state. Condition cost is shown as the range the game actually charges, not a single tidy figure it may not honour.
 - 🔗 **Sequential Planning** — Chain drill plans, coaching sessions, tier upgrades, and restorers into one sequential plan with a per-step OVR breakdown in the Results hub.
+- 🙅 **It tells you when it doesn't know** — Where the app cannot honestly project something, it says so and shows what it *did* observe, instead of returning a confident-looking number. Some coach types and any history recorded before they could be identified fall into this category, and a plan containing one is reported as un-totalled rather than quietly totalled without it.
 
 📡 *Post-build updates deploy via EAS OTA — no app store submission required.*
 
@@ -37,9 +38,9 @@
 
 **⚙️ PLAN** — Single-player projection tool. Select drills, set tier target, add restorers → get a step-by-step OVR breakdown.
 
-**💊 DRILLS** — All 40 drills ranked by ROI for the selected player. Fan Club level selector. Zero-drain detection. Build and save drill presets, then **push to Results** to include them in your combined plan.
+**💊 DRILLS** — All 40 drills ranked by ROI for the selected player. Fan Club surge controls. Condition cost per cycle shown alongside the range you may actually be billed. Build and save drill presets, then **push to Results** to include them in your combined plan.
 
-**🧑‍🏫 COACHES** — Scan a coach preview screenshot to auto-fill session count and stats. Project the OVR gain from the coaching block. Apply to player card or save to history for import into Results.
+**🧑‍🏫 COACHES** — Scan a coach preview screenshot to auto-fill session count and stats. Project the OVR gain from the coaching block. Coaches that behave differently from the standard Academy ones are identified from the scan and handled separately: the app keeps what the game showed and declines to project rather than applying a model that does not fit them. Apply to player card or save to history for import into Results.
 
 **✅ RESULTS** — The combined plan hub. Import drill plans from history + coaching sessions from history, add a tier upgrade and condition restorers, then PROJECT to see the full sequential OVR chain. One button applies the complete plan to the player card.
 
