@@ -115,6 +115,7 @@ test('charged condition cost is a range carrying its confidence; a scalar discar
 import {
   projectCoachAction, projectDrillAction, resolveTalentPolicy,
 } from '../src/logic/recommendation';
+import type { CoachPreviewInterval } from '../src/logic/recommendation';
 import { projectOvr } from '../src/logic/ovrProjector';
 import { getRecommendedDrills } from '../src/logic/controller';
 import type { Player } from '../src/database/playerSchema';
@@ -420,6 +421,142 @@ test('an unclassified entry blocks a Results plan total rather than skipping it'
     'Results must distinguish an unclassified entry from an unresolved Reward Coach');
   assert.match(results, /projection\.projectionStatus\s*===\s*'unavailable'/,
     'and must still refuse to total the plan');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reward Coach evidence preservation. The interval is the observation; it must
+// survive the seam unchanged, and must never be reduced to a single number.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('an observed interval survives with no baseline attached', () => {
+  // statBefore is a SEPARATE observation. The scanner's nearest-number search
+  // returns nothing when the row's value lands in another OCR block, which is
+  // routine in the three-column layout. Requiring it discarded a successful
+  // measurement of the interval because a different measurement failed.
+  const intervals: CoachPreviewInterval[] = [
+    { stat: 'FINISHING', gainLo: 5, gainHi: 7 },          // no baseline read
+    { stat: 'SHOOTING', statBefore: 152, gainLo: 3, gainHi: 4 }, // baseline read
+  ];
+  const r = projectCoachAction({
+    player: player(), stats: ['FINISHING', 'SHOOTING'], sessions: 2, profile,
+    transferClass: 'reward', observedGainIntervals: intervals,
+  });
+  assert.equal(r.projectionStatus, 'unavailable');
+  assert.equal(r.observedGainIntervals.length, 2,
+    'an interval without a baseline must not be dropped');
+  const finishing = r.observedGainIntervals.find(i => i.stat === 'FINISHING')!;
+  assert.equal(finishing.gainLo, 5);
+  assert.equal(finishing.gainHi, 7);
+  assert.equal('statBefore' in finishing && finishing.statBefore !== undefined, false,
+    'an unobserved baseline is absent, never reported as 0');
+  // And the reason must reflect that evidence EXISTS.
+  const reason = r.reasons.find(x => x.code === 'coach.rewardTransferUnresolved')!;
+  assert.match(reason.detail, /retained as observations/);
+});
+
+test('intervals pass through the Reward seam by identity', () => {
+  // The seam may not reshape, reorder the endpoints, round, or otherwise
+  // "tidy" an observation. What was read is what comes out.
+  const intervals: CoachPreviewInterval[] = [
+    { stat: 'FINISHING', statBefore: 134, gainLo: 5, gainHi: 7 },
+    { stat: 'PASSING', gainLo: 0, gainHi: 11 },
+    { stat: 'DRIBBLING', statBefore: 156, gainLo: 2, gainHi: 2 },
+  ];
+  const r = projectCoachAction({
+    player: player(), stats: ['FINISHING', 'PASSING', 'DRIBBLING'], sessions: 2, profile,
+    transferClass: 'reward', observedGainIntervals: intervals,
+  });
+  assert.deepEqual(r.observedGainIntervals, intervals);
+});
+
+test('a +0–0 preview is observed evidence, not a missing reading', () => {
+  const r = projectCoachAction({
+    player: player({ age: 32 }), stats: ['FINISHING'], sessions: 1, profile,
+    transferClass: 'reward',
+    observedGainIntervals: [{ stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 }],
+  });
+  assert.equal(r.observedGainIntervals.length, 1);
+  assert.deepEqual(r.observedGainIntervals[0],
+    { stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 });
+  // Evidence exists, so the message must not claim none was captured.
+  const reason = r.reasons.find(x => x.code === 'coach.rewardTransferUnresolved')!;
+  assert.doesNotMatch(reason.detail, /no usable/i);
+});
+
+test('the Reward path cannot collapse an interval into a scalar', () => {
+  // STRUCTURAL. An unresolved transfer must expose no single number derived
+  // from the interval — no midpoint, no width, no projected stat, no OVR.
+  // Serialise the whole result and hunt for any of them.
+  const lo = 5, hi = 11;                       // midpoint 8, width 6 — distinct
+  const r = projectCoachAction({
+    player: player(), stats: ['FINISHING'], sessions: 2, profile,
+    transferClass: 'reward',
+    observedGainIntervals: [{ stat: 'FINISHING', statBefore: 134, gainLo: lo, gainHi: hi }],
+  });
+  assert.equal('projectedStats' in r, false);
+  assert.equal('ovrAfterExact' in r, false);
+  assert.equal('statDeltas' in r, false);
+  assert.equal('ovrDelta' in r, false);
+
+  const numbers: number[] = [];
+  JSON.stringify(r, (_k, v) => { if (typeof v === 'number') numbers.push(v); return v; });
+  const midpoint = (lo + hi) / 2;
+  assert.equal(numbers.includes(midpoint), false,
+    `the midpoint ${midpoint} must never appear anywhere in a Reward result`);
+  assert.equal(numbers.includes(hi - lo), false,
+    'the interval width is not a measurement either');
+  // Both endpoints must survive intact.
+  assert.ok(numbers.includes(lo) && numbers.includes(hi));
+});
+
+test('manual selection cannot downgrade a Reward Coach or clear its intervals', () => {
+  // Manual type/category selection resolves WHICH STATS the coach covers — the
+  // ambiguity a human is there to settle. It is not an observation about the
+  // coach's class, and it says nothing about intervals already read. These two
+  // handlers previously reset transferClass to 'ordinary' and wiped the
+  // intervals, so one tap after a Reward scan silently reclassified it and the
+  // ordinary geometric transfer produced a number for a falsified transfer.
+  const src = readFileSync(join(__dirname, '..', 'app/(tabs)/coaches.tsx'), 'utf8');
+  // Handles both declaration forms in this file: `function foo(` and
+  // `const foo = useCallback((` — selectPlayer is the latter.
+  const body = (fn: string) => {
+    let i = src.indexOf(`function ${fn}(`);
+    if (i < 0) i = src.indexOf(`const ${fn} = `);
+    assert.ok(i > -1, `${fn} not found`);
+    const end = src.indexOf('\n  }', i);
+    return src.slice(i, end > -1 ? end : undefined);
+  };
+  for (const fn of ['selectCoachType', 'selectCoachCategory']) {
+    assert.doesNotMatch(body(fn), /setTransferClass\(/,
+      `${fn} must not reclassify the coach`);
+    assert.doesNotMatch(body(fn), /setObservedGainIntervals\(/,
+      `${fn} must not discard observed intervals`);
+  }
+  // The genuine reset points remain — changing player, and applying a result.
+  assert.match(body('selectPlayer'), /setObservedGainIntervals\(\[\]\)/);
+  assert.match(body('applyGains'), /setObservedGainIntervals\(\[\]\)/);
+});
+
+test('the scan keeps an interval whose baseline was not read', () => {
+  // The capture filter must gate on the interval's own validity only.
+  const src = readFileSync(join(__dirname, '..', 'app/(tabs)/coaches.tsx'), 'utf8');
+  const i = src.indexOf('const gainRanges');
+  const filter = src.slice(i, src.indexOf('const intervals', i));
+  assert.doesNotMatch(filter, /cap\.statBefore\s*>\s*0\s*\)/,
+    'the interval must not be gated on a separate, possibly-absent observation');
+  assert.match(filter, /cap\.gainHi\s*>=\s*cap\.gainLo/,
+    'it must still reject a malformed interval');
+});
+
+test('no midpoint of an observed interval exists in the coach path', () => {
+  // A talent back-calculation that consumed a midpoint (estimateTalentFromGain)
+  // was deleted in this change. Nothing may reintroduce one.
+  for (const f of ['src/logic/recommendation.ts', 'app/(tabs)/coaches.tsx', 'src/engine/engineMath.ts']) {
+    const src = readFileSync(join(__dirname, '..', f), 'utf8');
+    const code = src.split('\n').filter(l => !l.trim().startsWith('//') && !l.trim().startsWith('*')).join('\n');
+    assert.doesNotMatch(code, /gainLo\s*\+\s*gainHi/, `${f} computes an interval midpoint`);
+    assert.doesNotMatch(code, /\bgainMid\b/, `${f} still references a gain midpoint`);
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

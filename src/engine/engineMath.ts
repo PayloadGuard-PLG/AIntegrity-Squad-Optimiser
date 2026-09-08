@@ -330,45 +330,16 @@ export function applySeasonDecay(
   return result;
 }
 
-// ─── TALENT BACK-CALCULATION ─────────────────────────────────────────────────
-// Given observed gain from a coach scan, find which talent tier best explains it.
-// Uses only the white-stat path for cleaner signal (grey multiplier adds noise).
-// bestTier = tier whose forward prediction is closest to gainMid.
-// confidence = 'high' if best score < 20% of gainMid, else 'low'.
-export function estimateTalentFromGain(params: {
-  statBefore: number;
-  gainMid: number;
-  sessions: number;
-  statNames: string[];
-  categorySize: number;
-  age: number;
-  isWhite: boolean;
-  twoxAd: boolean;
-  drillLevelMult: number;
-}): { bestTier: string; confidence: 'high' | 'low'; candidateScores: Record<string, number> } {
-  const { statBefore, gainMid, sessions, categorySize, age, isWhite, twoxAd, drillLevelMult } = params;
-  const decay = SESSION_BUDGET_DECAY;
-  const effectiveSessions = (decay >= 1.0 || sessions <= 0)
-    ? sessions
-    : (1 - Math.pow(decay, sessions)) / (1 - decay);
-  const budget = (effectiveSessions * BASE_XPS) / categorySize;
-  const tiers = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
-  const candidateScores: Record<string, number> = {};
-
-  let bestTier = 'Normal';
-  let bestScore = Infinity;
-
-  for (const tier of tiers) {
-    const mult = combinedMultiplier({ age, talent: tier, isWhite, starsGained: 0, twoxAd, drillLevelMult });
-    const predicted = statGainFromBudget(statBefore, budget, mult);
-    const score = Math.abs(predicted - gainMid);
-    candidateScores[tier] = Number(predicted.toFixed(2));
-    if (score < bestScore) { bestScore = score; bestTier = tier; }
-  }
-
-  const confidence: 'high' | 'low' = gainMid > 0 && bestScore < gainMid * 0.2 ? 'high' : 'low';
-  return { bestTier, confidence, candidateScores };
-}
+// ─── TALENT BACK-CALCULATION — REMOVED ───────────────────────────────────────
+// `estimateTalentFromGain` took a `gainMid` — the MIDPOINT of the game's stated
+// `+lo–hi` — and back-calculated a talent tier from it. The game states an
+// interval and has never said where the expectation sits inside it, so the
+// midpoint is an assumption, not an observation; inferring a tier from one
+// manufactures a precision the evidence does not contain. It had zero callers
+// (definition plus a re-export), was absent from the verification surface, and
+// is deleted rather than left loaded for someone to wire up. The talent table is
+// where we can least afford a fabricated point estimate: only Normal is
+// confirmed. Identify a tier from intervals solved at BOTH bounds, intersected.
 
 // ─── FULL COACHING PROJECTION ─────────────────────────────────────────────────
 // ⚠️ @deprecated — samples the star count ONCE from sessionOvrGainSoFar, so a run

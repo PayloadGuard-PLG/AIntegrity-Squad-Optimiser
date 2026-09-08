@@ -169,10 +169,24 @@ export interface RecommendationResult {
  */
 export type CoachTransferClass = 'ordinary' | 'reward' | 'unknown';
 
-/** One interval printed by the game's coach preview. Never a midpoint. */
+/**
+ * One interval printed by the game's coach preview. Never a midpoint.
+ *
+ * `statBefore` is OPTIONAL because it is a SEPARATE observation from the
+ * interval. The scanner finds the baseline by a nearest-number search that
+ * returns nothing when the row's own value lands in a different OCR block —
+ * routine in the game's three-column layout. A row can therefore yield a
+ * perfectly good `+lo–hi` with no baseline beside it.
+ *
+ * Requiring the baseline made an observed interval unrepresentable without it,
+ * so a missing measurement of one quantity destroyed a successful measurement
+ * of another. The interval is the evidence; the baseline is context for
+ * displaying it.
+ */
 export interface CoachPreviewInterval {
   stat: string;
-  statBefore: number;
+  /** Present only when the baseline was actually read. Never inferred. */
+  statBefore?: number;
   gainLo: number;
   gainHi: number;
 }

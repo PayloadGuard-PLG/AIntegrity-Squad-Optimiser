@@ -120,14 +120,20 @@ export default function CoachesScreen() {
     setScanStatus(`${prefix}: ${parts.join(' · ')}`);
   }
 
+  // Manual type/category selection resolves WHICH STATS the coach covers — the
+  // ambiguity a human is here to settle. It is not an observation about which
+  // CLASS of coach this is, and it says nothing about intervals already read.
+  // These previously reset transferClass to 'ordinary' and wiped the intervals,
+  // so one tap after a Reward scan silently reclassified it as ordinary and the
+  // geometric transfer produced a number for a coach whose transfer function is
+  // falsified. Class and intervals are scan-owned; selectPlayer and applyGains
+  // remain the reset points.
   function selectCoachType(type: string) {
     const next = coachType === type ? '' : type;
     setCoachType(next);
     setFocusedStatSel(new Set());
     setResult(null);
     setRewardPreviewResult(null);
-    setTransferClass('ordinary');
-    setObservedGainIntervals([]);
     if (next && next !== 'Focused' && coachCategory) {
       const stats = CATEGORY_STATS[coachCategory] ?? [];
       setScannedStats(stats);
@@ -143,8 +149,6 @@ export default function CoachesScreen() {
     setFocusedStatSel(new Set());
     setResult(null);
     setRewardPreviewResult(null);
-    setTransferClass('ordinary');
-    setObservedGainIntervals([]);
     if (coachType !== 'Focused') {
       const stats = CATEGORY_STATS[cat] ?? [];
       setScannedStats(stats);
@@ -221,14 +225,29 @@ export default function CoachesScreen() {
       // not a stated expected value. Treating it as one is an assumption, not an
       // observation, so it never enters the math. See calibration_data.json →
       // bxps_recalibration.midpointAssumption.
-      const gainRanges: Record<string, { lo: number; hi: number; statBefore: number }> = {};
+      // The interval and the baseline are SEPARATE observations. `statBefore`
+      // comes from a nearest-number search that returns 0 when the row's value
+      // sits in another OCR block — routine in the three-column layout. Gating
+      // the interval on it discarded a successful measurement because a
+      // different one failed, which is why a scan could report stats and still
+      // claim no usable interval was captured.
+      const gainRanges: Record<string, { lo: number; hi: number; statBefore?: number }> = {};
       for (const cap of scan.stats) {
-        if (cap.gainLo >= 0 && cap.gainHi >= cap.gainLo && cap.statBefore > 0) {
-          gainRanges[cap.statName] = { lo: cap.gainLo, hi: cap.gainHi, statBefore: cap.statBefore };
+        if (cap.gainLo >= 0 && cap.gainHi >= cap.gainLo) {
+          gainRanges[cap.statName] = {
+            lo: cap.gainLo,
+            hi: cap.gainHi,
+            // Carried only when actually read. 0 means "not observed" here, and
+            // an unobserved baseline is omitted rather than reported as zero.
+            ...(cap.statBefore > 0 ? { statBefore: cap.statBefore } : {}),
+          };
         }
       }
       const intervals: CoachPreviewInterval[] = Object.entries(gainRanges).map(([stat, range]) => ({
-        stat, statBefore: range.statBefore, gainLo: range.lo, gainHi: range.hi,
+        stat,
+        ...(range.statBefore !== undefined ? { statBefore: range.statBefore } : {}),
+        gainLo: range.lo,
+        gainHi: range.hi,
       }));
       setObservedGainIntervals(intervals);
       const statNames = resolveCoachStats(scan, player!.stats, player!.role);
@@ -564,7 +583,7 @@ export default function CoachesScreen() {
                 ))}
                 {rewardPreviewResult.intervals.map(interval => (
                   <MonoLabel key={interval.stat} size={9} color={theme.inkSec} style={{ marginTop: 4 }}>
-                    {interval.stat} {interval.statBefore} · +{interval.gainLo}–{interval.gainHi} OBSERVED
+                    {interval.stat}{interval.statBefore !== undefined ? ` ${interval.statBefore}` : ''} · +{interval.gainLo}–{interval.gainHi} OBSERVED
                   </MonoLabel>
                 ))}
               </View>
