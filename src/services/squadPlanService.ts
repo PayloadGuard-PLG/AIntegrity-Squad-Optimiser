@@ -32,11 +32,15 @@ export interface SaveRunInput {
   sessions: number;
   selectedStats: string[];
   ovrBefore: number;
-  /** Present for a projected run; absent when the run recorded an interval. */
+  /** Present for a projected run; absent when the run recorded an observation. */
   ovrAfter?: number;
-  /** Both bounds, or neither. Never a midpoint of them. */
-  ovrAfterLo?: number;
-  ovrAfterHi?: number;
+  /**
+   * The preview's own displayed OVR BOOST range. Both bounds or neither, never a
+   * midpoint, and never added to anything: a boost is what the game showed, and
+   * `ovrBefore + boost` is a quantity it did not.
+   */
+  ovrBoostLo?: number;
+  ovrBoostHi?: number;
   gains: StatGain[];
   tier?: TierName | null;
   label?: string | null;
@@ -63,8 +67,8 @@ function fromRow(row: RunRow): SquadPlanRun {
     outcome: normaliseRunOutcome({
       gainEvidence: row.gainEvidence,
       ovrAfter: row.ovrAfter,
-      ovrAfterLo: row.ovrAfterLo,
-      ovrAfterHi: row.ovrAfterHi,
+      ovrBoostLo: row.ovrBoostLo,
+      ovrBoostHi: row.ovrBoostHi,
     }),
     gains,
     tier: (row.tier as TierName | null) ?? null,
@@ -83,14 +87,16 @@ export const squadPlanService = {
       sessions: data.sessions,
       selectedStats: JSON.stringify(data.selectedStats),
       ovrBefore: data.ovrBefore,
-      // ovr_after is NOT NULL in the schema, so an interval run still has to put
-      // something in it. It stores the LOWER bound, never a midpoint: a reader
-      // that ignores gain_evidence then under-reports rather than inventing a
-      // centre the game never stated. Readers that honour the grade take the
-      // bounds from ovr_after_lo / ovr_after_hi and ignore this column.
-      ovrAfter: data.ovrAfter ?? data.ovrAfterLo ?? data.ovrBefore,
-      ovrAfterLo: data.ovrAfterLo ?? null,
-      ovrAfterHi: data.ovrAfterHi ?? null,
+      // ovr_after is NOT NULL on the original table and cannot be dropped in
+      // place, so an observed row must still put SOMETHING here. It repeats
+      // ovrBefore as an inert filler — deliberately not `ovrBefore + boost`,
+      // which would be the laundered post-OVR this design exists to refuse.
+      // normaliseRunOutcome returns on the observed branch before reaching this
+      // column, so no graded reader can treat the filler as a reading.
+      ovrAfter: data.ovrAfter ?? data.ovrBefore,
+      // The observed quantity, stored as itself.
+      ovrBoostLo: data.ovrBoostLo ?? null,
+      ovrBoostHi: data.ovrBoostHi ?? null,
       gainEvidence: evidence,
       gains: JSON.stringify(data.gains),
       tier: data.tier ?? null,

@@ -253,8 +253,10 @@ export default function CoachCaptureScreen() {
     }
 
     // The OVR outcome is recorded ONLY when the preview displayed one and both
-    // of its ends were read. It is never derived from the stat intervals above:
-    // an outcome that was not observed is absent, not reconstructed.
+    // of its ends were read, and it is recorded as the quantity that was shown:
+    // a BOOST range. Not `ovrBefore + boost` — the game never displayed a
+    // post-action OVR, and adding a read boost to a separately-sourced ovrBefore
+    // produces a third quantity nobody observed while labelling it observed.
     const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;
 
     squadPlanService.saveRun(player.id, {
@@ -262,7 +264,7 @@ export default function CoachCaptureScreen() {
       selectedStats: gainEntries.map(g => g.stat),
       ovrBefore,
       ...(bothOvrBounds
-        ? { ovrAfterLo: ovrBefore + observedOvrBoostLo!, ovrAfterHi: ovrBefore + observedOvrBoostHi! }
+        ? { ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi! }
         : {}),
       gains: gainEntries,
       label: `${coachType} ${coachCategory}`,

@@ -65,11 +65,24 @@ export interface LegacyStatGain {
 
 export type StatGain = ProjectedStatGain | ObservedStatGain | LegacyStatGain;
 
-/** How a run's post-action quality was arrived at. Same three grades. */
+/**
+ * How a run's quality change was arrived at — and note the shapes differ.
+ *
+ * A projection produces a post-action OVR, because the model computed the whole
+ * resulting stat set. An OBSERVATION does not: the coach preview displays a
+ * BOOST RANGE, and never a post-action OVR. Storing `ovrBefore + boost` as
+ * though the sum had been observed launders one quantity into a different one
+ * that the game never showed — the addition is a computation, and a computation
+ * cannot confer observed status on its result (Prop. XXII).
+ *
+ * So the observed variant carries the boost itself, under its own field names,
+ * and no post-action OVR exists anywhere on it to be mistaken for a reading.
+ */
 export type RunOutcome =
   | { kind: 'projected'; ovrAfter: number }
-  | { kind: 'observed-interval'; ovrAfterLo: number; ovrAfterHi: number }
-  | { kind: 'legacy-unknown'; ovrAfter: number };
+  | { kind: 'observed-boost-interval'; ovrBoostLo: number; ovrBoostHi: number }
+  | { kind: 'legacy-unknown'; ovrAfter: number }
+  | { kind: 'none-observed' };
 
 export type EvidenceKind = StatGain['kind'];
 
@@ -108,12 +121,18 @@ export function normaliseStatGain(raw: RawGain): StatGain {
 export function normaliseRunOutcome(row: {
   gainEvidence?: unknown;
   ovrAfter?: unknown;
-  ovrAfterLo?: unknown;
-  ovrAfterHi?: unknown;
+  ovrBoostLo?: unknown;
+  ovrBoostHi?: unknown;
 }): RunOutcome {
-  if (row?.gainEvidence === 'observed-interval'
-      && typeof row.ovrAfterLo === 'number' && typeof row.ovrAfterHi === 'number') {
-    return { kind: 'observed-interval', ovrAfterLo: row.ovrAfterLo, ovrAfterHi: row.ovrAfterHi };
+  if (row?.gainEvidence === 'observed-interval') {
+    // An observed run reports the observed BOOST, or nothing. It never reports a
+    // post-action OVR: the preview did not display one, and `ovr_after` on such
+    // a row is a NOT NULL storage filler, not a reading. This branch returns
+    // before that column can be reached.
+    if (typeof row.ovrBoostLo === 'number' && typeof row.ovrBoostHi === 'number') {
+      return { kind: 'observed-boost-interval', ovrBoostLo: row.ovrBoostLo, ovrBoostHi: row.ovrBoostHi };
+    }
+    return { kind: 'none-observed' };
   }
   if (row?.gainEvidence === 'projected') {
     return { kind: 'projected', ovrAfter: num(row.ovrAfter) };
@@ -169,14 +188,22 @@ export function formatGain(g: StatGain): GainDisplay {
   }
 }
 
-/** The same, for a run's quality change. */
+/**
+ * The same, for a run's quality change.
+ *
+ * The observed case needs no arithmetic at all — the boost interval IS the
+ * change, exactly as the game displayed it. Only the computed and the
+ * unattributable cases subtract, because only they hold a post-action figure.
+ */
 export function formatOvrDelta(outcome: RunOutcome, ovrBefore: number): GainDisplay {
   switch (outcome.kind) {
-    case 'observed-interval':
+    case 'observed-boost-interval':
       return {
-        text: `+${trim(outcome.ovrAfterLo - ovrBefore)}–${trim(outcome.ovrAfterHi - ovrBefore)}`,
-        grade: outcome.kind,
+        text: `+${trim(outcome.ovrBoostLo)}–${trim(outcome.ovrBoostHi)}`,
+        grade: 'observed-interval',
       };
+    case 'none-observed':
+      return { text: 'NOT OBSERVED', grade: 'observed-interval' };
     case 'projected':
     case 'legacy-unknown': {
       const d = outcome.ovrAfter - ovrBefore;

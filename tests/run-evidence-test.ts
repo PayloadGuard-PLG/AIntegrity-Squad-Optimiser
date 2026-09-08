@@ -144,9 +144,12 @@ test('a stored kind is not believed unless the row actually carries its fields',
   assert.equal(
     normaliseStatGain({ kind: 'observed-interval', stat: 'X', from: 1, gain: 5 }).kind,
     'legacy-unknown');
+  // An observed row carrying no boost columns reports that none was observed —
+  // it must not fall through to ovr_after, which on such a row is a NOT NULL
+  // storage filler and not a reading.
   assert.equal(
     normaliseRunOutcome({ gainEvidence: 'observed-interval', ovrAfter: 187.5 }).kind,
-    'legacy-unknown');
+    'none-observed');
 });
 
 test('a genuinely projected row keeps its grade', () => {
@@ -169,9 +172,12 @@ test('a run is graded by its weakest part', () => {
 
 test('an interval renders as an interval, carrying its grade', () => {
   assert.deepEqual(formatGain(DALLAS_A), { text: '+4–6', grade: 'observed-interval' });
+  // The observed case needs no subtraction: the boost interval IS the change.
   assert.deepEqual(
-    formatOvrDelta({ kind: 'observed-interval', ovrAfterLo: 185, ovrAfterHi: 189 }, 183),
+    formatOvrDelta({ kind: 'observed-boost-interval', ovrBoostLo: 2, ovrBoostHi: 6 }, 183),
     { text: '+2–6', grade: 'observed-interval' });
+  assert.deepEqual(formatOvrDelta({ kind: 'none-observed' }, 183),
+    { text: 'NOT OBSERVED', grade: 'observed-interval' });
 });
 
 test('every grade has a label, so no figure is shown without one', () => {
@@ -204,8 +210,8 @@ test('the capture screen no longer averages a preview interval', () => {
     'the OVR midpoint must not return');
   assert.match(src, /observedStatGain\(/,
     'observed previews must be recorded through the interval constructor');
-  assert.match(src, /ovrAfterLo:[\s\S]{0,80}ovrAfterHi:/,
-    'the OVR outcome must be written as two bounds');
+  assert.match(src, /ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi!/,
+    'the observed OVR boost must be written as its own two bounds');
 });
 
 test('the coaches screen records engine output as projected, not as an interval', () => {
@@ -224,12 +230,31 @@ test('stored runs default to unattributable, and the guard that does it exists',
 
   assert.match(schema, /gainEvidence: text\('gain_evidence'\)[\s\S]{0,60}default\('legacy-unknown'\)/,
     'the provenance column must default to legacy-unknown, not to a real grade');
-  assert.match(schema, /ovrAfterLo: real\('ovr_after_lo'\)/);
-  assert.match(schema, /ovrAfterHi: real\('ovr_after_hi'\)/);
+  assert.match(schema, /ovrBoostLo: real\('ovr_boost_lo'\)/);
+  assert.match(schema, /ovrBoostHi: real\('ovr_boost_hi'\)/);
   assert.match(dbIndex, /ADD COLUMN gain_evidence TEXT NOT NULL DEFAULT 'legacy-unknown'/,
     'devices that already have the table need the column back-filled as unattributable');
   assert.match(layout, /ensureRunEvidenceColumns\(\)/,
     'the guard must actually run at startup');
+});
+
+test('the ovr_after filler on an observed row is never a laundered sum', () => {
+  // B1-M3 survived the first mutation round: nothing pinned what goes into the
+  // NOT NULL ovr_after column on an OBSERVED row. Writing `ovrBefore + boost`
+  // there recreates the laundered post-OVR one layer lower, where the grade
+  // hides it from readers but a raw SQL consumer would still find it.
+  const src = readCode('src/services/squadPlanService.ts');
+  // Scoped to the WRITE path — fromRow also has an `ovrAfter:` line, and it is
+  // the value going into the column that this contract is about.
+  const saveRun = src.slice(src.indexOf('saveRun(playerId'), src.indexOf('getRunsForPlayer'));
+  const line = saveRun.split('\n').find(l => /^\s*ovrAfter:/.test(l))!;
+  assert.ok(line, 'saveRun must set ovr_after explicitly');
+  assert.equal(/ovrBoost/.test(line), false,
+    'the ovr_after filler must not be derived from the observed boost');
+  assert.equal(/\+/.test(line), false,
+    'the ovr_after filler must not be a sum of anything');
+  assert.match(line, /data\.ovrAfter \?\? data\.ovrBefore,/,
+    'an observed row repeats ovrBefore as an inert filler, nothing more');
 });
 
 test('the service grades every row it writes and reads', () => {

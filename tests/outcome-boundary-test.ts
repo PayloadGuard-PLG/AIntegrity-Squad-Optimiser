@@ -27,6 +27,9 @@ import { tmpdir } from 'node:os';
 import { projectCoachAction } from '../src/logic/recommendation';
 import type { CoachPreviewInterval } from '../src/logic/recommendation';
 import {
+  buildOutcomeEvidence, compareObservedAgainstPrediction, type PredictedDelta,
+} from '../src/logic/outcomeEvidence';
+import {
   calibrationEligible, calibrationEvidence, type StatGain,
 } from '../src/logic/runEvidence';
 import type { Player } from '../src/database/playerSchema';
@@ -53,70 +56,148 @@ const STATS = ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY'];
 // 1. the outcome cannot reach the prediction
 // ---------------------------------------------------------------------------
 
-test('putting the correct answer into the outcome cannot change the prediction', () => {
-  const preOutcome = { player: subject(), stats: STATS, sessions: 40, profile } as const;
+/**
+ * The outcomes a run might later be observed to have. Each set is handed to the
+ * production path; none of them may move it.
+ */
+function outcomeSets(stats: string[], truth?: PredictedDelta[]): Array<[string, CoachPreviewInterval[]]> {
+  return [
+    ['no outcome', []],
+    ['undefined', undefined as unknown as CoachPreviewInterval[]],
+    ['a wildly wrong answer', stats.map(stat => ({ stat, statBefore: 1, gainLo: 900, gainHi: 999 }))],
+    ['a zero outcome', stats.map(stat => ({ stat, gainLo: 0, gainHi: 0 }))],
+    ...(truth ? [['the correct answer', truth.map(d => ({
+      stat: d.stat, gainLo: Math.floor(d.delta), gainHi: Math.ceil(d.delta) + 1,
+    }))] as [string, CoachPreviewInterval[]]] : []),
+  ];
+}
 
-  // Run the predictor once with no outcome at all, to learn what it says.
-  const baseline = projectCoachAction({ ...preOutcome, transferClass: 'ordinary' });
+/**
+ * Calls production the only way it can now be called — with pre-outcome state
+ * only — while an observed outcome exists alongside. If the boundary holds, the
+ * outcome argument is unreachable from here, which is the point: the call site
+ * has no channel through which to leak it.
+ */
+function produce(pre: {
+  player: Player; stats: string[]; sessions: number; profile: GameProfile;
+  transferClass: 'ordinary' | 'reward' | 'unknown';
+}, observed: CoachPreviewInterval[]) {
+  const projection = projectCoachAction({
+    player: pre.player, stats: pre.stats, sessions: pre.sessions,
+    profile: pre.profile, transferClass: pre.transferClass,
+  });
+  // The evidence is carried in parallel and joined afterwards, never merged in.
+  return { projection, evidence: buildOutcomeEvidence(observed) };
+}
+
+test('same pre-outcome state + different observed outcomes => identical production result (ordinary)', () => {
+  const pre = { player: subject(), stats: STATS, sessions: 40, profile, transferClass: 'ordinary' } as const;
+  const baseline = projectCoachAction({ ...pre });
   assert.equal(baseline.projectionStatus, 'projected');
 
-  // THE CORRECT ANSWER, handed over as captured outcome. If any part of the
-  // prediction path reads it, the projection moves toward it and this fails.
-  const truth: CoachPreviewInterval[] = baseline.statDeltas.map(d => ({
-    stat: d.stat, statBefore: d.from,
-    gainLo: Math.floor(d.delta), gainHi: Math.ceil(d.delta) + 1,
-  }));
-  // A wildly wrong answer, to catch a path that reads the outcome but happens
-  // to agree with the truth by construction.
-  const nonsense: CoachPreviewInterval[] = STATS.map(stat => ({
-    stat, statBefore: 1, gainLo: 900, gainHi: 999,
-  }));
-  const empty: CoachPreviewInterval[] = [];
-
-  for (const [label, observed] of [
-    ['the correct answer', truth],
-    ['a wildly wrong answer', nonsense],
-    ['no outcome', empty],
-  ] as const) {
-    const withOutcome = projectCoachAction({
-      ...preOutcome, transferClass: 'ordinary', observedGainIntervals: observed,
-    });
-    assert.deepEqual(withOutcome, baseline,
-      `the prediction changed when handed ${label} as captured outcome`);
+  for (const [label, observed] of outcomeSets(STATS, baseline.statDeltas)) {
+    const { projection } = produce(pre, observed);
+    assert.deepEqual(projection, baseline,
+      `the ordinary projection changed when ${label} was the eventual outcome`);
   }
 });
 
-test('the same holds across ages, session counts and whiteness', () => {
-  // One shape can pass by luck. Sweep the model variables that legitimately
-  // drive a prediction and require outcome-independence at every point.
+test('same pre-outcome state + different observed outcomes => identical production result (reward)', () => {
+  const pre = { player: subject(), stats: STATS, sessions: 40, profile, transferClass: 'reward' } as const;
+  const baseline = projectCoachAction({ ...pre });
+  assert.equal(baseline.projectionStatus, 'unavailable');
+
+  for (const [label, observed] of outcomeSets(STATS)) {
+    const { projection } = produce(pre, observed);
+    assert.deepEqual(projection, baseline,
+      `the Reward abstention changed when ${label} was the eventual outcome`);
+  }
+});
+
+test('same pre-outcome state + different observed outcomes => identical production result (unknown)', () => {
+  const pre = { player: subject(), stats: STATS, sessions: 40, profile, transferClass: 'unknown' } as const;
+  const baseline = projectCoachAction({ ...pre });
+  assert.equal(baseline.projectionStatus, 'unavailable');
+
+  for (const [label, observed] of outcomeSets(STATS)) {
+    const { projection } = produce(pre, observed);
+    assert.deepEqual(projection, baseline,
+      `the unknown abstention changed when ${label} was the eventual outcome`);
+  }
+});
+
+test('only the separate evidence/comparison result may change', () => {
+  // The other half of the invariance: the outcome must still MATTER somewhere,
+  // or the boundary would be satisfied by simply discarding evidence.
+  const pre = { player: subject(), stats: STATS, sessions: 40, profile, transferClass: 'ordinary' } as const;
+  const baseline = projectCoachAction({ ...pre });
+  assert.equal(baseline.projectionStatus, 'projected');
+  const deltas = baseline.statDeltas.map(d => ({ stat: d.stat, delta: d.delta }));
+
+  const agreeing = deltas.map(d => ({ stat: d.stat, gainLo: d.delta - 1, gainHi: d.delta + 1 }));
+  const refuting = deltas.map(d => ({ stat: d.stat, gainLo: d.delta + 50, gainHi: d.delta + 60 }));
+
+  const ok = compareObservedAgainstPrediction(deltas, agreeing, 'ordinary');
+  const bad = compareObservedAgainstPrediction(deltas, refuting, 'ordinary');
+  assert.equal(ok.contradicted, false);
+  assert.equal(bad.contradicted, true, 'an outcome outside the prediction must falsify it');
+  assert.notDeepEqual(ok, bad, 'the comparison is where the outcome is allowed to matter');
+
+  // An abstaining class predicted nothing, so nothing passed a test.
+  const none = compareObservedAgainstPrediction(null, agreeing, 'reward');
+  assert.ok(none.verdicts.every(v => v.verdict === 'untestable'));
+  assert.equal(none.contradicted, false);
+});
+
+test('the comparison forms no midpoint of an observed interval', () => {
+  const r = compareObservedAgainstPrediction(
+    [{ stat: 'FINISHING', delta: 8 }],
+    [{ stat: 'FINISHING', gainLo: 5, gainHi: 11 }], 'ordinary');
+  const numbers: number[] = [];
+  JSON.stringify(r, (_k, v) => { if (typeof v === 'number') numbers.push(v); return v; });
+  assert.ok(numbers.includes(5) && numbers.includes(11), 'both bounds must survive');
+  assert.equal(numbers.includes(11 - 5), false, 'the width is not a measurement');
+  const src = readCode('src/logic/outcomeEvidence.ts');
+  assert.equal(/gainLo\s*\+\s*.*gainHi|\(\s*lo\s*\+\s*hi\s*\)/.test(src), false,
+    'the comparison must never combine two bounds');
+});
+
+test('the sweep holds across ages, session counts and stat sets', () => {
   for (const age of [18, 20, 23, 27]) {
     for (const sessions of [4, 40, 114]) {
       for (const stats of [STATS, ['TACKLING'], ['HEADING', 'STRENGTH']]) {
-        const pre = { player: { ...subject(), age }, stats, sessions, profile } as const;
-        const clean = projectCoachAction({ ...pre, transferClass: 'ordinary' });
-        const poisoned = projectCoachAction({
-          ...pre, transferClass: 'ordinary',
-          observedGainIntervals: stats.map(stat => ({ stat, gainLo: 777, gainHi: 888 })),
-        });
-        assert.deepEqual(poisoned, clean,
-          `age ${age}, ×${sessions}, ${stats.length} stats: outcome leaked into prediction`);
+        const pre = { player: { ...subject(), age }, stats, sessions, profile,
+                      transferClass: 'ordinary' } as const;
+        const clean = projectCoachAction({ ...pre });
+        const { projection } = produce(pre,
+          stats.map(stat => ({ stat, gainLo: 777, gainHi: 888 })));
+        assert.deepEqual(projection, clean,
+          `age ${age}, x${sessions}, ${stats.length} stats: outcome leaked into prediction`);
       }
     }
   }
 });
 
-test('the prediction function cannot be handed an observed outcome — a compile error, not a convention', () => {
-  // TypeScript accepts a wider object where a narrower one is expected, so
-  // omitting the observed fields from PreOutcomeCoachInput would NOT stop a
-  // caller passing the whole CoachActionInput. The `never` typing is what does.
-  // This test compiles a probe and requires it to FAIL. Delete those fields and
-  // the probe compiles clean and this test fails.
+test('an observed outcome cannot be handed to production at all — a compile error', () => {
+  // The boundary is now stronger than when this probe was written: the observed
+  // field is gone from CoachActionInput too, typed `never` on both the routing
+  // input and the predictor input. So the probe no longer asks whether one type
+  // is assignable to the other — it asks whether an actual observed interval can
+  // be passed to EITHER. Delete either `never` and this compiles and fails.
   const dir = mkdtempSync(join(tmpdir(), 'boundary-'));
   const probe = join(dir, 'probe.ts');
   const rec = join(__dirname, '..', 'src', 'logic', 'recommendation');
   writeFileSync(probe, `
-import type { CoachActionInput, PreOutcomeCoachInput } from ${JSON.stringify(rec)};
-export function leak(i: CoachActionInput): PreOutcomeCoachInput { return i; }
+import type { CoachActionInput, PreOutcomeCoachInput, CoachPreviewInterval } from ${JSON.stringify(rec)};
+const observed: CoachPreviewInterval[] = [{ stat: 'FINISHING', gainLo: 5, gainHi: 7 }];
+export const intoRouting: CoachActionInput = {
+  player: null as never, stats: [], sessions: 1, profile: null as never,
+  observedGainIntervals: observed,
+};
+export const intoPredictor: PreOutcomeCoachInput = {
+  player: null as never, stats: [], sessions: 1, profile: null as never,
+  observedGainIntervals: observed,
+};
 `);
   let output = '';
   try {
@@ -128,10 +209,16 @@ export function leak(i: CoachActionInput): PreOutcomeCoachInput { return i; }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-  assert.match(output, /not assignable to type 'PreOutcomeCoachInput'/,
-    'CoachActionInput must not be assignable to the predictor input');
-  assert.match(output, /observedGainIntervals/,
-    'the observed evidence field must be what makes it inassignable');
+  // tsc names the offending TYPE rather than the property, so the assertion
+  // counts the rejections rather than grepping for a field name: one for the
+  // routing input, one for the predictor input. Remove either `never` and the
+  // corresponding line disappears and this fails.
+  const rejections = output.split('\n')
+    .filter(l => l.includes('probe.ts') && /is not assignable to type 'undefined'/.test(l));
+  assert.equal(rejections.length, 2,
+    `both the routing input and the predictor input must reject an observed interval; got:\n${output}`);
+  assert.ok(rejections.every(l => /CoachPreviewInterval\[\]/.test(l)),
+    'the rejected thing must be the observed interval itself');
 });
 
 test('the ordinary prediction body never mentions an observed quantity', () => {
@@ -211,14 +298,23 @@ test('capture.tsx manufactures no OVR quantity', () => {
   }
 });
 
-test('capture.tsx records an OVR outcome only when one was observed', () => {
+test('capture.tsx records the observed BOOST, not a post-OVR derived from it', () => {
+  // This assertion previously required `ovrAfterLo: ovrBefore + observedOvrBoostLo`
+  // while its own message claimed the stored value was the observed boost. The
+  // test encoded the laundering it was written to forbid: the game displays a
+  // boost range and never a post-action OVR, so ovrBefore + boost is a third
+  // quantity nobody observed, wearing an observed grade.
   const src = read('app/coach/capture.tsx');
   assert.match(src, /setObservedOvrBoostLo\(scan\.ovrBoostLo\)/,
     'the recorded boost must come from the scanned preview');
   assert.match(src, /const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;/,
     'both ends must be observed before an outcome is recorded');
-  assert.match(src, /ovrAfterLo: ovrBefore \+ observedOvrBoostLo!/,
-    'the stored outcome must be the observed boost, not a derived one');
+  assert.match(src, /ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi!/,
+    'the observed boost must be stored as itself');
+  assert.equal(/ovrBefore \+ observedOvrBoost/.test(src), false,
+    'a post-action OVR must not be synthesised by addition');
+  assert.equal(/ovrAfterLo|ovrAfterHi/.test(src), false,
+    'there is no observed post-action OVR to store');
 });
 
 test('one completeness rule, not two', () => {

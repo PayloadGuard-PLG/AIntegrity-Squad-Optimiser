@@ -79,9 +79,13 @@ export default function SquadPlanScreen() {
                 // returns the change in the shape the evidence actually supports —
                 // a range stays a range — and the grade travels with it.
                 const ovrDelta = formatOvrDelta(run.outcome, run.ovrBefore);
-                const ovrAfterText = run.outcome.kind === 'observed-interval'
-                  ? `${run.outcome.ovrAfterLo.toFixed(1)}–${run.outcome.ovrAfterHi.toFixed(1)}`
-                  : run.outcome.ovrAfter.toFixed(1);
+                // An observed run has NO post-action OVR — the preview showed a
+                // boost, not a result — so there is nothing to print after the
+                // arrow. Printing ovrBefore+boost there is the laundering itself.
+                const ovrAfterText =
+                  run.outcome.kind === 'projected' || run.outcome.kind === 'legacy-unknown'
+                    ? run.outcome.ovrAfter.toFixed(1)
+                    : null;
                 const tierColor = run.tier ? (TIER_COLORS[run.tier as TierName] ?? theme.inkSec) : null;
                 return (
                   <View key={run.id} style={{ borderWidth: 1, borderColor: theme.hairline, marginBottom: 6, backgroundColor: theme.surface }}>
@@ -90,15 +94,23 @@ export default function SquadPlanScreen() {
                       <View style={{ minWidth: 70 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
                           <Text style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: '700', color: theme.ink }}>{run.ovrBefore.toFixed(0)}</Text>
-                          <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.inkGhost }}>→</Text>
-                          <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{ovrAfterText}</Text>
+                          {ovrAfterText !== null && (
+                            <>
+                              <Text style={{ fontFamily: theme.mono, fontSize: 10, color: theme.inkGhost }}>→</Text>
+                              <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{ovrAfterText}</Text>
+                            </>
+                          )}
                         </View>
                         <MonoLabel size={8} color={ovrDelta.grade === 'legacy-unknown' ? theme.inkMuted : theme.pos}>
                           {ovrDelta.text} OVR
                         </MonoLabel>
                         {run.outcome.kind !== 'projected' && (
                           <MonoLabel size={7} color={run.outcome.kind === 'legacy-unknown' ? theme.neg : theme.inkGhost}>
-                            {EVIDENCE_LABEL[run.outcome.kind]}
+                            {run.outcome.kind === 'legacy-unknown'
+                              ? EVIDENCE_LABEL['legacy-unknown']
+                              : run.outcome.kind === 'none-observed'
+                                ? 'NO OVR OBSERVED'
+                                : 'OBSERVED BOOST'}
                           </MonoLabel>
                         )}
                       </View>

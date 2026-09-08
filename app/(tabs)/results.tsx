@@ -154,7 +154,9 @@ export default function ResultsScreen() {
         profile,
         label: `COACH ×${entry.sessions} — ${entry.label}`,
         transferClass: entry.transferClass,
-        observedGainIntervals: entry.observedGainIntervals,
+        // History's observed intervals are deliberately not passed: a replayed
+        // plan must project the same numbers it projected before anything was
+        // observed. The evidence stays on the history entry.
       });
       if (projection.projectionStatus === 'unavailable') {
         setResult(null);

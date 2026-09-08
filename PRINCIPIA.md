@@ -638,6 +638,17 @@ demoted with the rest, knowingly, for the reason given in Prop. XX's scholium �
 inferring the grade from the common case would be the same offence in a
 different coat.
 
+**Scholium — laundering has a second form, and the fix had it too.** Removing a
+midpoint is not enough if the observation is then converted into a different
+quantity. The capture screen was corrected to store the preview's observed OVR
+BOOST — and stored `ovrBefore + boost` as an "observed" post-action OVR. The
+game displays a boost and never a result, so the sum is a third quantity nobody
+saw, wearing an observed grade; and the regression test written to forbid this
+asserted the addition while its own message claimed the opposite. **An addition
+is a computation, and a computation cannot confer observed status on its result**
+(Prop. XXII). An observed quantity is stored as itself, under its own name, or
+it is not stored.
+
 *The general lesson stands beside Prop. XXV's.* A principle stated in a document
 is not a property held by a system. This one had been written down, agreed, and
 cited in review while the code that collects the evidence went on averaging;

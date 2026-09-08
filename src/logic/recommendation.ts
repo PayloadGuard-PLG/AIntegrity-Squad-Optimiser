@@ -202,7 +202,13 @@ export interface UnresolvedCoachProjection {
   /** 'reward' — classified, but its transfer function is uncalibrated.
    *  'unknown' — never classified, so no transfer function can be selected. */
   transferClass: 'reward' | 'unknown';
-  observedGainIntervals: CoachPreviewInterval[];
+  /**
+   * No observedGainIntervals here either. An abstention that carried the
+   * evidence would vary with the outcome, so two runs from the same pre-outcome
+   * state could differ because of something that happened afterwards. The
+   * evidence lives in outcomeEvidence.ts and is joined to this result for
+   * display, never returned from it.
+   */
   ovrBefore: number;
   condition: null;
   conditionBasis: 'not-applicable';
@@ -539,8 +545,15 @@ export interface CoachActionInput {
   label?: string;
   /** Defaults to ordinary for legacy/manual entries. Scanner callers must pass it. */
   transferClass?: CoachTransferClass;
-  /** Required evidence payload for Reward Coaches; ranges are observations. */
-  observedGainIntervals?: CoachPreviewInterval[];
+  /**
+   * Deliberately absent: there is no observed-evidence field on this input.
+   *
+   * The observation exists to constrain or falsify what this function produces,
+   * so it cannot be an ingredient of it. Route observed intervals to
+   * outcomeEvidence.ts instead — buildOutcomeEvidence to retain them, and
+   * compareObservedAgainstPrediction to test a prediction against them.
+   */
+  observedGainIntervals?: never;
 }
 
 /**
@@ -604,9 +617,10 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
     { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
   ];
   if (transferClass === 'reward' || transferClass === 'unknown') {
-    const observedGainIntervals = (input.observedGainIntervals ?? [])
-      .filter(interval => interval.gainLo >= 0 && interval.gainHi >= interval.gainLo)
-      .map(interval => ({ ...interval }));
+    // The abstention is a property of the CLASS, not of what was later observed.
+    // It reads no evidence and its wording does not vary with any: the previous
+    // version chose between two sentences depending on whether intervals had
+    // been captured, which made a production result depend on an outcome.
     const reason: RecommendationReason = transferClass === 'unknown'
       ? {
           code: 'coach.transferClassUnknown',
@@ -615,16 +629,13 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
         }
       : {
           code: 'coach.rewardTransferUnresolved',
-          detail: observedGainIntervals.length > 0
-            ? 'Reward Coach transfer is not calibrated. The scanned +lo–hi ranges are retained as observations; no XP, stat, or OVR prediction is fabricated.'
-            : 'Reward Coach transfer is not calibrated and no usable +lo–hi interval was captured. No XP, stat, or OVR prediction is available.',
+          detail: 'Reward Coach transfer is not calibrated. No XP, stat, or OVR prediction is fabricated. Any scanned +lo–hi ranges are retained separately as observations.',
           evidence: 'unavailable',
         };
     return {
       projectionStatus: 'unavailable',
       action,
       transferClass,
-      observedGainIntervals,
       ovrBefore: evaluateLock(player, profile).totalOvr,
       condition: null,
       conditionBasis: 'not-applicable',

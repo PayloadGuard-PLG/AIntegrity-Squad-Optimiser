@@ -4,6 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats, CATEGORY_STATS, ALL_ROUND_SENTINEL } from '../../src/logic/coachPipeline';
+import { buildOutcomeEvidence } from '../../src/logic/outcomeEvidence';
 import {
   ingestScannedIdentity, identityMismatches, type ScannedIdentity,
 } from '../../src/logic/coachIdentityParse';
@@ -318,15 +319,18 @@ export default function CoachesScreen() {
     const sessionCount = parseInt(sessions, 10) || 0;
     if (sessionCount === 0) return;
 
-    // One domain answer. No budget, multiplier, talent or OVR math on this screen.
+    // One domain answer, from pre-outcome state only. The observed intervals are
+    // NOT passed: production neither accepts nor returns them, so this projection
+    // is identical whatever was later observed.
     const projection = projectCoachAction({
-      player, stats: scannedStats, sessions: sessionCount, profile,
-      transferClass, observedGainIntervals,
+      player, stats: scannedStats, sessions: sessionCount, profile, transferClass,
     });
     if (projection.projectionStatus === 'unavailable') {
       setResult(null);
+      // The evidence is joined to the abstention for display, from this screen's
+      // own observation state and through the evidence layer's own filter.
       setRewardPreviewResult({
-        intervals: projection.observedGainIntervals,
+        intervals: buildOutcomeEvidence(observedGainIntervals),
         reasons: projection.reasons.map(r => r.detail),
       });
       setSaveConfirmed(false);

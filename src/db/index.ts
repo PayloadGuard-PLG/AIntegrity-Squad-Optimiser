@@ -56,8 +56,12 @@ export function ensureGlyphStateColumns() {
  * .sql files Metro cannot bundle.
  */
 export function ensureRunEvidenceColumns() {
-  try { expoDb.execSync('ALTER TABLE squad_plan_runs ADD COLUMN ovr_after_lo real;'); } catch {}
-  try { expoDb.execSync('ALTER TABLE squad_plan_runs ADD COLUMN ovr_after_hi real;'); } catch {}
+  try { expoDb.execSync('ALTER TABLE squad_plan_runs ADD COLUMN ovr_boost_lo real;'); } catch {}
+  try { expoDb.execSync('ALTER TABLE squad_plan_runs ADD COLUMN ovr_boost_hi real;'); } catch {}
+  // ovr_after stays NOT NULL from the original table and cannot be dropped in
+  // place. On an observed row it holds a filler, never a reading — see the note
+  // in squadPlanService.saveRun. normaliseRunOutcome returns before it can be
+  // reached for such a row, so no reader can mistake it for evidence.
   try { expoDb.execSync("ALTER TABLE squad_plan_runs ADD COLUMN gain_evidence TEXT NOT NULL DEFAULT 'legacy-unknown';"); } catch {}
 }
 

@@ -61,9 +61,25 @@ earned (Principia Prop. XXV).
   `CoachActionInput` is a **compile error**, not a convention. TypeScript accepts
   a wider object where a narrower one is expected, so merely omitting the fields
   would not have stopped it.
-- `projectCoachAction` is the routing/assembly boundary. It may see observed
-  evidence, and attaches it to the Reward/unknown abstention payload — but it
-  reaches the predictor only through an explicit field pick of pre-outcome state.
+- `projectCoachAction` is the routing boundary and takes **no** observed
+  evidence either, in or out: `CoachActionInput.observedGainIntervals` and the
+  `UnresolvedCoachProjection` payload are both gone. An abstention that carried
+  the evidence would vary with the outcome, so two runs from the same
+  pre-outcome state could differ because of something that happened afterwards.
+  Even the Reward reason text is now invariant — it used to pick between two
+  sentences depending on whether intervals had been captured.
+- `outcomeEvidence.ts` is where an outcome is allowed to matter.
+  `buildOutcomeEvidence()` retains the observations (and holds the failed-read
+  filter that production used to own); `compareObservedAgainstPrediction()`
+  tests a prediction against them by interval membership at both ends, with no
+  midpoint. An abstaining class yields `untestable`, never a pass — nothing was
+  predicted, so nothing survived a test.
+- **An observed OVR is a BOOST, not a post-OVR.** The preview displays a boost
+  range and never a resulting OVR, so `ovrBefore + boost` is a third quantity
+  nobody observed. Stored as `ovr_boost_lo/hi`. `ovr_after` is NOT NULL on the
+  original table and cannot be dropped; on an observed row it repeats
+  `ovrBefore` as an inert filler and `normaliseRunOutcome` returns before it can
+  be reached. Never write a sum there.
 - `calibrationEligible()` in `runEvidence.ts` is a **type guard**, so a
   calibration path cannot read `gainLo`/`gainHi` without first proving the row is
   admissible. `projected` and `legacy-unknown` are not calibration evidence:
