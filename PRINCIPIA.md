@@ -34,8 +34,10 @@ Corrected in this edition:
   and carries the general lesson about differential tests (now Prop. XXV).
 - **Prop. VI** — the derivation of `K` from a gain ratio is shown to be both
   arithmetically wrong and a category error, and is retired as evidence.
-- **The constants table** — `baseXpPerSession` is stated as the floor of an
-  interval, not as a confirmed point.
+- **The constants table** — `baseXpPerSession` is stated as a point retained near
+  the lower edge of an admitted interval, not as a confirmed value; and
+  `sessionBudgetDecay` is regraded a working value, being not separately
+  identified (Prop. III, Scholium).
 - **Prop. XI** — the cost of an incomplete role is given in full.
 
 Nothing in the first edition's mathematics of training required revision. What
