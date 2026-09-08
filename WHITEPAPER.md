@@ -64,7 +64,7 @@ effectiveSessions = (1 − 0.99^N) / (1 − 0.99)
 xpBudget = effectiveSessions × baseXpPerSession / selectedStats.count
 ```
 
-Each successive coaching session delivers 0.99× the previous session's XP (`sessionBudgetDecay = 0.99`, confirmed Sprint 34). Budget divided equally across all stats the coach covers.
+Each successive coaching session delivers 0.99× the previous session's XP (`sessionBudgetDecay = 0.99` — a **working value, not separately identified**; see the confound note below). Budget divided equally across all stats the coach covers.
 
 | Sessions (N) | Effective | Example: 5-stat coach |
 |---|---|---|
@@ -112,7 +112,20 @@ After further recalibration against Grant's full 5-stat Standard Defending ×40 
 Before: 145 OVR (T0). Actual game result: **173 OVR (+28)**. This data point resolved the ×N anomaly and confirmed `sessionBudgetDecay = 0.99`:
 
 - Linear model (pre-Sprint 34): `114 × 676 / 11 = 7,006 XP/stat` → projects 182 OVR. Error +9. **Wrong.**
-- Geometric model (confirmed): `68.2 × 676 / 11 = 4,191 XP/stat` → projects 172 OVR. Error −1. **Correct.**
+- Geometric model: `68.2 × 676 / 11 = 4,191 XP/stat` → projects 172 OVR. Error −1. **Better fit.**
+
+> ⚠️ **This does not separately identify δ.** identified one. It is consistent with the long-run observation, but **coach type is
+> confounded with session count** across the entire corpus: the only Extensive
+> observation (Jables ×114) is also the only high-N one, while both Standard
+> observations are low-N (Dallas ×4, Grant ×40). A linear model in which an Extensive
+> coach delivers **0.60×** the Standard per-session rate reproduces the identical
+> budget — 7006 × 0.598 = 4191 XP/stat — and therefore the identical OVR. One
+> observation cannot separate "sessions decay geometrically" from "this coach type
+> pays less per session".
+> 
+> Breaking the confound needs a **low-N Extensive** or a **high-N Standard**
+> observation. Until then the geometric form is the better-supported working model,
+> not a measured one.
 
 All 11 GK stat engine projections landed inside the game's displayed gain ranges (Sprint 35). OVR error < 1%.
 
@@ -282,7 +295,7 @@ starsGained = floor(ovrGainedSoFarInSession / 20)
 sessionMult = starDecayPerSession ^ starsGained
 ```
 
-`starDecayPerSession = 0.85`. `starOvrThreshold = 20` is confirmed. Note: the ×N anomaly (×20 and ×40 sessions producing nearly identical projected gains) was previously attributed to this star decay plateau — **that hypothesis is superseded**. The anomaly is fully explained by `sessionBudgetDecay = 0.99` (geometric session budget decay, §3.2, confirmed Sprint 34). Star decay is a within-session mechanism (OVR threshold crossings during a single run) and is orthogonal to cross-session budget decay.
+`starDecayPerSession = 0.85`. `starOvrThreshold = 20` is confirmed. Note: the ×N anomaly (×20 and ×40 sessions producing nearly identical projected gains) was previously attributed to this star decay plateau — **that hypothesis is superseded**. The anomaly is better explained by `sessionBudgetDecay = 0.99` (geometric session budget decay, §3.2 — a working value, not separately identified; see the confound note there). Star decay is a within-session mechanism (OVR threshold crossings during a single run) and is orthogonal to cross-session budget decay.
 
 In `applyDrillSessionsToStats`, `starsGained` is computed from cumulative OVR gained since the start of the call (`runningOvr - ovrBefore`) and passed into `estimateStatGainPct`. This means each stat's gain calculation accounts for the decay earned by all preceding stats and drills in the same session.
 
@@ -712,7 +725,7 @@ interface InvestmentPlan {
 | Item | Status |
 |---|---|
 | OVR formula | `Math.floor` — confirmed Sprint 32 from Grant T2→T3 clean tier upgrade. `floor(2615/15) = 174` ✓. `ceil = 175` ✗. Fixed in `qualityPctToOvr()`. |
-| Session budget decay | `sessionBudgetDecay = 0.99` confirmed Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. Jables JaseysBoi ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. 11/11 GK stat ranges confirmed Sprint 35. |
+| Session budget decay | `sessionBudgetDecay = 0.99` — ⚠️ **Working value — not separately identified.** Geometric fits the ×114 result where linear does not, but coach type is confounded with session count (that run is the only Extensive AND the only high-N one; linear at an Extensive rate of 0.60× gives the same budget and the same OVR). Needs a low-N Extensive or high-N Standard run. Adopted Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. Jables JaseysBoi ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. 11/11 GK stat ranges confirmed Sprint 35. |
 | Coach XP baseline | `baseXpPerSession = 676` — the FLOOR of an admitted **675–930** interval, not a confirmed point. Derived from Grant ×40 Standard Defending (all 5 stats within game range) at the conservative end. |
 | Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=47 — K confirmed via CV minimisation across 5 Grant ×40 observations (CV=3.2%). C₀ confirmed from Tackling/Positioning gain ratio. |
