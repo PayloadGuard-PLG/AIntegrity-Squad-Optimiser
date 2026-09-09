@@ -44,6 +44,8 @@ import { sessionDrain, SessionDrain } from '../utils/conditionEngine';
 import { DRILL_LIST } from '../database/drillDatabase';
 import { Player } from '../database/playerSchema';
 import { GameProfile, TalentTier, SurgeState, SURGE_STATE_SEASON_START } from '../types/resources';
+import type { CoachTransferClass } from './coachTransfer';
+export type { CoachTransferClass } from './coachTransfer';
 
 // ── Evidence grading ─────────────────────────────────────────────────────────
 // A consumer must be able to tell a calibrated fact from an assumption without
@@ -76,7 +78,8 @@ export interface StatDelta {
 export interface TalentPolicy {
   applied: TalentTier;
   stored: TalentTier;
-  source: 'normal-default-policy' | 'confirmed-observation';
+  storedSource: NonNullable<Player['talentSource']>;
+  source: 'stored-normal-observation' | 'normal-substitution-policy';
 }
 
 export type ResourceKind = 'coachSessions' | 'drillCycles';
@@ -160,15 +163,12 @@ export interface RecommendationResult {
  * multiplier: matched Reward Coach previews falsify the ordinary transfer
  * function, and no replacement function is calibrated yet.
  *
- * `unknown` is the third honest state: the entry predates coach classification,
- * so nothing ever observed which kind it was. It is NOT a synonym for ordinary.
- * Reward Coaches wear the Standard/Extensive label, so an unclassified history
- * row is genuinely indistinguishable from an ordinary one, and projecting it as
- * ordinary would fabricate exactly the numbers this seam refuses to fabricate
- * for a freshly scanned Reward Coach. It abstains instead.
+ * `unresolved` is the third honest state: available evidence does not establish
+ * either class. That may be a fresh OCR miss, an ambiguous scan, or legacy data
+ * with no classification provenance. It is NOT a synonym for ordinary. Reward
+ * Coaches wear the same targeting labels, so projecting an unresolved action as
+ * ordinary would fabricate exactly the numbers this seam refuses to fabricate.
  */
-export type CoachTransferClass = 'ordinary' | 'reward' | 'unknown';
-
 /**
  * One interval printed by the game's coach preview. Never a midpoint.
  *
@@ -200,8 +200,8 @@ export interface UnresolvedCoachProjection {
   projectionStatus: 'unavailable';
   action: Extract<RecommendedAction, { kind: 'coach' }>;
   /** 'reward' — classified, but its transfer function is uncalibrated.
-   *  'unknown' — never classified, so no transfer function can be selected. */
-  transferClass: 'reward' | 'unknown';
+   *  'unresolved' — evidence is insufficient, so no transfer function can be selected. */
+  transferClass: 'reward' | 'unresolved';
   /**
    * No observedGainIntervals here either. An abstention that carried the
    * evidence would vary with the outcome, so two runs from the same pre-outcome
@@ -225,9 +225,17 @@ export type CoachProjectionResult = RecommendationResult | UnresolvedCoachProjec
  * accident of `talentMultipliers` lacking an 'Unknown' key. Unknown is not
  * Normal; it is unknown, and the policy says to project it at Normal.
  */
-export function resolveTalentPolicy(player: Pick<Player, 'talent'>): TalentPolicy {
+export function resolveTalentPolicy(player: Pick<Player, 'talent' | 'talentSource'>): TalentPolicy {
   const stored = (player.talent ?? 'Unknown') as TalentTier;
-  return { applied: 'Normal', stored, source: 'normal-default-policy' };
+  const storedSource = player.talentSource ?? 'legacy-default';
+  const normalWasObserved = stored === 'Normal'
+    && (storedSource === 'card' || storedSource === 'manual');
+  return {
+    applied: 'Normal',
+    stored,
+    storedSource,
+    source: normalWasObserved ? 'stored-normal-observation' : 'normal-substitution-policy',
+  };
 }
 
 function talentReasons(policy: TalentPolicy): RecommendationReason[] {
@@ -543,8 +551,8 @@ export interface CoachActionInput {
   sessions: number;
   profile: GameProfile;
   label?: string;
-  /** Defaults to ordinary for legacy/manual entries. Scanner callers must pass it. */
-  transferClass?: CoachTransferClass;
+  /** Required: absence of classification evidence must never select a model. */
+  transferClass: CoachTransferClass;
   /**
    * Deliberately absent: there is no observed-evidence field on this input.
    *
@@ -598,15 +606,21 @@ export interface PreOutcomeCoachInput {
  * Modelling the match-form subsystem is future work, not this function's job.
  */
 export function projectCoachAction(
-  input: CoachActionInput & { transferClass?: 'ordinary' },
+  input: CoachActionInput & { transferClass: 'ordinary' },
 ): RecommendationResult;
 export function projectCoachAction(
-  input: CoachActionInput & { transferClass: 'reward' | 'unknown' },
+  input: CoachActionInput & { transferClass: 'reward' | 'unresolved' },
 ): UnresolvedCoachProjection;
 export function projectCoachAction(input: CoachActionInput): CoachProjectionResult;
 export function projectCoachAction(input: CoachActionInput): CoachProjectionResult {
   const { player, stats, sessions, profile } = input;
-  const transferClass = input.transferClass ?? 'ordinary';
+  // Runtime validation backs the required TypeScript field. Untyped/legacy
+  // callers cannot obtain the ordinary model by omitting or misspelling it.
+  const transferClass: CoachTransferClass = input.transferClass === 'ordinary'
+    || input.transferClass === 'reward'
+    || input.transferClass === 'unresolved'
+    ? input.transferClass
+    : 'unresolved';
   const action: RecommendedAction = {
     kind: 'coach',
     label: input.label ?? `Coach ×${sessions}`,
@@ -616,15 +630,15 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
   const resources: ResourceRequirement[] = [
     { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
   ];
-  if (transferClass === 'reward' || transferClass === 'unknown') {
+  if (transferClass !== 'ordinary') {
     // The abstention is a property of the CLASS, not of what was later observed.
     // It reads no evidence and its wording does not vary with any: the previous
     // version chose between two sentences depending on whether intervals had
     // been captured, which made a production result depend on an outcome.
-    const reason: RecommendationReason = transferClass === 'unknown'
+    const reason: RecommendationReason = transferClass === 'unresolved'
       ? {
-          code: 'coach.transferClassUnknown',
-          detail: 'This entry was recorded before coaches were classified, so it was never observed whether it was an ordinary Academy coach or a Reward Coach. Reward Coaches carry the same Standard/Extensive label, so the two cannot be told apart after the fact and the ordinary transfer function may not apply. Re-scan the coach to classify it.',
+          code: 'coach.transferClassUnresolved',
+          detail: 'The coach transfer class is unresolved because the available evidence does not distinguish an ordinary Academy coach from a Reward Coach. The ordinary transfer function may not apply. Re-scan the coach or select a class only from an explicit game label.',
           evidence: 'unavailable',
         }
       : {

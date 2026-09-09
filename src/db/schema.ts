@@ -8,7 +8,8 @@ export const players = sqliteTable('players', {
   overall: real('overall').notNull(),
   tier: text('tier').notNull().default('T0'),
   stats: text('stats').notNull().default('{}'),             // JSON: Record<string, number>
-  talent: text('talent').notNull().default('Normal'),
+  talent: text('talent').notNull().default('Unknown'),
+  talentSource: text('talent_source').notNull().default('legacy-default'),
   isMutantCandidate: integer('is_mutant_candidate', { mode: 'boolean' }).notNull().default(false),
   snapshot: text('snapshot'),  // JSON: PlayerSnapshot | null — pre-apply state for revert
   newRole: text('new_role'),                                       // role currently being trained (e.g. "DMC")

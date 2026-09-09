@@ -18,6 +18,7 @@ import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, TierName, GameProfile } from '../../src/types/resources';
 import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
 import { drillPlanHistoryService, type DrillPlanEntry } from '../../src/services/drillPlanHistoryService';
+import { trainingRateSourceLabel } from '../../src/logic/trainingRate';
 
 const profile = gameProfileJson as unknown as GameProfile;
 // Tier NAME only. The multiplier a projection actually used is reported by the
@@ -162,8 +163,8 @@ export default function ResultsScreen() {
         setResult(null);
         setFinalStats(null);
         setProjectionBlock(
-          projection.transferClass === 'unknown'
-            ? `${entry.label}: this entry predates coach classification, so it was never observed whether it was an ordinary or a Reward Coach. Re-scan it to classify; the full plan was not totalled.`
+          projection.transferClass === 'unresolved'
+            ? `${entry.label}: available evidence does not distinguish an ordinary Academy coach from a Reward Coach. Re-scan it or classify it from an explicit game label; the full plan was not totalled.`
             : `${entry.label}: Reward Coach transfer is unresolved. Its observed preview interval cannot be converted into stat or OVR gain, so the full plan was not totalled.`,
         );
         return;
@@ -290,7 +291,7 @@ export default function ResultsScreen() {
               </View>
             </View>
 
-            {/* Talent + 2× ad */}
+            {/* Stored observation only; projection assumptions are reported by each result. */}
             <View style={{ borderWidth: 1, borderColor: theme.hairline2, padding: 12, marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <MonoLabel style={{ width: 56 }}>TALENT</MonoLabel>
@@ -299,7 +300,9 @@ export default function ResultsScreen() {
                     {TALENT_LABEL[player.talent] ?? player.talent}
                   </Text>
                 </View>
-                <MonoLabel size={8} color={theme.inkGhost}>FROM CARD</MonoLabel>
+                <MonoLabel size={8} color={theme.inkGhost}>
+                  {trainingRateSourceLabel(player.talentSource ?? 'legacy-default')}
+                </MonoLabel>
               </View>
             </View>
 

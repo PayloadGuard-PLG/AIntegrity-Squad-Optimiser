@@ -15,6 +15,7 @@ import { PlayerScanReview } from '../../src/components/PlayerScanReview';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile } from '../../src/types/resources';
+import { ingestCardTrainingRate, type TrainingRateSource } from '../../src/logic/trainingRate';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
@@ -51,6 +52,7 @@ export default function EditPlayerScreen() {
   const [overall, setOverall] = useState('100');
   const [tier, setTier] = useState<TierName>('T0');
   const [talent, setTalent] = useState<TalentTier>('Unknown');
+  const [talentSource, setTalentSource] = useState<TrainingRateSource>('unresolved');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
@@ -87,6 +89,7 @@ export default function EditPlayerScreen() {
     setOverall(p.overall.toString());
     setTier(p.tier);
     setTalent(p.talent ?? 'Unknown');
+    setTalentSource(p.talentSource ?? 'legacy-default');
     setMutant(p.isMutantCandidate);
     setSnapshot(p.snapshot ?? null);
     if (p.stats && Object.keys(p.stats).length > 0) {
@@ -135,6 +138,13 @@ export default function EditPlayerScreen() {
       const data = await scanPlayerScreenshot(result.assets[0].uri);
       if (!data) return;
 
+      const scannedTrainingRate = ingestCardTrainingRate(
+        { talent, talentSource },
+        data.talent,
+      );
+      setTalent(scannedTrainingRate.talent);
+      setTalentSource(scannedTrainingRate.talentSource);
+
       if (data.stats && Object.keys(data.stats).length > 0) {
         const updated = { ...statInputs, ...Object.fromEntries(
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
@@ -161,6 +171,11 @@ export default function EditPlayerScreen() {
         }
         setScannedUri(null);
         setScanMsg(`${Object.keys(data.stats).length} STATS UPDATED — REVIEW AND SAVE`);
+        setScanOk(true);
+      } else if (data.talent || data.overall) {
+        if (data.overall) setOverall(data.overall.toString());
+        setScannedUri(null);
+        setScanMsg('CARD DETAILS UPDATED — NO STATS READ');
         setScanOk(true);
       } else {
         setScanRejected(true);
@@ -197,6 +212,7 @@ export default function EditPlayerScreen() {
       overall: ovrNum,
       tier,
       talent,
+      talentSource,
       stats: statsObj,
       isMutantCandidate: mutant,
       snapshot,
@@ -368,7 +384,7 @@ export default function EditPlayerScreen() {
             {TALENT_TIERS.map(t => {
               const sel = talent === t;
               return (
-                <Pressable key={t} onPress={() => setTalent(t)} style={{
+                <Pressable key={t} onPress={() => { setTalent(t); setTalentSource('manual'); }} style={{
                   flex: 1, paddingVertical: 9, alignItems: 'center',
                   borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2,
                   backgroundColor: sel ? theme.ink : 'transparent',

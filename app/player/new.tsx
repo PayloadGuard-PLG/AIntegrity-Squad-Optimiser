@@ -14,6 +14,7 @@ import { PlayerScanReview } from '../../src/components/PlayerScanReview';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile } from '../../src/types/resources';
+import type { TrainingRateSource } from '../../src/logic/trainingRate';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
@@ -51,6 +52,7 @@ export default function NewPlayerScreen() {
   const [ovrIsAuto, setOvrIsAuto] = useState(false);
   const [tier, setTier] = useState<TierName>('T0');
   const [talent, setTalent] = useState<TalentTier>('Unknown');
+  const [talentSource, setTalentSource] = useState<TrainingRateSource>('unresolved');
   const [mutant, setMutant] = useState(false);
   const [roleError, setRoleError] = useState('');
   const [statInputs, setStatInputs] = useState<Record<string, string>>({});
@@ -124,7 +126,10 @@ export default function NewPlayerScreen() {
           FT1: 'Fastest', FT2: 'Fast', FT3: 'Average', Normal: 'Normal', Slow: 'Slow',
           Fastest: 'Fastest', Fast: 'Fast', Average: 'Average',
         };
-        if (data.talent) setTalent(TALENT_MAP[data.talent] ?? 'Unknown');
+        if (data.talent) {
+          setTalent(TALENT_MAP[data.talent] ?? 'Unknown');
+          setTalentSource('card');
+        }
         setReview(data.review);
       }
 
@@ -221,6 +226,7 @@ export default function NewPlayerScreen() {
         overall: ovrNum,
         tier,
         talent,
+        talentSource,
         stats: statsObj,
         isMutantCandidate: mutant,
         newRole: newRole ?? undefined,
@@ -457,7 +463,7 @@ export default function NewPlayerScreen() {
             {TALENT_TIERS.map(t => {
               const sel = talent === t;
               return (
-                <Pressable key={t} onPress={() => setTalent(t)} style={{
+                <Pressable key={t} onPress={() => { setTalent(t); setTalentSource('manual'); }} style={{
                   flex: 1, paddingVertical: 9, alignItems: 'center',
                   borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2,
                   backgroundColor: sel ? theme.ink : 'transparent',

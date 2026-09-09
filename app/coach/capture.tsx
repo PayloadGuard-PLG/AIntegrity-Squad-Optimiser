@@ -44,8 +44,8 @@ const GK_COL = {
   PHY: ['FITNESS','STRENGTH','AGGRESSION','SPEED','CREATIVITY'],
 } as const;
 
-const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow'];
-const TALENT_LABEL: Record<TalentTier, string> = { Fastest: '×1.5', Fast: '×1.25', Average: '×1.1', Normal: '×1.0', Slow: '×0.7', Unknown: '×1.0?' };
+const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'];
+const TALENT_LABEL: Record<TalentTier, string> = { Fastest: 'FASTEST', Fast: 'FAST', Average: 'AVERAGE', Normal: 'NORMAL', Slow: 'SLOW', Unknown: 'UNKNOWN' };
 
 const COACH_TYPES = ['STANDARD', 'FOCUSED', 'EXTENSIVE'];
 const COACH_CATEGORIES = ['ATTACKING', 'DEFENDING', 'PHYSICAL', 'SAFEGUARD'];
@@ -63,7 +63,7 @@ export default function CoachCaptureScreen() {
   const [playerName, setPlayerName] = useState('');
   const [ageInput, setAgeInput] = useState('');
   const [ovrInput, setOvrInput] = useState('');
-  const [talent, setTalent] = useState<TalentTier>('Normal');
+  const [talent, setTalent] = useState<TalentTier>('Unknown');
 
   // stat values and gain ranges — keyed by stat name
   const [statValues, setStatValues] = useState<Record<string, string>>({});
@@ -188,7 +188,7 @@ export default function CoachCaptureScreen() {
     setPlayerName(p.name);
     setAgeInput(p.age.toString());
     setOvrInput(p.overall.toFixed(0));
-    setTalent(p.talent ?? 'Normal');
+    setTalent(p.talent ?? 'Unknown');
     const vals: Record<string, string> = {};
     for (const [k, v] of Object.entries(p.stats)) {
       vals[k] = Math.round(v).toString();

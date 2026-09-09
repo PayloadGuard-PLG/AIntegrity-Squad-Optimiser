@@ -23,6 +23,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ageMultiplier, coachBudgetPerStat, greyMultiplier, xpCostAtStat } from '../src/engine/engineMath';
 import { estimateStatGainPct } from '../src/logic/xpEngine';
+import { normalisePersistedCoachTransferClass } from '../src/logic/coachTransfer';
 import { sessionDrain, calculateActualLoss, chargedDrainRange, MIN_CONDITION_DRAIN_PCT } from '../src/utils/conditionEngine';
 import { DRILL_LIST } from '../src/database/drillDatabase';
 import { SURGE_STATE_SEASON_START, GameProfile, TalentTier } from '../src/types/resources';
@@ -222,10 +223,10 @@ test('the same coach scenario cannot produce conflicting projections', () => {
   // construction — and identical regardless of the talent on the record, which
   // is what previously drove them apart (+59.5 vs +42.1 for a stored Slow).
   const scenario = { stats: STATS, sessions: 40, profile };
-  const asCoachesRuns = projectCoachAction({ player: player(), ...scenario });
+  const asCoachesRuns = projectCoachAction({ transferClass: 'ordinary', player: player(), ...scenario });
 
   for (const stored of ['Fastest', 'Fast', 'Average', 'Normal', 'Slow', 'Unknown'] as TalentTier[]) {
-    const asResultsReprojects = projectCoachAction({ player: player({ talent: stored }), ...scenario });
+    const asResultsReprojects = projectCoachAction({ transferClass: 'ordinary', player: player({ talent: stored }), ...scenario });
     assert.deepEqual(asResultsReprojects.statDeltas, asCoachesRuns.statDeltas,
       `stored talent ${stored} must not change the projection`);
     assert.equal(asResultsReprojects.ovrDelta, asCoachesRuns.ovrDelta);
@@ -235,7 +236,7 @@ test('the same coach scenario cannot produce conflicting projections', () => {
 });
 
 test('the shared coach projection uses the geometric budget, not the linear one', () => {
-  const viaSeam = projectCoachAction({ player: player(), stats: STATS, sessions: 40, profile });
+  const viaSeam = projectCoachAction({ transferClass: 'ordinary', player: player(), stats: STATS, sessions: 40, profile });
   const seamGain = viaSeam.statDeltas.find(d => d.stat === 'TACKLING')!.delta;
 
   const geometric = estimateStatGainPct(coachBudgetPerStat(40, STATS), 120, 20, 0, 'Normal', true, false, 1.0, profile);
@@ -249,9 +250,9 @@ test('talent policy is resolved in exactly one place and is reported by the resu
   // multiplier it used and which one the card claims — 'Unknown' included, which
   // lands on Normal by policy rather than by a missing multiplier-table entry.
   assert.deepEqual(resolveTalentPolicy({ talent: 'Slow' }),
-    { applied: 'Normal', stored: 'Slow', source: 'normal-default-policy' });
+    { applied: 'Normal', stored: 'Slow', storedSource: 'legacy-default', source: 'normal-substitution-policy' });
   assert.deepEqual(resolveTalentPolicy({ talent: 'Unknown' }),
-    { applied: 'Normal', stored: 'Unknown', source: 'normal-default-policy' });
+    { applied: 'Normal', stored: 'Unknown', storedSource: 'legacy-default', source: 'normal-substitution-policy' });
 
   const drill = projectDrillAction({ player: player({ talent: 'Fast' }), drillNames: ['Touch Training'], cycles: 10, profile });
   assert.equal(drill.talent.applied, 'Normal');
@@ -263,7 +264,7 @@ test('the 180 base-OVR training lock survives on every action, not just projectO
   const locked = player({ stats: lockedStats, overall: 180 });
 
   for (const result of [
-    projectCoachAction({ player: locked, stats: STATS, sessions: 40, profile }),
+    projectCoachAction({ transferClass: 'ordinary', player: locked, stats: STATS, sessions: 40, profile }),
     projectDrillAction({ player: locked, drillNames: ['Touch Training'], cycles: 50, profile }),
   ]) {
     assert.equal(result.trainingLocked, true);
@@ -297,7 +298,7 @@ test('condition stays a range through the shared result and is never multiplied 
   assert.ok(result.reasons.some(r => r.code === 'condition.envelope' && r.evidence === 'observed-envelope'));
 
   // A coach action has no modelled condition mechanic. That is stated, not zeroed.
-  const coach = projectCoachAction({ player: player(), stats: STATS, sessions: 4, profile });
+  const coach = projectCoachAction({ transferClass: 'ordinary', player: player(), stats: STATS, sessions: 4, profile });
   assert.equal(coach.condition, null);
   assert.equal(coach.conditionBasis, 'not-applicable');
 });
@@ -326,7 +327,7 @@ test('unread stats are excluded and reported, never treated as zero', () => {
   assert.equal('CREATIVITY' in result.projectedStats, false);
   assert.ok(result.reasons.some(r => r.code === 'stats.unread' && r.evidence === 'unavailable'));
 
-  const coach = projectCoachAction({ player: player({ stats: partial }), stats: ['CREATIVITY'], sessions: 10, profile });
+  const coach = projectCoachAction({ transferClass: 'ordinary', player: player({ stats: partial }), stats: ['CREATIVITY'], sessions: 10, profile });
   assert.deepEqual(coach.statDeltas, []);
   assert.ok(coach.reasons.some(r => r.code === 'stats.unread'));
 });
@@ -371,7 +372,9 @@ test('Reward classification and preview intervals survive scan history into proj
   const results = readFileSync(join(__dirname, '..', 'app/(tabs)/results.tsx'), 'utf8');
   const history = readFileSync(join(__dirname, '..', 'src/services/coachHistoryService.ts'), 'utf8');
 
-  assert.match(coaches, /scan\.isRewardCoach\s*\?\s*'reward'\s*:\s*'ordinary'/);
+  assert.match(coaches, /scannedTransferClass\s*=\s*scan\.transferClass/);
+  assert.equal(/scan\.isRewardCoach\s*\?\s*'reward'\s*:\s*'ordinary'/.test(coaches), false,
+    'OCR non-detection must not become evidence of ordinary transfer');
   // CHANGED, deliberately: the projection must receive the CLASSIFICATION and
   // must NOT receive the intervals. The class is pre-outcome state — it is what
   // the coach is. The intervals are the outcome, and they now travel beside the
@@ -397,11 +400,11 @@ test('an unclassified legacy coach entry abstains instead of projecting as ordin
   // ordinary would fabricate exactly the numbers the Reward path refuses to
   // fabricate for a fresh scan.
   const legacy = projectCoachAction({
-    player: player(), stats: STATS, sessions: 40, profile, transferClass: 'unknown',
+    player: player(), stats: STATS, sessions: 40, profile, transferClass: 'unresolved',
   });
   assert.equal(legacy.projectionStatus, 'unavailable');
-  assert.equal(legacy.transferClass, 'unknown');
-  assert.ok(legacy.reasons.some(r => r.code === 'coach.transferClassUnknown'));
+  assert.equal(legacy.transferClass, 'unresolved');
+  assert.ok(legacy.reasons.some(r => r.code === 'coach.transferClassUnresolved'));
   assert.equal('projectedStats' in legacy, false,
     'unclassified must not masquerade as unchanged stats / zero gain');
   assert.equal('ovrAfterExact' in legacy, false,
@@ -412,7 +415,7 @@ test('an unclassified legacy coach entry abstains instead of projecting as ordin
   const reward = projectCoachAction({
     player: player(), stats: STATS, sessions: 40, profile, transferClass: 'reward',
   });
-  assert.equal(reward.reasons.some(r => r.code === 'coach.transferClassUnknown'), false);
+  assert.equal(reward.reasons.some(r => r.code === 'coach.transferClassUnresolved'), false);
   assert.equal(legacy.reasons.some(r => r.code === 'coach.rewardTransferUnresolved'), false);
 });
 
@@ -422,23 +425,27 @@ test('an unclassified row is identified by provenance, not by its stored class',
   // separate source column records where the class came from, and only
   // 'observed' is trusted. Without this, legacy rows silently read as ordinary.
   const db = readFileSync(join(__dirname, '..', 'src/db/index.ts'), 'utf8');
-  const history = readFileSync(join(__dirname, '..', 'src/services/coachHistoryService.ts'), 'utf8');
   assert.match(db, /transfer_class_source TEXT NOT NULL DEFAULT 'legacy-default'/,
     'existing rows must back-fill as unclassified, never as ordinary');
   assert.match(db, /ALTER TABLE coach_scan_history ADD COLUMN transfer_class_source/,
     'devices that already ran the earlier migration need the source column too');
-  assert.match(history, /transfer_class_source !== 'observed'[\s\S]{0,80}'unknown'/,
-    'the reader must downgrade any row whose class was never observed');
-  assert.match(history, /'observed'/,
-    'the writer must record that it actually determined the class');
+  assert.equal(normalisePersistedCoachTransferClass('ordinary', 'legacy-default'), 'unresolved',
+    'an ordinary fallback without observed provenance must be downgraded');
+  assert.equal(normalisePersistedCoachTransferClass('garbled', 'observed'), 'unresolved',
+    'an invalid class cannot become ordinary even when its source field is malformed');
+  assert.equal(normalisePersistedCoachTransferClass('ordinary', 'observed'), 'ordinary');
+  assert.equal(normalisePersistedCoachTransferClass('reward', 'observed'), 'reward');
 });
 
 test('an unclassified entry blocks a Results plan total rather than skipping it', () => {
   const results = readFileSync(join(__dirname, '..', 'app/(tabs)/results.tsx'), 'utf8');
-  assert.match(results, /transferClass === 'unknown'/,
+  const coaches = readFileSync(join(__dirname, '..', 'app/(tabs)/coaches.tsx'), 'utf8');
+  assert.match(results, /transferClass === 'unresolved'/,
     'Results must distinguish an unclassified entry from an unresolved Reward Coach');
   assert.match(results, /projection\.projectionStatus\s*===\s*'unavailable'/,
     'and must still refuse to total the plan');
+  assert.doesNotMatch(`${results}\n${coaches}`, /predates coach classification|before coaches were classified/i,
+    'fresh OCR ambiguity must not be relabelled as legacy history in the UI');
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -601,7 +608,7 @@ test('a run crossing a star threshold is charged the reduced rate for the remain
   // two halves with the player advanced in between: the stepped projection must
   // not exceed a flat-rate projection of the same size.
   const subject = player({ age: 18, overall: 90, stats: Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, 90])) });
-  const long = projectCoachAction({ player: subject, stats: STATS, sessions: 400, profile });
+  const long = projectCoachAction({ transferClass: 'ordinary', player: subject, stats: STATS, sessions: 400, profile });
 
   assert.ok(long.ovrDelta > 20, `the run must actually cross a threshold (got +${long.ovrDelta})`);
   assert.ok(long.reasons.some(r => r.code === 'training.starDecay'),
@@ -619,7 +626,7 @@ test('a run crossing a star threshold is charged the reduced rate for the remain
 test('a run that stays inside one star band is unaffected by the stepping', () => {
   // The correction must not perturb short runs: below the first threshold the
   // projection is still exactly the un-decayed gain.
-  const short = projectCoachAction({ player: player(), stats: STATS, sessions: 40, profile });
+  const short = projectCoachAction({ transferClass: 'ordinary', player: player(), stats: STATS, sessions: 40, profile });
   assert.ok(short.ovrDelta < 20);
   assert.equal(short.reasons.some(r => r.code === 'training.starDecay'), false);
   const expected = estimateStatGainPct(coachBudgetPerStat(40, STATS), 120, 20, 0, 'Normal', true, false, 1.0, profile);
@@ -627,7 +634,7 @@ test('a run that stays inside one star band is unaffected by the stepping', () =
 });
 
 test('fractional progress below the displayed integer is preserved across a projection', () => {
-  const result = projectCoachAction({ player: player(), stats: ['TACKLING'], sessions: 4, profile });
+  const result = projectCoachAction({ transferClass: 'ordinary', player: player(), stats: ['TACKLING'], sessions: 4, profile });
   const projected = result.projectedStats.TACKLING;
   assert.ok(projected > 120);
   // Not rounded to an integer: sub-integer progress is real internal state and a
@@ -653,10 +660,10 @@ test('the match-form doubling item cannot change permanent drill stat gain', () 
 });
 
 test('the match-form doubling item cannot change academy coach stat gain', () => {
-  const withoutBoost = projectCoachAction({ player: player(), stats: STATS, sessions: 40, profile });
-  const attempted = projectCoachAction({
+  const withoutBoost = projectCoachAction({ transferClass: 'ordinary', player: player(), stats: STATS, sessions: 40, profile });
+  // @ts-expect-error the seam must not accept a match-form boost as an input
+  const attempted = projectCoachAction({ transferClass: 'ordinary',
     player: player(), stats: STATS, sessions: 40, profile,
-    // @ts-expect-error the seam must not accept a match-form boost as an input
     twoxAd: true,
   }) as ReturnType<typeof projectDrillAction>;
   assert.deepEqual(attempted.statDeltas, withoutBoost.statDeltas);
@@ -700,7 +707,7 @@ const nearBoundary = () => {
 const midBand = () => withOverall(flatStats(150));
 
 test('a player just short of a boundary crosses it on the remaining gain, not after a fresh 20', () => {
-  const near = projectCoachAction({ player: nearBoundary(), stats: STATS, sessions: 6, profile });
+  const near = projectCoachAction({ transferClass: 'ordinary', player: nearBoundary(), stats: STATS, sessions: 6, profile });
   assert.equal(near.starBand.index, starBandIndex(159.6));
   assert.ok(Math.abs(near.starBand.ovrToNextThreshold - 0.4) < 0.01,
     `0.4 OVR to the threshold, got ${near.starBand.ovrToNextThreshold}`);
@@ -709,14 +716,14 @@ test('a player just short of a boundary crosses it on the remaining gain, not af
 
   // The remainder is genuinely charged at the harder rate: the same action on a
   // player mid-band, with the same stat values in play, gains more.
-  const mid = projectCoachAction({ player: midBand(), stats: STATS, sessions: 6, profile });
+  const mid = projectCoachAction({ transferClass: 'ordinary', player: midBand(), stats: STATS, sessions: 6, profile });
   assert.equal(mid.reasons.some(r => r.code === 'training.starDecay'), false);
   assert.ok(near.ovrDelta < mid.ovrDelta,
     `crossing run (+${near.ovrDelta}) must gain less than the non-crossing run (+${mid.ovrDelta})`);
 });
 
 test('a player safely inside a band receives no star decay', () => {
-  const mid = projectCoachAction({ player: midBand(), stats: STATS, sessions: 6, profile });
+  const mid = projectCoachAction({ transferClass: 'ordinary', player: midBand(), stats: STATS, sessions: 6, profile });
   assert.equal(mid.starBand.ovrToNextThreshold, 10);
   assert.equal(mid.reasons.some(r => r.code === 'training.starDecay'), false);
   // and matches the plain un-decayed gain exactly
@@ -732,7 +739,7 @@ test('tier-inflated stats keep their full value as the XP cost input', () => {
   // At a realistic session count the 400 stat projects nothing at all, while the
   // low stats on the SAME player still move — the observed pattern on a heavily
   // tiered card.
-  const modest = projectCoachAction({ player: tiered, stats: STATS, sessions: 4, profile });
+  const modest = projectCoachAction({ transferClass: 'ordinary', player: tiered, stats: STATS, sessions: 4, profile });
   assert.equal(modest.statDeltas.some(d => d.stat === 'TACKLING'), false,
     'a 400 stat must project +0 at a normal session count');
   assert.ok(modest.statDeltas.find(d => d.stat === 'MARKING')!.delta > 0,
@@ -740,7 +747,7 @@ test('tier-inflated stats keep their full value as the XP cost input', () => {
 
   // The value itself is never rebased: the cost curve is indexed on 400, not on
   // 400 minus the tier addition.
-  const heavy = projectCoachAction({ player: tiered, stats: ['TACKLING', 'MARKING'], sessions: 40, profile });
+  const heavy = projectCoachAction({ transferClass: 'ordinary', player: tiered, stats: ['TACKLING', 'MARKING'], sessions: 40, profile });
   const at400 = heavy.statDeltas.find(d => d.stat === 'TACKLING')?.delta ?? 0;
   const at120 = heavy.statDeltas.find(d => d.stat === 'MARKING')!.delta;
   assert.ok(at400 < at120 / 20, `the 400 stat (+${at400}) must gain far less than the 120 stat (+${at120})`);
@@ -757,8 +764,8 @@ test('equal star position with different tier-added stats: same boundary, differ
   for (const k of whites) bumped[k] += 50;                       // T3 additions
   const tiered = withOverall(bumped, { tier: 'T3' });
 
-  const a = projectCoachAction({ player: plain, stats: STATS, sessions: 40, profile });
-  const b = projectCoachAction({ player: tiered, stats: STATS, sessions: 40, profile });
+  const a = projectCoachAction({ transferClass: 'ordinary', player: plain, stats: STATS, sessions: 40, profile });
+  const b = projectCoachAction({ transferClass: 'ordinary', player: tiered, stats: STATS, sessions: 40, profile });
 
   // Same underlying band: the tier contribution is removed from OVR before the
   // band is read, so tier does not buy or cost star progress.
@@ -775,7 +782,7 @@ test('equal star position with different tier-added stats: same boundary, differ
 });
 
 test('projected stat progress stays fractional', () => {
-  const result = projectCoachAction({ player: midBand(), stats: ['TACKLING'], sessions: 4, profile });
+  const result = projectCoachAction({ transferClass: 'ordinary', player: midBand(), stats: ['TACKLING'], sessions: 4, profile });
   const value = result.projectedStats.TACKLING;
   assert.ok(value > 150);
   assert.equal(Number.isInteger(value), false, 'sub-integer progress must survive the projection');
@@ -784,7 +791,7 @@ test('projected stat progress stays fractional', () => {
 test('an unobserved starting fraction is reported as a lower bound, never as a known zero', () => {
   // Card-scanned integers: the hidden fraction is unknown, so the distance to the
   // next threshold is an upper bound and the projection says so.
-  const scanned = projectCoachAction({ player: midBand(), stats: STATS, sessions: 4, profile });
+  const scanned = projectCoachAction({ transferClass: 'ordinary', player: midBand(), stats: STATS, sessions: 4, profile });
   assert.equal(scanned.starBand.positionEvidence, 'lower-bound');
   const flag = scanned.reasons.find(r => r.code === 'training.hiddenProgress');
   assert.ok(flag, 'the unobserved fraction must be surfaced');
@@ -800,7 +807,7 @@ test('a model-generated fraction does NOT upgrade the evidence to exact', () => 
   // position is (s + ε) + g against our estimate s + g: the error is still ε.
   // Adding a known gain to an unknown baseline cannot reduce the uncertainty.
   const advanced = withOverall({ ...flatStats(150), TACKLING: 150.4 });
-  const known = projectCoachAction({ player: advanced, stats: STATS, sessions: 4, profile });
+  const known = projectCoachAction({ transferClass: 'ordinary', player: advanced, stats: STATS, sessions: 4, profile });
   assert.equal(known.starBand.positionEvidence, 'lower-bound',
     'a decimal proves only that our model produced it, never that the position is known');
   assert.ok(known.reasons.some(r => r.code === 'training.hiddenProgress'),
@@ -813,7 +820,7 @@ test('an incomplete stat set abstains: padding cannot locate a star threshold', 
   // invented values is not a bound in either direction — the real player may sit
   // on either side of the threshold — so the position abstains outright.
   const partial = player({ stats: { TACKLING: 150, MARKING: 150, POSITIONING: 150 }, overall: 150 });
-  const r = projectCoachAction({ player: partial, stats: STATS, sessions: 4, profile });
+  const r = projectCoachAction({ transferClass: 'ordinary', player: partial, stats: STATS, sessions: 4, profile });
   assert.equal(r.starBand.positionEvidence, 'unknown');
   const flag = r.reasons.find(r2 => r2.code === 'training.paddedPosition');
   assert.ok(flag, 'padding-derived positions must say so');
@@ -828,7 +835,7 @@ test('the star-decay reason is graded assumed, matching engineConstants', () => 
   // with empirical confirmation PENDING. Observing that training gets harder past
   // a star establishes the sign of the effect, not the numerical factor, so the
   // reason may not claim 'calibrated'.
-  const near = projectCoachAction({ player: nearBoundary(), stats: STATS, sessions: 6, profile });
+  const near = projectCoachAction({ transferClass: 'ordinary', player: nearBoundary(), stats: STATS, sessions: 6, profile });
   const decay = near.reasons.find(r => r.code === 'training.starDecay');
   assert.ok(decay, 'crossing a threshold must be reported');
   assert.equal(decay!.evidence, 'assumed');
@@ -888,7 +895,7 @@ test('a fractional tier contribution must not be floored into the band position'
     const stats = Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, target]));
     const subject = player({ stats, tier: 'T3', role: ['DC', 'DMC'], overall: Math.floor(target) });
 
-    const result = projectCoachAction({ player: subject, stats: STATS, sessions: 1, profile });
+    const result = projectCoachAction({ transferClass: 'ordinary', player: subject, stats: STATS, sessions: 1, profile });
     assert.equal(result.starBand.index, expectedBand,
       `base ${genuineBase} sits in band ${expectedBand}, not ${result.starBand.index}`);
     // The distance must be exact, not off by the floor residue.
@@ -899,7 +906,7 @@ test('a fractional tier contribution must not be floored into the band position'
 
   // The untiered control lands identically — tier changes cost, never position.
   const plainStats = Object.fromEntries(Object.keys(OUTFIELD).map(k => [k, 159.8]));
-  const plain = projectCoachAction({
+  const plain = projectCoachAction({ transferClass: 'ordinary',
     player: player({ stats: plainStats, tier: 'T0', role: ['DC', 'DMC'], overall: 159 }),
     stats: STATS, sessions: 1, profile,
   });

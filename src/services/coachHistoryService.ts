@@ -1,5 +1,6 @@
 import { expoDb } from '../db';
 import type { CoachPreviewInterval, CoachTransferClass } from '../logic/recommendation';
+import { normalisePersistedCoachTransferClass } from '../logic/coachTransfer';
 
 export type CoachHistoryEntry = {
   id: string;
@@ -18,7 +19,7 @@ export type CoachHistoryEntry = {
 function buildLabel(e: Omit<CoachHistoryEntry, 'id' | 'label'>): string {
   const parts: string[] = [];
   if (e.transferClass === 'reward') parts.push('REWARD');
-  if (e.transferClass === 'unknown') parts.push('UNCLASSIFIED');
+  if (e.transferClass === 'unresolved') parts.push('UNCLASSIFIED');
   if (e.coachType) parts.push(e.coachType.toUpperCase());
   if (e.coachCategory) parts.push(e.coachCategory.toUpperCase());
   parts.push(`×${e.sessions}`);
@@ -41,7 +42,7 @@ export const coachHistoryService = {
          JSON.stringify(entry.observedGainIntervals),
          // Written by the current writer, so the class was actually determined.
          // An entry saved while still unclassified stays unclassified.
-         entry.transferClass === 'unknown' ? 'legacy-default' : 'observed',
+         entry.transferClass === 'unresolved' ? 'legacy-default' : 'observed',
          entry.isManual ? 1 : 0, label]
       );
     } catch {}
@@ -66,9 +67,10 @@ export const coachHistoryService = {
         // by an earlier migration, so the stored value cannot be believed on its
         // own; without 'observed' provenance the row reads as unknown and the
         // projection abstains rather than inventing an ordinary transfer.
-        transferClass: r.transfer_class_source !== 'observed'
-          ? 'unknown'
-          : (r.transfer_class === 'reward' ? 'reward' : 'ordinary'),
+        transferClass: normalisePersistedCoachTransferClass(
+          r.transfer_class,
+          r.transfer_class_source,
+        ),
         observedGainIntervals: JSON.parse(String(r.preview_intervals ?? '[]')) as CoachPreviewInterval[],
         isManual: r.is_manual === 1,
         label: String(r.label ?? ''),
