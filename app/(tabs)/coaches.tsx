@@ -376,7 +376,10 @@ export default function CoachesScreen() {
 
   function saveRun() {
     if (!player || !result) return;
+    // Engine output, declared as such. The write contract then forbids this
+    // call from carrying an observed boost at all.
     squadPlanService.saveRun(player.id, {
+      kind: 'projected',
       sessions: parseInt(sessions, 10) || 0,
       selectedStats: scannedStats,
       ovrBefore: result.ovrBefore,

@@ -24,7 +24,7 @@ import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  observedStatGain, normaliseStatGain, normaliseRunOutcome, runEvidenceKind,
+  observedStatGain, normaliseStatGain, normaliseRunOutcome,
   formatGain, formatOvrDelta, EVIDENCE_LABEL,
   type StatGain, type ObservedStatGain,
 } from '../src/logic/runEvidence';
@@ -64,7 +64,7 @@ test('no midpoint appears anywhere in a serialised observed run', () => {
   // it is called.
   const gains: StatGain[] = [DALLAS_A, DALLAS_B,
     observedStatGain('MARKING', 139, 11, 16, true)!];
-  const serialised = JSON.stringify({ gains, evidence: runEvidenceKind(gains) });
+  const serialised = JSON.stringify({ gains });
   const values = JSON.parse(serialised).gains.flatMap(
     (g: Record<string, unknown>) => Object.values(g));
 
@@ -158,12 +158,21 @@ test('a genuinely projected row keeps its grade', () => {
   assert.equal(normaliseRunOutcome({ gainEvidence: 'projected', ovrAfter: 173.4 }).kind, 'projected');
 });
 
-test('a run is graded by its weakest part', () => {
-  const projected: StatGain = { kind: 'projected', stat: 'A', from: 1, gain: 2, isWhite: true };
-  const legacy: StatGain = { kind: 'legacy-unknown', stat: 'C', from: 1, unattributableGain: 2, isWhite: true };
-  assert.equal(runEvidenceKind([projected]), 'projected');
-  assert.equal(runEvidenceKind([projected, DALLAS_A]), 'observed-interval');
-  assert.equal(runEvidenceKind([projected, DALLAS_A, legacy]), 'legacy-unknown');
+test('no helper derives a run grade from its gains', () => {
+  // This replaces 'a run is graded by its weakest part', which tested
+  // runEvidenceKind. That function's only production caller inferred the WRITE
+  // grade from the gain array, which the discriminated SaveRunInput now
+  // forbids — the caller declares provenance and that declaration constrains
+  // the gain type simultaneously. The function is gone; this fails if it or an
+  // equivalent returns.
+  const src = readCode('src/logic/runEvidence.ts');
+  assert.equal(/export function runEvidenceKind/.test(src), false,
+    'runEvidenceKind must not return');
+  const service = readCode('src/services/squadPlanService.ts');
+  assert.equal(/runEvidenceKind/.test(service), false,
+    'the service must not infer a write grade from the gains');
+  assert.match(service, /const gainEvidence: EvidenceKind = data\.kind;/,
+    'the grade must come from the declared kind');
 });
 
 // ---------------------------------------------------------------------------
@@ -238,36 +247,45 @@ test('stored runs default to unattributable, and the guard that does it exists',
     'the guard must actually run at startup');
 });
 
-test('the ovr_after filler on an observed row is never a laundered sum', () => {
-  // B1-M3 survived the first mutation round: nothing pinned what goes into the
-  // NOT NULL ovr_after column on an OBSERVED row. Writing `ovrBefore + boost`
-  // there recreates the laundered post-OVR one layer lower, where the grade
-  // hides it from readers but a raw SQL consumer would still find it.
+test('the ovr_after filler is generated only inside the persistence layer', () => {
+  // The filler exists because ovr_after is NOT NULL on the original table. It
+  // must be MANUFACTURED in saveRun, not accepted from a caller, and it must
+  // never be a sum — writing `ovrBefore + boost` there would recreate the
+  // laundered post-OVR one layer below the grade, where the graded readers
+  // cannot see it but raw SQL would.
   const src = readCode('src/services/squadPlanService.ts');
-  // Scoped to the WRITE path — fromRow also has an `ovrAfter:` line, and it is
-  // the value going into the column that this contract is about.
   const saveRun = src.slice(src.indexOf('saveRun(playerId'), src.indexOf('getRunsForPlayer'));
-  const line = saveRun.split('\n').find(l => /^\s*ovrAfter:/.test(l))!;
-  assert.ok(line, 'saveRun must set ovr_after explicitly');
-  assert.equal(/ovrBoost/.test(line), false,
-    'the ovr_after filler must not be derived from the observed boost');
-  assert.equal(/\+/.test(line), false,
-    'the ovr_after filler must not be a sum of anything');
-  assert.match(line, /data\.ovrAfter \?\? data\.ovrBefore,/,
-    'an observed row repeats ovrBefore as an inert filler, nothing more');
+
+  assert.match(saveRun, /const ovrAfter = data\.kind === 'projected' \? data\.ovrAfter : data\.ovrBefore;/,
+    'the filler must be derived from the declared kind inside saveRun');
+  const derivation = saveRun.split('\n').find(l => l.includes('const ovrAfter ='))!;
+  assert.equal(/\+/.test(derivation), false, 'the filler must not be a sum');
+  assert.equal(/ovrBoost/.test(derivation), false,
+    'the filler must not be derived from the observed boost');
+
+  // And the observed variant of the write type must offer no ovrAfter at all,
+  // so there is no API through which a caller could supply one. The compile-fail
+  // probe in tests/outcome-boundary-test.ts proves the compiler enforces it.
+  assert.match(src, /kind: 'observed-interval';[\s\S]{0,600}ovrAfter\?: never;/,
+    'an observed caller must have no ovrAfter field');
 });
 
 test('the service grades every row it writes and reads', () => {
   const src = read('src/services/squadPlanService.ts');
-  assert.match(src, /gainEvidence: evidence/, 'saveRun must record the grade');
+  assert.match(src, /gainEvidence,/, 'saveRun must record the grade');
   assert.match(src, /normaliseStatGain/, 'every stored gain must be read through the normaliser');
   assert.match(src, /normaliseRunOutcome/, 'the outcome must be read through the normaliser');
   // The real guarantee is the exported shape: SquadPlanRun carries `outcome`
   // and no bare `ovrAfter`, so a consumer cannot read a quality figure without
   // first meeting its grade. tsc enforces it — squad-plan.tsx failed to compile
   // against the old field until it was rewritten to read the outcome.
-  const iface = src.slice(src.indexOf('export interface SquadPlanRun'),
-                          src.indexOf('export interface SaveRunInput'));
+  // Bounded by the next declaration. SaveRunInput became a `type` when the
+  // write contract was discriminated, so an `export interface SaveRunInput`
+  // anchor silently returns -1 and slices to end-of-file.
+  const start = src.indexOf('export interface SquadPlanRun');
+  const end = src.indexOf('interface SaveRunCommon');
+  assert.ok(start >= 0 && end > start, 'both slice anchors must exist');
+  const iface = src.slice(start, end);
   assert.match(iface, /outcome: RunOutcome;/,
     'a run must expose its graded outcome');
   assert.equal(/^\s*ovrAfter\??:/m.test(iface), false,

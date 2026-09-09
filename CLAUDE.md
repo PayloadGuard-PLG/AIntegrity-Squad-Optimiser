@@ -80,6 +80,16 @@ earned (Principia Prop. XXV).
   original table and cannot be dropped; on an observed row it repeats
   `ovrBefore` as an inert filler and `normaliseRunOutcome` returns before it can
   be reached. Never write a sum there.
+- **The write contract is discriminated.** `SaveRunInput` is a union keyed on
+  `kind`, and declaring the kind constrains the gain type and the quality fields
+  at the same moment. An observed caller has no `ovrAfter` field to supply; a
+  projected caller has no `ovrBoostLo/Hi`; the boost bounds are a pair, so half
+  an interval will not compile; kinds cannot be mixed in one run; and
+  `legacy-unknown` is a READ state that cannot be newly written. `saveRun` takes
+  the grade from `data.kind` — **never** re-derive it from the gains, which is
+  why `runEvidenceKind` was deleted rather than left lying around. The NOT NULL
+  `ovr_after` filler is manufactured inside `saveRun` (it repeats `ovrBefore`;
+  never a sum) where no caller can reach it.
 - `calibrationEligible()` in `runEvidence.ts` is a **type guard**, so a
   calibration path cannot read `gainLo`/`gainHi` without first proving the row is
   admissible. `projected` and `legacy-unknown` are not calibration evidence:

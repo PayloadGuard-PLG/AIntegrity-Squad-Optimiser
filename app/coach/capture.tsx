@@ -259,16 +259,25 @@ export default function CoachCaptureScreen() {
     // produces a third quantity nobody observed while labelling it observed.
     const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;
 
-    squadPlanService.saveRun(player.id, {
+    // Observed evidence, declared as such. The write contract then gives this
+    // call no field in which to put a post-action OVR — the boost is stored as
+    // itself, and the NOT NULL filler is the persistence layer's business.
+    //
+    // The two shapes are built explicitly rather than by conditional spread: the
+    // bounds are a PAIR in the type, and a spread of `{}` cannot narrow to
+    // "neither supplied".
+    const common = {
+      kind: 'observed-interval',
       sessions: parseInt(multiplier, 10) || 30,
       selectedStats: gainEntries.map(g => g.stat),
       ovrBefore,
-      ...(bothOvrBounds
-        ? { ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi! }
-        : {}),
       gains: gainEntries,
       label: `${coachType} ${coachCategory}`,
-    });
+    } as const;
+
+    squadPlanService.saveRun(player.id, bothOvrBounds
+      ? { ...common, ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi! }
+      : common);
     setSaved(true);
   }
 

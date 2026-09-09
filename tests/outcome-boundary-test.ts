@@ -233,6 +233,142 @@ test('the ordinary prediction body never mentions an observed quantity', () => {
 });
 
 // ---------------------------------------------------------------------------
+// 1b. the write contract: provenance is declared, not inferred
+// ---------------------------------------------------------------------------
+
+/**
+ * Compiles a snippet against the real source tree and returns tsc's output.
+ *
+ * A contract of the form "this state is not representable" cannot be checked at
+ * runtime — the whole point is that no value of that shape exists to test. The
+ * only honest check is that the compiler rejects it, so these probes assert on
+ * a FAILED compile and would fail if the code started compiling.
+ */
+function compileProbe(body: (svc: string, ev: string) => string): string {
+  const dir = mkdtempSync(join(tmpdir(), 'writecontract-'));
+  const probe = join(dir, 'probe.ts');
+  const svc = JSON.stringify(join(__dirname, '..', 'src', 'services', 'squadPlanService'));
+  const ev = JSON.stringify(join(__dirname, '..', 'src', 'logic', 'runEvidence'));
+  writeFileSync(probe, body(svc, ev));
+  try {
+    execFileSync('npx', ['tsc', '--noEmit', '--strict', '--skipLibCheck',
+      '--resolveJsonModule', '--target', 'es2020', '--moduleResolution', 'node',
+      '--jsx', 'react-jsx', probe],
+      { cwd: join(__dirname, '..'), encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return '';
+  } catch (e: unknown) {
+    return String((e as { stdout?: string }).stdout ?? '');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+const probeErrors = (out: string) => out.split('\n').filter(l => l.includes('probe.ts'));
+
+const COMMON = `sessions: 4, selectedStats: ['MARKING'], ovrBefore: 185,`;
+const OBSERVED_GAIN = `{ kind: 'observed-interval' as const, stat: 'MARKING', from: 139, gainLo: 11, gainHi: 16, isWhite: true }`;
+const PROJECTED_GAIN = `{ kind: 'projected' as const, stat: 'MARKING', from: 139, gain: 13.2, isWhite: true }`;
+
+test('observed gains + ovrAfter cannot compile', () => {
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+export const bad: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON}
+  gains: [${OBSERVED_GAIN}],
+  ovrAfter: 187,
+};
+`);
+  assert.ok(probeErrors(out).length > 0,
+    'an observed run must have no API by which to supply a post-action OVR');
+});
+
+test('projected gains + observed boost bounds cannot compile', () => {
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+export const bad: SaveRunInput = {
+  kind: 'projected', ${COMMON}
+  gains: [${PROJECTED_GAIN}],
+  ovrAfter: 187,
+  ovrBoostLo: 2, ovrBoostHi: 6,
+};
+`);
+  assert.ok(probeErrors(out).length > 0,
+    'a projection observed nothing and must not be able to claim a boost');
+});
+
+test('projected and observed gains cannot be mixed in one newly-written run', () => {
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+export const mixedAsObserved: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON}
+  gains: [${OBSERVED_GAIN}, ${PROJECTED_GAIN}],
+};
+export const mixedAsProjected: SaveRunInput = {
+  kind: 'projected', ${COMMON}
+  gains: [${PROJECTED_GAIN}, ${OBSERVED_GAIN}],
+  ovrAfter: 187,
+};
+`);
+  // One rejection per declaration: a run has ONE provenance, so an array of two
+  // kinds cannot satisfy either branch.
+  assert.equal(probeErrors(out).length >= 2, true,
+    `both mixed-kind runs must be rejected; got:\n${out}`);
+});
+
+test('legacy-unknown cannot be newly written', () => {
+  const out = compileProbe((svc, ev) => `
+import type { SaveRunInput } from ${svc};
+import type { LegacyStatGain } from ${ev};
+const legacy: LegacyStatGain = { kind: 'legacy-unknown', stat: 'MARKING', from: 139, unattributableGain: 13.5, isWhite: true };
+export const asKind: SaveRunInput = {
+  kind: 'legacy-unknown', ${COMMON} gains: [legacy], ovrAfter: 187,
+} as SaveRunInput;
+export const asGains: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON} gains: [legacy],
+};
+`);
+  // legacy-unknown is a READ state, and BOTH routes to writing one must be
+  // closed: the discriminant and the gain type. Asserting merely "some error"
+  // would pass while one route reopened — widening `gains` to StatGain[] leaves
+  // the discriminant rejection in place and would have slipped through.
+  assert.equal(probeErrors(out).length, 2,
+    `both the legacy discriminant and legacy gains must be rejected; got:\n${out}`);
+});
+
+test('a half-supplied observed boost cannot compile', () => {
+  // Half an interval is not an interval. The pairing is in the type, not left
+  // to a runtime check the next caller might forget.
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+export const bad: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON}
+  gains: [${OBSERVED_GAIN}],
+  ovrBoostLo: 2,
+};
+`);
+  assert.ok(probeErrors(out).length > 0,
+    'an observed boost must be supplied as both bounds or neither');
+});
+
+test('the two legitimate write shapes DO compile', () => {
+  // The converse. Without this the contracts above could be satisfied by a type
+  // that rejects everything, which would be useless rather than strict.
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+export const projected: SaveRunInput = {
+  kind: 'projected', ${COMMON} gains: [${PROJECTED_GAIN}], ovrAfter: 187,
+};
+export const observedWithBoost: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON} gains: [${OBSERVED_GAIN}], ovrBoostLo: 2, ovrBoostHi: 6,
+};
+export const observedWithout: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON} gains: [${OBSERVED_GAIN}],
+};
+`);
+  assert.deepEqual(probeErrors(out), [],
+    `the legitimate shapes must compile; got:\n${out}`);
+});
+
+// ---------------------------------------------------------------------------
 // 2. only observed evidence may calibrate
 // ---------------------------------------------------------------------------
 

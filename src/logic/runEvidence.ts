@@ -158,12 +158,19 @@ export function observedStatGain(
   return { kind: 'observed-interval', stat, from, gainLo, gainHi, isWhite };
 }
 
-/** The evidence grade a whole run carries: the weakest of its parts. */
-export function runEvidenceKind(gains: StatGain[]): EvidenceKind {
-  if (gains.some(g => g.kind === 'legacy-unknown')) return 'legacy-unknown';
-  if (gains.some(g => g.kind === 'observed-interval')) return 'observed-interval';
-  return 'projected';
-}
+/*
+ * runEvidenceKind (removed) — it graded a whole run by inspecting its gains,
+ * and its only caller was squadPlanService.saveRun, which used it to INFER the
+ * write grade from the array. That inference is exactly what the discriminated
+ * SaveRunInput now forbids: provenance is declared by the caller and constrains
+ * the gain type at the same moment, so an array and a grade can no longer
+ * disagree. Reading back is unaffected — a stored row reports the grade in its
+ * own gain_evidence column.
+ *
+ * Do not reintroduce it. A helper that derives a grade from gains is an
+ * invitation to re-derive the write grade after the caller has crossed the
+ * boundary, which is the defect this replaced.
+ */
 
 export interface GainDisplay {
   /** What to show. An interval renders as an interval. */

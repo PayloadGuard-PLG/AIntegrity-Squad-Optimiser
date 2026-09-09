@@ -4,8 +4,8 @@ import { eq, desc } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
 import { TierName } from '../types/resources';
 import {
-  StatGain, RunOutcome, EvidenceKind,
-  normaliseStatGain, normaliseRunOutcome, runEvidenceKind,
+  StatGain, RunOutcome, EvidenceKind, ProjectedStatGain, ObservedStatGain,
+  normaliseStatGain, normaliseRunOutcome,
 } from '../logic/runEvidence';
 
 export type { StatGain, RunOutcome, EvidenceKind };
@@ -28,23 +28,60 @@ export interface SquadPlanRun {
   createdAt: number;
 }
 
-export interface SaveRunInput {
+/** Fields every newly-written run carries, whatever its provenance. */
+interface SaveRunCommon {
   sessions: number;
   selectedStats: string[];
   ovrBefore: number;
-  /** Present for a projected run; absent when the run recorded an observation. */
-  ovrAfter?: number;
-  /**
-   * The preview's own displayed OVR BOOST range. Both bounds or neither, never a
-   * midpoint, and never added to anything: a boost is what the game showed, and
-   * `ovrBefore + boost` is a quantity it did not.
-   */
-  ovrBoostLo?: number;
-  ovrBoostHi?: number;
-  gains: StatGain[];
   tier?: TierName | null;
   label?: string | null;
 }
+
+/**
+ * The write contract, discriminated by provenance.
+ *
+ * The grade is no longer INFERRED from the gains after the caller has crossed
+ * this boundary — it is declared, and declaring it constrains the gain type and
+ * the quality fields simultaneously. Previously `gains: StatGain[]` sat beside
+ * optional `ovrAfter` and `ovrBoostLo/Hi` in one object and saveRun read the
+ * grade back off the array, so a caller could pass observed gains with a
+ * computed `ovrAfter`, or mix kinds in one array, and the type system had no
+ * opinion. The two live callers happened to behave; the shapes were still
+ * representable, and a representable wrong state is a defect waiting for a
+ * third caller.
+ *
+ * `legacy-unknown` is deliberately absent. It is a READ state — what a row
+ * written before the grades existed reports itself as — and nothing may newly
+ * assume it.
+ */
+export type SaveRunInput =
+  | (SaveRunCommon & {
+      kind: 'projected';
+      /** Engine output: one number per stat, because the model produced one. */
+      gains: ProjectedStatGain[];
+      /** The model computed a whole resulting stat set, so a post-OVR exists. */
+      ovrAfter: number;
+      /** A projection observed nothing. There is no API here to claim it did. */
+      ovrBoostLo?: never;
+      ovrBoostHi?: never;
+    })
+  | (SaveRunCommon & {
+      kind: 'observed-interval';
+      /** Game-displayed +lo-hi, both bounds, no midpoint. */
+      gains: ObservedStatGain[];
+      /**
+       * No post-action OVR exists to supply. The preview displays a boost and
+       * never a result, so an observed caller has no API by which to provide
+       * one — and the NOT NULL compatibility filler is derived inside saveRun,
+       * where a caller cannot reach it.
+       */
+      ovrAfter?: never;
+    } & (
+      // Both bounds or neither: half an interval is not an interval, and the
+      // pairing is enforced here rather than left to a runtime check.
+      | { ovrBoostLo: number; ovrBoostHi: number }
+      | { ovrBoostLo?: never; ovrBoostHi?: never }
+    ));
 
 type RunRow = typeof squadPlanRuns.$inferSelect;
 
@@ -79,7 +116,20 @@ function fromRow(row: RunRow): SquadPlanRun {
 export const squadPlanService = {
   saveRun(playerId: string, data: SaveRunInput): string {
     const id = nanoid();
-    const evidence = runEvidenceKind(data.gains);
+    // The grade comes from the caller's declared kind, never from inspecting
+    // the gains. Inferring it here would let the array and the quality fields
+    // disagree, which is the state the discriminated input exists to forbid.
+    const gainEvidence: EvidenceKind = data.kind;
+
+    // ovr_after is NOT NULL on the original table and cannot be dropped in
+    // place, so an observed row must still put SOMETHING in it. That filler is
+    // MANUFACTURED HERE, inside the persistence layer, and is not a value any
+    // caller can supply: it repeats ovrBefore, deliberately not
+    // `ovrBefore + boost`, which would be the laundered post-OVR this design
+    // refuses. normaliseRunOutcome returns on the observed branch before this
+    // column can be reached, so no graded reader can mistake it for a reading.
+    const ovrAfter = data.kind === 'projected' ? data.ovrAfter : data.ovrBefore;
+
     db.insert(squadPlanRuns).values({
       id,
       playerId,
@@ -87,17 +137,10 @@ export const squadPlanService = {
       sessions: data.sessions,
       selectedStats: JSON.stringify(data.selectedStats),
       ovrBefore: data.ovrBefore,
-      // ovr_after is NOT NULL on the original table and cannot be dropped in
-      // place, so an observed row must still put SOMETHING here. It repeats
-      // ovrBefore as an inert filler — deliberately not `ovrBefore + boost`,
-      // which would be the laundered post-OVR this design exists to refuse.
-      // normaliseRunOutcome returns on the observed branch before reaching this
-      // column, so no graded reader can treat the filler as a reading.
-      ovrAfter: data.ovrAfter ?? data.ovrBefore,
-      // The observed quantity, stored as itself.
-      ovrBoostLo: data.ovrBoostLo ?? null,
-      ovrBoostHi: data.ovrBoostHi ?? null,
-      gainEvidence: evidence,
+      ovrAfter,
+      ovrBoostLo: data.kind === 'observed-interval' ? data.ovrBoostLo ?? null : null,
+      ovrBoostHi: data.kind === 'observed-interval' ? data.ovrBoostHi ?? null : null,
+      gainEvidence,
       gains: JSON.stringify(data.gains),
       tier: data.tier ?? null,
       createdAt: Date.now(),
