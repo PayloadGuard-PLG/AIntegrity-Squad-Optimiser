@@ -93,6 +93,13 @@ earned (Principia Prop. XXV).
   it produced a row graded observed that held nothing observed. The capture
   screen destructures rather than length-checks, so the type follows the guard —
   a cast there would assert the invariant instead of satisfying it.
+- **An OVR boost is an interval and gets the same validity as a stat gain.**
+  Both ends finite, `hi >= lo`, degenerate `0–0` retained. An inverted pair such
+  as `+8–6` is a FAILED read — the scanner does not guarantee ordering — so it is
+  omitted, never reordered: swapping the ends would manufacture an observation
+  out of a misread. Alone it rejects the run; alongside real stat intervals the
+  run saves without it. The check lives in `decideObservedRun`, the shared
+  boundary, so both interval kinds are held to one standard.
 - **Both observed forms must be REACHABLE, not just representable.**
   `decideObservedRun()` and `buildObservedSaveRun()` in `runEvidence.ts` own the
   capture routing, and the screen has exactly one `saveRun` call. A shape the

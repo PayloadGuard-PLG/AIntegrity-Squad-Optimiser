@@ -31,7 +31,7 @@ import {
 } from '../src/logic/outcomeEvidence';
 import {
   calibrationEligible, calibrationEvidence, decideObservedRun, buildObservedSaveRun,
-  type StatGain, type ObservedStatGain,
+  observedStatGain, type StatGain, type ObservedStatGain,
 } from '../src/logic/runEvidence';
 import type { Player } from '../src/database/playerSchema';
 import type { GameProfile } from '../src/types/resources';
@@ -426,6 +426,66 @@ test('zero stat gains + half a boost is rejected', () => {
   assert.equal(decideObservedRun([], null, 6).outcome, 'reject');
   assert.equal(decideObservedRun([], 2, NaN).outcome, 'reject');
   assert.equal(decideObservedRun([], NaN, 6).outcome, 'reject');
+});
+
+test('zero stat gains + an inverted OVR pair is rejected', () => {
+  // +8–6 is a failed read. The scanner does not guarantee ordering, so an
+  // inverted pair says the read went wrong — it cannot stand as the sole
+  // evidence of a run.
+  assert.equal(decideObservedRun([], 8, 6).outcome, 'reject');
+  assert.equal(decideObservedRun([], 1, 0).outcome, 'reject');
+  assert.equal(decideObservedRun([], -1, -2).outcome, 'reject');
+});
+
+test('an inverted OVR pair is omitted, never reordered', () => {
+  // With real stat intervals present the run still saves — but the invalid
+  // boost is dropped, not swapped into 6–8. Reordering would manufacture an
+  // observation out of a misread rather than discard one.
+  const d = decideObservedRun([OBS('MARKING')], 8, 6);
+  assert.equal(d.outcome, 'stat-intervals');
+  if (d.outcome !== 'stat-intervals') throw new Error('unreachable');
+  assert.equal(d.boost, null, 'an inverted boost must be omitted');
+
+  // And nothing anywhere in the decision carries the reordered pair.
+  const serialised = JSON.stringify(d);
+  assert.equal(/"ovrBoostLo":\s*6/.test(serialised), false,
+    'the ends must not be swapped into a valid-looking interval');
+  assert.equal(/"ovrBoostHi":\s*8/.test(serialised), false,
+    'the ends must not be swapped into a valid-looking interval');
+});
+
+test('a degenerate 0–0 OVR pair remains valid evidence', () => {
+  // Neri's age-32 preview reads +0–0. A zero-width range is an observation of
+  // zero, not a failure to read, and must survive the ordering check.
+  const d = decideObservedRun([], 0, 0);
+  assert.equal(d.outcome, 'ovr-only');
+  assert.deepEqual(d.outcome === 'ovr-only' ? d.boost : null,
+    { ovrBoostLo: 0, ovrBoostHi: 0 });
+  // Equal non-zero ends too — the rule is hi >= lo, not hi > lo.
+  const same = decideObservedRun([], 4, 4);
+  assert.equal(same.outcome, 'ovr-only');
+
+  // And it survives all the way into the write shape. No 'reject' guard is
+  // needed here: node:assert/strict's equal carries an `asserts` signature, so
+  // the assertion above has already narrowed d to the ovr-only branch.
+  const w = buildObservedSaveRun(d, { sessions: 1, selectedStats: [], ovrBefore: 185 });
+  assert.equal(w.kind === 'observed-interval' ? w.ovrBoostLo : undefined, 0);
+  assert.equal(w.kind === 'observed-interval' ? w.ovrBoostHi : undefined, 0);
+});
+
+test('the OVR boost uses the same interval validity as a stat gain', () => {
+  // The hole this closes: observedStatGain rejected gainHi < gainLo, while the
+  // boost predicate checked only finiteness. Two interval kinds read by the same
+  // OCR were held to different standards, so +8–6 could persist as observed
+  // OVR-only evidence.
+  for (const [lo, hi] of [[11, 16], [0, 0], [4, 4]] as const) {
+    assert.notEqual(observedStatGain('MARKING', 139, lo, hi, true), undefined);
+    assert.notEqual(decideObservedRun([], lo, hi).outcome, 'reject');
+  }
+  for (const [lo, hi] of [[16, 11], [8, 6], [1, 0]] as const) {
+    assert.equal(observedStatGain('MARKING', 139, lo, hi, true), undefined);
+    assert.equal(decideObservedRun([], lo, hi).outcome, 'reject');
+  }
 });
 
 test('non-empty stat gains take the compiler-verified tuple path', () => {

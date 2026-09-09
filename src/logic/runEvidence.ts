@@ -310,11 +310,22 @@ export function decideObservedRun(
   ovrBoostLo: number | null | undefined,
   ovrBoostHi: number | null | undefined,
 ): ObservedRunDecision {
-  // A boost is a PAIR. Half of one is a failed read, not a partial observation,
-  // so it contributes nothing here and cannot rescue an empty gain set.
+  // A boost is a PAIR, and an INTERVAL — the same validity observedStatGain
+  // already applies to a stat range, applied here because a boost range is the
+  // same kind of object read by the same OCR:
+  //
+  //   - both ends finite; half a pair is a failed read, not a partial
+  //     observation, and cannot rescue an empty gain set;
+  //   - hi >= lo, so a degenerate 0–0 survives (Neri's age-32 preview is an
+  //     observation of a zero-width range, not a failure to read);
+  //   - an INVERTED pair such as +8–6 is failed evidence. It is not reordered:
+  //     the scanner does not guarantee ordering, so lo > hi means the read went
+  //     wrong, and swapping the ends would manufacture an observation out of a
+  //     misread rather than discard one.
   const boost: ObservedBoost | null =
     typeof ovrBoostLo === 'number' && Number.isFinite(ovrBoostLo) &&
-    typeof ovrBoostHi === 'number' && Number.isFinite(ovrBoostHi)
+    typeof ovrBoostHi === 'number' && Number.isFinite(ovrBoostHi) &&
+    ovrBoostHi >= ovrBoostLo
       ? { ovrBoostLo, ovrBoostHi }
       : null;
 
