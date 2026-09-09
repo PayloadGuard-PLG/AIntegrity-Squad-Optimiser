@@ -7,6 +7,125 @@
 **Active branch:** `codex/reward-coach-transfer-seam-20260908`
 **Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
 
+### Stop guessing the fucking answer
+
+This app does not automate a decision by manufacturing a quantity. It reports
+what was observed, predicts only from the calibrated model, and abstains
+otherwise. A number that merely looks like an answer is worse than no number,
+because it cannot be argued with.
+
+This has been made explicit repeatedly and ignored anyway. The recorded
+instances:
+
+- `capture.tsx` reconstructed an OVR outcome by pushing observed stat gains
+  through `computeOvrWithPadding`, which substitutes `player.overall` for every
+  unread attribute. On a Dallas-shaped case (3 of 15 attributes entered) it
+  produced **−1 to −1 where the observation implies +1.27 to +1.87** — wrong in
+  sign — and it was then stored graded `observed-interval`, asserting it had been
+  measured. Removed. Do not reintroduce an OVR derived from gains by `/15`,
+  padding, averaging, capping, or any other reconstruction.
+- The same screen previously stored `(lo + hi) / 2` for every observed interval,
+  putting a manufactured midpoint into the calibration record at the point of
+  collection.
+- A projection graded itself `exact` because it had produced a decimal.
+- A star position was computed from attributes that were never read.
+
+The rule, and it is not negotiable:
+
+1. **Observed** means the game displayed that exact quantity and it was read. An
+   OVR outcome is evidence only if an OVR outcome was itself observed — not if
+   it can be assembled from things that were.
+2. **Predicted** comes from pre-outcome state through the calibrated
+   mathematics, and from nothing else. See the pipeline boundary below.
+3. **Absent** is a valid, and often the correct, third answer. Abstain.
+
+If you cannot tell which of the three a number is, you may not display it, store
+it, or compute with it. Verify against the source; do not infer from the
+plausible case.
+
+### Outcome/prediction pipeline boundary (Sprint 38)
+
+```
+pre-outcome state ──> predictOrdinaryCoachAction ──> prediction
+                                                        │
+observed +lo-hi ────────────────────────────────────────┴──> constrain / falsify
+```
+
+One-directional. The observation exists to test the model; it can never help
+produce the prediction it is testing, or the agreement is guaranteed rather than
+earned (Principia Prop. XXV).
+
+- `predictOrdinaryCoachAction(input: PreOutcomeCoachInput)` is the production
+  prediction. `PreOutcomeCoachInput` types `observedGainIntervals`,
+  `observedOvrBoostLo/Hi` and `ovrAfterLo/Hi` as `never`, so handing it a
+  `CoachActionInput` is a **compile error**, not a convention. TypeScript accepts
+  a wider object where a narrower one is expected, so merely omitting the fields
+  would not have stopped it.
+- `projectCoachAction` is the routing boundary and takes **no** observed
+  evidence either, in or out: `CoachActionInput.observedGainIntervals` and the
+  `UnresolvedCoachProjection` payload are both gone. An abstention that carried
+  the evidence would vary with the outcome, so two runs from the same
+  pre-outcome state could differ because of something that happened afterwards.
+  Even the Reward reason text is now invariant — it used to pick between two
+  sentences depending on whether intervals had been captured.
+- `outcomeEvidence.ts` is where an outcome is allowed to matter.
+  `buildOutcomeEvidence()` retains the observations (and holds the failed-read
+  filter that production used to own); `compareObservedAgainstPrediction()`
+  tests a prediction against them by interval membership at both ends, with no
+  midpoint. An abstaining class yields `untestable`, never a pass — nothing was
+  predicted, so nothing survived a test.
+- **An observed OVR is a BOOST, not a post-OVR.** The preview displays a boost
+  range and never a resulting OVR, so `ovrBefore + boost` is a third quantity
+  nobody observed. Stored as `ovr_boost_lo/hi`. `ovr_after` is NOT NULL on the
+  original table and cannot be dropped; on an observed row it repeats
+  `ovrBefore` as an inert filler and `normaliseRunOutcome` returns before it can
+  be reached. Never write a sum there.
+- **The write contract is discriminated.** `SaveRunInput` is a union keyed on
+  `kind`, and declaring the kind constrains the gain type and the quality fields
+  at the same moment. An observed caller has no `ovrAfter` field to supply; a
+  projected caller has no `ovrBoostLo/Hi`; the boost bounds are a pair, so half
+  an interval will not compile; kinds cannot be mixed in one run; and
+  `legacy-unknown` is a READ state that cannot be newly written. An observed row
+  must CONTAIN an observation — either at least one stat interval
+  (`[ObservedStatGain, ...ObservedStatGain[]]`, boost optional) or a complete
+  OVR boost pair standing alone (OVR-only evidence: the preview showed a boost
+  while no stat row read cleanly). `gains: []` with no boost is unrepresentable;
+  it produced a row graded observed that held nothing observed. The capture
+  screen destructures rather than length-checks, so the type follows the guard —
+  a cast there would assert the invariant instead of satisfying it.
+- **An OVR boost is an interval and gets the same validity as a stat gain.**
+  Both ends finite, `hi >= lo`, degenerate `0–0` retained. An inverted pair such
+  as `+8–6` is a FAILED read — the scanner does not guarantee ordering — so it is
+  omitted, never reordered: swapping the ends would manufacture an observation
+  out of a misread. Alone it rejects the run; alongside real stat intervals the
+  run saves without it. The check lives in `decideObservedRun`, the shared
+  boundary, so both interval kinds are held to one standard.
+- **Both observed forms must be REACHABLE, not just representable.**
+  `decideObservedRun()` and `buildObservedSaveRun()` in `runEvidence.ts` own the
+  capture routing, and the screen has exactly one `saveRun` call. A shape the
+  writer cannot produce is dead surface pretending to be a supported case — the
+  screen once returned on the first empty-gains check and made OVR-only evidence
+  unreachable. Source-shape assertions cannot catch that: a mutation returning
+  early before the OVR-only save leaves every grepped token in place, which is
+  why the mapping is a pure function a test can execute. The write contract lives
+  in `runEvidence.ts` (the service re-exports it) for the same reason — it is a
+  description of provenance, not of persistence. `saveRun` takes
+  the grade from `data.kind` — **never** re-derive it from the gains, which is
+  why `runEvidenceKind` was deleted rather than left lying around. The NOT NULL
+  `ovr_after` filler is manufactured inside `saveRun` (it repeats `ovrBefore`;
+  never a sum) where no caller can reach it.
+- `calibrationEligible()` in `runEvidence.ts` is a **type guard**, so a
+  calibration path cannot read `gainLo`/`gainHi` without first proving the row is
+  admissible. `projected` and `legacy-unknown` are not calibration evidence:
+  the first would calibrate the model against itself, the second cannot be
+  attributed to either origin.
+- `LegacyStatGain.unattributableGain` is deliberately not named `gain`, so
+  `kind !== 'observed-interval' ? g.gain : …` no longer compiles.
+
+`tests/outcome-boundary-test.ts` enforces all of it, including a test that
+compiles a probe and requires it to FAIL, and one that feeds the correct answer
+back in as captured outcome and requires the prediction not to move.
+
 ### Live scanner integration (2026-09-07 follow-up)
 
 The glyph readers are now reached by both live player scan screens. `playerScanner.ts`
@@ -256,6 +375,23 @@ that reproduces its **lower** bound and its **upper** bound, then intersect acro
 intersection is empty, a mechanic is missing; report that rather than averaging past it. Two Dallas rows
 show the identical interval `[4,6]` at different stat values — proof that these ranges are far too coarse
 to carry the precision a midpoint implies.
+
+**The calibration record stores intervals as intervals (Sprint 38).** The coach
+capture screen used to write `(lo + hi) / 2` into `squad_plan_runs` — the midpoint
+entered at the point of collection, upstream of every back-calculation. Fixed:
+`src/logic/runEvidence.ts` holds the evidence types and `observedStatGain()`
+records both bounds with no arithmetic between them. A saved run now carries a
+grade — `projected` (engine output, one number), `observed-interval` (the game's
+`+lo-hi`, two numbers), or `legacy-unknown`. Rows written before the grade
+existed read back as `legacy-unknown` and are **not** usable as calibration
+evidence: their scalar may be an engine projection or a laundered midpoint and
+nothing distinguishes them. `ensureRunEvidenceColumns()` in `src/db/index.ts`
+back-fills the provenance column as `legacy-unknown` for the same reason
+`transfer_class_source` exists. Do not generate a drizzle migration for this
+table — drizzle-kit regenerates from a drifted snapshot and emits a
+drop-and-recreate of `players` and `drill_sessions` plus a `migrations.js` that
+imports `.sql` files Metro cannot bundle. `tests/run-evidence-test.ts` fails if a
+midpoint returns anywhere in the record or the display.
 
 **Coach budget divisor — confirmed by falsification.** `coachBudgetPerStat` divides by the stats showing
 visible gain ranges, not by the full category. Re-solving the Dallas ×4 Safeguard observation with a

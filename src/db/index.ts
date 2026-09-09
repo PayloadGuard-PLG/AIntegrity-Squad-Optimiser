@@ -36,6 +36,35 @@ export function ensureGlyphStateColumns() {
   try { expoDb.execSync('ALTER TABLE players ADD COLUMN boosts text;'); } catch {}
 }
 
+/**
+ * Idempotent guard for the run-evidence columns on squad_plan_runs.
+ *
+ * Why a SOURCE column rather than inferring from the values: every row that
+ * exists at migration time was written when a coach preview's `+lo-hi` was
+ * collapsed to `(lo + hi) / 2` before storage. That midpoint is now
+ * indistinguishable BY VALUE from a genuine engine projection — the information
+ * was destroyed at the moment of writing. gain_evidence defaults to
+ * 'legacy-unknown' so those rows report as unattributable rather than being
+ * promoted to projections; only rows written by the current writer carry a real
+ * grade. Some correctly-projected rows are demoted with them, knowingly,
+ * because nothing distinguishes them.
+ *
+ * Applied as idempotent ALTERs rather than a drizzle migration, for the reason
+ * ensureCoachHistoryTable already records: drizzle-kit regenerates from a
+ * snapshot that has drifted from what shipped devices actually hold, and emits
+ * a drop-and-recreate of unrelated tables plus a migrations.js that imports
+ * .sql files Metro cannot bundle.
+ */
+export function ensureRunEvidenceColumns() {
+  try { expoDb.execSync('ALTER TABLE squad_plan_runs ADD COLUMN ovr_boost_lo real;'); } catch {}
+  try { expoDb.execSync('ALTER TABLE squad_plan_runs ADD COLUMN ovr_boost_hi real;'); } catch {}
+  // ovr_after stays NOT NULL from the original table and cannot be dropped in
+  // place. On an observed row it holds a filler, never a reading — see the note
+  // in squadPlanService.saveRun. normaliseRunOutcome returns before it can be
+  // reached for such a row, so no reader can mistake it for evidence.
+  try { expoDb.execSync("ALTER TABLE squad_plan_runs ADD COLUMN gain_evidence TEXT NOT NULL DEFAULT 'legacy-unknown';"); } catch {}
+}
+
 export function ensureCoachHistoryTable() {
   try {
     expoDb.execSync(`CREATE TABLE IF NOT EXISTS coach_scan_history (

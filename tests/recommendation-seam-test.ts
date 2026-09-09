@@ -115,6 +115,8 @@ test('charged condition cost is a range carrying its confidence; a scalar discar
 import {
   projectCoachAction, projectDrillAction, resolveTalentPolicy,
 } from '../src/logic/recommendation';
+import type { CoachPreviewInterval } from '../src/logic/recommendation';
+import { buildOutcomeEvidence } from '../src/logic/outcomeEvidence';
 import { projectOvr } from '../src/logic/ovrProjector';
 import { getRecommendedDrills } from '../src/logic/controller';
 import type { Player } from '../src/database/playerSchema';
@@ -179,29 +181,39 @@ test('Reward matched evidence has no common ordinary fixed-XP coach budget', () 
     'Mehlem/Dallas must have an empty common-budget intersection under ordinary age 26–27 ×0.61');
 });
 
-test('Reward Coach projection abstains and preserves preview intervals', () => {
-  const intervals = [{ stat: 'FINISHING', statBefore: 125, gainLo: 5, gainHi: 7 }];
+test('Reward Coach projection abstains and fabricates nothing', () => {
+  // The abstention half of bd5bc96's contract. The interval-preservation half
+  // moved to the evidence layer when production stopped carrying evidence —
+  // see 'preview intervals survive into the evidence record' below and
+  // tests/outcome-boundary-test.ts. Nothing here was weakened; it was relocated
+  // to the layer that now owns it.
   const reward = projectCoachAction({
     player: player({ age: 26, role: ['ST'], stats: { ...OUTFIELD, FINISHING: 125 }, overall: 115.3 }),
     stats: ['FINISHING'], sessions: 1, profile, transferClass: 'reward',
-    observedGainIntervals: intervals,
   });
   assert.equal(reward.projectionStatus, 'unavailable');
-  assert.deepEqual(reward.observedGainIntervals, intervals);
   assert.ok(reward.reasons.some(r => r.code === 'coach.rewardTransferUnresolved'));
   assert.equal('projectedStats' in reward, false,
     'unresolved must not masquerade as unchanged stats / zero gain');
   assert.equal('ovrAfterExact' in reward, false,
     'unresolved must not fabricate a post-coach OVR');
+  assert.equal('observedGainIntervals' in reward, false,
+    'a production result must not carry outcome evidence');
+});
+
+test('preview intervals survive into the evidence record, both bounds intact', () => {
+  const intervals = [{ stat: 'FINISHING', statBefore: 125, gainLo: 5, gainHi: 7 }];
+  assert.deepEqual(buildOutcomeEvidence(intervals), intervals);
 
   // +0 is itself an observed interval at high stat cost, not a missing row.
-  const zero = projectCoachAction({
-    player: player({ age: 32, role: ['ST'], stats: { ...OUTFIELD, FINISHING: 407 } }),
-    stats: ['FINISHING'], sessions: 1, profile, transferClass: 'reward',
-    observedGainIntervals: [{ stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 }],
-  });
-  assert.deepEqual(zero.observedGainIntervals[0],
+  assert.deepEqual(
+    buildOutcomeEvidence([{ stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 }])[0],
     { stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 });
+
+  // A failed read is still rejected, exactly as the production filter did.
+  assert.deepEqual(buildOutcomeEvidence([{ stat: 'X', gainLo: -1, gainHi: 5 }]), []);
+  assert.deepEqual(buildOutcomeEvidence([{ stat: 'X', gainLo: 9, gainHi: 5 }]), []);
+  assert.deepEqual(buildOutcomeEvidence(undefined), []);
 });
 
 test('the same coach scenario cannot produce conflicting projections', () => {
@@ -360,8 +372,16 @@ test('Reward classification and preview intervals survive scan history into proj
   const history = readFileSync(join(__dirname, '..', 'src/services/coachHistoryService.ts'), 'utf8');
 
   assert.match(coaches, /scan\.isRewardCoach\s*\?\s*'reward'\s*:\s*'ordinary'/);
-  assert.match(coaches, /transferClass, observedGainIntervals/,
-    'Coaches projection must receive the scanner classification and intervals');
+  // CHANGED, deliberately: the projection must receive the CLASSIFICATION and
+  // must NOT receive the intervals. The class is pre-outcome state — it is what
+  // the coach is. The intervals are the outcome, and they now travel beside the
+  // projection through the evidence layer instead of into it.
+  assert.match(coaches, /player, stats: scannedStats, sessions: sessionCount, profile, transferClass,/,
+    'Coaches projection must receive the scanner classification');
+  assert.equal(/projectCoachAction\(\{[\s\S]{0,200}observedGainIntervals/.test(coaches), false,
+    'the projection call must not receive observed intervals');
+  assert.match(coaches, /buildOutcomeEvidence\(observedGainIntervals\)/,
+    'the intervals must still reach the display, through the evidence layer');
   assert.match(history, /transfer_class/);
   assert.match(history, /preview_intervals/);
   assert.match(results, /transferClass:\s*entry\.transferClass/,
@@ -391,7 +411,6 @@ test('an unclassified legacy coach entry abstains instead of projecting as ordin
   // calibrated transfer function, the other was never classified at all.
   const reward = projectCoachAction({
     player: player(), stats: STATS, sessions: 40, profile, transferClass: 'reward',
-    observedGainIntervals: [],
   });
   assert.equal(reward.reasons.some(r => r.code === 'coach.transferClassUnknown'), false);
   assert.equal(legacy.reasons.some(r => r.code === 'coach.rewardTransferUnresolved'), false);
@@ -420,6 +439,138 @@ test('an unclassified entry blocks a Results plan total rather than skipping it'
     'Results must distinguish an unclassified entry from an unresolved Reward Coach');
   assert.match(results, /projection\.projectionStatus\s*===\s*'unavailable'/,
     'and must still refuse to total the plan');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reward Coach evidence preservation. The interval is the observation; it must
+// survive the seam unchanged, and must never be reduced to a single number.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('an observed interval survives with no baseline attached', () => {
+  // statBefore is a SEPARATE observation. The scanner's nearest-number search
+  // returns nothing when the row's value lands in another OCR block, which is
+  // routine in the three-column layout. Requiring it discarded a successful
+  // measurement of the interval because a different measurement failed.
+  const intervals: CoachPreviewInterval[] = [
+    { stat: 'FINISHING', gainLo: 5, gainHi: 7 },          // no baseline read
+    { stat: 'SHOOTING', statBefore: 152, gainLo: 3, gainHi: 4 }, // baseline read
+  ];
+  const evidence = buildOutcomeEvidence(intervals);
+  assert.equal(evidence.length, 2, 'an interval without a baseline must not be dropped');
+  const finishing = evidence.find(i => i.stat === 'FINISHING')!;
+  assert.equal(finishing.gainLo, 5);
+  assert.equal(finishing.gainHi, 7);
+  assert.equal('statBefore' in finishing && finishing.statBefore !== undefined, false,
+    'an unobserved baseline is absent, never reported as 0');
+
+  // CHANGED CONTRACT, deliberately. This previously required the abstention's
+  // wording to say evidence EXISTS — which made a production result vary with an
+  // outcome, the exact leak the boundary now forbids. The reason is a property
+  // of the coach class alone, so it must be identical with and without evidence.
+  const withNone = projectCoachAction({
+    player: player(), stats: ['FINISHING', 'SHOOTING'], sessions: 2, profile,
+    transferClass: 'reward',
+  });
+  assert.match(withNone.reasons.find(x => x.code === 'coach.rewardTransferUnresolved')!.detail,
+    /retained separately as observations/);
+});
+
+test('intervals pass through the Reward seam by identity', () => {
+  // The seam may not reshape, reorder the endpoints, round, or otherwise
+  // "tidy" an observation. What was read is what comes out.
+  const intervals: CoachPreviewInterval[] = [
+    { stat: 'FINISHING', statBefore: 134, gainLo: 5, gainHi: 7 },
+    { stat: 'PASSING', gainLo: 0, gainHi: 11 },
+    { stat: 'DRIBBLING', statBefore: 156, gainLo: 2, gainHi: 2 },
+  ];
+  assert.deepEqual(buildOutcomeEvidence(intervals), intervals);
+});
+
+test('a +0–0 preview is observed evidence, not a missing reading', () => {
+  const evidence = buildOutcomeEvidence([{ stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 }]);
+  assert.equal(evidence.length, 1);
+  assert.deepEqual(evidence[0], { stat: 'FINISHING', statBefore: 407, gainLo: 0, gainHi: 0 });
+  // The old "must not claim none was captured" assertion is retired with the
+  // branching reason text: no production wording may depend on the evidence at
+  // all, so there is no longer a sentence for a zero interval to contradict.
+});
+
+test('the Reward path cannot collapse an interval into a scalar', () => {
+  // STRUCTURAL. An unresolved transfer must expose no single number derived
+  // from the interval — no midpoint, no width, no projected stat, no OVR.
+  // Serialise the whole result and hunt for any of them.
+  const lo = 5, hi = 11;                       // midpoint 8, width 6 — distinct
+  const r = projectCoachAction({
+    player: player(), stats: ['FINISHING'], sessions: 2, profile,
+    transferClass: 'reward',
+  });
+  assert.equal('projectedStats' in r, false);
+  assert.equal('ovrAfterExact' in r, false);
+  assert.equal('statDeltas' in r, false);
+  assert.equal('ovrDelta' in r, false);
+  assert.equal('observedGainIntervals' in r, false);
+
+  // The evidence layer holds the interval and must not derive a scalar from it.
+  const evidence = buildOutcomeEvidence([{ stat: 'FINISHING', statBefore: 134, gainLo: lo, gainHi: hi }]);
+  const numbers: number[] = [];
+  JSON.stringify(evidence, (_k, v) => { if (typeof v === 'number') numbers.push(v); return v; });
+  const midpoint = (lo + hi) / 2;
+  assert.equal(numbers.includes(midpoint), false,
+    `the midpoint ${midpoint} must never appear in the evidence record`);
+  assert.equal(numbers.includes(hi - lo), false,
+    'the interval width is not a measurement either');
+  assert.ok(numbers.includes(lo) && numbers.includes(hi),
+    'both endpoints must survive intact');
+});
+
+test('manual selection cannot downgrade a Reward Coach or clear its intervals', () => {
+  // Manual type/category selection resolves WHICH STATS the coach covers — the
+  // ambiguity a human is there to settle. It is not an observation about the
+  // coach's class, and it says nothing about intervals already read. These two
+  // handlers previously reset transferClass to 'ordinary' and wiped the
+  // intervals, so one tap after a Reward scan silently reclassified it and the
+  // ordinary geometric transfer produced a number for a falsified transfer.
+  const src = readFileSync(join(__dirname, '..', 'app/(tabs)/coaches.tsx'), 'utf8');
+  // Handles both declaration forms in this file: `function foo(` and
+  // `const foo = useCallback((` — selectPlayer is the latter.
+  const body = (fn: string) => {
+    let i = src.indexOf(`function ${fn}(`);
+    if (i < 0) i = src.indexOf(`const ${fn} = `);
+    assert.ok(i > -1, `${fn} not found`);
+    const end = src.indexOf('\n  }', i);
+    return src.slice(i, end > -1 ? end : undefined);
+  };
+  for (const fn of ['selectCoachType', 'selectCoachCategory']) {
+    assert.doesNotMatch(body(fn), /setTransferClass\(/,
+      `${fn} must not reclassify the coach`);
+    assert.doesNotMatch(body(fn), /setObservedGainIntervals\(/,
+      `${fn} must not discard observed intervals`);
+  }
+  // The genuine reset points remain — changing player, and applying a result.
+  assert.match(body('selectPlayer'), /setObservedGainIntervals\(\[\]\)/);
+  assert.match(body('applyGains'), /setObservedGainIntervals\(\[\]\)/);
+});
+
+test('the scan keeps an interval whose baseline was not read', () => {
+  // The capture filter must gate on the interval's own validity only.
+  const src = readFileSync(join(__dirname, '..', 'app/(tabs)/coaches.tsx'), 'utf8');
+  const i = src.indexOf('const gainRanges');
+  const filter = src.slice(i, src.indexOf('const intervals', i));
+  assert.doesNotMatch(filter, /cap\.statBefore\s*>\s*0\s*\)/,
+    'the interval must not be gated on a separate, possibly-absent observation');
+  assert.match(filter, /cap\.gainHi\s*>=\s*cap\.gainLo/,
+    'it must still reject a malformed interval');
+});
+
+test('no midpoint of an observed interval exists in the coach path', () => {
+  // A talent back-calculation that consumed a midpoint (estimateTalentFromGain)
+  // was deleted in this change. Nothing may reintroduce one.
+  for (const f of ['src/logic/recommendation.ts', 'app/(tabs)/coaches.tsx', 'src/engine/engineMath.ts']) {
+    const src = readFileSync(join(__dirname, '..', f), 'utf8');
+    const code = src.split('\n').filter(l => !l.trim().startsWith('//') && !l.trim().startsWith('*')).join('\n');
+    assert.doesNotMatch(code, /gainLo\s*\+\s*gainHi/, `${f} computes an interval midpoint`);
+    assert.doesNotMatch(code, /\bgainMid\b/, `${f} still references a gain midpoint`);
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

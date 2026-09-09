@@ -41,6 +41,17 @@ export const squadPlanRuns = sqliteTable('squad_plan_runs', {
   selectedStats: text('selected_stats').notNull(),  // JSON: string[]
   ovrBefore: real('ovr_before').notNull(),
   ovrAfter: real('ovr_after').notNull(),
+  // The coach preview's OWN displayed OVR BOOST range, when it showed one.
+  //
+  // Not a post-action OVR: the game displays a boost, never a resulting OVR, so
+  // storing `ovrBefore + boost` would launder an observation into a different
+  // quantity nobody ever saw. Both bounds, no midpoint, no addition.
+  ovrBoostLo: real('ovr_boost_lo'),
+  ovrBoostHi: real('ovr_boost_hi'),
+  // Provenance of the figures above and of every entry in `gains`, NOT the
+  // figures themselves. Defaults to 'legacy-unknown' so rows that predate the
+  // distinction are never read as engine projections. See runEvidence.ts.
+  gainEvidence: text('gain_evidence').notNull().default('legacy-unknown'),
   gains: text('gains').notNull(),                   // JSON: StatGain[]
   tier: text('tier'),
   createdAt: integer('created_at').notNull(),

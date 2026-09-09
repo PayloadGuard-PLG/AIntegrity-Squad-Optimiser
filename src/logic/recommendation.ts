@@ -169,10 +169,24 @@ export interface RecommendationResult {
  */
 export type CoachTransferClass = 'ordinary' | 'reward' | 'unknown';
 
-/** One interval printed by the game's coach preview. Never a midpoint. */
+/**
+ * One interval printed by the game's coach preview. Never a midpoint.
+ *
+ * `statBefore` is OPTIONAL because it is a SEPARATE observation from the
+ * interval. The scanner finds the baseline by a nearest-number search that
+ * returns nothing when the row's own value lands in a different OCR block —
+ * routine in the game's three-column layout. A row can therefore yield a
+ * perfectly good `+lo–hi` with no baseline beside it.
+ *
+ * Requiring the baseline made an observed interval unrepresentable without it,
+ * so a missing measurement of one quantity destroyed a successful measurement
+ * of another. The interval is the evidence; the baseline is context for
+ * displaying it.
+ */
 export interface CoachPreviewInterval {
   stat: string;
-  statBefore: number;
+  /** Present only when the baseline was actually read. Never inferred. */
+  statBefore?: number;
   gainLo: number;
   gainHi: number;
 }
@@ -188,7 +202,13 @@ export interface UnresolvedCoachProjection {
   /** 'reward' — classified, but its transfer function is uncalibrated.
    *  'unknown' — never classified, so no transfer function can be selected. */
   transferClass: 'reward' | 'unknown';
-  observedGainIntervals: CoachPreviewInterval[];
+  /**
+   * No observedGainIntervals here either. An abstention that carried the
+   * evidence would vary with the outcome, so two runs from the same pre-outcome
+   * state could differ because of something that happened afterwards. The
+   * evidence lives in outcomeEvidence.ts and is joined to this result for
+   * display, never returned from it.
+   */
   ovrBefore: number;
   condition: null;
   conditionBasis: 'not-applicable';
@@ -525,8 +545,42 @@ export interface CoachActionInput {
   label?: string;
   /** Defaults to ordinary for legacy/manual entries. Scanner callers must pass it. */
   transferClass?: CoachTransferClass;
-  /** Required evidence payload for Reward Coaches; ranges are observations. */
-  observedGainIntervals?: CoachPreviewInterval[];
+  /**
+   * Deliberately absent: there is no observed-evidence field on this input.
+   *
+   * The observation exists to constrain or falsify what this function produces,
+   * so it cannot be an ingredient of it. Route observed intervals to
+   * outcomeEvidence.ts instead — buildOutcomeEvidence to retain them, and
+   * compareObservedAgainstPrediction to test a prediction against them.
+   */
+  observedGainIntervals?: never;
+}
+
+/**
+ * The PRE-OUTCOME state, and the only thing a prediction may see.
+ *
+ * Everything here is knowable before the coach is applied: the player's card,
+ * which attributes the coach affects, how many sessions, and the profile that
+ * carries age, talent, whiteness and the cost curve. Nothing here is a result.
+ *
+ * The `never`-typed fields are the enforcement, not decoration. TypeScript
+ * accepts a wider object where a narrower one is expected, so merely omitting
+ * the observed fields would still let a caller hand the whole CoachActionInput
+ * — evidence included — straight to the predictor. Typed `never`, an
+ * `observedGainIntervals?: CoachPreviewInterval[]` is not assignable, so the
+ * boundary is a compile error rather than a convention.
+ */
+export interface PreOutcomeCoachInput {
+  player: Player;
+  stats: string[];
+  sessions: number;
+  profile: GameProfile;
+  label?: string;
+  observedGainIntervals?: never;
+  observedOvrBoostLo?: never;
+  observedOvrBoostHi?: never;
+  ovrAfterLo?: never;
+  ovrAfterHi?: never;
 }
 
 /**
@@ -563,9 +617,10 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
     { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
   ];
   if (transferClass === 'reward' || transferClass === 'unknown') {
-    const observedGainIntervals = (input.observedGainIntervals ?? [])
-      .filter(interval => interval.gainLo >= 0 && interval.gainHi >= interval.gainLo)
-      .map(interval => ({ ...interval }));
+    // The abstention is a property of the CLASS, not of what was later observed.
+    // It reads no evidence and its wording does not vary with any: the previous
+    // version chose between two sentences depending on whether intervals had
+    // been captured, which made a production result depend on an outcome.
     const reason: RecommendationReason = transferClass === 'unknown'
       ? {
           code: 'coach.transferClassUnknown',
@@ -574,16 +629,13 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
         }
       : {
           code: 'coach.rewardTransferUnresolved',
-          detail: observedGainIntervals.length > 0
-            ? 'Reward Coach transfer is not calibrated. The scanned +lo–hi ranges are retained as observations; no XP, stat, or OVR prediction is fabricated.'
-            : 'Reward Coach transfer is not calibrated and no usable +lo–hi interval was captured. No XP, stat, or OVR prediction is available.',
+          detail: 'Reward Coach transfer is not calibrated. No XP, stat, or OVR prediction is fabricated. Any scanned +lo–hi ranges are retained separately as observations.',
           evidence: 'unavailable',
         };
     return {
       projectionStatus: 'unavailable',
       action,
       transferClass,
-      observedGainIntervals,
       ovrBefore: evaluateLock(player, profile).totalOvr,
       condition: null,
       conditionBasis: 'not-applicable',
@@ -591,6 +643,40 @@ export function projectCoachAction(input: CoachActionInput): CoachProjectionResu
       reasons: [reason],
     };
   }
+
+  // THE BOUNDARY. Only pre-outcome state crosses it. The fields are picked
+  // explicitly rather than spread, so an observation added to CoachActionInput
+  // later cannot arrive here by inheriting the spread — and PreOutcomeCoachInput
+  // would reject it if it tried.
+  return predictOrdinaryCoachAction({
+    player, stats, sessions, profile, label: input.label,
+  });
+}
+
+/**
+ * The production prediction for an ordinary Academy coach.
+ *
+ * It derives the gain from the calibrated mathematics alone: the geometric
+ * budget, the exponential cost curve, age, the Normal-talent policy, and
+ * white/grey status. It has never seen an observed +lo–hi and cannot: the
+ * observation exists to constrain or falsify this output, and a quantity used to
+ * produce a prediction cannot also test it.
+ *
+ * Do not widen this signature to take observed evidence. If a Reward transfer is
+ * ever identified, it becomes a different calibrated function reached through
+ * projectCoachAction's routing — not an observation threaded into this one.
+ */
+function predictOrdinaryCoachAction(input: PreOutcomeCoachInput): RecommendationResult {
+  const { player, stats, sessions, profile } = input;
+  const action: RecommendedAction = {
+    kind: 'coach',
+    label: input.label ?? `Coach ×${sessions}`,
+    stats: [...stats],
+    sessions,
+  };
+  const resources: ResourceRequirement[] = [
+    { kind: 'coachSessions', amount: sessions, label: `${sessions} coaching sessions` },
+  ];
 
   const talent = resolveTalentPolicy(player);
   const { baseOvr, totalOvr, exactBaseOvr, locked } = evaluateLock(player, profile);

@@ -1,5 +1,14 @@
 import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
+import {
+  ARROW_RE, TALENT_OPTIONS, resolvePlayerName, resolveTalentTier, resolvePlayerAge,
+} from './coachIdentityParse';
+
+// Re-exported so the ML-Kit-free resolvers remain reachable through the scanner's
+// public surface. Their implementations live in coachIdentityParse.ts because this
+// module imports react-native and cannot be loaded by Node (see that file's header).
+export { resolvePlayerName, resolveTalentTier, resolvePlayerAge, TALENT_OPTIONS };
+export type { NameBlock, TalentOption } from './coachIdentityParse';
 
 const ALL_STATS = new Set([...OUTFIELD_STATS, ...GK_STATS]);
 
@@ -27,16 +36,12 @@ const Y_TOL_NAME = 25; // two-word stat name token pairing — wider than Y_TOL_
 const Y_TOL_VAL  = 18; // gain range row lookup — tighter than row spacing to prevent adjacent-row bleed
 const GAIN_RE_STAT = /\+?\s*(\d+)\s*[–\-—]\s*(\d+)/; // + optional: OCR drops it on bright teal backgrounds
 const GAIN_RE_OVR  = /\+\s*(\d+)\s*[–\-—]\s*(\d+)/;  // + required for OVR boost (avoids N-N false matches)
-// Arrow OCR candidates seen on highlighted rows when no player is selected
-const ARROW_RE = /[↑\^›>▲]/;
 
 export const COACH_TYPES    = ['Standard', 'Focused', 'Extensive'] as const;
 export const COACH_CATS     = ['Attacking', 'Defending', 'Physical', 'Safeguard', 'Goalkeeping'] as const;
-export const TALENT_OPTIONS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'] as const;
 
 export type CoachType     = typeof COACH_TYPES[number];
 export type CoachCategory = typeof COACH_CATS[number];
-export type TalentOption  = typeof TALENT_OPTIONS[number];
 
 export interface StatCapture {
   statName: string;
@@ -116,22 +121,10 @@ export async function scanCoachPreview(imageUri: string): Promise<CoachScanResul
   const isTrainingCamp  = /\btraining\s*camp\b/i.test(fullText);
   const isAllRound      = /\ball[\s\-]*round\b/i.test(fullText);
 
-  const ageMatch  = /\bAge\s*:?\s*(\d{2})\b/i.exec(fullText);
-  const playerAge = ageMatch ? parseInt(ageMatch[1]) : undefined;
+  const playerAge = resolvePlayerAge(fullText);
 
-  const talentMatch = /\b(FT1|FT2|FT3|Normal|Slow)\b/i.exec(fullText);
-  const TALENT_MAP: Record<string, string> = { FT1: 'Fastest', FT2: 'Fast', FT3: 'Average' };
-  const talentTier  = talentMatch ? (TALENT_MAP[talentMatch[1]] ?? talentMatch[1]) : undefined;
-
-  const nameBlock = result.blocks.find(b => {
-    const t = b.text.trim();
-    return (
-      t.length >= 3 && /^[A-Z][a-z]/.test(t) && !/^\d+$/.test(t) &&
-      !['Standard', 'Focused', 'Extensive', 'Attacking', 'Defending', 'Physical', 'Safeguard',
-        'Select', 'Training', 'Session', 'Start', 'Reward'].some(w => t.toLowerCase().includes(w.toLowerCase()))
-    );
-  });
-  const playerName = nameBlock?.text.trim();
+  const talentTier = resolveTalentTier(result.blocks ?? []);
+  const playerName = resolvePlayerName(result.blocks ?? []);
 
   // Stat rows: find stat names, then look ONLY to the right of the stat name for gain ranges.
   // The game shows 3 columns side by side (Defense / Attack / Physical). Stats in different
