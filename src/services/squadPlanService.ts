@@ -67,8 +67,6 @@ export type SaveRunInput =
     })
   | (SaveRunCommon & {
       kind: 'observed-interval';
-      /** Game-displayed +lo-hi, both bounds, no midpoint. */
-      gains: ObservedStatGain[];
       /**
        * No post-action OVR exists to supply. The preview displays a boost and
        * never a result, so an observed caller has no API by which to provide
@@ -77,10 +75,26 @@ export type SaveRunInput =
        */
       ovrAfter?: never;
     } & (
-      // Both bounds or neither: half an interval is not an interval, and the
-      // pairing is enforced here rather than left to a runtime check.
-      | { ovrBoostLo: number; ovrBoostHi: number }
-      | { ovrBoostLo?: never; ovrBoostHi?: never }
+      /*
+       * An observed row must CONTAIN an observation. The previous shape let
+       * `gains: []` sit beside no boost, producing a row graded observed that
+       * held nothing observed — a provenance claim with no referent, and the
+       * worst kind of calibration record because it looks like evidence.
+       *
+       * Two legitimate shapes, and nothing else:
+       */
+      // 1. At least one observed stat interval. The OVR boost is optional, and
+      //    paired when present — half an interval is not an interval.
+      | ({ gains: [ObservedStatGain, ...ObservedStatGain[]] } & (
+          | { ovrBoostLo: number; ovrBoostHi: number }
+          | { ovrBoostLo?: never; ovrBoostHi?: never }
+        ))
+      // 2. OVR-ONLY evidence: a preview may show a boost range while no stat row
+      //    reads cleanly. That is still an observation, and refusing to
+      //    represent it would push a caller to invent a stat gain to carry it.
+      //    Both bounds required — an OVR-only row with half a range holds
+      //    nothing complete.
+      | { gains: ObservedStatGain[]; ovrBoostLo: number; ovrBoostHi: number }
     ));
 
 type RunRow = typeof squadPlanRuns.$inferSelect;

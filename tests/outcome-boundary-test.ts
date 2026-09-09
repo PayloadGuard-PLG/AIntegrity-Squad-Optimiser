@@ -349,6 +349,69 @@ export const bad: SaveRunInput = {
     'an observed boost must be supplied as both bounds or neither');
 });
 
+test('observed provenance with zero observations cannot compile', () => {
+  // The hole this closes: `kind: 'observed-interval'` with an empty gains array
+  // and no boost produced a row GRADED observed that contained nothing observed
+  // — a provenance claim with no referent, and the worst possible calibration
+  // record because it looks like evidence while holding none.
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+export const empty: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON}
+  gains: [],
+};
+export const emptyWithHalfBoost: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON}
+  gains: [], ovrBoostLo: 2,
+};
+`);
+  assert.equal(probeErrors(out).length, 2,
+    `an observed run must contain at least one observation; got:\n${out}`);
+});
+
+test('the three legitimate observed shapes DO compile', () => {
+  // Without this the rule above could be satisfied by a type that rejects every
+  // observed write, which would be useless rather than strict. All three of
+  // these are real evidence and must remain writable.
+  const out = compileProbe(svc => `
+import type { SaveRunInput } from ${svc};
+// 1. one or more observed stat intervals, no OVR boost shown
+export const gainsOnly: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON} gains: [${OBSERVED_GAIN}],
+};
+// 2. observed stat intervals AND an observed OVR boost
+export const gainsWithBoost: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON} gains: [${OBSERVED_GAIN}],
+  ovrBoostLo: 2, ovrBoostHi: 6,
+};
+// 3. OVR-ONLY evidence: the preview showed a boost range while no stat row read
+//    cleanly. Still an observation; refusing to represent it would push a
+//    caller to invent a stat gain to carry it.
+export const boostOnly: SaveRunInput = {
+  kind: 'observed-interval', ${COMMON} gains: [], ovrBoostLo: 2, ovrBoostHi: 6,
+};
+`);
+  assert.deepEqual(probeErrors(out), [],
+    `all three observed shapes must compile; got:\n${out}`);
+});
+
+test('the capture screen satisfies the non-empty invariant, it does not assert it', () => {
+  // A cast would let the caller CLAIM non-emptiness rather than prove it, and a
+  // claimed invariant is not an invariant. This was a real defect in the first
+  // cut of this change: an intermediate `const` had no contextual type, so the
+  // tuple widened to an array and a cast was added to make it pass. Both
+  // argument literals are now written inline so the compiler checks them.
+  const src = readCode('app/coach/capture.tsx');
+  assert.equal(/as \[ObservedStatGain/.test(src), false,
+    'the non-empty tuple must not be asserted with a cast');
+  assert.match(src, /const \[firstGain, \.\.\.restGains\] = gainEntries;/,
+    'the guard must destructure so the type follows the check');
+  assert.match(src, /if \(!firstGain\)/,
+    'a .length check narrows nothing and cannot satisfy the tuple');
+  assert.equal(/gains: gainEntries/.test(src), false,
+    'the un-narrowed array must not be passed');
+});
+
 test('the two legitimate write shapes DO compile', () => {
   // The converse. Without this the contracts above could be satisfied by a type
   // that rejects everything, which would be useless rather than strict.
@@ -445,7 +508,9 @@ test('capture.tsx records the observed BOOST, not a post-OVR derived from it', (
     'the recorded boost must come from the scanned preview');
   assert.match(src, /const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;/,
     'both ends must be observed before an outcome is recorded');
-  assert.match(src, /ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi!/,
+  // Multiline: the two bounds sit on separate lines in the inline argument
+  // literal that replaced the cast-forcing intermediate.
+  assert.match(src, /ovrBoostLo: observedOvrBoostLo!,[\s\S]{0,60}ovrBoostHi: observedOvrBoostHi!,/,
     'the observed boost must be stored as itself');
   assert.equal(/ovrBefore \+ observedOvrBoost/.test(src), false,
     'a post-action OVR must not be synthesised by addition');

@@ -247,7 +247,13 @@ export default function CoachCaptureScreen() {
       ))
       .filter((g): g is ObservedStatGain => g !== undefined);
 
-    if (gainEntries.length === 0) {
+    // Destructured rather than length-checked so the TYPE follows the check.
+    // The write contract requires a non-empty tuple for a stat-interval run —
+    // `.length === 0` narrows nothing, and this screen must satisfy the storage
+    // invariant, not merely agree with it. This guard remains the UX message;
+    // the invariant itself is the type's.
+    const [firstGain, ...restGains] = gainEntries;
+    if (!firstGain) {
       Alert.alert('Nothing to log', 'Enter both bounds of at least one observed range.');
       return;
     }
@@ -263,21 +269,35 @@ export default function CoachCaptureScreen() {
     // call no field in which to put a post-action OVR — the boost is stored as
     // itself, and the NOT NULL filler is the persistence layer's business.
     //
-    // The two shapes are built explicitly rather than by conditional spread: the
-    // bounds are a PAIR in the type, and a spread of `{}` cannot narrow to
-    // "neither supplied".
-    const common = {
-      kind: 'observed-interval',
+    // Both argument literals are written out in full rather than assembled from
+    // a shared intermediate. An intermediate `const` has no contextual type, so
+    // TypeScript widens `[firstGain, ...restGains]` to ObservedStatGain[] and a
+    // cast becomes necessary to pass it — and a cast is the caller ASSERTING the
+    // non-emptiness the type exists to check. Inline, the parameter type drives
+    // the inference and the compiler verifies it. The repetition buys a checked
+    // invariant instead of an asserted one.
+    const shared = {
       sessions: parseInt(multiplier, 10) || 30,
       selectedStats: gainEntries.map(g => g.stat),
       ovrBefore,
-      gains: gainEntries,
       label: `${coachType} ${coachCategory}`,
-    } as const;
+    };
 
-    squadPlanService.saveRun(player.id, bothOvrBounds
-      ? { ...common, ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi! }
-      : common);
+    if (bothOvrBounds) {
+      squadPlanService.saveRun(player.id, {
+        kind: 'observed-interval',
+        ...shared,
+        gains: [firstGain, ...restGains],
+        ovrBoostLo: observedOvrBoostLo!,
+        ovrBoostHi: observedOvrBoostHi!,
+      });
+    } else {
+      squadPlanService.saveRun(player.id, {
+        kind: 'observed-interval',
+        ...shared,
+        gains: [firstGain, ...restGains],
+      });
+    }
     setSaved(true);
   }
 

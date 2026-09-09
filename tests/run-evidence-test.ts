@@ -219,7 +219,8 @@ test('the capture screen no longer averages a preview interval', () => {
     'the OVR midpoint must not return');
   assert.match(src, /observedStatGain\(/,
     'observed previews must be recorded through the interval constructor');
-  assert.match(src, /ovrBoostLo: observedOvrBoostLo!, ovrBoostHi: observedOvrBoostHi!/,
+  // Multiline: the bounds sit on separate lines in the inline argument literal.
+  assert.match(src, /ovrBoostLo: observedOvrBoostLo!,[\s\S]{0,60}ovrBoostHi: observedOvrBoostHi!,/,
     'the observed OVR boost must be written as its own two bounds');
 });
 

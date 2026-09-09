@@ -85,7 +85,14 @@ earned (Principia Prop. XXV).
   at the same moment. An observed caller has no `ovrAfter` field to supply; a
   projected caller has no `ovrBoostLo/Hi`; the boost bounds are a pair, so half
   an interval will not compile; kinds cannot be mixed in one run; and
-  `legacy-unknown` is a READ state that cannot be newly written. `saveRun` takes
+  `legacy-unknown` is a READ state that cannot be newly written. An observed row
+  must CONTAIN an observation — either at least one stat interval
+  (`[ObservedStatGain, ...ObservedStatGain[]]`, boost optional) or a complete
+  OVR boost pair standing alone (OVR-only evidence: the preview showed a boost
+  while no stat row read cleanly). `gains: []` with no boost is unrepresentable;
+  it produced a row graded observed that held nothing observed. The capture
+  screen destructures rather than length-checks, so the type follows the guard —
+  a cast there would assert the invariant instead of satisfying it. `saveRun` takes
   the grade from `data.kind` — **never** re-derive it from the gains, which is
   why `runEvidenceKind` was deleted rather than left lying around. The NOT NULL
   `ovr_after` filler is manufactured inside `saveRun` (it repeats `ovrBefore`;
