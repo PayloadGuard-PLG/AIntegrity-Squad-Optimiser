@@ -4,7 +4,7 @@ import { eq, desc } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
 import { TierName } from '../types/resources';
 import {
-  StatGain, RunOutcome, EvidenceKind, ProjectedStatGain, ObservedStatGain,
+  StatGain, RunOutcome, EvidenceKind, SaveRunInput,
   normaliseStatGain, normaliseRunOutcome,
 } from '../logic/runEvidence';
 
@@ -28,74 +28,18 @@ export interface SquadPlanRun {
   createdAt: number;
 }
 
-/** Fields every newly-written run carries, whatever its provenance. */
-interface SaveRunCommon {
-  sessions: number;
-  selectedStats: string[];
-  ovrBefore: number;
-  tier?: TierName | null;
-  label?: string | null;
-}
-
-/**
- * The write contract, discriminated by provenance.
+/*
+ * The write contract moved to logic/runEvidence.ts.
  *
- * The grade is no longer INFERRED from the gains after the caller has crossed
- * this boundary — it is declared, and declaring it constrains the gain type and
- * the quality fields simultaneously. Previously `gains: StatGain[]` sat beside
- * optional `ovrAfter` and `ovrBoostLo/Hi` in one object and saveRun read the
- * grade back off the array, so a caller could pass observed gains with a
- * computed `ovrAfter`, or mix kinds in one array, and the type system had no
- * opinion. The two live callers happened to behave; the shapes were still
- * representable, and a representable wrong state is a defect waiting for a
- * third caller.
+ * It is a description of PROVENANCE, not of persistence, and it belonged on the
+ * pure side: this module imports expo-sqlite, so anything defined here is
+ * unreachable from a Node test — including the builder that maps a capture
+ * decision onto a write shape. Proving "an OVR-only capture reaches saveRun"
+ * requires executing that mapping, not grepping for it.
  *
- * `legacy-unknown` is deliberately absent. It is a READ state — what a row
- * written before the grades existed reports itself as — and nothing may newly
- * assume it.
+ * Re-exported so the service's public surface is unchanged.
  */
-export type SaveRunInput =
-  | (SaveRunCommon & {
-      kind: 'projected';
-      /** Engine output: one number per stat, because the model produced one. */
-      gains: ProjectedStatGain[];
-      /** The model computed a whole resulting stat set, so a post-OVR exists. */
-      ovrAfter: number;
-      /** A projection observed nothing. There is no API here to claim it did. */
-      ovrBoostLo?: never;
-      ovrBoostHi?: never;
-    })
-  | (SaveRunCommon & {
-      kind: 'observed-interval';
-      /**
-       * No post-action OVR exists to supply. The preview displays a boost and
-       * never a result, so an observed caller has no API by which to provide
-       * one — and the NOT NULL compatibility filler is derived inside saveRun,
-       * where a caller cannot reach it.
-       */
-      ovrAfter?: never;
-    } & (
-      /*
-       * An observed row must CONTAIN an observation. The previous shape let
-       * `gains: []` sit beside no boost, producing a row graded observed that
-       * held nothing observed — a provenance claim with no referent, and the
-       * worst kind of calibration record because it looks like evidence.
-       *
-       * Two legitimate shapes, and nothing else:
-       */
-      // 1. At least one observed stat interval. The OVR boost is optional, and
-      //    paired when present — half an interval is not an interval.
-      | ({ gains: [ObservedStatGain, ...ObservedStatGain[]] } & (
-          | { ovrBoostLo: number; ovrBoostHi: number }
-          | { ovrBoostLo?: never; ovrBoostHi?: never }
-        ))
-      // 2. OVR-ONLY evidence: a preview may show a boost range while no stat row
-      //    reads cleanly. That is still an observation, and refusing to
-      //    represent it would push a caller to invent a stat gain to carry it.
-      //    Both bounds required — an OVR-only row with half a range holds
-      //    nothing complete.
-      | { gains: ObservedStatGain[]; ovrBoostLo: number; ovrBoostHi: number }
-    ));
+export type { SaveRunInput } from '../logic/runEvidence';
 
 type RunRow = typeof squadPlanRuns.$inferSelect;
 

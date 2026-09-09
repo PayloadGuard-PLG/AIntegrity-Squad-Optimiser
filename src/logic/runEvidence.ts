@@ -21,6 +21,7 @@
  */
 
 /** The engine produced a single number. One number is recorded. */
+import type { TierName } from '../types/resources';
 export interface ProjectedStatGain {
   kind: 'projected';
   stat: string;
@@ -171,6 +172,160 @@ export function observedStatGain(
  * invitation to re-derive the write grade after the caller has crossed the
  * boundary, which is the defect this replaced.
  */
+
+/** Fields every newly-written run carries, whatever its provenance. */
+interface SaveRunCommon {
+  sessions: number;
+  selectedStats: string[];
+  ovrBefore: number;
+  tier?: TierName | null;
+  label?: string | null;
+}
+
+/**
+ * The write contract, discriminated by provenance.
+ *
+ * The grade is no longer INFERRED from the gains after the caller has crossed
+ * this boundary — it is declared, and declaring it constrains the gain type and
+ * the quality fields simultaneously. Previously `gains: StatGain[]` sat beside
+ * optional `ovrAfter` and `ovrBoostLo/Hi` in one object and saveRun read the
+ * grade back off the array, so a caller could pass observed gains with a
+ * computed `ovrAfter`, or mix kinds in one array, and the type system had no
+ * opinion. The two live callers happened to behave; the shapes were still
+ * representable, and a representable wrong state is a defect waiting for a
+ * third caller.
+ *
+ * `legacy-unknown` is deliberately absent. It is a READ state — what a row
+ * written before the grades existed reports itself as — and nothing may newly
+ * assume it.
+ */
+export type SaveRunInput =
+  | (SaveRunCommon & {
+      kind: 'projected';
+      /** Engine output: one number per stat, because the model produced one. */
+      gains: ProjectedStatGain[];
+      /** The model computed a whole resulting stat set, so a post-OVR exists. */
+      ovrAfter: number;
+      /** A projection observed nothing. There is no API here to claim it did. */
+      ovrBoostLo?: never;
+      ovrBoostHi?: never;
+    })
+  | (SaveRunCommon & {
+      kind: 'observed-interval';
+      /**
+       * No post-action OVR exists to supply. The preview displays a boost and
+       * never a result, so an observed caller has no API by which to provide
+       * one — and the NOT NULL compatibility filler is derived inside saveRun,
+       * where a caller cannot reach it.
+       */
+      ovrAfter?: never;
+    } & (
+      /*
+       * An observed row must CONTAIN an observation. The previous shape let
+       * `gains: []` sit beside no boost, producing a row graded observed that
+       * held nothing observed — a provenance claim with no referent, and the
+       * worst kind of calibration record because it looks like evidence.
+       *
+       * Two legitimate shapes, and nothing else:
+       */
+      // 1. At least one observed stat interval. The OVR boost is optional, and
+      //    paired when present — half an interval is not an interval.
+      | ({ gains: [ObservedStatGain, ...ObservedStatGain[]] } & (
+          | { ovrBoostLo: number; ovrBoostHi: number }
+          | { ovrBoostLo?: never; ovrBoostHi?: never }
+        ))
+      // 2. OVR-ONLY evidence: a preview may show a boost range while no stat row
+      //    reads cleanly. That is still an observation, and refusing to
+      //    represent it would push a caller to invent a stat gain to carry it.
+      //    Both bounds required — an OVR-only row with half a range holds
+      //    nothing complete.
+      | { gains: ObservedStatGain[]; ovrBoostLo: number; ovrBoostHi: number }
+    ));
+
+/**
+ * Maps a capture decision onto the write shape it entitles.
+ *
+ * This exists so the mapping can be EXECUTED by a test. A source-shape
+ * assertion can show that a branch is written; it cannot show that an input
+ * reaches it — a mutation that returns early before the OVR-only save leaves
+ * every grepped token in place and still drops the write. That mutation
+ * survived until this function existed.
+ *
+ * It also gives the screen exactly one saveRun call, so there is no longer a
+ * branch there to drop.
+ */
+export function buildObservedSaveRun(
+  decision: Exclude<ObservedRunDecision, { outcome: 'reject' }>,
+  common: Omit<SaveRunCommon, never>,
+): SaveRunInput {
+  if (decision.outcome === 'ovr-only') {
+    return {
+      kind: 'observed-interval', ...common,
+      gains: [],
+      ovrBoostLo: decision.boost.ovrBoostLo,
+      ovrBoostHi: decision.boost.ovrBoostHi,
+    };
+  }
+  if (decision.boost) {
+    return {
+      kind: 'observed-interval', ...common,
+      gains: decision.gains,
+      ovrBoostLo: decision.boost.ovrBoostLo,
+      ovrBoostHi: decision.boost.ovrBoostHi,
+    };
+  }
+  return { kind: 'observed-interval', ...common, gains: decision.gains };
+}
+
+/** A complete observed OVR boost. Both bounds or it is not one. */
+export interface ObservedBoost {
+  ovrBoostLo: number;
+  ovrBoostHi: number;
+}
+
+/**
+ * Which observed-write shape a capture holds, or that it holds none.
+ *
+ * The storage type admits two forms of observed evidence — stat intervals, or a
+ * complete OVR boost standing alone — and the capture screen previously
+ * returned on the first check, so the OVR-only form was representable but
+ * unreachable from the only writer. A shape nothing can produce is not a
+ * supported case; it is dead surface pretending to be one.
+ *
+ * The decision lives here, pure, because "zero gains plus a complete boost
+ * reaches saveRun" is a claim about BEHAVIOUR. Asserting it by grepping the
+ * screen's source would only show that the branch is written, not that the
+ * inputs route to it.
+ */
+export type ObservedRunDecision =
+  /** No evidence of either kind. Nothing is written. */
+  | { outcome: 'reject' }
+  /** At least one stat interval; a complete boost travels with it when present. */
+  | { outcome: 'stat-intervals'; gains: [ObservedStatGain, ...ObservedStatGain[]]; boost: ObservedBoost | null }
+  /** No stat interval read, but the preview's own OVR boost was. */
+  | { outcome: 'ovr-only'; boost: ObservedBoost };
+
+export function decideObservedRun(
+  gains: ObservedStatGain[],
+  ovrBoostLo: number | null | undefined,
+  ovrBoostHi: number | null | undefined,
+): ObservedRunDecision {
+  // A boost is a PAIR. Half of one is a failed read, not a partial observation,
+  // so it contributes nothing here and cannot rescue an empty gain set.
+  const boost: ObservedBoost | null =
+    typeof ovrBoostLo === 'number' && Number.isFinite(ovrBoostLo) &&
+    typeof ovrBoostHi === 'number' && Number.isFinite(ovrBoostHi)
+      ? { ovrBoostLo, ovrBoostHi }
+      : null;
+
+  // Destructured, not length-checked: the non-empty tuple the storage type
+  // requires follows from this narrowing, so the caller can satisfy the
+  // invariant rather than assert it with a cast.
+  const [first, ...rest] = gains;
+  if (first) return { outcome: 'stat-intervals', gains: [first, ...rest], boost };
+  if (boost) return { outcome: 'ovr-only', boost };
+  return { outcome: 'reject' };
+}
 
 export interface GainDisplay {
   /** What to show. An interval renders as an interval. */

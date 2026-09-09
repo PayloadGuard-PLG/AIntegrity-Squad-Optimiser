@@ -30,7 +30,8 @@ import {
   buildOutcomeEvidence, compareObservedAgainstPrediction, type PredictedDelta,
 } from '../src/logic/outcomeEvidence';
 import {
-  calibrationEligible, calibrationEvidence, type StatGain,
+  calibrationEligible, calibrationEvidence, decideObservedRun, buildObservedSaveRun,
+  type StatGain, type ObservedStatGain,
 } from '../src/logic/runEvidence';
 import type { Player } from '../src/database/playerSchema';
 import type { GameProfile } from '../src/types/resources';
@@ -395,20 +396,124 @@ export const boostOnly: SaveRunInput = {
     `all three observed shapes must compile; got:\n${out}`);
 });
 
-test('the capture screen satisfies the non-empty invariant, it does not assert it', () => {
-  // A cast would let the caller CLAIM non-emptiness rather than prove it, and a
-  // claimed invariant is not an invariant. This was a real defect in the first
-  // cut of this change: an intermediate `const` had no contextual type, so the
-  // tuple widened to an array and a cast was added to make it pass. Both
-  // argument literals are now written inline so the compiler checks them.
+// ---------------------------------------------------------------------------
+// 1c. the live writer can reach every shape the storage type admits
+// ---------------------------------------------------------------------------
+
+const OBS = (stat: string): ObservedStatGain => ({
+  kind: 'observed-interval', stat, from: 139, gainLo: 11, gainHi: 16, isWhite: true,
+});
+
+test('zero stat gains + a complete OVR boost reaches saveRun', () => {
+  // The defect this closes: the storage type admitted OVR-only evidence and the
+  // capture screen returned before ever checking for it, so the branch was
+  // representable but unreachable from the only writer. A shape nothing can
+  // produce is dead surface pretending to be a supported case.
+  const d = decideObservedRun([], 2, 6);
+  assert.equal(d.outcome, 'ovr-only');
+  assert.deepEqual(d.outcome === 'ovr-only' ? d.boost : null, { ovrBoostLo: 2, ovrBoostHi: 6 });
+});
+
+test('zero stat gains + no boost is rejected', () => {
+  assert.equal(decideObservedRun([], null, null).outcome, 'reject');
+  assert.equal(decideObservedRun([], undefined, undefined).outcome, 'reject');
+});
+
+test('zero stat gains + half a boost is rejected', () => {
+  // Half a boost is a failed read, not a partial observation, so it cannot
+  // rescue an empty gain set into a writable run.
+  assert.equal(decideObservedRun([], 2, null).outcome, 'reject');
+  assert.equal(decideObservedRun([], null, 6).outcome, 'reject');
+  assert.equal(decideObservedRun([], 2, NaN).outcome, 'reject');
+  assert.equal(decideObservedRun([], NaN, 6).outcome, 'reject');
+});
+
+test('non-empty stat gains take the compiler-verified tuple path', () => {
+  const one = decideObservedRun([OBS('MARKING')], null, null);
+  assert.equal(one.outcome, 'stat-intervals');
+  if (one.outcome !== 'stat-intervals') throw new Error('unreachable');
+  // The tuple's first element is statically present — this is the property the
+  // storage type requires and the reason a `.length` check cannot satisfy it.
+  const head: ObservedStatGain = one.gains[0];
+  assert.equal(head.stat, 'MARKING');
+  assert.equal(one.boost, null, 'a boost is optional on this path');
+
+  const many = decideObservedRun([OBS('MARKING'), OBS('POSITIONING')], 2, 6);
+  assert.equal(many.outcome, 'stat-intervals');
+  if (many.outcome !== 'stat-intervals') throw new Error('unreachable');
+  assert.equal(many.gains.length, 2);
+  assert.deepEqual(many.boost, { ovrBoostLo: 2, ovrBoostHi: 6 });
+});
+
+test('a half boost never travels with stat intervals either', () => {
+  const d = decideObservedRun([OBS('MARKING')], 2, null);
+  assert.equal(d.outcome, 'stat-intervals');
+  assert.equal(d.outcome === 'stat-intervals' ? d.boost : undefined, null,
+    'an incomplete boost must be dropped, not half-recorded');
+});
+
+test('every admitted decision produces a write, executed not grepped', () => {
+  // The mutation that survived a source-shape version of this test: an early
+  // return before the OVR-only save left every grepped token in place and still
+  // dropped the write. Running the mapping is the only check that catches it.
+  const shared = { sessions: 4, selectedStats: [], ovrBefore: 185, label: 'X' };
+
+  // zero stat gains + a complete boost -> a real, valid write
+  const ovrOnly = decideObservedRun([], 2, 6);
+  if (ovrOnly.outcome === 'reject') throw new Error('OVR-only evidence was rejected');
+  const w1 = buildObservedSaveRun(ovrOnly, shared);
+  assert.equal(w1.kind, 'observed-interval');
+  assert.deepEqual(w1.gains, []);
+  assert.equal(w1.kind === 'observed-interval' ? w1.ovrBoostLo : undefined, 2);
+  assert.equal(w1.kind === 'observed-interval' ? w1.ovrBoostHi : undefined, 6);
+  assert.equal('ovrAfter' in w1, false, 'no post-action OVR may appear');
+
+  // stat intervals, no boost
+  const gainsOnly = decideObservedRun([OBS('MARKING')], null, null);
+  if (gainsOnly.outcome === 'reject') throw new Error('stat intervals were rejected');
+  const w2 = buildObservedSaveRun(gainsOnly, shared);
+  assert.equal(w2.gains.length, 1);
+  assert.equal('ovrBoostLo' in w2, false, 'an unobserved boost stays absent');
+
+  // stat intervals with a boost
+  const both = decideObservedRun([OBS('MARKING'), OBS('POSITIONING')], 2, 6);
+  if (both.outcome === 'reject') throw new Error('stat intervals + boost were rejected');
+  const w3 = buildObservedSaveRun(both, shared);
+  assert.equal(w3.gains.length, 2);
+  assert.equal(w3.kind === 'observed-interval' ? w3.ovrBoostHi : undefined, 6);
+});
+
+test('the capture screen delegates the shape choice and calls saveRun once', () => {
   const src = readCode('app/coach/capture.tsx');
-  assert.equal(/as \[ObservedStatGain/.test(src), false,
-    'the non-empty tuple must not be asserted with a cast');
-  assert.match(src, /const \[firstGain, \.\.\.restGains\] = gainEntries;/,
-    'the guard must destructure so the type follows the check');
-  assert.match(src, /if \(!firstGain\)/,
-    'a .length check narrows nothing and cannot satisfy the tuple');
-  assert.equal(/gains: gainEntries/.test(src), false,
+  assert.match(src, /decideObservedRun\(gainEntries, observedOvrBoostLo, observedOvrBoostHi\)/,
+    'the screen must use the shared decision');
+  assert.match(src, /if \(decision\.outcome === 'reject'\)[\s\S]{0,300}return;/,
+    'rejection must be the only early return');
+  assert.match(src, /squadPlanService\.saveRun\(player\.id, buildObservedSaveRun\(decision, \{/,
+    'the write shape must come from the shared builder');
+  assert.equal((src.match(/squadPlanService\.saveRun\(/g) ?? []).length, 1,
+    'one call site — a branch here is a branch that can be dropped');
+});
+
+test('the non-empty invariant is satisfied, never asserted', () => {
+  // A cast would let the caller CLAIM non-emptiness rather than prove it, and a
+  // claimed invariant is not an invariant. This was a real defect in an earlier
+  // cut: an intermediate `const` had no contextual type, the tuple widened to an
+  // array, and a cast was added to make it pass. The narrowing now lives in
+  // decideObservedRun and the screen's literals are inline, so the compiler
+  // checks both. Neither file may reintroduce the cast.
+  const evidence = readCode('src/logic/runEvidence.ts');
+  const capture = readCode('app/coach/capture.tsx');
+
+  assert.match(evidence, /const \[first, \.\.\.rest\] = gains;/,
+    'the decision must destructure so the type follows the check');
+  assert.match(evidence, /if \(first\) return \{ outcome: 'stat-intervals', gains: \[first, \.\.\.rest\]/,
+    'the tuple must be built from the narrowed head');
+  for (const [file, src] of [['runEvidence.ts', evidence], ['capture.tsx', capture]] as const) {
+    assert.equal(/as \[ObservedStatGain/.test(src), false,
+      `${file}: the non-empty tuple must not be asserted with a cast`);
+  }
+  assert.equal(/gains: gainEntries\b/.test(capture), false,
     'the un-narrowed array must not be passed');
 });
 
@@ -506,11 +611,12 @@ test('capture.tsx records the observed BOOST, not a post-OVR derived from it', (
   const src = read('app/coach/capture.tsx');
   assert.match(src, /setObservedOvrBoostLo\(scan\.ovrBoostLo\)/,
     'the recorded boost must come from the scanned preview');
-  assert.match(src, /const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;/,
-    'both ends must be observed before an outcome is recorded');
-  // Multiline: the two bounds sit on separate lines in the inline argument
-  // literal that replaced the cast-forcing intermediate.
-  assert.match(src, /ovrBoostLo: observedOvrBoostLo!,[\s\S]{0,60}ovrBoostHi: observedOvrBoostHi!,/,
+  assert.match(src, /decideObservedRun\(/,
+    'the both-ends rule now lives in the shared decision, not an inline flag');
+  // The boost literal moved into buildObservedSaveRun when the screen was
+  // reduced to a single call site. Assert it where it now lives.
+  const builder = readCode('src/logic/runEvidence.ts');
+  assert.match(builder, /ovrBoostLo: decision\.boost\.ovrBoostLo,[\s\S]{0,80}ovrBoostHi: decision\.boost\.ovrBoostHi,/,
     'the observed boost must be stored as itself');
   assert.equal(/ovrBefore \+ observedOvrBoost/.test(src), false,
     'a post-action OVR must not be synthesised by addition');

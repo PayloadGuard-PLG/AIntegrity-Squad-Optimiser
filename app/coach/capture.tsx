@@ -11,7 +11,9 @@ import { getWhiteStatKeys, getAllStatKeys } from '../../src/utils/roleWeights';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile, TalentTier } from '../../src/types/resources';
 import { squadPlanService } from '../../src/services/squadPlanService';
-import { observedStatGain, type ObservedStatGain } from '../../src/logic/runEvidence';
+import {
+  observedStatGain, decideObservedRun, buildObservedSaveRun, type ObservedStatGain,
+} from '../../src/logic/runEvidence';
 import { scanCoachPreview } from '../../src/logic/coachScanner';
 import { resolveCoachStats } from '../../src/logic/coachPipeline';
 import { Player } from '../../src/database/playerSchema';
@@ -247,57 +249,32 @@ export default function CoachCaptureScreen() {
       ))
       .filter((g): g is ObservedStatGain => g !== undefined);
 
-    // Destructured rather than length-checked so the TYPE follows the check.
-    // The write contract requires a non-empty tuple for a stat-interval run —
-    // `.length === 0` narrows nothing, and this screen must satisfy the storage
-    // invariant, not merely agree with it. This guard remains the UX message;
-    // the invariant itself is the type's.
-    const [firstGain, ...restGains] = gainEntries;
-    if (!firstGain) {
-      Alert.alert('Nothing to log', 'Enter both bounds of at least one observed range.');
+    // Which observed form this capture holds — stat intervals, an OVR boost
+    // standing alone, or nothing. Decided by a pure function so the routing is
+    // testable: the storage type admits OVR-only evidence, and this screen
+    // previously returned before ever checking for it, leaving that branch
+    // representable but unreachable from the only writer.
+    const decision = decideObservedRun(gainEntries, observedOvrBoostLo, observedOvrBoostHi);
+
+    if (decision.outcome === 'reject') {
+      // The UX message. The storage invariant is the type's; this only explains
+      // it. Rejection now means NEITHER form of evidence exists — an OVR boost
+      // with no readable stat row is a legitimate save.
+      Alert.alert('Nothing to log',
+        'Enter both bounds of at least one observed range, or scan a preview showing an OVR boost.');
       return;
     }
 
-    // The OVR outcome is recorded ONLY when the preview displayed one and both
-    // of its ends were read, and it is recorded as the quantity that was shown:
-    // a BOOST range. Not `ovrBefore + boost` — the game never displayed a
-    // post-action OVR, and adding a read boost to a separately-sourced ovrBefore
-    // produces a third quantity nobody observed while labelling it observed.
-    const bothOvrBounds = observedOvrBoostLo !== null && observedOvrBoostHi !== null;
-
-    // Observed evidence, declared as such. The write contract then gives this
-    // call no field in which to put a post-action OVR — the boost is stored as
-    // itself, and the NOT NULL filler is the persistence layer's business.
-    //
-    // Both argument literals are written out in full rather than assembled from
-    // a shared intermediate. An intermediate `const` has no contextual type, so
-    // TypeScript widens `[firstGain, ...restGains]` to ObservedStatGain[] and a
-    // cast becomes necessary to pass it — and a cast is the caller ASSERTING the
-    // non-emptiness the type exists to check. Inline, the parameter type drives
-    // the inference and the compiler verifies it. The repetition buys a checked
-    // invariant instead of an asserted one.
-    const shared = {
+    // One call, one shape, chosen by the shared builder. The screen no longer
+    // branches on the decision — a branch here is a branch that can be dropped,
+    // which is how an early return silently removed the OVR-only write while
+    // every source token a grep looks for stayed in place.
+    squadPlanService.saveRun(player.id, buildObservedSaveRun(decision, {
       sessions: parseInt(multiplier, 10) || 30,
       selectedStats: gainEntries.map(g => g.stat),
       ovrBefore,
       label: `${coachType} ${coachCategory}`,
-    };
-
-    if (bothOvrBounds) {
-      squadPlanService.saveRun(player.id, {
-        kind: 'observed-interval',
-        ...shared,
-        gains: [firstGain, ...restGains],
-        ovrBoostLo: observedOvrBoostLo!,
-        ovrBoostHi: observedOvrBoostHi!,
-      });
-    } else {
-      squadPlanService.saveRun(player.id, {
-        kind: 'observed-interval',
-        ...shared,
-        gains: [firstGain, ...restGains],
-      });
-    }
+    }));
     setSaved(true);
   }
 

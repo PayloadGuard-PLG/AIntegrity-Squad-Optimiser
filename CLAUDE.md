@@ -92,7 +92,17 @@ earned (Principia Prop. XXV).
   while no stat row read cleanly). `gains: []` with no boost is unrepresentable;
   it produced a row graded observed that held nothing observed. The capture
   screen destructures rather than length-checks, so the type follows the guard —
-  a cast there would assert the invariant instead of satisfying it. `saveRun` takes
+  a cast there would assert the invariant instead of satisfying it.
+- **Both observed forms must be REACHABLE, not just representable.**
+  `decideObservedRun()` and `buildObservedSaveRun()` in `runEvidence.ts` own the
+  capture routing, and the screen has exactly one `saveRun` call. A shape the
+  writer cannot produce is dead surface pretending to be a supported case — the
+  screen once returned on the first empty-gains check and made OVR-only evidence
+  unreachable. Source-shape assertions cannot catch that: a mutation returning
+  early before the OVR-only save leaves every grepped token in place, which is
+  why the mapping is a pure function a test can execute. The write contract lives
+  in `runEvidence.ts` (the service re-exports it) for the same reason — it is a
+  description of provenance, not of persistence. `saveRun` takes
   the grade from `data.kind` — **never** re-derive it from the gains, which is
   why `runEvidenceKind` was deleted rather than left lying around. The NOT NULL
   `ovr_after` filler is manufactured inside `saveRun` (it repeats `ovrBefore`;

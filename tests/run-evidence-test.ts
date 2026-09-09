@@ -219,8 +219,10 @@ test('the capture screen no longer averages a preview interval', () => {
     'the OVR midpoint must not return');
   assert.match(src, /observedStatGain\(/,
     'observed previews must be recorded through the interval constructor');
-  // Multiline: the bounds sit on separate lines in the inline argument literal.
-  assert.match(src, /ovrBoostLo: observedOvrBoostLo!,[\s\S]{0,60}ovrBoostHi: observedOvrBoostHi!,/,
+  // The boost literal moved into buildObservedSaveRun when the screen was
+  // reduced to a single call site. Assert it where it now lives.
+  const builder = readCode('src/logic/runEvidence.ts');
+  assert.match(builder, /ovrBoostLo: decision\.boost\.ovrBoostLo,[\s\S]{0,80}ovrBoostHi: decision\.boost\.ovrBoostHi,/,
     'the observed OVR boost must be written as its own two bounds');
 });
 
@@ -267,8 +269,13 @@ test('the ovr_after filler is generated only inside the persistence layer', () =
   // And the observed variant of the write type must offer no ovrAfter at all,
   // so there is no API through which a caller could supply one. The compile-fail
   // probe in tests/outcome-boundary-test.ts proves the compiler enforces it.
-  assert.match(src, /kind: 'observed-interval';[\s\S]{0,600}ovrAfter\?: never;/,
+  // The write contract moved to the pure module so its builder is testable;
+  // the service re-exports it. Assert the shape where it is defined.
+  const contract = readCode('src/logic/runEvidence.ts');
+  assert.match(contract, /kind: 'observed-interval';[\s\S]{0,600}ovrAfter\?: never;/,
     'an observed caller must have no ovrAfter field');
+  assert.match(src, /export type \{ SaveRunInput \} from '\.\.\/logic\/runEvidence';/,
+    'the service must still expose the contract on its public surface');
 });
 
 test('the service grades every row it writes and reads', () => {
@@ -284,7 +291,7 @@ test('the service grades every row it writes and reads', () => {
   // write contract was discriminated, so an `export interface SaveRunInput`
   // anchor silently returns -1 and slices to end-of-file.
   const start = src.indexOf('export interface SquadPlanRun');
-  const end = src.indexOf('interface SaveRunCommon');
+  const end = src.indexOf('export type { SaveRunInput }');
   assert.ok(start >= 0 && end > start, 'both slice anchors must exist');
   const iface = src.slice(start, end);
   assert.match(iface, /outcome: RunOutcome;/,
