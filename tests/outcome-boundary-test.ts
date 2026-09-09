@@ -81,7 +81,7 @@ function outcomeSets(stats: string[], truth?: PredictedDelta[]): Array<[string, 
  */
 function produce(pre: {
   player: Player; stats: string[]; sessions: number; profile: GameProfile;
-  transferClass: 'ordinary' | 'reward' | 'unknown';
+  transferClass: 'ordinary' | 'reward' | 'unresolved';
 }, observed: CoachPreviewInterval[]) {
   const projection = projectCoachAction({
     player: pre.player, stats: pre.stats, sessions: pre.sessions,
@@ -115,15 +115,15 @@ test('same pre-outcome state + different observed outcomes => identical producti
   }
 });
 
-test('same pre-outcome state + different observed outcomes => identical production result (unknown)', () => {
-  const pre = { player: subject(), stats: STATS, sessions: 40, profile, transferClass: 'unknown' } as const;
+test('same pre-outcome state + different observed outcomes => identical production result (unresolved)', () => {
+  const pre = { player: subject(), stats: STATS, sessions: 40, profile, transferClass: 'unresolved' } as const;
   const baseline = projectCoachAction({ ...pre });
   assert.equal(baseline.projectionStatus, 'unavailable');
 
   for (const [label, observed] of outcomeSets(STATS)) {
     const { projection } = produce(pre, observed);
     assert.deepEqual(projection, baseline,
-      `the unknown abstention changed when ${label} was the eventual outcome`);
+      `the unresolved abstention changed when ${label} was the eventual outcome`);
   }
 });
 

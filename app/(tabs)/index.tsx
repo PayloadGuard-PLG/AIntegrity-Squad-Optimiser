@@ -94,7 +94,7 @@ export default function SquadScreen() {
   const summary = useMemo(() => {
     if (!squad.length) return null;
     const talentCounts = squad.reduce((acc: Record<string, number>, p) => {
-      const t = (p as any).talent ?? 'Normal';
+      const t = (p as any).talent ?? 'Unknown';
       acc[t] = (acc[t] || 0) + 1;
       return acc;
     }, {});

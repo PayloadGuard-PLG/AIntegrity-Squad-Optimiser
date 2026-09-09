@@ -3,7 +3,8 @@ import { players } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
 import { Player, PlayerSnapshot, PlaystyleFamily, StatBoost } from '../database/playerSchema';
-import { TierName, TalentTier } from '../types/resources';
+import { TierName } from '../types/resources';
+import { normaliseStoredTrainingRate, normaliseTrainingRateSource } from '../logic/trainingRate';
 
 type PlayerRow = typeof players.$inferSelect;
 
@@ -15,7 +16,8 @@ function toRow(p: Player): PlayerRow {
     age: p.age,
     overall: p.overall,
     tier: p.tier,
-    talent: p.talent ?? 'Normal',
+    talent: normaliseStoredTrainingRate(p.talent),
+    talentSource: normaliseTrainingRateSource(p.talentSource),
     stats: JSON.stringify(p.stats),
     isMutantCandidate: p.isMutantCandidate,
     snapshot: p.snapshot ? JSON.stringify(p.snapshot) : null,
@@ -33,16 +35,8 @@ const LEGACY_TIER_MAP: Record<string, TierName> = {
   None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
 };
 
-const LEGACY_TALENT_MAP: Record<string, TalentTier> = {
-  FT1: 'Fastest', FT2: 'Fast', FT3: 'Average',
-};
-
 function normaliseTier(t: string): TierName {
   return (LEGACY_TIER_MAP[t] ?? t) as TierName;
-}
-
-function normaliseTalent(t: string): TalentTier {
-  return (LEGACY_TALENT_MAP[t] ?? t) as TalentTier;
 }
 
 function parseJson<T>(raw: string | null | undefined): T | undefined {
@@ -65,7 +59,8 @@ function fromRow(row: PlayerRow): Player {
       age: row.age,
       overall: row.overall,
       tier: normaliseTier(row.tier),
-      talent: normaliseTalent(row.talent ?? 'Normal'),
+      talent: normaliseStoredTrainingRate(row.talent),
+      talentSource: normaliseTrainingRateSource(row.talentSource),
       stats: JSON.parse(row.stats) as Record<string, number>,
       isMutantCandidate: Boolean(row.isMutantCandidate),
       snapshot,
@@ -83,7 +78,8 @@ function fromRow(row: PlayerRow): Player {
       age: row.age,
       overall: row.overall,
       tier: normaliseTier(row.tier),
-      talent: 'Normal',
+      talent: 'Unknown',
+      talentSource: 'legacy-default',
       stats: {},
       isMutantCandidate: false,
       snapshot,

@@ -1,5 +1,6 @@
 import { TierName, TalentTier } from '../types/resources';
 import { PlaystyleFamily, StatBoost } from '../logic/glyphReader';
+import type { TrainingRateSource } from '../logic/trainingRate';
 
 export type { PlaystyleFamily, StatBoost };
 
@@ -17,6 +18,8 @@ export interface Player {
   overall: number;
   tier: TierName;
   talent: TalentTier;
+  /** Provenance of the stored training-rate observation. */
+  talentSource?: TrainingRateSource;
   stats: Record<string, number>;
   isMutantCandidate: boolean;
   snapshot?: PlayerSnapshot | null;
@@ -43,6 +46,7 @@ export const INITIAL_PLAYER_STATE: Player = {
   overall: 40,
   tier: 'T0',
   talent: 'Unknown',
+  talentSource: 'unresolved',
   stats: {},
   isMutantCandidate: false,
   snapshot: null,

@@ -13,6 +13,7 @@ import { buildSyntheticCard } from './helpers/syntheticCard';
 import { getWhiteStatKeys, isWhiteStat } from '../src/utils/roleWeights';
 import { playerService } from '../src/services/playerService.web';
 import { Player } from '../src/database/playerSchema';
+import { ingestCardTrainingRate } from '../src/logic/trainingRate';
 
 const ocr: OcrResult = JSON.parse(readFileSync(join(__dirname, 'fixtures/mlkit-moore.json'), 'utf8'));
 const pixels = buildSyntheticCard('moore', ocr);
@@ -21,6 +22,29 @@ const before: PlayerCardState = {
   playstyle: 'defensive', specialAbilities: ['saved-ability'],
   boosts: { TACKLING: { amount: 10, active: true, source: 'personalTrainer' } },
 };
+
+test('edit rescan retains a card training-rate observation when OCR reads zero stats', () => {
+  const partialScan = { stats: {}, overall: 115.3, talent: 'FT2' };
+  const next = ingestCardTrainingRate(
+    { talent: 'Unknown', talentSource: 'unresolved' },
+    partialScan.talent,
+  );
+  assert.deepEqual(next, { talent: 'Fast', talentSource: 'card' });
+
+  const prior = { talent: 'Slow' as const, talentSource: 'manual' as const };
+  assert.deepEqual(ingestCardTrainingRate(prior, undefined), prior,
+    'an OVR-only scan must not replace the existing training-rate observation');
+
+  // React Native is not loaded in this Node suite. Pin the component wiring as
+  // well as the pure behavior: ingestion must precede the stats-success gate.
+  const editScreen = readFileSync(join(__dirname, '..', 'app/player/[id].tsx'), 'utf8');
+  const ingestion = editScreen.indexOf('const scannedTrainingRate = ingestCardTrainingRate');
+  const statsGate = editScreen.indexOf('if (data.stats && Object.keys(data.stats).length > 0)', ingestion);
+  assert.ok(ingestion >= 0 && statsGate > ingestion,
+    'training-rate ingestion must run before a zero-stat scan can take the rejection path');
+  assert.match(editScreen, /else if \(data\.talent \|\| data\.overall\)/,
+    'a readable card detail with zero stats is a partial success, not an unrecognised image');
+});
 
 // Independent PNG writer: Node zlib + PNG chunks, not the production codec's
 // encoder. Generated from synthetic pixels; no screenshot is written to disk.

@@ -19,8 +19,10 @@ import { TabBackground } from '../../src/components/TabBackground';
 import { OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import {
-  projectCoachAction, type CoachPreviewInterval, type CoachTransferClass,
+  projectCoachAction, resolveTalentPolicy, type CoachPreviewInterval, type CoachTransferClass,
 } from '../../src/logic/recommendation';
+import { trainingRateSourceLabel } from '../../src/logic/trainingRate';
+import { withManualStatSelection } from '../../src/logic/coachObservationState';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { TalentTier, GameProfile } from '../../src/types/resources';
 import { playerService } from '../../src/services/playerService';
@@ -64,7 +66,7 @@ export default function CoachesScreen() {
   const [scannedStats, setScannedStats] = useState<string[]>([]);
   const [coachType, setCoachType] = useState('');
   const [coachCategory, setCoachCategory] = useState('');
-  const [transferClass, setTransferClass] = useState<CoachTransferClass>('ordinary');
+  const [transferClass, setTransferClass] = useState<CoachTransferClass>('unresolved');
   const [observedGainIntervals, setObservedGainIntervals] = useState<CoachPreviewInterval[]>([]);
   const [result, setResult] = useState<ProjectionResult | null>(null);
   const [rewardPreviewResult, setRewardPreviewResult] = useState<RewardPreviewResult | null>(null);
@@ -81,6 +83,7 @@ export default function CoachesScreen() {
   // Declared before the effects below: their dependency arrays read player?.id
   // during render, so a const declared after them is a temporal-dead-zone throw.
   const player = squad.find(p => p.id === selectedId) ?? (squad.length === 1 ? squad[0] : null);
+  const talentPolicy = player ? resolveTalentPolicy(player) : null;
 
   useEffect(() => {
     if (incomingPlayerId) manager.setSelectedPlayerId(incomingPlayerId);
@@ -118,7 +121,7 @@ export default function CoachesScreen() {
     setScannedStats([]);
     setCoachType('');
     setCoachCategory('');
-    setTransferClass('ordinary');
+    setTransferClass('unresolved');
     setObservedGainIntervals([]);
     setScannedIdentity({});
     setFocusedStatSel(new Set());
@@ -180,16 +183,28 @@ export default function CoachesScreen() {
     const next = new Set(focusedStatSel);
     if (next.has(stat)) { next.delete(stat); } else if (next.size < 2) { next.add(stat); }
     setFocusedStatSel(next);
-    const stats = [...next];
+    const observation = withManualStatSelection({
+      transferClass, observedGainIntervals, selectedStats: scannedStats,
+    }, [...next]);
+    const stats = observation.selectedStats;
     setScannedStats(stats);
+    setTransferClass(observation.transferClass);
+    setObservedGainIntervals(observation.observedGainIntervals);
     setResult(null);
     setRewardPreviewResult(null);
     if (stats.length > 0) buildStatus(stats, coachType, coachCategory, 'MANUAL');
   }
 
+  function selectTransferClass(next: Exclude<CoachTransferClass, 'unresolved'>) {
+    setTransferClass(next);
+    setResult(null);
+    setRewardPreviewResult(null);
+    setSaveConfirmed(false);
+  }
+
   function saveToHistory(
     stats: string[], sessCount: number, type: string, cat: string, isManual: boolean,
-    savedTransferClass: CoachTransferClass = 'ordinary',
+    savedTransferClass: CoachTransferClass,
     savedIntervals: CoachPreviewInterval[] = [],
   ) {
     if (!player || stats.length === 0 || sessCount === 0) return;
@@ -222,7 +237,7 @@ export default function CoachesScreen() {
       if (!recognised && scan.stats.length === 0) {
         setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
         setScannedStats([]); setCoachType(''); setCoachCategory('');
-        setTransferClass('ordinary'); setObservedGainIntervals([]);
+        setTransferClass('unresolved'); setObservedGainIntervals([]);
         setScannedIdentity({});
         return;
       }
@@ -230,7 +245,7 @@ export default function CoachesScreen() {
       if (scan.multiplier) setSessions(String(scan.multiplier));
       setCoachType(scan.coachType ?? '');
       setCoachCategory(scan.coachCategory ?? '');
-      const scannedTransferClass: CoachTransferClass = scan.isRewardCoach ? 'reward' : 'ordinary';
+      const scannedTransferClass = scan.transferClass;
       setTransferClass(scannedTransferClass);
 
       // Scanner-observed identity of the card IN THE IMAGE. Held, displayed and
@@ -299,9 +314,15 @@ export default function CoachesScreen() {
 
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
+      if (scannedTransferClass === 'reward') parts.push('REWARD COACH');
+      if (scannedTransferClass === 'ordinary') parts.push('ACADEMY COACH');
+      if (scannedTransferClass === 'unresolved') parts.push('TRANSFER UNRESOLVED');
       parts.push(`${statNames.length} STATS`);
       const rangeCt2 = Object.keys(gainRanges).length;
       if (rangeCt2 > 0) parts.push(`${rangeCt2} RANGES`);
+      for (const interval of intervals.slice(0, 3)) {
+        parts.push(`${interval.stat} [${interval.gainLo},${interval.gainHi}]`);
+      }
       if (scan.coachType) parts.push(scan.coachType.toUpperCase());
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
@@ -354,7 +375,7 @@ export default function CoachesScreen() {
     setRewardPreviewResult(null);
     setSaveConfirmed(false);
     if (!scanStatus.startsWith('SCANNED')) {
-      saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true, 'ordinary', []);
+      saveToHistory(scannedStats, sessionCount, coachType, coachCategory, true, transferClass, []);
     }
   }
 
@@ -365,7 +386,7 @@ export default function CoachesScreen() {
     setScannedStats([]);
     setCoachType('');
     setCoachCategory('');
-    setTransferClass('ordinary');
+    setTransferClass('unresolved');
     setObservedGainIntervals([]);
     setScannedIdentity({});
     setSessions('');
@@ -474,6 +495,33 @@ export default function CoachesScreen() {
                 })}
               </View>
 
+              {/* Transfer class is independent from Standard/Focused/Extensive. */}
+              <View style={{ marginBottom: 12 }}>
+                <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 6 }}>
+                  TRANSFER CLASS — SELECT ONLY FROM EXPLICIT GAME LABEL
+                </MonoLabel>
+                <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap' }}>
+                  {([
+                    ['ordinary', 'ACADEMY COACH'],
+                    ['reward', 'REWARD COACH'],
+                  ] as const).map(([value, label]) => {
+                    const active = transferClass === value;
+                    return (
+                      <Pressable key={value} onPress={() => selectTransferClass(value)}
+                        style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
+                          borderColor: active ? theme.hot : theme.steel,
+                          backgroundColor: active ? theme.hot + '22' : 'transparent' }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
+                          color: active ? theme.hot : theme.inkMuted }}>{label}</Text>
+                      </Pressable>
+                    );
+                  })}
+                  {transferClass === 'unresolved' && (
+                    <MonoLabel size={8} color={theme.hot}>UNRESOLVED — PROJECTION BLOCKED</MonoLabel>
+                  )}
+                </View>
+              </View>
+
               {/* Focused stat selector */}
               {coachType === 'Focused' && coachCategory && (
                 <View style={{ marginBottom: 12 }}>
@@ -515,15 +563,28 @@ export default function CoachesScreen() {
                 </View>
               </View>
 
-              {/* Talent — informational display from player card */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <MonoLabel style={{ flex: 1 }}>TALENT</MonoLabel>
-                <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
-                  <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
-                    {TALENT_LABEL[player.talent as TalentTier] ?? player.talent}
-                  </Text>
+              {/* Stored observation and production assumption are separate facts. */}
+              <View style={{ marginBottom: 14, gap: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <MonoLabel style={{ flex: 1 }}>STORED TRAINING RATE</MonoLabel>
+                  <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: theme.steelLight }}>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: theme.steelLight }}>
+                      {TALENT_LABEL[player.talent as TalentTier] ?? player.talent}
+                    </Text>
+                  </View>
+                  <MonoLabel size={8} color={theme.steelLight}>
+                    {trainingRateSourceLabel(player.talentSource ?? 'legacy-default')}
+                  </MonoLabel>
                 </View>
-                <MonoLabel size={8} color={theme.steelLight}>FROM CARD</MonoLabel>
+                {talentPolicy && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <MonoLabel style={{ flex: 1 }}>PROJECTION RATE</MonoLabel>
+                    <MonoLabel size={9} color={theme.inkSec}>NORMAL ×1.0</MonoLabel>
+                    <MonoLabel size={8} color={theme.hot}>
+                      {talentPolicy.source === 'normal-substitution-policy' ? 'ASSUMPTION · STORED RATE NOT USED' : 'CALIBRATED NORMAL'}
+                    </MonoLabel>
+                  </View>
+                )}
               </View>
 
               {/* Scan button lives here — separate from PROJECT */}
@@ -580,9 +641,9 @@ export default function CoachesScreen() {
                   REWARD COACH · PREVIEW INTERVALS ONLY · XP TRANSFER UNRESOLVED
                 </MonoLabel>
               )}
-              {transferClass === 'unknown' && (
+              {transferClass === 'unresolved' && (
                 <MonoLabel size={8} color={theme.hot} style={{ marginTop: 4 }}>
-                  UNCLASSIFIED ENTRY · PREDATES COACH CLASSIFICATION · RE-SCAN TO PROJECT
+                  TRANSFER CLASS UNRESOLVED · RE-SCAN OR SELECT AN EXPLICIT GAME LABEL
                 </MonoLabel>
               )}
               {scanStatus.startsWith('SCANNED') && coachType === 'Focused' && scannedStats.length === 0 && (
@@ -642,7 +703,9 @@ export default function CoachesScreen() {
             {/* Result */}
             {rewardPreviewResult && (
               <View style={{ borderWidth: 1, borderColor: theme.hot + '66', padding: 14, marginBottom: 14 }}>
-                <MonoLabel color={theme.hot} style={{ marginBottom: 8 }}>REWARD COACH — NO NUMERIC PROJECTION</MonoLabel>
+                <MonoLabel color={theme.hot} style={{ marginBottom: 8 }}>
+                  {transferClass === 'reward' ? 'REWARD COACH' : 'TRANSFER CLASS UNRESOLVED'} — NO NUMERIC PROJECTION
+                </MonoLabel>
                 {rewardPreviewResult.reasons.map((reason, i) => (
                   <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 4 }}>{reason}</MonoLabel>
                 ))}

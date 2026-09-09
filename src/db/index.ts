@@ -36,6 +36,12 @@ export function ensureGlyphStateColumns() {
   try { expoDb.execSync('ALTER TABLE players ADD COLUMN boosts text;'); } catch {}
 }
 
+export function ensureTrainingRateProvenanceColumn() {
+  // Existing rows keep their historical value but are explicitly marked as
+  // lacking source evidence. Current writers always store a source.
+  try { expoDb.execSync("ALTER TABLE players ADD COLUMN talent_source text NOT NULL DEFAULT 'legacy-default';"); } catch {}
+}
+
 /**
  * Idempotent guard for the run-evidence columns on squad_plan_runs.
  *
@@ -75,7 +81,7 @@ export function ensureCoachHistoryTable() {
       coach_category TEXT,
       sessions INTEGER,
       stats TEXT NOT NULL DEFAULT '[]',
-      transfer_class TEXT NOT NULL DEFAULT 'ordinary',
+      transfer_class TEXT NOT NULL DEFAULT 'unresolved',
       preview_intervals TEXT NOT NULL DEFAULT '[]',
       -- Provenance of transfer_class, NOT the class itself. 'observed' means a
       -- scan or an explicit choice set it; anything else means nothing ever
@@ -86,7 +92,7 @@ export function ensureCoachHistoryTable() {
     );`);
     // Existing devices already have this table; preserve the transfer class and
     // observed preview intervals when history is replayed through projection.
-    try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN transfer_class TEXT NOT NULL DEFAULT 'ordinary';"); } catch {}
+    try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN transfer_class TEXT NOT NULL DEFAULT 'unresolved';"); } catch {}
     try { expoDb.execSync("ALTER TABLE coach_scan_history ADD COLUMN preview_intervals TEXT NOT NULL DEFAULT '[]';"); } catch {}
     // Why a SOURCE column and not just a different default on transfer_class:
     // the ALTER above already ran on shipped devices and back-filled every

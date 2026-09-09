@@ -291,13 +291,15 @@ test('the Normal-talent projection policy is untouched by a scanned tier', () =>
     'scanned identity must not reach projectCoachAction');
 });
 
-test('Reward Coach interval handling is unchanged by this patch', () => {
+test('Reward Coach interval handling uses the explicit scanner classification', () => {
   const src = read('app/(tabs)/coaches.tsx');
   // The three facts bd5bc96 established, re-pinned here so an identity change
   // cannot quietly disturb them. tests/recommendation-seam-test.ts owns the
   // full contract; this is the adjacency check.
-  assert.match(src, /scan\.isRewardCoach \? 'reward' : 'ordinary'/,
-    'transfer class must still be observed from the scan');
+  assert.match(src, /scannedTransferClass\s*=\s*scan\.transferClass/,
+    'the three-state transfer class must come from the scanner without a boolean default');
+  assert.equal(/scan\.isRewardCoach\s*\?\s*'reward'\s*:\s*'ordinary'/.test(src), false,
+    'a missed Reward label must not be promoted to ordinary');
   assert.match(src, /setObservedGainIntervals\(intervals\)/,
     'observed intervals must still be preserved');
   assert.equal(/gainLo \+ .*gainHi\) *\/ *2|\(lo \+ hi\) *\/ *2/.test(src), false,

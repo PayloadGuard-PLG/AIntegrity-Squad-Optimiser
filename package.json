@@ -13,7 +13,7 @@
     "test:logic": "npx tsx tests/logic-test.ts",
     "test:engine": "npx tsx tests/engine-test.ts",
     "test:projection": "npx tsx tests/projection-test.ts && node --import tsx --test tests/recommendation-seam-test.ts tests/run-evidence-test.ts tests/outcome-boundary-test.ts",
-    "test:scanner": "npx tsx tests/scanner-test.ts && node --import tsx --test tests/player-scan-state-test.ts tests/coach-identity-test.ts",
+    "test:scanner": "npx tsx tests/scanner-test.ts && node --import tsx --test tests/player-scan-state-test.ts tests/coach-identity-test.ts tests/coach-v0-regression-test.ts",
     "test:condition": "npx tsx tests/condition-test.ts",
     "calibrate": "npx tsx tests/fixtures/build-calibration.ts",
     "sim:ala": "npx tsx tests/sim-ala.ts",
