@@ -81,19 +81,19 @@
     "25": 0.72,
     "26": 0.61,
     "27": 0.61,
-    "28": 0.61,
-    "29": 0.50,
-    "30": 0
+    "28": 1.38,
+    "29": 2,
+    "30": 0.7
   },
   "talentMultipliers": {
     "Fastest": 1.5,
     "Fast": 1.25,
     "Average": 1.1,
-    "Normal": 1.0,
+    "Normal": 1,
     "Slow": 0.47
   },
   "drillLevelMultipliers": {
-    "Very Easy": 1.0,
+    "Very Easy": 1,
     "Easy": 1.15,
     "Medium": 1.3,
     "Hard": 1.55,
@@ -142,25 +142,113 @@
   },
   "baseLossPerDrill": 0.75,
   "zeroDrainThreshold": 0.38,
-  "minimumConditionDrainPct": 1.0,
-  "chantOdds": { "kind": "unobserved" },
-  "surgeLoyaltyThresholds": { "kind": "unobserved" },
+  "minimumConditionDrainPct": 1,
+  "chantOdds": {
+    "kind": "unobserved"
+  },
+  "surgeLoyaltyThresholds": {
+    "kind": "unobserved"
+  },
   "surges": {
-    "perfectConditions": { "label": "Perfect Conditions", "description": "Training sessions drain less condition.", "effect": "conditionDrainReduction", "unit": "fraction", "levels": [0.10, 0.15, 0.20, 0.25, 0.50], "scope": "training", "modelled": true },
-    "roleAccelerator": { "label": "Role Accelerator", "description": "Points for training new player Roles are gained faster in training and from matches.", "effect": "rolePointSpeed", "unit": "percent", "levels": [20, 40, 60, 80, 100], "scope": "trainingAndMatches", "modelled": false },
-    "teamplayPower": { "label": "Teamplay Power", "description": "Boosts effectiveness of a teamplay form when activated in League matches.", "effect": "teamplayFormEffectiveness", "unit": "percent", "levels": [30, 50, 60, 70, 80], "scope": "leagueMatches", "modelled": false },
-    "respectableAttendance": { "label": "Respectable Attendance", "description": "Bigger fan support during home matches comes with greater Loyalty.", "effect": "homePossession", "unit": "percent", "levels": [1, 2, 3, 4, 5], "scope": "homeGamesOnly", "modelled": false },
-    "packedAttendance": { "label": "Packed Attendance", "description": "Bigger fan support during home matches comes with greater Loyalty.", "effect": "homePossession", "unit": "percent", "levels": [2, 4, 6, 8, 10], "scope": "homeGamesOnly", "modelled": false },
-    "buzzingAttendance": { "label": "Buzzing Attendance", "description": "Bigger fan support during home matches comes with greater Loyalty.", "effect": "homePossession", "unit": "percent", "levels": [1, 2, 3, 4, 5], "scope": "homeGamesOnly", "modelled": false }
+    "perfectConditions": {
+      "label": "Perfect Conditions",
+      "description": "Training sessions drain less condition.",
+      "effect": "conditionDrainReduction",
+      "unit": "fraction",
+      "levels": [
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.5
+      ],
+      "scope": "training",
+      "modelled": true
+    },
+    "roleAccelerator": {
+      "label": "Role Accelerator",
+      "description": "Points for training new player Roles are gained faster in training and from matches.",
+      "effect": "rolePointSpeed",
+      "unit": "percent",
+      "levels": [
+        20,
+        40,
+        60,
+        80,
+        100
+      ],
+      "scope": "trainingAndMatches",
+      "modelled": false
+    },
+    "teamplayPower": {
+      "label": "Teamplay Power",
+      "description": "Boosts effectiveness of a teamplay form when activated in League matches.",
+      "effect": "teamplayFormEffectiveness",
+      "unit": "percent",
+      "levels": [
+        30,
+        50,
+        60,
+        70,
+        80
+      ],
+      "scope": "leagueMatches",
+      "modelled": false
+    },
+    "respectableAttendance": {
+      "label": "Respectable Attendance",
+      "description": "Bigger fan support during home matches comes with greater Loyalty.",
+      "effect": "homePossession",
+      "unit": "percent",
+      "levels": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "scope": "homeGamesOnly",
+      "modelled": false
+    },
+    "packedAttendance": {
+      "label": "Packed Attendance",
+      "description": "Bigger fan support during home matches comes with greater Loyalty.",
+      "effect": "homePossession",
+      "unit": "percent",
+      "levels": [
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "scope": "homeGamesOnly",
+      "modelled": false
+    },
+    "buzzingAttendance": {
+      "label": "Buzzing Attendance",
+      "description": "Bigger fan support during home matches comes with greater Loyalty.",
+      "effect": "homePossession",
+      "unit": "percent",
+      "levels": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "scope": "homeGamesOnly",
+      "modelled": false
+    }
   },
   "greyWeightMultiplier": 0.22,
   "seasonDecayPerLevel": 20,
   "statCap": 9999,
   "maxBaseOvr": 180,
-  "baseXpPerSession": 676,
+  "baseXpPerSession": 479.96,
   "drillXpFactor": 0.3,
   "sessionBudgetDecay": 0.99,
-  "twoxAdMultiplier": 2.0,
+  "twoxAdMultiplier": 2,
   "starDecayPerSession": 0.85,
   "starOvrThreshold": 20,
   "qualityOvrDivisor": 1,

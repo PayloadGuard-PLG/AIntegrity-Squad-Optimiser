@@ -746,7 +746,7 @@ function predictOrdinaryCoachAction(input: PreOutcomeCoachInput): Recommendation
     talent: talent.applied,
     statCap: profile.statCap,
     tierOvrOffset: tierOvrContribExact(player.tier, getWhiteStatKeys(player.role).length),
-    coachGreyMultiplier: player.age >= 30 ? 0.30 : 0.58,
+    coachGreyMultiplier: player.age >= 30 ? 0.30 : 0.68,
     coachCostStatCap: 191,
     coachCostStatFloor: player.age >= 30 ? 140 : undefined,
   });
