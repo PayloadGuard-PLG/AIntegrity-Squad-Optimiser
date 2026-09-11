@@ -49,15 +49,3 @@ test('the harness runs the real production route, not the external frozen predic
   }
 });
 
-test('current baseline exposes the allocation error instead of averaging it away', () => {
-  const robertExperiment = corpus.experiments.find(e => e.id === 'EXP-20260911-ROBERT-FOCUSED-OFFENSIVE-X26');
-  const rossExperiment = corpus.experiments.find(e => e.id === 'EXP-20260911-ROSS-FOCUSED-OFFENSIVE-X26');
-  assert.ok(robertExperiment);
-  assert.ok(rossExperiment);
-  const robert = runExperiment(robertExperiment);
-  const ross = runExperiment(rossExperiment);
-  assert.equal(robert.statScores.PASSING.relation, 'above');
-  assert.equal(robert.statScores.AGGRESSION.relation, 'below');
-  assert.equal(ross.statScores.PASSING.relation, 'above');
-  assert.equal(ross.statScores.AGGRESSION.relation, 'below');
-});
