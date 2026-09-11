@@ -5,12 +5,19 @@
     {
       "schemaVersion": 1,
       "id": "EXP-20260911-ROBERT-FOCUSED-OFFENSIVE-X26",
-      "tags": ["prospective-blind", "training-camp", "focused-offensive", "no-state-change"],
+      "tags": [
+        "prospective-blind",
+        "training-camp",
+        "focused-offensive",
+        "no-state-change"
+      ],
       "preOutcome": {
         "player": {
           "id": "PLY-0005",
           "name": "Robert Gavilán",
-          "role": ["ML"],
+          "role": [
+            "ML"
+          ],
           "age": 25,
           "overall": 109.7,
           "tier": "T0",
@@ -39,24 +46,45 @@
           "title": "Focused Offensive",
           "multiplier": 26,
           "durationDays": 18,
-          "affectedStats": ["PASSING", "AGGRESSION"],
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
           "transferClass": "ordinary"
         }
       },
       "externalFrozenPrediction": {
         "producer": "DREAM_PROSPECTIVE_V1",
         "statIntervals": {
-          "PASSING": { "lo": 33, "hi": 45 },
-          "AGGRESSION": { "lo": 52, "hi": 70 }
+          "PASSING": {
+            "lo": 33,
+            "hi": 45
+          },
+          "AGGRESSION": {
+            "lo": 52,
+            "hi": 70
+          }
         },
-        "ovrDelta": { "lo": 6, "hi": 8 }
+        "ovrDelta": {
+          "lo": 6,
+          "hi": 8
+        }
       },
       "observed": {
         "statIntervals": {
-          "PASSING": { "lo": 38, "hi": 48 },
-          "AGGRESSION": { "lo": 67, "hi": 79 }
+          "PASSING": {
+            "lo": 38,
+            "hi": 48
+          },
+          "AGGRESSION": {
+            "lo": 67,
+            "hi": 79
+          }
         },
-        "ovrDelta": { "lo": 7, "hi": 9 },
+        "ovrDelta": {
+          "lo": 7,
+          "hi": 9
+        },
         "stateChanged": false,
         "source": "62077.png"
       },
@@ -74,12 +102,20 @@
     {
       "schemaVersion": 1,
       "id": "EXP-20260911-ROSS-FOCUSED-OFFENSIVE-X26",
-      "tags": ["prospective-blind", "training-camp", "focused-offensive", "age-separation", "no-state-change"],
+      "tags": [
+        "prospective-blind",
+        "training-camp",
+        "focused-offensive",
+        "age-separation",
+        "no-state-change"
+      ],
       "preOutcome": {
         "player": {
           "id": "ROSS-RITCHIE",
           "name": "Ross Ritchie",
-          "role": ["ST"],
+          "role": [
+            "ST"
+          ],
           "age": 18,
           "overall": 109.2,
           "tier": "T0",
@@ -108,24 +144,45 @@
           "title": "Focused Offensive",
           "multiplier": 26,
           "durationDays": 18,
-          "affectedStats": ["PASSING", "AGGRESSION"],
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
           "transferClass": "ordinary"
         }
       },
       "externalFrozenPrediction": {
         "producer": "DREAM_PROSPECTIVE_V1",
         "statIntervals": {
-          "PASSING": { "lo": 46, "hi": 58 },
-          "AGGRESSION": { "lo": 76, "hi": 92 }
+          "PASSING": {
+            "lo": 46,
+            "hi": 58
+          },
+          "AGGRESSION": {
+            "lo": 76,
+            "hi": 92
+          }
         },
-        "ovrDelta": { "lo": 9, "hi": 11 }
+        "ovrDelta": {
+          "lo": 9,
+          "hi": 11
+        }
       },
       "observed": {
         "statIntervals": {
-          "PASSING": { "lo": 58, "hi": 75 },
-          "AGGRESSION": { "lo": 69, "hi": 84 }
+          "PASSING": {
+            "lo": 58,
+            "hi": 75
+          },
+          "AGGRESSION": {
+            "lo": 69,
+            "hi": 84
+          }
         },
-        "ovrDelta": { "lo": 8, "hi": 10 },
+        "ovrDelta": {
+          "lo": 8,
+          "hi": 10
+        },
         "stateChanged": false,
         "source": "Top Eleven preview screenshot, 2026-09-11"
       },
@@ -138,6 +195,80 @@
         },
         "ovrBefore": 108,
         "ovrDelta": 9.4
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-FAYE-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "prospective-control",
+        "training-camp",
+        "focused-offensive",
+        "both-affected-stats-white",
+        "age-29",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "SD-FAYE",
+          "name": "SD Faye",
+          "role": [
+            "DMC",
+            "MC",
+            "DC"
+          ],
+          "age": 29,
+          "overall": 168.4,
+          "tier": "T4",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 205,
+            "MARKING": 215,
+            "POSITIONING": 226,
+            "HEADING": 234,
+            "BRAVERY": 221,
+            "PASSING": 212,
+            "DRIBBLING": 206,
+            "CROSSING": 46,
+            "SHOOTING": 189,
+            "FINISHING": 54,
+            "FITNESS": 174,
+            "STRENGTH": 101,
+            "AGGRESSION": 134,
+            "SPEED": 147,
+            "CREATIVITY": 157
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 34,
+            "hi": 44
+          },
+          "AGGRESSION": {
+            "lo": 72,
+            "hi": 95
+          }
+        },
+        "ovrDelta": {
+          "lo": 7,
+          "hi": 9
+        },
+        "stateChanged": false,
+        "source": "62144.png selected-player preview; 62145.png player card; 62146.png no-player coach"
       }
     }
   ]
