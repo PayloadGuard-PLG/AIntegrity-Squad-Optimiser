@@ -488,6 +488,81 @@
         "stateChanged": false,
         "source": "62164.png selected-player preview; 62163.png player card"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-GALILEO-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "prospective-control",
+        "training-camp",
+        "focused-offensive",
+        "age-31",
+        "t2",
+        "age30plus-control",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "LJ-GALILEO",
+          "name": "LJ Galileo",
+          "role": [
+            "DMC",
+            "MC",
+            "AMC"
+          ],
+          "age": 31,
+          "overall": 81.7,
+          "tier": "T2",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 40,
+            "MARKING": 94,
+            "POSITIONING": 167,
+            "HEADING": 209,
+            "BRAVERY": 125,
+            "PASSING": 170,
+            "DRIBBLING": 68,
+            "CROSSING": 1,
+            "SHOOTING": 21,
+            "FINISHING": 64,
+            "FITNESS": 86,
+            "STRENGTH": 33,
+            "AGGRESSION": 40,
+            "SPEED": 38,
+            "CREATIVITY": 105
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 22,
+            "hi": 30
+          },
+          "AGGRESSION": {
+            "lo": 37,
+            "hi": 55
+          }
+        },
+        "ovrDelta": {
+          "lo": 4,
+          "hi": 6
+        },
+        "stateChanged": false,
+        "source": "62231.png player card; 62232.png selected-player preview"
+      }
     }
   ]
 }
