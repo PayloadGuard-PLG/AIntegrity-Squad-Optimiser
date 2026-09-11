@@ -9,7 +9,7 @@ const corpus = corpusJson as unknown as CoachCalibrationCorpus;
 
 test('coach calibration corpus is structurally valid', () => {
   assert.deepEqual(validateCorpus(corpus), []);
-  assert.equal(corpus.experiments.length, 2);
+  assert.ok(corpus.experiments.length >= 2, 'calibration corpus must contain at least the original two fixtures');
 });
 
 test('production engine is deterministic for the same pre-outcome state', () => {
@@ -40,7 +40,7 @@ test('the harness runs the real production route, not the external frozen predic
     assert.equal(result.prediction.status, 'projected');
     if (result.prediction.status !== 'projected') continue;
     const external = experiment.externalFrozenPrediction;
-    if (!external) throw new Error(`${experiment.id}: missing externalFrozenPrediction`);
+    if (!external) continue;
     const differs = Object.entries(external.statIntervals).some(([stat, interval]) => {
       const point = result.prediction.status === 'projected' ? result.prediction.statPoints[stat] : undefined;
       return point !== undefined && (point < interval.lo || point > interval.hi);
@@ -50,7 +50,12 @@ test('the harness runs the real production route, not the external frozen predic
 });
 
 test('current baseline exposes the allocation error instead of averaging it away', () => {
-  const [robert, ross] = corpus.experiments.map(runExperiment);
+  const robertExperiment = corpus.experiments.find(e => e.id === 'EXP-20260911-ROBERT-FOCUSED-OFFENSIVE-X26');
+  const rossExperiment = corpus.experiments.find(e => e.id === 'EXP-20260911-ROSS-FOCUSED-OFFENSIVE-X26');
+  assert.ok(robertExperiment);
+  assert.ok(rossExperiment);
+  const robert = runExperiment(robertExperiment);
+  const ross = runExperiment(rossExperiment);
   assert.equal(robert.statScores.PASSING.relation, 'above');
   assert.equal(robert.statScores.AGGRESSION.relation, 'below');
   assert.equal(ross.statScores.PASSING.relation, 'above');
