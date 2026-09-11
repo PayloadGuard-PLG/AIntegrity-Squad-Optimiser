@@ -341,6 +341,81 @@
         "stateChanged": false,
         "source": "62156.png player card; 62155.png selected-player preview"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-NERI-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "prospective-control",
+        "training-camp",
+        "focused-offensive",
+        "age-32",
+        "t6",
+        "extreme-stat-separation",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "G-NERI",
+          "name": "G Neri",
+          "role": [
+            "ST",
+            "AMC",
+            "MC"
+          ],
+          "age": 32,
+          "overall": 220.7,
+          "tier": "T6",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 135,
+            "MARKING": 157,
+            "POSITIONING": 266,
+            "HEADING": 287,
+            "BRAVERY": 254,
+            "PASSING": 255,
+            "DRIBBLING": 263,
+            "CROSSING": 8,
+            "SHOOTING": 401,
+            "FINISHING": 407,
+            "FITNESS": 260,
+            "STRENGTH": 140,
+            "AGGRESSION": 11,
+            "SPEED": 204,
+            "CREATIVITY": 254
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 18,
+            "hi": 27
+          },
+          "AGGRESSION": {
+            "lo": 14,
+            "hi": 21
+          }
+        },
+        "ovrDelta": {
+          "lo": 2,
+          "hi": 3
+        },
+        "stateChanged": false,
+        "source": "62160.png selected-player preview; 62159.png player card"
+      }
     }
   ]
 }
