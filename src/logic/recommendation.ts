@@ -461,6 +461,8 @@ function runTraining(params: {
   statCap: number;
   /** Calibration candidate: coach-transfer grey efficiency override. */
   coachGreyMultiplier?: number;
+  /** Calibration candidate: cap the stat used to index coach XP cost. */
+  coachCostStatCap?: number;
 }): {
   projectedStats: Record<string, number>;
   deltas: Record<string, number>;
@@ -470,7 +472,7 @@ function runTraining(params: {
 } {
   const {
     slots, baseStats, knownOverall, tierOvrOffset, age, talent, statCap,
-    coachGreyMultiplier,
+    coachGreyMultiplier, coachCostStatCap,
   } = params;
 
   // Base (star-quality) OVR, exact. Tier contribution is an integer, so
@@ -512,7 +514,15 @@ function runTraining(params: {
         coachGreyMultiplier !== undefined && !slot.isWhite
           ? baseMult * coachGreyMultiplier
           : baseMult;
-      next[slot.stat] = Math.min(current + statGainFromBudget(current, budget, mult), statCap);
+      const costStat =
+        coachCostStatCap === undefined
+          ? current
+          : Math.min(current, coachCostStatCap);
+
+      next[slot.stat] = Math.min(
+        current + statGainFromBudget(costStat, budget, mult),
+        statCap,
+      );
     });
     return next;
   };
@@ -731,6 +741,7 @@ function predictOrdinaryCoachAction(input: PreOutcomeCoachInput): Recommendation
     statCap: profile.statCap,
     tierOvrOffset: tierOvrContribExact(player.tier, getWhiteStatKeys(player.role).length),
     coachGreyMultiplier: 0.58,
+    coachCostStatCap: 191,
   });
 
   const starBand: StarBandPosition = {
