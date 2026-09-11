@@ -1,0 +1,11 @@
+{
+  "experimentId": "HOLDOUT-20260911-WATSON-FOCUSED-OFFENSIVE-X26",
+  "status": "projected",
+  "profileVersion": "2025",
+  "statPoints": {
+    "PASSING": 87.4,
+    "AGGRESSION": 70.5
+  },
+  "ovrBefore": 95,
+  "ovrDelta": 11.1
+}

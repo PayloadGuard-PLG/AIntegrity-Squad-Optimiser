@@ -713,6 +713,88 @@
         "stateChanged": false,
         "source": "prospective Dallas x26 preview; prediction frozen before reveal"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-WATSON-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "training-camp",
+        "focused-offensive",
+        "prospective-holdout",
+        "frozen-before-reveal",
+        "age-26",
+        "t2",
+        "grey-white",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "PAUL-WATSON",
+          "name": "Paul Watson",
+          "role": [
+            "DC",
+            "DR",
+            "DL"
+          ],
+          "age": 26,
+          "overall": 95.9,
+          "tier": "T2",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 59,
+            "MARKING": 98,
+            "POSITIONING": 182,
+            "HEADING": 199,
+            "BRAVERY": 136,
+            "PASSING": 47,
+            "DRIBBLING": 47,
+            "CROSSING": 97,
+            "SHOOTING": 32,
+            "FINISHING": 31,
+            "FITNESS": 143,
+            "STRENGTH": 90,
+            "AGGRESSION": 86,
+            "SPEED": 124,
+            "CREATIVITY": 62
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "frozenPrediction": {
+        "PASSING": 87.4,
+        "AGGRESSION": 70.5,
+        "ovrDelta": 11.1,
+        "sha256": "56ad758c84c45ac92b1c440fc7f1a4d6a6f03e84169b699baa45869142728b21"
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 55,
+            "hi": 81
+          },
+          "AGGRESSION": {
+            "lo": 71,
+            "hi": 94
+          }
+        },
+        "ovrDelta": {
+          "lo": 9,
+          "hi": 12
+        },
+        "stateChanged": false,
+        "source": "prospective Watson x26 preview; frozen before reveal"
+      }
     }
   ]
 }
