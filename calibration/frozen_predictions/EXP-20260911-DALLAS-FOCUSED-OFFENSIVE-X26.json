@@ -1,0 +1,11 @@
+{
+  "experimentId": "HOLDOUT-20260911-DALLAS-FOCUSED-OFFENSIVE-X26",
+  "status": "projected",
+  "profileVersion": "2025",
+  "statPoints": {
+    "AGGRESSION": 27.7,
+    "PASSING": 16.6
+  },
+  "ovrBefore": 164,
+  "ovrDelta": 3.5
+}

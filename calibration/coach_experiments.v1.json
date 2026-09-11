@@ -563,6 +563,156 @@
         "stateChanged": false,
         "source": "62231.png player card; 62232.png selected-player preview"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "training-camp",
+        "focused-offensive",
+        "age-28",
+        "t3",
+        "white-white-control",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "GARRY-MCCLUSKEY",
+          "name": "Garry McCluskey",
+          "role": [
+            "DC",
+            "DMC",
+            "MC"
+          ],
+          "age": 28,
+          "overall": 155.2,
+          "tier": "T3",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 224,
+            "MARKING": 163,
+            "POSITIONING": 231,
+            "HEADING": 209,
+            "BRAVERY": 194,
+            "PASSING": 170,
+            "DRIBBLING": 178,
+            "CROSSING": 62,
+            "SHOOTING": 157,
+            "FINISHING": 86,
+            "FITNESS": 158,
+            "STRENGTH": 111,
+            "AGGRESSION": 122,
+            "SPEED": 130,
+            "CREATIVITY": 125
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 42,
+            "hi": 52
+          },
+          "AGGRESSION": {
+            "lo": 68,
+            "hi": 86
+          }
+        },
+        "ovrDelta": {
+          "lo": 8,
+          "hi": 10
+        },
+        "stateChanged": false,
+        "source": "current McCluskey player-card and Focused Offensive x26 preview"
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-DALLAS-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "training-camp",
+        "focused-offensive",
+        "prospective-holdout",
+        "frozen-before-reveal",
+        "age-27",
+        "t3",
+        "white-white",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "CPTN-DALLAS",
+          "name": "Cptn Dallas",
+          "role": [
+            "AMR",
+            "MR",
+            "DR"
+          ],
+          "age": 27,
+          "overall": 165,
+          "tier": "T3",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 135,
+            "MARKING": 119,
+            "POSITIONING": 175,
+            "HEADING": 96,
+            "BRAVERY": 170,
+            "PASSING": 196,
+            "DRIBBLING": 218,
+            "CROSSING": 226,
+            "SHOOTING": 203,
+            "FINISHING": 180,
+            "FITNESS": 185,
+            "STRENGTH": 46,
+            "AGGRESSION": 161,
+            "SPEED": 183,
+            "CREATIVITY": 176
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 26,
+            "hi": 35
+          },
+          "AGGRESSION": {
+            "lo": 48,
+            "hi": 59
+          }
+        },
+        "ovrDelta": {
+          "lo": 5,
+          "hi": 6
+        },
+        "stateChanged": false,
+        "source": "prospective Dallas x26 preview; prediction frozen before reveal"
+      }
     }
   ]
 }
