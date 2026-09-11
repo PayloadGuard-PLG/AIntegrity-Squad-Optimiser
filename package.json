@@ -18,7 +18,11 @@
     "calibrate": "npx tsx tests/fixtures/build-calibration.ts",
     "sim:ala": "npx tsx tests/sim-ala.ts",
     "db:generate": "drizzle-kit generate",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "calibration:coach": "npx tsx tools/coach-calibration.ts",
+    "test:calibration": "node --import tsx --test tests/calibration/coach-calibration-test.ts",
+    "test:calibration:baseline": "node --import tsx --test tests/calibration/coach-calibration-baseline-test.ts",
+    "verify:calibration": "npm run typecheck && npm run test:calibration && npm run test:projection && npm run test:engine"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

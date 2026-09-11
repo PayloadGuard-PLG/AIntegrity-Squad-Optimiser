@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "d74037edc1103b2495b15fedbc6242ce2ab656e8",
+  "experiments": [
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-ROBERT-FOCUSED-OFFENSIVE-X26",
+      "tags": ["prospective-blind", "training-camp", "focused-offensive", "no-state-change"],
+      "preOutcome": {
+        "player": {
+          "id": "PLY-0005",
+          "name": "Robert Gavilán",
+          "role": ["ML"],
+          "age": 25,
+          "overall": 109.7,
+          "tier": "T0",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 103,
+            "MARKING": 100,
+            "POSITIONING": 121,
+            "HEADING": 93,
+            "BRAVERY": 95,
+            "PASSING": 132,
+            "DRIBBLING": 126,
+            "CROSSING": 105,
+            "SHOOTING": 112,
+            "FINISHING": 101,
+            "FITNESS": 124,
+            "STRENGTH": 101,
+            "AGGRESSION": 85,
+            "SPEED": 119,
+            "CREATIVITY": 121
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": ["PASSING", "AGGRESSION"],
+          "transferClass": "ordinary"
+        }
+      },
+      "externalFrozenPrediction": {
+        "producer": "DREAM_PROSPECTIVE_V1",
+        "statIntervals": {
+          "PASSING": { "lo": 33, "hi": 45 },
+          "AGGRESSION": { "lo": 52, "hi": 70 }
+        },
+        "ovrDelta": { "lo": 6, "hi": 8 }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": { "lo": 38, "hi": 48 },
+          "AGGRESSION": { "lo": 67, "hi": 79 }
+        },
+        "ovrDelta": { "lo": 7, "hi": 9 },
+        "stateChanged": false,
+        "source": "62077.png"
+      },
+      "baselineEnginePrediction": {
+        "baseCommit": "d74037edc1103b2495b15fedbc6242ce2ab656e8",
+        "profileVersion": "2025",
+        "statPoints": {
+          "PASSING": 58.4,
+          "AGGRESSION": 42.6
+        },
+        "ovrBefore": 109,
+        "ovrDelta": 6.9
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-ROSS-FOCUSED-OFFENSIVE-X26",
+      "tags": ["prospective-blind", "training-camp", "focused-offensive", "age-separation", "no-state-change"],
+      "preOutcome": {
+        "player": {
+          "id": "ROSS-RITCHIE",
+          "name": "Ross Ritchie",
+          "role": ["ST"],
+          "age": 18,
+          "overall": 109.2,
+          "tier": "T0",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 96,
+            "MARKING": 92,
+            "POSITIONING": 117,
+            "HEADING": 120,
+            "BRAVERY": 85,
+            "PASSING": 118,
+            "DRIBBLING": 114,
+            "CROSSING": 91,
+            "SHOOTING": 107,
+            "FINISHING": 130,
+            "FITNESS": 105,
+            "STRENGTH": 135,
+            "AGGRESSION": 91,
+            "SPEED": 123,
+            "CREATIVITY": 108
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": ["PASSING", "AGGRESSION"],
+          "transferClass": "ordinary"
+        }
+      },
+      "externalFrozenPrediction": {
+        "producer": "DREAM_PROSPECTIVE_V1",
+        "statIntervals": {
+          "PASSING": { "lo": 46, "hi": 58 },
+          "AGGRESSION": { "lo": 76, "hi": 92 }
+        },
+        "ovrDelta": { "lo": 9, "hi": 11 }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": { "lo": 58, "hi": 75 },
+          "AGGRESSION": { "lo": 69, "hi": 84 }
+        },
+        "ovrDelta": { "lo": 8, "hi": 10 },
+        "stateChanged": false,
+        "source": "Top Eleven preview screenshot, 2026-09-11"
+      },
+      "baselineEnginePrediction": {
+        "baseCommit": "d74037edc1103b2495b15fedbc6242ce2ab656e8",
+        "profileVersion": "2025",
+        "statPoints": {
+          "PASSING": 81.1,
+          "AGGRESSION": 48.5
+        },
+        "ovrBefore": 108,
+        "ovrDelta": 9.4
+      }
+    }
+  ]
+}
