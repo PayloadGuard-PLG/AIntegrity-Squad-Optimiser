@@ -416,6 +416,78 @@
         "stateChanged": false,
         "source": "62160.png selected-player preview; 62159.png player card"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-MEHLEM-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "prospective-control",
+        "training-camp",
+        "focused-offensive",
+        "age-26",
+        "white-passing-grey-aggression",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "KEVIN-MEHLEM",
+          "name": "Kevin Mehlem",
+          "role": [
+            "ST"
+          ],
+          "age": 26,
+          "overall": 115.3,
+          "tier": "T0",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 87,
+            "MARKING": 108,
+            "POSITIONING": 127,
+            "HEADING": 137,
+            "BRAVERY": 100,
+            "PASSING": 134,
+            "DRIBBLING": 126,
+            "CROSSING": 98,
+            "SHOOTING": 117,
+            "FINISHING": 125,
+            "FITNESS": 93,
+            "STRENGTH": 126,
+            "AGGRESSION": 96,
+            "SPEED": 131,
+            "CREATIVITY": 117
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 33,
+            "hi": 43
+          },
+          "AGGRESSION": {
+            "lo": 46,
+            "hi": 60
+          }
+        },
+        "ovrDelta": {
+          "lo": 5,
+          "hi": 7
+        },
+        "stateChanged": false,
+        "source": "62164.png selected-player preview; 62163.png player card"
+      }
     }
   ]
 }
