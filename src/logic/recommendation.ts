@@ -459,6 +459,8 @@ function runTraining(params: {
   age: number;
   talent: TalentTier;
   statCap: number;
+  /** Calibration candidate: coach-transfer grey efficiency override. */
+  coachGreyMultiplier?: number;
 }): {
   projectedStats: Record<string, number>;
   deltas: Record<string, number>;
@@ -466,7 +468,10 @@ function runTraining(params: {
   startBandIndex: number;
   ovrToNextThreshold: number;
 } {
-  const { slots, baseStats, knownOverall, tierOvrOffset, age, talent, statCap } = params;
+  const {
+    slots, baseStats, knownOverall, tierOvrOffset, age, talent, statCap,
+    coachGreyMultiplier,
+  } = params;
 
   // Base (star-quality) OVR, exact. Tier contribution is an integer, so
   // subtracting it preserves the fractional part that decides a near crossing.
@@ -494,13 +499,19 @@ function runTraining(params: {
       // cost curve is indexed on, and why a tiered 400 stat barely moves.
       const current = next[slot.stat];
       if (current === undefined || current >= statCap) return;
-      const mult = combinedMultiplier({
-        age, talent, isWhite: slot.isWhite, starsGained: stars,
+      const baseMult = combinedMultiplier({
+        age, talent,
+        isWhite: coachGreyMultiplier === undefined ? slot.isWhite : true,
+        starsGained: stars,
         drillLevelMult: slot.drillLevelMult,
         // Match-form boosts are NOT a permanent-attribute mechanic — see the
         // note on CoachActionInput. Nothing here may pass one in.
         twoxAd: false,
       });
+      const mult =
+        coachGreyMultiplier !== undefined && !slot.isWhite
+          ? baseMult * coachGreyMultiplier
+          : baseMult;
       next[slot.stat] = Math.min(current + statGainFromBudget(current, budget, mult), statCap);
     });
     return next;
@@ -719,6 +730,7 @@ function predictOrdinaryCoachAction(input: PreOutcomeCoachInput): Recommendation
     talent: talent.applied,
     statCap: profile.statCap,
     tierOvrOffset: tierOvrContribExact(player.tier, getWhiteStatKeys(player.role).length),
+    coachGreyMultiplier: 0.58,
   });
 
   const starBand: StarBandPosition = {
