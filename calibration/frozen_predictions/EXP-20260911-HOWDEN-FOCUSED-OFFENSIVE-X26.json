@@ -1,0 +1,11 @@
+{
+  "experimentId": "HOLDOUT-20260911-HOWDEN-FOCUSED-OFFENSIVE-X26",
+  "status": "projected",
+  "profileVersion": "2025",
+  "statPoints": {
+    "AGGRESSION": 120.3,
+    "PASSING": 102.3
+  },
+  "ovrBefore": 56,
+  "ovrDelta": 15.5
+}

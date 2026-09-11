@@ -795,6 +795,86 @@
         "stateChanged": false,
         "source": "prospective Watson x26 preview; frozen before reveal"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-HOWDEN-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "training-camp",
+        "focused-offensive",
+        "prospective-holdout",
+        "frozen-before-reveal",
+        "age-19",
+        "t0",
+        "white-grey",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "WILLIE-HOWDEN",
+          "name": "Willie Howden",
+          "role": [
+            "MC"
+          ],
+          "age": 19,
+          "overall": 57,
+          "tier": "T0",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 69,
+            "MARKING": 69,
+            "POSITIONING": 71,
+            "HEADING": 25,
+            "BRAVERY": 57,
+            "PASSING": 70,
+            "DRIBBLING": 79,
+            "CROSSING": 38,
+            "SHOOTING": 73,
+            "FINISHING": 34,
+            "FITNESS": 66,
+            "STRENGTH": 28,
+            "AGGRESSION": 32,
+            "SPEED": 72,
+            "CREATIVITY": 67
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "frozenPrediction": {
+        "PASSING": 102.3,
+        "AGGRESSION": 120.3,
+        "ovrDelta": 15.5,
+        "sha256": "d1b04790f4650ffd939b95f43406c3413e64a090e9b3b36e9d1125eb2e28b143"
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 97,
+            "hi": 116
+          },
+          "AGGRESSION": {
+            "lo": 118,
+            "hi": 135
+          }
+        },
+        "ovrDelta": {
+          "lo": 14,
+          "hi": 16
+        },
+        "stateChanged": false,
+        "source": "prospective Howden x26 preview; frozen before reveal"
+      }
     }
   ]
 }
