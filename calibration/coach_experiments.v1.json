@@ -270,6 +270,77 @@
         "stateChanged": false,
         "source": "62144.png selected-player preview; 62145.png player card; 62146.png no-player coach"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-PANIC-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "prospective-control",
+        "training-camp",
+        "focused-offensive",
+        "reverse-whiteness-control",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "MIRSAD-PANIC",
+          "name": "Mirsad Panic",
+          "role": [
+            "DC"
+          ],
+          "age": 26,
+          "overall": 125,
+          "tier": "T0",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 136,
+            "MARKING": 138,
+            "POSITIONING": 140,
+            "HEADING": 136,
+            "BRAVERY": 137,
+            "PASSING": 112,
+            "DRIBBLING": 110,
+            "CROSSING": 107,
+            "SHOOTING": 107,
+            "FINISHING": 115,
+            "FITNESS": 128,
+            "STRENGTH": 124,
+            "AGGRESSION": 146,
+            "SPEED": 118,
+            "CREATIVITY": 115
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 39,
+            "hi": 50
+          },
+          "AGGRESSION": {
+            "lo": 26,
+            "hi": 35
+          }
+        },
+        "ovrDelta": {
+          "lo": 4,
+          "hi": 5
+        },
+        "stateChanged": false,
+        "source": "62156.png player card; 62155.png selected-player preview"
+      }
     }
   ]
 }
