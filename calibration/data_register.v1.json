@@ -99,6 +99,28 @@
       "provenance": "DIRECT_SCREENSHOT",
       "rosterSnapshot": "COACH-ROSTER-20260912",
       "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-010",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62306.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Willie Howden Extensive Safeguard x106 Training Camp preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+      "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-011",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62307.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Willie Howden Extensive Safeguard x106 Drill Session preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "stateChanged": false
     }
   ]
 }

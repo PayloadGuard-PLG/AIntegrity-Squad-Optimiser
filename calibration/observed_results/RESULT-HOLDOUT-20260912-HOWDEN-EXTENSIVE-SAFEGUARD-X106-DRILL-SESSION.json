@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "frozenPredictionFile": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION.json",
+  "programmeFamily": "Drill Session",
+  "observed": {
+    "statIntervals": {
+      "TACKLING": {
+        "lo": 98,
+        "hi": 118
+      },
+      "MARKING": {
+        "lo": 98,
+        "hi": 118
+      },
+      "POSITIONING": {
+        "lo": 97,
+        "hi": 116
+      },
+      "HEADING": {
+        "lo": 125,
+        "hi": 142
+      },
+      "BRAVERY": {
+        "lo": 109,
+        "hi": 128
+      },
+      "FITNESS": {
+        "lo": 101,
+        "hi": 120
+      },
+      "STRENGTH": {
+        "lo": 122,
+        "hi": 139
+      },
+      "AGGRESSION": {
+        "lo": 119,
+        "hi": 136
+      }
+    },
+    "ovrDelta": {
+      "lo": 58,
+      "hi": 67
+    },
+    "displayedOvrBefore": 57,
+    "stateChanged": false,
+    "uiSummary": {
+      "defenseAverageBefore": "58 (84.6)",
+      "defenseAverageGain": {
+        "lo": 105,
+        "hi": 124
+      },
+      "physicalMentalAverageBefore": "53 (83.3)",
+      "physicalMentalAverageGain": {
+        "lo": 68,
+        "hi": 79
+      }
+    },
+    "source": "chat_upload:62307.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT"
+  },
+  "productionScore": {
+    "statScores": {
+      "TACKLING": {
+        "point": 82.3,
+        "observed": {
+          "lo": 98,
+          "hi": 118
+        },
+        "relation": "below",
+        "boundaryResidual": 15.7,
+        "midpointResidual": 25.7,
+        "absoluteMidpointError": 25.7
+      },
+      "MARKING": {
+        "point": 82.3,
+        "observed": {
+          "lo": 98,
+          "hi": 118
+        },
+        "relation": "below",
+        "boundaryResidual": 15.7,
+        "midpointResidual": 25.7,
+        "absoluteMidpointError": 25.7
+      },
+      "POSITIONING": {
+        "point": 80.6,
+        "observed": {
+          "lo": 97,
+          "hi": 116
+        },
+        "relation": "below",
+        "boundaryResidual": 16.4,
+        "midpointResidual": 25.9,
+        "absoluteMidpointError": 25.9
+      },
+      "HEADING": {
+        "point": 104.6,
+        "observed": {
+          "lo": 125,
+          "hi": 142
+        },
+        "relation": "below",
+        "boundaryResidual": 20.4,
+        "midpointResidual": 28.9,
+        "absoluteMidpointError": 28.9
+      },
+      "BRAVERY": {
+        "point": 92.4,
+        "observed": {
+          "lo": 109,
+          "hi": 128
+        },
+        "relation": "below",
+        "boundaryResidual": 16.6,
+        "midpointResidual": 26.1,
+        "absoluteMidpointError": 26.1
+      },
+      "FITNESS": {
+        "point": 84.8,
+        "observed": {
+          "lo": 101,
+          "hi": 120
+        },
+        "relation": "below",
+        "boundaryResidual": 16.2,
+        "midpointResidual": 25.7,
+        "absoluteMidpointError": 25.7
+      },
+      "STRENGTH": {
+        "point": 118.3,
+        "observed": {
+          "lo": 122,
+          "hi": 139
+        },
+        "relation": "below",
+        "boundaryResidual": 3.7,
+        "midpointResidual": 12.2,
+        "absoluteMidpointError": 12.2
+      },
+      "AGGRESSION": {
+        "point": 98.4,
+        "observed": {
+          "lo": 119,
+          "hi": 136
+        },
+        "relation": "below",
+        "boundaryResidual": 20.6,
+        "midpointResidual": 29.1,
+        "absoluteMidpointError": 29.1
+      }
+    },
+    "statPointsInside": 0,
+    "statPointCount": 8,
+    "midpointMAE": 24.9125,
+    "midpointRMSE": 25.4076,
+    "ovrScore": {
+      "point": 50.2,
+      "observed": {
+        "lo": 58,
+        "hi": 67
+      },
+      "relation": "below",
+      "boundaryResidual": 7.8,
+      "midpointResidual": 12.3,
+      "absoluteMidpointError": 12.3
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "pairId": "PAIR-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106",
+  "player": "Willie Howden",
+  "age": 19,
+  "tier": "T0",
+  "controlledVariables": {
+    "playerState": "IDENTICAL",
+    "coachTitle": "Extensive Safeguard",
+    "multiplier": 106,
+    "affectedStatSet": "IDENTICAL"
+  },
+  "differingObservedMetadata": {
+    "trainingCampDuration": "19 DAY(S)",
+    "drillSessionDuration": "2 DAY(S)",
+    "acquisitionContext": "DIFFERENT",
+    "programmeFamily": "DIFFERENT"
+  },
+  "result": {
+    "everyStatIntervalIdentical": true,
+    "ovrIntervalIdentical": true,
+    "programmeEffectObserved": false,
+    "programmeAgnosticNullFalsified": false
+  },
+  "interpretation": "For this matched player-state/coach/multiplier/stat-set pair, programme family, duration and acquisition context produced no observable difference in the preview transfer intervals. This does not establish universal programme equivalence.",
+  "absoluteProductionResult": {
+    "statPointsInside": 0,
+    "statPointCount": 8,
+    "midpointMAE": 24.9125,
+    "midpointRMSE": 25.4076,
+    "ovrRelation": "below"
+  }
+}
