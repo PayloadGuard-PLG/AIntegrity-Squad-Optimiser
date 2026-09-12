@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "validationClass": "ASSISTANT_BLIND_MATCHED_MULTIPLIER_REPLICATION",
+  "frozenPredictionExperiment": "PRED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "player": {
+    "id": "LT-RIPLEY",
+    "playerId": "PLY-0020",
+    "playerStateId": "CUR-20260910-008",
+    "age": 28,
+    "tier": "T2",
+    "displayedOvrBefore": 96.6,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Extensive Safeguard",
+    "multiplier": 114,
+    "durationLiteral": "8h"
+  },
+  "observed": {
+    "statIntervals": {
+      "TACKLING": {
+        "lo": 80,
+        "hi": 119
+      },
+      "MARKING": {
+        "lo": 76,
+        "hi": 97
+      },
+      "POSITIONING": {
+        "lo": 34,
+        "hi": 45
+      },
+      "HEADING": {
+        "lo": 11,
+        "hi": 16
+      },
+      "BRAVERY": {
+        "lo": 50,
+        "hi": 61
+      },
+      "FITNESS": {
+        "lo": 47,
+        "hi": 58
+      },
+      "STRENGTH": {
+        "lo": 80,
+        "hi": 113
+      },
+      "AGGRESSION": {
+        "lo": 80,
+        "hi": 108
+      }
+    },
+    "ovrDelta": {
+      "lo": 31,
+      "hi": 41
+    },
+    "source": "chat_upload:62318.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "comparison": {
+    "model": {
+      "K": 47,
+      "q": 1.0598862985485589,
+      "budgetScaleRatio": 1.08016806,
+      "equation": "g114 = K*ln(1 + (114/106)^q * (exp(g106/K)-1))"
+    },
+    "statIntervals": {
+      "TACKLING": {
+        "predicted": {
+          "lo": 77.9118,
+          "hi": 115.3015
+        },
+        "observed": {
+          "lo": 80,
+          "hi": 119
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": 2.0882,
+          "hi": 3.6985
+        },
+        "intervalIoU": 0.859164
+      },
+      "MARKING": {
+        "predicted": {
+          "lo": 74.8645,
+          "hi": 96.1398
+        },
+        "observed": {
+          "lo": 76,
+          "hi": 97
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": 1.1355,
+          "hi": 0.8602
+        },
+        "intervalIoU": 0.909842
+      },
+      "POSITIONING": {
+        "predicted": {
+          "lo": 33.8248,
+          "hi": 45.206
+        },
+        "observed": {
+          "lo": 34,
+          "hi": 45
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": 0.1752,
+          "hi": -0.206
+        },
+        "intervalIoU": 0.966506
+      },
+      "HEADING": {
+        "predicted": {
+          "lo": 11.7798,
+          "hi": 16.0184
+        },
+        "observed": {
+          "lo": 11,
+          "hi": 16
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": -0.7798,
+          "hi": -0.0184
+        },
+        "intervalIoU": 0.840945
+      },
+      "BRAVERY": {
+        "predicted": {
+          "lo": 51.3783,
+          "hi": 61.6197
+        },
+        "observed": {
+          "lo": 50,
+          "hi": 61
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": -1.3783,
+          "hi": -0.6197
+        },
+        "intervalIoU": 0.828051
+      },
+      "FITNESS": {
+        "predicted": {
+          "lo": 48.295,
+          "hi": 58.5527
+        },
+        "observed": {
+          "lo": 47,
+          "hi": 58
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": -1.295,
+          "hi": -0.5527
+        },
+        "intervalIoU": 0.840063
+      },
+      "STRENGTH": {
+        "predicted": {
+          "lo": 76.8964,
+          "hi": 110.2651
+        },
+        "observed": {
+          "lo": 80,
+          "hi": 113
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": 3.1036,
+          "hi": 2.7349
+        },
+        "intervalIoU": 0.838285
+      },
+      "AGGRESSION": {
+        "predicted": {
+          "lo": 76.8964,
+          "hi": 107.2413
+        },
+        "observed": {
+          "lo": 80,
+          "hi": 108
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": 3.1036,
+          "hi": 0.7587
+        },
+        "intervalIoU": 0.875825
+      }
+    },
+    "summary": {
+      "allEightIntervalsOverlap": true,
+      "endpointMAE": 1.4068,
+      "maxEndpointAbsoluteError": 3.6985,
+      "meanIntervalIoU": 0.869835
+    },
+    "ovr": {
+      "predicted": {
+        "lo": 30.1231,
+        "hi": 40.6896
+      },
+      "observed": {
+        "lo": 31,
+        "hi": 41
+      },
+      "endpointMAE": 0.5937,
+      "intervalIoU": 0.890842
+    }
+  }
+}
