@@ -1,0 +1,513 @@
+{
+  "schemaVersion": 1,
+  "notes": [
+    "Raw preview observations only. No production-engine predictions or fitted parameters are imported from experimental branches.",
+    "The displayed xN value is stored as multiplier. It is not reinterpreted as an ordinary Academy session count.",
+    "All observations below are preview-only and stateChanged=false."
+  ],
+  "observations": [
+    {
+      "id": "HOWDEN-X106-TRAINING-CAMP",
+      "playerId": "WILLIE-HOWDEN",
+      "playerStateId": "HOWDEN-20260912-X106-MATCHED",
+      "age": 19,
+      "tier": "T0",
+      "displayedOvrBefore": 57,
+      "programmeFamily": "Training Camp",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {},
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 98,
+          "hi": 118
+        },
+        "MARKING": {
+          "lo": 98,
+          "hi": 118
+        },
+        "POSITIONING": {
+          "lo": 97,
+          "hi": 116
+        },
+        "HEADING": {
+          "lo": 125,
+          "hi": 142
+        },
+        "BRAVERY": {
+          "lo": 109,
+          "hi": 128
+        },
+        "FITNESS": {
+          "lo": 101,
+          "hi": 120
+        },
+        "STRENGTH": {
+          "lo": 122,
+          "hi": 139
+        },
+        "AGGRESSION": {
+          "lo": 119,
+          "hi": 136
+        }
+      },
+      "ovrDelta": {
+        "lo": 58,
+        "hi": 67
+      },
+      "source": "chat_upload:62306.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP.json",
+      "stateChanged": false
+    },
+    {
+      "id": "HOWDEN-X106-DRILL-SESSION",
+      "playerId": "WILLIE-HOWDEN",
+      "playerStateId": "HOWDEN-20260912-X106-MATCHED",
+      "age": 19,
+      "tier": "T0",
+      "displayedOvrBefore": 57,
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {},
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 98,
+          "hi": 118
+        },
+        "MARKING": {
+          "lo": 98,
+          "hi": 118
+        },
+        "POSITIONING": {
+          "lo": 97,
+          "hi": 116
+        },
+        "HEADING": {
+          "lo": 125,
+          "hi": 142
+        },
+        "BRAVERY": {
+          "lo": 109,
+          "hi": 128
+        },
+        "FITNESS": {
+          "lo": 101,
+          "hi": 120
+        },
+        "STRENGTH": {
+          "lo": 122,
+          "hi": 139
+        },
+        "AGGRESSION": {
+          "lo": 119,
+          "hi": 136
+        }
+      },
+      "ovrDelta": {
+        "lo": 58,
+        "hi": 67
+      },
+      "source": "chat_upload:62307.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION.json",
+      "stateChanged": false
+    },
+    {
+      "id": "HOWDEN-X114-DRILL-SESSION",
+      "playerId": "WILLIE-HOWDEN",
+      "playerStateId": "HOWDEN-20260912-X106-MATCHED",
+      "age": 19,
+      "tier": "T0",
+      "displayedOvrBefore": 57,
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 114,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {},
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 102,
+          "hi": 121
+        },
+        "MARKING": {
+          "lo": 102,
+          "hi": 121
+        },
+        "POSITIONING": {
+          "lo": 100,
+          "hi": 120
+        },
+        "HEADING": {
+          "lo": 127,
+          "hi": 145
+        },
+        "BRAVERY": {
+          "lo": 112,
+          "hi": 132
+        },
+        "FITNESS": {
+          "lo": 104,
+          "hi": 124
+        },
+        "STRENGTH": {
+          "lo": 125,
+          "hi": 143
+        },
+        "AGGRESSION": {
+          "lo": 121,
+          "hi": 139
+        }
+      },
+      "ovrDelta": {
+        "lo": 59,
+        "hi": 69
+      },
+      "source": "chat_upload:62313.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-OBSERVED-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION.json",
+      "stateChanged": false
+    },
+    {
+      "id": "MCCLUSKEY-X65-DRILL-SESSION",
+      "playerId": "GARRY-MCCLUSKEY",
+      "playerStateId": "CUR-20260910-005",
+      "age": 28,
+      "tier": "T3",
+      "displayedOvrBefore": 155.2,
+      "programmeFamily": "Drill Session",
+      "title": "Focused Safeguard",
+      "multiplier": 65,
+      "affectedStatCount": 2,
+      "affectedStats": [
+        "MARKING",
+        "AGGRESSION"
+      ],
+      "currentValues": {
+        "MARKING": 163,
+        "AGGRESSION": 122
+      },
+      "statIntervals": {
+        "MARKING": {
+          "lo": 71,
+          "hi": 81
+        },
+        "AGGRESSION": {
+          "lo": 107,
+          "hi": 118
+        }
+      },
+      "ovrDelta": {
+        "lo": 12,
+        "hi": 14
+      },
+      "source": "chat_upload:62336.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-OBSERVED-20260912-MCCLUSKEY-FOCUSED-SAFEGUARD-X65-DRILL-SESSION.json",
+      "stateChanged": false
+    },
+    {
+      "id": "MCCLUSKEY-X106-DRILL-SESSION",
+      "playerId": "GARRY-MCCLUSKEY",
+      "playerStateId": "CUR-20260910-005",
+      "age": 28,
+      "tier": "T3",
+      "displayedOvrBefore": 155.2,
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {
+        "TACKLING": 224,
+        "MARKING": 163,
+        "POSITIONING": 231,
+        "HEADING": 209,
+        "BRAVERY": 194,
+        "FITNESS": 158,
+        "STRENGTH": 111,
+        "AGGRESSION": 122
+      },
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 12,
+          "hi": 16
+        },
+        "MARKING": {
+          "lo": 47,
+          "hi": 58
+        },
+        "POSITIONING": {
+          "lo": 9,
+          "hi": 13
+        },
+        "HEADING": {
+          "lo": 21,
+          "hi": 25
+        },
+        "BRAVERY": {
+          "lo": 27,
+          "hi": 36
+        },
+        "FITNESS": {
+          "lo": 51,
+          "hi": 61
+        },
+        "STRENGTH": {
+          "lo": 72,
+          "hi": 93
+        },
+        "AGGRESSION": {
+          "lo": 68,
+          "hi": 87
+        }
+      },
+      "ovrDelta": {
+        "lo": 21,
+        "hi": 26
+      },
+      "source": "chat_upload:62326.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION.json",
+      "stateChanged": false
+    },
+    {
+      "id": "MCCLUSKEY-X114-DRILL-SESSION",
+      "playerId": "GARRY-MCCLUSKEY",
+      "playerStateId": "CUR-20260910-005",
+      "age": 28,
+      "tier": "T3",
+      "displayedOvrBefore": 155.2,
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 114,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {
+        "TACKLING": 224,
+        "MARKING": 163,
+        "POSITIONING": 231,
+        "HEADING": 209,
+        "BRAVERY": 194,
+        "FITNESS": 158,
+        "STRENGTH": 111,
+        "AGGRESSION": 122
+      },
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 12,
+          "hi": 17
+        },
+        "MARKING": {
+          "lo": 49,
+          "hi": 60
+        },
+        "POSITIONING": {
+          "lo": 9,
+          "hi": 14
+        },
+        "HEADING": {
+          "lo": 21,
+          "hi": 26
+        },
+        "BRAVERY": {
+          "lo": 29,
+          "hi": 37
+        },
+        "FITNESS": {
+          "lo": 53,
+          "hi": 64
+        },
+        "STRENGTH": {
+          "lo": 76,
+          "hi": 97
+        },
+        "AGGRESSION": {
+          "lo": 71,
+          "hi": 89
+        }
+      },
+      "ovrDelta": {
+        "lo": 22,
+        "hi": 27
+      },
+      "source": "chat_upload:62327.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION.json",
+      "stateChanged": false
+    },
+    {
+      "id": "RIPLEY-X106-DRILL-SESSION",
+      "playerId": "LT-RIPLEY",
+      "playerStateId": "CUR-20260910-008",
+      "age": 28,
+      "tier": "T2",
+      "displayedOvrBefore": 96.6,
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {},
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 75,
+          "hi": 112
+        },
+        "MARKING": {
+          "lo": 72,
+          "hi": 93
+        },
+        "POSITIONING": {
+          "lo": 32,
+          "hi": 43
+        },
+        "HEADING": {
+          "lo": 11,
+          "hi": 15
+        },
+        "BRAVERY": {
+          "lo": 49,
+          "hi": 59
+        },
+        "FITNESS": {
+          "lo": 46,
+          "hi": 56
+        },
+        "STRENGTH": {
+          "lo": 74,
+          "hi": 107
+        },
+        "AGGRESSION": {
+          "lo": 74,
+          "hi": 104
+        }
+      },
+      "ovrDelta": {
+        "lo": 29,
+        "hi": 39
+      },
+      "source": "chat_upload:62319.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-OBSERVED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION.json",
+      "stateChanged": false
+    },
+    {
+      "id": "RIPLEY-X114-DRILL-SESSION",
+      "playerId": "LT-RIPLEY",
+      "playerStateId": "CUR-20260910-008",
+      "age": 28,
+      "tier": "T2",
+      "displayedOvrBefore": 96.6,
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 114,
+      "affectedStatCount": 8,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "currentValues": {},
+      "statIntervals": {
+        "TACKLING": {
+          "lo": 80,
+          "hi": 119
+        },
+        "MARKING": {
+          "lo": 76,
+          "hi": 97
+        },
+        "POSITIONING": {
+          "lo": 34,
+          "hi": 45
+        },
+        "HEADING": {
+          "lo": 11,
+          "hi": 16
+        },
+        "BRAVERY": {
+          "lo": 50,
+          "hi": 61
+        },
+        "FITNESS": {
+          "lo": 47,
+          "hi": 58
+        },
+        "STRENGTH": {
+          "lo": 80,
+          "hi": 113
+        },
+        "AGGRESSION": {
+          "lo": 80,
+          "hi": 108
+        }
+      },
+      "ovrDelta": {
+        "lo": 31,
+        "hi": 41
+      },
+      "source": "chat_upload:62318.png",
+      "sourceRecord": "Calibration/test-role-allocation:calibration/observed_results/RESULT-OBSERVED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION.json",
+      "stateChanged": false
+    }
+  ]
+}

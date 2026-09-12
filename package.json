@@ -22,7 +22,10 @@
     "calibration:coach": "npx tsx tools/coach-calibration.ts",
     "test:calibration": "node --import tsx --test tests/calibration/coach-calibration-test.ts",
     "test:calibration:baseline": "node --import tsx --test tests/calibration/coach-calibration-baseline-test.ts",
-    "verify:calibration": "npm run typecheck && npm run test:calibration && npm run test:projection && npm run test:engine"
+    "verify:calibration": "npm run typecheck && npm run test:calibration && npm run test:projection && npm run test:engine",
+    "calibration:resource": "npx tsx tools/resource-coach-probe.ts",
+    "test:calibration:resource": "node --import tsx --test tests/calibration/resource-coach-probe-test.ts",
+    "verify:calibration:resource": "npm run typecheck && npm run test:calibration && npm run test:calibration:baseline && npm run test:calibration:resource && npm run test:projection && npm run test:engine"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -45,7 +48,7 @@
     "metro-resolver": "^0.82.5",
     "react": "19.0.0",
     "react-native": "0.79.6",
-    "react-native-safe-area-context": "5.4.0",
+    "react-native-safe-area-context": "~5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-svg": "15.11.2",
     "upng-js": "2.1.0"
