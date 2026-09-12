@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-RYAN-RODGER-THREE-COACH-BUNDLE",
+  "epistemicStatus": {
+    "class": "PROSPECTIVE_PRE_REVEAL",
+    "outcomeKnown": false,
+    "stateChanged": false
+  },
+  "player": {
+    "id": "RYAN-RODGER",
+    "playerId": "PLY-0010",
+    "playerStateId": "CUR-20260912-023",
+    "age": 23,
+    "tier": "T0",
+    "roles": ["AML","ML","AMC"],
+    "displayedOvrBefore": 89
+  },
+  "fixedParameters": {
+    "K": 47,
+    "q": 1.0598862985485589,
+    "lambdaAge": 0.05975455814983059,
+    "pExponentPrimary": 1.0
+  },
+  "predictions": {
+    "STANDARD_ATTACKING_X20_TRAINING_CAMP": {
+      "affectedStatCount": 3,
+      "primaryModel": "same-player same-title longitudinal",
+      "stats": {
+        "DRIBBLING": {"lo":17.6176,"hi":23.9757},
+        "CROSSING": {"lo":23.6416,"hi":33.0100},
+        "SHOOTING": {"lo":23.4442,"hi":31.8157}
+      },
+      "derivedOvr": {"lo":4.3136,"hi":5.9201}
+    },
+    "FOCUSED_MIXED_X14_TRAINING_CAMP": {
+      "affectedStatCount": 2,
+      "primaryModel": "same-player longitudinal ordinary-budget",
+      "primary": {
+        "PASSING": {"lo":31.0191,"hi":38.9024},
+        "BRAVERY": {"lo":79.8792,"hi":95.5441},
+        "derivedOvr": {"lo":7.3932,"hi":8.9631}
+      },
+      "alternativeSameTitleCrossPlayer": {
+        "PASSING": {"lo":80.4856,"hi":97.7759},
+        "BRAVERY": {"lo":131.0266,"hi":147.5413},
+        "derivedOvr": {"lo":14.1008,"hi":16.3545}
+      }
+    },
+    "FOCUSED_SAFEGUARD_X65_DRILL_SESSION": {
+      "affectedStatCount": 2,
+      "primaryModel": "same-player longitudinal ordinary-budget",
+      "primary": {
+        "MARKING": {"lo":129.9868,"hi":145.6000},
+        "AGGRESSION": {"lo":125.3177,"hi":140.8376},
+        "derivedOvr": {"lo":17.0203,"hi":19.0958}
+      },
+      "alternativeSameTitleCrossPlayer": {
+        "MARKING": {"lo":174.5176,"hi":186.7344},
+        "AGGRESSION": {"lo":171.2370,"hi":183.0654},
+        "derivedOvr": {"lo":23.0503,"hi":24.6533}
+      }
+    }
+  },
+  "observed": null
+}
