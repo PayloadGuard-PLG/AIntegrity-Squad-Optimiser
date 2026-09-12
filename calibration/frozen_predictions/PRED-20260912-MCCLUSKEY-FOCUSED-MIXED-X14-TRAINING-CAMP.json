@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+  "epistemicStatus": {
+    "class": "PROSPECTIVE_PRE_REVEAL",
+    "outcomeKnownToAssistant": false,
+    "outcomeKnownToUser": false,
+    "observed": null,
+    "note": "Same-player same-programme test. Passing provides multiplier-law replication with p=2 unchanged. Bravery discriminates p-independent transfer from shared budget divided by affected-stat count using the legacy x13 p=1 observation."
+  },
+  "player": {
+    "id": "GARRY-MCCLUSKEY",
+    "playerId": "PLY-0008",
+    "playerStateId": "CUR-20260910-005",
+    "age": 28,
+    "tier": "T3",
+    "displayedOvrBefore": 155.2,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Training Camp",
+    "title": "Focused Mixed",
+    "multiplier": 14,
+    "durationLiteral": "18 DAY(S)",
+    "affectedStats": [
+      "BRAVERY",
+      "PASSING"
+    ],
+    "affectedStatCount": 2,
+    "transferClass": "ordinary"
+  },
+  "fixedParameters": {
+    "K": 47,
+    "q": 1.0598862985485589
+  },
+  "legacyReferences": {
+    "passingX7": {
+      "multiplier": 7,
+      "affectedStatCount": 2,
+      "currentValue": 170,
+      "observed": {
+        "lo": 15,
+        "hi": 21
+      }
+    },
+    "passingX26": {
+      "multiplier": 26,
+      "affectedStatCount": 2,
+      "currentValue": 170,
+      "observed": {
+        "lo": 42,
+        "hi": 52
+      }
+    },
+    "braveryX13": {
+      "multiplier": 13,
+      "affectedStatCount": 1,
+      "currentValue": 194,
+      "observed": {
+        "lo": 26,
+        "hi": 35
+      }
+    }
+  },
+  "passingMultiplierReplication": {
+    "fromX7": {
+      "scale": 2.084767210866623,
+      "interval": {
+        "lo": 27.2006,
+        "hi": 36.507
+      }
+    },
+    "fromX26": {
+      "scale": 0.5188651919826875,
+      "interval": {
+        "lo": 26.2809,
+        "hi": 33.7356
+      }
+    },
+    "conservativeEnvelope": {
+      "lo": 26.2809,
+      "hi": 36.507
+    }
+  },
+  "competingFrozenHypotheses": {
+    "H0_P_INDEPENDENT": {
+      "braveryPrediction": {
+        "lo": 27.6041,
+        "hi": 36.9746
+      },
+      "derivedOvrInterval": {
+        "lo": 3.5923,
+        "hi": 4.8988
+      }
+    },
+    "H1_SHARED_BUDGET_DIVIDED_BY_P": {
+      "braveryPrediction": {
+        "lo": 15.8001,
+        "hi": 22.0332
+      },
+      "derivedOvrInterval": {
+        "lo": 2.8054,
+        "hi": 3.9027
+      }
+    }
+  },
+  "observed": null,
+  "stateChanged": false
+}
