@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-MCCLUSKEY-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+  "epistemicStatus": {
+    "class": "PROSPECTIVE_PRE_REVEAL",
+    "outcomeKnownToAssistant": false,
+    "outcomeKnownToUser": false,
+    "observed": null,
+    "note": "Frozen before selecting McCluskey for Focused Safeguard x65. Test discriminates independent per-stat budget from shared coach budget divided by affected-stat count."
+  },
+  "player": {
+    "id": "GARRY-MCCLUSKEY",
+    "playerId": "PLY-0008",
+    "playerStateId": "CUR-20260910-005",
+    "age": 28,
+    "tier": "T3",
+    "displayedOvrBefore": 155.2,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Focused Safeguard",
+    "multiplier": 65,
+    "durationLiteral": "5 DAY(S)",
+    "affectedStats": [
+      "MARKING",
+      "AGGRESSION"
+    ],
+    "affectedStatCount": 2,
+    "transferClass": "ordinary"
+  },
+  "reference": {
+    "experiment": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+    "multiplier": 106,
+    "affectedStatCount": 8,
+    "observedStatIntervals": {
+      "MARKING": {
+        "lo": 47,
+        "hi": 58
+      },
+      "AGGRESSION": {
+        "lo": 68,
+        "hi": 87
+      }
+    },
+    "independentCrossCheckX114": {
+      "experiment": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "MARKING": {
+        "lo": 49,
+        "hi": 60
+      },
+      "AGGRESSION": {
+        "lo": 71,
+        "hi": 89
+      }
+    }
+  },
+  "fixedParameters": {
+    "K": 47,
+    "q": 1.0598862985485589,
+    "multiplierScale106to65": 0.59550867198402
+  },
+  "competingFrozenHypotheses": {
+    "H0_INDEPENDENT_PER_STAT_BUDGET": {
+      "equation": "g65 = K*ln(1 + (65/106)^q*(exp(g106/K)-1))",
+      "budgetScale": 0.59550867198402,
+      "predictedStatIntervals": {
+        "MARKING": {
+          "lo": 33.1212,
+          "hi": 42.1184
+        },
+        "AGGRESSION": {
+          "lo": 50.6072,
+          "hi": 67.4025
+        }
+      },
+      "derivedOvrInterval": {
+        "lo": 5.5819,
+        "hi": 7.3014
+      }
+    },
+    "H1_SHARED_BUDGET_DIVIDED_BY_AFFECTED_STAT_COUNT": {
+      "equation": "g65 = K*ln(1 + (65/106)^q*(8/2)*(exp(g106/K)-1))",
+      "budgetScale": 2.38203468793608,
+      "predictedStatIntervals": {
+        "MARKING": {
+          "lo": 76.5098,
+          "hi": 90.0986
+        },
+        "AGGRESSION": {
+          "lo": 101.8944,
+          "hi": 123.3029
+        }
+      },
+      "derivedOvrInterval": {
+        "lo": 11.8936,
+        "hi": 14.2268
+      }
+    }
+  },
+  "observed": null,
+  "stateChanged": false
+}
