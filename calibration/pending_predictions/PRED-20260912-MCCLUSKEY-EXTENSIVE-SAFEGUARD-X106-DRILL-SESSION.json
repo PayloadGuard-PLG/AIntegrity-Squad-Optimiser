@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "epistemicStatus": {
+    "class": "PROSPECTIVE_PRE_REVEAL",
+    "outcomeKnownToAssistant": false,
+    "outcomeKnownToUser": false,
+    "observed": null
+  },
+  "frozenAt": "2026-09-12T08:02:45.228Z",
+  "gitHead": "82760625df61ac5fbae551a53b69e689c81969e8",
+  "playerId": "PLY-0008",
+  "playerStateId": "CUR-20260910-005",
+  "preOutcome": {
+    "player": {
+      "id": "GARRY-MCCLUSKEY",
+      "name": "Garry McCluskey",
+      "role": [
+        "DC",
+        "DMC",
+        "MC"
+      ],
+      "age": 28,
+      "overall": 155,
+      "tier": "T3",
+      "talent": "Unknown",
+      "stats": {
+        "TACKLING": 224,
+        "MARKING": 163,
+        "POSITIONING": 231,
+        "HEADING": 209,
+        "BRAVERY": 194,
+        "PASSING": 170,
+        "DRIBBLING": 178,
+        "CROSSING": 62,
+        "SHOOTING": 157,
+        "FINISHING": 86,
+        "FITNESS": 158,
+        "STRENGTH": 111,
+        "AGGRESSION": 122,
+        "SPEED": 130,
+        "CREATIVITY": 125
+      },
+      "isMutantCandidate": false
+    },
+    "coach": {
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "durationDays": 2,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "transferClass": "ordinary"
+    }
+  },
+  "productionEngine": {
+    "experimentId": "PRED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+    "status": "projected",
+    "profileVersion": "2025",
+    "statPoints": {
+      "STRENGTH": 69.1,
+      "AGGRESSION": 60.8,
+      "FITNESS": 37.7,
+      "MARKING": 35,
+      "TACKLING": 24.7,
+      "POSITIONING": 24.7,
+      "HEADING": 24.7,
+      "BRAVERY": 24.7
+    },
+    "ovrBefore": 154,
+    "ovrDelta": 20.8
+  },
+  "candidateModel": {
+    "model": "RIPLEY_X106_SAME_AGE_CROSS_PLAYER_TIER_PROXY_V1",
+    "hypothesis": "At fixed age, Ripley's stat-specific x106 effective budgets transfer to Garry after changing the nominal latent-state tier proxy from T2 -30 to T3 -50.",
+    "parameters": {
+      "K": 47,
+      "C0": 2.94,
+      "ripleyTierProxy": 30,
+      "garryTierProxy": 50
+    },
+    "predictedStatIntervals": {
+      "TACKLING": {
+        "lo": 4.914,
+        "hi": 11.4457
+      },
+      "MARKING": {
+        "lo": 36.5073,
+        "hi": 51.9213
+      },
+      "POSITIONING": {
+        "lo": 14.6795,
+        "hi": 20.9717
+      },
+      "HEADING": {
+        "lo": 15.0906,
+        "hi": 20.2873
+      },
+      "BRAVERY": {
+        "lo": 30.4142,
+        "hi": 37.9728
+      },
+      "FITNESS": {
+        "lo": 50.4901,
+        "hi": 60.9817
+      },
+      "STRENGTH": {
+        "lo": 50.6495,
+        "hi": 79.4849
+      },
+      "AGGRESSION": {
+        "lo": 49.3399,
+        "hi": 75.1633
+      }
+    },
+    "predictedOvrInterval": {
+      "lo": 16.8057,
+      "hi": 23.8819
+    }
+  },
+  "observed": null,
+  "stateChanged": false
+}
