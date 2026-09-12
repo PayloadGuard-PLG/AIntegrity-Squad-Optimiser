@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "pairId": "PAIR-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106",
+  "frozenAt": "2026-09-12T07:10:56.169Z",
+  "gitHead": "9f1db6d68f8b1af66fd1090f4b4eda53f169a4b7",
+  "immutablePlayerStateId": "WILLIE-HOWDEN",
+  "experiments": [
+    {
+      "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+      "programmeFamily": "Training Camp",
+      "sha256": "822f54e759b19da9f50708b7cfa807dfc4587a600cbd9c84af5242c2c7a3a929"
+    },
+    {
+      "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "programmeFamily": "Drill Session",
+      "sha256": "35d1d05200eccefc79df2be1521a865d5cd6c2b5b4361ca5d91e9f244327fc41"
+    }
+  ],
+  "controlledVariables": {
+    "playerState": "IDENTICAL",
+    "title": "Extensive Safeguard",
+    "multiplier": 106,
+    "affectedStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION"
+    ],
+    "onlyIntendedDifference": "programmeFamily and observed duration/acquisition context"
+  },
+  "nullHypothesis": "Training Camp and Drill Session previews are identical.",
+  "doNotRefitBeforeBothReveals": true
+}

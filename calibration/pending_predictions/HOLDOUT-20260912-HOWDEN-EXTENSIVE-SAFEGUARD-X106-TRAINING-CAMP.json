@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+  "frozenAt": "2026-09-12T07:10:56.156Z",
+  "gitHead": "9f1db6d68f8b1af66fd1090f4b4eda53f169a4b7",
+  "rosterSnapshot": "COACH-ROSTER-20260912",
+  "rosterEntryId": "ROSTER-20260912-05",
+  "preOutcome": {
+    "player": {
+      "id": "WILLIE-HOWDEN",
+      "name": "Willie Howden",
+      "role": [
+        "MC"
+      ],
+      "age": 19,
+      "overall": 57,
+      "tier": "T0",
+      "talent": "Unknown",
+      "stats": {
+        "TACKLING": 69,
+        "MARKING": 69,
+        "POSITIONING": 71,
+        "HEADING": 25,
+        "BRAVERY": 57,
+        "PASSING": 70,
+        "DRIBBLING": 79,
+        "CROSSING": 38,
+        "SHOOTING": 73,
+        "FINISHING": 34,
+        "FITNESS": 66,
+        "STRENGTH": 28,
+        "AGGRESSION": 32,
+        "SPEED": 72,
+        "CREATIVITY": 67
+      },
+      "isMutantCandidate": false
+    },
+    "coach": {
+      "programmeFamily": "Training Camp",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "durationDays": 19,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "transferClass": "ordinary"
+    }
+  },
+  "observedDisplayClass": {
+    "TACKLING": "WHITE",
+    "MARKING": "WHITE",
+    "POSITIONING": "WHITE",
+    "HEADING": "MID_GREY",
+    "BRAVERY": "WHITE",
+    "FITNESS": "WHITE",
+    "STRENGTH": "WHITE",
+    "AGGRESSION": "MID_GREY"
+  },
+  "productionEngine": {
+    "experimentId": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+    "status": "projected",
+    "profileVersion": "2025",
+    "statPoints": {
+      "STRENGTH": 118.3,
+      "HEADING": 104.6,
+      "AGGRESSION": 98.4,
+      "BRAVERY": 92.4,
+      "FITNESS": 84.8,
+      "TACKLING": 82.3,
+      "MARKING": 82.3,
+      "POSITIONING": 80.6
+    },
+    "ovrBefore": 56,
+    "ovrDelta": 50.2
+  },
+  "relationalHypothesis": {
+    "name": "PROGRAMME_AGNOSTIC_NULL_V1",
+    "statement": "For the same immutable player state, coach title, multiplier and affected-stat set, Training Camp and Drill Session produce identical gain outputs if programmeFamily is not mechanically active.",
+    "expectedPairDifference": {
+      "statPoints": {
+        "TACKLING": 0,
+        "MARKING": 0,
+        "POSITIONING": 0,
+        "HEADING": 0,
+        "BRAVERY": 0,
+        "FITNESS": 0,
+        "STRENGTH": 0,
+        "AGGRESSION": 0
+      },
+      "ovrDelta": 0
+    },
+    "falsifier": "Any reproducible difference between the two game previews on the unchanged player state."
+  },
+  "candidateModelStatus": {
+    "fullCorpusReanalysisV1Applied": false,
+    "reason": "Current fitted coefficients were derived from Focused Offensive/Focused Attacking and are not assumed transferable to Extensive Safeguard."
+  },
+  "observed": null,
+  "stateChanged": false
+}
