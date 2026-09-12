@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "epistemicStatus": {
+    "class": "ASSISTANT_BLIND_USER_ALREADY_OBSERVED",
+    "outcomeKnownToAssistant": false,
+    "outcomeKnownToUser": true,
+    "note": "Prediction frozen before the user reveals the already-captured game result. Do not label as a pristine prospective holdout."
+  },
+  "frozenAt": "2026-09-12T07:46:51.346Z",
+  "gitHead": "846aba61e3a478db0cb624143800158e1c3dddc7",
+  "playerStateId": "CUR-20260910-008",
+  "playerId": "PLY-0020",
+  "preOutcome": {
+    "player": {
+      "id": "LT-RIPLEY",
+      "name": "Lt Ripley",
+      "role": [
+        "DMC",
+        "MC",
+        "AMC"
+      ],
+      "age": 28,
+      "overall": 96,
+      "tier": "T2",
+      "talent": "Unknown",
+      "stats": {
+        "TACKLING": 36,
+        "MARKING": 90,
+        "POSITIONING": 165,
+        "HEADING": 206,
+        "BRAVERY": 141,
+        "PASSING": 93,
+        "DRIBBLING": 104,
+        "CROSSING": 1,
+        "SHOOTING": 85,
+        "FINISHING": 57,
+        "FITNESS": 145,
+        "STRENGTH": 59,
+        "AGGRESSION": 68,
+        "SPEED": 85,
+        "CREATIVITY": 128
+      },
+      "isMutantCandidate": false
+    },
+    "coach": {
+      "programmeFamily": "Drill Session",
+      "title": "Extensive Safeguard",
+      "multiplier": 106,
+      "durationDays": 2,
+      "affectedStats": [
+        "TACKLING",
+        "MARKING",
+        "POSITIONING",
+        "HEADING",
+        "BRAVERY",
+        "FITNESS",
+        "STRENGTH",
+        "AGGRESSION"
+      ],
+      "transferClass": "ordinary"
+    }
+  },
+  "productionEngine": {
+    "experimentId": "PRED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+    "status": "projected",
+    "profileVersion": "2025",
+    "statPoints": {
+      "TACKLING": 130.4,
+      "STRENGTH": 109.2,
+      "AGGRESSION": 101.2,
+      "MARKING": 82.3,
+      "BRAVERY": 45.1,
+      "FITNESS": 42.6,
+      "POSITIONING": 31.8,
+      "HEADING": 23.5
+    },
+    "ovrBefore": 97,
+    "ovrDelta": 38.3
+  },
+  "candidateModel": {
+    "model": "EXTENSIVE_SAFEGUARD_X106_TRANSFER_V1",
+    "parameters": {
+      "K": 47,
+      "C0": 2.94,
+      "lambda": 0.05975455814983059,
+      "howdenAge": 19,
+      "ripleyAge": 28,
+      "ageScale": 0.5840369524874053,
+      "anchorBudget": {
+        "point": 5331.021278549957,
+        "lo": 4239.860790601719,
+        "hi": 6640.264274543808
+      },
+      "ripleyBudget": {
+        "point": 3113.513421169828,
+        "lo": 2476.2353751138685,
+        "hi": 3878.159710615557
+      },
+      "tierProxy": 30,
+      "tierProxyStatus": "HYPOTHESIS_NOT_HISTORICAL_RECONSTRUCTION"
+    },
+    "displayClass": {
+      "TACKLING": "WHITE",
+      "MARKING": "WHITE",
+      "POSITIONING": "WHITE",
+      "HEADING": "WHITE",
+      "BRAVERY": "WHITE",
+      "FITNESS": "WHITE",
+      "STRENGTH": "WHITE",
+      "AGGRESSION": "WHITE"
+    },
+    "statPointPredictions": {
+      "TACKLING": 142.7,
+      "MARKING": 93.3,
+      "POSITIONING": 38.6,
+      "HEADING": 20.1,
+      "BRAVERY": 53.5,
+      "FITNESS": 50.9,
+      "STRENGTH": 121.1,
+      "AGGRESSION": 112.9
+    },
+    "modelUncertaintyBands": {
+      "TACKLING": {
+        "lo": 132.5,
+        "hi": 152.6
+      },
+      "MARKING": {
+        "lo": 84.2,
+        "hi": 102.4
+      },
+      "POSITIONING": {
+        "lo": 32.9,
+        "hi": 44.7
+      },
+      "HEADING": {
+        "lo": 16.6,
+        "hi": 23.9
+      },
+      "BRAVERY": {
+        "lo": 46.5,
+        "hi": 60.8
+      },
+      "FITNESS": {
+        "lo": 44,
+        "hi": 57.9
+      },
+      "STRENGTH": {
+        "lo": 111.3,
+        "hi": 130.7
+      },
+      "AGGRESSION": {
+        "lo": 103.2,
+        "hi": 122.3
+      }
+    },
+    "ovrPoint": 42.2,
+    "ovrModelUncertaintyBand": {
+      "lo": 38.1,
+      "hi": 46.4
+    },
+    "note": "Uncertainty bands propagate the Howden x106 anchor interval uncertainty. They are not predictions of the game's displayed lo-hi envelope."
+  },
+  "observed": null,
+  "stateChanged": false
+}
