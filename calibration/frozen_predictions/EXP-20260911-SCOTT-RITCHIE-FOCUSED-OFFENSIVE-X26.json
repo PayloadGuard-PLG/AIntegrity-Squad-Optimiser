@@ -1,0 +1,11 @@
+{
+  "experimentId": "HOLDOUT-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+  "status": "projected",
+  "profileVersion": "2025",
+  "statPoints": {
+    "AGGRESSION": 69.3,
+    "PASSING": 45.5
+  },
+  "ovrBefore": 103,
+  "ovrDelta": 8.3
+}

@@ -875,6 +875,88 @@
         "stateChanged": false,
         "source": "prospective Howden x26 preview; frozen before reveal"
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+      "tags": [
+        "training-camp",
+        "focused-offensive",
+        "prospective-holdout",
+        "frozen-before-reveal",
+        "age-24",
+        "t2",
+        "all-white",
+        "no-state-change"
+      ],
+      "preOutcome": {
+        "player": {
+          "id": "SCOTT-RITCHIE",
+          "name": "Scott Ritchie",
+          "role": [
+            "DC",
+            "DMC",
+            "MC"
+          ],
+          "age": 24,
+          "overall": 103.5,
+          "tier": "T2",
+          "talent": "Unknown",
+          "stats": {
+            "TACKLING": 99,
+            "MARKING": 110,
+            "POSITIONING": 141,
+            "HEADING": 177,
+            "BRAVERY": 113,
+            "PASSING": 129,
+            "DRIBBLING": 93,
+            "CROSSING": 1,
+            "SHOOTING": 89,
+            "FINISHING": 18,
+            "FITNESS": 131,
+            "STRENGTH": 105,
+            "AGGRESSION": 95,
+            "SPEED": 111,
+            "CREATIVITY": 142
+          },
+          "isMutantCandidate": false
+        },
+        "coach": {
+          "programmeFamily": "Training Camp",
+          "title": "Focused Offensive",
+          "multiplier": 26,
+          "durationDays": 18,
+          "affectedStats": [
+            "PASSING",
+            "AGGRESSION"
+          ],
+          "transferClass": "ordinary"
+        }
+      },
+      "frozenPrediction": {
+        "PASSING": 45.5,
+        "AGGRESSION": 69.3,
+        "ovrDelta": 8.3,
+        "sha256": "87e787618c31e383be465c71fcf0ea1f9384a402dd8929e8576150badae17bf8"
+      },
+      "observed": {
+        "statIntervals": {
+          "PASSING": {
+            "lo": 64,
+            "hi": 74
+          },
+          "AGGRESSION": {
+            "lo": 92,
+            "hi": 104
+          }
+        },
+        "ovrDelta": {
+          "lo": 11,
+          "hi": 12
+        },
+        "stateChanged": false,
+        "source": "prospective Scott Ritchie x26 preview; frozen before reveal"
+      }
     }
   ]
 }
