@@ -209,6 +209,17 @@
       "provenance": "DIRECT_SCREENSHOT",
       "experimentId": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
       "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-020",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62337.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Garry McCluskey Focused Mixed x14 Training Camp preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+      "stateChanged": false
     }
   ]
 }
