@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "validationClass": "MATCHED_MULTIPLIER_VALIDATION_TARGET_NOT_PREREGISTERED",
+  "epistemicStatus": {
+    "targetSpecificPredictionFrozenBeforeReveal": false,
+    "modelParametersFrozenBeforeReveal": true,
+    "modelParameterEvidence": "commit d499d26 contains K=47 and q=1.0598862985485589 before x114 result reveal",
+    "note": "Do not relabel this result as a prospective frozen holdout."
+  },
+  "player": {
+    "id": "WILLIE-HOWDEN",
+    "name": "Willie Howden",
+    "age": 19,
+    "tier": "T0",
+    "overall": 57,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Extensive Safeguard",
+    "multiplier": 114,
+    "durationLiteral": "8h",
+    "affectedStats": [
+      "TACKLING",
+      "MARKING",
+      "POSITIONING",
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION"
+    ]
+  },
+  "observed": {
+    "statIntervals": {
+      "TACKLING": {
+        "lo": 102,
+        "hi": 121
+      },
+      "MARKING": {
+        "lo": 102,
+        "hi": 121
+      },
+      "POSITIONING": {
+        "lo": 100,
+        "hi": 120
+      },
+      "HEADING": {
+        "lo": 127,
+        "hi": 145
+      },
+      "BRAVERY": {
+        "lo": 112,
+        "hi": 132
+      },
+      "FITNESS": {
+        "lo": 104,
+        "hi": 124
+      },
+      "STRENGTH": {
+        "lo": 125,
+        "hi": 143
+      },
+      "AGGRESSION": {
+        "lo": 121,
+        "hi": 139
+      }
+    },
+    "ovrDelta": {
+      "lo": 59,
+      "hi": 69
+    },
+    "displayedOvrBefore": 57,
+    "source": "chat_upload:62313.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "comparison": {
+    "referenceExperiment": "HOLDOUT-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+    "controlledVariables": {
+      "playerState": "IDENTICAL",
+      "programmeFamily": "IDENTICAL",
+      "coachTitle": "IDENTICAL",
+      "affectedStatSet": "IDENTICAL"
+    },
+    "changedVariable": {
+      "multiplier": {
+        "from": 106,
+        "to": 114
+      }
+    },
+    "model": {
+      "K": 47,
+      "q": 1.0598862985485589,
+      "budgetScaleRatio": 1.08016806,
+      "equation": "g114 = K*ln(1 + (114/106)^q * (exp(g106/K)-1))"
+    },
+    "transformedIntervals": {
+      "TACKLING": {
+        "referenceX106": {
+          "lo": 98,
+          "hi": 118
+        },
+        "predictedX114": {
+          "lo": 101.1889,
+          "hi": 121.3403
+        },
+        "observedX114": {
+          "lo": 102,
+          "hi": 121
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": 0.8111,
+          "hi": -0.3403
+        }
+      },
+      "MARKING": {
+        "referenceX106": {
+          "lo": 98,
+          "hi": 118
+        },
+        "predictedX114": {
+          "lo": 101.1889,
+          "hi": 121.3403
+        },
+        "observedX114": {
+          "lo": 102,
+          "hi": 121
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": 0.8111,
+          "hi": -0.3403
+        }
+      },
+      "POSITIONING": {
+        "referenceX106": {
+          "lo": 97,
+          "hi": 116
+        },
+        "predictedX114": {
+          "lo": 100.1795,
+          "hi": 119.3279
+        },
+        "observedX114": {
+          "lo": 100,
+          "hi": 120
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": -0.1795,
+          "hi": 0.6721
+        }
+      },
+      "HEADING": {
+        "referenceX106": {
+          "lo": 125,
+          "hi": 142
+        },
+        "predictedX114": {
+          "lo": 128.3797,
+          "hi": 145.4542
+        },
+        "observedX114": {
+          "lo": 127,
+          "hi": 145
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": -1.3797,
+          "hi": -0.4542
+        }
+      },
+      "BRAVERY": {
+        "referenceX106": {
+          "lo": 109,
+          "hi": 128
+        },
+        "predictedX114": {
+          "lo": 112.2801,
+          "hi": 131.3949
+        },
+        "observedX114": {
+          "lo": 112,
+          "hi": 132
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": -0.2801,
+          "hi": 0.6051
+        }
+      },
+      "FITNESS": {
+        "referenceX106": {
+          "lo": 101,
+          "hi": 120
+        },
+        "predictedX114": {
+          "lo": 104.216,
+          "hi": 123.3522
+        },
+        "observedX114": {
+          "lo": 104,
+          "hi": 124
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": -0.216,
+          "hi": 0.6478
+        }
+      },
+      "STRENGTH": {
+        "referenceX106": {
+          "lo": 122,
+          "hi": 139
+        },
+        "predictedX114": {
+          "lo": 125.3636,
+          "hi": 142.4429
+        },
+        "observedX114": {
+          "lo": 125,
+          "hi": 143
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": -0.3636,
+          "hi": 0.5571
+        }
+      },
+      "AGGRESSION": {
+        "referenceX106": {
+          "lo": 119,
+          "hi": 136
+        },
+        "predictedX114": {
+          "lo": 122.3463,
+          "hi": 139.4309
+        },
+        "observedX114": {
+          "lo": 121,
+          "hi": 139
+        },
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": -1.3463,
+          "hi": -0.4309
+        }
+      }
+    },
+    "endpointMAE": 0.5897,
+    "maxEndpointAbsoluteError": 1.3797,
+    "ovrFromTransformedStatEndpoints": {
+      "lo": 59.6762,
+      "hi": 69.6056
+    },
+    "observedOvr": {
+      "lo": 59,
+      "hi": 69
+    }
+  }
+}
