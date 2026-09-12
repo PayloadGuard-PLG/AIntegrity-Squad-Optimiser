@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "epistemicStatus": {
+    "class": "PROSPECTIVE_PRE_REVEAL",
+    "outcomeKnownToAssistant": false,
+    "outcomeKnownToUser": false,
+    "observed": null
+  },
+  "frozenAt": "2026-09-12T08:06:18.631Z",
+  "gitHead": "a0f98dbf361e52da5b29fd96d066eaf3de10a11c",
+  "referenceExperiment": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "controlledVariables": {
+    "playerState": "IDENTICAL",
+    "programmeFamily": "Drill Session",
+    "coachTitle": "Extensive Safeguard",
+    "affectedStatSet": "IDENTICAL"
+  },
+  "changedVariable": {
+    "multiplier": {
+      "from": 106,
+      "to": 114
+    }
+  },
+  "model": {
+    "K": 47,
+    "q": 1.0598862985485589,
+    "budgetScaleRatio": 1.08016806,
+    "equation": "g114 = K*ln(1 + (114/106)^q * (exp(g106/K)-1))"
+  },
+  "predictedStatIntervals": {
+    "TACKLING": {
+      "lo": 12.8414,
+      "hi": 17.0748
+    },
+    "MARKING": {
+      "lo": 49.3234,
+      "hi": 60.5979
+    },
+    "POSITIONING": {
+      "lo": 9.6521,
+      "hi": 13.9018
+    },
+    "HEADING": {
+      "lo": 22.3385,
+      "hi": 26.5292
+    },
+    "BRAVERY": {
+      "lo": 28.6184,
+      "hi": 37.9742
+    },
+    "FITNESS": {
+      "lo": 53.4309,
+      "hi": 63.662
+    },
+    "STRENGTH": {
+      "lo": 74.8645,
+      "hi": 96.1398
+    },
+    "AGGRESSION": {
+      "lo": 70.7964,
+      "hi": 90.0734
+    }
+  },
+  "predictedOvrInterval": {
+    "lo": 21.4577,
+    "hi": 27.0635
+  },
+  "observed": null,
+  "stateChanged": false
+}

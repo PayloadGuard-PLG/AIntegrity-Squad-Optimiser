@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "validationClass": "PROSPECTIVE_CROSS_PLAYER_TEST",
+  "frozenPredictionExperiment": "PRED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "player": {
+    "id": "GARRY-MCCLUSKEY",
+    "playerId": "PLY-0008",
+    "playerStateId": "CUR-20260910-005",
+    "age": 28,
+    "tier": "T3",
+    "displayedOvrBefore": 155.2,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Extensive Safeguard",
+    "multiplier": 106,
+    "durationLiteral": "2 DAY(S)"
+  },
+  "observed": {
+    "statIntervals": {
+      "TACKLING": {
+        "lo": 12,
+        "hi": 16
+      },
+      "MARKING": {
+        "lo": 47,
+        "hi": 58
+      },
+      "POSITIONING": {
+        "lo": 9,
+        "hi": 13
+      },
+      "HEADING": {
+        "lo": 21,
+        "hi": 25
+      },
+      "BRAVERY": {
+        "lo": 27,
+        "hi": 36
+      },
+      "FITNESS": {
+        "lo": 51,
+        "hi": 61
+      },
+      "STRENGTH": {
+        "lo": 72,
+        "hi": 93
+      },
+      "AGGRESSION": {
+        "lo": 68,
+        "hi": 87
+      }
+    },
+    "ovrDelta": {
+      "lo": 21,
+      "hi": 26
+    },
+    "source": "chat_upload:62326.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "scoring": {
+    "candidateModel": {
+      "rows": {
+        "TACKLING": {
+          "predicted": {
+            "lo": 4.914,
+            "hi": 11.4457
+          },
+          "observed": {
+            "lo": 12,
+            "hi": 16
+          },
+          "overlaps": false,
+          "midpointResidualObservedMinusPredicted": 5.8201
+        },
+        "MARKING": {
+          "predicted": {
+            "lo": 36.5073,
+            "hi": 51.9213
+          },
+          "observed": {
+            "lo": 47,
+            "hi": 58
+          },
+          "overlaps": true,
+          "midpointResidualObservedMinusPredicted": 8.2857
+        },
+        "POSITIONING": {
+          "predicted": {
+            "lo": 14.6795,
+            "hi": 20.9717
+          },
+          "observed": {
+            "lo": 9,
+            "hi": 13
+          },
+          "overlaps": false,
+          "midpointResidualObservedMinusPredicted": -6.8256
+        },
+        "HEADING": {
+          "predicted": {
+            "lo": 15.0906,
+            "hi": 20.2873
+          },
+          "observed": {
+            "lo": 21,
+            "hi": 25
+          },
+          "overlaps": false,
+          "midpointResidualObservedMinusPredicted": 5.3111
+        },
+        "BRAVERY": {
+          "predicted": {
+            "lo": 30.4142,
+            "hi": 37.9728
+          },
+          "observed": {
+            "lo": 27,
+            "hi": 36
+          },
+          "overlaps": true,
+          "midpointResidualObservedMinusPredicted": -2.6935
+        },
+        "FITNESS": {
+          "predicted": {
+            "lo": 50.4901,
+            "hi": 60.9817
+          },
+          "observed": {
+            "lo": 51,
+            "hi": 61
+          },
+          "overlaps": true,
+          "midpointResidualObservedMinusPredicted": 0.2641
+        },
+        "STRENGTH": {
+          "predicted": {
+            "lo": 50.6495,
+            "hi": 79.4849
+          },
+          "observed": {
+            "lo": 72,
+            "hi": 93
+          },
+          "overlaps": true,
+          "midpointResidualObservedMinusPredicted": 17.4328
+        },
+        "AGGRESSION": {
+          "predicted": {
+            "lo": 49.3399,
+            "hi": 75.1633
+          },
+          "observed": {
+            "lo": 68,
+            "hi": 87
+          },
+          "overlaps": true,
+          "midpointResidualObservedMinusPredicted": 15.2484
+        }
+      },
+      "overlapCount": 5,
+      "total": 8,
+      "midpointMAE": 7.7352
+    },
+    "productionEngine": {
+      "rows": {
+        "TACKLING": {
+          "predicted": 24.7,
+          "observed": {
+            "lo": 12,
+            "hi": 16
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": -10.7
+        },
+        "MARKING": {
+          "predicted": 35,
+          "observed": {
+            "lo": 47,
+            "hi": 58
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": 17.5
+        },
+        "POSITIONING": {
+          "predicted": 24.7,
+          "observed": {
+            "lo": 9,
+            "hi": 13
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": -13.7
+        },
+        "HEADING": {
+          "predicted": 24.7,
+          "observed": {
+            "lo": 21,
+            "hi": 25
+          },
+          "inside": true,
+          "midpointResidualObservedMinusPredicted": -1.7
+        },
+        "BRAVERY": {
+          "predicted": 24.7,
+          "observed": {
+            "lo": 27,
+            "hi": 36
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": 6.8
+        },
+        "FITNESS": {
+          "predicted": 37.7,
+          "observed": {
+            "lo": 51,
+            "hi": 61
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": 18.3
+        },
+        "STRENGTH": {
+          "predicted": 69.1,
+          "observed": {
+            "lo": 72,
+            "hi": 93
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": 13.4
+        },
+        "AGGRESSION": {
+          "predicted": 60.8,
+          "observed": {
+            "lo": 68,
+            "hi": 87
+          },
+          "inside": false,
+          "midpointResidualObservedMinusPredicted": 16.7
+        }
+      },
+      "insideCount": 1,
+      "total": 8,
+      "midpointMAE": 12.35
+    }
+  }
+}
