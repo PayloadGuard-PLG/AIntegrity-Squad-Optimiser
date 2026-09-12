@@ -132,6 +132,17 @@
       "provenance": "DIRECT_SCREENSHOT",
       "experimentId": "OBSERVED-20260912-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
       "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-013",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62319.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Lt Ripley Extensive Safeguard x106 Drill Session preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "stateChanged": false
     }
   ]
 }

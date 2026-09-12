@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "PRED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "epistemicStatus": {
+    "class": "ASSISTANT_BLIND_USER_MAY_ALREADY_HAVE_RESULT",
+    "outcomeKnownToAssistant": false,
+    "targetSpecificPredictionFrozenBeforeAssistantReveal": true,
+    "note": "Derived only from Ripley x106 observed intervals and parameters K/q fixed before x114 reveal to assistant."
+  },
+  "frozenAt": "2026-09-12T07:51:06.918Z",
+  "gitHead": "2f0e2301144e8aaf48fe3ad23a1b5c634f74ea7e",
+  "referenceExperiment": "OBSERVED-20260912-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "controlledVariables": {
+    "playerState": "IDENTICAL",
+    "programmeFamily": "Drill Session",
+    "coachTitle": "Extensive Safeguard",
+    "affectedStatSet": "IDENTICAL"
+  },
+  "changedVariable": {
+    "multiplier": {
+      "from": 106,
+      "to": 114
+    }
+  },
+  "model": {
+    "K": 47,
+    "q": 1.0598862985485589,
+    "budgetScaleRatio": 1.08016806,
+    "equation": "g114 = K*ln(1 + (114/106)^q * (exp(g106/K)-1))"
+  },
+  "predictedStatIntervals": {
+    "TACKLING": {
+      "lo": 77.9118,
+      "hi": 115.3015
+    },
+    "MARKING": {
+      "lo": 74.8645,
+      "hi": 96.1398
+    },
+    "POSITIONING": {
+      "lo": 33.8248,
+      "hi": 45.206
+    },
+    "HEADING": {
+      "lo": 11.7798,
+      "hi": 16.0184
+    },
+    "BRAVERY": {
+      "lo": 51.3783,
+      "hi": 61.6197
+    },
+    "FITNESS": {
+      "lo": 48.295,
+      "hi": 58.5527
+    },
+    "STRENGTH": {
+      "lo": 76.8964,
+      "hi": 110.2651
+    },
+    "AGGRESSION": {
+      "lo": 76.8964,
+      "hi": 107.2413
+    }
+  },
+  "predictedOvrInterval": {
+    "lo": 30.1231,
+    "hi": 40.6896
+  },
+  "observed": null,
+  "stateChanged": false
+}
