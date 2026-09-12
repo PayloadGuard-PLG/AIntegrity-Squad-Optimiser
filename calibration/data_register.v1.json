@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "SRC-COACH-20260912-001",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62289.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Focused Safeguard x65 Drill Session",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-002",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62290.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Focused Defending x25 Skill Seminar",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-003",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62291.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Standard Attacking x20 Training Camp",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-004",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62292.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Focused Mixed x14 Training Camp",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-005",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62293.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Extensive Safeguard x106 Training Camp",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-006",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62294.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Extensive Safeguard x106 Drill Session",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-007",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62295.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Extensive Safeguard x114 Drill Session",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-008",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62296.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Duplicate screenshot of Extensive Safeguard x114 Drill Session",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": "SRC-COACH-20260912-007"
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-009",
+      "observedDate": "2026-09-12",
+      "recordType": "COACH_ROSTER_OBSERVATION",
+      "sourceFile": "62297.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Focused Attacking x2 Reward Coach",
+      "provenance": "DIRECT_SCREENSHOT",
+      "rosterSnapshot": "COACH-ROSTER-20260912",
+      "duplicateOf": null
+    }
+  ]
+}

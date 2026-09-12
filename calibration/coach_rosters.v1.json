@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "snapshots": [
+    {
+      "snapshotId": "COACH-ROSTER-20260912",
+      "observedDate": "2026-09-12",
+      "provenance": "DIRECT_SCREENSHOT_TRANSCRIPTION",
+      "state": "CURRENT_AVAILABLE_ROSTER",
+      "expectedNextRefreshDate": "2026-09-14",
+      "notes": [
+        "Previous Focused Attacking x7 Training Camp instance was no longer available before the planned Howden reveal.",
+        "Focused Attacking x2 Reward Coach remains available from the prior roster.",
+        "Extensive Safeguard x106 appears simultaneously as both Training Camp and Drill Session with identical title, multiplier and affected-stat signature but different duration and acquisition cost."
+      ],
+      "coaches": [
+        {
+          "rosterEntryId": "ROSTER-20260912-01",
+          "programmeFamily": "DRILL SESSION",
+          "title": "Focused Safeguard",
+          "multiplier": 65,
+          "durationLiteral": "5 DAY(S)",
+          "rewardCoach": false,
+          "affectedStats": [
+            "MARKING",
+            "AGGRESSION"
+          ],
+          "acquisition": {
+            "type": "TOKENS",
+            "amount": 400,
+            "literal": "400"
+          },
+          "availabilityLiteral": null,
+          "sourceIds": [
+            "SRC-COACH-20260912-001"
+          ]
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-02",
+          "programmeFamily": "SKILL SEMINAR",
+          "title": "Focused Defending",
+          "multiplier": 25,
+          "durationLiteral": "10 DAY(S)",
+          "rewardCoach": false,
+          "affectedStats": [
+            "TACKLING"
+          ],
+          "acquisition": {
+            "type": "TOKENS",
+            "amount": 188,
+            "literal": "188"
+          },
+          "availabilityLiteral": "2/2 AVAILABLE",
+          "sourceIds": [
+            "SRC-COACH-20260912-002"
+          ]
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-03",
+          "programmeFamily": "TRAINING CAMP",
+          "title": "Standard Attacking",
+          "multiplier": 20,
+          "durationLiteral": "16 DAY(S)",
+          "rewardCoach": false,
+          "affectedStats": [
+            "DRIBBLING",
+            "CROSSING",
+            "SHOOTING"
+          ],
+          "acquisition": {
+            "type": "RESOURCE_BUNDLE",
+            "components": [
+              {
+                "iconClass": "GREEN",
+                "amount": 60
+              },
+              {
+                "iconClass": "BLUE",
+                "amount": 72
+              },
+              {
+                "iconClass": "RED",
+                "amount": 180
+              }
+            ],
+            "note": "Icon classes preserved rather than assigning unverified resource semantics."
+          },
+          "availabilityLiteral": null,
+          "sourceIds": [
+            "SRC-COACH-20260912-003"
+          ]
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-04",
+          "programmeFamily": "TRAINING CAMP",
+          "title": "Focused Mixed",
+          "multiplier": 14,
+          "durationLiteral": "18 DAY(S)",
+          "rewardCoach": false,
+          "affectedStats": [
+            "PASSING",
+            "BRAVERY"
+          ],
+          "acquisition": {
+            "type": "TOKENS",
+            "amount": 85,
+            "literal": "85"
+          },
+          "availabilityLiteral": null,
+          "sourceIds": [
+            "SRC-COACH-20260912-004"
+          ]
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-05",
+          "programmeFamily": "TRAINING CAMP",
+          "title": "Extensive Safeguard",
+          "multiplier": 106,
+          "durationLiteral": "19 DAY(S)",
+          "rewardCoach": false,
+          "affectedStats": [
+            "TACKLING",
+            "MARKING",
+            "POSITIONING",
+            "HEADING",
+            "BRAVERY",
+            "FITNESS",
+            "STRENGTH",
+            "AGGRESSION"
+          ],
+          "acquisition": {
+            "type": "TOKENS",
+            "amount": 195,
+            "literal": "195"
+          },
+          "availabilityLiteral": null,
+          "sourceIds": [
+            "SRC-COACH-20260912-005"
+          ]
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-06",
+          "programmeFamily": "DRILL SESSION",
+          "title": "Extensive Safeguard",
+          "multiplier": 106,
+          "durationLiteral": "2 DAY(S)",
+          "rewardCoach": false,
+          "affectedStats": [
+            "TACKLING",
+            "MARKING",
+            "POSITIONING",
+            "HEADING",
+            "BRAVERY",
+            "FITNESS",
+            "STRENGTH",
+            "AGGRESSION"
+          ],
+          "acquisition": {
+            "type": "TOKENS",
+            "amount": 650,
+            "literal": "650"
+          },
+          "availabilityLiteral": null,
+          "sourceIds": [
+            "SRC-COACH-20260912-006"
+          ],
+          "matchedControlWith": "ROSTER-20260912-05"
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-07",
+          "programmeFamily": "DRILL SESSION",
+          "title": "Extensive Safeguard",
+          "multiplier": 114,
+          "durationLiteral": "8h",
+          "rewardCoach": false,
+          "affectedStats": [
+            "TACKLING",
+            "MARKING",
+            "POSITIONING",
+            "HEADING",
+            "BRAVERY",
+            "FITNESS",
+            "STRENGTH",
+            "AGGRESSION"
+          ],
+          "acquisition": {
+            "type": "FIAT",
+            "currency": "USD",
+            "amount": 19.99,
+            "literal": "US$19.99"
+          },
+          "availabilityLiteral": "1/1 AVAILABLE",
+          "sourceIds": [
+            "SRC-COACH-20260912-007",
+            "SRC-COACH-20260912-008"
+          ]
+        },
+        {
+          "rosterEntryId": "ROSTER-20260912-08",
+          "programmeFamily": "DRILL SESSION",
+          "title": "Focused Attacking",
+          "multiplier": 2,
+          "durationLiteral": "1h",
+          "rewardCoach": true,
+          "affectedStats": [
+            "FINISHING"
+          ],
+          "acquisition": {
+            "type": "REWARD_COACH",
+            "literal": "REWARD COACH"
+          },
+          "selectionConstraintLiteral": "Max 9 stars",
+          "availabilityLiteral": "1/1 AVAILABLE",
+          "continuityWithPriorRoster": true,
+          "sourceIds": [
+            "SRC-COACH-20260912-009"
+          ]
+        }
+      ]
+    }
+  ]
+}

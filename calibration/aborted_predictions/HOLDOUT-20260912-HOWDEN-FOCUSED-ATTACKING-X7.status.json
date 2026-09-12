@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "HOLDOUT-20260912-HOWDEN-FOCUSED-ATTACKING-X7",
+  "status": "ABORTED_BEFORE_REVEAL",
+  "reason": "COACH_ROSTER_ROTATED",
+  "outcomeObserved": false,
+  "stateChanged": false,
+  "doNotScore": true,
+  "rosterSnapshot": "COACH-ROSTER-20260912",
+  "note": "Focused Attacking x7 was no longer available when the prospective reveal was attempted. Frozen prediction is preserved unchanged and must not be treated as a validation result."
+}
