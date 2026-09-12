@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+  "validationClass": "PROSPECTIVE_RYAN_RODGER_THREE_COACH_BUNDLE",
+  "frozenReference": "PRED-20260912-RYAN-RODGER-THREE-COACH-BUNDLE",
+  "exactFrozenTargetMatch": true,
+  "player": {
+    "id": "RYAN-RODGER",
+    "playerId": "PLY-0010",
+    "playerStateId": "CUR-20260912-023",
+    "age": 23,
+    "tier": "T0",
+    "roles": [
+      "AML",
+      "ML",
+      "AMC"
+    ],
+    "playerCardDisplayedOvr": 89,
+    "previewDisplayedOvrBefore": 89.6,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Training Camp",
+    "title": "Focused Mixed",
+    "multiplier": 14,
+    "affectedStats": [
+      "PASSING",
+      "BRAVERY"
+    ],
+    "affectedStatCount": 2
+  },
+  "observed": {
+    "currentValues": {
+      "PASSING": 101,
+      "BRAVERY": 27
+    },
+    "statIntervals": {
+      "PASSING": {
+        "lo": 46,
+        "hi": 59
+      },
+      "BRAVERY": {
+        "lo": 59,
+        "hi": 85
+      }
+    },
+    "ovrDelta": {
+      "lo": 7,
+      "hi": 10
+    },
+    "source": "62339.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "scoring": {
+    "primary": {
+      "PASSING": {
+        "predicted": {
+          "lo": 31.0191,
+          "hi": 38.9024
+        },
+        "observed": {
+          "lo": 46,
+          "hi": 59
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": 17.5392,
+        "endpointMAE": 17.5392
+      },
+      "BRAVERY": {
+        "predicted": {
+          "lo": 79.8792,
+          "hi": 95.5441
+        },
+        "observed": {
+          "lo": 59,
+          "hi": 85
+        },
+        "overlaps": true,
+        "midpointResidualObservedMinusPredicted": -15.7116,
+        "endpointMAE": 15.7116
+      },
+      "OVR": {
+        "predicted": {
+          "lo": 7.3932,
+          "hi": 8.9631
+        },
+        "observed": {
+          "lo": 7,
+          "hi": 10
+        },
+        "overlaps": true,
+        "midpointResidualObservedMinusPredicted": 0.3218,
+        "endpointMAE": 0.715
+      }
+    },
+    "alternativeSameTitleCrossPlayer": {
+      "PASSING": {
+        "predicted": {
+          "lo": 80.4856,
+          "hi": 97.7759
+        },
+        "observed": {
+          "lo": 46,
+          "hi": 59
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": -36.6308,
+        "endpointMAE": 36.6307
+      },
+      "BRAVERY": {
+        "predicted": {
+          "lo": 131.0266,
+          "hi": 147.5413
+        },
+        "observed": {
+          "lo": 59,
+          "hi": 85
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": -67.284,
+        "endpointMAE": 67.284
+      },
+      "OVR": {
+        "predicted": {
+          "lo": 14.1008,
+          "hi": 16.3545
+        },
+        "observed": {
+          "lo": 7,
+          "hi": 10
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": -6.7277,
+        "endpointMAE": 6.7277
+      }
+    }
+  }
+}

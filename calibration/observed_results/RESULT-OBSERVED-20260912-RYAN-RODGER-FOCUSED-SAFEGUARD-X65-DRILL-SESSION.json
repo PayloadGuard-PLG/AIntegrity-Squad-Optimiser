@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+  "validationClass": "PROSPECTIVE_RYAN_RODGER_THREE_COACH_BUNDLE",
+  "frozenReference": "PRED-20260912-RYAN-RODGER-THREE-COACH-BUNDLE",
+  "exactFrozenTargetMatch": true,
+  "player": {
+    "id": "RYAN-RODGER",
+    "playerId": "PLY-0010",
+    "playerStateId": "CUR-20260912-023",
+    "age": 23,
+    "tier": "T0",
+    "roles": [
+      "AML",
+      "ML",
+      "AMC"
+    ],
+    "playerCardDisplayedOvr": 89,
+    "previewDisplayedOvrBefore": 89.6,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Focused Safeguard",
+    "multiplier": 65,
+    "affectedStats": [
+      "MARKING",
+      "AGGRESSION"
+    ],
+    "affectedStatCount": 2
+  },
+  "observed": {
+    "currentValues": {
+      "MARKING": 49,
+      "AGGRESSION": 54
+    },
+    "statIntervals": {
+      "MARKING": {
+        "lo": 125,
+        "hi": 142
+      },
+      "AGGRESSION": {
+        "lo": 121,
+        "hi": 137
+      }
+    },
+    "ovrDelta": {
+      "lo": 16,
+      "hi": 19
+    },
+    "source": "62340.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "scoring": {
+    "primary": {
+      "MARKING": {
+        "predicted": {
+          "lo": 129.9868,
+          "hi": 145.6
+        },
+        "observed": {
+          "lo": 125,
+          "hi": 142
+        },
+        "overlaps": true,
+        "midpointResidualObservedMinusPredicted": -4.2934,
+        "endpointMAE": 4.2934
+      },
+      "AGGRESSION": {
+        "predicted": {
+          "lo": 125.3177,
+          "hi": 140.8376
+        },
+        "observed": {
+          "lo": 121,
+          "hi": 137
+        },
+        "overlaps": true,
+        "midpointResidualObservedMinusPredicted": -4.0777,
+        "endpointMAE": 4.0777
+      },
+      "OVR": {
+        "predicted": {
+          "lo": 17.0203,
+          "hi": 19.0958
+        },
+        "observed": {
+          "lo": 16,
+          "hi": 19
+        },
+        "overlaps": true,
+        "midpointResidualObservedMinusPredicted": -0.5581,
+        "endpointMAE": 0.558
+      }
+    },
+    "alternativeSameTitleCrossPlayer": {
+      "MARKING": {
+        "predicted": {
+          "lo": 174.5176,
+          "hi": 186.7344
+        },
+        "observed": {
+          "lo": 125,
+          "hi": 142
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": -47.126,
+        "endpointMAE": 47.126
+      },
+      "AGGRESSION": {
+        "predicted": {
+          "lo": 171.237,
+          "hi": 183.0654
+        },
+        "observed": {
+          "lo": 121,
+          "hi": 137
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": -48.1512,
+        "endpointMAE": 48.1512
+      },
+      "OVR": {
+        "predicted": {
+          "lo": 23.0503,
+          "hi": 24.6533
+        },
+        "observed": {
+          "lo": 16,
+          "hi": 19
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": -6.3518,
+        "endpointMAE": 6.3518
+      }
+    }
+  }
+}

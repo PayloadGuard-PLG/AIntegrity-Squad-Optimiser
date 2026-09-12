@@ -220,6 +220,39 @@
       "provenance": "DIRECT_SCREENSHOT",
       "experimentId": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
       "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-021",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62338.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Ryan Rodger Standard Attacking x20 Training Camp preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+      "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-022",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62339.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Ryan Rodger Focused Mixed x14 Training Camp preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+      "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-023",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62340.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Ryan Rodger Focused Safeguard x65 Drill Session preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+      "stateChanged": false
     }
   ]
 }

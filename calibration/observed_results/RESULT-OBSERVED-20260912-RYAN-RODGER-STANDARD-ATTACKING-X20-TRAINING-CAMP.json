@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+  "validationClass": "PROSPECTIVE_RYAN_RODGER_THREE_COACH_BUNDLE",
+  "frozenReference": "PRED-20260912-RYAN-RODGER-THREE-COACH-BUNDLE",
+  "exactFrozenTargetMatch": true,
+  "player": {
+    "id": "RYAN-RODGER",
+    "playerId": "PLY-0010",
+    "playerStateId": "CUR-20260912-023",
+    "age": 23,
+    "tier": "T0",
+    "roles": [
+      "AML",
+      "ML",
+      "AMC"
+    ],
+    "playerCardDisplayedOvr": 89,
+    "previewDisplayedOvrBefore": 89.6,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Training Camp",
+    "title": "Standard Attacking",
+    "multiplier": 20,
+    "affectedStats": [
+      "DRIBBLING",
+      "CROSSING",
+      "SHOOTING"
+    ],
+    "affectedStatCount": 3
+  },
+  "observed": {
+    "currentValues": {
+      "DRIBBLING": 129,
+      "CROSSING": 109,
+      "SHOOTING": 114
+    },
+    "statIntervals": {
+      "DRIBBLING": {
+        "lo": 29,
+        "hi": 35
+      },
+      "CROSSING": {
+        "lo": 39,
+        "hi": 51
+      },
+      "SHOOTING": {
+        "lo": 36,
+        "hi": 47
+      }
+    },
+    "ovrDelta": {
+      "lo": 7,
+      "hi": 9
+    },
+    "source": "62338.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "scoring": {
+    "primary": {
+      "DRIBBLING": {
+        "predicted": {
+          "lo": 17.6176,
+          "hi": 23.9757
+        },
+        "observed": {
+          "lo": 29,
+          "hi": 35
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": 11.2034,
+        "endpointMAE": 11.2034
+      },
+      "CROSSING": {
+        "predicted": {
+          "lo": 23.6416,
+          "hi": 33.01
+        },
+        "observed": {
+          "lo": 39,
+          "hi": 51
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": 16.6742,
+        "endpointMAE": 16.6742
+      },
+      "SHOOTING": {
+        "predicted": {
+          "lo": 23.4442,
+          "hi": 31.8157
+        },
+        "observed": {
+          "lo": 36,
+          "hi": 47
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": 13.87,
+        "endpointMAE": 13.8701
+      },
+      "OVR": {
+        "predicted": {
+          "lo": 4.3136,
+          "hi": 5.9201
+        },
+        "observed": {
+          "lo": 7,
+          "hi": 9
+        },
+        "overlaps": false,
+        "midpointResidualObservedMinusPredicted": 2.8832,
+        "endpointMAE": 2.8832
+      }
+    }
+  }
+}
