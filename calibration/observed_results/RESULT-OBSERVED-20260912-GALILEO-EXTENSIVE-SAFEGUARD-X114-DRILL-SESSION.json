@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "validationClass": "PROSPECTIVE_EXACT_TARGET_PLUS_LOCAL_SCALING_TEST",
+  "frozenReference": "PRED-20260912-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+  "exactFrozenTargetMatch": true,
+  "player": {
+    "id": "LJ-GALILEO",
+    "playerId": "PLY-0001",
+    "age": 31,
+    "tier": "T2",
+    "displayedOvrBefore": 81.7,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Extensive Safeguard",
+    "multiplier": 114,
+    "durationLiteral": "8h"
+  },
+  "observed": {
+    "statIntervals": {
+      "TACKLING": {
+        "lo": 40,
+        "hi": 60
+      },
+      "MARKING": {
+        "lo": 40,
+        "hi": 60
+      },
+      "POSITIONING": {
+        "lo": 26,
+        "hi": 34
+      },
+      "HEADING": {
+        "lo": 9,
+        "hi": 14
+      },
+      "BRAVERY": {
+        "lo": 40,
+        "hi": 55
+      },
+      "FITNESS": {
+        "lo": 40,
+        "hi": 60
+      },
+      "STRENGTH": {
+        "lo": 40,
+        "hi": 60
+      },
+      "AGGRESSION": {
+        "lo": 40,
+        "hi": 60
+      }
+    },
+    "ovrDelta": {
+      "lo": 19,
+      "hi": 27
+    },
+    "source": "62328.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT"
+  },
+  "unconditionalFrozenComparison": {
+    "overlapCount": 2,
+    "total": 8,
+    "endpointMAE": 30.1803,
+    "maxEndpointAbsoluteError": 66.4144,
+    "rows": {
+      "TACKLING": {
+        "predicted": {
+          "lo": 68.1217,
+          "hi": 104.0838
+        },
+        "observed": {
+          "lo": 40,
+          "hi": 60
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -28.1217,
+          "hi": -44.0838
+        }
+      },
+      "MARKING": {
+        "predicted": {
+          "lo": 65.2457,
+          "hi": 85.5185
+        },
+        "observed": {
+          "lo": 40,
+          "hi": 60
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -25.2457,
+          "hi": -25.5185
+        }
+      },
+      "POSITIONING": {
+        "predicted": {
+          "lo": 28.7644,
+          "hi": 39.0424
+        },
+        "observed": {
+          "lo": 26,
+          "hi": 34
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": -2.7644,
+          "hi": -5.0424
+        }
+      },
+      "HEADING": {
+        "predicted": {
+          "lo": 9.4756,
+          "hi": 12.9938
+        },
+        "observed": {
+          "lo": 9,
+          "hi": 14
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": -0.4756,
+          "hi": 1.0062
+        }
+      },
+      "BRAVERY": {
+        "predicted": {
+          "lo": 56.5477,
+          "hi": 67.2699
+        },
+        "observed": {
+          "lo": 40,
+          "hi": 55
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -16.5477,
+          "hi": -12.2699
+        }
+      },
+      "FITNESS": {
+        "predicted": {
+          "lo": 86.226,
+          "hi": 99.2456
+        },
+        "observed": {
+          "lo": 40,
+          "hi": 60
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -46.226,
+          "hi": -39.2456
+        }
+      },
+      "STRENGTH": {
+        "predicted": {
+          "lo": 91.5252,
+          "hi": 126.4144
+        },
+        "observed": {
+          "lo": 40,
+          "hi": 60
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -51.5252,
+          "hi": -66.4144
+        }
+      },
+      "AGGRESSION": {
+        "predicted": {
+          "lo": 93.245,
+          "hi": 125.1521
+        },
+        "observed": {
+          "lo": 40,
+          "hi": 60
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -53.245,
+          "hi": -65.1521
+        }
+      }
+    }
+  },
+  "localScalingFromObservedX106": {
+    "caveat": "x106 source was Training Camp while x114 source was Drill Session; therefore this is cross-programme scaling evidence, not a same-programme matched pair.",
+    "model": {
+      "K": 47,
+      "q": 1.0598862985485589,
+      "scale": 1.08016806
+    },
+    "predictedStatIntervals": {
+      "TACKLING": {
+        "lo": 39.0095,
+        "hi": 57.5294
+      },
+      "MARKING": {
+        "lo": 39.0095,
+        "hi": 58.5527
+      },
+      "POSITIONING": {
+        "lo": 25.4831,
+        "hi": 33.8248
+      },
+      "HEADING": {
+        "lo": 9.6521,
+        "hi": 13.9018
+      },
+      "BRAVERY": {
+        "lo": 39.0095,
+        "hi": 54.4563
+      },
+      "FITNESS": {
+        "lo": 39.0095,
+        "hi": 57.5294
+      },
+      "STRENGTH": {
+        "lo": 39.0095,
+        "hi": 58.5527
+      },
+      "AGGRESSION": {
+        "lo": 39.0095,
+        "hi": 58.5527
+      }
+    },
+    "predictedOvrInterval": {
+      "lo": 17.9461,
+      "hi": 26.1933
+    },
+    "scoring": {
+      "overlapCount": 8,
+      "total": 8,
+      "endpointMAE": 1.0758,
+      "maxEndpointAbsoluteError": 2.4706,
+      "rows": {
+        "TACKLING": {
+          "predicted": {
+            "lo": 39.0095,
+            "hi": 57.5294
+          },
+          "observed": {
+            "lo": 40,
+            "hi": 60
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.9905,
+            "hi": 2.4706
+          }
+        },
+        "MARKING": {
+          "predicted": {
+            "lo": 39.0095,
+            "hi": 58.5527
+          },
+          "observed": {
+            "lo": 40,
+            "hi": 60
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.9905,
+            "hi": 1.4473
+          }
+        },
+        "POSITIONING": {
+          "predicted": {
+            "lo": 25.4831,
+            "hi": 33.8248
+          },
+          "observed": {
+            "lo": 26,
+            "hi": 34
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.5169,
+            "hi": 0.1752
+          }
+        },
+        "HEADING": {
+          "predicted": {
+            "lo": 9.6521,
+            "hi": 13.9018
+          },
+          "observed": {
+            "lo": 9,
+            "hi": 14
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": -0.6521,
+            "hi": 0.0982
+          }
+        },
+        "BRAVERY": {
+          "predicted": {
+            "lo": 39.0095,
+            "hi": 54.4563
+          },
+          "observed": {
+            "lo": 40,
+            "hi": 55
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.9905,
+            "hi": 0.5437
+          }
+        },
+        "FITNESS": {
+          "predicted": {
+            "lo": 39.0095,
+            "hi": 57.5294
+          },
+          "observed": {
+            "lo": 40,
+            "hi": 60
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.9905,
+            "hi": 2.4706
+          }
+        },
+        "STRENGTH": {
+          "predicted": {
+            "lo": 39.0095,
+            "hi": 58.5527
+          },
+          "observed": {
+            "lo": 40,
+            "hi": 60
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.9905,
+            "hi": 1.4473
+          }
+        },
+        "AGGRESSION": {
+          "predicted": {
+            "lo": 39.0095,
+            "hi": 58.5527
+          },
+          "observed": {
+            "lo": 40,
+            "hi": 60
+          },
+          "overlaps": true,
+          "residualObservedMinusPredicted": {
+            "lo": 0.9905,
+            "hi": 1.4473
+          }
+        }
+      }
+    }
+  }
+}

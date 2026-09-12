@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+  "validationClass": "PROSPECTIVE_PROGRAMME_FAMILY_TRANSFER_STRESS_TEST",
+  "frozenReference": "PRED-20260912-GALILEO-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+  "exactFrozenTargetMatch": false,
+  "mismatch": {
+    "frozenProgrammeFamily": "Drill Session",
+    "observedProgrammeFamily": "Training Camp"
+  },
+  "player": {
+    "id": "LJ-GALILEO",
+    "playerId": "PLY-0001",
+    "age": 31,
+    "tier": "T2",
+    "displayedOvrBefore": 81.7,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Training Camp",
+    "title": "Extensive Safeguard",
+    "multiplier": 106,
+    "durationLiteral": "19 DAY(S)"
+  },
+  "observed": {
+    "statIntervals": {
+      "TACKLING": {
+        "lo": 37,
+        "hi": 55
+      },
+      "MARKING": {
+        "lo": 37,
+        "hi": 56
+      },
+      "POSITIONING": {
+        "lo": 24,
+        "hi": 32
+      },
+      "HEADING": {
+        "lo": 9,
+        "hi": 13
+      },
+      "BRAVERY": {
+        "lo": 37,
+        "hi": 52
+      },
+      "FITNESS": {
+        "lo": 37,
+        "hi": 55
+      },
+      "STRENGTH": {
+        "lo": 37,
+        "hi": 56
+      },
+      "AGGRESSION": {
+        "lo": 37,
+        "hi": 56
+      }
+    },
+    "ovrDelta": {
+      "lo": 17,
+      "hi": 25
+    },
+    "source": "62329.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT"
+  },
+  "frozenCandidateComparison": {
+    "overlapCount": 2,
+    "total": 8,
+    "endpointMAE": 30.6092,
+    "maxEndpointAbsoluteError": 67.0451,
+    "rows": {
+      "TACKLING": {
+        "predicted": {
+          "lo": 65.3734,
+          "hi": 100.869
+        },
+        "observed": {
+          "lo": 37,
+          "hi": 55
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -28.3734,
+          "hi": -45.869
+        }
+      },
+      "MARKING": {
+        "predicted": {
+          "lo": 62.5521,
+          "hi": 82.5008
+        },
+        "observed": {
+          "lo": 37,
+          "hi": 56
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -25.5521,
+          "hi": -26.5008
+        }
+      },
+      "POSITIONING": {
+        "predicted": {
+          "lo": 27.14,
+          "hi": 37.0318
+        },
+        "observed": {
+          "lo": 24,
+          "hi": 32
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": -3.14,
+          "hi": -5.0318
+        }
+      },
+      "HEADING": {
+        "predicted": {
+          "lo": 8.8344,
+          "hi": 12.1436
+        },
+        "observed": {
+          "lo": 9,
+          "hi": 13
+        },
+        "overlaps": true,
+        "residualObservedMinusPredicted": {
+          "lo": 0.1656,
+          "hi": 0.8564
+        }
+      },
+      "BRAVERY": {
+        "predicted": {
+          "lo": 54.0412,
+          "hi": 64.5374
+        },
+        "observed": {
+          "lo": 37,
+          "hi": 52
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -17.0412,
+          "hi": -12.5374
+        }
+      },
+      "FITNESS": {
+        "predicted": {
+          "lo": 83.1994,
+          "hi": 96.075
+        },
+        "observed": {
+          "lo": 37,
+          "hi": 55
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -46.1994,
+          "hi": -41.075
+        }
+      },
+      "STRENGTH": {
+        "predicted": {
+          "lo": 88.4351,
+          "hi": 123.0451
+        },
+        "observed": {
+          "lo": 37,
+          "hi": 56
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -51.4351,
+          "hi": -67.0451
+        }
+      },
+      "AGGRESSION": {
+        "predicted": {
+          "lo": 90.1359,
+          "hi": 121.7897
+        },
+        "observed": {
+          "lo": 37,
+          "hi": 56
+        },
+        "overlaps": false,
+        "residualObservedMinusPredicted": {
+          "lo": -53.1359,
+          "hi": -65.7897
+        }
+      }
+    }
+  }
+}

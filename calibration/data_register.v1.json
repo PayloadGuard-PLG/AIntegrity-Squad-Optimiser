@@ -176,6 +176,28 @@
       "provenance": "DIRECT_SCREENSHOT",
       "experimentId": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
       "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-017",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62329.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "LJ Galileo Extensive Safeguard x106 Training Camp preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+      "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-018",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62328.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "LJ Galileo Extensive Safeguard x114 Drill Session preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stateChanged": false
     }
   ]
 }
