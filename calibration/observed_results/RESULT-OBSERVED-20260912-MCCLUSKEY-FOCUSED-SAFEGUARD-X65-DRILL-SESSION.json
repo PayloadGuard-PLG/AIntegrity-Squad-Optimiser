@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+  "validationClass": "PROSPECTIVE_AFFECTED_STAT_COUNT_DISCRIMINATOR",
+  "frozenReference": "PRED-20260912-MCCLUSKEY-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+  "exactFrozenTargetMatch": true,
+  "player": {
+    "id": "GARRY-MCCLUSKEY",
+    "playerId": "PLY-0008",
+    "playerStateId": "CUR-20260910-005",
+    "age": 28,
+    "tier": "T3",
+    "displayedOvrBefore": 155.2,
+    "stateChanged": false
+  },
+  "coach": {
+    "programmeFamily": "Drill Session",
+    "title": "Focused Safeguard",
+    "multiplier": 65,
+    "durationLiteral": "5 DAY(S)",
+    "affectedStats": [
+      "MARKING",
+      "AGGRESSION"
+    ],
+    "affectedStatCount": 2
+  },
+  "observed": {
+    "currentValues": {
+      "MARKING": 163,
+      "AGGRESSION": 122
+    },
+    "statIntervals": {
+      "MARKING": {
+        "lo": 71,
+        "hi": 81
+      },
+      "AGGRESSION": {
+        "lo": 107,
+        "hi": 118
+      }
+    },
+    "ovrDelta": {
+      "lo": 12,
+      "hi": 14
+    },
+    "uiSummary": {
+      "defenseAverageGain": {
+        "lo": 14,
+        "hi": 16
+      },
+      "physicalMentalAverageGain": {
+        "lo": 21,
+        "hi": 24
+      }
+    },
+    "source": "chat_upload:62336.png",
+    "provenance": "DIRECT_GAME_PREVIEW_SCREENSHOT",
+    "stateChanged": false
+  },
+  "frozenHypothesisScoring": {
+    "H0_INDEPENDENT_PER_STAT_BUDGET": {
+      "rows": {
+        "MARKING": {
+          "predicted": {
+            "lo": 33.1212,
+            "hi": 42.1184
+          },
+          "observed": {
+            "lo": 71,
+            "hi": 81
+          },
+          "overlaps": false,
+          "endpointResidualsObservedMinusPredicted": {
+            "lo": 37.8788,
+            "hi": 38.8816
+          }
+        },
+        "AGGRESSION": {
+          "predicted": {
+            "lo": 50.6072,
+            "hi": 67.4025
+          },
+          "observed": {
+            "lo": 107,
+            "hi": 118
+          },
+          "overlaps": false,
+          "endpointResidualsObservedMinusPredicted": {
+            "lo": 56.3928,
+            "hi": 50.5975
+          }
+        }
+      },
+      "statOverlapCount": 0,
+      "statTotal": 2,
+      "statEndpointMAE": 45.9377,
+      "ovr": {
+        "predicted": {
+          "lo": 5.5819,
+          "hi": 7.3014
+        },
+        "observed": {
+          "lo": 12,
+          "hi": 14
+        },
+        "overlaps": false,
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": 6.4181,
+          "hi": 6.6986
+        }
+      }
+    },
+    "H1_SHARED_BUDGET_DIVIDED_BY_AFFECTED_STAT_COUNT": {
+      "rows": {
+        "MARKING": {
+          "predicted": {
+            "lo": 76.5098,
+            "hi": 90.0986
+          },
+          "observed": {
+            "lo": 71,
+            "hi": 81
+          },
+          "overlaps": true,
+          "endpointResidualsObservedMinusPredicted": {
+            "lo": -5.5098,
+            "hi": -9.0986
+          }
+        },
+        "AGGRESSION": {
+          "predicted": {
+            "lo": 101.8944,
+            "hi": 123.3029
+          },
+          "observed": {
+            "lo": 107,
+            "hi": 118
+          },
+          "overlaps": true,
+          "endpointResidualsObservedMinusPredicted": {
+            "lo": 5.1056,
+            "hi": -5.3029
+          }
+        }
+      },
+      "statOverlapCount": 2,
+      "statTotal": 2,
+      "statEndpointMAE": 6.2542,
+      "ovr": {
+        "predicted": {
+          "lo": 11.8936,
+          "hi": 14.2268
+        },
+        "observed": {
+          "lo": 12,
+          "hi": 14
+        },
+        "overlaps": true,
+        "endpointResidualsObservedMinusPredicted": {
+          "lo": 0.1064,
+          "hi": -0.2268
+        }
+      }
+    },
+    "preregisteredWinner": "H1_SHARED_BUDGET_DIVIDED_BY_AFFECTED_STAT_COUNT",
+    "interpretation": "H0 is decisively falsified for this target. H1 overlaps both observed stat intervals and the observed OVR interval.",
+    "identificationCaveat": "Focused Safeguard differs in coach title/family from the Extensive Safeguard x106 reference while affected-stat count changes from 8 to 2. Therefore this result supports a strong allocation/budget scaling term compatible with 1/p, but does not independently identify affected-stat count as the sole cause."
+  }
+}
