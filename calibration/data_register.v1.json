@@ -165,6 +165,17 @@
       "provenance": "DIRECT_SCREENSHOT",
       "experimentId": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
       "stateChanged": false
+    },
+    {
+      "sourceId": "SRC-COACH-20260912-016",
+      "observedDate": "2026-09-12",
+      "recordType": "PLAYER_COACH_PREVIEW_SCREENSHOT",
+      "sourceFile": "62327.png",
+      "sourceContext": "ChatGPT conversation upload",
+      "subject": "Garry McCluskey Extensive Safeguard x114 Drill Session preview",
+      "provenance": "DIRECT_SCREENSHOT",
+      "experimentId": "OBSERVED-20260912-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stateChanged": false
     }
   ]
 }
