@@ -226,10 +226,13 @@ test('the capture screen no longer averages a preview interval', () => {
     'the observed OVR boost must be written as its own two bounds');
 });
 
-test('the coaches screen records engine output as projected, not as an interval', () => {
+test('the coaches screen keeps interval forecasts separate from observed preview intervals', () => {
   const src = readCode('app/(tabs)/coaches.tsx');
-  assert.match(src, /kind: 'projected', stat: d\.stat/,
-    'engine gains carry one number and must be graded projected');
+  assert.match(src, /ResourceCoachLab/, 'coach testing must use the interval model');
+  const lab = readCode('src/components/ResourceCoachLab.tsx');
+  assert.match(lab, /savePrediction\(id,input,p\)/);
+  assert.match(lab, /saveObservation\(o\)/);
+  assert.doesNotMatch(src + lab, /applyAndSnapshot\(/, 'forecast ranges must not overwrite observed player stats');
   // bd5bc96's rule, re-pinned: the screen's observed intervals stay intervals.
   assert.equal(/gainLo \+ .*gainHi\) *\/ *2|\(lo \+ hi\) *\/ *2/.test(src), false,
     'no midpoint may be formed on the coaches screen');
