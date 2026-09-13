@@ -794,8 +794,9 @@ Three habits do the work here, and they are worth more than any constant:
 
 ### On what would advance the model most
 
-- One clean before/after from a player of *confirmed* non-Normal talent. Every
-  projection in the application currently rests on the assumption of Normal.
+- One clean before/after with independently evidenced non-Normal talent would
+  advance the **legacy training projection path**. The manual app selector alone is
+  not that evidence, and Resource Coach V2 does not consume it.
 - The campus ball chant probabilities, which would close the last unobserved slot in
   the surge model.
 - A controlled drill run, which would calibrate `drillXpFactor` and remove the only

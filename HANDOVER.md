@@ -77,7 +77,7 @@ Sprint 30 simplified the tab architecture. The old Squad Plan tab was removed. R
 | SQUAD | Roster management | Unchanged |
 | PLAN | Single-player drill+tier projection | Unchanged |
 | DRILLS | Browse drills, build/run presets, push to Results | `pushToResults()` now saves to `drill_plan_history` |
-| COACHES | Scan coach → project coaching gains → apply | Tier section removed; coach scan auto-saves to history |
+| COACHES | Resource Coach V2 preview interval testing/calibration | Ordinary predicts; Reward/unresolved abstain; no predicted-stat writeback |
 | RESULTS | Combined hub: drill plans + coach sessions + tier + condition | Full rewrite — picks from histories |
 
 ---
@@ -105,9 +105,9 @@ White stats (essential for role) render at full column colour. Grey stats use `c
 | 1 | drillXpFactor calibration | `drillXpFactor = 0.3` is provisional. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. Do not change without real data. | High |
 | 1a | Age-24 DMC player name | Saved as "Team: Insidious FC" — scanner read club name. Correct in DB. | Quick |
 | 4 | New role — manual entry | `player/new.tsx` and `player/[id].tsx` have no UI fields for `newRole`/`newRolePoints`. Scanner populates on scan; manual entry not exposed. | Quick |
-| 5 | Slow talent — no confirmed data point | Slow (0.47) **invalidated Sprint 34** — derived from LJDark Leo ×114 using linear budget. With geometric budget (`sessionBudgetDecay=0.99`), LJDark Leo result is consistent with Normal (1.0). Back-calculate from a confirmed-Slow player. | High |
-| 6 | Fastest/Fast talent calibration | Currently community estimates (1.5 / 1.25). Needs known-talent players to confirm. | Medium |
-| 9 | LJDark Leo talent unknown | Playstyle icon ≠ talent. Check Personal Trainer tab for the explicit Fastest/Fast/Average/Normal/Slow label. Determines whether LJDark Leo is the Slow recalibration candidate. | High |
+| 5 | Legacy Slow talent multiplier | Slow (0.47) is invalidated. Fastest/Fast/Average/Normal/Slow in our app are manual empirical hypotheses, not automatically observed source-game fields. Establish any replacement only from independently evidenced before/after data. Resource Coach V2 does not use this selector. | High |
+| 6 | Legacy non-Normal talent calibration | Existing non-Normal multipliers are community/legacy estimates. Do not treat the app selector as provenance; confirmation requires independent empirical evidence. | Medium |
+| 9 | LJDark Leo talent provenance | Historical talent classification is unresolved. Do **not** request a supposed Training Rate/Personal Trainer screen or promote the app selector to observation. Reclassify only if independent source evidence is supplied. | Medium |
 | 7 | Premium sponsor cooldown | `isPremiumSponsor` stored but condition recovery cooldown reduction not modelled. | Low |
 | 8 | Seasons planner | Project player across one full season including drills, tier, ~20% OVR decay. No implementation. | Low |
 

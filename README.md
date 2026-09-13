@@ -22,7 +22,7 @@
 
 ## ✨ Core Capabilities
 
-- 🎯 **Calibrated OVR Projections** — Models age, role, stat profile, and talent tier to project OVR outcomes for any combination of drill plans, coaching sessions, and tier upgrades — before you spend anything. Core constants (OVR formula, cost curve shape, age 18–20 and 26–28 brackets, Normal talent) are empirically confirmed from game screenshots. Several talent tiers and mid-range age brackets are still being validated — projections show a gain range, not a single guaranteed number.
+- 🎯 **Calibrated OVR Projections** — Models age, role and stat profile to project OVR outcomes for drill plans, legacy coaching paths and tier upgrades before you spend anything. Confirmed and assumed quantities are kept distinct; legacy Fastest/Fast/Average/Normal/Slow classifications remain empirical hypotheses unless independently evidenced, and Resource Coach V2 does not consume that selector.
 - 🧪 **Resource Coach V2** — Experimental ordinary-coach preview ranges use a two-regime integrated transfer model with exact affected-stat allocation, WHITE/MID_GREY coordinates and optional separate-player-state anchors. Reward/unresolved transfer deliberately returns unavailable rather than borrowing the wrong formula.
 - 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details. Roles still being learned are recognised as such and kept separate from established ones, because they do not yet contribute to a player's key attributes. Anything the scan could not read confidently is flagged for review rather than filled in with a guess.
 - 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and current Fan Club state. Condition cost is shown as the range the game actually charges, not a single tidy figure it may not honour.
@@ -76,7 +76,7 @@ OTA updates push automatically on merge to `main`. An `EXPO_TOKEN` secret must b
 
 ## 🧠 Architecture & Documentation
 
-The core logic — XP cost model, OVR projection formulas, role weight tables, and condition drain calculations — is reverse-engineered from real in-game data. Core constants are empirically confirmed; some talent multipliers and age brackets are still in calibration (see [`CLAUDE.md`](./CLAUDE.md) for the current status of every constant).
+The core logic — XP cost model, OVR projection formulas, role weight tables, condition drain calculations, and Resource Coach interval transfer — is reverse-engineered from observed data. Evidence grades and abstention boundaries matter as much as the fitted constants; legacy talent classifications remain hypotheses, while Resource Coach V2 deliberately excludes that field (see [`CLAUDE.md`](./CLAUDE.md) and [`PRINCIPIA.md`](./PRINCIPIA.md)).
 
 | Doc | Contents |
 |---|---|

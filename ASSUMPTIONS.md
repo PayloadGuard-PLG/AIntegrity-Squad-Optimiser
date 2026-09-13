@@ -25,6 +25,7 @@ Every sprint ends with a docs commit. No exceptions.
 5. **Docs scope:** DEVLOG.md · CLAUDE.md · HANDOVER.md · README.md · PRINCIPIA.md · WHITEPAPER.md · FORMULAS.md · KNOWN_ISSUES.md · ASSUMPTIONS.md; update CALIBRATION_RECORD.md / CALIBRATION_COLLECTION.md when empirical-model state changes.
 6. Two device console sessions remain useful for development: hot-reload server on one, git on the other. Pull in the git session; the bundler reloads file changes.
 7. **PR title max 256 characters.** Put detail in the PR body.
+
 ## Role Constraints
 
 When adding or correcting white/grey stat assignments, always verify against the game card screenshot:

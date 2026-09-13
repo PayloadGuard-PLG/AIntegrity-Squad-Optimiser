@@ -52,7 +52,7 @@ contracts, TypeScript suites, Z3/CrossHair and Dafny.
 audit is in `docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`.
 
 **Active branch:** create a task branch from current `main`; no permanent dev branch is authoritative.
-**Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
+**Never push to main directly** — main triggers EAS OTA to production devices. Development work goes to a task branch created from current `main`; user merges via reviewed PR.
 
 ### Stop guessing the fucking answer
 
