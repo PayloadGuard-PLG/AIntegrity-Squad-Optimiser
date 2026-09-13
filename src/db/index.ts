@@ -12,6 +12,10 @@ export const expoDb = openDatabaseSync('squadoptimiser.db', {
   enableChangeListener: true 
 });
 
+// SQLite foreign-key enforcement is connection-scoped.
+// Resource Coach V2 relies on these constraints for evidence integrity.
+expoDb.execSync('PRAGMA foreign_keys = ON;');
+
 export const db = drizzle(expoDb, { schema });
 
 // Add this function to manage the Alntegrity local vault initialization

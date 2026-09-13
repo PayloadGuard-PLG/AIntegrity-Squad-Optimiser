@@ -25,7 +25,18 @@ on:
 # Proof failures block merge to main.
 # Nothing in this workflow modifies the source — it is read-only verification.
 #
-# Two independent jobs:
+
+#   z3-crosshair : Z3 SMT proofs (P7, P10–P15, P18–P19) +
+#                  Crosshair symbolic contracts (P5, P6, P8, P9, P16, P17) +
+#                  Hypothesis differential tests (Python spec vs TypeScript engine, Gap 3)
+#   dafny        : machine-checked algorithm proofs (P1–P6 via budget_model.dfy + gain_engine.dfy)
+#   ts-suite     : typecheck + the deterministic TypeScript suites (engine, projection,
+#                  scanner, condition). These encode game-observed behaviour and are the
+#                  layer that catches an assertion outliving the evidence behind it.
+#
+# All must pass green before a PR can merge to main.
+
+jobs:
   resource-coach-v2:
     runs-on: ubuntu-latest
     steps:
@@ -40,17 +51,6 @@ on:
       - name: Resource coach mathematical and persistence contracts
         run: npm run test:resource-coach
 
-#   z3-crosshair : Z3 SMT proofs (P7, P10–P15, P18–P19) +
-#                  Crosshair symbolic contracts (P5, P6, P8, P9, P16, P17) +
-#                  Hypothesis differential tests (Python spec vs TypeScript engine, Gap 3)
-#   dafny        : machine-checked algorithm proofs (P1–P6 via budget_model.dfy + gain_engine.dfy)
-#   ts-suite     : typecheck + the deterministic TypeScript suites (engine, projection,
-#                  scanner, condition). These encode game-observed behaviour and are the
-#                  layer that catches an assertion outliving the evidence behind it.
-#
-# All must pass green before a PR can merge to main.
-
-jobs:
   ts-suite:
     runs-on: ubuntu-latest
     steps:
