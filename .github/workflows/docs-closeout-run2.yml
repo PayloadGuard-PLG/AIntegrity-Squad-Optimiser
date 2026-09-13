@@ -30,7 +30,7 @@ jobs:
           end = src.index("\n          PY\n", start)
           raw = src[start:end]
           code = '\n'.join(line[10:] if line.startswith('          ') else line for line in raw.splitlines())
-          code = code.replace("                    'WHITEPAPER.md','FORMULAS.md','KNOWN_ISSUES.md','ASSUMPTIONS.md',", "                    'WHITEPAPER.md','FORMULAS.md','KNOWN_ISSUES.md',")
+          code = code.replace("if MARKER not in read(p):", "if p != 'ASSUMPTIONS.md' and MARKER not in read(p):")
           exec(compile(code, 'docs-closeout-20260913.py', 'exec'))
           PYRUN
 
