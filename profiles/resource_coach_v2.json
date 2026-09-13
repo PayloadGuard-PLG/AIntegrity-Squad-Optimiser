@@ -1,0 +1,59 @@
+{
+  "modelVersion": "ordinary-academy-two-regime-integrated-v2-2026-09-13",
+  "transferClass": "ordinary",
+  "parameters": {
+    "K": 39.424247851033286,
+    "highRateAge28": 94.48643710284736,
+    "highAgeLogSlopePerYear": -0.08660507082091137,
+    "lowRateAge28": 79.1713401064158,
+    "lowAgeLogSlopePerYear": -1.1148535256353507,
+    "greyExposureMultiplier": 0.6857273033329748,
+    "upperLatentRatio": 1.5152763065257413,
+    "regularStatCap": 400,
+    "observedAgeSupport": [
+      18,
+      32
+    ]
+  },
+  "status": "experimental-preview-predictor",
+  "inputTransform": {
+    "tierAdditions": [
+      0,
+      10,
+      30,
+      50,
+      80,
+      120,
+      160
+    ]
+  },
+  "validation": {
+    "globalGroupedPlayerHoldout": {
+      "statIntervals": 133,
+      "previews": 42,
+      "players": 15,
+      "statEndpointMAE": 7.573039509721537,
+      "meanIntervalIoU": 0.4182718347060313,
+      "intervalOverlap": 0.7819548872180451,
+      "widthMAE": 3.7036900373043973,
+      "ovrIntervals": 26,
+      "ovrEndpointMAE": 2.040723655447199,
+      "method": "leave-one-player-out; fit all global parameters on remaining players"
+    },
+    "focusedOffensiveX26SeparateAnchor": {
+      "players": 6,
+      "targetStatIntervals": 84,
+      "regularizationPenalty": 0.2,
+      "coldStatEndpointMAE": 6.693425868127919,
+      "calibratedStatEndpointMAE": 2.8568548538621465,
+      "calibratedMeanIntervalIoU": 0.6068508597432123,
+      "calibratedIntervalOverlap": 0.9285714285714286,
+      "calibratedWidthMAE": 1.9272342821451516,
+      "targetOvrIntervals": 8,
+      "coldOvrEndpointMAE": 3.262677721684393,
+      "calibratedOvrEndpointMAE": 0.7040531210690774,
+      "calibratedOvrOverlap": 1.0,
+      "method": "global model fit without target player; fit only player log-high/log-low offsets from a separate Focused Offensive x26 preview; predict every other preview for that player"
+    }
+  }
+}

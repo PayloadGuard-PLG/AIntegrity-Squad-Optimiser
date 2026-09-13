@@ -1,0 +1,103 @@
+-- Resource Coach V2 — additive SQLite schema.
+-- Do NOT rewrite or delete legacy squad_plan_runs. Legacy evidence remains read-only
+-- and keeps its original provenance grade.
+
+CREATE TABLE IF NOT EXISTS resource_coach_model_versions (
+  model_version TEXT PRIMARY KEY NOT NULL,
+  created_at TEXT NOT NULL,
+  transfer_class TEXT NOT NULL CHECK (transfer_class = 'ordinary'),
+  parameter_json TEXT NOT NULL,
+  validation_json TEXT NOT NULL,
+  source_corpus_hash TEXT,
+  active INTEGER NOT NULL DEFAULT 0 CHECK (active IN (0,1))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_resource_coach_one_active_model
+  ON resource_coach_model_versions(active) WHERE active = 1;
+
+CREATE TABLE IF NOT EXISTS resource_coach_preview (
+  observation_id TEXT PRIMARY KEY NOT NULL,
+  player_id TEXT NOT NULL,
+  input_json TEXT NOT NULL,
+  observation_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS resource_coach_prediction (
+  prediction_id TEXT PRIMARY KEY NOT NULL,
+  player_id TEXT NOT NULL,
+  model_version TEXT NOT NULL,
+  captured_at TEXT NOT NULL,
+  input_json TEXT NOT NULL,
+  prediction_json TEXT NOT NULL,
+  FOREIGN KEY (model_version) REFERENCES resource_coach_model_versions(model_version)
+);
+
+-- A player calibration is evidence learned from a DIFFERENT preview and then
+-- used as pre-outcome state for later predictions. It is never fitted from the
+-- target preview being scored.
+CREATE TABLE IF NOT EXISTS resource_coach_player_calibration (
+  player_id TEXT NOT NULL,
+  model_version TEXT NOT NULL,
+  calibration_json TEXT NOT NULL,
+  age_at_anchor INTEGER NOT NULL,
+  tier_at_anchor TEXT NOT NULL,
+  log_high_rate_offset REAL NOT NULL,
+  log_low_rate_offset REAL NOT NULL,
+  regularization_penalty REAL NOT NULL,
+  anchor_observation_id TEXT NOT NULL,
+  anchor_coach_label TEXT NOT NULL,
+  anchor_multiplier REAL NOT NULL,
+  anchor_affected_stat_count INTEGER NOT NULL,
+  evidence_kind TEXT NOT NULL CHECK (evidence_kind = 'separate-observed-anchor'),
+  captured_at TEXT NOT NULL,
+  -- Current validation is same-era/current-player-state. Revalidate at age/season
+  -- transition rather than pretending the latent factor is lifetime-invariant.
+  valid_for_age INTEGER NOT NULL,
+  is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
+  PRIMARY KEY (player_id, model_version, valid_for_age),
+  FOREIGN KEY (model_version) REFERENCES resource_coach_model_versions(model_version)
+);
+
+-- Canonical observed previews used for future recalibration. This table is
+-- resource-coach specific so Reward / ordinary / unresolved provenance cannot be
+-- silently mixed by a generic training-run shape.
+CREATE TABLE IF NOT EXISTS resource_coach_observation (
+  observation_id TEXT NOT NULL,
+  player_id TEXT NOT NULL,
+  player_state_id TEXT,
+  observed_at TEXT NOT NULL,
+  transfer_class TEXT NOT NULL CHECK (transfer_class IN ('ordinary','reward','unresolved')),
+  transfer_class_source TEXT NOT NULL,
+  coach_label TEXT NOT NULL,
+  coach_family TEXT,
+  displayed_multiplier REAL NOT NULL,
+  affected_stat_count INTEGER NOT NULL CHECK (affected_stat_count > 0),
+  player_age INTEGER NOT NULL,
+  tier TEXT NOT NULL,
+  stat TEXT NOT NULL,
+  displayed_stat REAL,
+  display_class TEXT NOT NULL CHECK (display_class IN ('WHITE','MID_GREY','UNKNOWN')),
+  gain_lo REAL NOT NULL,
+  gain_hi REAL NOT NULL,
+  evidence_kind TEXT NOT NULL CHECK (evidence_kind = 'observed-interval'),
+  source_ref TEXT,
+  PRIMARY KEY (observation_id, stat),
+  FOREIGN KEY (observation_id) REFERENCES resource_coach_preview(observation_id),
+  CHECK (gain_lo >= 0 AND gain_hi >= gain_lo)
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_coach_obs_player
+  ON resource_coach_observation(player_id, player_age, transfer_class);
+CREATE INDEX IF NOT EXISTS idx_resource_coach_obs_model_fit
+  ON resource_coach_observation(transfer_class, display_class, displayed_multiplier, affected_stat_count);
+
+-- Explicit OVR preview evidence. It remains a boost interval, never a fabricated
+-- post-action OVR.
+CREATE TABLE IF NOT EXISTS resource_coach_ovr_observation (
+  observation_id TEXT PRIMARY KEY NOT NULL,
+  boost_lo REAL NOT NULL,
+  boost_hi REAL NOT NULL,
+  evidence_kind TEXT NOT NULL CHECK (evidence_kind = 'observed-boost-interval'),
+  CHECK (boost_lo >= 0 AND boost_hi >= boost_lo),
+  FOREIGN KEY (observation_id) REFERENCES resource_coach_preview(observation_id)
+);

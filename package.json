@@ -18,7 +18,8 @@
     "calibrate": "npx tsx tests/fixtures/build-calibration.ts",
     "sim:ala": "npx tsx tests/sim-ala.ts",
     "db:generate": "drizzle-kit generate",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:resource-coach": "node --import tsx --test tests/resource-coach-v2-test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

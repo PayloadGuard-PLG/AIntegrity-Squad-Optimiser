@@ -379,7 +379,7 @@ test('Reward classification and preview intervals survive scan history into proj
   // must NOT receive the intervals. The class is pre-outcome state — it is what
   // the coach is. The intervals are the outcome, and they now travel beside the
   // projection through the evidence layer instead of into it.
-  assert.match(coaches, /player, stats: scannedStats, sessions: sessionCount, profile, transferClass,/,
+  assert.match(coaches, /transferClass=\{transferClass\}/,
     'Coaches projection must receive the scanner classification');
   assert.equal(/projectCoachAction\(\{[\s\S]{0,200}observedGainIntervals/.test(coaches), false,
     'the projection call must not receive observed intervals');
@@ -553,9 +553,9 @@ test('manual selection cannot downgrade a Reward Coach or clear its intervals', 
     assert.doesNotMatch(body(fn), /setObservedGainIntervals\(/,
       `${fn} must not discard observed intervals`);
   }
-  // The genuine reset points remain — changing player, and applying a result.
+  // Changing player resets evidence; v2 interval forecasts cannot be applied as player facts.
   assert.match(body('selectPlayer'), /setObservedGainIntervals\(\[\]\)/);
-  assert.match(body('applyGains'), /setObservedGainIntervals\(\[\]\)/);
+  assert.doesNotMatch(src, /applyAndSnapshot\(/, 'experimental intervals must not be applied to the player card');
 });
 
 test('the scan keeps an interval whose baseline was not read', () => {
