@@ -1,0 +1,714 @@
+name: Resource Coach V2 docs closeout
+
+on:
+  push:
+    branches:
+      - docs/resource-coach-v2-postmerge-20260913
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    if: ${{ !contains(github.event.head_commit.message, '[docs-closeout]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout docs branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: docs/resource-coach-v2-postmerge-20260913
+          fetch-depth: 0
+
+      - name: Update canonical documentation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          MARKER = '<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->'
+
+          def read(path):
+              return Path(path).read_text()
+
+          def write(path, text):
+              Path(path).write_text(text)
+
+          def insert_once(path, anchor, section, after=True):
+              s = read(path)
+              if MARKER in s:
+                  return
+              if anchor not in s:
+                  raise SystemExit(f'{path}: anchor not found: {anchor!r}')
+              i = s.index(anchor)
+              j = i + len(anchor) if after else i
+              s = s[:j] + section + s[j:]
+              write(path, s)
+
+          def append_once(path, section):
+              s = read(path)
+              if MARKER in s:
+                  return
+              write(path, s.rstrip() + '\n\n' + section.strip() + '\n')
+
+          # DEVLOG — reverse chronological, so put Sprint 39 at the top.
+          devlog = r'''
+
+## Sprint 39 — Resource Coach V2 Integrated, Audited, Proven, and Merged
+**2026-09-13**
+
+''' + MARKER + r'''
+
+Resource Coach prediction has been separated from the legacy coaching-session
+formula and rebuilt as an **experimental interval predictor** for ordinary
+resource coaches. PR **#134** merged to `main` at
+`6edf357499d25d4ce22c5bf29adb9887d876747f` after a full architecture audit.
+
+### Shipped
+
+- `src/logic/resourceCoachV2.ts` implements model
+  `ordinary-academy-two-regime-integrated-v2-2026-09-13`.
+- Input domain is explicit: age 18–32, tier T0–T6, positive displayed multiplier,
+  1–15 distinct affected stats, and confirmed WHITE/MID_GREY class.
+- Exposure is `displayedMultiplier / affectedStatCount`; MID_GREY exposure is
+  additionally multiplied by the fitted grey exposure parameter.
+- WHITE coordinates remove the tier addition before transfer; MID_GREY
+  coordinates do not. Negative transformed coordinates are valid and must not be
+  clamped to zero.
+- The deployed ordinary-source cap is applied in transformed coordinate space,
+  with the white tier addition outside the cap.
+- Cold-start prediction and **separate-anchor** player calibration are both
+  supported. The anchor may never score itself; model version, player, age, tier,
+  state key and input signature determine whether an anchor remains admissible.
+- Reward and unresolved transfer classes **abstain**. Their observed preview
+  intervals may still be stored as evidence.
+- Predicted intervals, observed intervals, OVR evidence and calibration anchors
+  are persisted separately. Experimental forecasts do **not** write predicted
+  stats back to the player card.
+- Runtime SQLite now explicitly executes `PRAGMA foreign_keys = ON;` before
+  Drizzle is constructed, matching the persistence contract exercised in tests.
+
+### Validation
+
+The committed profile records grouped-player holdout performance of 42 previews,
+133 stat intervals and 15 players: stat endpoint MAE **7.573**, interval overlap
+**0.782**, and OVR endpoint MAE **2.041**. A separate Focused Offensive ×26
+anchor experiment on six players improves stat endpoint MAE from **6.693** to
+**2.857**, interval overlap to **0.929**, and OVR endpoint MAE from **3.263** to
+**0.704**. These are validation measurements of the deployed predictor, not a
+claim that the hidden game formula has been identified.
+
+CI was repaired during review. `resource-coach-v2`, `ts-suite`, `z3-crosshair`
+and `dafny` all completed green on the audited head before merge.
+
+### PayloadGuard finding produced by this PR
+
+The pinned PayloadGuard v1.1.0 classified #134 `DESTRUCTIVE [CRITICAL]` although
+no files were deleted and the change was net-additive. Two coupled false
+positives were identified and recorded in
+`docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`:
+
+1. Layer 4 counts removed named nodes in `coaches.tsx` but does not reason about
+   replacement/capability continuity across new files.
+2. Layer 5b matched the bare substring `docs` in a path and treated it as a
+   benign-scope claim, then escalated the Layer-4 false premise to
+   `DECEPTIVE_PAYLOAD`.
+
+A separate enforcement defect was confirmed: analyzer exit code 2 is captured
+under `set +e` but the composite action does not re-emit that failure, so the
+GitHub job can remain green. This belongs to PayloadGuard, not to the Optimiser
+merge, and #134 is now a regression fixture for that architecture work.
+
+### Provenance correction carried forward
+
+The app's Fastest/Fast/Average/Normal/Slow selector is a **manual empirical
+classification/hypothesis**. There is no established in-game "Training Rate"
+screen in the evidence corpus. Resource Coach V2 does not consume that field.
+Do not request such a screen or treat old stored values as automatically observed.
+
+### Next empirical target
+
+Highest priority is a clean **within-player, multi-stat ordinary resource-coach
+preview** in which affected stats span widely separated starting values and have
+known display classes; ideally include a similarly-valued WHITE/MID_GREY pair.
+Capture all 15 displayed stats/classes, affected-stat set, multiplier and every
+`+lo–hi` interval. This tests the remaining stat-cost/display-class structure
+without introducing a coach, age, tier or player confound.
+'''
+          insert_once('DEVLOG.md', '---\n', devlog, after=True)
+
+          # CLAUDE — current development policy and Resource Coach V2 boundary.
+          claude = read('CLAUDE.md')
+          claude = re.sub(r'\*\*Active branch:\*\* `[^`]+`',
+                          '**Active branch:** create a task branch from current `main`; no permanent dev branch is authoritative.',
+                          claude, count=1)
+          rc_claude = r'''
+
+## Sprint 39 — Resource Coach V2 production boundary
+
+''' + MARKER + r'''
+
+PR #134 is merged. The current Resource Coach predictor is
+`src/logic/resourceCoachV2.ts`, profile
+`profiles/resource_coach_v2.json`, model version
+`ordinary-academy-two-regime-integrated-v2-2026-09-13`.
+
+**Do not route this through the legacy coach XP-budget model.** Resource Coach V2
+is a separately calibrated preview-transfer model. Its production contract is:
+
+- ordinary transfer only; Reward/unresolved abstain;
+- age support 18–32 and tier T0–T6;
+- exposure = displayed multiplier / exact affected-stat count;
+- WHITE uses `u = displayedStat - tierAddition`; MID_GREY uses
+  `u = displayedStat` and the fitted grey exposure multiplier;
+- preserve negative `u` values;
+- output `[gainLo,gainHi]` per stat plus approximate OVR interval, never a
+  guaranteed outcome probability;
+- the regular-source cap is in transformed-coordinate space;
+- a player anchor is legal only when it comes from a **different preview** of the
+  same player state and model version; self-calibration is forbidden;
+- zero-gain suppression is unresolved, so a zero-gain preview may be stored but
+  is rejected as a calibration anchor;
+- observations and predictions remain separate in storage; never write a
+  prediction back as player fact.
+
+**Training-rate provenance:** the Fastest/Fast/Average/Normal/Slow selector in
+our app is manual hypothesis metadata. No verified in-game Training Rate field or
+screen is established in the corpus. Do not infer it from OCR, do not ask the
+user for a supposed Training Rate screen, and do not feed it into Resource Coach
+V2.
+
+**SQLite:** native startup explicitly enables `PRAGMA foreign_keys = ON;` before
+Drizzle. Resource Coach evidence tables rely on real FK enforcement; preserve
+that invariant.
+
+**CI:** `.github/workflows/proofs.yml` now contains `resource-coach-v2` under the
+top-level `jobs:` key. The merge head passed Resource Coach mathematical/SQLite
+contracts, TypeScript suites, Z3/CrossHair and Dafny.
+
+**PayloadGuard:** #134 is a confirmed false-positive regression case. Do not
+"fix" the Optimiser architecture to satisfy the old pinned v1.1.0 verdict. The
+audit is in `docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`.
+'''
+          if MARKER not in claude:
+              anchor = '## For the Next Claude — Read This First\n'
+              i = claude.index(anchor) + len(anchor)
+              claude = claude[:i] + rc_claude + claude[i:]
+          write('CLAUDE.md', claude)
+
+          # HANDOVER — correct stale Coaches behavior and add current architecture.
+          hand = read('HANDOVER.md')
+          hand = re.sub(r'\*\*As of:\*\*[^\n]+', '**As of:** Sprint 39 — 2026-09-13', hand, count=1)
+          old_coaches = re.compile(r'- \*\*COACHES tab\*\* — stat selector grid.*?`coach_scan_history` table for import into Results\.', re.S)
+          new_coaches = '''- **COACHES tab** — Resource Coach V2 experimental preview lab. Select the exact affected stats, confirm WHITE/MID_GREY display class and starting values, enter/scan the displayed multiplier, and project per-stat `+lo–hi` intervals. Ordinary transfer supports cold-start and separate-anchor player calibration; Reward/unresolved transfer abstains while preserving observations. Forecasts are stored separately from observations and do **not** write predicted stats back to the player card.'''
+          hand, n = old_coaches.subn(new_coaches, hand, count=1)
+          if n != 1:
+              raise SystemExit('HANDOVER: stale Coaches bullet not matched')
+          rc_hand = r'''
+
+### Sprint 39 — Resource Coach V2 state
+
+''' + MARKER + r'''
+
+PR #134 is merged to `main` (`6edf357499d25d4ce22c5bf29adb9887d876747f`).
+The old session-decay single-value Coaches projection is no longer the testing
+surface for Resource Coaches. `ResourceCoachLab` uses the integrated two-regime
+interval model in `src/logic/resourceCoachV2.ts` and profile
+`profiles/resource_coach_v2.json`.
+
+Key invariants for the next agent:
+
+1. **Transfer class is part of the model domain.** Only `ordinary` predicts.
+   `reward` and unresolved classes retain evidence and abstain.
+2. **No Training Rate input.** The app selector is manual hypothesis metadata;
+   there is no verified in-game Training Rate screen/field in the corpus.
+3. **Exact affected-stat allocation matters.** Exposure is multiplier divided by
+   affected-stat count; do not copy a same-coach median or nearest neighbour.
+4. **WHITE/MID_GREY is observed model input.** WHITE removes the tier addition
+   before transfer; MID_GREY does not and has a separate fitted exposure factor.
+5. **Calibration is separate-anchor only.** Same-preview self-fit is prohibited;
+   anchors expire on player-state/model mismatch.
+6. **Predictions are not facts.** There is no Resource Coach predicted-stat
+   writeback path.
+7. **FK integrity is runtime-enforced.** `src/db/index.ts` enables SQLite foreign
+   keys before Drizzle.
+
+Current validation snapshot: grouped-player holdout 42 previews / 133 stat
+intervals / 15 players, stat endpoint MAE 7.573, overlap 0.782, OVR endpoint MAE
+2.041. With a separate Focused Offensive ×26 player anchor: stat endpoint MAE
+2.857, overlap 0.929, OVR endpoint MAE 0.704.
+
+**Next observation:** one clean ordinary multi-stat preview on the same player,
+with widely separated starting values and known WHITE/MID_GREY classes; capture
+all 15 stats/classes and all displayed gain intervals. This directly tests the
+remaining stat-cost/class structure.
+'''
+          if MARKER not in hand:
+              anchor = '## Current State\n'
+              i = hand.index(anchor) + len(anchor)
+              hand = hand[:i] + rc_hand + hand[i:]
+          # Insert key file rows if absent.
+          if '`src/logic/resourceCoachV2.ts`' not in hand:
+              key_anchor = '| `src/logic/coachScanner.ts` |'
+              line_start = hand.index(key_anchor)
+              line_end = hand.index('\n', line_start) + 1
+              rows = ('| `src/logic/resourceCoachV2.ts` | Resource Coach V2 interval predictor, validation, separate-anchor fitting |\n'
+                      '| `src/components/ResourceCoachLab.tsx` | Offline Resource Coach test/calibration UI; no predicted-stat writeback |\n'
+                      '| `src/services/resourceCoachStore.ts` | Native SQLite persistence for model versions, predictions, observations and anchors |\n'
+                      '| `profiles/resource_coach_v2.json` | Frozen V2 parameters + holdout metrics |\n')
+              hand = hand[:line_end] + rows + hand[line_end:]
+          write('HANDOVER.md', hand)
+
+          # README — user-facing current behavior.
+          readme = read('README.md')
+          old = '**🧑‍🏫 COACHES** — Scan a coach preview screenshot to auto-fill session count and stats. Project the OVR gain from the coaching block. Coaches that behave differently from the standard Academy ones are identified from the scan and handled separately: the app keeps what the game showed and declines to project rather than applying a model that does not fit them. Apply to player card or save to history for import into Results.'
+          new = '**🧑‍🏫 COACHES** — Experimental Resource Coach V2 interval lab. Scan or enter a preview, select the exact affected stats, confirm WHITE/MID_GREY class and starting values, then project per-stat gain ranges. Ordinary transfer supports cold-start and separate-anchor calibration; Reward/unresolved transfer abstains. Predictions and observations are stored separately, and experimental forecasts never overwrite player facts.'
+          if old not in readme:
+              raise SystemExit('README: Coaches paragraph not matched')
+          readme = readme.replace(old, new, 1)
+          if MARKER not in readme:
+              cap_anchor = '- 🎯 **Calibrated OVR Projections**'
+              i = readme.index('\n', readme.index(cap_anchor)) + 1
+              bullet = '- 🧪 **Resource Coach V2** — Experimental ordinary-coach preview ranges use a two-regime integrated transfer model with exact affected-stat allocation, WHITE/MID_GREY coordinates and optional separate-player-state anchors. Reward/unresolved transfer deliberately returns unavailable rather than borrowing the wrong formula.\n'
+              readme = readme[:i] + bullet + readme[i:]
+              table_anchor = '| [`WHITEPAPER.md`](./WHITEPAPER.md) |'
+              i = readme.index(table_anchor)
+              readme = readme[:i] + '| [`PRINCIPIA.md`](./PRINCIPIA.md) | Formal model laws, evidence grades, abstention rules, and Resource Coach V2 propositions |\n' + readme[i:]
+              readme = readme.replace('| [`KNOWN_ISSUES.md`](./KNOWN_ISSUES.md) | Open bugs and resolved issue tracking |', '| [`KNOWN_ISSUES.md`](./KNOWN_ISSUES.md) | Open bugs, unresolved mechanics and tooling findings |\n| [`docs/RESOURCE_COACH_V2_TESTING.md`](./docs/RESOURCE_COACH_V2_TESTING.md) | Device test protocol for the merged experimental predictor |\n' + MARKER, 1)
+          write('README.md', readme)
+
+          # PRINCIPIA — add formal propositions after XXVI and correct talent provenance.
+          principia = read('PRINCIPIA.md')
+          talent_pattern = re.compile(r'\*\*Of the talent multipliers, only Normal \(1\.0\) is confirmed\*\*.*?before/after result\.', re.S)
+          talent_replacement = '''**Talent/training-rate provenance is weaker than the old text claimed.** The app exposes Fastest/Fast/Average/Normal/Slow as a manual empirical classification field, but the corpus does not establish a source-game "Training Rate" screen or automatically observed field. Historical stored values are hypotheses unless independently evidenced. Resource Coach V2 does not consume this selector at all; no Resource Coach prediction may gain confidence from it.'''
+          principia, n = talent_pattern.subn(talent_replacement, principia, count=1)
+          if n != 1:
+              raise SystemExit('PRINCIPIA: talent provenance paragraph not matched')
+          props = r'''
+
+### Proposition XXVII. A preview interval is the predicted object; its midpoint is not.
+
+''' + MARKER + r'''
+
+Resource Coach V2 predicts `[g_lo, g_hi]` for every affected attribute. The two
+endpoints are propagated independently. Their midpoint is neither stored as an
+observation nor promoted to a more precise prediction.
+
+**Corollary.** Approximate OVR effect is an interval
+`[Σg_lo/15, Σg_hi/15]`. It is a derived planning quantity, not an observed
+post-action OVR and not an outcome probability.
+
+### Proposition XXVIII. Allocation and display class enter before transfer.
+
+For displayed multiplier `N` and `p` affected attributes, ordinary Resource Coach
+exposure begins `e=N/p`. A MID_GREY coordinate receives the fitted grey exposure
+factor; a WHITE coordinate does not. Before transfer, WHITE uses
+`u=s-Δ(T)` while MID_GREY uses `u=s`.
+
+**Corollary.** Tier addition lies outside the regular-source cap for WHITE stats.
+A negative transformed `u` is admissible evidence and must not be clamped to zero.
+
+### Proposition XXIX. The V2 law is an integrated two-regime response, not the legacy XP budget.
+
+Let `l_H(a)` and `l_L(a)` be the age-dependent log rates and
+`h=K(l_H-l_L)`. Let `b=exp(l_L)e` for the lower endpoint and multiply `b` by the
+upper latent ratio for the upper endpoint. With `d=max(h-u,0)`,
+
+```
+g = b,                                      b <= d
+    d + K ln(1 + ((b-d)/K)e^{-max(u-h,0)/K}), otherwise.
+```
+
+The deployed value is additionally bounded by the remaining regular-source
+capacity `max(0, cap-u)`.
+
+**Scholium.** This is the best-supported transfer representation in the current
+corpus. It is explicitly an **experimental preview predictor**, not a claim that
+the hidden game formula has been uniquely identified. The legacy
+`baseXpPerSession/sessionBudgetDecay/greyWeightMultiplier` coach architecture is
+not substituted into this model.
+
+### Proposition XXX. Calibration may transfer information only across distinct observations.
+
+A player calibration estimates two bounded log offsets from a complete observed
+preview and may be used only when model version, player, age, tier and state key
+still match. The anchor signature must differ from the preview being predicted.
+
+**Corollary.** An anchor cannot score itself. Agreement obtained by fitting the
+same interval being evaluated is guaranteed agreement and therefore no validation
+at all (Prop. XXV).
+
+**Corollary.** A zero-gain interval is preserved as evidence but is not admitted
+as an anchor while zero-gain suppression remains unidentified.
+
+### Proposition XXXI. Transfer class is part of the domain, not an optional label.
+
+The current V2 function is defined for `ordinary` transfer. Reward and unresolved
+classes return unavailable while retaining their observed intervals. No nearest
+neighbour, same-coach median, legacy ordinary formula or renamed coach label may
+silently fill that absence.
+
+**Corollary.** The clean next experiment is a within-player ordinary multi-stat
+preview whose affected attributes span widely separated starting values and, if
+possible, a similarly-valued WHITE/MID_GREY pair. Holding player, age, tier,
+coach, multiplier and affected-stat count fixed isolates the remaining stat-cost
+and class structure.
+'''
+          if MARKER not in principia:
+              anchor = '\n---\n\n## General Scholium'
+              i = principia.index(anchor)
+              principia = principia[:i] + props + principia[i:]
+          write('PRINCIPIA.md', principia)
+
+          # WHITEPAPER — append reproducible V2 model/validation section.
+          whitepaper = r'''
+
+---
+
+## Resource Coach V2 — Experimental Ordinary-Transfer Interval Model (2026-09-13)
+
+''' + MARKER + r'''
+
+Model version: `ordinary-academy-two-regime-integrated-v2-2026-09-13`.
+
+This path is deliberately separate from the legacy coach XP-budget model. Its
+purpose is to predict the **preview interval** shown for ordinary Resource Coaches
+from the supplied empirical corpus, while abstaining outside the supported
+domain.
+
+For displayed stat `s`, tier `T`, multiplier `N` and exact affected-stat count
+`p`:
+
+```
+u = s - Δ(T)                WHITE
+u = s                       MID_GREY
+
+e = N / p                   WHITE
+e = (N / p) * 0.6857273033  MID_GREY
+```
+
+Age-dependent rates are represented in log space:
+
+```
+l_H = ln(94.4864371028) - 0.08660507082(a-28) + c_H
+l_L = ln(79.1713401064) - 1.11485352564(a-28) + c_L
+h   = K(l_H-l_L), K = 39.4242478510
+b   = exp(l_L) * e * q
+q   = 1 lower endpoint; 1.51527630653 upper endpoint
+```
+
+The exact integrated inverse deployed in TypeScript is
+
+```
+d = max(h-u, 0)
+if b <= d: g = b
+else:      g = d + K ln(1 + ((b-d)/K) exp(-max(u-h,0)/K))
+
+g = min(g, max(0, 400-u))
+```
+
+`c_H=c_L=0` in cold start. A separate observed preview from the same player state
+may fit bounded `(c_H,c_L)` offsets with L2 penalty 0.2. The anchor may never be
+the preview it predicts, and expires when model version/player/age/tier/state key
+no longer match.
+
+### Validation recorded in the frozen profile
+
+| Evaluation | Result |
+|---|---:|
+| Grouped-player holdout | 42 previews, 133 stat intervals, 15 players |
+| Stat endpoint MAE | 7.5730 |
+| Mean interval IoU | 0.4183 |
+| Stat interval overlap | 0.7820 |
+| Width MAE | 3.7037 |
+| OVR endpoint MAE | 2.0407 |
+| Separate ×26 player-anchor stat endpoint MAE | 2.8569 (cold 6.6934) |
+| Separate-anchor stat interval overlap | 0.9286 |
+| Separate-anchor OVR endpoint MAE | 0.7041 (cold 3.2627) |
+| Separate-anchor OVR overlap | 1.0 |
+
+These are out-of-player/held-out predictive measurements of the committed model;
+they do not prove uniqueness of the hidden mechanic.
+
+### Domain and abstention
+
+- age: 18–32;
+- tier: T0–T6;
+- 1–15 distinct affected stats with finite starting values;
+- WHITE/MID_GREY class must be confirmed;
+- ordinary transfer only;
+- Reward/unresolved transfer is stored as observation and **not projected**;
+- zero-gain suppression is unresolved, so zero-gain previews do not fit anchors;
+- the manual Fastest/Fast/Average/Normal/Slow app selector is not an input.
+
+The production implementation, independent numerical reference and persistence
+contracts are exercised by `npm run test:resource-coach` under Node 24 CI.
+'''
+          append_once('WHITEPAPER.md', whitepaper)
+
+          # FORMULAS — concise operational reference.
+          formulas = r'''
+
+---
+
+## Resource Coach V2 — Ordinary Preview Intervals
+
+''' + MARKER + r'''
+
+**Scope:** experimental preview predictor; ordinary transfer only; age 18–32;
+tier T0–T6. Reward/unresolved => **unavailable**.
+
+```
+p = affected stat count
+u = displayedStat - tierAddition      if WHITE
+u = displayedStat                     if MID_GREY
+
+exposure = displayedMultiplier / p
+if MID_GREY: exposure *= 0.6857273033329748
+
+lH = ln(94.48643710284736) - 0.08660507082091137*(age-28) + logHigh
+lL = ln(79.1713401064158) - 1.1148535256353507*(age-28) + logLow
+h  = 39.424247851033286*(lH-lL)
+b  = exp(lL)*exposure*endpointRatio
+endpointRatio = 1                        lower
+endpointRatio = 1.5152763065257413       upper
+
+gap = max(h-u, 0)
+g = b                                             if b <= gap
+g = gap + K*ln(1 + ((b-gap)/K)*exp(-max(u-h,0)/K)) otherwise
+
+g = min(g, max(0, 400-u))
+OVR interval = [sum(gainLo)/15, sum(gainHi)/15]
+```
+
+Cold start uses `logHigh=logLow=0`. A complete **different preview** from the
+same player state may fit those two offsets with penalty 0.2. Same-preview
+self-fit and zero-gain anchors are rejected.
+
+Do not mix this formula with legacy `baseXpPerSession`, `sessionBudgetDecay`,
+legacy grey weight, or the app's manual Training Rate/Talent selector.
+'''
+          append_once('FORMULAS.md', formulas)
+
+          # KNOWN_ISSUES — current unresolved mechanics + tooling audit.
+          issues = read('KNOWN_ISSUES.md')
+          issue_block = r'''
+
+## Open — Resource Coach V2 unresolved mechanics
+
+''' + MARKER + r'''
+
+| ID | Area | Description | Priority |
+|---|---|---|---|
+| RC2-1 | Zero-gain suppression | `[0,0]` previews are retained as observations but rejected as calibration anchors because the suppression/cap mechanism is not yet identified. | High |
+| RC2-2 | Reward transfer | Reward and unresolved transfer classes deliberately abstain. Ordinary V2 must not be reused for them. | High |
+| RC2-3 | Within-player stat-cost/class contrast | Highest-value next evidence is one ordinary multi-stat preview with widely separated starting values and known WHITE/MID_GREY classes, ideally a similarly-valued cross-class pair. | High |
+| RC2-4 | Physical device calibration | Android layout, OCR/photo-picker, share sheet, offline persistence and OTA behavior still need empirical device passes against real previews. | High |
+| TOOL-1 | PayloadGuard structural false positive | PR #134 replacement/extraction was classified as destructive because v1.1.0 counts removed named nodes without replacement/capability continuity. Regression evidence is in `docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`. | External tooling |
+| TOOL-2 | PayloadGuard semantic/gating defects | Bare `docs` path text fabricated a benign-scope claim; analyzer exit 2 was captured without failing the composite action, leaving the job green. Fix belongs in PayloadGuard, not this app. | External tooling |
+
+'''
+          if MARKER not in issues:
+              anchor = '# Known Issues\n'
+              i = issues.index(anchor) + len(anchor)
+              issues = issues[:i] + issue_block + issues[i:]
+          write('KNOWN_ISSUES.md', issues)
+
+          # ASSUMPTIONS — replace stale fixed-branch and Training Rate assumptions.
+          assumptions = read('ASSUMPTIONS.md')
+          git_section = '''## Git Discipline
+
+Every sprint ends with a docs commit. No exceptions.
+
+1. Start each task from the **current `main`** and use a task-specific branch. No historical branch name is permanently authoritative.
+2. Code reaches `main` by reviewed PR/merge only. Do not push development code directly to `main`; a main update may trigger EAS OTA.
+3. Before merge, audit the exact PR head and require the relevant proof/test jobs to pass. A stale earlier review does not approve a moved head.
+4. Documentation close-out follows the merged implementation and must describe the code that actually shipped, not the branch that was planned.
+5. **Docs scope:** DEVLOG.md · CLAUDE.md · HANDOVER.md · README.md · PRINCIPIA.md · WHITEPAPER.md · FORMULAS.md · KNOWN_ISSUES.md · ASSUMPTIONS.md; update CALIBRATION_RECORD.md / CALIBRATION_COLLECTION.md when empirical-model state changes.
+6. Two device console sessions remain useful for development: hot-reload server on one, git on the other. Pull in the git session; the bundler reloads file changes.
+7. **PR title max 256 characters.** Put detail in the PR body.
+'''
+          assumptions, n = re.subn(r'## Git Discipline\n.*?(?=\n## Role Constraints)', git_section.rstrip(), assumptions, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit('ASSUMPTIONS: Git Discipline not matched')
+          assumptions = assumptions.replace('4. For talent multipliers: Normal (×1.0) confirmed for Grant, Rogers, McGinty; Slow (×0.47) **INVALIDATED Sprint 34** — derived from linear budget, geometric budget shows LJDark Leo is consistent with Normal; no confirmed Slow data point; Fastest/Fast/Average still community estimates — do not cite any of these as confirmed',
+              '4. Fastest/Fast/Average/Normal/Slow in our app is manual empirical hypothesis metadata. The repository does not establish a source-game "Training Rate" screen or automatically observed field. Do not request one, infer it from OCR, or treat historical stored values as observed. Resource Coach V2 does not use this selector.')
+          current_questions = '''## Sprint 39 Open Questions
+
+1. **Resource Coach stat-cost/display-class structure** — highest priority. Use an existing ordinary multi-stat preview where affected stats span widely separated starting values and known WHITE/MID_GREY classes; collect new evidence only if the corpus lacks a clean within-player contrast. Hold player, age, tier, coach, multiplier and affected-stat count fixed.
+2. **Zero-gain suppression** — preserve `[0,0]` observations but do not fit anchors from them until the mechanism is identified.
+3. **Reward transfer** — ordinary Resource Coach V2 is falsified for Reward transfer. Keep Reward evidence separate and abstain until a replacement representation is identified.
+4. **Resource Coach device validation** — test real preview scans/entry, offline restart persistence, share/export, class confirmation and separate-anchor behavior on Android.
+5. **drillXpFactor** — legacy drill path remains provisional at 0.3 and still needs a controlled drill-only before/after observation.
+6. **Non-Normal talent multipliers** — legacy training model values remain unconfirmed hypotheses. Do not use the app selector as observation provenance and do not let this uncertainty leak into Resource Coach V2.
+7. **PayloadGuard regression** — PR #134 is the concrete replacement-aware structural/semantic/gating regression fixture for PayloadGuard development; fix it in PayloadGuard, not by weakening the Optimiser architecture.
+'''
+          assumptions, n = re.subn(r'## Sprint 34 Open Questions\n.*\Z', current_questions, assumptions, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit('ASSUMPTIONS: old open questions not matched')
+          write('ASSUMPTIONS.md', assumptions)
+
+          # Calibration docs — preserve provenance and current collection target.
+          calibration_record = r'''
+
+---
+
+## 2026-09-13 — Resource Coach V2 calibration state
+
+''' + MARKER + r'''
+
+The ordinary Resource Coach predictor is now frozen in
+`profiles/resource_coach_v2.json` as
+`ordinary-academy-two-regime-integrated-v2-2026-09-13`. The calibration unit is
+an **observed preview interval**, not a post-action result and not a midpoint.
+
+Global grouped-player holdout: 42 previews, 133 stat intervals, 15 players;
+endpoint MAE 7.5730, interval overlap 0.7820, OVR endpoint MAE 2.0407.
+Separate Focused Offensive ×26 player anchors reduce held-out stat endpoint MAE
+from 6.6934 to 2.8569 and OVR endpoint MAE from 3.2627 to 0.7041.
+
+Training Rate/Talent provenance correction: Fastest/Fast/Average/Normal/Slow is
+a manual app classification/hypothesis field. No verified source-game Training
+Rate screen/field is established, and Resource Coach V2 does not consume it.
+Reward/unresolved transfer is outside the ordinary model and must remain separate.
+'''
+          append_once('CALIBRATION_RECORD.md', calibration_record)
+
+          calibration_collection = r'''
+
+---
+
+## 2026-09-13 — Next Resource Coach evidence
+
+''' + MARKER + r'''
+
+**P2 / production-calibration priority:** determine whether remaining stat-level
+structure is explained by starting stat cost and/or WHITE/MID_GREY class.
+
+Preferred observation is an **existing ordinary multi-stat Resource Coach preview**
+on one player whose affected stats span widely separated starting values and have
+known display classes. Collect a new preview only if the current corpus lacks a
+clean within-player contrast.
+
+Hold constant: player, age, tier, coach, displayed multiplier and affected-stat
+count. Vary/compare: starting stat value; WHITE/MID_GREY class where possible.
+Capture all 15 displayed stats/classes, exact affected-stat set, multiplier and
+every displayed `+lo–hi` interval. Ideally include two same-class affected stats
+widely separated in starting value and a similarly-valued cross-class pair.
+'''
+          append_once('CALIBRATION_COLLECTION.md', calibration_collection)
+
+          # Existing test guide and audit get a post-merge disposition.
+          testing = r'''
+
+---
+
+## Post-merge status — 2026-09-13
+
+''' + MARKER + r'''
+
+PR #134 merged to `main` at `6edf357499d25d4ce22c5bf29adb9887d876747f`.
+The merge head passed `resource-coach-v2`, `ts-suite`, `z3-crosshair` and `dafny`.
+Native SQLite now explicitly enables foreign-key enforcement before Resource
+Coach persistence is used. Continue this guide as the empirical OTA/device
+calibration protocol; the predictor remains experimental.
+'''
+          append_once('docs/RESOURCE_COACH_V2_TESTING.md', testing)
+
+          audit = r'''
+
+---
+
+## Post-merge disposition — 2026-09-13
+
+''' + MARKER + r'''
+
+The two genuine PR blockers identified by this audit were repaired before merge:
+`resource-coach-v2` was moved under the top-level `jobs:` mapping and native
+SQLite foreign-key enforcement was enabled explicitly. The resulting head passed
+all Engine Proof jobs and PR #134 was merged as
+`6edf357499d25d4ce22c5bf29adb9887d876747f`.
+
+The PayloadGuard `DESTRUCTIVE`/`DECEPTIVE_PAYLOAD` result remains classified as a
+false positive and should be retained as regression evidence. The green GitHub
+job despite analyzer exit code 2 remains a separate PayloadGuard enforcement
+finding.
+'''
+          append_once('docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md', audit)
+
+          # New compact session handover for future agents.
+          session = Path('docs/SESSION_STATE_2026-09-13_RESOURCE_COACH_V2.md')
+          if not session.exists():
+              session.write_text(r'''# Session State — Resource Coach V2 Post-Merge
+
+Date: 2026-09-13
+Main merge: `6edf357499d25d4ce22c5bf29adb9887d876747f`
+PR: #134
+Model: `ordinary-academy-two-regime-integrated-v2-2026-09-13`
+
+## What is now production-testable
+
+The Coaches tab contains the offline Resource Coach V2 test/calibration surface.
+Ordinary transfer can produce cold-start intervals or use one separate preview
+anchor from the same player state. Predictions and observations persist
+separately; predicted stats are not written back to player facts. Reward and
+unresolved classes abstain.
+
+## Mathematical boundary
+
+- `u = displayedStat - tierAddition` for WHITE; MID_GREY keeps displayed value.
+- exposure = multiplier / exact affected-stat count; MID_GREY has its own fitted factor.
+- integrated two-regime response, regular-source cap in transformed coordinates.
+- negative transformed coordinates are valid.
+- approximate OVR interval = summed affected-stat endpoint gains / 15.
+- anchor cannot be the preview it predicts; zero-gain previews cannot fit anchors.
+- Training Rate/Talent selector is manual hypothesis metadata and is not an input.
+
+## Validation
+
+Global grouped-player holdout: 42 previews, 133 stat intervals, 15 players;
+stat endpoint MAE 7.5730; interval overlap 0.7820; OVR endpoint MAE 2.0407.
+Separate ×26 anchor: stat endpoint MAE 2.8569; overlap 0.9286; OVR endpoint MAE 0.7041.
+
+## CI / integrity
+
+Resource Coach Node 24 contracts, TypeScript suite, Z3/CrossHair and Dafny all
+passed before merge. Native SQLite explicitly enables foreign keys before Drizzle.
+
+## Immediate evidence target
+
+Find one ordinary multi-stat preview on one player with widely separated starting
+values and known WHITE/MID_GREY classes. Capture all 15 stats/classes, exact
+affected set, multiplier and every `+lo–hi` interval. This is the smallest clean
+experiment for remaining stat-cost/display-class structure.
+
+## PayloadGuard
+
+PR #134 is a retained false-positive regression fixture: replacement-aware
+structural continuity, raw `docs` substring semantic matching, and exit-code
+enforcement all require work in PayloadGuard. See
+`docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`.
+''')
+
+          # Sanity checks.
+          for p in ['DEVLOG.md','CLAUDE.md','HANDOVER.md','README.md','PRINCIPIA.md',
+                    'WHITEPAPER.md','FORMULAS.md','KNOWN_ISSUES.md','ASSUMPTIONS.md',
+                    'CALIBRATION_RECORD.md','CALIBRATION_COLLECTION.md',
+                    'docs/RESOURCE_COACH_V2_TESTING.md',
+                    'docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md']:
+              if MARKER not in read(p):
+                  raise SystemExit(f'{p}: post-merge marker missing')
+          PY
+
+          git diff --check
+          git status --short
+
+      - name: Commit documentation closeout
+        shell: bash
+        run: |
+          rm -f .github/workflows/docs-closeout-20260913.yml
+          git config user.name "AIntegrity Docs Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add DEVLOG.md CLAUDE.md HANDOVER.md README.md PRINCIPIA.md WHITEPAPER.md FORMULAS.md KNOWN_ISSUES.md ASSUMPTIONS.md CALIBRATION_RECORD.md CALIBRATION_COLLECTION.md docs/RESOURCE_COACH_V2_TESTING.md docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md docs/SESSION_STATE_2026-09-13_RESOURCE_COACH_V2.md .github/workflows/docs-closeout-20260913.yml
+          git commit -m "docs: close Resource Coach V2 merge handover [docs-closeout]"
+          git push origin HEAD:docs/resource-coach-v2-postmerge-20260913
