@@ -53,3 +53,15 @@ The existing repository workflow publishes an Android update to EAS branch `prev
 - Browser visual verification was attempted but its daemon could not start in this environment. Physical Android layout, photo-picker/OCR interaction, share-sheet behaviour, OTA delivery and airplane-mode operation still require device testing.
 
 Run `npm run test:resource-coach` on Node 24, `npm run typecheck`, and the existing projection/scanner suites. Public independent reference reproduction: install NumPy/SciPy and run `python tools/resource-coach-v2/generate_synthetic_reference.py`. It numerically integrates the cost function and inverts it with Brent’s method across 30 synthetic inputs. The supplied separate-anchor validation was repaired and run locally against the recovered archive, but those source records are not published here.
+
+---
+
+## Post-merge status — 2026-09-13
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+PR #134 merged to `main` at `6edf357499d25d4ce22c5bf29adb9887d876747f`.
+The merge head passed `resource-coach-v2`, `ts-suite`, `z3-crosshair` and `dafny`.
+Native SQLite now explicitly enables foreign-key enforcement before Resource
+Coach persistence is used. Continue this guide as the empirical OTA/device
+calibration protocol; the predictor remains experimental.

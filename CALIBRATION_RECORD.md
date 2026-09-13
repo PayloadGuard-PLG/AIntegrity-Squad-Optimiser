@@ -291,3 +291,24 @@ Only three things:
 6. **K=47 breaks at high stats (T5+/T6)** — Neri (Age 28, T6, stat=330): K=47 predicts +0.25 for Focused ×4, game shows +3–4. Implied K≈76 at stat=330. K=47 confirmed valid up to ~260. Do NOT change engine K until at least 3 data points in the 260–330 range confirm a consistent value. Neri is the only T6 data point — one player, one session.
 7. **Cieran Morgan talent confirmation** — Slow (0.47) inferred from ×30 ATK data (5/5 stats fit). Confirm by opening Cieran Morgan's edit screen and reading the Personal Trainer tab talent label. If "Slow" → Slow=0.47 confirmed. If "Normal" → discrepancy needs new investigation. Jables DB "Slow" label is a mislabel — he is Normal talent.
 8. **Fast/Average/Fastest talent tiers** — community estimates only. No controlled data point exists. Acquire a confirmed-Fast player (edit screen label) and run a coached session to calibrate.
+
+---
+
+## 2026-09-13 — Resource Coach V2 calibration state
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+The ordinary Resource Coach predictor is now frozen in
+`profiles/resource_coach_v2.json` as
+`ordinary-academy-two-regime-integrated-v2-2026-09-13`. The calibration unit is
+an **observed preview interval**, not a post-action result and not a midpoint.
+
+Global grouped-player holdout: 42 previews, 133 stat intervals, 15 players;
+endpoint MAE 7.5730, interval overlap 0.7820, OVR endpoint MAE 2.0407.
+Separate Focused Offensive ×26 player anchors reduce held-out stat endpoint MAE
+from 6.6934 to 2.8569 and OVR endpoint MAE from 3.2627 to 0.7041.
+
+Training Rate/Talent provenance correction: Fastest/Fast/Average/Normal/Slow is
+a manual app classification/hypothesis field. No verified source-game Training
+Rate screen/field is established, and Resource Coach V2 does not consume it.
+Reward/unresolved transfer is outside the ordinary model and must remain separate.

@@ -959,3 +959,84 @@ Two new services bridge the Drills/Coaches tabs to the Results hub:
 **`src/services/drillPlanHistoryService.ts`** — `DrillPlanEntry` type, `save()`, `getForPlayer()`. Backed by `drill_plan_history` table. The Drills tab calls `pushToResults()` which saves the active preset here. The Results tab reads it to populate the DRILL PLANS picker.
 
 **Legacy:** `squad_plan_runs` table (migration 0004) is retained for DB backward compatibility. `squadPlanService` is still in place. The Coaches SAVE RUN button still writes to this table for reference history.
+
+---
+
+## Resource Coach V2 — Experimental Ordinary-Transfer Interval Model (2026-09-13)
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+Model version: `ordinary-academy-two-regime-integrated-v2-2026-09-13`.
+
+This path is deliberately separate from the legacy coach XP-budget model. Its
+purpose is to predict the **preview interval** shown for ordinary Resource Coaches
+from the supplied empirical corpus, while abstaining outside the supported
+domain.
+
+For displayed stat `s`, tier `T`, multiplier `N` and exact affected-stat count
+`p`:
+
+```
+u = s - Δ(T)                WHITE
+u = s                       MID_GREY
+
+e = N / p                   WHITE
+e = (N / p) * 0.6857273033  MID_GREY
+```
+
+Age-dependent rates are represented in log space:
+
+```
+l_H = ln(94.4864371028) - 0.08660507082(a-28) + c_H
+l_L = ln(79.1713401064) - 1.11485352564(a-28) + c_L
+h   = K(l_H-l_L), K = 39.4242478510
+b   = exp(l_L) * e * q
+q   = 1 lower endpoint; 1.51527630653 upper endpoint
+```
+
+The exact integrated inverse deployed in TypeScript is
+
+```
+d = max(h-u, 0)
+if b <= d: g = b
+else:      g = d + K ln(1 + ((b-d)/K) exp(-max(u-h,0)/K))
+
+g = min(g, max(0, 400-u))
+```
+
+`c_H=c_L=0` in cold start. A separate observed preview from the same player state
+may fit bounded `(c_H,c_L)` offsets with L2 penalty 0.2. The anchor may never be
+the preview it predicts, and expires when model version/player/age/tier/state key
+no longer match.
+
+### Validation recorded in the frozen profile
+
+| Evaluation | Result |
+|---|---:|
+| Grouped-player holdout | 42 previews, 133 stat intervals, 15 players |
+| Stat endpoint MAE | 7.5730 |
+| Mean interval IoU | 0.4183 |
+| Stat interval overlap | 0.7820 |
+| Width MAE | 3.7037 |
+| OVR endpoint MAE | 2.0407 |
+| Separate ×26 player-anchor stat endpoint MAE | 2.8569 (cold 6.6934) |
+| Separate-anchor stat interval overlap | 0.9286 |
+| Separate-anchor OVR endpoint MAE | 0.7041 (cold 3.2627) |
+| Separate-anchor OVR overlap | 1.0 |
+
+These are out-of-player/held-out predictive measurements of the committed model;
+they do not prove uniqueness of the hidden mechanic.
+
+### Domain and abstention
+
+- age: 18–32;
+- tier: T0–T6;
+- 1–15 distinct affected stats with finite starting values;
+- WHITE/MID_GREY class must be confirmed;
+- ordinary transfer only;
+- Reward/unresolved transfer is stored as observation and **not projected**;
+- zero-gain suppression is unresolved, so zero-gain previews do not fit anchors;
+- the manual Fastest/Fast/Average/Normal/Slow app selector is not an input.
+
+The production implementation, independent numerical reference and persistence
+contracts are exercised by `npm run test:resource-coach` under Node 24 CI.

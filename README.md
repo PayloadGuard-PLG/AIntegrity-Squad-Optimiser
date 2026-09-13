@@ -23,6 +23,7 @@
 ## ✨ Core Capabilities
 
 - 🎯 **Calibrated OVR Projections** — Models age, role, stat profile, and talent tier to project OVR outcomes for any combination of drill plans, coaching sessions, and tier upgrades — before you spend anything. Core constants (OVR formula, cost curve shape, age 18–20 and 26–28 brackets, Normal talent) are empirically confirmed from game screenshots. Several talent tiers and mid-range age brackets are still being validated — projections show a gain range, not a single guaranteed number.
+- 🧪 **Resource Coach V2** — Experimental ordinary-coach preview ranges use a two-regime integrated transfer model with exact affected-stat allocation, WHITE/MID_GREY coordinates and optional separate-player-state anchors. Reward/unresolved transfer deliberately returns unavailable rather than borrowing the wrong formula.
 - 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details. Roles still being learned are recognised as such and kept separate from established ones, because they do not yet contribute to a player's key attributes. Anything the scan could not read confidently is flagged for review rather than filled in with a guess.
 - 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and current Fan Club state. Condition cost is shown as the range the game actually charges, not a single tidy figure it may not honour.
 - 🔗 **Sequential Planning** — Chain drill plans, coaching sessions, tier upgrades, and restorers into one sequential plan with a per-step OVR breakdown in the Results hub.
@@ -40,7 +41,7 @@
 
 **💊 DRILLS** — All 40 drills ranked by ROI for the selected player. Fan Club surge controls. Condition cost per cycle shown alongside the range you may actually be billed. Build and save drill presets, then **push to Results** to include them in your combined plan.
 
-**🧑‍🏫 COACHES** — Scan a coach preview screenshot to auto-fill session count and stats. Project the OVR gain from the coaching block. Coaches that behave differently from the standard Academy ones are identified from the scan and handled separately: the app keeps what the game showed and declines to project rather than applying a model that does not fit them. Apply to player card or save to history for import into Results.
+**🧑‍🏫 COACHES** — Experimental Resource Coach V2 interval lab. Scan or enter a preview, select the exact affected stats, confirm WHITE/MID_GREY class and starting values, then project per-stat gain ranges. Ordinary transfer supports cold-start and separate-anchor calibration; Reward/unresolved transfer abstains. Predictions and observations are stored separately, and experimental forecasts never overwrite player facts.
 
 **✅ RESULTS** — The combined plan hub. Import drill plans from history + coaching sessions from history, add a tier upgrade and condition restorers, then PROJECT to see the full sequential OVR chain. One button applies the complete plan to the player card.
 
@@ -79,12 +80,15 @@ The core logic — XP cost model, OVR projection formulas, role weight tables, a
 
 | Doc | Contents |
 |---|---|
+| [`PRINCIPIA.md`](./PRINCIPIA.md) | Formal model laws, evidence grades, abstention rules, and Resource Coach V2 propositions |
 | [`WHITEPAPER.md`](./WHITEPAPER.md) | Formula derivations, XP calibration data, role weights, tier models, OCR system mechanics |
 | [`FORMULAS.md`](./FORMULAS.md) | Concise formula reference with worked examples |
 | [`DESIGN.md`](./DESIGN.md) | UI/visual design conventions — safe-to-edit vs logic-critical files |
 | [`DEVLOG.md`](./DEVLOG.md) | Sprint-by-sprint build history and changelogs |
 | [`HANDOVER.md`](./HANDOVER.md) | Complete file map, database schemas, and deployment instructions |
-| [`KNOWN_ISSUES.md`](./KNOWN_ISSUES.md) | Open bugs and resolved issue tracking |
+| [`KNOWN_ISSUES.md`](./KNOWN_ISSUES.md) | Open bugs, unresolved mechanics and tooling findings |
+| [`docs/RESOURCE_COACH_V2_TESTING.md`](./docs/RESOURCE_COACH_V2_TESTING.md) | Device test protocol for the merged experimental predictor |
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
 
 ---
 

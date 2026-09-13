@@ -432,3 +432,42 @@ pillarCap = pillarLevel × 2 + 10
 | teamPlayDecayPerDay | `teamPlayDecayPerDay` | 2 |
 | teamPlayFreeDrillsPerDay | `teamPlayFreeDrillsPerDay` | 4 |
 | matchAdvisorMultiplier | `matchAdvisorMultiplier` | 1.5 |
+
+---
+
+## Resource Coach V2 — Ordinary Preview Intervals
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+**Scope:** experimental preview predictor; ordinary transfer only; age 18–32;
+tier T0–T6. Reward/unresolved => **unavailable**.
+
+```
+p = affected stat count
+u = displayedStat - tierAddition      if WHITE
+u = displayedStat                     if MID_GREY
+
+exposure = displayedMultiplier / p
+if MID_GREY: exposure *= 0.6857273033329748
+
+lH = ln(94.48643710284736) - 0.08660507082091137*(age-28) + logHigh
+lL = ln(79.1713401064158) - 1.1148535256353507*(age-28) + logLow
+h  = 39.424247851033286*(lH-lL)
+b  = exp(lL)*exposure*endpointRatio
+endpointRatio = 1                        lower
+endpointRatio = 1.5152763065257413       upper
+
+gap = max(h-u, 0)
+g = b                                             if b <= gap
+g = gap + K*ln(1 + ((b-gap)/K)*exp(-max(u-h,0)/K)) otherwise
+
+g = min(g, max(0, 400-u))
+OVR interval = [sum(gainLo)/15, sum(gainHi)/15]
+```
+
+Cold start uses `logHigh=logLow=0`. A complete **different preview** from the
+same player state may fit those two offsets with penalty 0.2. Same-preview
+self-fit and zero-gain anchors are rejected.
+
+Do not mix this formula with legacy `baseXpPerSession`, `sessionBudgetDecay`,
+legacy grey weight, or the app's manual Training Rate/Talent selector.

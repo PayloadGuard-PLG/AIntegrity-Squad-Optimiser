@@ -1,12 +1,50 @@
 # AIntegrity Squad Optimiser — Agent Handover Brief
 
 **Branch:** feature branches off `main` (dev) / `main` (OTA deploy)
-**As of:** Sprint 38 — 2026-09-08
+**As of:** Sprint 39 — 2026-09-13
 **Deploy:** Push to `main` triggers EAS OTA auto-deploy (Android only). NEVER push to `main` directly from dev work — merge only when releasing.
 
 ---
 
 ## Current State
+
+
+### Sprint 39 — Resource Coach V2 state
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+PR #134 is merged to `main` (`6edf357499d25d4ce22c5bf29adb9887d876747f`).
+The old session-decay single-value Coaches projection is no longer the testing
+surface for Resource Coaches. `ResourceCoachLab` uses the integrated two-regime
+interval model in `src/logic/resourceCoachV2.ts` and profile
+`profiles/resource_coach_v2.json`.
+
+Key invariants for the next agent:
+
+1. **Transfer class is part of the model domain.** Only `ordinary` predicts.
+   `reward` and unresolved classes retain evidence and abstain.
+2. **No Training Rate input.** The app selector is manual hypothesis metadata;
+   there is no verified in-game Training Rate screen/field in the corpus.
+3. **Exact affected-stat allocation matters.** Exposure is multiplier divided by
+   affected-stat count; do not copy a same-coach median or nearest neighbour.
+4. **WHITE/MID_GREY is observed model input.** WHITE removes the tier addition
+   before transfer; MID_GREY does not and has a separate fitted exposure factor.
+5. **Calibration is separate-anchor only.** Same-preview self-fit is prohibited;
+   anchors expire on player-state/model mismatch.
+6. **Predictions are not facts.** There is no Resource Coach predicted-stat
+   writeback path.
+7. **FK integrity is runtime-enforced.** `src/db/index.ts` enables SQLite foreign
+   keys before Drizzle.
+
+Current validation snapshot: grouped-player holdout 42 previews / 133 stat
+intervals / 15 players, stat endpoint MAE 7.573, overlap 0.782, OVR endpoint MAE
+2.041. With a separate Focused Offensive ×26 player anchor: stat endpoint MAE
+2.857, overlap 0.929, OVR endpoint MAE 0.704.
+
+**Next observation:** one clean ordinary multi-stat preview on the same player,
+with widely separated starting values and known WHITE/MID_GREY classes; capture
+all 15 stats/classes and all displayed gain intervals. This directly tests the
+remaining stat-cost/class structure.
 
 React Native / Expo SDK 53 app. **5 tabs:** SQUAD · PLAN · DRILLS · COACHES · RESULTS.
 
@@ -17,7 +55,7 @@ All tabs functional. Engine calibrated against empirical session data (Normal ta
 - **SQUAD tab** — player list, tap → edit/delete, OVR badge, QualityMeter atom (10-bar), tier/age/role display, snapshot revert banner, NewRoleBar for new-role progress
 - **PLAN tab** — select player → configure drills + tier + restorers → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
 - **DRILLS tab** — 40 drills (all roles). Fan Club surge controls (active flag + level, independent axes). Condition cost per cycle shown as raw plus the billed envelope — the charge is not a deterministic function of raw. Zero-drain is RETIRED (patched out; 1% session minimum). Drill presets (saved drill plans). **PUSH TO RESULTS** button saves the active preset to `drill_plan_history` table for import into Results.
-- **COACHES tab** — stat selector grid (white/grey sections), ×N sessions input, talent read from player card. SCAN button scans a coach preview screenshot (ML Kit OCR). No tier section — tier is in Results only. Per-stat gain projection + OVR delta. APPLY TO PLAYER CARD writes stats back. Coach scan auto-saves to `coach_scan_history` table for import into Results.
+- **COACHES tab** — Resource Coach V2 experimental preview lab. Select the exact affected stats, confirm WHITE/MID_GREY display class and starting values, enter/scan the displayed multiplier, and project per-stat `+lo–hi` intervals. Ordinary transfer supports cold-start and separate-anchor player calibration; Reward/unresolved transfer abstains while preserving observations. Forecasts are stored separately from observations and do **not** write predicted stats back to the player card.
 - **RESULTS tab** — the single authoritative plan hub. Chains: **DRILL PLANS** (from drills history, amber, max 10) → **COACHING SESSIONS** (from coach history, max 5) → **TIER UPGRADE** → **CONDITION RESTORE** → PROJECT button → per-step OVR chain → APPLY FULL PLAN TO CARD write-back.
 - **Add Player** (`/player/new`) — SCAN PLAYER CARD screenshot button (ML Kit OCR). 3-col DEF/ATT/PHY scan preview. Role picker, stat grid, tier, talent, save.
 - **Edit Player** (`/player/[id]`) — same as add + load existing + delete + snapshot revert. Double-tap a player chip to navigate here from Coaches tab.

@@ -6,6 +6,88 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+
+## Sprint 39 — Resource Coach V2 Integrated, Audited, Proven, and Merged
+**2026-09-13**
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+Resource Coach prediction has been separated from the legacy coaching-session
+formula and rebuilt as an **experimental interval predictor** for ordinary
+resource coaches. PR **#134** merged to `main` at
+`6edf357499d25d4ce22c5bf29adb9887d876747f` after a full architecture audit.
+
+### Shipped
+
+- `src/logic/resourceCoachV2.ts` implements model
+  `ordinary-academy-two-regime-integrated-v2-2026-09-13`.
+- Input domain is explicit: age 18–32, tier T0–T6, positive displayed multiplier,
+  1–15 distinct affected stats, and confirmed WHITE/MID_GREY class.
+- Exposure is `displayedMultiplier / affectedStatCount`; MID_GREY exposure is
+  additionally multiplied by the fitted grey exposure parameter.
+- WHITE coordinates remove the tier addition before transfer; MID_GREY
+  coordinates do not. Negative transformed coordinates are valid and must not be
+  clamped to zero.
+- The deployed ordinary-source cap is applied in transformed coordinate space,
+  with the white tier addition outside the cap.
+- Cold-start prediction and **separate-anchor** player calibration are both
+  supported. The anchor may never score itself; model version, player, age, tier,
+  state key and input signature determine whether an anchor remains admissible.
+- Reward and unresolved transfer classes **abstain**. Their observed preview
+  intervals may still be stored as evidence.
+- Predicted intervals, observed intervals, OVR evidence and calibration anchors
+  are persisted separately. Experimental forecasts do **not** write predicted
+  stats back to the player card.
+- Runtime SQLite now explicitly executes `PRAGMA foreign_keys = ON;` before
+  Drizzle is constructed, matching the persistence contract exercised in tests.
+
+### Validation
+
+The committed profile records grouped-player holdout performance of 42 previews,
+133 stat intervals and 15 players: stat endpoint MAE **7.573**, interval overlap
+**0.782**, and OVR endpoint MAE **2.041**. A separate Focused Offensive ×26
+anchor experiment on six players improves stat endpoint MAE from **6.693** to
+**2.857**, interval overlap to **0.929**, and OVR endpoint MAE from **3.263** to
+**0.704**. These are validation measurements of the deployed predictor, not a
+claim that the hidden game formula has been identified.
+
+CI was repaired during review. `resource-coach-v2`, `ts-suite`, `z3-crosshair`
+and `dafny` all completed green on the audited head before merge.
+
+### PayloadGuard finding produced by this PR
+
+The pinned PayloadGuard v1.1.0 classified #134 `DESTRUCTIVE [CRITICAL]` although
+no files were deleted and the change was net-additive. Two coupled false
+positives were identified and recorded in
+`docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`:
+
+1. Layer 4 counts removed named nodes in `coaches.tsx` but does not reason about
+   replacement/capability continuity across new files.
+2. Layer 5b matched the bare substring `docs` in a path and treated it as a
+   benign-scope claim, then escalated the Layer-4 false premise to
+   `DECEPTIVE_PAYLOAD`.
+
+A separate enforcement defect was confirmed: analyzer exit code 2 is captured
+under `set +e` but the composite action does not re-emit that failure, so the
+GitHub job can remain green. This belongs to PayloadGuard, not to the Optimiser
+merge, and #134 is now a regression fixture for that architecture work.
+
+### Provenance correction carried forward
+
+The app's Fastest/Fast/Average/Normal/Slow selector is a **manual empirical
+classification/hypothesis**. There is no established in-game "Training Rate"
+screen in the evidence corpus. Resource Coach V2 does not consume that field.
+Do not request such a screen or treat old stored values as automatically observed.
+
+### Next empirical target
+
+Highest priority is a clean **within-player, multi-stat ordinary resource-coach
+preview** in which affected stats span widely separated starting values and have
+known display classes; ideally include a similarly-valued WHITE/MID_GREY pair.
+Capture all 15 displayed stats/classes, affected-stat set, multiplier and every
+`+lo–hi` interval. This tests the remaining stat-cost/display-class structure
+without introducing a coach, age, tier or player confound.
+
 ## Sprint 38 — Condition Model v2, Card-Anchored Roles, and Three Honesty Corrections
 **2026-09-08**
 
