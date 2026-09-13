@@ -693,6 +693,75 @@ not measuring how much of it happens.
 grade is not a smaller answer than one delivered with it. It is a different and
 worse one, because it invites a confidence the evidence does not support.
 
+
+### Proposition XXVII. A preview interval is the predicted object; its midpoint is not.
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+Resource Coach V2 predicts `[g_lo, g_hi]` for every affected attribute. The two
+endpoints are propagated independently. Their midpoint is neither stored as an
+observation nor promoted to a more precise prediction.
+
+**Corollary.** Approximate OVR effect is an interval
+`[Σg_lo/15, Σg_hi/15]`. It is a derived planning quantity, not an observed
+post-action OVR and not an outcome probability.
+
+### Proposition XXVIII. Allocation and display class enter before transfer.
+
+For displayed multiplier `N` and `p` affected attributes, ordinary Resource Coach
+exposure begins `e=N/p`. A MID_GREY coordinate receives the fitted grey exposure
+factor; a WHITE coordinate does not. Before transfer, WHITE uses
+`u=s-Δ(T)` while MID_GREY uses `u=s`.
+
+**Corollary.** Tier addition lies outside the regular-source cap for WHITE stats.
+A negative transformed `u` is admissible evidence and must not be clamped to zero.
+
+### Proposition XXIX. The V2 law is an integrated two-regime response, not the legacy XP budget.
+
+Let `l_H(a)` and `l_L(a)` be the age-dependent log rates and
+`h=K(l_H-l_L)`. Let `b=exp(l_L)e` for the lower endpoint and multiply `b` by the
+upper latent ratio for the upper endpoint. With `d=max(h-u,0)`,
+
+```
+g = b,                                      b <= d
+    d + K ln(1 + ((b-d)/K)e^{-max(u-h,0)/K}), otherwise.
+```
+
+The deployed value is additionally bounded by the remaining regular-source
+capacity `max(0, cap-u)`.
+
+**Scholium.** This is the best-supported transfer representation in the current
+corpus. It is explicitly an **experimental preview predictor**, not a claim that
+the hidden game formula has been uniquely identified. The legacy
+`baseXpPerSession/sessionBudgetDecay/greyWeightMultiplier` coach architecture is
+not substituted into this model.
+
+### Proposition XXX. Calibration may transfer information only across distinct observations.
+
+A player calibration estimates two bounded log offsets from a complete observed
+preview and may be used only when model version, player, age, tier and state key
+still match. The anchor signature must differ from the preview being predicted.
+
+**Corollary.** An anchor cannot score itself. Agreement obtained by fitting the
+same interval being evaluated is guaranteed agreement and therefore no validation
+at all (Prop. XXV).
+
+**Corollary.** A zero-gain interval is preserved as evidence but is not admitted
+as an anchor while zero-gain suppression remains unidentified.
+
+### Proposition XXXI. Transfer class is part of the domain, not an optional label.
+
+The current V2 function is defined for `ordinary` transfer. Reward and unresolved
+classes return unavailable while retaining their observed intervals. No nearest
+neighbour, same-coach median, legacy ordinary formula or renamed coach label may
+silently fill that absence.
+
+**Corollary.** The clean next experiment is a within-player ordinary multi-stat
+preview whose affected attributes span widely separated starting values and, if
+possible, a similarly-valued WHITE/MID_GREY pair. Holding player, age, tier,
+coach, multiplier and affected-stat count fixed isolates the remaining stat-cost
+and class structure.
+
 ---
 
 ## General Scholium
@@ -708,13 +777,7 @@ actions can show positive gain. They do not value—or by themselves falsify—t
 ordinary 30+ age multiplier. Neri's age-32, stat-407 `[0,0]` likewise does not
 identify zero training. The boundary between 22 and 23 remains unknown.
 
-**Of the talent multipliers, only Normal (1.0) is confirmed** — and it is confirmed
-repeatedly, from six different players. Every other tier is a community estimate that
-produces wrong answers in practice. The Slow value of 0.47 was back-calculated under
-the *linear* budget model and did not survive the correction to geometric; it is
-retained only so that it is not re-derived. **All projections should default to
-Normal regardless of what the database stores**, unless talent has been read from the
-Personal Trainer tab *and* confirmed against a before/after result.
+**Talent/training-rate provenance is weaker than the old text claimed.** The app exposes Fastest/Fast/Average/Normal/Slow as a manual empirical classification field, but the corpus does not establish a source-game "Training Rate" screen or automatically observed field. Historical stored values are hypotheses unless independently evidenced. Resource Coach V2 does not consume this selector at all; no Resource Coach prediction may gain confidence from it.
 
 ### On the discipline of this model
 
@@ -731,8 +794,9 @@ Three habits do the work here, and they are worth more than any constant:
 
 ### On what would advance the model most
 
-- One clean before/after from a player of *confirmed* non-Normal talent. Every
-  projection in the application currently rests on the assumption of Normal.
+- One clean before/after with independently evidenced non-Normal talent would
+  advance the **legacy training projection path**. The manual app selector alone is
+  not that evidence, and Resource Coach V2 does not consume it.
 - The campus ball chant probabilities, which would close the last unobserved slot in
   the surge model.
 - A controlled drill run, which would calibrate `drillXpFactor` and remove the only

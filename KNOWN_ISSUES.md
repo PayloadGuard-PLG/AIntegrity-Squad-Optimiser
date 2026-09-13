@@ -1,5 +1,20 @@
 # Known Issues
 
+
+## Open — Resource Coach V2 unresolved mechanics
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+| ID | Area | Description | Priority |
+|---|---|---|---|
+| RC2-1 | Zero-gain suppression | `[0,0]` previews are retained as observations but rejected as calibration anchors because the suppression/cap mechanism is not yet identified. | High |
+| RC2-2 | Reward transfer | Reward and unresolved transfer classes deliberately abstain. Ordinary V2 must not be reused for them. | High |
+| RC2-3 | Within-player stat-cost/class contrast | Highest-value next evidence is one ordinary multi-stat preview with widely separated starting values and known WHITE/MID_GREY classes, ideally a similarly-valued cross-class pair. | High |
+| RC2-4 | Physical device calibration | Android layout, OCR/photo-picker, share sheet, offline persistence and OTA behavior still need empirical device passes against real previews. | High |
+| TOOL-1 | PayloadGuard structural false positive | PR #134 replacement/extraction was classified as destructive because v1.1.0 counts removed named nodes without replacement/capability continuity. Regression evidence is in `docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`. | External tooling |
+| TOOL-2 | PayloadGuard semantic/gating defects | Bare `docs` path text fabricated a benign-scope claim; analyzer exit 2 was captured without failing the composite action, leaving the job green. Fix belongs in PayloadGuard, not this app. | External tooling |
+
+
 ## Open — Coach history predating classification is not projectable
 
 **Impact:** low, self-healing. **Introduced:** Sprint 38, deliberately.

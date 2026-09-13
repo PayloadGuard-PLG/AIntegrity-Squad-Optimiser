@@ -284,3 +284,20 @@ Approval conditions:
 5. Re-audit only the delta from this audited head plus the audit-document commit.
 
 Once those conditions are satisfied, there is no blocker in this audit that inherently prevents approval of the Resource Coach V2 testing architecture.
+
+---
+
+## Post-merge disposition — 2026-09-13
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+The two genuine PR blockers identified by this audit were repaired before merge:
+`resource-coach-v2` was moved under the top-level `jobs:` mapping and native
+SQLite foreign-key enforcement was enabled explicitly. The resulting head passed
+all Engine Proof jobs and PR #134 was merged as
+`6edf357499d25d4ce22c5bf29adb9887d876747f`.
+
+The PayloadGuard `DESTRUCTIVE`/`DECEPTIVE_PAYLOAD` result remains classified as a
+false positive and should be retained as regression evidence. The green GitHub
+job despite analyzer exit code 2 remains a separate PayloadGuard enforcement
+finding.

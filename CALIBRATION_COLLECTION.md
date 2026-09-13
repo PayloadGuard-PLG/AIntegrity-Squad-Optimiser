@@ -263,3 +263,23 @@ Space for observations that don't fit the tests above — unusual gains, unexpec
 | | |
 | | |
 | | |
+
+---
+
+## 2026-09-13 — Next Resource Coach evidence
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+**P2 / production-calibration priority:** determine whether remaining stat-level
+structure is explained by starting stat cost and/or WHITE/MID_GREY class.
+
+Preferred observation is an **existing ordinary multi-stat Resource Coach preview**
+on one player whose affected stats span widely separated starting values and have
+known display classes. Collect a new preview only if the current corpus lacks a
+clean within-player contrast.
+
+Hold constant: player, age, tier, coach, displayed multiplier and affected-stat
+count. Vary/compare: starting stat value; WHITE/MID_GREY class where possible.
+Capture all 15 displayed stats/classes, exact affected-stat set, multiplier and
+every displayed `+lo–hi` interval. Ideally include two same-class affected stats
+widely separated in starting value and a similarly-valued cross-class pair.

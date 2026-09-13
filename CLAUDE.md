@@ -4,8 +4,55 @@
 
 ## For the Next Claude — Read This First
 
-**Active branch:** `codex/reward-coach-transfer-seam-20260908`
-**Never push to main directly** — main triggers EAS OTA to production devices. All work goes to the branch above; user merges via PR.
+
+## Sprint 39 — Resource Coach V2 production boundary
+
+<!-- RESOURCE_COACH_V2_POSTMERGE_2026-09-13 -->
+
+PR #134 is merged. The current Resource Coach predictor is
+`src/logic/resourceCoachV2.ts`, profile
+`profiles/resource_coach_v2.json`, model version
+`ordinary-academy-two-regime-integrated-v2-2026-09-13`.
+
+**Do not route this through the legacy coach XP-budget model.** Resource Coach V2
+is a separately calibrated preview-transfer model. Its production contract is:
+
+- ordinary transfer only; Reward/unresolved abstain;
+- age support 18–32 and tier T0–T6;
+- exposure = displayed multiplier / exact affected-stat count;
+- WHITE uses `u = displayedStat - tierAddition`; MID_GREY uses
+  `u = displayedStat` and the fitted grey exposure multiplier;
+- preserve negative `u` values;
+- output `[gainLo,gainHi]` per stat plus approximate OVR interval, never a
+  guaranteed outcome probability;
+- the regular-source cap is in transformed-coordinate space;
+- a player anchor is legal only when it comes from a **different preview** of the
+  same player state and model version; self-calibration is forbidden;
+- zero-gain suppression is unresolved, so a zero-gain preview may be stored but
+  is rejected as a calibration anchor;
+- observations and predictions remain separate in storage; never write a
+  prediction back as player fact.
+
+**Training-rate provenance:** the Fastest/Fast/Average/Normal/Slow selector in
+our app is manual hypothesis metadata. No verified in-game Training Rate field or
+screen is established in the corpus. Do not infer it from OCR, do not ask the
+user for a supposed Training Rate screen, and do not feed it into Resource Coach
+V2.
+
+**SQLite:** native startup explicitly enables `PRAGMA foreign_keys = ON;` before
+Drizzle. Resource Coach evidence tables rely on real FK enforcement; preserve
+that invariant.
+
+**CI:** `.github/workflows/proofs.yml` now contains `resource-coach-v2` under the
+top-level `jobs:` key. The merge head passed Resource Coach mathematical/SQLite
+contracts, TypeScript suites, Z3/CrossHair and Dafny.
+
+**PayloadGuard:** #134 is a confirmed false-positive regression case. Do not
+"fix" the Optimiser architecture to satisfy the old pinned v1.1.0 verdict. The
+audit is in `docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`.
+
+**Active branch:** create a task branch from current `main`; no permanent dev branch is authoritative.
+**Never push to main directly** — main triggers EAS OTA to production devices. Development work goes to a task branch created from current `main`; user merges via reviewed PR.
 
 ### Stop guessing the fucking answer
 
