@@ -21,6 +21,8 @@ jobs:
       - name: Execute canonical documentation patch
         shell: bash
         run: |
+          # The first workflow stores the large patch payload but is intentionally
+          # not executed directly; this small valid executor extracts its Python.
           python - <<'PYRUN'
           from pathlib import Path
           import textwrap
