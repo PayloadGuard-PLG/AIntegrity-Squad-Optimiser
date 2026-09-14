@@ -17,6 +17,7 @@
  */
 
 import calibration from './glyphCalibration.json';
+import { splitRoleToken } from './roleTokenParse';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -403,6 +404,54 @@ export interface RoleChipsResult {
 const ROLES_ROW_RE = /^roles?\s*:?$/i;
 const COUNTER_RE = /^(\d{1,2})\s*\/\s*50$/;
 
+/**
+ * Expand a merged ML Kit role element into one virtual glyph token per role.
+ * Width is divided according to label length; downstream pixel classification
+ * remains unchanged.
+ */
+function expandRoleGlyphToken(
+  token: GlyphToken,
+  knownRoles: readonly string[],
+): GlyphToken[] {
+  const segments = token.text
+    .trim()
+    .toUpperCase()
+    .split(/[^A-Z]+/)
+    .filter(Boolean);
+
+  const roles = segments.flatMap(segment =>
+    splitRoleToken(segment, knownRoles)
+  );
+
+  if (roles.length === 0) return [];
+
+  if (
+    roles.length === 1 &&
+    roles[0] === token.text.trim().toUpperCase()
+  ) {
+    return [{ ...token, text: roles[0] }];
+  }
+
+  const totalChars = roles.reduce((sum, role) => sum + role.length, 0);
+  let consumed = 0;
+
+  return roles.map(role => {
+    const start = consumed / totalChars;
+    const width = role.length / totalChars;
+    consumed += role.length;
+
+    return {
+      text: role,
+      frame: {
+        left: token.frame.left + token.frame.width * start,
+        top: token.frame.top,
+        width: token.frame.width * width,
+        height: token.frame.height,
+      },
+    };
+  });
+}
+
 export function roleChips(img: RgbaImage | null, ctx: GlyphContext): RoleChipsResult {
   const review: ReviewFlag[] = [];
   const label = ctx.tokens.find(t => ROLES_ROW_RE.test(t.text.trim()));
@@ -417,8 +466,9 @@ export function roleChips(img: RgbaImage | null, ctx: GlyphContext): RoleChipsRe
 
   const rowTol = label.frame.height * 1.5;
   const onRow = ctx.tokens.filter(t => Math.abs(t.frame.top - label.frame.top) < rowTol);
-  const roleSet = new Set(ctx.knownRoles.map(r => r.toUpperCase()));
-  const roleToks = onRow.filter(t => roleSet.has(t.text.trim().toUpperCase()));
+  const roleToks = onRow.flatMap(token =>
+    expandRoleGlyphToken(token, ctx.knownRoles)
+  );
   const counters = onRow
     .map(t => ({ t, m: COUNTER_RE.exec(t.text.replace(/\s+/g, '')) }))
     .filter((x): x is { t: GlyphToken; m: RegExpExecArray } => x.m !== null);

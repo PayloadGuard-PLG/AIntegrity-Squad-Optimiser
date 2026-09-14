@@ -1,6 +1,6 @@
 import { expoDb } from '../db';
 import type { CoachPreviewInterval, CoachTransferClass } from '../logic/recommendation';
-import { normalisePersistedCoachTransferClass } from '../logic/coachTransfer';
+import { normalisePersistedCoachSourceFamily, normalisePersistedCoachTransferClass, type CoachSourceFamily } from '../logic/coachTransfer';
 
 export type CoachHistoryEntry = {
   id: string;
@@ -11,6 +11,7 @@ export type CoachHistoryEntry = {
   sessions: number;
   stats: string[];
   transferClass: CoachTransferClass;
+  sourceFamily: CoachSourceFamily;
   observedGainIntervals: CoachPreviewInterval[];
   isManual: boolean;
   label: string;
@@ -18,8 +19,10 @@ export type CoachHistoryEntry = {
 
 function buildLabel(e: Omit<CoachHistoryEntry, 'id' | 'label'>): string {
   const parts: string[] = [];
-  if (e.transferClass === 'reward') parts.push('REWARD');
-  if (e.transferClass === 'unresolved') parts.push('UNCLASSIFIED');
+  if (e.sourceFamily === 'training-camp') parts.push('TRAINING CAMP');
+  else if (e.sourceFamily === 'unresolved') parts.push('SOURCE UNCLASSIFIED');
+  if (e.sourceFamily !== 'training-camp' && e.transferClass === 'reward') parts.push('REWARD');
+  if (e.sourceFamily === 'resource-coach' && e.transferClass === 'unresolved') parts.push('TRANSFER UNCLASSIFIED');
   if (e.coachType) parts.push(e.coachType.toUpperCase());
   if (e.coachCategory) parts.push(e.coachCategory.toUpperCase());
   parts.push(`×${e.sessions}`);
@@ -35,11 +38,12 @@ export const coachHistoryService = {
       expoDb.runSync(
         `INSERT OR REPLACE INTO coach_scan_history
            (id, player_id, timestamp, coach_type, coach_category, sessions, stats,
-            transfer_class, preview_intervals, transfer_class_source, is_manual, label)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            source_family, source_family_source, transfer_class, preview_intervals, transfer_class_source, is_manual, label)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [entry.id, entry.playerId, entry.timestamp, entry.coachType, entry.coachCategory,
-         entry.sessions, JSON.stringify(entry.stats), entry.transferClass,
-         JSON.stringify(entry.observedGainIntervals),
+         entry.sessions, JSON.stringify(entry.stats), entry.sourceFamily,
+         entry.sourceFamily === 'unresolved' ? 'legacy-default' : 'observed',
+         entry.transferClass, JSON.stringify(entry.observedGainIntervals),
          // Written by the current writer, so the class was actually determined.
          // An entry saved while still unclassified stays unclassified.
          entry.transferClass === 'unresolved' ? 'legacy-default' : 'observed',
@@ -67,6 +71,10 @@ export const coachHistoryService = {
         // by an earlier migration, so the stored value cannot be believed on its
         // own; without 'observed' provenance the row reads as unknown and the
         // projection abstains rather than inventing an ordinary transfer.
+        sourceFamily: normalisePersistedCoachSourceFamily(
+          r.source_family,
+          r.source_family_source,
+        ),
         transferClass: normalisePersistedCoachTransferClass(
           r.transfer_class,
           r.transfer_class_source,

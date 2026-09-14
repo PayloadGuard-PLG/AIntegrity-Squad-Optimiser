@@ -330,6 +330,86 @@ console.log('\n[6] Observed-empty vs unread');
   }
 }
 
+
+console.log('\n[7] Player identity structural-label rejection');
+{
+  // Ryan Rogers merged role row cannot become player identity.
+  // ML Kit may place the role block above the actual player-name block.
+  const f = (left: number, top: number, width = 40, height = 20) => ({
+    left, top, width, height,
+  });
+
+  const roleBlock = {
+    text: 'Roles: AML MLAMC',
+    frame: f(20, 20, 280, 24),
+    lines: [{
+      text: 'Roles: AML MLAMC',
+      frame: f(20, 20, 280, 24),
+      elements: [
+        { text: 'Roles:', frame: f(20, 20, 55, 20) },
+        { text: 'AML', frame: f(100, 20, 45, 20) },
+        { text: 'MLAMC', frame: f(160, 20, 90, 20) },
+      ],
+    }],
+  };
+
+  const nameBlock = {
+    text: 'Ryan Rogers',
+    frame: f(20, 60, 150, 24),
+    lines: [{
+      text: 'Ryan Rogers',
+      frame: f(20, 60, 150, 24),
+      elements: [
+        { text: 'Ryan', frame: f(20, 60, 60, 24) },
+        { text: 'Rogers', frame: f(85, 60, 70, 24) },
+      ],
+    }],
+  };
+
+  const ovrBlock = {
+    text: 'OVR 89',
+    frame: f(20, 100, 150, 24),
+    lines: [{
+      text: 'OVR 89',
+      frame: f(20, 100, 150, 24),
+      elements: [
+        { text: 'OVR', frame: f(20, 100, 45, 20) },
+        { text: '89', frame: f(90, 100, 40, 20) },
+      ],
+    }],
+  };
+
+  const result: OcrResult = {
+    text: 'Roles: AML MLAMC\nRyan Rogers\nOVR 89',
+    blocks: [roleBlock, nameBlock, ovrBlock],
+  };
+
+  const parsed = parsePlayerCardText(result);
+
+  eq(
+    parsed.name,
+    'Ryan Rogers',
+    'Ryan Rogers merged role row cannot become player identity',
+  );
+
+  eq(
+    parsed.roles,
+    ['ML', 'AMC', 'AML'],
+    'Ryan Rogers compound roles remain ML + AMC + AML',
+  );
+
+  const roleOnly = parsePlayerCardText({
+    text: 'Roles: AML MLAMC',
+    blocks: [roleBlock],
+  });
+
+  ok(
+    roleOnly.name === undefined,
+    'role row alone causes identity abstention rather than invented name',
+    `actual ${JSON.stringify(roleOnly.name)}`,
+  );
+}
+
 console.log('\n' + '═'.repeat(60));
 console.log(`  Results:  ${passed} passed  ·  ${failed} failed`);
 console.log(`  Pixel sources: ${SOURCES.map(([n]) => n).join(' + ')}` +

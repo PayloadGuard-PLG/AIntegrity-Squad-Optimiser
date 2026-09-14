@@ -6,11 +6,22 @@
  * Academy transfer function applies.
  */
 export type CoachTransferClass = 'ordinary' | 'reward' | 'unresolved';
+export type CoachSourceFamily = 'resource-coach' | 'training-camp' | 'unresolved';
+
+function canonicalCoachLabels(fullText: string): string {
+  return (fullText ?? '').replace(/\bC0ACH\b/gi, 'COACH');
+}
+
+/** Source/programme family is a separate observation from transfer class. */
+export function classifyCoachSource(fullText: string): CoachSourceFamily {
+  const text = canonicalCoachLabels(fullText);
+  if (/\btraining\s*camp\b/i.test(text)) return 'training-camp';
+  if (/\b(?:reward|academy|ordinary)\s*coach\b|\bcoach\s*academy\b/i.test(text)) return 'resource-coach';
+  return 'unresolved';
+}
 
 export function classifyCoachTransfer(fullText: string): CoachTransferClass {
-  // High-contrast all-caps labels routinely turn the O in COACH into zero.
-  // Correct that narrow label confusable before applying exact word evidence.
-  const text = (fullText ?? '').replace(/\bC0ACH\b/gi, 'COACH');
+  const text = canonicalCoachLabels(fullText);
   if (/\breward\s*coach\b/i.test(text)) return 'reward';
   if (/\b(?:academy|ordinary)\s*coach\b|\bcoach\s*academy\b/i.test(text)) return 'ordinary';
   return 'unresolved';
@@ -23,5 +34,15 @@ export function normalisePersistedCoachTransferClass(
 ): CoachTransferClass {
   if (source !== 'observed') return 'unresolved';
   if (value === 'reward' || value === 'ordinary') return value;
+  return 'unresolved';
+}
+
+/** Legacy rows have no trustworthy programme/source-family provenance. */
+export function normalisePersistedCoachSourceFamily(
+  value: unknown,
+  source: unknown,
+): CoachSourceFamily {
+  if (source !== 'observed') return 'unresolved';
+  if (value === 'resource-coach' || value === 'training-camp') return value;
   return 'unresolved';
 }

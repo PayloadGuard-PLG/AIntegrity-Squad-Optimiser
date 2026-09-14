@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { decodeScreenshotPng } from '../src/logic/screenshotPixels';
 import { scanPlayerInput } from '../src/logic/playerScanPipeline';
 import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
-import { parsePlayerCard, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
+import { parsePlayerCard, parsePlayerCardText, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
 import { RgbaImage, roleChips, CALIBRATION } from '../src/logic/glyphReader';
 import { blankImage, hsvToRgb } from './helpers/png';
 import { buildSyntheticCard } from './helpers/syntheticCard';
@@ -289,4 +289,366 @@ test('two-word GK stat rows can carry an observable boost overlay', () => {
   assert.equal(noPixels.stats['AERIAL REACH'], 120);
   assert.ok(noPixels.review.some(f => f.field === 'boosts.AERIAL REACH'));
   assert.equal(noPixels.boosts, undefined);
+});
+
+test('merged MLAMC OCR element is resolved as independent ML and AMC glyph roles', () => {
+  const { img, fill } = blankImage(500, 220, hsvToRgb(0, 0, 0.08));
+
+  const frame = (left: number, top: number, width: number, height: number) => ({
+    left, top, width, height
+  });
+
+  const established = hsvToRgb(125, 0.8, 0.95);
+
+  fill(100, 111, 145, 118, established);
+  fill(160, 111, 250, 118, established);
+
+  const out = roleChips(img, {
+    tokens: [
+      { text: 'Roles:', frame: frame(20, 120, 55, 20) },
+      { text: 'AML', frame: frame(100, 120, 45, 20) },
+      { text: 'MLAMC', frame: frame(160, 120, 90, 20) },
+    ],
+    knownRoles: ['GK', 'DC', 'DL', 'DR', 'DMC', 'MC', 'ML', 'MR', 'AMC', 'AML', 'AMR', 'ST'],
+  });
+
+  assert.deepEqual(out.establishedRoles, ['AML', 'ML', 'AMC']);
+  assert.equal(out.learningRole, null);
+  assert.deepEqual(out.review, []);
+});
+
+test('partial glyph role result cannot silently replace fuller anchored text roles', () => {
+  const { img, fill } = blankImage(500, 260, hsvToRgb(0, 0, 0.08));
+
+  const f = (left: number, top: number, width = 40, height = 20) => ({
+    left, top, width, height
+  });
+
+  fill(100, 91, 145, 98, hsvToRgb(125, 0.8, 0.95));
+
+  const result: OcrResult = {
+    text: 'Ryan Rogers\nRoles: AML ML',
+    blocks: [
+      {
+        text: 'Ryan Rogers',
+        frame: f(20, 20, 150, 24),
+        lines: [{
+          text: 'Ryan Rogers',
+          frame: f(20, 20, 150, 24),
+          elements: [
+            { text: 'Ryan', frame: f(20, 20, 60, 24) },
+            { text: 'Rogers', frame: f(85, 20, 70, 24) },
+          ],
+        }],
+      },
+      {
+        text: 'Roles: AML ML',
+        frame: f(20, 100, 250, 70),
+        lines: [
+          {
+            text: 'Roles: AML',
+            frame: f(20, 100, 180, 20),
+            elements: [
+              { text: 'Roles:', frame: f(20, 100, 55, 20) },
+              { text: 'AML', frame: f(100, 100, 45, 20) },
+            ],
+          },
+          {
+            text: 'ML',
+            frame: f(100, 140, 40, 20),
+            elements: [
+              { text: 'ML', frame: f(100, 140, 40, 20) },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  const out = parsePlayerCard(result, img);
+
+  assert.deepEqual(out.roles, ['ML', 'AML']);
+  assert.equal(out.establishedRoles, undefined);
+  assert.equal(out.learningRole, undefined);
+  assert.ok(out.review.some(flag =>
+    flag.field === 'roles' &&
+    flag.reason === 'low_confidence' &&
+    flag.detail?.includes('ML')
+  ));
+});
+
+
+test('Ryan identity skips merged role row and stat labels', () => {
+  const f = (left: number, top: number, width = 80, height = 20) => ({
+    left, top, width, height,
+  });
+
+  const result: OcrResult = {
+    text: [
+      'Roles: AML MLAMC',
+      'Tackling',
+      'Ryan Rogers',
+      'Age: 23',
+    ].join('\n'),
+    blocks: [
+      {
+        text: 'Roles: AML MLAMC',
+        frame: f(20, 20, 260, 22),
+        lines: [{
+          text: 'Roles: AML MLAMC',
+          frame: f(20, 20, 260, 22),
+          elements: [
+            { text: 'Roles:', frame: f(20, 20, 55, 20) },
+            { text: 'AML', frame: f(90, 20, 40, 20) },
+            { text: 'MLAMC', frame: f(145, 20, 90, 20) },
+          ],
+        }],
+      },
+      {
+        text: 'Tackling',
+        frame: f(20, 45, 100, 22),
+        lines: [{
+          text: 'Tackling',
+          frame: f(20, 45, 100, 22),
+          elements: [
+            { text: 'Tackling', frame: f(20, 45, 100, 22) },
+          ],
+        }],
+      },
+      {
+        text: 'Ryan Rogers',
+        frame: f(20, 70, 150, 22),
+        lines: [{
+          text: 'Ryan Rogers',
+          frame: f(20, 70, 150, 22),
+          elements: [
+            { text: 'Ryan', frame: f(20, 70, 55, 22) },
+            { text: 'Rogers', frame: f(82, 70, 65, 22) },
+          ],
+        }],
+      },
+      {
+        text: 'Age: 23',
+        frame: f(20, 100, 90, 22),
+        lines: [{
+          text: 'Age: 23',
+          frame: f(20, 100, 90, 22),
+          elements: [
+            { text: 'Age:', frame: f(20, 100, 45, 22) },
+            { text: '23', frame: f(68, 100, 25, 22) },
+          ],
+        }],
+      },
+    ],
+  };
+
+  const out = parsePlayerCardText(result);
+
+  assert.equal(out.name, 'Ryan Rogers');
+  assert.deepEqual(out.roles, ['ML', 'AMC', 'AML']);
+});
+
+test('canonical stat rows can never become player identity', () => {
+  const f = (top: number) => ({
+    width: 160,
+    height: 22,
+    top,
+    left: 20,
+  });
+
+  for (const text of [
+    'Tackling',
+    'Tackling 9',
+    'Finishing',
+    'Finishing 115',
+    'Rushing Out',
+    'Rushing Out 142',
+    'Aerial Reach',
+    'Aerial Reach 119',
+  ]) {
+    const out = parsePlayerCardText({
+      text,
+      blocks: [{
+        text,
+        frame: f(20),
+        lines: [{
+          text,
+          frame: f(20),
+          elements: [{ text, frame: f(20) }],
+        }],
+      }],
+    });
+
+    assert.equal(
+      out.name,
+      undefined,
+      `${text} was incorrectly accepted as player identity`,
+    );
+  }
+});
+
+test('instructional prose cannot become player identity', () => {
+  const f = (left: number, top: number, width: number, height = 22) => ({
+    left, top, width, height,
+  });
+
+  const result: OcrResult = {
+    text: [
+      'Ryan Rogers',
+      'OVR 89',
+      'Age: 23',
+      'Roles: AML MLAMC',
+      'Key attributes for this player are highlighted',
+      'Tackling 9',
+    ].join('\n'),
+    blocks: [
+      {
+        text: 'Ryan Rogers',
+        frame: f(100, 100, 150),
+        lines: [],
+      },
+      {
+        text: 'OVR 89',
+        frame: f(105, 155, 150),
+        lines: [],
+      },
+      {
+        text: 'Age: 23',
+        frame: f(100, 205, 90),
+        lines: [],
+      },
+      {
+        text: 'Roles: AML MLAMC',
+        frame: f(350, 205, 260),
+        lines: [],
+      },
+      {
+        text: 'Key attributes for this player are highlighted',
+        frame: f(80, 500, 520),
+        lines: [],
+      },
+      {
+        text: 'Tackling',
+        frame: f(80, 650, 120),
+        lines: [],
+      },
+    ],
+  };
+
+  const out = parsePlayerCardText(result);
+
+  assert.equal(out.name, 'Ryan Rogers');
+  assert.deepEqual(out.roles, ['ML', 'AMC', 'AML']);
+});
+
+test('identity abstains when name region is unread instead of using prose', () => {
+  const f = (left: number, top: number, width: number, height = 22) => ({
+    left, top, width, height,
+  });
+
+  const result: OcrResult = {
+    text: [
+      'OVR 89',
+      'Age: 23',
+      'Key attributes for this player are highlighted',
+      'Tackling',
+    ].join('\n'),
+    blocks: [
+      {
+        text: 'OVR 89',
+        frame: f(105, 155, 150),
+        lines: [],
+      },
+      {
+        text: 'Age: 23',
+        frame: f(100, 205, 90),
+        lines: [],
+      },
+      {
+        text: 'Key attributes for this player are highlighted',
+        frame: f(80, 500, 520),
+        lines: [],
+      },
+      {
+        text: 'Tackling',
+        frame: f(80, 650, 120),
+        lines: [],
+      },
+    ],
+  };
+
+  const out = parsePlayerCardText(result);
+  assert.equal(out.name, undefined);
+});
+
+test('real Ryan Rodger OCR header resolves name after stripping shirt number', () => {
+  const f = (
+    left: number,
+    top: number,
+    width: number,
+    height: number,
+  ) => ({ left, top, width, height });
+
+  const result: OcrResult = {
+    text: '40 Ryan Rodger\nOVR 89\nAge: 23\nRoles: AML MLAMC',
+    blocks: [
+      {
+        text: '40 Ryan Rodger',
+        frame: f(606, 68, 354, 60),
+        lines: [{
+          text: '40 Ryan Rodger',
+          frame: f(606, 68, 354, 60),
+          elements: [
+            { text: '40', frame: f(606, 68, 37, 51) },
+            { text: 'Ryan', frame: f(703, 71, 94, 52) },
+            { text: 'Rodger', frame: f(827, 74, 133, 54) },
+          ],
+        }],
+      },
+      {
+        text: 'OVR 89',
+        frame: f(692, 163, 92, 47),
+        lines: [{
+          text: 'OVR 89',
+          frame: f(692, 163, 92, 47),
+          elements: [
+            { text: 'OVR', frame: f(692, 169, 41, 41) },
+            { text: '89', frame: f(737, 163, 47, 41) },
+          ],
+        }],
+      },
+      {
+        text: 'Age: 23',
+        frame: f(685, 249, 116, 41),
+        lines: [{
+          text: 'Age: 23',
+          frame: f(685, 249, 116, 41),
+          elements: [
+            { text: 'Age:', frame: f(685, 251, 67, 39) },
+            { text: '23', frame: f(767, 250, 34, 37) },
+          ],
+        }],
+      },
+      {
+        text: 'Roles: AML MLAMC',
+        frame: f(1239, 250, 363, 39),
+        lines: [{
+          text: 'Roles: AML MLAMC',
+          frame: f(1239, 250, 363, 39),
+          elements: [
+            { text: 'Roles:', frame: f(1239, 250, 94, 39) },
+            { text: 'AML', frame: f(1361, 250, 62, 39) },
+            { text: 'MLAMC', frame: f(1457, 250, 145, 39) },
+          ],
+        }],
+      },
+    ],
+  };
+
+  const out = parsePlayerCardText(result);
+
+  assert.equal(out.name, 'Ryan Rodger');
+  assert.equal(out.age, 23);
+  assert.equal(out.overall, 89);
+  assert.deepEqual(out.roles, ['ML', 'AMC', 'AML']);
 });

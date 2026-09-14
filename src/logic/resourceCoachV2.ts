@@ -1,12 +1,12 @@
 import config from '../../profiles/resource_coach_v2.json';
-import type { CoachTransferClass } from './coachTransfer';
+import type { CoachSourceFamily, CoachTransferClass } from './coachTransfer';
 
 export const RESOURCE_MODEL = config;
 export type DisplayClass = 'WHITE' | 'MID_GREY' | 'UNKNOWN';
 export type ResourceStat = { stat: string; displayedStat: number; displayClass: DisplayClass; classSource: 'role-map' | 'manual-observed' };
 export type ResourceInput = {
   playerId: string; age: number; tier: string; stateKey: string;
-  transferClass: CoachTransferClass; coachLabel: string; multiplier: number;
+  sourceFamily: CoachSourceFamily; transferClass: CoachTransferClass; coachLabel: string; multiplier: number;
   stats: ResourceStat[];
 };
 export type GainInterval = { stat: string; gainLo: number; gainHi: number };
@@ -30,12 +30,16 @@ export type ResourcePrediction = {
 const P = config.parameters;
 export function inputSignature(input: ResourceInput): string {
   return JSON.stringify({ playerId:input.playerId, age:input.age, tier:input.tier, stateKey:input.stateKey,
-    transferClass:input.transferClass, multiplier:input.multiplier,
+    sourceFamily:input.sourceFamily, transferClass:input.transferClass, multiplier:input.multiplier,
     stats:input.stats.map(({stat,displayedStat,displayClass})=>({stat,displayedStat,displayClass})).sort((a,b)=>a.stat.localeCompare(b.stat)) });
 }
 export function validateInput(input: ResourceInput): string[] {
   const reasons: string[] = [];
-  if (input.transferClass !== 'ordinary') reasons.push(input.transferClass === 'reward'
+  if (input.sourceFamily !== 'resource-coach') {
+    reasons.push(input.sourceFamily === 'training-camp'
+      ? 'Training Camp is outside Resource Coach V2. Observed ranges can still be saved as Training Camp evidence.'
+      : 'Confirm the programme/source family from game evidence.');
+  } else if (input.transferClass !== 'ordinary') reasons.push(input.transferClass === 'reward'
     ? 'Reward transfer is not calibrated. Observed ranges can still be saved.'
     : 'Confirm the transfer class from game evidence.');
   if (!Number.isInteger(input.age) || input.age < 18 || input.age > 32) reasons.push('Age is outside the observed 18–32 support.');

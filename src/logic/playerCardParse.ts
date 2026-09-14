@@ -11,6 +11,7 @@
  */
 
 import { OUTFIELD_STATS, GK_STATS } from '../utils/roleWeights';
+import { splitRoleToken } from './roleTokenParse';
 import {
   readGlyphs, RgbaImage, GlyphToken, GlyphContext, BoostCandidate,
   PlaystyleFamily, StatBoost, ReviewFlag,
@@ -24,19 +25,6 @@ const OCR_STAT_CORRECTIONS: Record<string, string> = {
   'TACKL1NG': 'TACKLING',
 };
 const KNOWN_ROLES = ['GK', 'DC', 'DL', 'DR', 'DMC', 'MC', 'ML', 'MR', 'AMC', 'AML', 'AMR', 'ST'];
-const ROLES_BY_LEN = [...KNOWN_ROLES].sort((a, b) => b.length - a.length);
-
-function splitConcatenatedRoles(token: string): string[] {
-  const found: string[] = [];
-  let pos = 0;
-  while (pos < token.length) {
-    const match = ROLES_BY_LEN.find(r => token.startsWith(r, pos));
-    if (!match) break;
-    found.push(match);
-    pos += match.length;
-  }
-  return pos === token.length ? found : [];
-}
 const KNOWN_TIERS = ['Legendary', 'Epic', 'Master', 'Stellar', 'Elite', 'Rare'];
 const KNOWN_TALENTS = ['FT1', 'FT2', 'FT3', 'Normal', 'Slow'];
 const TALENT_NAME_MAP: Record<string, string> = {
@@ -83,32 +71,154 @@ export interface OcrResult { text?: string; blocks: OcrBlock[] }
 export { KNOWN_ROLES };
 
 /**
+ * A player identity can never be a stat label or a stat/value OCR block.
+ * ML Kit may return either:
+ *   "Tackling"
+ *   "Tackling 9"
+ *   "Rushing Out"
+ *   "Rushing Out 142"
+ *
+ * Use the canonical stat ontology rather than maintaining another blocklist.
+ */
+function looksLikeStatBlock(text: string): boolean {
+  const upper = text.trim().toUpperCase();
+
+  return [...ALL_STATS].some(stat => {
+    const label = stat.toUpperCase();
+    return (
+      upper === label ||
+      upper.startsWith(`${label} `) ||
+      upper.startsWith(`${label}:`)
+    );
+  });
+}
+
+/**
  * Selects the player-name block: the topmost title-case block that is not a
  * known UI label. Hoisted out of parsePlayerCardText unchanged so the glyph
  * pass can anchor on the same block the text pass named.
  */
 export function findNameBlock(result: OcrResult): OcrBlock | undefined {
-  const nameCandidates = result.blocks.filter(b => {
-    const t = b.text.trim();
-    return (
-      t.length >= 3 &&
-      /^[A-Z][a-z]/.test(t) &&
-      !t.includes('+') &&                                         // role-in-training tokens contain "+"
-      !/^Age\s*[:.]?\s*\d/i.test(t) &&                           // "Age: 26" pattern
-      !/^\d/.test(t) &&
-      !KNOWN_ROLES.includes(t.toUpperCase()) &&
-      !KNOWN_TIERS.some(tier => t.toLowerCase() === tier.toLowerCase()) &&
-      !UI_BLOCKLIST.some(kw =>
-        kw.includes(' ')
-          ? t.toLowerCase().includes(kw.toLowerCase())
-          : t.toLowerCase() === kw.toLowerCase()
-      )
-    );
-  });
-  return nameCandidates.reduce<OcrBlock | undefined>(
-    (best, cur) => (!best || (cur.frame?.top ?? 999) < (best.frame?.top ?? 999)) ? cur : best,
-    undefined
+  /*
+   * Real-device contract:
+   *
+   *   "40 Ryan Rodger"        <- ML Kit header block
+   *      ["40","Ryan","Rodger"]
+   *   "OVR 89"                <- identity anchor below
+   *
+   * Resolve the player name from OCR ELEMENTS inside the header block.
+   * A leading numeric shirt number is not part of the identity.
+   */
+
+  const blocks = result.blocks.filter(b => b.frame);
+
+  const ovrAnchor = blocks.find(b =>
+    /\bOVR\b/i.test(b.text.trim())
   );
+
+  const ageAnchor = blocks.find(b =>
+    /^Age\s*[:.]?\s*\d{2}\b/i.test(b.text.trim()) ||
+    /^Age\s*[:.]?$/i.test(b.text.trim())
+  );
+
+  const anchor = ovrAnchor ?? ageAnchor;
+  if (!anchor?.frame) return undefined;
+
+  const candidates: Array<{ block: OcrBlock; gap: number }> = [];
+
+  for (const block of blocks) {
+    if (!block.frame || block === anchor) continue;
+
+    const bottom = block.frame.top + block.frame.height;
+    const gap = anchor.frame.top - bottom;
+
+    // Real Ryan evidence: header bottom=128, OVR top=163, gap=35.
+    // Keep this deliberately local to the identity header.
+    const maxGap = ovrAnchor ? 120 : 180;
+    if (gap < 0 || gap > maxGap) continue;
+
+    const blockRight = block.frame.left + block.frame.width;
+    const anchorRight = anchor.frame.left + anchor.frame.width;
+
+    const overlap =
+      Math.min(blockRight, anchorRight) -
+      Math.max(block.frame.left, anchor.frame.left);
+
+    const leftDelta = Math.abs(block.frame.left - anchor.frame.left);
+
+    // Ryan:
+    //   header x=606..960
+    //   OVR    x=692..784
+    if (overlap <= 0 && leftDelta > 180) continue;
+
+    const elementTexts = block.lines
+      .flatMap(line => line.elements)
+      .map(element => element.text.trim())
+      .filter(Boolean);
+
+    // ML Kit returns ["40", "Ryan", "Rodger"].
+    const nameParts = [...elementTexts];
+
+    while (
+      nameParts.length > 0 &&
+      /^\d{1,3}$/.test(nameParts[0])
+    ) {
+      nameParts.shift();
+    }
+
+    let name = nameParts.join(' ').trim();
+
+    // Fallback if a platform ever supplies only block-level text.
+    if (!name) {
+      name = block.text
+        .trim()
+        .replace(/^\d{1,3}\s+/, '')
+        .trim();
+    }
+
+    if (name.length < 2 || name.length > 48) continue;
+    if (/[\d:+]/.test(name)) continue;
+
+    const words = name.split(/\s+/);
+    if (words.length < 1 || words.length > 4) continue;
+
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ'’. -]+$/.test(name)) continue;
+
+    const upper = name.toUpperCase();
+
+    if (KNOWN_ROLES.includes(upper)) continue;
+    if (KNOWN_TIERS.some(t => t.toUpperCase() === upper)) continue;
+    if (looksLikeStatBlock(name)) continue;
+
+    const lower = name.toLowerCase();
+
+    const blocked = UI_BLOCKLIST.some(kw => {
+      const label = kw.toLowerCase();
+
+      return kw.includes(' ')
+        ? lower.includes(label)
+        : lower === label ||
+            lower.startsWith(`${label}:`) ||
+            lower.startsWith(`${label}.`) ||
+            lower.startsWith(`${label} `);
+    });
+
+    if (blocked) continue;
+
+    candidates.push({
+      gap,
+      block: {
+        ...block,
+        // Downstream parsing sees the semantic identity, not "40 Ryan Rodger".
+        text: name,
+      },
+    });
+  }
+
+  if (candidates.length === 0) return undefined;
+
+  candidates.sort((a, b) => a.gap - b.gap);
+  return candidates[0].block;
 }
 
 /**
@@ -196,7 +306,6 @@ export function parsePlayerCardText(result: OcrResult): PlayerCardScan {
   // Match roles — anchored to the "Roles:" label row when present.
   // The game card shows active roles (highlighted) on one line and inactive positions
   // (dark/black) elsewhere. Anchoring prevents false positives from off-role grid labels.
-  const roleSet = new Set(KNOWN_ROLES.map(r => r.toUpperCase()));
   const foundRoles = new Set<string>();
 
   // Find the "Roles:" label token to get its Y position
@@ -210,10 +319,8 @@ export function parsePlayerCardText(result: OcrResult): PlayerCardScan {
   for (const t of roleSourceTokens) {
     t.text.toUpperCase().split(/[\s,./|·•·()\[\]<>:]+/).forEach(part => {
       const p = part.trim();
-      if (p && roleSet.has(p)) {
-        foundRoles.add(p);
-      } else if (p && p.length >= 4) {
-        splitConcatenatedRoles(p).forEach(r => foundRoles.add(r));
+      if (p) {
+        splitRoleToken(p, KNOWN_ROLES).forEach(r => foundRoles.add(r));
       }
     });
   }
@@ -224,11 +331,7 @@ export function parsePlayerCardText(result: OcrResult): PlayerCardScan {
   if (roleRowY == null) {
     fullText.toUpperCase().split(/[^A-Z]+/).forEach(segment => {
       if (!segment) return;
-      if (roleSet.has(segment)) {
-        foundRoles.add(segment);
-      } else if (segment.length >= 4) {
-        splitConcatenatedRoles(segment).forEach(r => foundRoles.add(r));
-      }
+      splitRoleToken(segment, KNOWN_ROLES).forEach(r => foundRoles.add(r));
     });
   }
 
@@ -386,6 +489,39 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
   const glyph = readGlyphs(image ?? null, ctx);
   const review: ReviewFlag[] = [...glyph.review];
 
+  let establishedRoles = glyph.establishedRoles;
+  let learningRole = glyph.learningRole;
+
+  // A pixel/glyph observation may refine OCR role state, but it must never
+  // silently publish a partial role set as the complete player state.
+  const roleAlreadyFlagged = review.some(flag =>
+    flag.field === 'roles' ||
+    flag.field.startsWith('roles.') ||
+    flag.field === 'learningRole'
+  );
+
+  if (
+    establishedRoles !== undefined &&
+    !roleAlreadyFlagged &&
+    base.roles?.length
+  ) {
+    const accounted = new Set(establishedRoles);
+    if (learningRole) accounted.add(learningRole.role);
+
+    const missing = base.roles.filter(role => !accounted.has(role));
+
+    if (missing.length > 0) {
+      review.push({
+        field: 'roles',
+        reason: 'low_confidence',
+        detail: `text role candidate(s) not accounted for by glyph read: ${missing.join(', ')}`,
+      });
+
+      establishedRoles = undefined;
+      learningRole = undefined;
+    }
+  }
+
   // Tier: the NAME still comes from the text pass. The banner observation only
   // decides whether "no tier name" means T0 or means we never looked.
   let tier = base.tier;
@@ -401,14 +537,14 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
   // roles stays populated for backward compatibility (spec §4). It becomes the
   // established set once the chips were actually read; otherwise it keeps the
   // legacy text-derived value rather than collapsing to [].
-  const roles = glyph.establishedRoles ?? base.roles;
+  const roles = establishedRoles ?? base.roles;
 
   return {
     ...base,
     tier,
     roles,
-    establishedRoles: glyph.establishedRoles,
-    learningRole: glyph.learningRole,
+    establishedRoles,
+    learningRole,
     playstyle: glyph.playstyle,
     specialAbilities: glyph.specialAbilities,
     boosts: glyph.boosts,
