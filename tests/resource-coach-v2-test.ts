@@ -91,7 +91,7 @@ test('native SQLite writer persists predictions, observed bounds, OVR and anchor
   assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,1);
 });
 test('orphan OVR inserts fail and bundled migration matches reviewable SQL',()=>{
-  assert.equal(RESOURCE_COACH_SCHEMA,readFileSync('drizzle/001_resource_coach_v2.sql','utf8'));
+  assert.equal(RESOURCE_COACH_SCHEMA.replace(/\r\n?/g,'\n'),readFileSync('drizzle/001_resource_coach_v2.sql','utf8').replace(/\r\n?/g,'\n'));
   const db=memoryDb();db.execSync(RESOURCE_COACH_SCHEMA);db.execSync(RESOURCE_COACH_SCHEMA);
   assert.throws(()=>db.raw.prepare('INSERT INTO resource_coach_ovr_observation VALUES (?,?,?,?)').run('missing',1,2,'observed-boost-interval'));
 });
