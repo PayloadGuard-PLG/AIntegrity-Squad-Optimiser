@@ -19,6 +19,7 @@ import { ResourceCoachLab } from '../../src/components/ResourceCoachLab';
 import { OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import type { CoachPreviewInterval, CoachTransferClass } from '../../src/logic/recommendation';
+import type { CoachSourceFamily } from '../../src/logic/coachTransfer';
 import { withManualStatSelection } from '../../src/logic/coachObservationState';
 import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
 
@@ -44,6 +45,7 @@ export default function CoachesScreen() {
   const [coachType, setCoachType] = useState('');
   const [coachCategory, setCoachCategory] = useState('');
   const [transferClass, setTransferClass] = useState<CoachTransferClass>('unresolved');
+  const [sourceFamily, setSourceFamily] = useState<CoachSourceFamily>('unresolved');
   const [observationContext, setObservationContext] = useState('');
   const [observedGainIntervals, setObservedGainIntervals] = useState<CoachPreviewInterval[]>([]);
   const [isScanning, setIsScanning] = useState(false);
@@ -86,6 +88,7 @@ export default function CoachesScreen() {
     setCoachType('');
     setCoachCategory('');
     setTransferClass('unresolved');
+    setSourceFamily('unresolved');
     setObservedGainIntervals([]);
     setScannedIdentity({});
     setScanStatus('');
@@ -147,6 +150,8 @@ export default function CoachesScreen() {
   }
 
   function selectTransferClass(next: Exclude<CoachTransferClass, 'unresolved'>) {
+    if (sourceFamily === 'training-camp') return;
+    setSourceFamily('resource-coach');
     setTransferClass(next);
   }
 
@@ -156,7 +161,7 @@ export default function CoachesScreen() {
 
   function saveToHistory(
     stats: string[], sessCount: number, type: string, cat: string, isManual: boolean,
-    savedTransferClass: CoachTransferClass,
+    savedTransferClass: CoachTransferClass, savedSourceFamily: CoachSourceFamily,
     savedIntervals: CoachPreviewInterval[] = [],
   ) {
     if (!player || stats.length === 0 || sessCount === 0) return;
@@ -170,6 +175,7 @@ export default function CoachesScreen() {
       sessions: sessCount,
       stats,
       transferClass: savedTransferClass,
+      sourceFamily: savedSourceFamily,
       observedGainIntervals: savedIntervals,
       isManual,
     });
@@ -190,7 +196,7 @@ export default function CoachesScreen() {
       if (!recognised && scan.stats.length === 0) {
         setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
         setScannedStats([]); setCoachType(''); setCoachCategory('');
-        setTransferClass('unresolved'); setObservedGainIntervals([]);
+        setTransferClass('unresolved'); setSourceFamily('unresolved'); setObservedGainIntervals([]);
         setScannedIdentity({});
         return;
       }
@@ -199,7 +205,9 @@ export default function CoachesScreen() {
       setCoachType(scan.coachType ?? '');
       setCoachCategory(scan.coachCategory ?? '');
       const scannedTransferClass = scan.transferClass;
+      const scannedSourceFamily = scan.sourceFamily;
       setTransferClass(scannedTransferClass);
+      setSourceFamily(scannedSourceFamily);
 
       // Scanner-observed identity of the card IN THE IMAGE. Held, displayed and
       // compared — never written into the selected player's record. The preview
@@ -255,7 +263,7 @@ export default function CoachesScreen() {
           ? `ALL-ROUND ×${scan.multiplier ?? parseInt(sessions, 10)} · ${allEnteredStats.length} STATS · ${rangeCt} RANGES`
           : 'ALL-ROUND — enter player stats to project');
         saveToHistory(allEnteredStats, scan.multiplier || 0,
-          scan.coachType ?? '', scan.coachCategory ?? '', false, scannedTransferClass, intervals);
+          scan.coachType ?? '', scan.coachCategory ?? '', false, scannedTransferClass, scannedSourceFamily, intervals);
         setIsScanning(false);
         return;
       }
@@ -265,9 +273,10 @@ export default function CoachesScreen() {
 
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
-      if (scannedTransferClass === 'reward') parts.push('REWARD COACH');
-      if (scannedTransferClass === 'ordinary') parts.push('ACADEMY COACH');
-      if (scannedTransferClass === 'unresolved') parts.push('TRANSFER UNRESOLVED');
+      if (scannedSourceFamily === 'training-camp') parts.push('TRAINING CAMP');
+      else if (scannedTransferClass === 'reward') parts.push('REWARD COACH');
+      else if (scannedTransferClass === 'ordinary') parts.push('ACADEMY COACH');
+      else parts.push('TRANSFER UNRESOLVED');
       parts.push(`${statNames.length} STATS`);
       const rangeCt2 = Object.keys(gainRanges).length;
       if (rangeCt2 > 0) parts.push(`${rangeCt2} RANGES`);
@@ -278,7 +287,7 @@ export default function CoachesScreen() {
       if (scan.coachCategory) parts.push(scan.coachCategory.toUpperCase());
       setScanStatus(`SCANNED: ${parts.join(' · ')}`);
       saveToHistory(statNames, scan.multiplier || 0,
-        scan.coachType ?? '', scan.coachCategory ?? '', false, scannedTransferClass, intervals);
+        scan.coachType ?? '', scan.coachCategory ?? '', false, scannedTransferClass, scannedSourceFamily, intervals);
     } catch {
       setScanStatus('SCAN FAILED');
     } finally {
@@ -380,8 +389,8 @@ export default function CoachesScreen() {
                   ] as const).map(([value, label]) => {
                     const active = transferClass === value;
                     return (
-                      <Pressable key={value} onPress={() => selectTransferClass(value)}
-                        style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1,
+                      <Pressable key={value} onPress={() => selectTransferClass(value)} disabled={sourceFamily==='training-camp'}
+                        style={{ paddingHorizontal: 9, paddingVertical: 5, borderWidth: 1, opacity: sourceFamily==='training-camp' ? 0.35 : 1,
                           borderColor: active ? theme.hot : theme.steel,
                           backgroundColor: active ? theme.hot + '22' : 'transparent' }}>
                         <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1,
@@ -389,7 +398,7 @@ export default function CoachesScreen() {
                       </Pressable>
                     );
                   })}
-                  {transferClass === 'unresolved' && (
+                  {sourceFamily !== 'training-camp' && transferClass === 'unresolved' && (
                     <MonoLabel size={8} color={theme.hot}>UNRESOLVED — PROJECTION BLOCKED</MonoLabel>
                   )}
                 </View>
@@ -490,6 +499,11 @@ export default function CoachesScreen() {
                   )}
                 </View>
               )}
+              {sourceFamily === 'training-camp' && (
+                <MonoLabel size={8} color={theme.hot} style={{ marginTop: 4 }}>
+                  TRAINING CAMP · EVIDENCE ONLY · RESOURCE COACH V2 BLOCKED
+                </MonoLabel>
+              )}
               {transferClass === 'reward' && (
                 <MonoLabel size={8} color={theme.hot} style={{ marginTop: 4 }}>
                   REWARD COACH · PREVIEW INTERVALS ONLY · XP TRANSFER UNRESOLVED
@@ -539,7 +553,7 @@ export default function CoachesScreen() {
             </View>
 
             <ResourceCoachLab player={player} stats={scannedStats} multiplier={Number(sessions)}
-              coachLabel={[coachType,coachCategory].filter(Boolean).join(' ')} transferClass={transferClass}
+              coachLabel={[coachType,coachCategory].filter(Boolean).join(' ')} sourceFamily={sourceFamily} transferClass={transferClass}
               observed={observationContext === previewContext(player.id, Number(sessions), coachType, coachCategory, scannedStats) ? buildOutcomeEvidence(observedGainIntervals) : []}
               identityConflict={identityConflicts.length > 0} />
           {/* Scan history — per player */}
@@ -557,6 +571,7 @@ export default function CoachesScreen() {
                   setCoachType(entry.coachType);
                   setCoachCategory(entry.coachCategory);
                   setTransferClass(entry.transferClass);
+                  setSourceFamily(entry.sourceFamily);
                   setObservedGainIntervals(entry.observedGainIntervals);
                   setScannedStats(entry.stats);
                   setScanStatus(`HISTORY: ${entry.label}`);

@@ -6,7 +6,7 @@ import reference from './fixtures/resource-coach-v2-synthetic.json';
 import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
-const input: ResourceInput = { playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',transferClass:'ordinary',coachLabel:'Synthetic anchor',multiplier:26,
+const input: ResourceInput = { playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',sourceFamily:'resource-coach',transferClass:'ordinary',coachLabel:'Synthetic anchor',multiplier:26,
   stats:reference.anchor.coords.map((value,i)=>({stat:`STAT ${i}`,displayedStat:value,displayClass:'WHITE',classSource:'manual-observed'})) };
 const anchorId='synthetic-anchor';
 function observation(id: string): ResourceObservation {
@@ -36,7 +36,7 @@ test('negative tier coordinate is preserved; cap sits outside white tier additio
   assert.equal(predictResourceCoach({...i,stats:[{...i.stats[0],displayClass:'MID_GREY'}]}).intervals[0].gainHi,0);
 });
 test('reward, unresolved, unknown class and malformed/out-of-support inputs abstain',()=>{
-  for(const patch of [{transferClass:'reward'},{transferClass:'unresolved'},{age:33},{age:17},{multiplier:NaN},{multiplier:-1},{multiplier:Infinity},{tier:'T7'},{stats:[]},{stats:[input.stats[0],input.stats[0]]},{stats:[{...input.stats[0],displayClass:'UNKNOWN'}]}]) {
+  for(const patch of [{sourceFamily:'training-camp'},{sourceFamily:'unresolved'},{transferClass:'reward'},{transferClass:'unresolved'},{age:33},{age:17},{multiplier:NaN},{multiplier:-1},{multiplier:Infinity},{tier:'T7'},{stats:[]},{stats:[input.stats[0],input.stats[0]]},{stats:[{...input.stats[0],displayClass:'UNKNOWN'}]}]) {
     assert.equal(predictResourceCoach({...input,...patch} as ResourceInput).status,'unavailable');
   }
 });
@@ -68,6 +68,7 @@ test('bad intervals and zero-gain anchors cannot be fitted or silently cleaned',
   for(const r of [{gainLo:3,gainHi:2},{gainLo:NaN,gainHi:2},{gainLo:-1,gainHi:2}])assert.throws(()=>validateObservation({...o,intervals:[{stat:o.intervals[0].stat,...r}]}));
   assert.throws(()=>fitPlayerCalibration({...o,intervals:o.intervals.map(r=>({...r,gainLo:0,gainHi:0}))}));
   assert.throws(()=>fitPlayerCalibration({...o,input:{...o.input,transferClass:'reward'}}));
+  assert.throws(()=>fitPlayerCalibration({...o,input:{...o.input,sourceFamily:'training-camp',transferClass:'unresolved'}}));
 });
 function memoryDb(): ResourceDatabase & {raw:DatabaseSync} {
   const raw=new DatabaseSync(':memory:');raw.exec('PRAGMA foreign_keys=ON; CREATE TABLE squad_plan_runs(id TEXT PRIMARY KEY,gains TEXT); INSERT INTO squad_plan_runs VALUES (\'legacy\',\'original\');');
@@ -90,7 +91,7 @@ test('native SQLite writer persists predictions, observed bounds, OVR and anchor
   assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,1);
 });
 test('orphan OVR inserts fail and bundled migration matches reviewable SQL',()=>{
-  assert.equal(RESOURCE_COACH_SCHEMA,readFileSync('drizzle/001_resource_coach_v2.sql','utf8'));
+  assert.equal(RESOURCE_COACH_SCHEMA.replace(/\r\n?/g,'\n'),readFileSync('drizzle/001_resource_coach_v2.sql','utf8').replace(/\r\n?/g,'\n'));
   const db=memoryDb();db.execSync(RESOURCE_COACH_SCHEMA);db.execSync(RESOURCE_COACH_SCHEMA);
   assert.throws(()=>db.raw.prepare('INSERT INTO resource_coach_ovr_observation VALUES (?,?,?,?)').run('missing',1,2,'observed-boost-interval'));
 });

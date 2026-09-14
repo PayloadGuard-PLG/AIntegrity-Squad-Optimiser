@@ -37,7 +37,7 @@ const NAME_BLOCKLIST = [
   'Standard', 'Focused', 'Extensive', 'Attacking', 'Defending', 'Physical',
   'Safeguard', 'Goalkeeping', 'Select', 'Training', 'Session', 'Start',
   'Reward', 'Coach', 'Camp', 'Round', 'Boost', 'Condition', 'Player',
-  'Level', 'Team', 'Talent', 'Rate', 'Age', 'Skill', 'Attribute',
+  'Level', 'Team', 'Talent', 'Rate', 'Age', 'Role', 'Roles', 'Skill', 'Attribute',
 ];
 
 /**

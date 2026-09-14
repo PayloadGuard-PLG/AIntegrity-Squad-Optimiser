@@ -96,7 +96,8 @@ test('a stat row is never returned as a player name', () => {
 
 test('UI chrome is never returned as a player name', () => {
   const chrome = ['Standard', 'Focused Attacking', 'Reward Coach', 'Training Camp',
-                  'Select Player', 'Condition', 'Start Session', 'All-Round Boost'];
+                  'Select Player', 'Condition', 'Start Session', 'All-Round Boost',
+                  'Roles: AML MLAMC'];
   for (const text of chrome) {
     assert.equal(resolvePlayerName([{ text, frame: { top: 10 } }]), undefined,
       `chrome read as a name: ${text}`);

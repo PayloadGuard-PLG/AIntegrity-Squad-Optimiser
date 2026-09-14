@@ -4,7 +4,7 @@ import type { OcrResult } from './playerCardParse';
 import {
   ARROW_RE, resolvePlayerName, resolveTalentTier, resolvePlayerAge,
 } from './coachIdentityParse';
-import { classifyCoachTransfer, type CoachTransferClass } from './coachTransfer';
+import { classifyCoachSource, classifyCoachTransfer, type CoachSourceFamily, type CoachTransferClass } from './coachTransfer';
 
 const ALL_STATS = [...OUTFIELD_STATS, ...GK_STATS] as string[];
 const STATS_BY_LENGTH = [...ALL_STATS].sort((a, b) => b.length - a.length);
@@ -52,6 +52,7 @@ export interface CoachScanResult {
   ovrBefore?: number;
   ovrBoostLo?: number;
   ovrBoostHi?: number;
+  sourceFamily: CoachSourceFamily;
   transferClass: CoachTransferClass;
   /** Compatibility view; routing must use transferClass. */
   isRewardCoach: boolean;
@@ -99,7 +100,8 @@ function validGain(lo: number, hi: number): boolean {
 export function parseCoachPreview(result: OcrResult): CoachScanResult {
   const blockText = (result.blocks ?? []).map(b => b.text).join('\n');
   const fullText = [result.text ?? '', blockText].filter(Boolean).join('\n');
-  const transferClass = classifyCoachTransfer(fullText);
+  const sourceFamily = classifyCoachSource(fullText);
+  const transferClass = sourceFamily === 'training-camp' ? 'unresolved' : classifyCoachTransfer(fullText);
 
   const tokens: Token[] = (result.blocks ?? [])
     .flatMap(b => b.lines ?? [])
@@ -198,9 +200,10 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
     ovrBefore,
     ovrBoostLo: boostMatch ? parseInt(boostMatch[1], 10) : undefined,
     ovrBoostHi: boostMatch ? parseInt(boostMatch[2], 10) : undefined,
+    sourceFamily,
     transferClass,
     isRewardCoach: transferClass === 'reward',
-    isTrainingCamp: /\btraining\s*camp\b/i.test(fullText),
+    isTrainingCamp: sourceFamily === 'training-camp',
     isAllRound: /\ball[\s\-]*round\b/i.test(fullText),
     stats: Array.from(captureMap.values()),
     _debugBlocks: (result.blocks ?? [])

@@ -31,6 +31,12 @@ export function resolveCoachStats(
 ): string[] {
   if (scan.isAllRound) return [ALL_ROUND_SENTINEL];
 
+  const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
+
+  // Training Camp is a different programme family. Preserve only observed targets;
+  // never expand it to a Resource Coach category shape.
+  if (scan.sourceFamily === 'training-camp') return detected;
+
   // Standard / Extensive: return the full confirmed category list regardless of OCR count.
   // Reward Coaches and Focused coaches are excluded — OCR (or manual picker) drives those.
   if (
@@ -41,6 +47,5 @@ export function resolveCoachStats(
     return CATEGORY_STATS[scan.coachCategory] ?? [];
   }
 
-  const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
   return detected;
 }
