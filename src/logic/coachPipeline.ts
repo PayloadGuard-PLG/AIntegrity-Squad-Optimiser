@@ -31,7 +31,12 @@ export function resolveCoachStats(
 ): string[] {
   if (scan.isAllRound) return [ALL_ROUND_SENTINEL];
 
-  const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
+  // Target-only evidence from a blank coach is intentionally separate from
+  // player-bound +lo-hi observations. Fall back to numeric captures for older
+  // fixtures and persisted scans that predate targetStats.
+  const detected = Array.from(new Set(
+    scan.targetStats?.length ? scan.targetStats : scan.stats.map(s => s.statName),
+  ));
 
   // Training Camp is a different programme family. Preserve only observed targets;
   // never expand it to a Resource Coach category shape.
