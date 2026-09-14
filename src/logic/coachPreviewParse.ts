@@ -7,6 +7,7 @@ import {
 import { classifyCoachSource, classifyCoachTransfer, type CoachSourceFamily, type CoachTransferClass } from './coachTransfer';
 
 const ALL_STATS = [...OUTFIELD_STATS, ...GK_STATS] as string[];
+const ALL_STATS_SET = new Set(ALL_STATS);
 const STATS_BY_LENGTH = [...ALL_STATS].sort((a, b) => b.length - a.length);
 
 const COACH_OCR_CORRECTIONS: Record<string, string> = {
@@ -58,6 +59,13 @@ export interface CoachScanResult {
   isRewardCoach: boolean;
   isTrainingCamp: boolean;
   isAllRound: boolean;
+  /**
+   * Stats identified as coach targets even when no player is selected and the
+   * game therefore exposes no numeric preview interval. Kept separate from
+   * `stats` so an arrow-only target can never be laundered into observed +0..0.
+   */
+  targetStats?: string[];
+  /** Player-bound numeric preview observations only. */
   stats: StatCapture[];
   _debugBlocks?: string;
 }
@@ -140,6 +148,7 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
     : null;
 
   const captureMap = new Map<string, StatCapture>();
+  const targetStats = new Set<string>();
   const upsert = (candidate: StatCapture) => {
     const existing = captureMap.get(candidate.statName);
     if (!existing
@@ -150,6 +159,92 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
     }
   };
 
+  // Restore the pre-refactor target-resolution pass verbatim in semantics:
+  // exact stat tokens, two-word tokens, same-row/right-of-label geometry,
+  // embedded ATT/PHY recovery, and arrow-only target detection. The parser
+  // refactor in 1b9b0dc replaced this pass and regressed real-device scans.
+  // Numeric observations and target-only evidence remain separate here.
+  const used = new Set<number>();
+  for (let tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+    if (used.has(tokenIndex)) continue;
+    const token = tokens[tokenIndex];
+    const upper = canonicalCoachText(token.text);
+
+    let statName = '';
+    let consumed = [tokenIndex];
+    if (ALL_STATS_SET.has(upper)) {
+      statName = upper;
+    } else if (tokenIndex + 1 < tokens.length) {
+      const next = tokens[tokenIndex + 1];
+      const twoWord = `${upper} ${canonicalCoachText(next.text)}`;
+      if (ALL_STATS_SET.has(twoWord) && twoWord.includes(' ')
+          && Math.abs(next.top - token.top) < Y_TOL_NAME) {
+        statName = twoWord;
+        consumed = [tokenIndex, tokenIndex + 1];
+      }
+    }
+    if (!statName) continue;
+
+    const category = coachCategory ? CATEGORY_STAT_SETS[coachCategory] : undefined;
+    if (coachType === 'Focused' && category && !category.has(statName)) continue;
+
+    const rowTokens = tokens.filter((t, idx) =>
+      !consumed.includes(idx)
+      && Math.abs(t.top - token.top) < Y_TOL_VAL
+      && t.left > token.left
+    );
+    const rowText = rowTokens.map(t => canonicalCoachText(t.text)).join(' ');
+    const gainMatch = GAIN_RE_STAT.exec(rowText);
+
+    if (gainMatch) {
+      const lo = parseInt(gainMatch[1], 10);
+      const hi = parseInt(gainMatch[2], 10);
+      if (validGain(lo, hi)) {
+        const nearestNumTok = rowTokens
+          .filter(t => {
+            const n = parseInt(t.text, 10);
+            return !Number.isNaN(n) && n > 0 && n <= 340;
+          })
+          .reduce<Token | null>((best, t) =>
+            !best || Math.abs(t.left - token.left) < Math.abs(best.left - token.left) ? t : best,
+          null);
+        const statBefore = nearestNumTok ? parseInt(nearestNumTok.text, 10) : 0;
+        upsert({ statName, statBefore, gainLo: lo, gainHi: hi });
+        targetStats.add(statName);
+      }
+    }
+
+    // Preserve the old three-column embedded-stat recovery. This is how ATT/PHY
+    // targets such as CROSSING survived when ML Kit merged them into an adjacent
+    // column row instead of emitting a standalone token.
+    const catFilter = (transferClass !== 'reward' && coachCategory)
+      ? (CATEGORY_STAT_SETS[coachCategory] ?? null)
+      : null;
+    for (const candidate of ALL_STATS) {
+      if (candidate === statName || captureMap.has(candidate)) continue;
+      if (catFilter && !catFilter.has(candidate)) continue;
+      const escapedName = candidate.replace(/\s+/g, '\\s+');
+      const embedded = new RegExp(`\\b${escapedName}\\b\\s+(\\d+)\\s*\\+?\\s*(\\d+)\\s*[-–—]\\s*(\\d+)`, 'i').exec(rowText);
+      if (!embedded) continue;
+      const baseline = parseInt(embedded[1], 10);
+      const lo = parseInt(embedded[2], 10);
+      const hi = parseInt(embedded[3], 10);
+      if (validGain(lo, hi)) {
+        upsert({ statName: candidate, statBefore: baseline, gainLo: lo, gainHi: hi });
+        targetStats.add(candidate);
+      }
+    }
+
+    if (!gainMatch && rowTokens.some(t => ARROW_RE.test(t.text))) {
+      targetStats.add(statName);
+    }
+
+    consumed.forEach(idx => used.add(idx));
+  }
+
+  // Keep the newer merged-line parser as an additive second pass. It recovers
+  // layouts such as `FINISHING 125 +5–7` without replacing the proven geometric
+  // target pass above.
   for (let tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
     const token = tokens[tokenIndex];
     const directStats = findStats(token.text);
@@ -178,14 +273,16 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
         ?? GAIN_RE_STAT.exec(afterStat);
 
       if (rowMatch) {
-        // The anchored form has baseline/lo/hi; the fallback has only lo/hi.
         const anchored = rowMatch.length === 4;
         const baseline = anchored && rowMatch[1] ? parseInt(rowMatch[1], 10) : 0;
         const lo = parseInt(rowMatch[anchored ? 2 : 1], 10);
         const hi = parseInt(rowMatch[anchored ? 3 : 2], 10);
-        if (validGain(lo, hi)) upsert({ statName, statBefore: baseline, gainLo: lo, gainHi: hi });
+        if (validGain(lo, hi)) {
+          upsert({ statName, statBefore: baseline, gainLo: lo, gainHi: hi });
+          targetStats.add(statName);
+        }
       } else if (ARROW_RE.test(afterStat)) {
-        upsert({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
+        targetStats.add(statName);
       }
     }
   }
@@ -205,6 +302,7 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
     isRewardCoach: transferClass === 'reward',
     isTrainingCamp: sourceFamily === 'training-camp',
     isAllRound: /\ball[\s\-]*round\b/i.test(fullText),
+    targetStats: Array.from(targetStats),
     stats: Array.from(captureMap.values()),
     _debugBlocks: (result.blocks ?? [])
       .map((b, i) => `[${i}] ${b.text.replace(/\n/g, ' ').slice(0, 60)}`)

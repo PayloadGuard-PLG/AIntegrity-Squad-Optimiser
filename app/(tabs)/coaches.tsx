@@ -209,15 +209,12 @@ export default function CoachesScreen() {
       setTransferClass(scannedTransferClass);
       setSourceFamily(scannedSourceFamily);
 
-      // Scanner-observed identity of the card IN THE IMAGE. Held, displayed and
-      // compared — never written into the selected player's record. The preview
-      // shows whichever card the game attached to the coach, so a disagreement
-      // here means the stat intervals read from the same image describe someone
-      // other than the player this screen is about to project. Each field is
-      // written only when observed; an absent one leaves the prior read intact.
-      setScannedIdentity(prev => ingestScannedIdentity(
+      // Every image selected here is a new observation. Identity from a previous
+      // coach screenshot must never leak into the next one: a blank coach has no
+      // player identity to compare, while a player-bound preview carries its own.
+      setScannedIdentity(ingestScannedIdentity(
         { name: scan.playerName, age: scan.playerAge, talent: scan.talentTier },
-        prev,
+        {},
       ));
 
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
