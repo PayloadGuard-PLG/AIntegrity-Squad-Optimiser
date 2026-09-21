@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "98089c7eb78b03d7a0f7ff107a8d0588ada65fee",
+  "generatedAt": "2026-09-21",
+  "policy": [
+    "Source corrections are evidence repairs, not model-driven outlier removal.",
+    "Original source records remain preserved; invalid derived rows are quarantined, not rewritten as different observations.",
+    "Production projection logic and constants are out of scope for this ledger."
+  ],
+  "corrections": [
+    {
+      "correctionId": "RC-SRC-20260921-001",
+      "disposition": "QUARANTINE",
+      "affectedRecord": "PRV-0017 / 17_Darren_Moore_Extensive_All-Round.json",
+      "affectedRows": [
+        "POSITIONING 256 +8",
+        "PASSING 214 +19",
+        "DRIBBLING 134 +22-24",
+        "CROSSING 118 +28-29",
+        "FITNESS 214 +19",
+        "SPEED 138 +21-23",
+        "CREATIVITY 193 +25"
+      ],
+      "derivedLabel": "Extensive All-Round x57",
+      "citedSource": "61747.png",
+      "citedSourceSha256": "afe41d578e5bd2d691c0573120781bc637d79a43063c171a1c2e882756d49675",
+      "verifiedSourceContent": "Blank EXTENSIVE ALL-ROUND x114 coach-definition screen; no player selected and no player-dependent gain values displayed.",
+      "reason": "The cited image cannot support any Darren Moore x57 player preview or gain row. The seven derived rows are unsupported evidence and must not enter fitting, validation, or multiplier-ratio claims.",
+      "genuineMatchedSource": {
+        "source": "61748.png",
+        "sha256": "076a350c40d2e106502f53e9a81d65f3b4422c532bd702eecf25aecd2ce7f8c7",
+        "observation": "Darren Moore EXTENSIVE ALL-ROUND x114 with player selected; the displayed gains are genuine."
+      }
+    },
+    {
+      "correctionId": "RC-SRC-20260921-002",
+      "disposition": "CORRECT_DERIVED_CLASS",
+      "affectedRecord": "PRV-0005 / Robert Gavilan Reward preview",
+      "stat": "FINISHING",
+      "currentValue": 101,
+      "observedGain": [
+        7,
+        11
+      ],
+      "workbookValue": "WHITE",
+      "correctedValue": "MID_GREY",
+      "sourceVariants": [
+        "61268(1).png",
+        "61268(2).png"
+      ],
+      "sourceSha256": "7d69fb6b7370bb90b4f51d2b9fdc45579b36b9ca8d5cb35f008384cc3167bf04",
+      "variantReconciliation": "Both variants are byte-identical and pixel-identical.",
+      "verification": "The affected FINISHING row is visibly grey in the source preview. The repository Reward sweep already records Gavilan as grey.",
+      "canonicalRepositoryAction": "No canonical profiles/calibration_data.json correction required; that record was already grey."
+    }
+  ]
+}
