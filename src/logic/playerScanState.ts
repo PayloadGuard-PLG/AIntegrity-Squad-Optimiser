@@ -5,6 +5,23 @@ import { validateRoleAdjacency, ROLE_CONSTRAINTS } from '../utils/roleWeights';
 export type PlayerCardState = Pick<Player,
   'role' | 'tier' | 'newRole' | 'newRolePoints' | 'playstyle' | 'specialAbilities' | 'boosts'>;
 
+/** Blank unsaved-card state. A new-player screenshot is a replacement
+ * observation, never a merge with whichever unsaved player happened to be
+ * scanned immediately before it.
+ */
+export function freshPlayerCardState(): PlayerCardState {
+  return { role: [], tier: 'T0' };
+}
+
+/** New-player intake has no stable persisted identity yet, so carrying unread
+ * fields across screenshots can mix two different players. Start from blank on
+ * every scan. The edit-player flow intentionally continues to use
+ * mergePlayerScanState(), because there the player id is already fixed.
+ */
+export function replaceNewPlayerScanState(scan: PlayerCardScanExtended): PlayerCardState {
+  return mergePlayerScanState(freshPlayerCardState(), scan);
+}
+
 export function needsRoleReview(scan: PlayerCardScanExtended): boolean {
   return scan.establishedRoles === undefined || scan.review.some(f =>
     f.field === 'roles' || f.field.startsWith('roles.') || f.field === 'learningRole');
