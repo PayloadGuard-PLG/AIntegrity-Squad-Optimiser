@@ -7,6 +7,7 @@ import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibrat
 import { RESOURCE_CALIBRATION_CANDIDATE, candidateAgeScale, candidateTierCoordinate, candidateDose, latentMovement, displayedGainFromLatent, predictCalibrationCandidate } from '../src/logic/resourceCoachCandidate';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
+import { scorePrediction } from '../src/logic/resourceCoachExperiment';
 const input: ResourceInput = {
   playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',
   sourceFamily:'resource-coach',sourceFamilySource:'manual-confirmed',
@@ -139,17 +140,39 @@ function memoryDb(): ResourceDatabase & {raw:DatabaseSync} {
     getAllSync:<T>(s:string,p:(string|number|null)[]=[])=>raw.prepare(s).all(...p) as T[],
     withTransactionSync:f=>{raw.exec('BEGIN');try{f();raw.exec('COMMIT');}catch(e){raw.exec('ROLLBACK');throw e;}}};
 }
-test('native SQLite writer persists predictions, observed bounds, OVR and anchors across restart',()=>{
+test('native SQLite writer isolates experiments, freezes predictions, scores residuals and gates calibration promotion',()=>{
   const db=memoryDb(),store=createResourceCoachStore(db),o={...observation(anchorId),ovrBoost:{gainLo:2,gainHi:3}};
-  store.savePrediction('p1',input,predictResourceCoach(input));
-  store.saveCandidatePrediction('candidate-1',{...input,programmeFamily:'unknown'},predictCalibrationCandidate({...input,programmeFamily:'unknown'}));
-  store.saveObservation(o);store.saveCalibration(fitPlayerCalibration(o),o);
+  store.savePrediction(anchorId,'p1',input,predictResourceCoach(input),'prospective-holdout');
+  store.saveCandidatePrediction(anchorId,'candidate-1',input,predictCalibrationCandidate(input),'prospective-holdout');
+  const scores=store.saveObservation(o,'prospective-holdout');
+  assert.equal(scores.length,2);
+  assert.ok(scores.every(s=>s.status==='scored'));
+  assert.ok(scores.every(s=>s.endpointMae!==null&&Number.isFinite(s.endpointMae)));
+  assert.throws(()=>store.savePrediction(anchorId,'late',input,predictResourceCoach(input)));
+  assert.throws(()=>store.saveCalibration(fitPlayerCalibration(o),o),/promote/i);
+  assert.equal(store.setExperimentPartition(anchorId,'calibration'),'calibration');
+  store.saveCalibration(fitPlayerCalibration(o),o);
+
   const restart=createResourceCoachStore(db);
   assert.equal(restart.calibration(input.playerId)?.anchorId,anchorId);
-  const exported=JSON.parse(restart.exportPlayer(input.playerId));assert.equal(exported.predictions.length,2);assert.equal(exported.observations.length,1);
-  assert.ok(exported.predictions.some((p:{model_version:string})=>p.model_version===RESOURCE_CALIBRATION_CANDIDATE.modelVersion));
-  assert.equal(db.raw.prepare('SELECT boost_hi FROM resource_coach_ovr_observation').get()!.boost_hi,3);
-  const observedRow=db.raw.prepare('SELECT transfer_class_source,coach_family,source_ref FROM resource_coach_observation LIMIT 1').get()!;
+  const isolated=JSON.parse(restart.exportExperiment(anchorId));
+  assert.equal(isolated.experiment.experimentId,anchorId);
+  assert.equal(isolated.experiment.partition,'calibration');
+  assert.equal(isolated.predictions.length,2);
+  assert.equal(isolated.scores.length,2);
+  assert.ok(isolated.predictions.some((p:{modelVersion:string})=>p.modelVersion===RESOURCE_CALIBRATION_CANDIDATE.modelVersion));
+
+  const second={...observation('second-experiment'),capturedAt:'2026-09-14'};
+  store.saveObservation(second,'retrospective');
+  const isolatedAgain=JSON.parse(store.exportExperiment(anchorId));
+  assert.equal(isolatedAgain.observation.id,anchorId);
+  assert.equal(isolatedAgain.experiment.experimentId,anchorId);
+  const corpus=JSON.parse(store.exportPlayer(input.playerId));
+  assert.equal(corpus.experiments.length,2);
+  assert.equal(corpus.experiments.filter((e:any)=>e.experiment.experimentId===anchorId).length,1);
+
+  assert.equal(db.raw.prepare('SELECT boost_hi FROM resource_coach_ovr_observation WHERE observation_id=?').get(anchorId)!.boost_hi,3);
+  const observedRow=db.raw.prepare('SELECT transfer_class_source,coach_family,source_ref FROM resource_coach_observation WHERE observation_id=? LIMIT 1').get(anchorId)!;
   assert.equal(observedRow.transfer_class_source,'manual-confirmed');
   assert.equal(observedRow.coach_family,'drill-session');
   assert.deepEqual(JSON.parse(String(observedRow.source_ref)),{
@@ -161,9 +184,31 @@ test('native SQLite writer persists predictions, observed bounds, OVR and anchor
   assert.equal(db.raw.prepare('SELECT gains FROM squad_plan_runs').get()!.gains,'original');
   assert.deepEqual(db.raw.prepare('PRAGMA foreign_key_check').all(),[]);
   assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_model_versions WHERE active=1').get()!.n,1);
-  assert.throws(()=>store.saveObservation(o));
-  assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,1);
+  assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,2);
 });
+
+test('interval scoring is deterministic and keeps endpoint, midpoint, width and overlap errors separate',()=>{
+  const o:ResourceObservation={...observation('score-only'),intervals:[
+    {stat:'A',gainLo:1,gainHi:3},
+    {stat:'B',gainLo:4,gainHi:6},
+  ],input:{...input,stats:[
+    {stat:'A',displayedStat:100,displayClass:'WHITE',classSource:'manual-observed'},
+    {stat:'B',displayedStat:100,displayClass:'WHITE',classSource:'manual-observed'},
+  ]}};
+  const score=scorePrediction({modelVersion:'test',status:'predicted',intervals:[
+    {stat:'A',gainLo:2,gainHi:4},
+    {stat:'B',gainLo:4,gainHi:6},
+  ]},o);
+  assert.equal(score.status,'scored');
+  assert.equal(score.matchedStatCount,2);
+  assert.equal(score.endpointMae,.5);
+  assert.equal(score.midpointMae,.5);
+  assert.ok(Math.abs(score.meanIntervalIou-(2/3))<1e-12);
+  assert.equal(score.residuals[0].lowError,1);
+  assert.equal(score.residuals[0].highError,1);
+  assert.equal(score.residuals[0].widthError,0);
+});
+
 test('orphan OVR inserts fail and bundled migration matches reviewable SQL',()=>{
   assert.equal(RESOURCE_COACH_SCHEMA.replace(/\r\n?/g,'\n'),readFileSync('drizzle/001_resource_coach_v2.sql','utf8').replace(/\r\n?/g,'\n'));
   const db=memoryDb();db.execSync(RESOURCE_COACH_SCHEMA);db.execSync(RESOURCE_COACH_SCHEMA);

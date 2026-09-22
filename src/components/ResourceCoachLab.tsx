@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, Share } from 'react-native';
 import type { Player } from '../database/playerSchema';
 import type { CoachPreviewInterval } from '../logic/recommendation';
@@ -16,6 +16,7 @@ import {
   type CandidatePrediction,
 } from '../logic/resourceCoachCandidate';
 import { resourceCoachService } from '../services/resourceCoachService';
+import type { ExperimentPartition, PredictionScore } from '../logic/resourceCoachExperiment';
 import { theme } from '../constants/theme';
 
 type Props = {
@@ -46,7 +47,9 @@ function Button({ label, onPress, disabled = false }: {label:string;onPress:()=>
 /** Remount when the source state changes: a target preview never inherits stale
  * edited observations or a previous player's prediction state. */
 export function ResourceCoachLab(props: Props) {
-  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.sourceFamilySource,props.transferClass,props.transferClassSource,props.initialProgrammeFamily,props.initialProgrammeFamilySource,props.targetSource,props.observed,props.identityConflict]);
+  // Observed ranges and provenance refinements must not remount the lab: a
+  // pre-outcome prediction has to survive the later reveal of the same preview.
+  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.transferClass,props.initialProgrammeFamily,props.identityConflict]);
   return <LabSession key={key} {...props} />;
 }
 function LabSession({
@@ -64,8 +67,12 @@ function LabSession({
   const [ovrLo,setOvrLo]=useState(''), [ovrHi,setOvrHi]=useState('');
   const [prediction,setPrediction]=useState<ResourcePrediction|null>(null);
   const [candidatePrediction,setCandidatePrediction]=useState<CandidatePrediction|null>(null);
-  const [predictionId,setPredictionId]=useState<string|undefined>();
+  const [experimentId,setExperimentId]=useState(()=>uid());
+  // If the first image already exposed +lo-hi, this is retrospective evidence.
+  // If the lab began without ranges, later OCR reveal remains a prospective holdout.
+  const [partition,setPartition]=useState<ExperimentPartition>(()=>observed.length>0?'retrospective':'prospective-holdout');
   const [savedObservation,setSavedObservation]=useState<ResourceObservation|null>(null);
+  const [scores,setScores]=useState<PredictionScore[]>([]);
   const [message,setMessage]=useState('');
   const [exportJson,setExportJson]=useState('');
   const input:ResourceInput=useMemo(()=>({ playerId:player.id,age:player.age,tier:player.tier,
@@ -89,15 +96,28 @@ function LabSession({
   const evidenceReady=stateConfirmed&&targetSource!=='unresolved'&&input.stats.length>0;
 
   function attempt(action:()=>void) { try { action(); } catch(e) { setMessage(e instanceof Error?e.message:String(e)); } }
+  function resetExperiment(nextPartition:ExperimentPartition=partition) {
+    setExperimentId(uid());setPartition(nextPartition);setPrediction(null);setCandidatePrediction(null);
+    setSavedObservation(null);setScores([]);setExportJson('');
+  }
+  useEffect(()=>{
+    if(savedObservation) return;
+    setValues(prev=>{
+      const next={...prev};
+      for(const stat of stats) if(!next[stat]) next[stat]={lo:'',hi:''};
+      for(const r of observed) if(next[r.stat]) next[r.stat]={lo:String(r.gainLo),hi:String(r.gainHi)};
+      return next;
+    });
+  },[observed,stats,savedObservation]);
   function project() { attempt(()=>{
     const p=predictResourceCoach(input,resourceCoachService.calibration(player.id));
-    const id=uid();resourceCoachService.savePrediction(id,input,p);setPredictionId(id);
-    setPrediction(p);setMessage('V2 baseline prediction snapshot saved.');
+    const id=uid();resourceCoachService.savePrediction(experimentId,id,input,p,partition);
+    setPrediction(p);setMessage('V2 pre-outcome snapshot frozen in this experiment.');
   }); }
   function projectCandidate() { attempt(()=>{
     const p=predictCalibrationCandidate(input);
-    const id=uid();resourceCoachService.saveCandidatePrediction(id,input,p);setPredictionId(id);
-    setCandidatePrediction(p);setMessage('21 Sep calibration-candidate snapshot saved separately from V2.');
+    const id=uid();resourceCoachService.saveCandidatePrediction(experimentId,id,input,p,partition);
+    setCandidatePrediction(p);setMessage('Calibration-candidate pre-outcome snapshot frozen in this experiment.');
   }); }
   function saveObservation() { attempt(()=>{
     const intervals=stats.filter(stat=>values[stat].lo!==''||values[stat].hi!=='').map(stat=>{
@@ -106,16 +126,19 @@ function LabSession({
     });
     if((ovrLo!==''||ovrHi!=='')&&(ovrLo.trim()===''||ovrHi.trim()===''))throw Error('Enter both OVR boost bounds.');
     const classSource=input.stats.some(s=>s.classSource==='manual-observed')?'manual-confirmed-preview':'state-confirmed-preview';
-    const o:ResourceObservation={id:uid(),capturedAt:new Date().toISOString(),input,intervals,evidenceKind:'observed-interval',source:classSource,predictionId,
+    const o:ResourceObservation={id:experimentId,capturedAt:new Date().toISOString(),input,intervals,evidenceKind:'observed-interval',source:classSource,
       ...(ovrLo!==''?{ovrBoost:{gainLo:Number(ovrLo),gainHi:Number(ovrHi)}}:{})};
-    resourceCoachService.saveObservation(o);setSavedObservation(o);setMessage('Observed preview saved separately from predictions.');
+    const scored=resourceCoachService.saveObservation(o,partition);setSavedObservation(o);setScores(scored);
+    setMessage(scored.length
+      ? `Observed preview sealed · ${scored.length} frozen model snapshot${scored.length===1?'':'s'} scored automatically.`
+      : 'Observed preview sealed as an isolated experiment. No pre-outcome model snapshot existed to score.');
   }); }
   function changeValue(stat:string,part:'lo'|'hi',value:string) {
     setValues(prev=>({...prev,[stat]:{...prev[stat],[part]:value}}));setSavedObservation(null);
   }
   function toggleClass(stat:string, current:DisplayClass) {
     setClasses(prev=>({...prev,[stat]:current==='WHITE'?'MID_GREY':'WHITE'}));
-    setPrediction(null);setCandidatePrediction(null);setPredictionId(undefined);setSavedObservation(null);
+    resetExperiment();
   }
 
   return <View style={{borderWidth:1,borderColor:theme.steel,padding:14,marginBottom:14,backgroundColor:theme.bg}}>
@@ -126,6 +149,11 @@ function LabSession({
         ? `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. Stored player state supplies starting stats and classes.`
         : `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. V2 is unavailable for ${transferClass==='reward'?'Reward transfer':'an unresolved transfer class'}.`}</Text>
 
+    <Text style={{...textStyle,fontWeight:'700',marginTop:12}}>EXPERIMENT</Text>
+    <Text style={textStyle}>ID: {experimentId}</Text>
+    <Text style={{...textStyle,color:partition==='prospective-holdout'?theme.pos:theme.steelLight}}>
+      PARTITION: {partition.toUpperCase()} · {savedObservation?'OBSERVED / SEALED':'OPEN'}
+    </Text>
     <Text style={{...textStyle,fontWeight:'700',marginTop:12}}>PROGRAMME METADATA</Text>
     <Text style={textStyle}>Recorded for residual analysis. OCR uses the explicit DRILL SESSION / SKILL SEMINAR label when present; manual selection remains a fallback.</Text>
     <View style={{flexDirection:'row',gap:6,flexWrap:'wrap',marginTop:6}}>
@@ -136,7 +164,7 @@ function LabSession({
       ] as const).map(([value,label])=><Pressable key={value} onPress={()=>{
         setProgrammeFamily(value);
         setProgrammeFamilySource(value === 'unknown' ? 'unresolved' : 'manual-confirmed');
-        setCandidatePrediction(null);setPredictionId(undefined);setSavedObservation(null);
+        resetExperiment();
       }} style={{padding:8,borderWidth:1,borderColor:programmeFamily===value?theme.steelLight:theme.steel}}>
         <Text style={textStyle}>{label}</Text>
       </Pressable>)}
@@ -172,7 +200,7 @@ function LabSession({
     {sourceFamily==='training-camp'&&<Text style={{...textStyle,color:theme.hot}}>Training Camp is a separate source family. Save its observed intervals; V2 remains blocked.</Text>}
 
     <Button label="PROJECT V2 BASELINE" onPress={project}
-      disabled={sourceFamily==='training-camp'||!stats.length||!Number.isFinite(multiplier)||multiplier<=0||mismatch||hasZero}/>
+      disabled={!!savedObservation||!!prediction||sourceFamily==='training-camp'||!stats.length||!Number.isFinite(multiplier)||multiplier<=0||mismatch||hasZero}/>
     {prediction&&<View style={{marginTop:12,gap:6}}>
       <Text style={{...textStyle,fontWeight:'700'}}>V2 · {prediction.mode.toUpperCase()}</Text>
       {prediction.reasons.map(r=><Text key={r} style={textStyle}>{r}</Text>)}
@@ -181,7 +209,7 @@ function LabSession({
     </View>}
 
     <Button label="PROJECT 21 SEP CALIBRATION CANDIDATE" onPress={projectCandidate}
-      disabled={!stateConfirmed||!stats.length||!Number.isFinite(multiplier)||multiplier<=0}/>
+      disabled={!!savedObservation||!!candidatePrediction||!stateConfirmed||!stats.length||!Number.isFinite(multiplier)||multiplier<=0}/>
     {candidatePrediction&&<View style={{marginTop:12,gap:6,borderWidth:1,borderColor:theme.hairline2,padding:10}}>
       <Text style={{...textStyle,fontWeight:'700'}}>SHARED LATENT + RECTIFICATION · CALIBRATION ONLY</Text>
       {candidatePrediction.reasons.map(r=><Text key={r} style={textStyle}>{r}</Text>)}
@@ -204,14 +232,31 @@ function LabSession({
       <TextInput accessibilityLabel="Observed OVR boost high" placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
     </View>
     <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!evidenceReady||!!savedObservation}/>
-    <Button label="USE SAVED PREVIEW AS V2 SEPARATE ANCHOR" disabled={!savedObservation||sourceFamily!=='resource-coach'||transferClass!=='ordinary'||hasZero} onPress={()=>attempt(()=>{
+    {scores.length>0&&<View style={{marginTop:12,borderWidth:1,borderColor:theme.hairline2,padding:10,gap:5}}>
+      <Text style={{...textStyle,fontWeight:'700'}}>AUTOMATIC RESIDUALS · FROZEN PREDICTION VS OBSERVED</Text>
+      {scores.map(s=><Text key={s.modelVersion} style={textStyle}>
+        {s.modelVersion} · {s.status.toUpperCase()} · n={s.matchedStatCount}
+        {s.endpointMae!==null?` · endpoint MAE ${s.endpointMae.toFixed(2)}`:''}
+        {s.midpointMae!==null?` · midpoint MAE ${s.midpointMae.toFixed(2)}`:''}
+        {s.meanIntervalIou!==null?` · IoU ${(s.meanIntervalIou*100).toFixed(0)}%`:''}
+      </Text>)}
+    </View>}
+    {savedObservation&&partition!=='calibration'&&<Button label="PROMOTE THIS OBSERVATION TO CALIBRATION CORPUS" onPress={()=>attempt(()=>{
+      const next=resourceCoachService.setExperimentPartition(experimentId,'calibration');setPartition(next);
+      setMessage('Observation promoted explicitly. It is no longer a holdout.');
+    })}/>}
+    <Button label="FIT V2 SEPARATE ANCHOR · CALIBRATION ONLY" disabled={!savedObservation||partition!=='calibration'||sourceFamily!=='resource-coach'||transferClass!=='ordinary'||hasZero} onPress={()=>attempt(()=>{
       const c=fitPlayerCalibration(savedObservation!);resourceCoachService.saveCalibration(c,savedObservation!);
-      setPrediction(null);setMessage('V2 anchor saved. The 21 Sep calibration candidate remains unanchored by design.');
+      setPrediction(null);setMessage('V2 anchor saved from an explicitly promoted calibration observation.');
     })}/>
-    <Text style={{...textStyle,marginTop:8}}>Predictions never update player facts. Programme metadata and observed intervals are retained for later grouped calibration.</Text>
-    <Button label="EXPORT PLAYER TEST DATA" onPress={()=>attempt(()=>{
+    <Text style={{...textStyle,marginTop:8}}>Predictions never update player facts. A sealed observation cannot receive a later prediction; start a new scan/experiment instead.</Text>
+    <Button label="EXPORT THIS EXPERIMENT" onPress={()=>attempt(()=>{
+      const data=resourceCoachService.exportExperiment(experimentId);setExportJson(data);
+      void Share.share({message:data,title:'Resource coach isolated experiment'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
+    })}/>
+    <Button label="EXPORT PLAYER CORPUS" onPress={()=>attempt(()=>{
       const data=resourceCoachService.exportPlayer(player.id);setExportJson(data);
-      void Share.share({message:data,title:'Resource coach test data'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
+      void Share.share({message:data,title:'Resource coach player corpus'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
     })}/>
     {!!message&&<Text accessibilityRole="alert" style={{...textStyle,color:theme.hot,marginTop:10}}>{message}</Text>}
     {!!exportJson&&<TextInput accessibilityLabel="Exported test data JSON" multiline editable={false} selectTextOnFocus value={exportJson} style={{...fieldStyle,height:180,marginTop:8}}/>}

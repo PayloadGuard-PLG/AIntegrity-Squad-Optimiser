@@ -101,3 +101,73 @@ CREATE TABLE IF NOT EXISTS resource_coach_ovr_observation (
   CHECK (boost_lo >= 0 AND boost_hi >= boost_lo),
   FOREIGN KEY (observation_id) REFERENCES resource_coach_preview(observation_id)
 );
+
+-- One immutable experiment is the isolation boundary for a coach preview.
+-- Predictions must be captured while the experiment is open; the observed
+-- preview closes it. partition is explicit so holdouts cannot silently become
+-- fitting data.
+CREATE TABLE IF NOT EXISTS resource_coach_experiment (
+  experiment_id TEXT PRIMARY KEY NOT NULL,
+  player_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  input_json TEXT NOT NULL,
+  partition TEXT NOT NULL DEFAULT 'prospective-holdout'
+    CHECK (partition IN ('prospective-holdout','retrospective','calibration','excluded')),
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','observed')),
+  observed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_coach_experiment_player
+  ON resource_coach_experiment(player_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_resource_coach_experiment_partition
+  ON resource_coach_experiment(partition, status);
+
+CREATE TABLE IF NOT EXISTS resource_coach_experiment_prediction (
+  experiment_id TEXT NOT NULL,
+  prediction_id TEXT NOT NULL UNIQUE,
+  model_version TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (experiment_id, prediction_id),
+  UNIQUE (experiment_id, model_version),
+  FOREIGN KEY (experiment_id) REFERENCES resource_coach_experiment(experiment_id),
+  FOREIGN KEY (prediction_id) REFERENCES resource_coach_prediction(prediction_id)
+);
+
+CREATE TABLE IF NOT EXISTS resource_coach_prediction_score (
+  experiment_id TEXT NOT NULL,
+  prediction_id TEXT NOT NULL,
+  model_version TEXT NOT NULL,
+  scored_at TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('scored','partial','unscored')),
+  matched_stat_count INTEGER NOT NULL,
+  endpoint_mae REAL,
+  midpoint_mae REAL,
+  mean_interval_iou REAL,
+  score_json TEXT NOT NULL,
+  PRIMARY KEY (experiment_id, prediction_id),
+  FOREIGN KEY (experiment_id) REFERENCES resource_coach_experiment(experiment_id),
+  FOREIGN KEY (prediction_id) REFERENCES resource_coach_prediction(prediction_id)
+);
+
+CREATE TABLE IF NOT EXISTS resource_coach_residual (
+  experiment_id TEXT NOT NULL,
+  prediction_id TEXT NOT NULL,
+  model_version TEXT NOT NULL,
+  stat TEXT NOT NULL,
+  predicted_lo REAL NOT NULL,
+  predicted_hi REAL NOT NULL,
+  observed_lo REAL NOT NULL,
+  observed_hi REAL NOT NULL,
+  low_error REAL NOT NULL,
+  high_error REAL NOT NULL,
+  endpoint_abs_error REAL NOT NULL,
+  midpoint_error REAL NOT NULL,
+  width_error REAL NOT NULL,
+  interval_iou REAL NOT NULL,
+  PRIMARY KEY (experiment_id, prediction_id, stat),
+  FOREIGN KEY (experiment_id) REFERENCES resource_coach_experiment(experiment_id),
+  FOREIGN KEY (prediction_id) REFERENCES resource_coach_prediction(prediction_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_coach_residual_model
+  ON resource_coach_residual(model_version, stat);
