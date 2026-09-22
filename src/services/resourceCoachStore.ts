@@ -1,5 +1,6 @@
 import { RESOURCE_COACH_SCHEMA } from '../db/resourceCoachSchema';
 import { RESOURCE_MODEL, validateObservation, type ResourceInput, type ResourceObservation, type ResourcePrediction, type PlayerCalibration } from '../logic/resourceCoachV2';
+import { RESOURCE_CALIBRATION_CANDIDATE, type CandidatePrediction } from '../logic/resourceCoachCandidate';
 
 export interface ResourceDatabase {
   execSync(sql: string): void;
@@ -19,6 +20,11 @@ function ensure() {
       (model_version,created_at,transfer_class,parameter_json,validation_json,source_corpus_hash,active)
       VALUES (?,?,'ordinary',?,?,?,1) ON CONFLICT(model_version) DO UPDATE SET active=1`,
       [RESOURCE_MODEL.modelVersion,new Date().toISOString(),JSON.stringify(RESOURCE_MODEL),JSON.stringify(RESOURCE_MODEL.validation),null]);
+    expoDb.runSync(`INSERT INTO resource_coach_model_versions
+      (model_version,created_at,transfer_class,parameter_json,validation_json,source_corpus_hash,active)
+      VALUES (?,?,'ordinary',?,?,?,0) ON CONFLICT(model_version) DO NOTHING`,
+      [RESOURCE_CALIBRATION_CANDIDATE.modelVersion,new Date().toISOString(),JSON.stringify(RESOURCE_CALIBRATION_CANDIDATE),
+       JSON.stringify(RESOURCE_CALIBRATION_CANDIDATE.evidence),null]);
   });
   ready = true;
 }
@@ -35,6 +41,11 @@ return {
     expoDb.runSync('INSERT INTO resource_coach_prediction VALUES (?,?,?,?,?,?)',
       [id,input.playerId,prediction.modelVersion,new Date().toISOString(),JSON.stringify(input),JSON.stringify(prediction)]);
   },
+  saveCandidatePrediction(id: string, input: ResourceInput, prediction: CandidatePrediction) {
+    ensure();
+    expoDb.runSync('INSERT INTO resource_coach_prediction VALUES (?,?,?,?,?,?)',
+      [id,input.playerId,prediction.modelVersion,new Date().toISOString(),JSON.stringify(input),JSON.stringify(prediction)]);
+  },
   saveObservation(o: ResourceObservation) {
     validateObservation(o); ensure();
     expoDb.withTransactionSync(() => {
@@ -42,11 +53,11 @@ return {
       for (const r of o.intervals) {
         const s = o.input.stats.find(s => s.stat === r.stat)!;
         expoDb.runSync(`INSERT INTO resource_coach_observation
-          (observation_id,player_id,player_state_id,observed_at,transfer_class,transfer_class_source,coach_label,
+          (observation_id,player_id,player_state_id,observed_at,transfer_class,transfer_class_source,coach_label,coach_family,
            displayed_multiplier,affected_stat_count,player_age,tier,stat,displayed_stat,display_class,gain_lo,gain_hi,evidence_kind,source_ref)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'observed-interval',?)`,
-          [o.id,o.input.playerId,o.input.stateKey,o.capturedAt,o.input.transferClass,'manual-confirmed-preview',o.input.coachLabel,
-           o.input.multiplier,o.input.stats.length,o.input.age,o.input.tier,r.stat,s.displayedStat,s.displayClass,r.gainLo,r.gainHi,o.source]);
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'observed-interval',?)`,
+          [o.id,o.input.playerId,o.input.stateKey,o.capturedAt,o.input.transferClass,o.source,o.input.coachLabel,
+           o.input.programmeFamily ?? null,o.input.multiplier,o.input.stats.length,o.input.age,o.input.tier,r.stat,s.displayedStat,s.displayClass,r.gainLo,r.gainHi,o.source]);
       }
       if (o.ovrBoost) expoDb.runSync('INSERT INTO resource_coach_ovr_observation VALUES (?,?,?,?)',
         [o.id,o.ovrBoost.gainLo,o.ovrBoost.gainHi,'observed-boost-interval']);
