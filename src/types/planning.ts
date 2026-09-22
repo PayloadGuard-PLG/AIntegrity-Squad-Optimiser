@@ -1,4 +1,5 @@
 import { TierName } from './resources';
+import type { PlaystyleFamily, StatBoost } from '../database/playerSchema';
 
 export type EvidenceStatus = 'confirmed' | 'observed' | 'calibrating' | 'unknown';
 export type TransitionKind = 'role' | 'tier' | 'playstyle' | 'deployment' | 'mentor' | 'coach';
@@ -14,6 +15,13 @@ export interface PlayerPlanningState {
   stats: Record<string, number>;
   overall: number;
   tier: TierName;
+  /** OCR/manual intake state: a role still being learned contributes no whites. */
+  learningRole?: { role: string; points: number } | null;
+  /** Badge family observed by OCR. Never promoted to a named playstyle by inference. */
+  observedPlaystyleFamily?: PlaystyleFamily;
+  specialAbilities?: string[];
+  boosts?: Record<string, StatBoost>;
+  /** Named playstyle selected inside a hypothetical planning branch. */
   playstyle?: PlannedPlaystyle | null;
   deployedRole?: string | null;
 }
