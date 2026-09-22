@@ -16,13 +16,13 @@ export const ALL_ROUND_SENTINEL = '__ALL_ROUND__';
 /**
  * Stat resolution from a coach scan.
  *
- * Standard and Extensive coaches always train the full category (5 stats for outfield,
- * 11 for GK). Arrow icons on non-highlighted rows are not readable by ML Kit, so OCR
- * routinely returns fewer than the full count. For these types the category defines the
- * stat list — always use CATEGORY_STATS so the budget is divided correctly.
+ * Coach type/category are metadata. They do NOT determine the affected-stat set.
+ * Live Drill Session evidence falsifies the old "Standard/Extensive = full category"
+ * assumption: a Standard Attacking coach can target only a subset of attacking stats.
  *
- * Focused coaches boost 1–2 stats; Reward Coaches boost a custom cross-category set.
- * Both rely on OCR detection (or the manual focused-stat picker for Focused).
+ * Therefore only targets actually observed by OCR are returned here. If OCR cannot
+ * resolve the highlighted rows, the UI must leave the target set unresolved until the
+ * user confirms the exact affected stats manually.
  */
 export function resolveCoachStats(
   scan: CoachScanResult,
@@ -36,16 +36,6 @@ export function resolveCoachStats(
   // Training Camp is a different programme family. Preserve only observed targets;
   // never expand it to a Resource Coach category shape.
   if (scan.sourceFamily === 'training-camp') return detected;
-
-  // Standard / Extensive: return the full confirmed category list regardless of OCR count.
-  // Reward Coaches and Focused coaches are excluded — OCR (or manual picker) drives those.
-  if (
-    !scan.isRewardCoach &&
-    (scan.coachType === 'Standard' || scan.coachType === 'Extensive') &&
-    scan.coachCategory
-  ) {
-    return CATEGORY_STATS[scan.coachCategory] ?? [];
-  }
 
   return detected;
 }
