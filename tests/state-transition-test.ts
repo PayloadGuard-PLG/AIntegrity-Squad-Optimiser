@@ -55,6 +55,16 @@ test('pure MC -> DMC at Stellar then Master gives +50 to two new whites and +30 
   assert.ok(Math.abs((tier.after.overall - role.after.overall) - 24) < 1e-9);
 });
 
+test('DMC+MC -> AMC at Stellar newly-whites FINISHING and the observed STRENGTH interaction', () => {
+  const before = state(['DMC', 'MC'], 'T3');
+  const step = previewRoleUnlock(before, 'AMC', profile);
+
+  assert.deepEqual(step.newlyWhite, ['FINISHING', 'STRENGTH']);
+  assert.equal(step.after.stats.FINISHING, 150);
+  assert.equal(step.after.stats.STRENGTH, 150);
+  assert.ok(Math.abs((step.after.overall - before.overall) - (100 / 15)) < 1e-9);
+});
+
 test('Regista remains active when a player with MC+DMC is deployed at DMC', () => {
   let s = state(['MC', 'DMC'], 'T3');
   const style = previewPlaystyleAssignment(s, 'regista', 'Master');
