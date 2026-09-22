@@ -164,6 +164,58 @@ test('player name survives shirt-number OCR tokenization, including a fused firs
   assert.equal(baseline.overall, 210);
 });
 
+test('player name ignores a trailing status glyph OCRed into the same header block', () => {
+  const source = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures/mlkit-blakie.json'), 'utf8')
+  ) as OcrResult;
+
+  const variants = [
+    ['23 Ryan Blakie !', ['23', 'Ryan', 'Blakie', '!']],
+    ['23Ryan Blakie !', ['23Ryan', 'Blakie', '!']],
+    ['Ryan Blakie 0', ['Ryan', 'Blakie', '0']],
+  ] as const;
+
+  for (const [blockText, elementTexts] of variants) {
+    const card = JSON.parse(JSON.stringify(source)) as OcrResult;
+    const nameBlock = card.blocks.find(block => block.text.trim() === 'Ryan Blakie');
+    assert.ok(nameBlock?.frame);
+    const line = nameBlock!.lines[0];
+    assert.ok(line?.frame);
+
+    nameBlock!.text = blockText;
+    line.text = blockText;
+    line.elements = elementTexts.map((text, index) => ({
+      text,
+      frame: {
+        left: nameBlock!.frame!.left + index * 42,
+        top: nameBlock!.frame!.top,
+        width: Math.max(18, text.length * 11),
+        height: nameBlock!.frame!.height,
+      },
+    }));
+    card.text = (card.text ?? '').replace('Ryan Blakie', blockText);
+
+    const parsed = parsePlayerCardText(card);
+    assert.equal(parsed.name, 'Ryan Blakie', `header ${blockText} keeps the clean identity`);
+    assert.equal(parsed.age, 20);
+  }
+});
+
+test('truncating a non-name suffix cannot turn OVR or stat rows into identity', () => {
+  const source = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures/mlkit-blakie.json'), 'utf8')
+  ) as OcrResult;
+  const card = JSON.parse(JSON.stringify(source)) as OcrResult;
+  const nameBlock = card.blocks.find(block => block.text.trim() === 'Ryan Blakie');
+  assert.ok(nameBlock);
+  nameBlock!.text = '!';
+  nameBlock!.lines[0].text = '!';
+  nameBlock!.lines[0].elements = [{ text: '!', frame: nameBlock!.frame }];
+
+  assert.equal(parsePlayerCardText(card).name, undefined,
+    'OVR/stat/UI candidates remain rejected when the real header is unread');
+});
+
 test('new-player screen uses replacement semantics while edit rescans retain merge semantics', () => {
   const addScreen = readFileSync(join(__dirname, '..', 'app/player/new.tsx'), 'utf8');
   const editScreen = readFileSync(join(__dirname, '..', 'app/player/[id].tsx'), 'utf8');
