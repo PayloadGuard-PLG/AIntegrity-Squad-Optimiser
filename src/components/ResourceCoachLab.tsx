@@ -66,6 +66,7 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
   const hasZero=observed.some(r=>r.gainHi===0) || Object.values(values).some(v=>v.lo.trim()!=='' && v.hi.trim()!=='' && Number(v.hi)===0);
   const mismatch=identityConflict||observedMismatch;
   const stateConfirmed=!mismatch&&resourceStateConfirmed(player.role,player.stats,input.stats);
+  const evidenceReady=stateConfirmed&&targetSource!=='unresolved';
 
   function attempt(action:()=>void) { try { action(); } catch(e) { setMessage(e instanceof Error?e.message:String(e)); } }
   function project() { attempt(()=>{
@@ -123,6 +124,9 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
     <Text style={{...textStyle,color:targetSource==='unresolved'?theme.hot:theme.pos,marginTop:6}}>
       TARGET SET: {targetSource==='ocr-observed'?'OCR OBSERVED':targetSource==='manual-confirmed'?'MANUAL CONFIRMED':targetSource==='all-round-observed'?'ALL-ROUND OBSERVED':'UNRESOLVED'}
     </Text>
+    {targetSource==='unresolved'&&<Text style={{...textStyle,color:theme.hot}}>
+      Confirm the exact affected rows before saving this preview as calibration evidence. Coach type/category alone is not target evidence.
+    </Text>}
     {input.stats.map(s=><View key={s.stat} style={{marginTop:8,flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8}}>
       <Text style={{...textStyle,flexGrow:1}}>{s.stat} {s.displayedStat}</Text>
       <Pressable accessibilityRole="button" accessibilityLabel={`Override ${s.stat} class`} onPress={()=>toggleClass(s.stat,s.displayClass)}
@@ -171,7 +175,7 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
       <TextInput accessibilityLabel="Observed OVR boost low" placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
       <TextInput accessibilityLabel="Observed OVR boost high" placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
     </View>
-    <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!stateConfirmed||!!savedObservation}/>
+    <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!evidenceReady||!!savedObservation}/>
     <Button label="USE SAVED PREVIEW AS V2 SEPARATE ANCHOR" disabled={!savedObservation||sourceFamily!=='resource-coach'||transferClass!=='ordinary'||hasZero} onPress={()=>attempt(()=>{
       const c=fitPlayerCalibration(savedObservation!);resourceCoachService.saveCalibration(c,savedObservation!);
       setPrediction(null);setMessage('V2 anchor saved. The 21 Sep calibration candidate remains unanchored by design.');
