@@ -7,6 +7,7 @@
  */
 export type CoachTransferClass = 'ordinary' | 'reward' | 'unresolved';
 export type CoachSourceFamily = 'resource-coach' | 'training-camp' | 'unresolved';
+export type CoachProgrammeFamily = 'unknown' | 'drill-session' | 'skill-seminar';
 
 function canonicalCoachLabels(fullText: string): string {
   return (fullText ?? '').replace(/\bC0ACH\b/gi, 'COACH');
@@ -16,8 +17,16 @@ function canonicalCoachLabels(fullText: string): string {
 export function classifyCoachSource(fullText: string): CoachSourceFamily {
   const text = canonicalCoachLabels(fullText);
   if (/\btraining\s*camp\b/i.test(text)) return 'training-camp';
+  if (/\b(?:drill\s*session|skill\s*seminar)\b/i.test(text)) return 'resource-coach';
   if (/\b(?:reward|academy|ordinary)\s*coach\b|\bcoach\s*academy\b/i.test(text)) return 'resource-coach';
   return 'unresolved';
+}
+
+export function classifyCoachProgramme(fullText: string): CoachProgrammeFamily {
+  const text = canonicalCoachLabels(fullText);
+  if (/\bdrill\s*session\b/i.test(text)) return 'drill-session';
+  if (/\bskill\s*seminar\b/i.test(text)) return 'skill-seminar';
+  return 'unknown';
 }
 
 export function classifyCoachTransfer(fullText: string): CoachTransferClass {
