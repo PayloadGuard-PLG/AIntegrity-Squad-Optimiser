@@ -1,5 +1,7 @@
 import config from '../../profiles/resource_coach_v2.json';
-import type { CoachProgrammeFamily, CoachSourceFamily, CoachTransferClass } from './coachTransfer';
+import type {
+  CoachClassificationSource, CoachProgrammeFamily, CoachSourceFamily, CoachTransferClass,
+} from './coachTransfer';
 import { isWhiteStat } from '../utils/roleWeights';
 
 export const RESOURCE_MODEL = config;
@@ -9,7 +11,10 @@ export type ResourceProgrammeFamily = CoachProgrammeFamily;
 export type ResourceInput = {
   playerId: string; age: number; tier: string; stateKey: string;
   sourceFamily: CoachSourceFamily; transferClass: CoachTransferClass; coachLabel: string; multiplier: number;
+  sourceFamilySource?: CoachClassificationSource;
+  transferClassSource?: CoachClassificationSource;
   programmeFamily?: ResourceProgrammeFamily;
+  programmeFamilySource?: CoachClassificationSource;
   targetSource?: 'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
   stats: ResourceStat[];
 };
