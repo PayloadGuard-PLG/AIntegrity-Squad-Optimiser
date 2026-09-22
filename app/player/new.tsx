@@ -9,7 +9,7 @@ import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
 import { useScanner, ReviewFlag, PlaystyleFamily, StatBoost } from '../../src/hooks/useScanner';
-import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError } from '../../src/logic/playerScanState';
+import { replaceNewPlayerScanState, needsRoleReview, needsTierReview, playerRoleError } from '../../src/logic/playerScanState';
 import { PlayerScanReview } from '../../src/components/PlayerScanReview';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
@@ -78,7 +78,7 @@ export default function NewPlayerScreen() {
   const statList = isGK ? GK_STATS_ALL : OUTFIELD_STATS;
 
   // Auto-compute OVR from scanned stats
-  function recomputeOvr(inputs: Record<string, string>) {
+  function recomputeOvr(inputs: Record<string, string>, roles: string[] = selectedRoles) {
     const statsObj: Record<string, number> = {};
     for (const [k, v] of Object.entries(inputs)) {
       const n = parseFloat(v);
@@ -88,7 +88,7 @@ export default function NewPlayerScreen() {
       const enteredVals = Object.values(statsObj);
       const mean = Math.floor(enteredVals.reduce((a, b) => a + b, 0) / enteredVals.length);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fakePlayer = { stats: statsObj, overall: mean, role: selectedRoles.length > 0 ? selectedRoles : ['ST'] } as any;
+      const fakePlayer = { stats: statsObj, overall: mean, role: roles.length > 0 ? roles : ['ST'] } as any;
       const auto = computeOvrFromStats(fakePlayer, profile);
       setOverall(auto.toFixed(1));
       setOvrIsAuto(true);
@@ -112,9 +112,20 @@ export default function NewPlayerScreen() {
       if (!data) return;
 
       if (Object.keys(data.stats).length > 0 || data.overall) {
-        if (data.name) setName(data.name);
-        if (data.age) setAge(data.age.toString());
-        const next = mergePlayerScanState(cardState, data);
+        // This screen has no persisted player identity yet. Each selected
+        // screenshot is therefore a replacement intake candidate, not a rescan
+        // merge. Never let an unread field inherit from a different unsaved
+        // player that happened to be scanned immediately beforehand.
+        const next = replaceNewPlayerScanState(data);
+        setName(data.name ?? '');
+        setAge(data.age?.toString() ?? '');
+        setOverall('');
+        setOvrIsAuto(false);
+        setTalent('Unknown');
+        setTalentSource('unresolved');
+        setMutant(false);
+        setRoleError('');
+        setStatInputs({});
         setPositionStates(Object.fromEntries(next.role.map(r => [r, 2 as const])));
         setTier(next.tier);
         setNewRole(next.newRole ?? null);
@@ -140,7 +151,7 @@ export default function NewPlayerScreen() {
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         );
         setStatInputs(inputs);
-        recomputeOvr(inputs);
+        recomputeOvr(inputs, replaceNewPlayerScanState(data).role);
         setScanned(true);
         setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
@@ -424,6 +435,7 @@ export default function NewPlayerScreen() {
         ) : null}
 
         <PlayerScanReview state={cardState} review={review}
+          preserveUnread={false}
           rolesPending={rolesPending} tierPending={tierPending}
           onConfirmRoles={() => {
             const error = playerRoleError(cardState);
