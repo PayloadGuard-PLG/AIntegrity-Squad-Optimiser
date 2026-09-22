@@ -433,47 +433,40 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
   const located: LocatedRole[] = [];
 
   // ML Kit is free to split the visually adjacent X/50 badge into a separate
-  // OCR block. Role labels remain scoped to the anchored Roles block, but the
-  // progress counter is searched across all OCR elements on the same visual row.
-  // Otherwise a card such as "DC DMC MC 7/50" can be silently promoted to three
-  // established roles when "7/50" lands in its own block.
+  // OCR block. Collect counter observations globally, but do NOT classify one
+  // as role progress merely because it shares the row. A role-progress counter
+  // must also be geometrically adjacent to a recognised role chip.
+  type LocatedCounter = { points: number; left: number; top: number; height: number };
   const allElements = (result.blocks ?? [])
     .flatMap(block => block.lines ?? [])
     .flatMap(line => line.elements ?? [])
     .filter(element => element.frame && element.text.trim());
 
-  const counters = allElements
-    .flatMap(element => {
-      const frame = element.frame!;
-      const match = ROLE_PROGRESS_RE.exec(element.text.trim());
-      if (!match) return [];
-      const sameRow =
-        Math.abs(frame.top - roleAnchor.frame!.top) <=
-        Math.max(frame.height, roleAnchor.frame!.height) * 1.5;
-      if (!sameRow || frame.left <= roleAnchor.frame!.left) return [];
-      return [{
-        points: parseInt(match[1], 10),
-        left: frame.left,
-        top: frame.top,
-        height: frame.height,
-      }];
-    });
+  const rawCounters: LocatedCounter[] = allElements.flatMap(element => {
+    const frame = element.frame!;
+    const match = ROLE_PROGRESS_RE.exec(element.text.trim());
+    if (!match) return [];
+    return [{
+      points: parseInt(match[1], 10),
+      left: frame.left,
+      top: frame.top,
+      height: frame.height,
+    }];
+  });
 
-  // Some OCR builds split "7/50" into sub-elements while preserving it in the
-  // line text. If no element-level counter exists, use the framed line as the
-  // counter observation instead.
-  if (counters.length === 0) {
+  // Some OCR builds omit a dedicated counter element while retaining X/50 in
+  // the line text. Estimate the counter's horizontal position from its character
+  // offset inside the framed line; using line.frame.left directly would point to
+  // the Roles: label and make the fallback unusable.
+  if (rawCounters.length === 0) {
     for (const line of (result.blocks ?? []).flatMap(block => block.lines ?? [])) {
       if (!line.frame) continue;
-      const match = ROLE_PROGRESS_RE.exec(line.text.trim());
-      if (!match) continue;
-      const sameRow =
-        Math.abs(line.frame.top - roleAnchor.frame.top) <=
-        Math.max(line.frame.height, roleAnchor.frame.height) * 1.5;
-      if (!sameRow || line.frame.left <= roleAnchor.frame.left) continue;
-      counters.push({
+      const match = ROLE_PROGRESS_RE.exec(line.text);
+      if (!match || match.index == null) continue;
+      const textLength = Math.max(line.text.length, 1);
+      rawCounters.push({
         points: parseInt(match[1], 10),
-        left: line.frame.left,
+        left: line.frame.left + line.frame.width * (match.index / textLength),
         top: line.frame.top,
         height: line.frame.height,
       });
@@ -514,25 +507,44 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
     seen.add(item.role);
     unique.push(item);
   }
-  if (unique.length === 0 || counters.length > 1) return undefined;
+  if (unique.length === 0) return undefined;
+
+  // Pair only genuinely adjacent counters with a role. This is intentionally
+  // stronger than "same row": unrelated X/50 UI elsewhere on the card must not
+  // turn an established role into a learning role or force the entire role state
+  // into review.
+  const paired = rawCounters.flatMap(counter => {
+    if (counter.points < 0 || counter.points >= 50) return [];
+    const candidates = unique
+      .filter(item => {
+        const h = Math.max(item.height, counter.height);
+        const sameRow = Math.abs(item.top - counter.top) <= h * 1.5;
+        const gap = counter.left - item.right;
+        return sameRow && gap >= -h * 0.5 && gap <= h * 3;
+      })
+      .sort((a, b) => b.right - a.right);
+    const role = candidates[0];
+    return role ? [{ counter, role }] : [];
+  });
+
+  // De-duplicate the same OCR observation emitted in overlapping blocks.
+  const distinct = paired.filter((entry, index, all) =>
+    all.findIndex(other =>
+      other.counter.points === entry.counter.points &&
+      other.role.role === entry.role.role &&
+      Math.abs(other.counter.left - entry.counter.left) <= Math.max(other.counter.height, entry.counter.height) &&
+      Math.abs(other.counter.top - entry.counter.top) <= Math.max(other.counter.height, entry.counter.height)
+    ) === index
+  );
+
+  if (distinct.length > 1) return undefined;
 
   let learningRole: { role: string; points: number } | null = null;
-  if (counters.length === 1) {
-    const counter = counters[0];
-    if (counter.points < 0 || counter.points >= 50) return undefined;
-
-    // Progress belongs to the role on the same visual row immediately to its
-    // left. Do not associate a wrapped role from another line merely because
-    // its x-coordinate happens to be closer.
-    const candidate = [...unique]
-      .filter(item =>
-        Math.abs(item.top - counter.top) <= Math.max(item.height, counter.height) * 1.5 &&
-        item.left < counter.left
-      )
-      .sort((a, b) => b.right - a.right)[0];
-
-    if (!candidate) return undefined;
-    learningRole = { role: candidate.role, points: counter.points };
+  if (distinct.length === 1) {
+    learningRole = {
+      role: distinct[0].role.role,
+      points: distinct[0].counter.points,
+    };
   }
 
   const establishedRoles = unique
