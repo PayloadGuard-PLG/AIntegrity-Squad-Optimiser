@@ -6,6 +6,13 @@ export type ExperimentPartition =
   | 'calibration'
   | 'excluded';
 
+export type PartitionEventKind = 'created' | 'transition' | 'legacy-snapshot';
+
+export type EvidenceIdentity = {
+  fingerprint: string;
+  canonicalKey: string;
+};
+
 export type ScorablePrediction = {
   modelVersion: string;
   status: 'predicted' | 'unavailable';
@@ -39,6 +46,58 @@ export type PredictionScore = {
   ovrResidual?: IntervalResidual;
   reason?: string;
 };
+
+function normaliseToken(value: string): string {
+  return value.trim().replace(/\s+/g,' ').toUpperCase();
+}
+
+/**
+ * Exact empirical-evidence identity.
+ *
+ * Intentionally excludes experiment id, timestamps, prediction/model state and
+ * capture-method provenance. Those describe the measurement process, not the
+ * empirical player+coach+outcome observation being counted.
+ */
+export function evidenceIdentity(observation: ResourceObservation): EvidenceIdentity {
+  const stats=observation.input.stats
+    .map(s=>({
+      stat:normaliseToken(s.stat),
+      displayedStat:s.displayedStat,
+      displayClass:s.displayClass,
+    }))
+    .sort((a,b)=>a.stat.localeCompare(b.stat));
+  const intervals=observation.intervals
+    .map(r=>({stat:normaliseToken(r.stat),gainLo:r.gainLo,gainHi:r.gainHi}))
+    .sort((a,b)=>a.stat.localeCompare(b.stat));
+  const canonicalKey=JSON.stringify({
+    playerId:observation.input.playerId,
+    age:observation.input.age,
+    tier:observation.input.tier,
+    stateKey:observation.input.stateKey,
+    sourceFamily:observation.input.sourceFamily,
+    transferClass:observation.input.transferClass,
+    coachLabel:normaliseToken(observation.input.coachLabel),
+    multiplier:observation.input.multiplier,
+    programmeFamily:observation.input.programmeFamily ?? 'unknown',
+    affectedStats:stats.map(s=>s.stat),
+    startingStats:stats,
+    intervals,
+    ovrBoost:observation.ovrBoost
+      ? {gainLo:observation.ovrBoost.gainLo,gainHi:observation.ovrBoost.gainHi}
+      : null,
+  });
+  const fnv=(seed:number)=>{
+    let h=seed>>>0;
+    for(let i=0;i<canonicalKey.length;i++) {
+      h^=canonicalKey.charCodeAt(i);
+      h=Math.imul(h,0x01000193)>>>0;
+    }
+    return h.toString(16).padStart(8,'0');
+  };
+  // canonicalKey is always compared after this compact index key, so a hash
+  // collision can never cause evidence to be collapsed.
+  return {fingerprint:`fnv64-${fnv(0x811c9dc5)}${fnv(0x9e3779b9)}`,canonicalKey};
+}
 
 function intervalResidual(
   stat: string,

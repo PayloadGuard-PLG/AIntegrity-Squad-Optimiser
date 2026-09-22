@@ -1,7 +1,7 @@
 import { RESOURCE_COACH_SCHEMA } from '../db/resourceCoachSchema';
 import { RESOURCE_MODEL, validateObservation, type ResourceInput, type ResourceObservation, type ResourcePrediction, type PlayerCalibration } from '../logic/resourceCoachV2';
 import { RESOURCE_CALIBRATION_CANDIDATE, type CandidatePrediction } from '../logic/resourceCoachCandidate';
-import { scorePrediction, type ExperimentPartition, type PredictionScore, type ScorablePrediction } from '../logic/resourceCoachExperiment';
+import { evidenceIdentity, scorePrediction, type ExperimentPartition, type PartitionEventKind, type PredictionScore, type ScorablePrediction } from '../logic/resourceCoachExperiment';
 
 export interface ResourceDatabase {
   execSync(sql: string): void;
@@ -19,6 +19,22 @@ type ExperimentRow = {
   partition: ExperimentPartition;
   status: 'open' | 'observed';
   observed_at: string | null;
+};
+type PartitionEventRow = {
+  event_seq: number;
+  experiment_id: string;
+  recorded_at: string;
+  event_kind: PartitionEventKind;
+  from_partition: ExperimentPartition | null;
+  to_partition: ExperimentPartition;
+  note: string | null;
+};
+type EvidenceRow = {
+  experiment_id: string;
+  evidence_fingerprint: string;
+  canonical_key: string;
+  duplicate_of_experiment_id: string | null;
+  detected_at: string;
 };
 
 function experimentSignature(input: ResourceInput): string {
@@ -40,10 +56,66 @@ function experimentSignature(input: ResourceInput): string {
 
 export function createResourceCoachStore(expoDb: ResourceDatabase) {
 let ready = false;
+function insertPartitionEvent(
+  experimentId:string,
+  kind:PartitionEventKind,
+  fromPartition:ExperimentPartition|null,
+  toPartition:ExperimentPartition,
+  note:string|null,
+  recordedAt=new Date().toISOString(),
+) {
+  expoDb.runSync(`INSERT INTO resource_coach_partition_event
+    (experiment_id,recorded_at,event_kind,from_partition,to_partition,note)
+    VALUES (?,?,?,?,?,?)`,[experimentId,recordedAt,kind,fromPartition,toPartition,note]);
+}
+function getEvidence(experimentId:string):EvidenceRow|null {
+  return expoDb.getFirstSync<EvidenceRow>(
+    'SELECT * FROM resource_coach_evidence_identity WHERE experiment_id=?',[experimentId]);
+}
+function persistEvidenceIdentity(experimentId:string,o:ResourceObservation,detectedAt=new Date().toISOString()):EvidenceRow {
+  const prior=getEvidence(experimentId);if(prior)return prior;
+  const identity=evidenceIdentity(o);
+  const candidates=expoDb.getAllSync<EvidenceRow>(
+    'SELECT * FROM resource_coach_evidence_identity WHERE evidence_fingerprint=? ORDER BY detected_at,experiment_id',
+    [identity.fingerprint]);
+  const exact=candidates.find(r=>r.experiment_id!==experimentId&&r.canonical_key===identity.canonicalKey);
+  const duplicateOf=exact ? (exact.duplicate_of_experiment_id ?? exact.experiment_id) : null;
+  expoDb.runSync(`INSERT INTO resource_coach_evidence_identity
+    (experiment_id,evidence_fingerprint,canonical_key,duplicate_of_experiment_id,detected_at)
+    VALUES (?,?,?,?,?)`,[experimentId,identity.fingerprint,identity.canonicalKey,duplicateOf,detectedAt]);
+  return getEvidence(experimentId)!;
+}
 function ensure() {
   if (ready) return;
   expoDb.withTransactionSync(() => {
     expoDb.execSync(RESOURCE_COACH_SCHEMA);
+
+    // Existing preview experiments predate append-only partition provenance.
+    // Record only the current state as a legacy snapshot; never invent an origin.
+    const migrationAt=new Date().toISOString();
+    const legacyPartitions=expoDb.getAllSync<{experiment_id:string;partition:ExperimentPartition}>(`
+      SELECT e.experiment_id,e.partition FROM resource_coach_experiment e
+      WHERE NOT EXISTS (
+        SELECT 1 FROM resource_coach_partition_event pe WHERE pe.experiment_id=e.experiment_id
+      ) ORDER BY e.created_at,e.experiment_id`,[]);
+    for(const row of legacyPartitions) {
+      insertPartitionEvent(row.experiment_id,'legacy-snapshot',null,row.partition,
+        'Partition state predates provenance events; original partition is unknown.',migrationAt);
+    }
+
+    // Evidence identity is safe to reconstruct from immutable saved observations.
+    // Parse failures are left untouched/unclassified instead of blocking startup.
+    const legacyEvidence=expoDb.getAllSync<{experiment_id:string;observation_json:string}>(`
+      SELECT e.experiment_id,p.observation_json
+      FROM resource_coach_experiment e
+      JOIN resource_coach_preview p ON p.observation_id=e.experiment_id
+      WHERE e.status='observed' AND NOT EXISTS (
+        SELECT 1 FROM resource_coach_evidence_identity ei WHERE ei.experiment_id=e.experiment_id
+      ) ORDER BY e.created_at,e.experiment_id`,[]);
+    for(const row of legacyEvidence) {
+      try { persistEvidenceIdentity(row.experiment_id,JSON.parse(row.observation_json) as ResourceObservation,migrationAt); }
+      catch { /* preserve malformed legacy evidence without fabricating identity */ }
+    }
     expoDb.runSync('UPDATE resource_coach_model_versions SET active = 0 WHERE active = 1', []);
     expoDb.runSync(`INSERT INTO resource_coach_model_versions
       (model_version,created_at,transfer_class,parameter_json,validation_json,source_corpus_hash,active)
@@ -71,10 +143,13 @@ function ensureExperiment(id: string, input: ResourceInput, initialPartition: Ex
     return existing;
   }
   const createdAt = new Date().toISOString();
-  expoDb.runSync(`INSERT INTO resource_coach_experiment
-    (experiment_id,player_id,created_at,input_json,partition,status,observed_at)
-    VALUES (?,?,?,?,?,'open',NULL)`,
-    [id,input.playerId,createdAt,JSON.stringify(input),initialPartition]);
+  expoDb.withTransactionSync(()=>{
+    expoDb.runSync(`INSERT INTO resource_coach_experiment
+      (experiment_id,player_id,created_at,input_json,partition,status,observed_at)
+      VALUES (?,?,?,?,?,'open',NULL)`,
+      [id,input.playerId,createdAt,JSON.stringify(input),initialPartition]);
+    insertPartitionEvent(id,'created',null,initialPartition,'Experiment opened.',createdAt);
+  });
   return getExperiment(id)!;
 }
 function persistScore(experimentId: string, predictionId: string, score: PredictionScore) {
@@ -154,6 +229,7 @@ return {
       }
       if (o.ovrBoost) expoDb.runSync('INSERT INTO resource_coach_ovr_observation VALUES (?,?,?,?)',
         [o.id,o.ovrBoost.gainLo,o.ovrBoost.gainHi,'observed-boost-interval']);
+      persistEvidenceIdentity(o.id,o,o.capturedAt);
 
       const predictions = expoDb.getAllSync<{prediction_id:string;prediction_json:string}>(`
         SELECT ep.prediction_id,p.prediction_json
@@ -177,6 +253,10 @@ return {
     if (!experiment || experiment.partition !== 'calibration') {
       throw Error('Promote the saved observation to the calibration corpus before fitting an anchor.');
     }
+    const evidence=getEvidence(o.id);
+    if(evidence?.duplicate_of_experiment_id) {
+      throw Error(`Exact duplicate evidence is already represented by experiment ${evidence.duplicate_of_experiment_id}; do not fit it as a second anchor.`);
+    }
     if (c.anchorId !== o.id || !expoDb.getFirstSync('SELECT observation_id FROM resource_coach_preview WHERE observation_id=?',[o.id])) throw Error('Save the separate anchor observation first.');
     expoDb.withTransactionSync(() => {
       expoDb.runSync('UPDATE resource_coach_player_calibration SET is_active=0 WHERE player_id=?',[c.playerId]);
@@ -192,8 +272,17 @@ return {
     ensure();
     const experiment = getExperiment(experimentId);
     if (!experiment) throw Error('Experiment has not been persisted yet.');
+    if(partition===experiment.partition)return partition;
     if (partition === 'calibration' && experiment.status !== 'observed') throw Error('Only a saved observed experiment can enter the calibration corpus.');
-    expoDb.runSync('UPDATE resource_coach_experiment SET partition=? WHERE experiment_id=?',[partition,experimentId]);
+    const evidence=getEvidence(experimentId);
+    if(partition==='calibration'&&evidence?.duplicate_of_experiment_id) {
+      throw Error(`Exact duplicate evidence is already represented by experiment ${evidence.duplicate_of_experiment_id}; keep this raw repeat out of calibration weighting.`);
+    }
+    const changedAt=new Date().toISOString();
+    expoDb.withTransactionSync(()=>{
+      expoDb.runSync('UPDATE resource_coach_experiment SET partition=? WHERE experiment_id=?',[partition,experimentId]);
+      insertPartitionEvent(experimentId,'transition',experiment.partition,partition,'Explicit partition change.',changedAt);
+    });
     return partition;
   },
   getExperimentScores(experimentId: string): PredictionScore[] {
@@ -219,13 +308,32 @@ return {
       'SELECT * FROM resource_coach_prediction_score WHERE experiment_id=? ORDER BY scored_at ASC',[experimentId]);
     const residuals = expoDb.getAllSync<Record<string,unknown>>(
       'SELECT * FROM resource_coach_residual WHERE experiment_id=? ORDER BY model_version,stat',[experimentId]);
+    const partitionHistory=expoDb.getAllSync<PartitionEventRow>(
+      'SELECT * FROM resource_coach_partition_event WHERE experiment_id=? ORDER BY event_seq',[experimentId]);
+    const createdEvent=partitionHistory.find(e=>e.event_kind==='created');
+    const promotedEvent=[...partitionHistory].reverse().find(e=>e.event_kind==='transition'&&e.to_partition==='calibration');
+    const evidence=getEvidence(experimentId);
     return JSON.stringify({
       schemaVersion:'resource-coach-experiment-v1',
       experiment:{
         experimentId:experiment.experiment_id,playerId:experiment.player_id,createdAt:experiment.created_at,
-        partition:experiment.partition,status:experiment.status,observedAt:experiment.observed_at,
+        partition:experiment.partition,
+        originPartition:createdEvent?.to_partition ?? null,
+        currentPartition:experiment.partition,
+        promotedAt:promotedEvent?.recorded_at ?? null,
+        partitionHistory:partitionHistory.map(e=>({
+          eventSeq:e.event_seq,recordedAt:e.recorded_at,eventKind:e.event_kind,
+          fromPartition:e.from_partition,toPartition:e.to_partition,note:e.note,
+        })),
+        status:experiment.status,observedAt:experiment.observed_at,
         input:JSON.parse(experiment.input_json),
       },
+      evidence:evidence?{
+        fingerprint:evidence.evidence_fingerprint,
+        isDuplicate:!!evidence.duplicate_of_experiment_id,
+        duplicateOfExperimentId:evidence.duplicate_of_experiment_id,
+        detectedAt:evidence.detected_at,
+      }:null,
       observation: preview ? parseJson(preview.observation_json) : null,
       observedStats: observedStats.map(r=>({...r,source_ref:parseJson(r.source_ref)})),
       ovrObservation: ovr,
@@ -262,12 +370,19 @@ return {
   },
   exportCalibrationCorpus(): string {
     ensure();
-    const ids = expoDb.getAllSync<{experiment_id:string}>(`
-      SELECT experiment_id FROM resource_coach_experiment
-      WHERE partition='calibration' AND status='observed' ORDER BY created_at ASC`,[]);
+    const rows=expoDb.getAllSync<{experiment_id:string;duplicate_of_experiment_id:string|null}>(`
+      SELECT e.experiment_id,ei.duplicate_of_experiment_id
+      FROM resource_coach_experiment e
+      LEFT JOIN resource_coach_evidence_identity ei ON ei.experiment_id=e.experiment_id
+      WHERE e.partition='calibration' AND e.status='observed'
+      ORDER BY e.created_at,e.experiment_id`,[]);
+    const effective=rows.filter(r=>!r.duplicate_of_experiment_id);
+    const duplicates=rows.filter(r=>!!r.duplicate_of_experiment_id);
     return JSON.stringify({
-      schemaVersion:'resource-coach-calibration-corpus-v1',
-      experiments:ids.map(r=>JSON.parse(this.exportExperiment(r.experiment_id))),
+      schemaVersion:'resource-coach-calibration-corpus-v2',
+      deduplication:'Exact empirical duplicates are retained separately and excluded from effective calibration weighting.',
+      experiments:effective.map(r=>JSON.parse(this.exportExperiment(r.experiment_id))),
+      duplicateEvidence:duplicates.map(r=>JSON.parse(this.exportExperiment(r.experiment_id))),
     },null,2);
   },
 };

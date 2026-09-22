@@ -7,7 +7,7 @@ import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibrat
 import { RESOURCE_CALIBRATION_CANDIDATE, candidateAgeScale, candidateTierCoordinate, candidateDose, latentMovement, displayedGainFromLatent, predictCalibrationCandidate } from '../src/logic/resourceCoachCandidate';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
-import { scorePrediction } from '../src/logic/resourceCoachExperiment';
+import { evidenceIdentity, scorePrediction } from '../src/logic/resourceCoachExperiment';
 const input: ResourceInput = {
   playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',
   sourceFamily:'resource-coach',sourceFamilySource:'manual-confirmed',
@@ -158,12 +158,33 @@ test('native SQLite writer isolates experiments, freezes predictions, scores res
   const isolated=JSON.parse(restart.exportExperiment(anchorId));
   assert.equal(isolated.experiment.experimentId,anchorId);
   assert.equal(isolated.experiment.partition,'calibration');
+  assert.equal(isolated.experiment.originPartition,'prospective-holdout');
+  assert.equal(isolated.experiment.currentPartition,'calibration');
+  assert.ok(isolated.experiment.promotedAt);
+  assert.deepEqual(isolated.experiment.partitionHistory.map((e:any)=>e.eventKind),['created','transition']);
+  assert.equal(isolated.evidence.isDuplicate,false);
+  assert.match(isolated.evidence.fingerprint,/^fnv64-[0-9a-f]{16}$/);
   assert.equal(isolated.predictions.length,2);
   assert.equal(isolated.scores.length,2);
   assert.ok(isolated.predictions.some((p:{modelVersion:string})=>p.modelVersion===RESOURCE_CALIBRATION_CANDIDATE.modelVersion));
 
-  const second={...observation('second-experiment'),capturedAt:'2026-09-14'};
+  const second={...observation('second-experiment'),capturedAt:'2026-09-14',ovrBoost:{gainLo:2,gainHi:3}};
   store.saveObservation(second,'retrospective');
+  const secondExport=JSON.parse(store.exportExperiment(second.id));
+  assert.equal(secondExport.evidence.isDuplicate,true);
+  assert.equal(secondExport.evidence.duplicateOfExperimentId,anchorId);
+  assert.throws(()=>store.setExperimentPartition(second.id,'calibration'),/duplicate evidence/i);
+
+  // Simulate the pre-fix device state where an exact duplicate had already been
+  // promoted. Corpus export must still count the empirical observation once.
+  db.raw.prepare("UPDATE resource_coach_experiment SET partition='calibration' WHERE experiment_id=?").run(second.id);
+  assert.throws(()=>store.saveCalibration(fitPlayerCalibration(second),second),/duplicate evidence/i);
+  const calibrationCorpus=JSON.parse(store.exportCalibrationCorpus());
+  assert.equal(calibrationCorpus.schemaVersion,'resource-coach-calibration-corpus-v2');
+  assert.equal(calibrationCorpus.experiments.length,1);
+  assert.equal(calibrationCorpus.duplicateEvidence.length,1);
+  assert.equal(calibrationCorpus.duplicateEvidence[0].evidence.duplicateOfExperimentId,anchorId);
+
   const isolatedAgain=JSON.parse(store.exportExperiment(anchorId));
   assert.equal(isolatedAgain.observation.id,anchorId);
   assert.equal(isolatedAgain.experiment.experimentId,anchorId);
@@ -187,6 +208,16 @@ test('native SQLite writer isolates experiments, freezes predictions, scores res
   assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,2);
 });
 
+test('empirical evidence identity ignores experiment/timestamp/provenance but changes when the measured outcome changes',()=>{
+  const a={...observation('evidence-a'),capturedAt:'2026-09-22T10:00:00Z',source:'manual-confirmed-preview' as const,ovrBoost:{gainLo:1,gainHi:2}};
+  const b={...a,id:'evidence-b',capturedAt:'2026-09-22T11:00:00Z',source:'state-confirmed-preview' as const,
+    intervals:[...a.intervals].reverse()};
+  assert.equal(evidenceIdentity(a).canonicalKey,evidenceIdentity(b).canonicalKey);
+  assert.equal(evidenceIdentity(a).fingerprint,evidenceIdentity(b).fingerprint);
+  const changed={...b,intervals:b.intervals.map((r,i)=>i===0?{...r,gainHi:r.gainHi+1}:r)};
+  assert.notEqual(evidenceIdentity(a).canonicalKey,evidenceIdentity(changed).canonicalKey);
+});
+
 test('interval scoring is deterministic and keeps endpoint, midpoint, width and overlap errors separate',()=>{
   const o:ResourceObservation={...observation('score-only'),intervals:[
     {stat:'A',gainLo:1,gainHi:3},
@@ -207,6 +238,25 @@ test('interval scoring is deterministic and keeps endpoint, midpoint, width and 
   assert.equal(score.residuals[0].lowError,1);
   assert.equal(score.residuals[0].highError,1);
   assert.equal(score.residuals[0].widthError,0);
+});
+
+
+test('pre-provenance experiments remain honest: current partition is retained but origin is unknown',()=>{
+  const db=memoryDb();
+  db.execSync(RESOURCE_COACH_SCHEMA);
+  const legacy={...observation('legacy-partition'),capturedAt:'2026-09-01'};
+  db.raw.prepare(`INSERT INTO resource_coach_experiment
+    (experiment_id,player_id,created_at,input_json,partition,status,observed_at)
+    VALUES (?,?,?,?,?,'observed',?)`).run(legacy.id,input.playerId,'2026-09-01',JSON.stringify(input),'calibration',legacy.capturedAt);
+  db.raw.prepare('INSERT INTO resource_coach_preview VALUES (?,?,?,?)')
+    .run(legacy.id,input.playerId,JSON.stringify(input),JSON.stringify(legacy));
+  const store=createResourceCoachStore(db);
+  const exported=JSON.parse(store.exportExperiment(legacy.id));
+  assert.equal(exported.experiment.partition,'calibration');
+  assert.equal(exported.experiment.originPartition,null);
+  assert.equal(exported.experiment.partitionHistory[0].eventKind,'legacy-snapshot');
+  assert.match(exported.experiment.partitionHistory[0].note,/origin is unknown/i);
+  assert.equal(exported.evidence.isDuplicate,false);
 });
 
 test('orphan OVR inserts fail and bundled migration matches reviewable SQL',()=>{

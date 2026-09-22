@@ -172,4 +172,38 @@ CREATE TABLE IF NOT EXISTS resource_coach_residual (
 CREATE INDEX IF NOT EXISTS idx_resource_coach_residual_model
   ON resource_coach_residual(model_version, stat);
 
+-- Partition provenance is append-only. The mutable partition on
+-- resource_coach_experiment remains the current routing state for compatibility,
+-- while this table preserves how that state was reached.
+CREATE TABLE IF NOT EXISTS resource_coach_partition_event (
+  event_seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  experiment_id TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  event_kind TEXT NOT NULL CHECK (event_kind IN ('created','transition','legacy-snapshot')),
+  from_partition TEXT CHECK (from_partition IS NULL OR from_partition IN ('prospective-holdout','retrospective','calibration','excluded')),
+  to_partition TEXT NOT NULL CHECK (to_partition IN ('prospective-holdout','retrospective','calibration','excluded')),
+  note TEXT,
+  FOREIGN KEY (experiment_id) REFERENCES resource_coach_experiment(experiment_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_coach_partition_event
+  ON resource_coach_partition_event(experiment_id, event_seq);
+
+-- Exact empirical-evidence identity is independent of model, experiment id and
+-- timestamps. The compact fingerprint is for indexing/display only; canonical_key
+-- is the collision-safe equality check used for duplicate classification.
+CREATE TABLE IF NOT EXISTS resource_coach_evidence_identity (
+  experiment_id TEXT PRIMARY KEY NOT NULL,
+  evidence_fingerprint TEXT NOT NULL,
+  canonical_key TEXT NOT NULL,
+  duplicate_of_experiment_id TEXT,
+  detected_at TEXT NOT NULL,
+  FOREIGN KEY (experiment_id) REFERENCES resource_coach_experiment(experiment_id),
+  FOREIGN KEY (duplicate_of_experiment_id) REFERENCES resource_coach_experiment(experiment_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_coach_evidence_fingerprint
+  ON resource_coach_evidence_identity(evidence_fingerprint);
+
+
 `;
