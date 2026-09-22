@@ -70,9 +70,11 @@ export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: 
     essential: ['POSITIONING', 'PASSING', 'DRIBBLING', 'CROSSING', 'FITNESS', 'SPEED', 'CREATIVITY'],
     secondary: ['TACKLING', 'MARKING', 'HEADING', 'BRAVERY', 'SHOOTING', 'FINISHING', 'STRENGTH', 'AGGRESSION'],
   },
+  // Live pure-MC cards re-checked 2026-09-22: SHOOTING is white,
+  // STRENGTH is grey, giving 10 white attributes in total.
   MC:  {
-    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FITNESS', 'STRENGTH', 'SPEED', 'CREATIVITY'],
-    secondary: ['HEADING', 'CROSSING', 'FINISHING', 'AGGRESSION'],
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['HEADING', 'CROSSING', 'FINISHING', 'STRENGTH', 'AGGRESSION'],
   },
   DMC: {
     essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'FITNESS', 'AGGRESSION', 'CREATIVITY'],
