@@ -68,7 +68,7 @@ export function resourceStateConfirmed(
 }
 export function inputSignature(input: ResourceInput): string {
   return JSON.stringify({ playerId:input.playerId, age:input.age, tier:input.tier, stateKey:input.stateKey,
-    sourceFamily:input.sourceFamily, transferClass:input.transferClass, programmeFamily:input.programmeFamily ?? 'unknown', multiplier:input.multiplier,
+    sourceFamily:input.sourceFamily, transferClass:input.transferClass, multiplier:input.multiplier,
     stats:input.stats.map(({stat,displayedStat,displayClass})=>({stat,displayedStat,displayClass})).sort((a,b)=>a.stat.localeCompare(b.stat)) });
 }
 export function validateInput(input: ResourceInput): string[] {
