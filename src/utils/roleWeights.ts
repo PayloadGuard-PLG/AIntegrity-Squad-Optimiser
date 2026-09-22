@@ -70,9 +70,11 @@ export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: 
     essential: ['POSITIONING', 'PASSING', 'DRIBBLING', 'CROSSING', 'FITNESS', 'SPEED', 'CREATIVITY'],
     secondary: ['TACKLING', 'MARKING', 'HEADING', 'BRAVERY', 'SHOOTING', 'FINISHING', 'STRENGTH', 'AGGRESSION'],
   },
+  // Live pure-MC cards re-checked 2026-09-22: SHOOTING is white,
+  // STRENGTH is grey, giving 10 white attributes in total.
   MC:  {
-    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FITNESS', 'STRENGTH', 'SPEED', 'CREATIVITY'],
-    secondary: ['HEADING', 'CROSSING', 'FINISHING', 'AGGRESSION'],
+    essential: ['TACKLING', 'MARKING', 'POSITIONING', 'BRAVERY', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FITNESS', 'SPEED', 'CREATIVITY'],
+    secondary: ['HEADING', 'CROSSING', 'FINISHING', 'STRENGTH', 'AGGRESSION'],
   },
   DMC: {
     essential: ['TACKLING', 'MARKING', 'POSITIONING', 'HEADING', 'BRAVERY', 'PASSING', 'FITNESS', 'AGGRESSION', 'CREATIVITY'],
@@ -91,6 +93,32 @@ export const ROLE_CONSTRAINTS: Record<string, { essential: string[]; secondary: 
     secondary: ['HEADING', 'PASSING', 'DRIBBLING', 'SHOOTING', 'FINISHING', 'STRENGTH', 'CREATIVITY'],
   },
 };
+
+/**
+ * Exact multi-role white-stat interactions that cannot be explained by the
+ * simple union of the individual role tables.
+ *
+ * Evidence boundary:
+ * - Pure MC: STRENGTH is grey (live Ryan Gilmartin card, 2026-09-22).
+ * - Pure DMC: STRENGTH is grey (existing direct control).
+ * - AMC: STRENGTH is grey in the established role table / historical controls.
+ * - DMC+MC+AMC: Cieran Morgan's directly sampled card shows STRENGTH white.
+ *
+ * Therefore the simple additive union is falsified for this exact observed
+ * role-set. We encode only the observed exception rather than guessing a more
+ * general interaction law.
+ */
+const ROLE_SET_WHITE_OVERRIDES: Record<string, string[]> = {
+  'AMC|DMC|MC': ['STRENGTH'],
+};
+
+function roleSetKey(roles: string[]): string {
+  return roles.slice(0, 3).map(r => r.toUpperCase()).sort().join('|');
+}
+
+function roleSetWhiteOverrides(roles: string[]): string[] {
+  return ROLE_SET_WHITE_OVERRIDES[roleSetKey(roles)] ?? [];
+}
 
 /**
  * For each role R1 and each role R2 adjacent to it, lists the stats that
@@ -164,6 +192,7 @@ export function assertEstablishedRoles(roles: string[], newRole?: string | null)
  */
 export function isWhiteStat(roles: string[], skillName: string): boolean {
   const normalized = skillName.toUpperCase();
+  if (roleSetWhiteOverrides(roles).includes(normalized)) return true;
   return roles.slice(0, 3).some(role => {
     const roleData = ROLE_CONSTRAINTS[role.toUpperCase()];
     return roleData?.essential.includes(normalized) ?? false;
@@ -199,5 +228,6 @@ export function getWhiteStatKeys(roles: string[]): string[] {
       for (const stat of roleData.essential) keys.add(stat);
     }
   }
+  for (const stat of roleSetWhiteOverrides(roles)) keys.add(stat);
   return Array.from(keys);
 }

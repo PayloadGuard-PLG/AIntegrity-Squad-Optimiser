@@ -298,6 +298,31 @@ section('7. Role weight classification');
       incomplete.every(x => complete.includes(x)));
   }
 
+  // Pure MC direct control. Earlier multi-role controls could not reveal an
+  // erroneous MC STRENGTH white because DC supplied STRENGTH in those unions.
+  {
+    const mcWhite = getWhiteStatKeys(['MC']);
+    assert('pure MC white stat count = 10', mcWhite.length === 10);
+    assert('SHOOTING is white for pure MC', isWhiteStat(['MC'], 'SHOOTING'));
+    assert('STRENGTH is grey for pure MC', !isWhiteStat(['MC'], 'STRENGTH'));
+
+    const mcDmc = getWhiteStatKeys(['MC', 'DMC']);
+    const unlocked = mcDmc.filter(x => !mcWhite.includes(x)).sort();
+    assert('MC + DMC white stat count = 12', mcDmc.length === 12);
+    assert('adding DMC to MC newly-whites exactly AGGRESSION and HEADING',
+      unlocked.join(',') === 'AGGRESSION,HEADING');
+
+    // Existing Cieran card truth plus the new pure-MC control jointly falsify
+    // a simple per-role union: STRENGTH is grey for MC, DMC and AMC alone, but
+    // white for the observed DMC+MC+AMC role set.
+    const cieran = getWhiteStatKeys(['DMC', 'MC', 'AMC']);
+    assert('DMC+MC+AMC preserves Cieran card truth at 14 white stats', cieran.length === 14);
+    assert('DMC+MC+AMC interaction makes STRENGTH white',
+      isWhiteStat(['DMC', 'MC', 'AMC'], 'STRENGTH'));
+    assert('DMC+MC without AMC leaves STRENGTH grey',
+      !isWhiteStat(['DMC', 'MC'], 'STRENGTH'));
+  }
+
   // DMC confirmed: 9 white + 6 grey = 15 total.
   // Was 10 white until Sprint 31 moved STRENGTH to secondary — the game shows it
   // grey for a pure DMC. This assertion tracks that correction, not a regression.

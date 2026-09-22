@@ -2,9 +2,10 @@ import { db } from '../db';
 import { players } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid/non-secure';
-import { Player, PlayerSnapshot, PlaystyleFamily, StatBoost } from '../database/playerSchema';
+import { Player, PlayerSnapshot } from '../database/playerSchema';
 import { TierName } from '../types/resources';
 import { normaliseStoredTrainingRate, normaliseTrainingRateSource } from '../logic/trainingRate';
+import { hydrateStoredPlayer } from '../logic/playerHydration';
 
 type PlayerRow = typeof players.$inferSelect;
 
@@ -31,62 +32,8 @@ function toRow(p: Player): PlayerRow {
   };
 }
 
-const LEGACY_TIER_MAP: Record<string, TierName> = {
-  None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
-};
-
-function normaliseTier(t: string): TierName {
-  return (LEGACY_TIER_MAP[t] ?? t) as TierName;
-}
-
-function parseJson<T>(raw: string | null | undefined): T | undefined {
-  if (!raw) return undefined;
-  try { return JSON.parse(raw) as T; } catch { return undefined; }
-}
-
 function fromRow(row: PlayerRow): Player {
-  let snapshot: PlayerSnapshot | null = null;
-  try {
-    const raw = row.snapshot ? JSON.parse(row.snapshot) as PlayerSnapshot : null;
-    if (raw) snapshot = { ...raw, tier: normaliseTier(raw.tier as string) };
-  } catch { /* ignore corrupt snapshot */ }
-
-  try {
-    return {
-      id: row.id,
-      name: row.name,
-      role: JSON.parse(row.roles) as string[],
-      age: row.age,
-      overall: row.overall,
-      tier: normaliseTier(row.tier),
-      talent: normaliseStoredTrainingRate(row.talent),
-      talentSource: normaliseTrainingRateSource(row.talentSource),
-      stats: JSON.parse(row.stats) as Record<string, number>,
-      isMutantCandidate: Boolean(row.isMutantCandidate),
-      snapshot,
-      newRole: row.newRole ?? null,
-      newRolePoints: row.newRolePoints ?? 0,
-      playstyle: (row.playstyle ?? undefined) as PlaystyleFamily | undefined,
-      specialAbilities: parseJson<string[]>(row.specialAbilities),
-      boosts: parseJson<Record<string, StatBoost>>(row.boosts),
-    };
-  } catch {
-    return {
-      id: row.id,
-      name: row.name,
-      role: ['ST'],
-      age: row.age,
-      overall: row.overall,
-      tier: normaliseTier(row.tier),
-      talent: 'Unknown',
-      talentSource: 'legacy-default',
-      stats: {},
-      isMutantCandidate: false,
-      snapshot,
-      newRole: null,
-      newRolePoints: 0,
-    };
-  }
+  return hydrateStoredPlayer(row);
 }
 
 export const playerService = {
