@@ -19,7 +19,9 @@ import { ResourceCoachLab } from '../../src/components/ResourceCoachLab';
 import { OUTFIELD_STATS, GK_STATS_ALL, STAT_COLUMNS } from '../../src/utils/roleWeights';
 import { StatGrid3Col } from '../../src/components/StatGrid3Col';
 import type { CoachPreviewInterval, CoachTransferClass } from '../../src/logic/recommendation';
-import type { CoachProgrammeFamily, CoachSourceFamily } from '../../src/logic/coachTransfer';
+import type {
+  CoachClassificationSource, CoachProgrammeFamily, CoachSourceFamily,
+} from '../../src/logic/coachTransfer';
 import { withManualStatSelection } from '../../src/logic/coachObservationState';
 import { coachHistoryService, type CoachHistoryEntry } from '../../src/services/coachHistoryService';
 
@@ -46,7 +48,10 @@ export default function CoachesScreen() {
   const [coachCategory, setCoachCategory] = useState('');
   const [transferClass, setTransferClass] = useState<CoachTransferClass>('unresolved');
   const [sourceFamily, setSourceFamily] = useState<CoachSourceFamily>('unresolved');
+  const [sourceFamilySource, setSourceFamilySource] = useState<CoachClassificationSource>('unresolved');
+  const [transferClassSource, setTransferClassSource] = useState<CoachClassificationSource>('unresolved');
   const [programmeFamily, setProgrammeFamily] = useState<CoachProgrammeFamily>('unknown');
+  const [programmeFamilySource, setProgrammeFamilySource] = useState<CoachClassificationSource>('unresolved');
   const [targetSource, setTargetSource] = useState<'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved'>('unresolved');
   const [observationContext, setObservationContext] = useState('');
   const [observedGainIntervals, setObservedGainIntervals] = useState<CoachPreviewInterval[]>([]);
@@ -90,8 +95,11 @@ export default function CoachesScreen() {
     setCoachType('');
     setCoachCategory('');
     setTransferClass('unresolved');
+    setTransferClassSource('unresolved');
     setSourceFamily('unresolved');
+    setSourceFamilySource('unresolved');
     setProgrammeFamily('unknown');
+    setProgrammeFamilySource('unresolved');
     setTargetSource('unresolved');
     setObservedGainIntervals([]);
     setScannedIdentity({});
@@ -140,7 +148,9 @@ export default function CoachesScreen() {
   function selectTransferClass(next: Exclude<CoachTransferClass, 'unresolved'>) {
     if (sourceFamily === 'training-camp') return;
     setSourceFamily('resource-coach');
+    setSourceFamilySource('manual-confirmed');
     setTransferClass(next);
+    setTransferClassSource('manual-confirmed');
   }
 
   function previewContext(playerId: string, n: number, type: string, category: string, stats: string[]) {
@@ -184,8 +194,10 @@ export default function CoachesScreen() {
       if (!recognised && scan.stats.length === 0) {
         setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
         setScannedStats([]); setCoachType(''); setCoachCategory('');
-        setTransferClass('unresolved'); setSourceFamily('unresolved');
-        setProgrammeFamily('unknown'); setTargetSource('unresolved'); setObservedGainIntervals([]);
+        setTransferClass('unresolved'); setTransferClassSource('unresolved');
+        setSourceFamily('unresolved'); setSourceFamilySource('unresolved');
+        setProgrammeFamily('unknown'); setProgrammeFamilySource('unresolved');
+        setTargetSource('unresolved'); setObservedGainIntervals([]);
         setScannedIdentity({});
         return;
       }
@@ -196,8 +208,11 @@ export default function CoachesScreen() {
       const scannedTransferClass = scan.transferClass;
       const scannedSourceFamily = scan.sourceFamily;
       setTransferClass(scannedTransferClass);
+      setTransferClassSource(scannedTransferClass === 'unresolved' ? 'unresolved' : 'ocr-observed');
       setSourceFamily(scannedSourceFamily);
+      setSourceFamilySource(scannedSourceFamily === 'unresolved' ? 'unresolved' : 'ocr-observed');
       setProgrammeFamily(scan.programmeFamily);
+      setProgrammeFamilySource(scan.programmeFamily === 'unknown' ? 'unresolved' : 'ocr-observed');
 
       // Scanner-observed identity of the card IN THE IMAGE. Held, displayed and
       // compared — never written into the selected player's record. The preview
@@ -547,7 +562,9 @@ export default function CoachesScreen() {
 
             <ResourceCoachLab player={player} stats={scannedStats} multiplier={Number(sessions)}
               coachLabel={[coachType,coachCategory].filter(Boolean).join(' ')} sourceFamily={sourceFamily} transferClass={transferClass}
-              initialProgrammeFamily={programmeFamily} targetSource={targetSource}
+              sourceFamilySource={sourceFamilySource} transferClassSource={transferClassSource}
+              initialProgrammeFamily={programmeFamily} initialProgrammeFamilySource={programmeFamilySource}
+              targetSource={targetSource}
               observed={observationContext === previewContext(player.id, Number(sessions), coachType, coachCategory, scannedStats) ? buildOutcomeEvidence(observedGainIntervals) : []}
               identityConflict={identityConflicts.length > 0} />
           {/* Scan history — per player */}
@@ -565,8 +582,11 @@ export default function CoachesScreen() {
                   setCoachType(entry.coachType);
                   setCoachCategory(entry.coachCategory);
                   setTransferClass(entry.transferClass);
+                  setTransferClassSource(entry.transferClass === 'unresolved' ? 'unresolved' : 'ocr-observed');
                   setSourceFamily(entry.sourceFamily);
+                  setSourceFamilySource(entry.sourceFamily === 'unresolved' ? 'unresolved' : 'ocr-observed');
                   setProgrammeFamily('unknown');
+                  setProgrammeFamilySource('unresolved');
                   setTargetSource('unresolved');
                   setObservedGainIntervals(entry.observedGainIntervals);
                   setScannedStats(entry.stats);
