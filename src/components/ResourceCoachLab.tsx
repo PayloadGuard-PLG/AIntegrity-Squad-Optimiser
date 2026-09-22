@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, Share } from 'react-native';
 import type { Player } from '../database/playerSchema';
 import type { CoachPreviewInterval } from '../logic/recommendation';
-import type { CoachSourceFamily, CoachTransferClass } from '../logic/coachTransfer';
+import type {
+  CoachClassificationSource, CoachSourceFamily, CoachTransferClass,
+} from '../logic/coachTransfer';
 import {
   RESOURCE_MODEL, predictResourceCoach, fitPlayerCalibration,
   buildResourceStatsFromState, resourceStateConfirmed,
@@ -22,8 +24,11 @@ type Props = {
   multiplier: number;
   coachLabel: string;
   sourceFamily: CoachSourceFamily;
+  sourceFamilySource?: CoachClassificationSource;
   transferClass: CoachTransferClass;
+  transferClassSource?: CoachClassificationSource;
   initialProgrammeFamily?: ResourceProgrammeFamily;
+  initialProgrammeFamilySource?: CoachClassificationSource;
   targetSource?: 'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
   observed: CoachPreviewInterval[];
   identityConflict: boolean;
@@ -41,12 +46,18 @@ function Button({ label, onPress, disabled = false }: {label:string;onPress:()=>
 /** Remount when the source state changes: a target preview never inherits stale
  * edited observations or a previous player's prediction state. */
 export function ResourceCoachLab(props: Props) {
-  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.transferClass,props.initialProgrammeFamily,props.targetSource,props.observed,props.identityConflict]);
+  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.sourceFamilySource,props.transferClass,props.transferClassSource,props.initialProgrammeFamily,props.initialProgrammeFamilySource,props.targetSource,props.observed,props.identityConflict]);
   return <LabSession key={key} {...props} />;
 }
-function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferClass,initialProgrammeFamily='unknown',targetSource='unresolved',observed,identityConflict}: Props) {
+function LabSession({
+  player,stats,multiplier,coachLabel,sourceFamily,sourceFamilySource='unresolved',
+  transferClass,transferClassSource='unresolved',
+  initialProgrammeFamily='unknown',initialProgrammeFamilySource='unresolved',
+  targetSource='unresolved',observed,identityConflict,
+}: Props) {
   const [classes,setClasses] = useState<Record<string,DisplayClass>>({});
   const [programmeFamily,setProgrammeFamily] = useState<ResourceProgrammeFamily>(initialProgrammeFamily);
+  const [programmeFamilySource,setProgrammeFamilySource] = useState<CoachClassificationSource>(initialProgrammeFamilySource);
   const [values,setValues] = useState<Record<string,{lo:string;hi:string}>>(() => Object.fromEntries(stats.map(stat => {
     const r=observed.find(r=>r.stat===stat);return [stat,{lo:r?String(r.gainLo):'',hi:r?String(r.gainHi):''}];
   })));
@@ -59,9 +70,10 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
   const [exportJson,setExportJson]=useState('');
   const input:ResourceInput=useMemo(()=>({ playerId:player.id,age:player.age,tier:player.tier,
     stateKey:JSON.stringify([player.age,player.tier,[...player.role].sort(),Object.entries(player.stats).sort(([a],[b])=>a.localeCompare(b))]),
-    sourceFamily,transferClass,coachLabel,multiplier,programmeFamily,targetSource,
+    sourceFamily,sourceFamilySource,transferClass,transferClassSource,coachLabel,multiplier,
+    programmeFamily,programmeFamilySource,targetSource,
     stats:buildResourceStatsFromState(player.role,player.stats,stats,classes),
-  }),[player,stats,multiplier,coachLabel,sourceFamily,transferClass,programmeFamily,classes]);
+  }),[player,stats,multiplier,coachLabel,sourceFamily,sourceFamilySource,transferClass,transferClassSource,programmeFamily,programmeFamilySource,targetSource,classes]);
   const observedMismatch=observed.some(r=>r.statBefore!==undefined && player.stats[r.stat]!==r.statBefore);
   const hasZero=observed.some(r=>r.gainHi===0) || Object.values(values).some(v=>v.lo.trim()!=='' && v.hi.trim()!=='' && Number(v.hi)===0);
   const mismatch=identityConflict||observedMismatch;
@@ -114,11 +126,17 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
         ['drill-session','DRILL SESSION'],
         ['skill-seminar','SKILL SEMINAR'],
       ] as const).map(([value,label])=><Pressable key={value} onPress={()=>{
-        setProgrammeFamily(value);setCandidatePrediction(null);setPredictionId(undefined);setSavedObservation(null);
+        setProgrammeFamily(value);
+        setProgrammeFamilySource(value === 'unknown' ? 'unresolved' : 'manual-confirmed');
+        setCandidatePrediction(null);setPredictionId(undefined);setSavedObservation(null);
       }} style={{padding:8,borderWidth:1,borderColor:programmeFamily===value?theme.steelLight:theme.steel}}>
         <Text style={textStyle}>{label}</Text>
       </Pressable>)}
     </View>
+    <Text style={{...textStyle,marginTop:6}}>
+      PROGRAMME SOURCE: {programmeFamilySource==='ocr-observed'?'OCR OBSERVED':programmeFamilySource==='manual-confirmed'?'MANUAL CONFIRMED':'UNRESOLVED'}
+      {' · '}TRANSFER SOURCE: {transferClassSource==='ocr-observed'?'OCR OBSERVED':transferClassSource==='manual-confirmed'?'MANUAL CONFIRMED':'UNRESOLVED'}
+    </Text>
 
     <Text style={{...textStyle,marginTop:12}}>Starting values and white/grey class are already resolved from this player's persisted scan state. No second confirmation is required.</Text>
     <Text style={{...textStyle,color:targetSource==='unresolved'?theme.hot:theme.pos,marginTop:6}}>
