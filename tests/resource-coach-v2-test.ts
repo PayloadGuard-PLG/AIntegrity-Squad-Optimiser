@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import reference from './fixtures/resource-coach-v2-synthetic.json';
-import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
+import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, buildResourceStatsFromState, resourceStateConfirmed, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
 const input: ResourceInput = { playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',sourceFamily:'resource-coach',transferClass:'ordinary',coachLabel:'Synthetic anchor',multiplier:26,
@@ -13,6 +13,24 @@ function observation(id: string): ResourceObservation {
   return {id,capturedAt:'2026-09-13',input,evidenceKind:'observed-interval',source:'manual-confirmed-preview',
     intervals:reference.anchor.observed.map((r,i)=>({stat:`STAT ${i}`,gainLo:r[0],gainHi:r[1]}))};
 }
+test('coach classes auto-confirm from canonical established-role state',()=>{
+  const values={TACKLING:209,MARKING:229,POSITIONING:332,HEADING:354,BRAVERY:314,SHOOTING:447};
+  const rows=buildResourceStatsFromState(['ST','AMC','MC'],values,['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','SHOOTING']);
+  assert.equal(resourceStateConfirmed(['ST','AMC','MC'],values,rows),true);
+  assert.equal(rows.find(r=>r.stat==='SHOOTING')!.displayClass,'WHITE');
+  assert.equal(rows.find(r=>r.stat==='TACKLING')!.classSource,'role-map');
+  const wrong=rows.map(r=>r.stat==='TACKLING'?{...r,displayClass:'MID_GREY' as const}:r);
+  assert.equal(resourceStateConfirmed(['ST','AMC','MC'],values,wrong),false);
+  const overridden=wrong.map(r=>r.stat==='TACKLING'?{...r,classSource:'manual-observed' as const}:r);
+  assert.equal(resourceStateConfirmed(['ST','AMC','MC'],values,overridden),true);
+});
+
+test('learning roles do not leak into coach white-state confirmation',()=>{
+  const values={DRIBBLING:134,SHOOTING:139,SPEED:138};
+  const rows=buildResourceStatsFromState(['DC','DMC'],values,['DRIBBLING','SHOOTING','SPEED']);
+  assert.deepEqual(rows.map(r=>r.displayClass),['MID_GREY','MID_GREY','MID_GREY']);
+  assert.equal(resourceStateConfirmed(['DC','DMC'],values,rows),true);
+});
 test('30 synthetic inputs agree with independent numerical integration across both regimes',()=>{
   for(const r of reference.rows) {
     assert.ok(Math.abs(integratedGain(r.u,r.age,r.exposure)-r.gain[0])<1e-7);
