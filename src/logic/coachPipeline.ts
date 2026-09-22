@@ -31,7 +31,7 @@ export function resolveCoachStats(
 ): string[] {
   if (scan.isAllRound) return [ALL_ROUND_SENTINEL];
 
-  const detected = Array.from(new Set(scan.stats.map(s => s.statName)));
+  const detected = Array.from(new Set(scan.affectedStats));
 
   // Training Camp is a different programme family. Preserve only observed targets;
   // never expand it to a Resource Coach category shape.
