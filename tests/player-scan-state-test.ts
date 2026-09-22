@@ -138,7 +138,7 @@ test('player name survives shirt-number OCR tokenization, including a fused firs
         height: nameBlock!.frame!.height,
       },
     }));
-    card.text = card.text.replace('Ryan Blakie', blockText);
+    card.text = (card.text ?? '').replace('Ryan Blakie', blockText);
     return card;
   }
 
