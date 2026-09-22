@@ -426,24 +426,64 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
       return (a.frame?.left ?? 0) - (b.frame?.left ?? 0);
     });
 
+  const roleAnchor = elements.find(element => /^roles?\s*:?$/i.test(element.text.trim()));
+  if (!roleAnchor?.frame) return undefined;
+
   type LocatedRole = { role: string; left: number; right: number; top: number; height: number };
   const located: LocatedRole[] = [];
-  const counters: Array<{ points: number; left: number; top: number; height: number }> = [];
+
+  // ML Kit is free to split the visually adjacent X/50 badge into a separate
+  // OCR block. Role labels remain scoped to the anchored Roles block, but the
+  // progress counter is searched across all OCR elements on the same visual row.
+  // Otherwise a card such as "DC DMC MC 7/50" can be silently promoted to three
+  // established roles when "7/50" lands in its own block.
+  const allElements = (result.blocks ?? [])
+    .flatMap(block => block.lines ?? [])
+    .flatMap(line => line.elements ?? [])
+    .filter(element => element.frame && element.text.trim());
+
+  const counters = allElements
+    .flatMap(element => {
+      const frame = element.frame!;
+      const match = ROLE_PROGRESS_RE.exec(element.text.trim());
+      if (!match) return [];
+      const sameRow =
+        Math.abs(frame.top - roleAnchor.frame!.top) <=
+        Math.max(frame.height, roleAnchor.frame!.height) * 1.5;
+      if (!sameRow || frame.left <= roleAnchor.frame!.left) return [];
+      return [{
+        points: parseInt(match[1], 10),
+        left: frame.left,
+        top: frame.top,
+        height: frame.height,
+      }];
+    });
+
+  // Some OCR builds split "7/50" into sub-elements while preserving it in the
+  // line text. If no element-level counter exists, use the framed line as the
+  // counter observation instead.
+  if (counters.length === 0) {
+    for (const line of (result.blocks ?? []).flatMap(block => block.lines ?? [])) {
+      if (!line.frame) continue;
+      const match = ROLE_PROGRESS_RE.exec(line.text.trim());
+      if (!match) continue;
+      const sameRow =
+        Math.abs(line.frame.top - roleAnchor.frame.top) <=
+        Math.max(line.frame.height, roleAnchor.frame.height) * 1.5;
+      if (!sameRow || line.frame.left <= roleAnchor.frame.left) continue;
+      counters.push({
+        points: parseInt(match[1], 10),
+        left: line.frame.left,
+        top: line.frame.top,
+        height: line.frame.height,
+      });
+    }
+  }
 
   for (const element of elements) {
     const frame = element.frame;
     if (!frame) continue;
     const raw = element.text.trim();
-
-    const counter = ROLE_PROGRESS_RE.exec(raw);
-    if (counter) {
-      counters.push({
-        points: parseInt(counter[1], 10),
-        left: frame.left,
-        top: frame.top,
-        height: frame.height,
-      });
-    }
 
     if (/^roles?\s*:?$/i.test(raw)) continue;
 
