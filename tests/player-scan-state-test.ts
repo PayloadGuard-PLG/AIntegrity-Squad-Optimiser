@@ -245,6 +245,8 @@ test('same-row X/50 outside the role-chip adjacency window is not treated as rol
 
   assert.equal(parseStructuredRoleState(polluted), undefined,
     'a distant counter does not certify the role row');
+  assert.equal(needsRoleReview(parsePlayerCard(polluted, blankImage(pixels.width, pixels.height).img)), true,
+    'unclear chips and a distant counter must still require manual review');
 });
 
 test('unread learning counter never promotes a black role to established', () => {
@@ -270,11 +272,59 @@ test('unread learning counter never promotes a black role to established', () =>
   assert.equal(parseStructuredRoleState(missing), undefined);
 });
 
-test('ambiguous pixels cannot be overruled by OCR role labels', () => {
-  const partial = JSON.parse(JSON.stringify(ocr)) as OcrResult;
+test('Darren: an adjacent 8/50 counter resolves unclear pixels into DC/DMC plus learning MC', () => {
+  const partial = JSON.parse(JSON.stringify(ocr).replace(/1\/50/g, '8/50')) as OcrResult;
   const result = parsePlayerCard(partial, blankImage(pixels.width, pixels.height).img);
-  assert.equal(needsRoleReview(result), true);
-  assert.ok(result.review.some(flag => flag.field === 'roles' || flag.field.startsWith('roles.')));
+  assert.deepEqual(result.establishedRoles, ['DC', 'DMC']);
+  assert.deepEqual(result.learningRole, { role: 'MC', points: 8 });
+  assert.equal(needsRoleReview(result), false);
+  const state = replaceNewPlayerScanState(result);
+  assert.deepEqual(state.role, ['DC', 'DMC']);
+  assert.equal(state.newRole, 'MC');
+  assert.equal(state.newRolePoints, 8);
+  assert.equal(playerRoleError(state), null);
+});
+
+test('a merged MC 8/50 element and a merged entire Roles row preserve counter geometry', () => {
+  const merged = JSON.parse(JSON.stringify(ocr)) as OcrResult;
+  const roleBlock = merged.blocks.find(block => /^Roles:/i.test(block.text.trim()))!;
+  const line = roleBlock.lines[0];
+  line.text = roleBlock.text = 'Roles: DC DMC MC 8/50';
+  line.elements = [
+    { text: 'Roles:', frame: { left: 1197, top: 375, width: 59, height: 18 } },
+    { text: 'DC', frame: { left: 1276, top: 375, width: 38, height: 18 } },
+    { text: 'DMC', frame: { left: 1332, top: 375, width: 40, height: 18 } },
+    { text: 'MC 8/50', frame: { left: 1390, top: 375, width: 110, height: 18 } },
+  ];
+  assert.deepEqual(parseStructuredRoleState(merged), {
+    establishedRoles: ['DC', 'DMC'], learningRole: { role: 'MC', points: 8 },
+  });
+
+  line.elements = [{ text: line.text, frame: line.frame! }];
+  assert.deepEqual(parseStructuredRoleState(merged), {
+    establishedRoles: ['DC', 'DMC'], learningRole: { role: 'MC', points: 8 },
+  });
+});
+
+test('an adjacent 8/50 counter outranks a bright MC chip that looks established', () => {
+  const withTextProgress = JSON.parse(JSON.stringify(ocr).replace(/1\/50/g, '8/50')) as OcrResult;
+  const wrongGlyph = buildSyntheticCard('moore', ocr);
+  const roleLine = withTextProgress.blocks.find(block => /^Roles:/i.test(block.text.trim()))!.lines[0];
+  const mc = roleLine.elements.find(element => element.text === 'MC')!.frame!;
+  // Replace the recorded dark MC chip sample with a bright established fill.
+  const rgba = wrongGlyph.data as Uint8Array;
+  const paint = (x0: number, y0: number, x1: number, y1: number, rgb: [number, number, number]) => {
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+      const i = (y * wrongGlyph.width + x) * 4;
+      rgba[i] = rgb[0]; rgba[i + 1] = rgb[1]; rgba[i + 2] = rgb[2];
+    }
+  };
+  paint(Math.floor(mc.left), Math.floor(mc.top - mc.height * 0.45),
+    Math.ceil(mc.left + mc.width), Math.ceil(mc.top - mc.height * 0.10), hsvToRgb(49, 0.55, 0.88));
+  const result = parsePlayerCard(withTextProgress, wrongGlyph);
+  assert.deepEqual(result.establishedRoles, ['DC', 'DMC']);
+  assert.deepEqual(result.learningRole, { role: 'MC', points: 8 });
+  assert.equal(needsRoleReview(result), false);
 });
 
 test('line-level X/50 fallback keeps a nearby learning role when the counter element is absent', () => {
