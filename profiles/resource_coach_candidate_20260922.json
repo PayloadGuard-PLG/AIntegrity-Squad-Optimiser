@@ -2,7 +2,15 @@
   "modelVersion": "shared-latent-rectified-calibration-candidate-2026-09-22",
   "status": "calibration-only-not-production",
   "response": {
-    "tierAdditions": [0, 10, 30, 50, 80, 120, 160],
+    "tierAdditions": [
+      0,
+      10,
+      30,
+      50,
+      80,
+      120,
+      160
+    ],
     "whiteThreshold": 135,
     "greyThreshold": 120,
     "beta": 0.0354,
@@ -11,13 +19,33 @@
   "dose": {
     "multiplierExponent": 1.056,
     "affectedStatExponent": 1.073,
-    "rewardScale": 0.60,
+    "rewardScale": 0.6,
     "ageBands": [
-      { "minAge": 17, "maxAge": 21, "scale": 8 },
-      { "minAge": 22, "maxAge": 25, "scale": 6 },
-      { "minAge": 26, "maxAge": 29, "scale": 4 },
-      { "minAge": 30, "maxAge": 31, "scale": 2 },
-      { "minAge": 32, "maxAge": 99, "scale": 1 }
+      {
+        "minAge": 17,
+        "maxAge": 21,
+        "scale": 8
+      },
+      {
+        "minAge": 22,
+        "maxAge": 25,
+        "scale": 6
+      },
+      {
+        "minAge": 26,
+        "maxAge": 29,
+        "scale": 4
+      },
+      {
+        "minAge": 30,
+        "maxAge": 31,
+        "scale": 2
+      },
+      {
+        "minAge": 32,
+        "maxAge": 99,
+        "scale": 1
+      }
     ]
   },
   "evidence": {
@@ -34,9 +62,21 @@
     "unresolved": [
       "Final programme-family dose generators are not identified.",
       "Skill Seminar N^1.46 / p^0.75 remains a hypothesis rather than a frozen law.",
-      "Focused coefficient and exact Reward scaling remain conditional.",
+      "Focused coefficient is not identified; recent held-out comparisons did not require a separate Focused penalty.",
+      "Reward scaling is not identified. The 0.60 value in this frozen diagnostic candidate must be treated as a falsifiable test value, not a recovered game constant.",
       "Exact OVR preview renderer remains unresolved.",
       "The candidate must not replace the production/experimental V2 predictor until prospective falsification is stronger."
-    ]
+    ],
+    "sharedDoseHeldout": {
+      "statIntervals": 19,
+      "meanEndpointError": 1.84,
+      "overlap": "19/19",
+      "status": "held-out from the immediate comparison set, but candidate development had already seen related corpus structure; not deployment-blind"
+    },
+    "recentMultiStageProjection": {
+      "projectedPath": "~140 → 174 → 194 → 238 OVR",
+      "observedFinal": 237.5,
+      "role": "system-level predictive sanity check only; not used to fit the one-step Resource Coach candidate"
+    }
   }
 }
