@@ -29,7 +29,7 @@ type Props = {
   transferClassSource?: CoachClassificationSource;
   initialProgrammeFamily?: ResourceProgrammeFamily;
   initialProgrammeFamilySource?: CoachClassificationSource;
-  targetSource?: 'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
+  targetSource?: 'ocr-observed' | 'glyph-observed' | 'mixed-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
   observed: CoachPreviewInterval[];
   identityConflict: boolean;
 };
@@ -77,8 +77,16 @@ function LabSession({
   const observedMismatch=observed.some(r=>r.statBefore!==undefined && player.stats[r.stat]!==r.statBefore);
   const hasZero=observed.some(r=>r.gainHi===0) || Object.values(values).some(v=>v.lo.trim()!=='' && v.hi.trim()!=='' && Number(v.hi)===0);
   const mismatch=identityConflict||observedMismatch;
-  const stateConfirmed=!mismatch&&resourceStateConfirmed(player.role,player.stats,input.stats);
-  const evidenceReady=stateConfirmed&&targetSource!=='unresolved';
+  const basePlayerStateReady = !!player.id
+    && Number.isInteger(player.age)
+    && /^T[0-6]$/.test(player.tier)
+    && player.role.length > 0
+    && Object.values(player.stats).some(Number.isFinite);
+  const affectedStateConfirmed = input.stats.length === 0
+    ? true
+    : resourceStateConfirmed(player.role,player.stats,input.stats);
+  const stateConfirmed=!mismatch&&basePlayerStateReady&&affectedStateConfirmed;
+  const evidenceReady=stateConfirmed&&targetSource!=='unresolved'&&input.stats.length>0;
 
   function attempt(action:()=>void) { try { action(); } catch(e) { setMessage(e instanceof Error?e.message:String(e)); } }
   function project() { attempt(()=>{
@@ -140,7 +148,7 @@ function LabSession({
 
     <Text style={{...textStyle,marginTop:12}}>Starting values and white/grey class are already resolved from this player's persisted scan state. No second confirmation is required.</Text>
     <Text style={{...textStyle,color:targetSource==='unresolved'?theme.hot:theme.pos,marginTop:6}}>
-      TARGET SET: {targetSource==='ocr-observed'?'OCR OBSERVED':targetSource==='manual-confirmed'?'MANUAL CONFIRMED':targetSource==='all-round-observed'?'ALL-ROUND OBSERVED':'UNRESOLVED'}
+      TARGET SET: {targetSource==='ocr-observed'?'OCR OBSERVED':targetSource==='glyph-observed'?'GLYPH OBSERVED':targetSource==='mixed-observed'?'OCR + GLYPH OBSERVED':targetSource==='manual-confirmed'?'MANUAL CONFIRMED':targetSource==='all-round-observed'?'ALL-ROUND OBSERVED':'UNRESOLVED'}
     </Text>
     {targetSource==='unresolved'&&<Text style={{...textStyle,color:theme.hot}}>
       Confirm the exact affected rows before saving this preview as calibration evidence. Coach type/category alone is not target evidence.
@@ -154,7 +162,9 @@ function LabSession({
     </View>)}
     <Text style={{...textStyle,color:stateConfirmed?theme.pos:theme.hot,marginTop:10}}>
       {stateConfirmed
-        ? '✓ PLAYER STATE RESOLVED · STARTING STATS + CLASSES ARE READY'
+        ? input.stats.length > 0
+          ? '✓ PLAYER STATE RESOLVED · STARTING STATS + CLASSES ARE READY'
+          : '✓ PLAYER STATE READY · WAITING FOR TARGET SET'
         : 'PLAYER STATE UNRESOLVED · CHECK PLAYER IDENTITY OR STARTING STAT VALUES'}
     </Text>
     {mismatch&&<Text style={{...textStyle,color:theme.hot}}>The scanned card or starting values do not match this player. Re-scan the correct preview before saving evidence.</Text>}
