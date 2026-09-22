@@ -4,12 +4,15 @@ import gameProfileJson from '../profiles/game_2025.json';
 import type { GameProfile } from '../src/types/resources';
 import type { PlayerPlanningState } from '../src/types/planning';
 import {
+  availableRoleAdditions,
+  planningStateFromPlayer,
   previewDeployment,
   previewPlaystyleAssignment,
   previewRoleUnlock,
   previewTierUpgrade,
 } from '../src/logic/stateTransitions';
 import { getWhiteStatKeys } from '../src/utils/roleWeights';
+import { hydrateStoredPlayer } from '../src/logic/playerHydration';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
@@ -80,4 +83,55 @@ test('Regista remains active when a player with MC+DMC is deployed at DMC', () =
 test('deployment rejects a role the player does not own', () => {
   const s = state(['MC'], 'T0');
   assert.throws(() => previewDeployment(s, 'ST'), /not an established role/);
+});
+
+
+test('persisted OCR fields hydrate across tabs and enter planning without inference', () => {
+  const player = hydrateStoredPlayer({
+    id: 'ocr-1',
+    name: 'OCR Player',
+    roles: JSON.stringify(['MC']),
+    age: 19,
+    overall: 181,
+    tier: 'T3',
+    talent: 'Normal',
+    talentSource: 'card',
+    stats: JSON.stringify(outfield(100)),
+    isMutantCandidate: false,
+    snapshot: null,
+    newRole: 'DMC',
+    newRolePoints: 8,
+    playstyle: 'possession',
+    specialAbilities: JSON.stringify(['ability-a']),
+    boosts: JSON.stringify({ PASSING: { amount: 10, active: true, source: 'personalTrainer' } }),
+  });
+
+  assert.equal(player.newRole, 'DMC');
+  assert.equal(player.newRolePoints, 8);
+  assert.equal(player.playstyle, 'possession');
+  assert.deepEqual(player.specialAbilities, ['ability-a']);
+  assert.equal(player.boosts?.PASSING.amount, 10);
+
+  const planning = planningStateFromPlayer(player);
+  assert.deepEqual(planning.learningRole, { role: 'DMC', points: 8 });
+  assert.equal(planning.observedPlaystyleFamily, 'possession');
+  assert.deepEqual(planning.specialAbilities, ['ability-a']);
+  assert.equal(planning.boosts?.PASSING.amount, 10);
+  assert.equal(planning.playstyle, null,
+    'an observed family must not be invented into a named playstyle');
+});
+
+test('role preview respects OCR learning state and clears it only when that role completes', () => {
+  const before = {
+    ...state(['DC', 'DMC'], 'T3'),
+    learningRole: { role: 'MC', points: 8 },
+  };
+
+  assert.deepEqual(availableRoleAdditions(before.roles, before.learningRole), ['MC'],
+    'a different permanent role would leave three established plus one learning role');
+
+  const completed = previewRoleUnlock(before, 'MC', profile);
+  assert.deepEqual(completed.after.roles, ['DC', 'DMC', 'MC']);
+  assert.equal(completed.after.learningRole, null);
+  assert.match(completed.notes.join(' '), /Completes observed learning role MC/);
 });
