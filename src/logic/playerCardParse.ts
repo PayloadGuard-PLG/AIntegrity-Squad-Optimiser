@@ -126,6 +126,15 @@ export function findNameBlock(result: OcrResult): OcrBlock | undefined {
 
   const candidates: Array<{ block: OcrBlock; gap: number }> = [];
 
+  function nameFromBlock(block: OcrBlock): string {
+    const elements = block.lines
+      .flatMap(line => line.elements)
+      .map(element => element.text.trim())
+      .filter(Boolean);
+    return (elements.length ? elements.join(' ') : block.text)
+      .trim().replace(/^\d{1,3}\s+/, '').trim();
+  }
+
   for (const block of blocks) {
     if (!block.frame || block === anchor) continue;
 
@@ -151,59 +160,9 @@ export function findNameBlock(result: OcrResult): OcrBlock | undefined {
     //   OVR    x=692..784
     if (overlap <= 0 && leftDelta > 180) continue;
 
-    const elementTexts = block.lines
-      .flatMap(line => line.elements)
-      .map(element => element.text.trim())
-      .filter(Boolean);
+    const name = nameFromBlock(block);
 
-    // ML Kit returns ["40", "Ryan", "Rodger"].
-    const nameParts = [...elementTexts];
-
-    while (
-      nameParts.length > 0 &&
-      /^\d{1,3}$/.test(nameParts[0])
-    ) {
-      nameParts.shift();
-    }
-
-    let name = nameParts.join(' ').trim();
-
-    // Fallback if a platform ever supplies only block-level text.
-    if (!name) {
-      name = block.text
-        .trim()
-        .replace(/^\d{1,3}\s+/, '')
-        .trim();
-    }
-
-    if (name.length < 2 || name.length > 48) continue;
-    if (/[\d:+]/.test(name)) continue;
-
-    const words = name.split(/\s+/);
-    if (words.length < 1 || words.length > 4) continue;
-
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ'’. -]+$/.test(name)) continue;
-
-    const upper = name.toUpperCase();
-
-    if (KNOWN_ROLES.includes(upper)) continue;
-    if (KNOWN_TIERS.some(t => t.toUpperCase() === upper)) continue;
-    if (looksLikeStatBlock(name)) continue;
-
-    const lower = name.toLowerCase();
-
-    const blocked = UI_BLOCKLIST.some(kw => {
-      const label = kw.toLowerCase();
-
-      return kw.includes(' ')
-        ? lower.includes(label)
-        : lower === label ||
-            lower.startsWith(`${label}:`) ||
-            lower.startsWith(`${label}.`) ||
-            lower.startsWith(`${label} `);
-    });
-
-    if (blocked) continue;
+    if (!validNameText(name)) continue;
 
     candidates.push({
       gap,
@@ -218,7 +177,57 @@ export function findNameBlock(result: OcrResult): OcrBlock | undefined {
   if (candidates.length === 0) return undefined;
 
   candidates.sort((a, b) => a.gap - b.gap);
-  return candidates[0].block;
+  const primary = candidates[0].block;
+  const row = blocks
+    .filter(block => {
+      if (block === anchor || block.frame!.top + block.frame!.height > anchor.frame!.top) return false;
+      const a = primary.frame!;
+      const b = block.frame!;
+      const centerGap = Math.abs((a.top + a.height / 2) - (b.top + b.height / 2));
+      return centerGap <= Math.max(a.height, b.height) * 0.5 && validNameText(nameFromBlock(block));
+    })
+    .map(block => ({ ...block, text: nameFromBlock(block) }))
+    .sort((a, b) => a.frame!.left - b.frame!.left);
+  const index = row.findIndex(block => block.frame === primary.frame);
+  let first = index;
+  let last = index;
+  // ML Kit can put adjacent words of the same header in separate blocks. Join
+  // only contiguous boxes on the same visual line; a distant label or another
+  // line must never become part of the saved identity.
+  while (first > 0 &&
+    row[first].frame!.left - (row[first - 1].frame!.left + row[first - 1].frame!.width)
+      <= Math.max(row[first].frame!.height, row[first - 1].frame!.height) &&
+    row[first - 1].frame!.left + row[first - 1].frame!.width <= row[first].frame!.left) first--;
+  while (last + 1 < row.length &&
+    row[last + 1].frame!.left - (row[last].frame!.left + row[last].frame!.width)
+      <= Math.max(row[last].frame!.height, row[last + 1].frame!.height) &&
+    row[last].frame!.left + row[last].frame!.width <= row[last + 1].frame!.left) last++;
+  const joined = row.slice(first, last + 1).map(item => item.text).join(' ');
+  return {
+    ...primary,
+    text: validNameText(joined) ? joined : primary.text,
+    frame: {
+      ...primary.frame!,
+      left: row[first].frame!.left,
+      width: row[last].frame!.left + row[last].frame!.width - row[first].frame!.left,
+    },
+  };
+}
+
+function validNameText(name: string): boolean {
+  if (name.length < 2 || name.length > 48 || /[\d:+]/.test(name)) return false;
+  const words = name.split(/\s+/);
+  if (words.length > 4 || !/^[A-Za-zÀ-ÖØ-öø-ÿ'’. -]+$/.test(name)) return false;
+  const upper = name.toUpperCase();
+  if (KNOWN_ROLES.includes(upper) || KNOWN_TIERS.some(t => t.toUpperCase() === upper) ||
+    looksLikeStatBlock(name)) return false;
+  const lower = name.toLowerCase();
+  return !UI_BLOCKLIST.some(kw => {
+    const label = kw.toLowerCase();
+    return kw.includes(' ') ? lower.includes(label)
+      : lower === label || lower.startsWith(`${label}:`) ||
+        lower.startsWith(`${label}.`) || lower.startsWith(`${label} `);
+  });
 }
 
 /**
@@ -538,6 +547,10 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
   );
 
   if (distinct.length > 1) return undefined;
+  // OCR letters do not encode chip colour. If the X/50 badge is unread,
+  // the rightmost black learning chip looks exactly like an established label.
+  // Only a matched progress badge can certify the text-only role state.
+  if (distinct.length === 0) return undefined;
 
   let learningRole: { role: string; points: number } | null = null;
   if (distinct.length === 1) {
@@ -685,10 +698,10 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
 
   const roleFlags = review.filter(isRoleFlag);
 
-  if (textRoleState && (establishedRoles === undefined || roleFlags.length > 0)) {
-    // Glyph observation abstained, but the anchored OCR row completely resolves
-    // the role state. Drop only role-specific glyph flags; unrelated review
-    // flags (playstyle, abilities, boosts, image) remain visible.
+  if (textRoleState && !image && (establishedRoles === undefined || roleFlags.length > 0)) {
+    // With no pixels, a paired X/50 badge is positive evidence for the
+    // learning role and the other labels. A conflicting or unclear pixel read
+    // is different: keep its review flag instead of using text to erase it.
     establishedRoles = [...textRoleState.establishedRoles];
     learningRole = textRoleState.learningRole
       ? { ...textRoleState.learningRole }
@@ -696,7 +709,7 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
     for (let i = review.length - 1; i >= 0; i--) {
       if (isRoleFlag(review[i])) review.splice(i, 1);
     }
-  } else if (textRoleState && establishedRoles !== undefined) {
+  } else if (textRoleState && establishedRoles !== undefined && roleFlags.length === 0) {
     // Compare semantic role state, not array ordering. The text pass and glyph
     // pass may enumerate the same roles in different orders, while the OCR block
     // preserves the left-to-right card order for downstream provenance.

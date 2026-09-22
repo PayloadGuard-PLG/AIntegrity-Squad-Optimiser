@@ -5,8 +5,8 @@ import { deflateSync } from 'node:zlib';
 import { join } from 'node:path';
 import { decodeScreenshotPng } from '../src/logic/screenshotPixels';
 import { scanPlayerInput } from '../src/logic/playerScanPipeline';
-import { mergePlayerScanState, replaceNewPlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
-import { parsePlayerCard, parsePlayerCardText, parseStructuredRoleState, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
+import { mergePlayerScanState, replaceNewPlayerScanState, matchesSavedPlayerScanIdentity, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
+import { parsePlayerCard, parsePlayerCardText, parseStructuredRoleState, OcrBlock, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
 import { RgbaImage, roleChips, CALIBRATION } from '../src/logic/glyphReader';
 import { blankImage, hsvToRgb } from './helpers/png';
 import { buildSyntheticCard } from './helpers/syntheticCard';
@@ -107,6 +107,14 @@ test('new-player intake never inherits unresolved state from a previously scanne
   assert.equal(resolved.newRolePoints, 39);
 });
 
+test('edit rescan rejects a different or unread identity before state merging', () => {
+  const saved = { name: 'Danny Finlayson', age: 20 };
+  assert.equal(matchesSavedPlayerScanIdentity(saved, { name: '  DANNY   finlayson ', age: 20 }), true);
+  assert.equal(matchesSavedPlayerScanIdentity(saved, { name: 'Ryan Gilmartin', age: 20 }), false);
+  assert.equal(matchesSavedPlayerScanIdentity(saved, { name: 'Danny Finlayson', age: 19 }), false);
+  assert.equal(matchesSavedPlayerScanIdentity(saved, { age: 20 }), false);
+});
+
 test('new-player screen uses replacement semantics while edit rescans retain merge semantics', () => {
   const addScreen = readFileSync(join(__dirname, '..', 'app/player/new.tsx'), 'utf8');
   const editScreen = readFileSync(join(__dirname, '..', 'app/player/[id].tsx'), 'utf8');
@@ -164,10 +172,8 @@ test('structured OCR role row distinguishes established from learning without pi
     establishedRoles: ['AMC', 'MC'],
     learningRole: { role: 'ML', points: 29 },
   });
-  assert.deepEqual(parseStructuredRoleState(blakie), {
-    establishedRoles: ['AML', 'AMC', 'MC'],
-    learningRole: null,
-  });
+  assert.equal(parseStructuredRoleState(blakie), undefined,
+    'a text-only row without X/50 cannot prove that all labels are established');
 
   const parsed = parsePlayerCard(finlayson, null);
   assert.deepEqual(parsed.establishedRoles, ['AMC', 'MC']);
@@ -237,10 +243,38 @@ test('same-row X/50 outside the role-chip adjacency window is not treated as rol
     }],
   });
 
-  assert.deepEqual(parseStructuredRoleState(polluted), {
-    establishedRoles: ['AML', 'AMC', 'MC'],
-    learningRole: null,
-  });
+  assert.equal(parseStructuredRoleState(polluted), undefined,
+    'a distant counter does not certify the role row');
+});
+
+test('unread learning counter never promotes a black role to established', () => {
+  const finlayson = JSON.parse(readFileSync(join(__dirname, 'fixtures/mlkit-finlayson.json'), 'utf8')) as OcrResult;
+  const current = JSON.parse(JSON.stringify(finlayson).replace(/29\/50/g, '39/50')) as OcrResult;
+  const currentResult = parsePlayerCard(current, null);
+  assert.deepEqual(currentResult.establishedRoles, ['AMC', 'MC']);
+  assert.deepEqual(currentResult.learningRole, { role: 'ML', points: 39 });
+  const missing = JSON.parse(JSON.stringify(finlayson)) as OcrResult;
+  missing.text = missing.text?.replace(/29\s*\/\s*50/g, '');
+  for (const block of missing.blocks) {
+    block.text = block.text.replace(/29\s*\/\s*50/g, '');
+    for (const line of block.lines) {
+      line.text = line.text.replace(/29\s*\/\s*50/g, '');
+      line.elements = line.elements.filter(element => !ROLE_PROGRESS_RE_FOR_TEST.test(element.text));
+    }
+  }
+  const result = parsePlayerCard(missing, null);
+  assert.equal(result.establishedRoles, undefined);
+  assert.equal(result.learningRole, undefined);
+  assert.equal(needsRoleReview(result), true);
+  assert.deepEqual(replaceNewPlayerScanState(result).role, []);
+  assert.equal(parseStructuredRoleState(missing), undefined);
+});
+
+test('ambiguous pixels cannot be overruled by OCR role labels', () => {
+  const partial = JSON.parse(JSON.stringify(ocr)) as OcrResult;
+  const result = parsePlayerCard(partial, blankImage(pixels.width, pixels.height).img);
+  assert.equal(needsRoleReview(result), true);
+  assert.ok(result.review.some(flag => flag.field === 'roles' || flag.field.startsWith('roles.')));
 });
 
 test('line-level X/50 fallback keeps a nearby learning role when the counter element is absent', () => {
@@ -794,4 +828,27 @@ test('real Ryan Rodger OCR header resolves name after stripping shirt number', (
   assert.equal(out.age, 23);
   assert.equal(out.overall, 89);
   assert.deepEqual(out.roles, ['ML', 'AMC', 'AML']);
+});
+
+test('split name blocks and a merged shirt-number element resolve one identity', () => {
+  const f = (left: number, top: number, width: number, height: number) =>
+    ({ left, top, width, height });
+  const header = (text: string, left: number, width: number): OcrBlock => ({
+    text, frame: f(left, 70, width, 40), lines: [{
+      text, frame: f(left, 70, width, 40),
+      elements: [{ text, frame: f(left, 70, width, 40) }],
+    }],
+  });
+  const result: OcrResult = {
+    text: '41 LJDark leo\nOVR 169\nAge: 24',
+    blocks: [
+      header('41 LJDark', 600, 270),
+      header('leo', 890, 65),
+      { text: 'OVR 169', frame: f(690, 150, 120, 35), lines: [] },
+      { text: 'Age: 24', frame: f(690, 205, 120, 35), lines: [] },
+    ],
+  };
+  assert.equal(parsePlayerCardText(result).name, 'LJDark leo');
+  result.blocks.reverse();
+  assert.equal(parsePlayerCardText(result).name, 'LJDark leo');
 });

@@ -22,6 +22,18 @@ export function replaceNewPlayerScanState(scan: PlayerCardScanExtended): PlayerC
   return mergePlayerScanState(freshPlayerCardState(), scan);
 }
 
+/** A saved-player rescan must be tied to the same card before any field merges.
+ * The printed name is mandatory; a readable age adds another identity check.
+ */
+export function matchesSavedPlayerScanIdentity(
+  saved: Pick<Player, 'name' | 'age'>,
+  scan: Pick<PlayerCardScanExtended, 'name' | 'age'>,
+): boolean {
+  const normalise = (value: string) => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+  return !!scan.name && normalise(scan.name) === normalise(saved.name) &&
+    (scan.age === undefined || scan.age === saved.age);
+}
+
 export function needsRoleReview(scan: PlayerCardScanExtended): boolean {
   return scan.establishedRoles === undefined || scan.review.some(f =>
     f.field === 'roles' || f.field.startsWith('roles.') || f.field === 'learningRole');

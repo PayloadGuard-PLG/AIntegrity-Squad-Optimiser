@@ -10,7 +10,7 @@ import { theme, TIER_COLORS } from '../../src/constants/theme';
 import { TierName, TalentTier } from '../../src/types/resources';
 import { useScanner, ReviewFlag } from '../../src/hooks/useScanner';
 import { Player } from '../../src/database/playerSchema';
-import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../../src/logic/playerScanState';
+import { mergePlayerScanState, matchesSavedPlayerScanIdentity, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../../src/logic/playerScanState';
 import { PlayerScanReview } from '../../src/components/PlayerScanReview';
 import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
@@ -137,6 +137,15 @@ export default function EditPlayerScreen() {
       setScanMsg('');
       const data = await scanPlayerScreenshot(result.assets[0].uri);
       if (!data) return;
+      // A rescan may merge unread fields only because this screen is bound to
+      // one saved player. Do not apply another card's stats or role state here.
+      if (!loadedPlayer || !matchesSavedPlayerScanIdentity(loadedPlayer, data)) {
+        setScanRejected(true);
+        setScanMsg(data.name
+          ? `SCAN REJECTED — CARD IDENTITY ${data.name}, AGE ${data.age ?? '?'} DOES NOT MATCH ${loadedPlayer?.name ?? name}.`
+          : 'SCAN REJECTED — PLAYER NAME UNREAD. RESCAN A FULL CARD.');
+        return;
+      }
 
       const scannedTrainingRate = ingestCardTrainingRate(
         { talent, talentSource },
@@ -158,6 +167,7 @@ export default function EditPlayerScreen() {
         setReview(data.review);
         setRolesPending(needsRoleReview(data));
         setTierPending(needsTierReview(data));
+        if (data.overall) setOverall(data.overall.toString());
         // Auto-recompute OVR from merged stats
         const statsObj: Record<string, number> = {};
         for (const [k, v] of Object.entries(updated)) {
@@ -166,8 +176,10 @@ export default function EditPlayerScreen() {
         }
         if (Object.keys(statsObj).length >= 10) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const fakePlayer = { stats: statsObj, overall: parseFloat(overall) || 100, role: selectedRoles.length > 0 ? selectedRoles : ['ST'] } as any;
-          setOverall(computeOvrFromStats(fakePlayer, profile).toFixed(1));
+          if (!data.overall && !needsRoleReview(data) && next.role.length > 0) {
+            const fakePlayer = { stats: statsObj, overall: parseFloat(overall) || 100, role: next.role } as any;
+            setOverall(computeOvrFromStats(fakePlayer, profile).toFixed(1));
+          }
         }
         setScannedUri(null);
         setScanMsg(`${Object.keys(data.stats).length} STATS UPDATED — REVIEW AND SAVE`);

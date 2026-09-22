@@ -47,6 +47,7 @@ const inputStyle = {
 export default function NewPlayerScreen() {
   const manager = useManager();
   const [name, setName] = useState('');
+  const [namePending, setNamePending] = useState(false);
   const [positionStates, setPositionStates] = useState<Record<string, 0 | 1 | 2>>({});
   const selectedRoles = Object.entries(positionStates).filter(([, s]) => s === 2).map(([r]) => r);
   const [age, setAge] = useState('');
@@ -84,11 +85,11 @@ export default function NewPlayerScreen() {
       const n = parseFloat(v);
       if (!isNaN(n) && n > 0) statsObj[k] = n;
     }
-    if (Object.keys(statsObj).length >= 10) {
+    if (roles.length > 0 && Object.keys(statsObj).length >= 10) {
       const enteredVals = Object.values(statsObj);
       const mean = Math.floor(enteredVals.reduce((a, b) => a + b, 0) / enteredVals.length);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fakePlayer = { stats: statsObj, overall: mean, role: roles.length > 0 ? roles : ['ST'] } as any;
+      const fakePlayer = { stats: statsObj, overall: mean, role: roles } as any;
       const auto = computeOvrFromStats(fakePlayer, profile);
       setOverall(auto.toFixed(1));
       setOvrIsAuto(true);
@@ -110,14 +111,15 @@ export default function NewPlayerScreen() {
 
       const data = await scanPlayerScreenshot(uri);
       if (!data) return;
+      const next = replaceNewPlayerScanState(data);
 
       if (Object.keys(data.stats).length > 0 || data.overall) {
         // This screen has no persisted player identity yet. Each selected
         // screenshot is therefore a replacement intake candidate, not a rescan
         // merge. Never let an unread field inherit from a different unsaved
         // player that happened to be scanned immediately beforehand.
-        const next = replaceNewPlayerScanState(data);
         setName(data.name ?? '');
+        setNamePending(true);
         setAge(data.age?.toString() ?? '');
         setOverall('');
         setOvrIsAuto(false);
@@ -151,16 +153,17 @@ export default function NewPlayerScreen() {
           Object.entries(data.stats).map(([k, v]) => [k, Math.round(v).toString()])
         );
         setStatInputs(inputs);
-        recomputeOvr(inputs, replaceNewPlayerScanState(data).role);
+        if (data.overall) {
+          setOverall(data.overall.toString());
+          setOvrIsAuto(false);
+        } else if (!needsRoleReview(data)) {
+          recomputeOvr(inputs, next.role);
+        }
         setScanned(true);
-        setScannedUri(null);
         setScanMsg(`SCANNED ${Object.keys(inputs).length} STATS — REVIEW AND SAVE.`);
       } else if (data.overall) {
-        if (data.name) setName(data.name);
-        if (data.age) setAge(data.age.toString());
         setOverall(data.overall.toString());
         setOvrIsAuto(false);
-        setScannedUri(null);
         setScanMsg('OVR FOUND — NO STATS DETECTED. ENTER MANUALLY.');
       } else {
         setScanRejected(true);
@@ -217,6 +220,7 @@ export default function NewPlayerScreen() {
 
   function save() {
     if (!name.trim()) { Alert.alert('NAME REQUIRED'); return; }
+    if (namePending) { Alert.alert('CHECK NAME', 'Compare the name with the scanned card and confirm it before saving.'); return; }
     const invalidRoles = playerRoleError(cardState);
     if (invalidRoles) { Alert.alert('CHECK ROLES', invalidRoles); return; }
     if (rolesPending || tierPending) { Alert.alert('REVIEW SCAN', 'Check the roles and tier in the card-state panel before saving.'); return; }
@@ -356,6 +360,17 @@ export default function NewPlayerScreen() {
 
         {/* IDENTITY */}
         <MonoLabel color={theme.steelLight} style={{ marginBottom: 8, marginTop: 4 }}>IDENTITY</MonoLabel>
+        {namePending && scannedUri && (
+          <View style={{ marginBottom: 10 }}>
+            <Image source={{ uri: scannedUri }} style={{ width: '100%', aspectRatio: 16 / 9 }} resizeMode="contain" />
+            <Pressable accessibilityRole="button" onPress={() => {
+              if (!name.trim()) Alert.alert('NAME REQUIRED', 'Enter the name shown on the card.');
+              else setNamePending(false);
+            }} style={{ padding: 12, borderWidth: 1, borderColor: theme.hot }}>
+              <Text style={{ color: theme.hot, fontSize: 12 }}>I checked the name against the card</Text>
+            </Pressable>
+          </View>
+        )}
         <TextInput
           value={name}
           onChangeText={setName}
