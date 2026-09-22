@@ -13,6 +13,7 @@ import {
   validateRoleAdjacency,
 } from '../utils/roleWeights';
 import { getPlaystyleDefinition } from '../data/playstyles';
+import { playerRoleError } from './playerScanState';
 
 const TIER_ORDER: TierName[] = ['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 
@@ -39,16 +40,52 @@ export function planningStateFromPlayer(player: Player): PlayerPlanningState {
     stats: { ...player.stats },
     overall: player.overall,
     tier: player.tier,
+    learningRole: player.newRole
+      ? { role: player.newRole, points: player.newRolePoints ?? 0 }
+      : null,
+    observedPlaystyleFamily: player.playstyle,
+    specialAbilities: player.specialAbilities ? [...player.specialAbilities] : undefined,
+    boosts: player.boosts ? { ...player.boosts } : undefined,
     playstyle: null,
     deployedRole: player.role[0] ?? null,
   };
 }
 
-export function availableRoleAdditions(roles: string[]): string[] {
+function cardRoleStateError(state: Pick<PlayerPlanningState, 'roles' | 'tier' | 'learningRole' | 'deployedRole'>): string | null {
+  if (!/^T[0-6]$/.test(state.tier)) return `Invalid tier: ${state.tier}`;
+  const roleError = playerRoleError({
+    role: state.roles,
+    newRole: state.learningRole?.role ?? null,
+    newRolePoints: state.learningRole?.points ?? 0,
+  });
+  if (roleError) return roleError;
+  if (state.deployedRole && !state.roles.includes(state.deployedRole)) {
+    return `Deployed role ${state.deployedRole} is not established`;
+  }
+  return null;
+}
+
+function assertCardRoleState(state: Pick<PlayerPlanningState, 'roles' | 'tier' | 'learningRole' | 'deployedRole'>): void {
+  const error = cardRoleStateError(state);
+  if (error) throw new Error(`Invalid planning intake state: ${error}`);
+}
+
+export function availableRoleAdditions(
+  roles: string[],
+  learningRole?: { role: string; points: number } | null,
+): string[] {
   if (roles.length >= 3 || roles.includes('GK')) return [];
   return Object.keys(ROLE_CONSTRAINTS)
     .filter(role => role !== 'GK' && !roles.includes(role))
     .filter(role => validateRoleAdjacency([...roles, role]))
+    .filter(role => {
+      if (!learningRole || role === learningRole.role.toUpperCase()) return true;
+      return playerRoleError({
+        role: [...roles, role],
+        newRole: learningRole.role,
+        newRolePoints: learningRole.points,
+      }) === null;
+    })
     .sort();
 }
 
@@ -71,12 +108,21 @@ export function previewRoleUnlock(
   newRole: string,
   profile: GameProfile,
 ): StateTransitionResult {
+  assertCardRoleState(state);
   const role = newRole.toUpperCase();
   if (!ROLE_CONSTRAINTS[role]) throw new Error(`Unknown role: ${role}`);
   if (state.roles.includes(role)) throw new Error(`${role} is already established`);
   if (state.roles.length >= 3) throw new Error('Player already has three established roles');
   if (!validateRoleAdjacency([...state.roles, role])) {
     throw new Error(`${role} is not adjacent to the current role chain`);
+  }
+  if (state.learningRole && role !== state.learningRole.role.toUpperCase()) {
+    const roleError = playerRoleError({
+      role: [...state.roles, role],
+      newRole: state.learningRole.role,
+      newRolePoints: state.learningRole.points,
+    });
+    if (roleError) throw new Error(`Role transition would invalidate intake state: ${roleError}`);
   }
 
   const beforeWhite = getWhiteStatKeys(state.roles);
@@ -93,12 +139,16 @@ export function previewRoleUnlock(
     }
   }
 
+  const completingLearningRole =
+    state.learningRole?.role.toUpperCase() === role;
   const after: PlayerPlanningState = {
     ...state,
     roles: afterRoles,
+    learningRole: completingLearningRole ? null : state.learningRole,
     stats,
     overall: exactOvr(stats, state.overall),
   };
+  assertCardRoleState(after);
 
   return {
     kind: 'role',
@@ -113,6 +163,9 @@ export function previewRoleUnlock(
       tierAddition > 0
         ? `Newly-white stats inherit the existing ${state.tier} cumulative tier bonus (+${tierAddition}) immediately.`
         : 'T0 has no tier bonus to inherit; only the white/grey mask changes.',
+      completingLearningRole
+        ? `Completes observed learning role ${role}; learning progress clears in the projected state.`
+        : 'Any different in-progress learning role is preserved only when the resulting card state remains intake-valid.',
       'The optimiser preview is discardable; the source-game role is permanent once established.',
     ],
   };
@@ -123,6 +176,7 @@ export function previewTierUpgrade(
   targetTier: TierName,
   profile: GameProfile,
 ): StateTransitionResult {
+  assertCardRoleState(state);
   const from = TIER_ORDER.indexOf(state.tier);
   const to = TIER_ORDER.indexOf(targetTier);
   if (from < 0 || to <= from) {
@@ -146,6 +200,7 @@ export function previewTierUpgrade(
     stats,
     overall: exactOvr(stats, state.overall),
   };
+  assertCardRoleState(after);
 
   const path = tierPath(state.tier, targetTier, profile);
   return {
@@ -173,6 +228,7 @@ export function previewPlaystyleAssignment(
   playstyleId: string,
   level: PlaystyleLevel = 'Standard',
 ): StateTransitionResult {
+  assertCardRoleState(state);
   const definition = getPlaystyleDefinition(playstyleId);
   if (!definition) throw new Error(`Unknown or unobserved playstyle: ${playstyleId}`);
 
@@ -181,6 +237,7 @@ export function previewPlaystyleAssignment(
     ...state,
     playstyle: { id: definition.id, level },
   };
+  assertCardRoleState(after);
 
   return {
     kind: 'playstyle',
@@ -205,12 +262,14 @@ export function previewDeployment(
   state: PlayerPlanningState,
   deployedRole: string,
 ): StateTransitionResult {
+  assertCardRoleState(state);
   const role = deployedRole.toUpperCase();
   if (!state.roles.includes(role)) throw new Error(`${role} is not an established role for this player`);
 
   const definition = state.playstyle ? getPlaystyleDefinition(state.playstyle.id) : null;
   const active = definition ? definition.compatibleRoles.includes(role) : false;
   const after: PlayerPlanningState = { ...state, deployedRole: role };
+  assertCardRoleState(after);
 
   return {
     kind: 'deployment',
