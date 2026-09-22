@@ -8,6 +8,7 @@
 export type CoachTransferClass = 'ordinary' | 'reward' | 'unresolved';
 export type CoachSourceFamily = 'resource-coach' | 'training-camp' | 'unresolved';
 export type CoachProgrammeFamily = 'unknown' | 'drill-session' | 'skill-seminar';
+export type CoachClassificationSource = 'ocr-observed' | 'manual-confirmed' | 'unresolved';
 
 function canonicalCoachLabels(fullText: string): string {
   return (fullText ?? '').replace(/\bC0ACH\b/gi, 'COACH');
@@ -41,7 +42,7 @@ export function normalisePersistedCoachTransferClass(
   value: unknown,
   source: unknown,
 ): CoachTransferClass {
-  if (source !== 'observed') return 'unresolved';
+  if (!['observed', 'ocr-observed', 'manual-confirmed'].includes(String(source))) return 'unresolved';
   if (value === 'reward' || value === 'ordinary') return value;
   return 'unresolved';
 }
@@ -51,7 +52,13 @@ export function normalisePersistedCoachSourceFamily(
   value: unknown,
   source: unknown,
 ): CoachSourceFamily {
-  if (source !== 'observed') return 'unresolved';
+  if (!['observed', 'ocr-observed', 'manual-confirmed'].includes(String(source))) return 'unresolved';
   if (value === 'resource-coach' || value === 'training-camp') return value;
+  return 'unresolved';
+}
+
+export function normaliseCoachClassificationSource(source: unknown): CoachClassificationSource {
+  if (source === 'observed' || source === 'ocr-observed') return 'ocr-observed';
+  if (source === 'manual-confirmed') return 'manual-confirmed';
   return 'unresolved';
 }
