@@ -1,0 +1,46 @@
+name: Resource Coach Log
+
+on:
+  pull_request:
+    paths:
+      - 'calibration/resource-coach-log/**'
+      - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
+      - 'tools/resource-coach-v2/ingest-experiment.mjs'
+      - '.github/workflows/resource-coach-log.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'calibration/resource-coach-log/**'
+      - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
+      - 'tools/resource-coach-v2/ingest-experiment.mjs'
+      - '.github/workflows/resource-coach-log.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-log:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax check
+        run: |
+          node --check tools/resource-coach-v2/ingest-experiment.mjs
+          node --check tools/resource-coach-v2/aggregate-experiment-log.mjs
+      - name: Aggregate immutable experiments
+        run: |
+          rm -rf /tmp/resource-coach-generated
+          node tools/resource-coach-v2/aggregate-experiment-log.mjs \
+            calibration/resource-coach-log/runs \
+            /tmp/resource-coach-generated
+          cat /tmp/resource-coach-generated/summary.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify immutable-ingest idempotence
+        run: |
+          mkdir -p /tmp/resource-coach-runs
+          first="$(find calibration/resource-coach-log/runs -maxdepth 1 -name '*.json' | sort | head -n 1)"
+          test -n "$first"
+          node tools/resource-coach-v2/ingest-experiment.mjs "$first" /tmp/resource-coach-runs
+          node tools/resource-coach-v2/ingest-experiment.mjs "$first" /tmp/resource-coach-runs

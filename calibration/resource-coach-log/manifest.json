@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "resource-coach-log-manifest-v1",
+  "experimentSchemaVersion": "resource-coach-experiment-v1",
+  "googleSheet": {
+    "title": "Resource Coach Experiment Log — v1",
+    "id": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+    "url": "https://docs.google.com/spreadsheets/d/1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI/edit"
+  },
+  "runsDirectory": "calibration/resource-coach-log/runs",
+  "aggregateCommand": "node tools/resource-coach-v2/aggregate-experiment-log.mjs",
+  "ingestCommand": "node tools/resource-coach-v2/ingest-experiment.mjs <export.json>"
+}
