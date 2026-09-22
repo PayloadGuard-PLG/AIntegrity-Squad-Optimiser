@@ -132,7 +132,12 @@ export function findNameBlock(result: OcrResult): OcrBlock | undefined {
       .map(element => element.text.trim())
       .filter(Boolean);
     return (elements.length ? elements.join(' ') : block.text)
-      .trim().replace(/^\d{1,3}\s+/, '').trim();
+      .trim()
+      // ML Kit can emit the shirt number separately ("40 Ryan") or fuse it
+      // to the first name ("40Ryan"). Candidate geometry has already limited
+      // this normalization to the identity header immediately above OVR/Age.
+      .replace(/^\d{1,3}(?:\s+|(?=[A-Za-zÀ-ÖØ-öø-ÿ'’]))/, '')
+      .trim();
   }
 
   for (const block of blocks) {
