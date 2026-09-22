@@ -18,7 +18,7 @@ The app already has useful deterministic and evidence-qualified components:
 - player OCR/state merge with explicit observed-vs-unread semantics;
 - established roles separated from a learning role;
 - tier bonuses and the 180 base-OVR lock;
-- white/grey role unions;
+- white/grey role derivation, including evidence-scoped role-set interactions;
 - coach/drill projection seams with provenance-aware run storage;
 - full-plan and squad-plan screens;
 - one-level local snapshot/revert for app-side card edits.
@@ -49,9 +49,17 @@ Live pure-MC cards supplied on 2026-09-22 show:
 - STRENGTH grey;
 - 10 white attributes total.
 
-The existing table had both SHOOTING and STRENGTH white, producing 11 whites for a pure MC. Multi-role regression tests did not expose it because DC supplies STRENGTH in the existing control combinations.
+The existing table had both SHOOTING and STRENGTH white, producing 11 whites for a pure MC. The new direct control falsifies that individual-role assignment.
 
-The feature branch corrects MC to 10 whites and adds a direct regression.
+One existing card-anchored control then exposed something more useful: Cieran Morgan (DMC/MC/AMC) still shows STRENGTH white, even though STRENGTH is grey for the individual MC, DMC and AMC role tables. That means a simple union of independent role masks is not sufficient for every role set.
+
+The branch therefore:
+- corrects pure MC to 10 whites;
+- preserves Cieran's directly observed 14-white state;
+- encodes the exact observed DMC+MC+AMC → STRENGTH-white interaction only;
+- does **not** generalise a broader role-interaction law without more controls.
+
+This is precisely the kind of state transition the option explorer should surface rather than hide inside a single OVR number.
 
 ### 2. Deterministic state-transition kernel
 
