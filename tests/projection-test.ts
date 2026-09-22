@@ -311,6 +311,16 @@ section('7. Role weight classification');
     assert('MC + DMC white stat count = 12', mcDmc.length === 12);
     assert('adding DMC to MC newly-whites exactly AGGRESSION and HEADING',
       unlocked.join(',') === 'AGGRESSION,HEADING');
+
+    // Existing Cieran card truth plus the new pure-MC control jointly falsify
+    // a simple per-role union: STRENGTH is grey for MC, DMC and AMC alone, but
+    // white for the observed DMC+MC+AMC role set.
+    const cieran = getWhiteStatKeys(['DMC', 'MC', 'AMC']);
+    assert('DMC+MC+AMC preserves Cieran card truth at 14 white stats', cieran.length === 14);
+    assert('DMC+MC+AMC interaction makes STRENGTH white',
+      isWhiteStat(['DMC', 'MC', 'AMC'], 'STRENGTH'));
+    assert('DMC+MC without AMC leaves STRENGTH grey',
+      !isWhiteStat(['DMC', 'MC'], 'STRENGTH'));
   }
 
   // DMC confirmed: 9 white + 6 grey = 15 total.
