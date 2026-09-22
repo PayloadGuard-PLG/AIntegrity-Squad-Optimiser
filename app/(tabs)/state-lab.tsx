@@ -127,7 +127,10 @@ export default function StateLabScreen() {
     );
   }
 
-  const roleOptions = availableRoleAdditions(player.role);
+  const observedLearningRole = player.newRole
+    ? { role: player.newRole, points: player.newRolePoints ?? 0 }
+    : null;
+  const roleOptions = availableRoleAdditions(player.role, observedLearningRole);
   const finalState = projection.state;
   const whiteNow = getWhiteStatKeys(player.role);
   const whiteAfter = getWhiteStatKeys(finalState.roles);
@@ -153,12 +156,25 @@ export default function StateLabScreen() {
           <MonoLabel size={9} color={theme.inkMuted} style={{ marginTop: 4 }}>
             {player.role.join(' · ')} · {player.tier} · {player.overall.toFixed(1)} OVR
           </MonoLabel>
+          {(observedLearningRole || player.playstyle || player.specialAbilities?.length || player.boosts) ? (
+            <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 5 }}>
+              {observedLearningRole ? `LEARNING ${observedLearningRole.role} ${observedLearningRole.points}/50 · ` : ''}
+              {player.playstyle ? `PLAYSTYLE FAMILY ${player.playstyle.toUpperCase()} · ` : ''}
+              {player.specialAbilities?.length ? `ABILITIES ${player.specialAbilities.length} · ` : ''}
+              {player.boosts ? `BOOSTS ${Object.keys(player.boosts).length}` : ''}
+            </MonoLabel>
+          ) : null}
           <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 8 }}>
             ROLE / TIER / PLAYSTYLE ACTIONS ARE PERMANENT IN GAME. THIS BRANCH IS DISCARDABLE HERE.
           </MonoLabel>
         </View>
 
         <Section title="1 · ROLE BRANCH">
+          {observedLearningRole ? (
+            <MonoLabel size={8} color={theme.hot} style={{ marginBottom: 9 }}>
+              OCR INTAKE · {observedLearningRole.role} {observedLearningRole.points}/50 IN PROGRESS
+            </MonoLabel>
+          ) : null}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             <Choice label="NONE" active={!roleToAdd} onPress={() => setRoleToAdd(null)} />
             {roleOptions.map(role => (
