@@ -180,6 +180,46 @@ test('learning-role counter in a separate OCR block remains attached to the righ
   assert.equal(needsRoleReview(full), false);
 });
 
+test('same-row X/50 outside the role-chip adjacency window is not treated as role progress', () => {
+  const blakie = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures/mlkit-blakie.json'), 'utf8')
+  ) as OcrResult;
+  const roleBlock = blakie.blocks.find(block => /^Roles:/i.test(block.text.trim()));
+  assert.ok(roleBlock?.frame);
+
+  const polluted = JSON.parse(JSON.stringify(blakie)) as OcrResult;
+  polluted.blocks.push({
+    text: '29/50',
+    frame: { left: 1900, top: roleBlock!.frame!.top, width: 50, height: 18 },
+    lines: [{
+      text: '29/50',
+      frame: { left: 1900, top: roleBlock!.frame!.top, width: 50, height: 18 },
+      elements: [{
+        text: '29/50',
+        frame: { left: 1900, top: roleBlock!.frame!.top, width: 50, height: 18 },
+      }],
+    }],
+  });
+
+  assert.deepEqual(parseStructuredRoleState(polluted), {
+    establishedRoles: ['AML', 'AMC', 'MC'],
+    learningRole: null,
+  });
+});
+
+test('line-level X/50 fallback keeps a nearby learning role when the counter element is absent', () => {
+  const split = JSON.parse(JSON.stringify(ocr)) as OcrResult;
+  const roleBlock = split.blocks.find(block => /^Roles:/i.test(block.text.trim()));
+  assert.ok(roleBlock);
+  const roleLine = roleBlock!.lines[0];
+  roleLine.elements = roleLine.elements.filter(element => !ROLE_PROGRESS_RE_FOR_TEST.test(element.text));
+
+  assert.deepEqual(parseStructuredRoleState(split), {
+    establishedRoles: ['DC', 'DMC'],
+    learningRole: { role: 'MC', points: 1 },
+  });
+});
+
 test('decode failure still ingests a complete structured OCR role row', async () => {
   const result = await scanPlayerInput('original.jpg', {
     prepare: async () => { throw new Error('decode failed'); },
