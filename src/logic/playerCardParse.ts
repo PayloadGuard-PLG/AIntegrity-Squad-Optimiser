@@ -54,7 +54,7 @@ const UI_BLOCKLIST = ['Squad', 'Contract', 'Overview', 'Skills', 'Stats', 'Train
   'Playstyle', 'Celebrations', 'Trainer', 'Personal', 'Defence', 'Attack', 'Physical',
   'Goalkeeping', 'Safeguard', 'Special', 'Ability', 'Team', 'None', 'Select', 'Player',
   'Start', 'Reward', 'Goal Celebrations', 'Personal Trainer', 'Special Ability',
-  'Age', 'Roles', 'Role', 'Level', 'Points', 'Overall', 'Rating', 'Talent'];
+  'Age', 'Roles', 'Role', 'Level', 'Points', 'Overall', 'Rating', 'Talent', 'OVR'];
 
 const TIER_NAME_MAP: Record<string, string> = {
   None: 'T0', Rare: 'T1', Elite: 'T2', Stellar: 'T3', Master: 'T4', Epic: 'T5', Legendary: 'T6',
@@ -131,13 +131,27 @@ export function findNameBlock(result: OcrResult): OcrBlock | undefined {
       .flatMap(line => line.elements)
       .map(element => element.text.trim())
       .filter(Boolean);
-    return (elements.length ? elements.join(' ') : block.text)
+    const raw = (elements.length ? elements.join(' ') : block.text)
       .trim()
       // ML Kit can emit the shirt number separately ("40 Ryan") or fuse it
       // to the first name ("40Ryan"). Candidate geometry has already limited
       // this normalization to the identity header immediately above OVR/Age.
       .replace(/^\d{1,3}(?:\s+|(?=[A-Za-zÀ-ÖØ-öø-ÿ'’]))/, '')
       .trim();
+
+    // Live cards can place a small status glyph directly after the player name.
+    // If ML Kit OCRs that glyph into the SAME block/element, rejecting the
+    // entire block loses an otherwise clean identity. Keep only the leading
+    // contiguous sequence of name-shaped words; downstream validation still
+    // rejects UI labels, stat labels, roles and tier names.
+    const words = raw.split(/\s+/);
+    const kept: string[] = [];
+    for (const word of words) {
+      if (/^[A-Za-zÀ-ÖØ-öø-ÿ'’.-]+$/.test(word)) kept.push(word);
+      else break;
+      if (kept.length === 4) break;
+    }
+    return kept.join(' ');
   }
 
   for (const block of blocks) {
