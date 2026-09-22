@@ -101,7 +101,6 @@ CREATE TABLE IF NOT EXISTS resource_coach_ovr_observation (
   CHECK (boost_lo >= 0 AND boost_hi >= boost_lo),
   FOREIGN KEY (observation_id) REFERENCES resource_coach_preview(observation_id)
 );
-
 -- One immutable experiment is the isolation boundary for a coach preview.
 -- Predictions must be captured while the experiment is open; the observed
 -- preview closes it. partition is explicit so holdouts cannot silently become
@@ -171,3 +170,4 @@ CREATE TABLE IF NOT EXISTS resource_coach_residual (
 
 CREATE INDEX IF NOT EXISTS idx_resource_coach_residual_model
   ON resource_coach_residual(model_version, stat);
+

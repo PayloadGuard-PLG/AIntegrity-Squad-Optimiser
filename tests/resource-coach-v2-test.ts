@@ -203,7 +203,7 @@ test('interval scoring is deterministic and keeps endpoint, midpoint, width and 
   assert.equal(score.matchedStatCount,2);
   assert.equal(score.endpointMae,.5);
   assert.equal(score.midpointMae,.5);
-  assert.ok(Math.abs(score.meanIntervalIou-(2/3))<1e-12);
+  assert.ok(score.meanIntervalIou!==null && Math.abs(score.meanIntervalIou-(2/3))<1e-12);
   assert.equal(score.residuals[0].lowError,1);
   assert.equal(score.residuals[0].highError,1);
   assert.equal(score.residuals[0].widthError,0);
