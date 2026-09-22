@@ -191,7 +191,7 @@ export default function CoachesScreen() {
       const scan = await scanCoachPreview(picked.assets[0].uri);
       const recognised = !!(scan.coachType || scan.coachCategory || scan.multiplier || scan.programmeFamily !== 'unknown');
 
-      if (!recognised && scan.stats.length === 0) {
+      if (!recognised && scan.stats.length === 0 && scan.affectedStats.length === 0) {
         setScanStatus('SCAN REJECTED — UPLOAD A SCREEN RESOLUTION COACH PREVIEW');
         setScannedStats([]); setCoachType(''); setCoachCategory('');
         setTransferClass('unresolved'); setTransferClassSource('unresolved');
