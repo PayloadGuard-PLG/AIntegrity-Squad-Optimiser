@@ -195,9 +195,11 @@ export default function StateLabScreen() {
                 NEW WHITE · {projection.roleStep.newlyWhite.length ? projection.roleStep.newlyWhite.join(' · ') : 'NONE'}
               </MonoLabel>
               <MonoLabel size={8} color={theme.inkGhost} style={{ marginTop: 4 }}>
-                {freeRoleAvailable
-                  ? 'RESOURCE PATH: 1 SEASONAL FREE ROLE'
-                  : 'RESOURCE PATH: ROLE TRAINING REQUIRED · DURATION NOT MODELLED'}
+                {roleToAdd && observedLearningRole?.role === roleToAdd
+                  ? `RESOURCE PATH: COMPLETE OBSERVED ROLE TRAINING · ${observedLearningRole.points}/50`
+                  : freeRoleAvailable
+                    ? 'RESOURCE PATH: 1 SEASONAL FREE ROLE'
+                    : 'RESOURCE PATH: ROLE TRAINING REQUIRED · DURATION NOT MODELLED'}
               </MonoLabel>
             </View>
           )}
