@@ -557,10 +557,10 @@ function findOvrBox(tokens: GlyphToken[]): GlyphToken['frame'] | undefined {
  * Full scan: the frozen text pass, plus the glyph readers when a decoded image
  * is available.
  *
- * With no image the glyph readers cannot observe anything, so every glyph-backed
- * field abstains with `region_unread` and the legacy `roles` list is left exactly
- * as the text pass produced it. That is deliberate: dropping to `[]` / `none` /
- * `T0` because we never looked is the precise failure mode the spec forbids.
+ * With no image, pixel-only fields abstain. Roles are the exception when the
+ * anchored OCR Roles row is structurally complete: its labels plus X/50 counter
+ * can resolve established-vs-learning state without colour classification.
+ * Unstructured role text still abstains rather than being promoted.
  */
 export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): PlayerCardScanExtended {
   const base = parsePlayerCardText(result);
@@ -678,8 +678,8 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
   }
 
   // roles stays populated for backward compatibility (spec §4). It becomes the
-  // established set once the chips were actually read; otherwise it keeps the
-  // legacy text-derived value rather than collapsing to [].
+  // resolved established set after either a structured OCR row or a confident
+  // glyph read; otherwise it keeps the legacy flat text candidates for review.
   const roles = establishedRoles ?? base.roles;
 
   return {
