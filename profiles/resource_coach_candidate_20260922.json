@@ -1,0 +1,42 @@
+{
+  "modelVersion": "shared-latent-rectified-calibration-candidate-2026-09-22",
+  "status": "calibration-only-not-production",
+  "response": {
+    "tierAdditions": [0, 10, 30, 50, 80, 120, 160],
+    "whiteThreshold": 135,
+    "greyThreshold": 120,
+    "beta": 0.0354,
+    "upperDoseRatio": 1.5
+  },
+  "dose": {
+    "multiplierExponent": 1.056,
+    "affectedStatExponent": 1.073,
+    "rewardScale": 0.60,
+    "ageBands": [
+      { "minAge": 17, "maxAge": 21, "scale": 8 },
+      { "minAge": 22, "maxAge": 25, "scale": 6 },
+      { "minAge": 26, "maxAge": 29, "scale": 4 },
+      { "minAge": 30, "maxAge": 31, "scale": 2 },
+      { "minAge": 32, "maxAge": 99, "scale": 1 }
+    ]
+  },
+  "evidence": {
+    "retrospectiveGroupedCandidate": {
+      "statEndpointMAE": 2.64,
+      "playerMacroMAE": 2.43,
+      "intervalOverlap": 0.967,
+      "note": "Candidate development has seen the corpus; this is retrospective grouped validation."
+    },
+    "prospectiveChecks": {
+      "drillRewardIntervals": "9/9 intersected; approximately 1.56 endpoint MAE; 2/2 OVR intervals exact in the recorded prospective checks.",
+      "sharedDoseReplay": "Six prospective previews overlapped all 19 new stat intervals at approximately 1.84 endpoint MAE, but the same model did not pass the complete corpus."
+    },
+    "unresolved": [
+      "Final programme-family dose generators are not identified.",
+      "Skill Seminar N^1.46 / p^0.75 remains a hypothesis rather than a frozen law.",
+      "Focused coefficient and exact Reward scaling remain conditional.",
+      "Exact OVR preview renderer remains unresolved.",
+      "The candidate must not replace the production/experimental V2 predictor until prospective falsification is stronger."
+    ]
+  }
+}
