@@ -405,20 +405,30 @@ export interface StructuredTextRoleState {
 const ROLE_PROGRESS_RE = /(\d{1,2})\s*\/\s*50/;
 
 export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleState | undefined {
-  const lines = (result.blocks ?? []).flatMap(block => block.lines ?? []);
-  const line = lines.find(candidate =>
-    candidate.elements?.some(element => /^roles?\s*:?$/i.test(element.text.trim())) ||
-    /^roles?\s*:/i.test(candidate.text.trim())
+  // ML Kit can wrap one visual Roles row into multiple OCR lines inside the same
+  // block. Treat the whole anchored block as the observation; reading only the
+  // first line silently drops wrapped roles (the regression caught exactly that).
+  const roleBlock = (result.blocks ?? []).find(block =>
+    (block.lines ?? []).some(candidate =>
+      candidate.elements?.some(element => /^roles?\s*:?$/i.test(element.text.trim())) ||
+      /^roles?\s*:/i.test(candidate.text.trim())
+    )
   );
-  if (!line) return undefined;
+  if (!roleBlock) return undefined;
 
-  const elements = (line.elements ?? [])
+  const elements = (roleBlock.lines ?? [])
+    .flatMap(line => line.elements ?? [])
     .filter(element => element.frame && element.text.trim())
-    .sort((a, b) => (a.frame?.left ?? 0) - (b.frame?.left ?? 0));
+    .sort((a, b) => {
+      const atop = a.frame?.top ?? 0;
+      const btop = b.frame?.top ?? 0;
+      if (atop !== btop) return atop - btop;
+      return (a.frame?.left ?? 0) - (b.frame?.left ?? 0);
+    });
 
-  type LocatedRole = { role: string; left: number; right: number };
+  type LocatedRole = { role: string; left: number; right: number; top: number; height: number };
   const located: LocatedRole[] = [];
-  const counters: Array<{ points: number; left: number }> = [];
+  const counters: Array<{ points: number; left: number; top: number; height: number }> = [];
 
   for (const element of elements) {
     const frame = element.frame;
@@ -427,7 +437,12 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
 
     const counter = ROLE_PROGRESS_RE.exec(raw);
     if (counter) {
-      counters.push({ points: parseInt(counter[1], 10), left: frame.left });
+      counters.push({
+        points: parseInt(counter[1], 10),
+        left: frame.left,
+        top: frame.top,
+        height: frame.height,
+      });
     }
 
     if (/^roles?\s*:?$/i.test(raw)) continue;
@@ -446,13 +461,15 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
         role,
         left: frame.left + frame.width * start,
         right: frame.left + frame.width * (start + width),
+        top: frame.top,
+        height: frame.height,
       });
     }
   }
 
   const unique: LocatedRole[] = [];
   const seen = new Set<string>();
-  for (const item of located.sort((a, b) => a.left - b.left)) {
+  for (const item of located.sort((a, b) => a.top - b.top || a.left - b.left)) {
     if (seen.has(item.role)) continue;
     seen.add(item.role);
     unique.push(item);
@@ -463,9 +480,17 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
   if (counters.length === 1) {
     const counter = counters[0];
     if (counter.points < 0 || counter.points >= 50) return undefined;
+
+    // Progress belongs to the role on the same visual row immediately to its
+    // left. Do not associate a wrapped role from another line merely because
+    // its x-coordinate happens to be closer.
     const candidate = [...unique]
-      .filter(item => item.left < counter.left)
+      .filter(item =>
+        Math.abs(item.top - counter.top) <= Math.max(item.height, counter.height) * 1.5 &&
+        item.left < counter.left
+      )
       .sort((a, b) => b.right - a.right)[0];
+
     if (!candidate) return undefined;
     learningRole = { role: candidate.role, points: counter.points };
   }
