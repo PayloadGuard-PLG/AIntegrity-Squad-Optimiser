@@ -230,8 +230,12 @@ test('the coaches screen keeps interval forecasts separate from observed preview
   const src = readCode('app/(tabs)/coaches.tsx');
   assert.match(src, /ResourceCoachLab/, 'coach testing must use the interval model');
   const lab = readCode('src/components/ResourceCoachLab.tsx');
-  assert.match(lab, /savePrediction\(id,input,p\)/);
-  assert.match(lab, /saveObservation\(o\)/);
+  assert.match(lab, /savePrediction\(experimentId,id,input,p,partition\)/,
+    'pre-outcome predictions must be frozen inside the active experiment');
+  assert.match(lab, /saveObservation\(o,partition\)/,
+    'the observed preview must seal that same isolated experiment');
+  assert.match(lab, /id:experimentId/,
+    'the observation id is the experiment isolation key');
   assert.doesNotMatch(src + lab, /applyAndSnapshot\(/, 'forecast ranges must not overwrite observed player stats');
   // bd5bc96's rule, re-pinned: the screen's observed intervals stay intervals.
   assert.equal(/gainLo \+ .*gainHi\) *\/ *2|\(lo \+ hi\) *\/ *2/.test(src), false,
