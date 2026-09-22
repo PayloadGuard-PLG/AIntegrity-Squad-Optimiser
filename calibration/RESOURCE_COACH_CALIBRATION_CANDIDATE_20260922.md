@@ -33,8 +33,14 @@ The later 2026-09-21 system-identification work materially improved the structur
 A refined grouped-player replay reached about 2.64 endpoint MAE, 2.43 player-macro MAE
 and 96.7% interval overlap. Recorded prospective Drill/Reward checks intersected all 9
 stat intervals at about 1.56 endpoint MAE with 2/2 OVR intervals exact. A later
-six-preview shared-dose replay intersected all 19 new stat ranges at about 1.84 endpoint
-error.
+shared-dose held-out comparison intersected all 19 new stat ranges at about 1.84 mean
+endpoint error. That 19-range check is useful but not deployment-blind because the model
+development process had already seen related corpus structure.
+
+A separate recent system-level projection estimated a goalkeeper path of approximately
+140 -> 174 -> 194 -> 238 OVR; the observed final value was 237.5. This is retained as a
+predictive sanity check on the composed planner, not used to fit the one-step Resource
+Coach candidate.
 
 Those results are **not enough to identify the final equation**. The same shared-dose
 candidate still fails parts of the complete corpus, with a largest endpoint miss around
@@ -45,8 +51,10 @@ Still unresolved:
 
 - exact Drill Session versus Skill Seminar dose laws;
 - whether Skill Seminar `N^1.46 / p^0.75` is genuine or confounded;
-- Focused coefficient;
-- exact Reward scaling;
+- Focused coefficient — recent held-out comparisons did not require a separate penalty,
+  but coefficient 1 versus a reduced value is still not identified;
+- exact Reward scaling — the frozen 0.60 candidate value is a falsifiable test value,
+  not an identified game constant;
 - endpoint renderer;
 - exact OVR preview construction.
 
