@@ -5,7 +5,7 @@ import { deflateSync } from 'node:zlib';
 import { join } from 'node:path';
 import { decodeScreenshotPng } from '../src/logic/screenshotPixels';
 import { scanPlayerInput } from '../src/logic/playerScanPipeline';
-import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
+import { mergePlayerScanState, replaceNewPlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
 import { parsePlayerCard, parsePlayerCardText, parseStructuredRoleState, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
 import { RgbaImage, roleChips, CALIBRATION } from '../src/logic/glyphReader';
 import { blankImage, hsvToRgb } from './helpers/png';
@@ -79,6 +79,42 @@ function pngBase64(image: RgbaImage, channels: 3 | 4 = 4): string {
 const fresh = (): PlayerCardState => ({ role: [], tier: 'T0' });
 const scan = (overrides: Partial<PlayerCardScanExtended> = {}): PlayerCardScanExtended => ({
   stats: {}, review: [], ...overrides,
+});
+
+test('new-player intake never inherits unresolved state from a previously scanned unsaved player', () => {
+  const unresolved = scan({
+    name: 'Danny Finlayson',
+    age: 20,
+    tier: 'T3',
+    review: [{ field: 'roles', reason: 'low_confidence', detail: 'role evidence disagrees' }],
+  });
+
+  const next = replaceNewPlayerScanState(unresolved);
+  assert.deepEqual(next.role, []);
+  assert.equal(next.newRole, undefined);
+  assert.equal(next.newRolePoints, undefined);
+  assert.equal(next.tier, 'T3');
+
+  const resolved = replaceNewPlayerScanState(scan({
+    name: 'Danny Finlayson',
+    age: 20,
+    establishedRoles: ['AMC', 'MC'],
+    learningRole: { role: 'ML', points: 39 },
+    tier: 'T3',
+  }));
+  assert.deepEqual(resolved.role, ['AMC', 'MC']);
+  assert.equal(resolved.newRole, 'ML');
+  assert.equal(resolved.newRolePoints, 39);
+});
+
+test('new-player screen uses replacement semantics while edit rescans retain merge semantics', () => {
+  const addScreen = readFileSync(join(__dirname, '..', 'app/player/new.tsx'), 'utf8');
+  const editScreen = readFileSync(join(__dirname, '..', 'app/player/[id].tsx'), 'utf8');
+
+  assert.match(addScreen, /replaceNewPlayerScanState\(data\)/);
+  assert.doesNotMatch(addScreen, /mergePlayerScanState\(cardState,\s*data\)/);
+  assert.match(addScreen, /preserveUnread=\{false\}/);
+  assert.match(editScreen, /mergePlayerScanState\(cardState,\s*data\)/);
 });
 
 test('PNG decoding preserves RGB, RGBA, alpha and row order', () => {
