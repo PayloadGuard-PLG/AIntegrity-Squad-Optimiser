@@ -3,8 +3,7 @@ import { View, Text, TextInput, Pressable, Share } from 'react-native';
 import type { Player } from '../database/playerSchema';
 import type { CoachPreviewInterval } from '../logic/recommendation';
 import type { CoachSourceFamily, CoachTransferClass } from '../logic/coachTransfer';
-import { isWhiteStat } from '../utils/roleWeights';
-import { RESOURCE_MODEL, predictResourceCoach, fitPlayerCalibration, type ResourceInput, type ResourcePrediction, type ResourceObservation, type DisplayClass } from '../logic/resourceCoachV2';
+import { RESOURCE_MODEL, predictResourceCoach, fitPlayerCalibration, buildResourceStatsFromState, resourceStateConfirmed, type ResourceInput, type ResourcePrediction, type ResourceObservation, type DisplayClass } from '../logic/resourceCoachV2';
 import { resourceCoachService } from '../services/resourceCoachService';
 import { theme } from '../constants/theme';
 
@@ -31,7 +30,6 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
     const r=observed.find(r=>r.stat===stat);return [stat,{lo:r?String(r.gainLo):'',hi:r?String(r.gainHi):''}];
   })));
   const [ovrLo,setOvrLo]=useState(''), [ovrHi,setOvrHi]=useState('');
-  const [confirmed,setConfirmed]=useState(false);
   const [prediction,setPrediction]=useState<ResourcePrediction|null>(null);
   const [predictionId,setPredictionId]=useState<string|undefined>();
   const [savedObservation,setSavedObservation]=useState<ResourceObservation|null>(null);
@@ -42,7 +40,7 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
     // manual training-rate label can turn into a latent-rate predictor.
     stateKey:JSON.stringify([player.age,player.tier,[...player.role].sort(),Object.entries(player.stats).sort(([a],[b])=>a.localeCompare(b))]),
     sourceFamily,transferClass,coachLabel,multiplier,
-    stats:stats.map(stat=>({stat,displayedStat:player.stats[stat],displayClass:classes[stat]??(isWhiteStat(player.role,stat)?'WHITE':'MID_GREY'),classSource:classes[stat]?'manual-observed':'role-map'})),
+    stats:buildResourceStatsFromState(player.role,player.stats,stats,classes),
   }),[player,stats,multiplier,coachLabel,sourceFamily,transferClass,classes]);
   const observedMismatch=observed.some(r=>r.statBefore!==undefined && player.stats[r.stat]!==r.statBefore);
   const hasZero=observed.some(r=>r.gainHi===0) || Object.values(values).some(v=>v.lo.trim()!=='' && v.hi.trim()!=='' && Number(v.hi)===0);
@@ -63,9 +61,10 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
     resourceCoachService.saveObservation(o);setSavedObservation(o);setMessage('Observed preview saved separately from predictions.');
   }); }
   function changeValue(stat:string,part:'lo'|'hi',value:string) {
-    setValues(prev=>({...prev,[stat]:{...prev[stat],[part]:value}}));setSavedObservation(null);setConfirmed(false);
+    setValues(prev=>({...prev,[stat]:{...prev[stat],[part]:value}}));setSavedObservation(null);
   }
   const mismatch=identityConflict||observedMismatch;
+  const stateConfirmed=!mismatch&&resourceStateConfirmed(player.role,player.stats,input.stats);
   return <View style={{borderWidth:1,borderColor:theme.steel,padding:14,marginBottom:14,backgroundColor:theme.bg}}>
     <Text style={{...textStyle,color:theme.steelLight,fontWeight:'700'}}>{sourceFamily==='training-camp'?'TRAINING CAMP EVIDENCE · RESOURCE COACH V2 NOT APPLIED':'RESOURCE COACH V2 · EXPERIMENTAL'}</Text>
     <Text style={textStyle}>{sourceFamily==='training-camp'
@@ -73,13 +72,13 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
       : transferClass==='ordinary'
         ? `Exposure ×${Number.isFinite(multiplier)?multiplier:'—'} / ${stats.length} affected stats. Training Rate is not used.`
         : `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. Ordinary-model exposure is not evaluated for ${transferClass==='reward'?'Reward transfer':'an unresolved transfer class'}.`}</Text>
-    <Text style={textStyle}>Confirm white/grey rows below. Tier {player.tier}; age {player.age}.</Text>
+    <Text style={textStyle}>White/grey is derived from the selected player’s established roles and current stat state. Tier {player.tier}; age {player.age}. Tap a class only to override direct game evidence.</Text>
     {input.stats.map(s=><View key={s.stat} style={{marginTop:8,flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8}}>
       <Text style={{...textStyle,flexGrow:1}}>{s.stat} {s.displayedStat}</Text>
       <Pressable accessibilityRole="button" onPress={()=>{
-        setClasses({...classes,[s.stat]:s.displayClass==='WHITE'?'MID_GREY':'WHITE'});setPrediction(null);setPredictionId(undefined);setSavedObservation(null);setConfirmed(false);
+        setClasses({...classes,[s.stat]:s.displayClass==='WHITE'?'MID_GREY':'WHITE'});setPrediction(null);setPredictionId(undefined);setSavedObservation(null);
       }} style={{padding:10,borderWidth:1,borderColor:theme.steel}}>
-        <Text style={textStyle}>{s.displayClass==='WHITE'?'WHITE':'GREY'} · {s.classSource==='role-map'?'ROLE MAP':'CONFIRMED'}</Text>
+        <Text style={textStyle}>{s.displayClass==='WHITE'?'WHITE':'GREY'} · {s.classSource==='role-map'?'ROLE STATE':'MANUAL'}</Text>
       </Pressable>
     </View>)}
     {mismatch&&<Text style={{...textStyle,color:theme.hot}}>The scanned card or starting values do not match this player. Re-scan the correct preview before saving evidence.</Text>}
@@ -103,11 +102,15 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
     </View>)}
     <Text style={{...textStyle,marginTop:10}}>Optional observed OVR boost</Text>
     <View style={{flexDirection:'row',gap:8}}>
-      <TextInput accessibilityLabel="Observed OVR boost low" placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);setConfirmed(false);}} style={{...fieldStyle,flex:1}}/>
-      <TextInput accessibilityLabel="Observed OVR boost high" placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);setConfirmed(false);}} style={{...fieldStyle,flex:1}}/>
+      <TextInput accessibilityLabel="Observed OVR boost low" placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
+      <TextInput accessibilityLabel="Observed OVR boost high" placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
     </View>
-    <Button label={`${confirmed?'✓ ':''}I checked this player, age, tier, stats, classes and coach against the preview`} onPress={()=>setConfirmed(!confirmed)} disabled={mismatch||!stats.length}/>
-    <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!confirmed||mismatch||!!savedObservation}/>
+    <Text style={{...textStyle,color:stateConfirmed?theme.pos:theme.hot,marginTop:10}}>
+      {stateConfirmed
+        ? '✓ PLAYER STATE VERIFIED · STARTING STATS + WHITE/GREY CLASSES MATCH THE STORED ROLE STATE'
+        : 'PLAYER STATE UNRESOLVED · CHECK PLAYER IDENTITY, STARTING STATS OR ROLE CLASSIFICATION'}
+    </Text>
+    <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!stateConfirmed||!!savedObservation}/>
     <Button label="USE SAVED PREVIEW AS SEPARATE ANCHOR" disabled={!savedObservation||sourceFamily!=='resource-coach'||transferClass!=='ordinary'} onPress={()=>attempt(()=>{
       const c=fitPlayerCalibration(savedObservation!);resourceCoachService.saveCalibration(c,savedObservation!);
       setPrediction(null);setMessage('Anchor saved. Select a different coach preview to test it. The anchor preview itself uses cold start.');
