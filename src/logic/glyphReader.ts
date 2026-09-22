@@ -501,7 +501,10 @@ export function roleChips(img: RgbaImage | null, ctx: GlyphContext): RoleChipsRe
       continue;
     }
     // Dark chip: learning if an X/50 counter sits next to it, otherwise an empty slot.
-    const counter = counters.find(c => c.t.frame.left > tok.frame.left);
+    const counter = counters.find(c => {
+      const gap = c.t.frame.left - (tok.frame.left + tok.frame.width);
+      return gap >= -tok.frame.height * 0.5 && gap <= tok.frame.height * 3;
+    });
     if (!counter) {
       review.push({
         field: `roles.${role}`,
