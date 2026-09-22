@@ -7,8 +7,15 @@ import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibrat
 import { RESOURCE_CALIBRATION_CANDIDATE, candidateAgeScale, candidateTierCoordinate, candidateDose, latentMovement, displayedGainFromLatent, predictCalibrationCandidate } from '../src/logic/resourceCoachCandidate';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
-const input: ResourceInput = { playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',sourceFamily:'resource-coach',transferClass:'ordinary',coachLabel:'Synthetic anchor',multiplier:26,
-  stats:reference.anchor.coords.map((value,i)=>({stat:`STAT ${i}`,displayedStat:value,displayClass:'WHITE',classSource:'manual-observed'})) };
+const input: ResourceInput = {
+  playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',
+  sourceFamily:'resource-coach',sourceFamilySource:'manual-confirmed',
+  transferClass:'ordinary',transferClassSource:'manual-confirmed',
+  programmeFamily:'drill-session',programmeFamilySource:'manual-confirmed',
+  targetSource:'manual-confirmed',
+  coachLabel:'Synthetic anchor',multiplier:26,
+  stats:reference.anchor.coords.map((value,i)=>({stat:`STAT ${i}`,displayedStat:value,displayClass:'WHITE',classSource:'manual-observed'}))
+};
 const anchorId='synthetic-anchor';
 function observation(id: string): ResourceObservation {
   return {id,capturedAt:'2026-09-13',input,evidenceKind:'observed-interval',source:'manual-confirmed-preview',
@@ -142,6 +149,15 @@ test('native SQLite writer persists predictions, observed bounds, OVR and anchor
   const exported=JSON.parse(restart.exportPlayer(input.playerId));assert.equal(exported.predictions.length,2);assert.equal(exported.observations.length,1);
   assert.ok(exported.predictions.some((p:{model_version:string})=>p.model_version===RESOURCE_CALIBRATION_CANDIDATE.modelVersion));
   assert.equal(db.raw.prepare('SELECT boost_hi FROM resource_coach_ovr_observation').get()!.boost_hi,3);
+  const observedRow=db.raw.prepare('SELECT transfer_class_source,coach_family,source_ref FROM resource_coach_observation LIMIT 1').get()!;
+  assert.equal(observedRow.transfer_class_source,'manual-confirmed');
+  assert.equal(observedRow.coach_family,'drill-session');
+  assert.deepEqual(JSON.parse(String(observedRow.source_ref)),{
+    evidenceSource:'manual-confirmed-preview',
+    targetSource:'manual-confirmed',
+    sourceFamilySource:'manual-confirmed',
+    programmeFamilySource:'manual-confirmed',
+  });
   assert.equal(db.raw.prepare('SELECT gains FROM squad_plan_runs').get()!.gains,'original');
   assert.deepEqual(db.raw.prepare('PRAGMA foreign_key_check').all(),[]);
   assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_model_versions WHERE active=1').get()!.n,1);
