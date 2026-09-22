@@ -12,11 +12,15 @@ interface Props {
   onConfirmRoles: () => void;
   onConfirmTier: () => void;
   onLearningChange: (role: string | null, points: number) => void;
+  /** Edit/rescan can preserve unread fields because player identity is fixed.
+   * New-player intake must not preserve state across unsaved subjects.
+   */
+  preserveUnread?: boolean;
 }
 
 /** The same review controls on add and rescan. Learning never means white. */
 export function PlayerScanReview({ state, review, rolesPending, tierPending,
-  onConfirmRoles, onConfirmTier, onLearningChange }: Props) {
+  onConfirmRoles, onConfirmTier, onLearningChange, preserveUnread = true }: Props) {
   const input = { color: theme.ink, fontFamily: theme.mono, fontSize: 12,
     borderWidth: 1, borderColor: theme.hairline2, padding: 10 };
   const unresolved = review.filter(f => {
@@ -50,7 +54,9 @@ export function PlayerScanReview({ state, review, rolesPending, tierPending,
       {reviewFields.length > 0 && (
         <Text style={{ color: theme.hot, fontSize: 12, marginTop: 10 }}>
           Needs review: {reviewFields.join(', ')}.
-          {' '}Unread fields keep their previous values. Check against the card or rescan.
+          {' '}{preserveUnread
+            ? 'Unread fields keep their previous values. Check against the card or rescan.'
+            : 'Unread fields stay unresolved. A new scan never inherits another unsaved player.'}
         </Text>
       )}
       {rolesPending && (
