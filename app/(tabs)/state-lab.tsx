@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { AppHeader } from '../../src/components/AppHeader';
 import { MonoLabel } from '../../src/components/atoms/MonoLabel';
 import { useSquad } from '../../src/hooks/useSquad';
 import { useManager } from '../../src/context/ManagerContext';
-import { theme, TIER_COLORS } from '../../src/constants/theme';
+import { theme } from '../../src/constants/theme';
 import gameProfileJson from '../../profiles/game_2025.json';
 import type { GameProfile, TierName } from '../../src/types/resources';
 import type { PlaystyleLevel, StateTransitionResult } from '../../src/types/planning';
@@ -43,7 +44,7 @@ function Choice({
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={{ borderWidth: 1, borderColor: theme.hairline2, marginBottom: 14 }}>
       <View style={{ paddingHorizontal: 12, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: theme.hairline2, backgroundColor: theme.surface2 }}>
