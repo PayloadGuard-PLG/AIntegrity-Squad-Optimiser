@@ -255,7 +255,7 @@ test('pre-provenance experiments remain honest: current partition is retained bu
   assert.equal(exported.experiment.partition,'calibration');
   assert.equal(exported.experiment.originPartition,null);
   assert.equal(exported.experiment.partitionHistory[0].eventKind,'legacy-snapshot');
-  assert.match(exported.experiment.partitionHistory[0].note,/origin is unknown/i);
+  assert.match(exported.experiment.partitionHistory[0].note,/original partition is unknown/i);
   assert.equal(exported.evidence.isDuplicate,false);
 });
 
