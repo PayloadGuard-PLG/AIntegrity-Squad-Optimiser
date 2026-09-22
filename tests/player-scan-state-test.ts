@@ -17,7 +17,7 @@ import { ingestCardTrainingRate } from '../src/logic/trainingRate';
 
 const ocr: OcrResult = JSON.parse(readFileSync(join(__dirname, 'fixtures/mlkit-moore.json'), 'utf8'));
 const pixels = buildSyntheticCard('moore', ocr);
-const ROLE_PROGRESS_RE_FOR_TEST = /(\\d{1,2})\\s*\\/\\s*50/;
+const ROLE_PROGRESS_RE_FOR_TEST = /(\d{1,2})\s*\/\s*50/;
 const before: PlayerCardState = {
   role: ['DC', 'DMC', 'MC'], tier: 'T3', newRole: 'MC', newRolePoints: 2,
   playstyle: 'defensive', specialAbilities: ['saved-ability'],
