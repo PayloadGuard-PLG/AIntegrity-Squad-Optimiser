@@ -13,7 +13,7 @@ export type ResourceInput = {
 export type GainInterval = { stat: string; gainLo: number; gainHi: number };
 export type ResourceObservation = {
   id: string; capturedAt: string; input: ResourceInput; intervals: GainInterval[];
-  evidenceKind: 'observed-interval'; source: 'manual-confirmed-preview';
+  evidenceKind: 'observed-interval'; source: 'manual-confirmed-preview' | 'state-confirmed-preview';
   ovrBoost?: { gainLo: number; gainHi: number };
   predictionId?: string;
 };
