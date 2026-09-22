@@ -100,6 +100,13 @@ function LabSession({
     setExperimentId(uid());setPartition(nextPartition);setPrediction(null);setCandidatePrediction(null);
     setSavedObservation(null);setScores([]);setExportJson('');
   }
+  function startNextExperiment() {
+    const nextPartition:ExperimentPartition='prospective-holdout';
+    resetExperiment(nextPartition);
+    setValues(Object.fromEntries(stats.map(stat=>[stat,{lo:'',hi:''}])));
+    setOvrLo('');setOvrHi('');
+    setMessage('New prospective experiment opened. Freeze predictions before revealing the next preview outcome.');
+  }
   useEffect(()=>{
     if(savedObservation) return;
     setValues(prev=>{
@@ -222,14 +229,14 @@ function LabSession({
     {stats.map(stat=><View key={stat} style={{marginTop:10,gap:5}}>
       <Text style={textStyle}>{stat}</Text>
       <View style={{flexDirection:'row',gap:8}}>
-        <TextInput accessibilityLabel={`${stat} observed low`} keyboardType="decimal-pad" placeholder="Low" placeholderTextColor={theme.inkMuted} value={values[stat].lo} onChangeText={v=>changeValue(stat,'lo',v)} style={{...fieldStyle,flex:1}}/>
-        <TextInput accessibilityLabel={`${stat} observed high`} keyboardType="decimal-pad" placeholder="High" placeholderTextColor={theme.inkMuted} value={values[stat].hi} onChangeText={v=>changeValue(stat,'hi',v)} style={{...fieldStyle,flex:1}}/>
+        <TextInput accessibilityLabel={`${stat} observed low`} editable={!savedObservation} keyboardType="decimal-pad" placeholder="Low" placeholderTextColor={theme.inkMuted} value={values[stat].lo} onChangeText={v=>changeValue(stat,'lo',v)} style={{...fieldStyle,flex:1}}/>
+        <TextInput accessibilityLabel={`${stat} observed high`} editable={!savedObservation} keyboardType="decimal-pad" placeholder="High" placeholderTextColor={theme.inkMuted} value={values[stat].hi} onChangeText={v=>changeValue(stat,'hi',v)} style={{...fieldStyle,flex:1}}/>
       </View>
     </View>)}
     <Text style={{...textStyle,marginTop:10}}>Optional observed OVR boost</Text>
     <View style={{flexDirection:'row',gap:8}}>
-      <TextInput accessibilityLabel="Observed OVR boost low" placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
-      <TextInput accessibilityLabel="Observed OVR boost high" placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
+      <TextInput accessibilityLabel="Observed OVR boost low" editable={!savedObservation} placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
+      <TextInput accessibilityLabel="Observed OVR boost high" editable={!savedObservation} placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
     </View>
     <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!evidenceReady||!!savedObservation}/>
     {scores.length>0&&<View style={{marginTop:12,borderWidth:1,borderColor:theme.hairline2,padding:10,gap:5}}>
@@ -258,6 +265,7 @@ function LabSession({
       const data=resourceCoachService.exportPlayer(player.id);setExportJson(data);
       void Share.share({message:data,title:'Resource coach player corpus'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
     })}/>
+    {savedObservation&&<Button label="START NEXT PROSPECTIVE EXPERIMENT" onPress={startNextExperiment}/>} 
     {!!message&&<Text accessibilityRole="alert" style={{...textStyle,color:theme.hot,marginTop:10}}>{message}</Text>}
     {!!exportJson&&<TextInput accessibilityLabel="Exported test data JSON" multiline editable={false} selectTextOnFocus value={exportJson} style={{...fieldStyle,height:180,marginTop:8}}/>}
     <Text style={{...textStyle,fontSize:10,marginTop:12}}>V2: {RESOURCE_MODEL.modelVersion}</Text>
