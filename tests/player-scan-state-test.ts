@@ -395,7 +395,14 @@ test('partial glyph role result cannot silently replace fuller anchored text rol
     ],
   };
 
+  console.error('B3B_MARKER:start');
+  const textOnly = parsePlayerCardText(result);
+  console.error('B3B_MARKER:text_done', JSON.stringify(textOnly.roles));
+  const structuredOnly = parseStructuredRoleState(result);
+  console.error('B3B_MARKER:structured_done', JSON.stringify(structuredOnly));
+  console.error('B3B_MARKER:before_parse_player_card');
   const out = parsePlayerCard(result, img);
+  console.error('B3B_MARKER:after_parse_player_card');
 
   assert.deepEqual(out.roles, ['ML', 'AML']);
   assert.equal(out.establishedRoles, undefined);
