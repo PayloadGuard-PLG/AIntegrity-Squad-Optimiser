@@ -1,15 +1,16 @@
 import config from '../../profiles/resource_coach_v2.json';
-import type { CoachSourceFamily, CoachTransferClass } from './coachTransfer';
+import type { CoachProgrammeFamily, CoachSourceFamily, CoachTransferClass } from './coachTransfer';
 import { isWhiteStat } from '../utils/roleWeights';
 
 export const RESOURCE_MODEL = config;
 export type DisplayClass = 'WHITE' | 'MID_GREY' | 'UNKNOWN';
 export type ResourceStat = { stat: string; displayedStat: number; displayClass: DisplayClass; classSource: 'role-map' | 'manual-observed' };
-export type ResourceProgrammeFamily = 'unknown' | 'drill-session' | 'skill-seminar';
+export type ResourceProgrammeFamily = CoachProgrammeFamily;
 export type ResourceInput = {
   playerId: string; age: number; tier: string; stateKey: string;
   sourceFamily: CoachSourceFamily; transferClass: CoachTransferClass; coachLabel: string; multiplier: number;
   programmeFamily?: ResourceProgrammeFamily;
+  targetSource?: 'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
   stats: ResourceStat[];
 };
 export type GainInterval = { stat: string; gainLo: number; gainHi: number };
