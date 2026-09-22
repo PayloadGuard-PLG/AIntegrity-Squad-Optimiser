@@ -1,5 +1,6 @@
 import config from '../../profiles/resource_coach_v2.json';
 import type { CoachSourceFamily, CoachTransferClass } from './coachTransfer';
+import { isWhiteStat } from '../utils/roleWeights';
 
 export const RESOURCE_MODEL = config;
 export type DisplayClass = 'WHITE' | 'MID_GREY' | 'UNKNOWN';
@@ -28,6 +29,45 @@ export type ResourcePrediction = {
 };
 
 const P = config.parameters;
+
+/** Derive the Resource Coach display class from canonical player state.
+ * Only established roles belong in `roles`; a learning role is deliberately
+ * excluded upstream and therefore cannot make a stat white here.
+ */
+export function buildResourceStatsFromState(
+  roles: string[],
+  statValues: Record<string, number>,
+  affectedStats: string[],
+  overrides: Record<string, DisplayClass> = {},
+): ResourceStat[] {
+  return affectedStats.map(stat => {
+    const override = overrides[stat];
+    return {
+      stat,
+      displayedStat: statValues[stat],
+      displayClass: override ?? (isWhiteStat(roles, stat) ? 'WHITE' : 'MID_GREY'),
+      classSource: override ? 'manual-observed' : 'role-map',
+    };
+  });
+}
+
+/** A coach row is already confirmed when it reproduces the canonical player
+ * state exactly. Manual confirmation is only needed for a deliberate override.
+ */
+export function resourceStateConfirmed(
+  roles: string[],
+  statValues: Record<string, number>,
+  rows: ResourceStat[],
+): boolean {
+  if (rows.length === 0) return false;
+  return rows.every(row => {
+    if (!Number.isFinite(row.displayedStat) || statValues[row.stat] !== row.displayedStat) return false;
+    if (row.classSource === 'manual-observed') return row.displayClass === 'WHITE' || row.displayClass === 'MID_GREY';
+    const expected = isWhiteStat(roles, row.stat) ? 'WHITE' : 'MID_GREY';
+    return row.displayClass === expected;
+  });
+}
+
 export function inputSignature(input: ResourceInput): string {
   return JSON.stringify({ playerId:input.playerId, age:input.age, tier:input.tier, stateKey:input.stateKey,
     sourceFamily:input.sourceFamily, transferClass:input.transferClass, multiplier:input.multiplier,
@@ -90,7 +130,7 @@ export function predictResourceCoach(input: ResourceInput, calibration?: PlayerC
   const intervals = intervalsFor(input, c?.logHigh, c?.logLow);
   return { modelVersion: config.modelVersion, status: 'predicted', mode: c ? 'player-calibrated' : 'cold-start',
     reasons: ['Experimental preview ranges; not outcome probabilities.',
-      'White/grey defaults use the role map. Confirm them against the game.',
+      'White/grey is derived from the player’s established-role state; override only when direct game evidence disagrees.',
       ...(calibration && !c ? ['Stored anchor is the same preview or no longer matches this player state; using cold start.'] : [])],
     intervals, ovrBoost: { gainLo: intervals.reduce((n,r) => n+r.gainLo,0)/15, gainHi: intervals.reduce((n,r) => n+r.gainHi,0)/15 },
     ...(c ? { anchorId: c.anchorId } : {}) };
