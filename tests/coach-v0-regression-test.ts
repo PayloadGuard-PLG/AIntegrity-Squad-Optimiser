@@ -137,6 +137,46 @@ test('Focused targeting filters shared-row DEF and PHY columns identically for R
     'transfer classification must not change the Focused targeting shape');
 });
 
+
+test('Standard Attacking Drill Session uses observed targets, not the five-stat category shortcut', () => {
+  const scan = parseCoachPreview(ocr(
+    block('DRILL SESSION', 60),
+    block('STANDARD ATTACKING ×5', 90),
+    block('PASSING 253 +1-2', 220, 350),
+    block('DRIBBLING 245 +4-5', 270, 350),
+    block('CROSSING 151', 320, 350),
+    block('SHOOTING 232', 370, 350),
+    block('FINISHING 153 +5-7', 420, 350),
+  ));
+
+  assert.equal(scan.programmeFamily, 'drill-session');
+  assert.equal(scan.sourceFamily, 'resource-coach');
+  assert.equal(scan.transferClass, 'unresolved');
+  assert.deepEqual(scan.stats.map(s => s.statName), ['PASSING', 'DRIBBLING', 'FINISHING']);
+  assert.deepEqual(
+    resolveCoachStats(scan, {}, ['MC']),
+    ['PASSING', 'DRIBBLING', 'FINISHING'],
+    'coach category must not invent CROSSING or SHOOTING as affected targets',
+  );
+});
+
+test('Standard category with no observed target rows remains unresolved instead of inventing five stats', () => {
+  const scan = parseCoachPreview(ocr(
+    block('SKILL SEMINAR', 60),
+    block('STANDARD ATTACKING ×5', 90),
+    block('PASSING 253', 220, 350),
+    block('DRIBBLING 245', 270, 350),
+    block('CROSSING 151', 320, 350),
+    block('SHOOTING 232', 370, 350),
+    block('FINISHING 153', 420, 350),
+  ));
+
+  assert.equal(scan.programmeFamily, 'skill-seminar');
+  assert.equal(scan.sourceFamily, 'resource-coach');
+  assert.deepEqual(scan.stats, []);
+  assert.deepEqual(resolveCoachStats(scan, {}, ['MC']), []);
+});
+
 test('two-word goalkeeper stats survive split ML Kit line tokens', () => {
   const scan = parseCoachPreview(ocr(
     block('ACADEMY COACH', 70),
