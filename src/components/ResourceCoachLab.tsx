@@ -56,7 +56,8 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
       return {stat,gainLo:Number(v.lo),gainHi:Number(v.hi)};
     });
     if((ovrLo!==''||ovrHi!=='')&&(ovrLo.trim()===''||ovrHi.trim()===''))throw Error('Enter both OVR boost bounds.');
-    const o:ResourceObservation={id:uid(),capturedAt:new Date().toISOString(),input,intervals,evidenceKind:'observed-interval',source:'manual-confirmed-preview',predictionId,
+    const classSource=input.stats.some(s=>s.classSource==='manual-observed')?'manual-confirmed-preview':'state-confirmed-preview';
+    const o:ResourceObservation={id:uid(),capturedAt:new Date().toISOString(),input,intervals,evidenceKind:'observed-interval',source:classSource,predictionId,
       ...(ovrLo!==''?{ovrBoost:{gainLo:Number(ovrLo),gainHi:Number(ovrHi)}}:{})};
     resourceCoachService.saveObservation(o);setSavedObservation(o);setMessage('Observed preview saved separately from predictions.');
   }); }
