@@ -115,6 +115,55 @@ test('edit rescan rejects a different or unread identity before state merging', 
   assert.equal(matchesSavedPlayerScanIdentity(saved, { age: 20 }), false);
 });
 
+test('player name survives shirt-number OCR tokenization, including a fused first token', () => {
+  const source = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures/mlkit-blakie.json'), 'utf8')
+  ) as OcrResult;
+
+  function withHeader(blockText: string, elementTexts: string[]): OcrResult {
+    const card = JSON.parse(JSON.stringify(source)) as OcrResult;
+    const nameBlock = card.blocks.find(block => block.text.trim() === 'Ryan Blakie');
+    assert.ok(nameBlock?.frame);
+    const line = nameBlock!.lines[0];
+    assert.ok(line?.frame);
+
+    nameBlock!.text = blockText;
+    line.text = blockText;
+    line.elements = elementTexts.map((text, index) => ({
+      text,
+      frame: {
+        left: nameBlock!.frame!.left + index * 45,
+        top: nameBlock!.frame!.top,
+        width: Math.max(24, text.length * 12),
+        height: nameBlock!.frame!.height,
+      },
+    }));
+    card.text = (card.text ?? '').replace('Ryan Blakie', blockText);
+    return card;
+  }
+
+  assert.equal(
+    parsePlayerCardText(withHeader('40 Ryan Blakie', ['40', 'Ryan', 'Blakie'])).name,
+    'Ryan Blakie',
+    'separate shirt-number token is not part of identity',
+  );
+  assert.equal(
+    parsePlayerCardText(withHeader('40 Ryan Blakie', ['40 Ryan Blakie'])).name,
+    'Ryan Blakie',
+    'merged block with whitespace keeps the player name',
+  );
+  assert.equal(
+    parsePlayerCardText(withHeader('40Ryan Blakie', ['40Ryan Blakie'])).name,
+    'Ryan Blakie',
+    'fused shirt number and first name normalize to the same identity',
+  );
+
+  const baseline = parsePlayerCardText(source);
+  assert.equal(baseline.name, 'Ryan Blakie');
+  assert.equal(baseline.age, 20);
+  assert.equal(baseline.overall, 210);
+});
+
 test('new-player screen uses replacement semantics while edit rescans retain merge semantics', () => {
   const addScreen = readFileSync(join(__dirname, '..', 'app/player/new.tsx'), 'utf8');
   const editScreen = readFileSync(join(__dirname, '..', 'app/player/[id].tsx'), 'utf8');
