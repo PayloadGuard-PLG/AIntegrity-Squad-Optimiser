@@ -17,6 +17,7 @@ import { ingestCardTrainingRate } from '../src/logic/trainingRate';
 
 const ocr: OcrResult = JSON.parse(readFileSync(join(__dirname, 'fixtures/mlkit-moore.json'), 'utf8'));
 const pixels = buildSyntheticCard('moore', ocr);
+const ROLE_PROGRESS_RE_FOR_TEST = /(\d{1,2})\s*\/\s*50/;
 const before: PlayerCardState = {
   role: ['DC', 'DMC', 'MC'], tier: 'T3', newRole: 'MC', newRolePoints: 2,
   playstyle: 'defensive', specialAbilities: ['saved-ability'],
@@ -141,6 +142,42 @@ test('structured OCR role row distinguishes established from learning without pi
   assert.deepEqual(state.role, ['AMC', 'MC']);
   assert.equal(state.newRole, 'ML');
   assert.equal(state.newRolePoints, 29);
+});
+
+test('learning-role counter in a separate OCR block remains attached to the rightmost role', () => {
+  const split = JSON.parse(JSON.stringify(ocr)) as OcrResult;
+  const roleBlock = split.blocks.find(block => /^Roles:/i.test(block.text.trim()));
+  assert.ok(roleBlock);
+  const roleLine = roleBlock!.lines[0];
+  assert.ok(roleLine);
+
+  roleBlock!.text = 'Roles: DC DMC MC';
+  roleLine.text = 'Roles: DC DMC MC';
+  roleLine.elements = roleLine.elements.filter(element => !ROLE_PROGRESS_RE_FOR_TEST.test(element.text));
+
+  split.blocks.push({
+    text: '7/50',
+    frame: { left: 1450, top: 375, width: 50, height: 18 },
+    lines: [{
+      text: '7/50',
+      frame: { left: 1450, top: 375, width: 50, height: 18 },
+      elements: [{
+        text: '7/50',
+        frame: { left: 1450, top: 375, width: 50, height: 18 },
+      }],
+    }],
+  });
+
+  const parsed = parseStructuredRoleState(split);
+  assert.deepEqual(parsed, {
+    establishedRoles: ['DC', 'DMC'],
+    learningRole: { role: 'MC', points: 7 },
+  });
+
+  const full = parsePlayerCard(split, null);
+  assert.deepEqual(full.establishedRoles, ['DC', 'DMC']);
+  assert.deepEqual(full.learningRole, { role: 'MC', points: 7 });
+  assert.equal(needsRoleReview(full), false);
 });
 
 test('decode failure still ingests a complete structured OCR role row', async () => {
