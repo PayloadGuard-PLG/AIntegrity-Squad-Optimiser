@@ -16,7 +16,18 @@ import {
 import { resourceCoachService } from '../services/resourceCoachService';
 import { theme } from '../constants/theme';
 
-type Props = { player: Player; stats: string[]; multiplier: number; coachLabel: string; sourceFamily: CoachSourceFamily; transferClass: CoachTransferClass; observed: CoachPreviewInterval[]; identityConflict: boolean };
+type Props = {
+  player: Player;
+  stats: string[];
+  multiplier: number;
+  coachLabel: string;
+  sourceFamily: CoachSourceFamily;
+  transferClass: CoachTransferClass;
+  initialProgrammeFamily?: ResourceProgrammeFamily;
+  targetSource?: 'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
+  observed: CoachPreviewInterval[];
+  identityConflict: boolean;
+};
 const textStyle = { color: theme.inkSec, fontSize: 13, lineHeight: 19 };
 const fieldStyle = { color: theme.ink, borderWidth: 1, borderColor: theme.hairline2, padding: 8, minWidth: 64, fontSize: 15 };
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
@@ -30,12 +41,12 @@ function Button({ label, onPress, disabled = false }: {label:string;onPress:()=>
 /** Remount when the source state changes: a target preview never inherits stale
  * edited observations or a previous player's prediction state. */
 export function ResourceCoachLab(props: Props) {
-  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.transferClass,props.observed,props.identityConflict]);
+  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.transferClass,props.initialProgrammeFamily,props.targetSource,props.observed,props.identityConflict]);
   return <LabSession key={key} {...props} />;
 }
-function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferClass,observed,identityConflict}: Props) {
+function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferClass,initialProgrammeFamily='unknown',targetSource='unresolved',observed,identityConflict}: Props) {
   const [classes,setClasses] = useState<Record<string,DisplayClass>>({});
-  const [programmeFamily,setProgrammeFamily] = useState<ResourceProgrammeFamily>('unknown');
+  const [programmeFamily,setProgrammeFamily] = useState<ResourceProgrammeFamily>(initialProgrammeFamily);
   const [values,setValues] = useState<Record<string,{lo:string;hi:string}>>(() => Object.fromEntries(stats.map(stat => {
     const r=observed.find(r=>r.stat===stat);return [stat,{lo:r?String(r.gainLo):'',hi:r?String(r.gainHi):''}];
   })));
@@ -48,7 +59,7 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
   const [exportJson,setExportJson]=useState('');
   const input:ResourceInput=useMemo(()=>({ playerId:player.id,age:player.age,tier:player.tier,
     stateKey:JSON.stringify([player.age,player.tier,[...player.role].sort(),Object.entries(player.stats).sort(([a],[b])=>a.localeCompare(b))]),
-    sourceFamily,transferClass,coachLabel,multiplier,programmeFamily,
+    sourceFamily,transferClass,coachLabel,multiplier,programmeFamily,targetSource,
     stats:buildResourceStatsFromState(player.role,player.stats,stats,classes),
   }),[player,stats,multiplier,coachLabel,sourceFamily,transferClass,programmeFamily,classes]);
   const observedMismatch=observed.some(r=>r.statBefore!==undefined && player.stats[r.stat]!==r.statBefore);
@@ -95,7 +106,7 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
         : `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. V2 is unavailable for ${transferClass==='reward'?'Reward transfer':'an unresolved transfer class'}.`}</Text>
 
     <Text style={{...textStyle,fontWeight:'700',marginTop:12}}>PROGRAMME METADATA</Text>
-    <Text style={textStyle}>Recorded for residual analysis. The shared calibration candidate does not use this field as a fitted coefficient.</Text>
+    <Text style={textStyle}>Recorded for residual analysis. OCR uses the explicit DRILL SESSION / SKILL SEMINAR label when present; manual selection remains a fallback.</Text>
     <View style={{flexDirection:'row',gap:6,flexWrap:'wrap',marginTop:6}}>
       {([
         ['unknown','UNKNOWN'],
@@ -109,6 +120,9 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
     </View>
 
     <Text style={{...textStyle,marginTop:12}}>Starting values and white/grey class are already resolved from this player's persisted scan state. No second confirmation is required.</Text>
+    <Text style={{...textStyle,color:targetSource==='unresolved'?theme.hot:theme.pos,marginTop:6}}>
+      TARGET SET: {targetSource==='ocr-observed'?'OCR OBSERVED':targetSource==='manual-confirmed'?'MANUAL CONFIRMED':targetSource==='all-round-observed'?'ALL-ROUND OBSERVED':'UNRESOLVED'}
+    </Text>
     {input.stats.map(s=><View key={s.stat} style={{marginTop:8,flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8}}>
       <Text style={{...textStyle,flexGrow:1}}>{s.stat} {s.displayedStat}</Text>
       <Pressable accessibilityRole="button" accessibilityLabel={`Override ${s.stat} class`} onPress={()=>toggleClass(s.stat,s.displayClass)}
