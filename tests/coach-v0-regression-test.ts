@@ -193,6 +193,42 @@ test('arrow-only coach screenshot resolves target rows from pixels without fabri
   assert.deepEqual(scan.affectedStats,[]);
 });
 
+test('arrow reader does not mirror an ATT target into the DEF row through the next-column highlight', () => {
+  const rows = [
+    ['TACKLING','PASSING','FITNESS'],
+    ['MARKING','DRIBBLING','STRENGTH'],
+    ['POSITIONING','CROSSING','AGGRESSION'],
+    ['HEADING','SHOOTING','SPEED'],
+    ['BRAVERY','FINISHING','CREATIVITY'],
+  ] as const;
+  const blocks: OcrBlock[] = [
+    block('DRILL SESSION', 40, 350),
+    block('STANDARD ATTACKING ×5', 65, 350),
+  ];
+  const lefts = [100,350,600];
+  rows.forEach((row,ri)=>row.forEach((stat,ci)=>blocks.push(block(stat,100+ri*60,lefts[ci]))));
+  const result=ocr(...blocks);
+  const {img,fill}=blankImage(900,460,[110,110,110]);
+
+  for(const ri of [0,1,4]) {
+    // Reproduce the live layout: the selected ATT cell's bright leading wedge
+    // begins slightly LEFT of the ATT stat text. This used to sit inside the
+    // DEF row's .98-column ROI and duplicated targets across columns.
+    fill(340,100+ri*60-4,360,100+ri*60+24,[247,247,247]);
+
+    // Actual arrow remains near 0.86 of one column spacing from ATT label left.
+    const x=350+Math.round(250*.86);
+    const y=100+ri*60+6;
+    fill(x,y,x+12,y+12,[255,255,255]);
+  }
+
+  const targets=[...detectCoachArrowTargets(result,img)].sort();
+  assert.deepEqual(targets,['DRIBBLING','FINISHING','PASSING']);
+  for(const falseTarget of ['TACKLING','MARKING','BRAVERY']) {
+    assert.equal(targets.includes(falseTarget),false, `${falseTarget} must not mirror the ATT target in the same row`);
+  }
+});
+
 test('Standard category with no observed target rows remains unresolved instead of inventing five stats', () => {
   const scan = parseCoachPreview(ocr(
     block('SKILL SEMINAR', 60),
