@@ -387,6 +387,125 @@ export interface PlayerCardScanExtended extends PlayerCardScan {
   review: ReviewFlag[];
 }
 
+/**
+ * Structured OCR observation of the Roles row.
+ *
+ * The role labels and the X/50 progress counter are text, not glyph state. A
+ * complete anchored row is therefore sufficient to recover established vs
+ * learning roles even when screenshot pixel decoding/classification abstains.
+ * This restores OCR role intake without reviving the old unsafe flat-role
+ * behaviour: a progress counter is associated with the nearest role to its
+ * left, and that role is explicitly excluded from establishedRoles.
+ */
+export interface StructuredTextRoleState {
+  establishedRoles: string[];
+  learningRole: { role: string; points: number } | null;
+}
+
+const ROLE_PROGRESS_RE = /(\d{1,2})\s*\/\s*50/;
+
+export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleState | undefined {
+  // ML Kit can wrap one visual Roles row into multiple OCR lines inside the same
+  // block. Treat the whole anchored block as the observation; reading only the
+  // first line silently drops wrapped roles (the regression caught exactly that).
+  const roleBlock = (result.blocks ?? []).find(block =>
+    (block.lines ?? []).some(candidate =>
+      candidate.elements?.some(element => /^roles?\s*:?$/i.test(element.text.trim())) ||
+      /^roles?\s*:/i.test(candidate.text.trim())
+    )
+  );
+  if (!roleBlock) return undefined;
+
+  const elements = (roleBlock.lines ?? [])
+    .flatMap(line => line.elements ?? [])
+    .filter(element => element.frame && element.text.trim())
+    .sort((a, b) => {
+      const atop = a.frame?.top ?? 0;
+      const btop = b.frame?.top ?? 0;
+      if (atop !== btop) return atop - btop;
+      return (a.frame?.left ?? 0) - (b.frame?.left ?? 0);
+    });
+
+  type LocatedRole = { role: string; left: number; right: number; top: number; height: number };
+  const located: LocatedRole[] = [];
+  const counters: Array<{ points: number; left: number; top: number; height: number }> = [];
+
+  for (const element of elements) {
+    const frame = element.frame;
+    if (!frame) continue;
+    const raw = element.text.trim();
+
+    const counter = ROLE_PROGRESS_RE.exec(raw);
+    if (counter) {
+      counters.push({
+        points: parseInt(counter[1], 10),
+        left: frame.left,
+        top: frame.top,
+        height: frame.height,
+      });
+    }
+
+    if (/^roles?\s*:?$/i.test(raw)) continue;
+
+    const segments = raw.toUpperCase().split(/[^A-Z]+/).filter(Boolean);
+    const roles = segments.flatMap(segment => splitRoleToken(segment, KNOWN_ROLES));
+    if (roles.length === 0) continue;
+
+    const totalChars = roles.reduce((sum, role) => sum + role.length, 0);
+    let consumed = 0;
+    for (const role of roles) {
+      const start = consumed / totalChars;
+      const width = role.length / totalChars;
+      consumed += role.length;
+      located.push({
+        role,
+        left: frame.left + frame.width * start,
+        right: frame.left + frame.width * (start + width),
+        top: frame.top,
+        height: frame.height,
+      });
+    }
+  }
+
+  const unique: LocatedRole[] = [];
+  const seen = new Set<string>();
+  for (const item of located.sort((a, b) => a.top - b.top || a.left - b.left)) {
+    if (seen.has(item.role)) continue;
+    seen.add(item.role);
+    unique.push(item);
+  }
+  if (unique.length === 0 || counters.length > 1) return undefined;
+
+  let learningRole: { role: string; points: number } | null = null;
+  if (counters.length === 1) {
+    const counter = counters[0];
+    if (counter.points < 0 || counter.points >= 50) return undefined;
+
+    // Progress belongs to the role on the same visual row immediately to its
+    // left. Do not associate a wrapped role from another line merely because
+    // its x-coordinate happens to be closer.
+    const candidate = [...unique]
+      .filter(item =>
+        Math.abs(item.top - counter.top) <= Math.max(item.height, counter.height) * 1.5 &&
+        item.left < counter.left
+      )
+      .sort((a, b) => b.right - a.right)[0];
+
+    if (!candidate) return undefined;
+    learningRole = { role: candidate.role, points: counter.points };
+  }
+
+  const establishedRoles = unique
+    .map(item => item.role)
+    .filter(role => role !== learningRole?.role);
+
+  // Every player has at least one established role. If OCR cannot establish
+  // that much, abstain rather than manufacture an empty observation.
+  if (establishedRoles.length === 0) return undefined;
+
+  return { establishedRoles, learningRole };
+}
+
 const BOOST_TOKEN_RE = /^\+(\d{1,3})$/;
 
 function toGlyphToken(e: OcrElement): GlyphToken | null {
@@ -463,10 +582,10 @@ function findOvrBox(tokens: GlyphToken[]): GlyphToken['frame'] | undefined {
  * Full scan: the frozen text pass, plus the glyph readers when a decoded image
  * is available.
  *
- * With no image the glyph readers cannot observe anything, so every glyph-backed
- * field abstains with `region_unread` and the legacy `roles` list is left exactly
- * as the text pass produced it. That is deliberate: dropping to `[]` / `none` /
- * `T0` because we never looked is the precise failure mode the spec forbids.
+ * With no image, pixel-only fields abstain. Roles are the exception when the
+ * anchored OCR Roles row is structurally complete: its labels plus X/50 counter
+ * can resolve established-vs-learning state without colour classification.
+ * Unstructured role text still abstains rather than being promoted.
  */
 export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): PlayerCardScanExtended {
   const base = parsePlayerCardText(result);
@@ -492,17 +611,93 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
   let establishedRoles = glyph.establishedRoles;
   let learningRole = glyph.learningRole;
 
-  // A pixel/glyph observation may refine OCR role state, but it must never
-  // silently publish a partial role set as the complete player state.
-  const roleAlreadyFlagged = review.some(flag =>
+  // The OCR Roles row is itself structured evidence. The labels are explicit,
+  // and an X/50 counter identifies the learning role by adjacency. This lets
+  // role intake survive pixel decode/classification failures without treating
+  // the old flat text-role list as established truth.
+  let textRoleState = parseStructuredRoleState(result);
+  if (textRoleState && base.newRole && base.roles?.includes(base.newRole)) {
+    const established = textRoleState.establishedRoles.filter(role => role !== base.newRole);
+    if (established.length > 0) {
+      textRoleState = {
+        establishedRoles: established,
+        learningRole: { role: base.newRole, points: base.newRolePoints ?? 0 },
+      };
+    }
+  }
+
+  const isRoleFlag = (flag: ReviewFlag) =>
     flag.field === 'roles' ||
     flag.field.startsWith('roles.') ||
-    flag.field === 'learningRole'
-  );
+    flag.field === 'learningRole';
 
+  const roleFlags = review.filter(isRoleFlag);
+
+  if (textRoleState && (establishedRoles === undefined || roleFlags.length > 0)) {
+    // Glyph observation abstained, but the anchored OCR row completely resolves
+    // the role state. Drop only role-specific glyph flags; unrelated review
+    // flags (playstyle, abilities, boosts, image) remain visible.
+    establishedRoles = [...textRoleState.establishedRoles];
+    learningRole = textRoleState.learningRole
+      ? { ...textRoleState.learningRole }
+      : null;
+    for (let i = review.length - 1; i >= 0; i--) {
+      if (isRoleFlag(review[i])) review.splice(i, 1);
+    }
+  } else if (textRoleState && establishedRoles !== undefined) {
+    // Compare semantic role state, not array ordering. The text pass and glyph
+    // pass may enumerate the same roles in different orders, while the OCR block
+    // preserves the left-to-right card order for downstream provenance.
+    const glyphEstablished = new Set(establishedRoles);
+    const textEstablished = new Set(textRoleState.establishedRoles);
+    const missingFromGlyph = textRoleState.establishedRoles.filter(role => !glyphEstablished.has(role));
+    const extraInGlyph = establishedRoles.filter(role => !textEstablished.has(role));
+
+    const sameEstablished =
+      missingFromGlyph.length === 0 &&
+      extraInGlyph.length === 0;
+
+    const sameLearning =
+      (learningRole?.role ?? null) === (textRoleState.learningRole?.role ?? null) &&
+      (learningRole?.points ?? 0) === (textRoleState.learningRole?.points ?? 0);
+
+    if (!sameEstablished || !sameLearning) {
+      const detail: string[] = [];
+      if (missingFromGlyph.length > 0) {
+        detail.push('text role candidate(s) not accounted for by glyph read: ' + missingFromGlyph.join(', '));
+      }
+      if (extraInGlyph.length > 0) {
+        detail.push('glyph-only role candidate(s): ' + extraInGlyph.join(', '));
+      }
+      if (!sameLearning) {
+        detail.push(
+          'learning role differs: glyph=' +
+          (learningRole ? learningRole.role + ' ' + learningRole.points + '/50' : 'none') +
+          ', text=' +
+          (textRoleState.learningRole
+            ? textRoleState.learningRole.role + ' ' + textRoleState.learningRole.points + '/50'
+            : 'none')
+        );
+      }
+
+      review.push({
+        field: 'roles',
+        reason: 'low_confidence',
+        detail: detail.join('; '),
+      });
+      establishedRoles = undefined;
+      learningRole = undefined;
+    }
+  }
+
+  // A confident glyph read still has to account for every text role candidate.
+  // This catches a partial pixel read when the OCR row itself was not structured
+  // enough to resolve established-vs-learning state.
+  const roleAlreadyFlagged = review.some(isRoleFlag);
   if (
     establishedRoles !== undefined &&
     !roleAlreadyFlagged &&
+    !textRoleState &&
     base.roles?.length
   ) {
     const accounted = new Set(establishedRoles);
@@ -514,7 +709,7 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
       review.push({
         field: 'roles',
         reason: 'low_confidence',
-        detail: `text role candidate(s) not accounted for by glyph read: ${missing.join(', ')}`,
+        detail: 'text role candidate(s) not accounted for by glyph read: ' + missing.join(', '),
       });
 
       establishedRoles = undefined;
@@ -535,8 +730,8 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
   }
 
   // roles stays populated for backward compatibility (spec §4). It becomes the
-  // established set once the chips were actually read; otherwise it keeps the
-  // legacy text-derived value rather than collapsing to [].
+  // resolved established set after either a structured OCR row or a confident
+  // glyph read; otherwise it keeps the legacy flat text candidates for review.
   const roles = establishedRoles ?? base.roles;
 
   return {

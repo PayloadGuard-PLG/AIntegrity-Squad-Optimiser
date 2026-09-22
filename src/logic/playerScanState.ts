@@ -15,8 +15,10 @@ export function needsTierReview(scan: PlayerCardScanExtended): boolean {
 }
 
 /** Merge observations, not defaults. Undefined and flagged partial reads leave
- * existing state alone; observed null/[]/{} clear it. Text roles are candidates
- * for human review and can never silently become established roles here.
+ * existing state alone; observed null/[]/{} clear it. A flat legacy text-role
+ * list is never promoted here; playerCardParse may publish establishedRoles
+ * only after the anchored OCR Roles row has resolved learning-vs-established
+ * state, or after a confident glyph observation.
  */
 export function mergePlayerScanState(previous: PlayerCardState, scan: PlayerCardScanExtended): PlayerCardState {
   const next = { ...previous };

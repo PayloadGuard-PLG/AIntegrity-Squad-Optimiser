@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { decodeScreenshotPng } from '../src/logic/screenshotPixels';
 import { scanPlayerInput } from '../src/logic/playerScanPipeline';
 import { mergePlayerScanState, needsRoleReview, needsTierReview, playerRoleError, PlayerCardState } from '../src/logic/playerScanState';
-import { parsePlayerCard, parsePlayerCardText, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
+import { parsePlayerCard, parsePlayerCardText, parseStructuredRoleState, OcrResult, PlayerCardScanExtended } from '../src/logic/playerCardParse';
 import { RgbaImage, roleChips, CALIBRATION } from '../src/logic/glyphReader';
 import { blankImage, hsvToRgb } from './helpers/png';
 import { buildSyntheticCard } from './helpers/syntheticCard';
@@ -115,17 +115,47 @@ test('live orchestration: normalized URI and pixels -> learning role -> persiste
   assert.equal(needsRoleReview(result), false);
 });
 
-test('decode failure preserves text output, abstains, and cannot promote text roles', async () => {
+test('structured OCR role row distinguishes established from learning without pixels', () => {
+  const finlayson = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures/mlkit-finlayson.json'), 'utf8')
+  ) as OcrResult;
+  const blakie = JSON.parse(
+    readFileSync(join(__dirname, 'fixtures/mlkit-blakie.json'), 'utf8')
+  ) as OcrResult;
+
+  assert.deepEqual(parseStructuredRoleState(finlayson), {
+    establishedRoles: ['AMC', 'MC'],
+    learningRole: { role: 'ML', points: 29 },
+  });
+  assert.deepEqual(parseStructuredRoleState(blakie), {
+    establishedRoles: ['AML', 'AMC', 'MC'],
+    learningRole: null,
+  });
+
+  const parsed = parsePlayerCard(finlayson, null);
+  assert.deepEqual(parsed.establishedRoles, ['AMC', 'MC']);
+  assert.deepEqual(parsed.learningRole, { role: 'ML', points: 29 });
+  assert.equal(needsRoleReview(parsed), false);
+
+  const state = mergePlayerScanState(fresh(), parsed);
+  assert.deepEqual(state.role, ['AMC', 'MC']);
+  assert.equal(state.newRole, 'ML');
+  assert.equal(state.newRolePoints, 29);
+});
+
+test('decode failure still ingests a complete structured OCR role row', async () => {
   const result = await scanPlayerInput('original.jpg', {
     prepare: async () => { throw new Error('decode failed'); },
     recognize: async uri => { assert.equal(uri, 'original.jpg'); return ocr; },
   });
   assert.deepEqual(result.stats, parsePlayerCard(ocr).stats);
-  assert.ok(result.roles?.includes('MC')); // legacy text pass is deliberately frozen
-  assert.equal(needsRoleReview(result), true);
-  assert.deepEqual(mergePlayerScanState(fresh(), result).role, []);
+  assert.deepEqual(result.establishedRoles, ['DC', 'DMC']);
+  assert.deepEqual(result.learningRole, { role: 'MC', points: 1 });
+  assert.equal(needsRoleReview(result), false);
+  assert.deepEqual(mergePlayerScanState(fresh(), result).role, ['DC', 'DMC']);
   assert.deepEqual(mergePlayerScanState(before, result).boosts, before.boosts);
   assert.ok(result.review.some(f => f.field === 'image'));
+  assert.ok(!result.review.some(f => f.field === 'roles' || f.field.startsWith('roles.')));
 });
 
 test('OCR rejection still releases the prepared cache image', async () => {
