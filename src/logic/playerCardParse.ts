@@ -645,18 +645,45 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
       if (isRoleFlag(review[i])) review.splice(i, 1);
     }
   } else if (textRoleState && establishedRoles !== undefined) {
+    // Compare semantic role state, not array ordering. The text pass and glyph
+    // pass may enumerate the same roles in different orders, while the OCR block
+    // preserves the left-to-right card order for downstream provenance.
+    const glyphEstablished = new Set(establishedRoles);
+    const textEstablished = new Set(textRoleState.establishedRoles);
+    const missingFromGlyph = textRoleState.establishedRoles.filter(role => !glyphEstablished.has(role));
+    const extraInGlyph = establishedRoles.filter(role => !textEstablished.has(role));
+
     const sameEstablished =
-      establishedRoles.length === textRoleState.establishedRoles.length &&
-      establishedRoles.every((role, i) => role === textRoleState!.establishedRoles[i]);
+      missingFromGlyph.length === 0 &&
+      extraInGlyph.length === 0;
+
     const sameLearning =
       (learningRole?.role ?? null) === (textRoleState.learningRole?.role ?? null) &&
       (learningRole?.points ?? 0) === (textRoleState.learningRole?.points ?? 0);
 
     if (!sameEstablished || !sameLearning) {
+      const detail: string[] = [];
+      if (missingFromGlyph.length > 0) {
+        detail.push('text role candidate(s) not accounted for by glyph read: ' + missingFromGlyph.join(', '));
+      }
+      if (extraInGlyph.length > 0) {
+        detail.push('glyph-only role candidate(s): ' + extraInGlyph.join(', '));
+      }
+      if (!sameLearning) {
+        detail.push(
+          'learning role differs: glyph=' +
+          (learningRole ? learningRole.role + ' ' + learningRole.points + '/50' : 'none') +
+          ', text=' +
+          (textRoleState.learningRole
+            ? textRoleState.learningRole.role + ' ' + textRoleState.learningRole.points + '/50'
+            : 'none')
+        );
+      }
+
       review.push({
         field: 'roles',
         reason: 'low_confidence',
-        detail: 'glyph and structured OCR role observations disagree',
+        detail: detail.join('; '),
       });
       establishedRoles = undefined;
       learningRole = undefined;
