@@ -15,6 +15,7 @@ import { computeOvrFromStats } from '../../src/logic/ovrProjector';
 import gameProfileJson from '../../profiles/game_2025.json';
 import { GameProfile } from '../../src/types/resources';
 import type { TrainingRateSource } from '../../src/logic/trainingRate';
+import { useManager } from '../../src/context/ManagerContext';
 
 const profile = gameProfileJson as unknown as GameProfile;
 
@@ -44,6 +45,7 @@ const inputStyle = {
 };
 
 export default function NewPlayerScreen() {
+  const manager = useManager();
   const [name, setName] = useState('');
   const [positionStates, setPositionStates] = useState<Record<string, 0 | 1 | 2>>({});
   const selectedRoles = Object.entries(positionStates).filter(([, s]) => s === 2).map(([r]) => r);
@@ -219,7 +221,7 @@ export default function NewPlayerScreen() {
     }
 
     try {
-      playerService.create({
+      const id = playerService.create({
         name: name.trim(),
         role: selectedRoles,
         age: ageNum,
@@ -236,6 +238,7 @@ export default function NewPlayerScreen() {
         // Base values stay in `stats`; the overlay is stored separately.
         boosts,
       });
+      manager.setSelectedPlayerId(id);
       router.back();
     } catch (err) {
       Alert.alert('SAVE FAILED', String(err));
