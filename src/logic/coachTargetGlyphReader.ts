@@ -38,8 +38,17 @@ function luminance(r:number,g:number,b:number):number {
   return .2126*r+.7152*g+.0722*b;
 }
 function rowScore(image:RgbaImage,row:StatRow,columnStep:number,rowStep:number):number {
-  const x0=Math.max(0,Math.floor(row.frame.left+columnStep*.76));
-  const x1=Math.min(image.width,Math.ceil(row.frame.left+columnStep*.98));
+  // Keep the glyph ROI strictly inside this stat cell. The previous .76-.98
+  // window reached the leading highlight of the NEXT column on live cards.
+  // That made a true ATT target in row N also appear as a false DEF target in
+  // the same row (e.g. PASSING => TACKLING, DRIBBLING => MARKING).
+  //
+  // On the live three-column layout the arrow centre is ~0.85 column spacings
+  // to the right of the OCR stat-label left edge, while the next cell's leading
+  // highlight begins just before 1.0 spacing. A narrower .80-.92 window retains
+  // the arrow and excludes the adjacent cell boundary.
+  const x0=Math.max(0,Math.floor(row.frame.left+columnStep*.80));
+  const x1=Math.min(image.width,Math.ceil(row.frame.left+columnStep*.92));
   const yc=row.frame.top+row.frame.height/2;
   const y0=Math.max(0,Math.floor(yc-rowStep*.34));
   const y1=Math.min(image.height,Math.ceil(yc+rowStep*.34));
