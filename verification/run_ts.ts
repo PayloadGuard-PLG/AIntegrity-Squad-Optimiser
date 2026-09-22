@@ -30,6 +30,115 @@ import {
   isTrainingLocked,
   conditionDrainPct,
 } from '../src/engine/engineMath';
+import gameProfileJson from '../profiles/game_2025.json';
+import type { GameProfile, TierName } from '../src/types/resources';
+import type { PlayerPlanningState, PlaystyleLevel } from '../src/types/planning';
+import {
+  ROLE_CONSTRAINTS, OUTFIELD_STATS, getAllStatKeys, getWhiteStatKeys,
+} from '../src/utils/roleWeights';
+import { playerRoleError } from '../src/logic/playerScanState';
+import {
+  availableRoleAdditions,
+  previewDeployment,
+  previewPlaystyleAssignment,
+  previewRoleUnlock,
+  previewTierUpgrade,
+} from '../src/logic/stateTransitions';
+import { PLAYSTYLE_CATALOG } from '../src/data/playstyles';
+
+const stateProfile = gameProfileJson as unknown as GameProfile;
+
+type IntakeRoleState = {
+  roles: string[];
+  learningRole: { role: string; points: number } | null;
+};
+
+function roleStateKey(roles: string[], learningRole: { role: string; points: number } | null): string {
+  return `${roles.join('>')}|${learningRole?.role ?? '-'}`;
+}
+
+function validEstablishedRoleStates(): string[][] {
+  const roles = Object.keys(ROLE_CONSTRAINTS);
+  const out: string[][] = [];
+  const walk = (prefix: string[]) => {
+    if (prefix.length > 0 && playerRoleError({ role: prefix, newRole: null, newRolePoints: 0 }) === null) {
+      out.push([...prefix]);
+    }
+    if (prefix.length >= 3) return;
+    for (const role of roles) {
+      if (prefix.includes(role)) continue;
+      walk([...prefix, role]);
+    }
+  };
+  walk([]);
+  return out;
+}
+
+function stateTransitionDomain() {
+  const roleNames = Object.keys(ROLE_CONSTRAINTS);
+  const cards: IntakeRoleState[] = [];
+  for (const roles of validEstablishedRoleStates()) {
+    cards.push({ roles, learningRole: null });
+    if (roles.length >= 3 || roles.includes('GK')) continue;
+    for (const role of roleNames) {
+      if (roles.includes(role)) continue;
+      const candidate = { role, points: 0 };
+      if (playerRoleError({ role: roles, newRole: role, newRolePoints: 0 }) === null) {
+        cards.push({ roles, learningRole: candidate });
+      }
+    }
+  }
+
+  const keyToId = new Map(cards.map((s, i) => [roleStateKey(s.roles, s.learningRole), i]));
+  const dummyStats = Object.fromEntries(OUTFIELD_STATS.map(stat => [stat, 100]));
+
+  const roleEdges = cards.flatMap((card, pre) =>
+    availableRoleAdditions(card.roles, card.learningRole).map(newRole => {
+      const state: PlayerPlanningState = {
+        roles: [...card.roles],
+        stats: { ...dummyStats },
+        overall: 100,
+        tier: 'T3',
+        learningRole: card.learningRole ? { ...card.learningRole } : null,
+        playstyle: null,
+        deployedRole: card.roles[0] ?? null,
+      };
+      const step = previewRoleUnlock(state, newRole, stateProfile);
+      const postCard = {
+        roles: step.after.roles,
+        learningRole: step.after.learningRole ?? null,
+      };
+      return {
+        pre,
+        post: keyToId.get(roleStateKey(postCard.roles, postCard.learningRole)) ?? -1,
+        newRole,
+        newlyWhite: step.newlyWhite,
+        postValid: playerRoleError({
+          role: postCard.roles,
+          newRole: postCard.learningRole?.role ?? null,
+          newRolePoints: postCard.learningRole?.points ?? 0,
+        }) === null,
+      };
+    })
+  );
+
+  return {
+    roleNames,
+    roleStates: cards.map((card, id) => ({
+      id,
+      roles: card.roles,
+      learningRole: card.learningRole,
+      whiteStats: getWhiteStatKeys(card.roles),
+      statKeys: getAllStatKeys(card.roles),
+    })),
+    roleEdges,
+    outfieldStats: [...OUTFIELD_STATS],
+    tierAdditions: stateProfile.tierAttrAdditions,
+    statCap: stateProfile.statCap,
+    totalAttributeCount: stateProfile.totalAttributeCount,
+    playstyles: PLAYSTYLE_CATALOG.map(p => ({ id: p.id, roles: p.compatibleRoles })),
+  };
+}
 
 function dispatch(fn: string, args: unknown): unknown {
   const a = args as unknown[];
@@ -62,6 +171,30 @@ function dispatch(fn: string, args: unknown): unknown {
     }
     case 'conditionDrainPct': {
       return conditionDrainPct(a[0] as string, a[1] as number);
+    }
+    case 'stateTransitionDomain': {
+      return stateTransitionDomain();
+    }
+    case 'previewStateTransition': {
+      const input = a[0] as {
+        kind: 'role' | 'tier' | 'playstyle' | 'deployment';
+        state: PlayerPlanningState;
+        newRole?: string;
+        targetTier?: TierName;
+        playstyleId?: string;
+        level?: PlaystyleLevel;
+        deployedRole?: string;
+      };
+      if (input.kind === 'role') {
+        return previewRoleUnlock(input.state, input.newRole!, stateProfile);
+      }
+      if (input.kind === 'tier') {
+        return previewTierUpgrade(input.state, input.targetTier!, stateProfile);
+      }
+      if (input.kind === 'playstyle') {
+        return previewPlaystyleAssignment(input.state, input.playstyleId!, input.level ?? 'Standard');
+      }
+      return previewDeployment(input.state, input.deployedRole!);
     }
     default:
       throw new Error(`Unknown function: ${fn}`);
