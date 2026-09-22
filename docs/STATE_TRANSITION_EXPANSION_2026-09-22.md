@@ -100,6 +100,12 @@ Flat attribute boosts are deterministic. Percentage tactic/signature effects rem
 - **STATE LAB** — selected-player option explorer. Role, tier, playstyle and deployed-position branches are previewed without writing the player card.
 - **REFERENCE** — currently observed playstyle and mentor data, with explicit incompleteness and uncertainty boundaries.
 
+The selected visual target and buildable component architecture are recorded separately in:
+
+`docs/STATE_LAB_INTERFACE_ARCHITECTURE_2026-09-22.md`
+
+That document defines the Option Explorer hierarchy, ordered path semantics, visual tokens, view-model contract, evidence states, responsive behaviour, and extension seams for coaches, squad balance and mentors.
+
 ## State flow
 
 ```
