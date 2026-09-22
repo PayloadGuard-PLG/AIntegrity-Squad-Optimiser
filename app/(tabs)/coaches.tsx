@@ -52,7 +52,7 @@ export default function CoachesScreen() {
   const [transferClassSource, setTransferClassSource] = useState<CoachClassificationSource>('unresolved');
   const [programmeFamily, setProgrammeFamily] = useState<CoachProgrammeFamily>('unknown');
   const [programmeFamilySource, setProgrammeFamilySource] = useState<CoachClassificationSource>('unresolved');
-  const [targetSource, setTargetSource] = useState<'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved'>('unresolved');
+  const [targetSource, setTargetSource] = useState<'ocr-observed' | 'glyph-observed' | 'mixed-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved'>('unresolved');
   const [observationContext, setObservationContext] = useState('');
   const [observedGainIntervals, setObservedGainIntervals] = useState<CoachPreviewInterval[]>([]);
   const [isScanning, setIsScanning] = useState(false);
@@ -227,6 +227,7 @@ export default function CoachesScreen() {
 
       if (__DEV__ && scan._debugBlocks) console.log('[COACH SCAN] BLOCKS:', scan._debugBlocks);
       if (__DEV__) console.log('[COACH SCAN] stats raw:', scan.stats.map(s => `${s.statName} lo=${s.gainLo} hi=${s.gainHi}`).join(', '));
+      if (__DEV__) console.log('[COACH SCAN] targets:', scan.affectedStats.join(', '), scan.targetEvidenceSource);
 
       // Counted for the scan status line only. The projection does NOT consume
       // these: the game's displayed +lo-hi is an interval, and its midpoint is
@@ -275,7 +276,7 @@ export default function CoachesScreen() {
       }
 
       setScannedStats(statNames);
-      setTargetSource(statNames.length > 0 ? 'ocr-observed' : 'unresolved');
+      setTargetSource(statNames.length > 0 ? scan.targetEvidenceSource : 'unresolved');
 
       const parts: string[] = [];
       if (scan.multiplier) parts.push(`×${scan.multiplier}`);
