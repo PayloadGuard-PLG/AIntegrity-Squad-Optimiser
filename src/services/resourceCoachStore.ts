@@ -56,8 +56,14 @@ return {
           (observation_id,player_id,player_state_id,observed_at,transfer_class,transfer_class_source,coach_label,coach_family,
            displayed_multiplier,affected_stat_count,player_age,tier,stat,displayed_stat,display_class,gain_lo,gain_hi,evidence_kind,source_ref)
           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'observed-interval',?)`,
-          [o.id,o.input.playerId,o.input.stateKey,o.capturedAt,o.input.transferClass,o.source,o.input.coachLabel,
-           o.input.programmeFamily ?? null,o.input.multiplier,o.input.stats.length,o.input.age,o.input.tier,r.stat,s.displayedStat,s.displayClass,r.gainLo,r.gainHi,o.source]);
+          [o.id,o.input.playerId,o.input.stateKey,o.capturedAt,o.input.transferClass,o.input.transferClassSource ?? 'unresolved',o.input.coachLabel,
+           o.input.programmeFamily ?? null,o.input.multiplier,o.input.stats.length,o.input.age,o.input.tier,r.stat,s.displayedStat,s.displayClass,r.gainLo,r.gainHi,
+           JSON.stringify({
+             evidenceSource:o.source,
+             targetSource:o.input.targetSource ?? 'unresolved',
+             sourceFamilySource:o.input.sourceFamilySource ?? 'unresolved',
+             programmeFamilySource:o.input.programmeFamilySource ?? 'unresolved',
+           })]);
       }
       if (o.ovrBoost) expoDb.runSync('INSERT INTO resource_coach_ovr_observation VALUES (?,?,?,?)',
         [o.id,o.ovrBoost.gainLo,o.ovrBoost.gainHi,'observed-boost-interval']);
