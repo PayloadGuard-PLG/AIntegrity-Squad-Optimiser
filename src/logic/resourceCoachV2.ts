@@ -15,7 +15,7 @@ export type ResourceInput = {
   transferClassSource?: CoachClassificationSource;
   programmeFamily?: ResourceProgrammeFamily;
   programmeFamilySource?: CoachClassificationSource;
-  targetSource?: 'ocr-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
+  targetSource?: 'ocr-observed' | 'glyph-observed' | 'mixed-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
   stats: ResourceStat[];
 };
 export type GainInterval = { stat: string; gainLo: number; gainHi: number };
