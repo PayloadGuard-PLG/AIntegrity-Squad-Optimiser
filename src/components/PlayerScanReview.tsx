@@ -60,10 +60,16 @@ export function PlayerScanReview({ state, review, rolesPending, tierPending,
         </Text>
       )}
       {rolesPending && (
-        <Pressable accessibilityRole="button" onPress={onConfirmRoles}
-          style={{ padding: 12, borderWidth: 1, borderColor: theme.hot, marginTop: 10 }}>
-          <Text style={{ color: theme.hot, fontSize: 12 }}>I checked the established and learning roles</Text>
-        </Pressable>
+        <>
+          <Text style={{ color: theme.inkMuted, fontSize: 12, marginTop: 10 }}>
+            The scan could not establish the roles. Select the finished roles in the grid above,
+            then enter the learning role and its progress from the card before confirming.
+          </Text>
+          <Pressable accessibilityRole="button" onPress={onConfirmRoles}
+            style={{ padding: 12, borderWidth: 1, borderColor: theme.hot, marginTop: 10 }}>
+            <Text style={{ color: theme.hot, fontSize: 12 }}>Confirm the roles entered above</Text>
+          </Pressable>
+        </>
       )}
       {tierPending && (
         <Pressable accessibilityRole="button" onPress={onConfirmTier}

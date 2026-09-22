@@ -435,7 +435,8 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
       return (a.frame?.left ?? 0) - (b.frame?.left ?? 0);
     });
 
-  const roleAnchor = elements.find(element => /^roles?\s*:?$/i.test(element.text.trim()));
+  const roleAnchor = elements.find(element => /^roles?\s*:?$/i.test(element.text.trim()))
+    ?? elements.find(element => /^roles?\s*:/i.test(element.text.trim()));
   if (!roleAnchor?.frame) return undefined;
 
   type LocatedRole = { role: string; left: number; right: number; top: number; height: number };
@@ -453,11 +454,14 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
 
   const rawCounters: LocatedCounter[] = allElements.flatMap(element => {
     const frame = element.frame!;
-    const match = ROLE_PROGRESS_RE.exec(element.text.trim());
+    const raw = element.text.trim();
+    const match = ROLE_PROGRESS_RE.exec(raw);
     if (!match) return [];
     return [{
       points: parseInt(match[1], 10),
-      left: frame.left,
+      // A single ML Kit element can contain "MC 8/50" (or the entire Roles:
+      // row). Its frame starts at MC, not at the counter.
+      left: frame.left + frame.width * (match.index / raw.length),
       top: frame.top,
       height: frame.height,
     }];
@@ -483,17 +487,28 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
   }
 
   for (const element of elements) {
-    const frame = element.frame;
-    if (!frame) continue;
-    const raw = element.text.trim();
+    if (!element.frame) continue;
+    let frame = element.frame;
+    let raw = element.text.trim();
 
     if (/^roles?\s*:?$/i.test(raw)) continue;
+    const prefix = /^roles?\s*:\s*/i.exec(raw);
+    if (prefix) {
+      const fraction = prefix[0].length / raw.length;
+      frame = { ...frame, left: frame.left + frame.width * fraction,
+        width: frame.width * (1 - fraction) };
+      raw = raw.slice(prefix[0].length);
+    }
 
     const segments = raw.toUpperCase().split(/[^A-Z]+/).filter(Boolean);
     const roles = segments.flatMap(segment => splitRoleToken(segment, KNOWN_ROLES));
     if (roles.length === 0) continue;
 
     const totalChars = roles.reduce((sum, role) => sum + role.length, 0);
+    const counter = ROLE_PROGRESS_RE.exec(raw);
+    const roleWidth = counter && counter.index > 0
+      ? frame.width * (counter.index / raw.length)
+      : frame.width;
     let consumed = 0;
     for (const role of roles) {
       const start = consumed / totalChars;
@@ -501,8 +516,8 @@ export function parseStructuredRoleState(result: OcrResult): StructuredTextRoleS
       consumed += role.length;
       located.push({
         role,
-        left: frame.left + frame.width * start,
-        right: frame.left + frame.width * (start + width),
+        left: frame.left + roleWidth * start,
+        right: frame.left + roleWidth * (start + width),
         top: frame.top,
         height: frame.height,
       });
@@ -698,10 +713,22 @@ export function parsePlayerCard(result: OcrResult, image?: RgbaImage | null): Pl
 
   const roleFlags = review.filter(isRoleFlag);
 
-  if (textRoleState && !image && (establishedRoles === undefined || roleFlags.length > 0)) {
-    // With no pixels, a paired X/50 badge is positive evidence for the
-    // learning role and the other labels. A conflicting or unclear pixel read
-    // is different: keep its review flag instead of using text to erase it.
+  const glyphAgreesWhereReadable =
+    (establishedRoles ?? []).every(role =>
+      role === textRoleState?.learningRole?.role || textRoleState?.establishedRoles.includes(role)) &&
+    (!learningRole || (learningRole.role === textRoleState?.learningRole?.role &&
+      learningRole.points === textRoleState.learningRole.points));
+  const pixelsAreUnclear = roleFlags.length > 0 && roleFlags.every(flag =>
+    flag.reason === 'chip_state_unclear' || flag.reason === 'region_unread');
+  const completeGlyphRoleLabels = establishedRoles !== undefined &&
+    textRoleState?.establishedRoles.every(role => establishedRoles?.includes(role));
+
+  if (textRoleState && glyphAgreesWhereReadable &&
+      (!image || pixelsAreUnclear || (roleFlags.length === 0 && completeGlyphRoleLabels))) {
+    // A paired, adjacent X/50 badge identifies the learning role even when a
+    // pixel sample exists but its chip state is unreadable or looks established.
+    // The counter is positive learning evidence; chip brightness is not proof
+    // of completion. Other contradictory role labels or progress still abstain.
     establishedRoles = [...textRoleState.establishedRoles];
     learningRole = textRoleState.learningRole
       ? { ...textRoleState.learningRole }
