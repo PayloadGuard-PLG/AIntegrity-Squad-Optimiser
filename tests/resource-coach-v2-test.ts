@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import reference from './fixtures/resource-coach-v2-synthetic.json';
-import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
+import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, buildResourceStatsFromState, resourceStateConfirmed, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
+import { RESOURCE_CALIBRATION_CANDIDATE, candidateAgeScale, candidateTierCoordinate, candidateDose, latentMovement, displayedGainFromLatent, predictCalibrationCandidate } from '../src/logic/resourceCoachCandidate';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
 const input: ResourceInput = { playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',sourceFamily:'resource-coach',transferClass:'ordinary',coachLabel:'Synthetic anchor',multiplier:26,
@@ -13,6 +14,60 @@ function observation(id: string): ResourceObservation {
   return {id,capturedAt:'2026-09-13',input,evidenceKind:'observed-interval',source:'manual-confirmed-preview',
     intervals:reference.anchor.observed.map((r,i)=>({stat:`STAT ${i}`,gainLo:r[0],gainHi:r[1]}))};
 }
+
+test('coach classes are derived from canonical established-role state without a second confirmation gate',()=>{
+  const values={TACKLING:181,MARKING:167,POSITIONING:181,HEADING:200,BRAVERY:160,SHOOTING:253};
+  const rows=buildResourceStatsFromState(['AML','AMC','MC'],values,['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','SHOOTING']);
+  assert.equal(resourceStateConfirmed(['AML','AMC','MC'],values,rows),true);
+  assert.equal(rows.find(r=>r.stat==='SHOOTING')!.displayClass,'WHITE');
+  assert.equal(rows[0].classSource,'role-map');
+
+  const wrong=rows.map(r=>r.stat==='TACKLING'?{...r,displayClass:'MID_GREY' as const}:r);
+  assert.equal(resourceStateConfirmed(['AML','AMC','MC'],values,wrong),false);
+  const manual=wrong.map(r=>r.stat==='TACKLING'?{...r,classSource:'manual-observed' as const}:r);
+  assert.equal(resourceStateConfirmed(['AML','AMC','MC'],values,manual),true);
+});
+
+test('21 Sep candidate preserves tier coordinate, age bands and below-zero rectification',()=>{
+  assert.equal(candidateTierCoordinate(135,'T3','WHITE'),85);
+  assert.equal(candidateTierCoordinate(135,'T3','MID_GREY'),135);
+  assert.deepEqual([18,22,26,30,32].map(candidateAgeScale),[8,6,4,2,1]);
+
+  const latent=latentMovement(-25,'WHITE',10);
+  assert.equal(displayedGainFromLatent(-25,latent),0);
+  const enough=latentMovement(-25,'WHITE',40);
+  assert.ok(displayedGainFromLatent(-25,enough)>0);
+});
+
+test('candidate dose separates multiplier, affected-stat count and Reward scale without hidden compensation',()=>{
+  const one={...input,age:21,multiplier:20,transferClass:'ordinary' as const,stats:[input.stats[0]]};
+  const five={...one,stats:[...input.stats.slice(0,5)]};
+  const reward={...one,transferClass:'reward' as const};
+  const d1=candidateDose(one)!;
+  const d5=candidateDose(five)!;
+  const dr=candidateDose(reward)!;
+  assert.ok(d1>d5);
+  assert.ok(Math.abs(dr/d1-RESOURCE_CALIBRATION_CANDIDATE.dose.rewardScale)<1e-12);
+  assert.equal(candidateDose({...one,transferClass:'unresolved'}),null);
+});
+
+test('calibration candidate emits finite ordered intervals and keeps programme family metadata non-causal',()=>{
+  const base={...input,age:21,tier:'T3',multiplier:20,transferClass:'ordinary' as const,
+    programmeFamily:'drill-session' as const,
+    stats:[
+      {stat:'TACKLING',displayedStat:181,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'MARKING',displayedStat:167,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'POSITIONING',displayedStat:181,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'HEADING',displayedStat:200,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'BRAVERY',displayedStat:160,displayClass:'WHITE' as const,classSource:'role-map' as const},
+    ]};
+  const drill=predictCalibrationCandidate(base);
+  const skill=predictCalibrationCandidate({...base,programmeFamily:'skill-seminar'});
+  assert.equal(drill.status,'predicted');
+  assert.deepEqual(skill.intervals,drill.intervals);
+  for(const r of drill.intervals) assert.ok(Number.isFinite(r.gainLo)&&r.gainLo>=0&&r.gainHi>=r.gainLo);
+  assert.equal(drill.ovrBoost!.gainHi,drill.intervals.reduce((n,r)=>n+r.gainHi,0)/15);
+});
 test('30 synthetic inputs agree with independent numerical integration across both regimes',()=>{
   for(const r of reference.rows) {
     assert.ok(Math.abs(integratedGain(r.u,r.age,r.exposure)-r.gain[0])<1e-7);
@@ -79,10 +134,13 @@ function memoryDb(): ResourceDatabase & {raw:DatabaseSync} {
 }
 test('native SQLite writer persists predictions, observed bounds, OVR and anchors across restart',()=>{
   const db=memoryDb(),store=createResourceCoachStore(db),o={...observation(anchorId),ovrBoost:{gainLo:2,gainHi:3}};
-  store.savePrediction('p1',input,predictResourceCoach(input));store.saveObservation(o);store.saveCalibration(fitPlayerCalibration(o),o);
+  store.savePrediction('p1',input,predictResourceCoach(input));
+  store.saveCandidatePrediction('candidate-1',{...input,programmeFamily:'unknown'},predictCalibrationCandidate({...input,programmeFamily:'unknown'}));
+  store.saveObservation(o);store.saveCalibration(fitPlayerCalibration(o),o);
   const restart=createResourceCoachStore(db);
   assert.equal(restart.calibration(input.playerId)?.anchorId,anchorId);
-  const exported=JSON.parse(restart.exportPlayer(input.playerId));assert.equal(exported.predictions.length,1);assert.equal(exported.observations.length,1);
+  const exported=JSON.parse(restart.exportPlayer(input.playerId));assert.equal(exported.predictions.length,2);assert.equal(exported.observations.length,1);
+  assert.ok(exported.predictions.some((p:{model_version:string})=>p.model_version===RESOURCE_CALIBRATION_CANDIDATE.modelVersion));
   assert.equal(db.raw.prepare('SELECT boost_hi FROM resource_coach_ovr_observation').get()!.boost_hi,3);
   assert.equal(db.raw.prepare('SELECT gains FROM squad_plan_runs').get()!.gains,'original');
   assert.deepEqual(db.raw.prepare('PRAGMA foreign_key_check').all(),[]);
