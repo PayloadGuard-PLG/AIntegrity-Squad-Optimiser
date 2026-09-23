@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { collectResourceCoachSheet, SHEETS_READ_SCOPE } from './collect-resource-coach-sheet.mjs';
+import { collectResourceCoachSheet } from './collect-resource-coach-sheet.mjs';
 
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive';
 const TOKEN_AUD='https://oauth2.googleapis.com/token';
@@ -217,9 +217,8 @@ async function main(){
   let sheetSummary=null;
   const sheetConfig=config.structuredSources?.resourceCoachSheet;
   if(sheetConfig?.enabled){
-    const sheetsToken=await tokenFor(sa,SHEETS_READ_SCOPE);
     sheetSummary=await collectResourceCoachSheet({
-      token:sheetsToken,
+      token,
       spreadsheetId:sheetConfig.spreadsheetId,
       stagedRuns,
       outDir,
