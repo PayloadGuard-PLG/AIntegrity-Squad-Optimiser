@@ -21,6 +21,7 @@
       "form_intake.csv",
       "experiment_matches.csv",
       "state_comparisons.csv",
+      "state_reobservations.csv",
       "cohort_metrics.csv"
     ],
     "scope": "all immutable current experiments against the full materialised corpus in one batch"
