@@ -4,7 +4,10 @@ import type { OcrResult } from './playerCardParse';
 import {
   ARROW_RE, resolvePlayerName, resolveTalentTier, resolvePlayerAge,
 } from './coachIdentityParse';
-import { classifyCoachSource, classifyCoachTransfer, type CoachSourceFamily, type CoachTransferClass } from './coachTransfer';
+import {
+  classifyCoachProgramme, classifyCoachSource, classifyCoachTransfer,
+  type CoachProgrammeFamily, type CoachSourceFamily, type CoachTransferClass,
+} from './coachTransfer';
 
 const ALL_STATS = [...OUTFIELD_STATS, ...GK_STATS] as string[];
 const STATS_BY_LENGTH = [...ALL_STATS].sort((a, b) => b.length - a.length);
@@ -42,6 +45,8 @@ export interface StatCapture {
   gainHi: number;
 }
 
+export type CoachTargetEvidenceSource = 'ocr-observed' | 'glyph-observed' | 'mixed-observed' | 'unresolved';
+
 export interface CoachScanResult {
   coachType?: CoachType;
   coachCategory?: CoachCategory;
@@ -53,11 +58,16 @@ export interface CoachScanResult {
   ovrBoostLo?: number;
   ovrBoostHi?: number;
   sourceFamily: CoachSourceFamily;
+  programmeFamily: CoachProgrammeFamily;
   transferClass: CoachTransferClass;
   /** Compatibility view; routing must use transferClass. */
   isRewardCoach: boolean;
   isTrainingCamp: boolean;
   isAllRound: boolean;
+  /** Exact coach target rows observed independently of whether a numeric +lo-hi was readable. */
+  affectedStats: string[];
+  targetEvidenceSource: CoachTargetEvidenceSource;
+  /** Numeric preview intervals only. Never use a synthetic [0,0] to mean "arrow observed". */
   stats: StatCapture[];
   _debugBlocks?: string;
 }
@@ -101,6 +111,7 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
   const blockText = (result.blocks ?? []).map(b => b.text).join('\n');
   const fullText = [result.text ?? '', blockText].filter(Boolean).join('\n');
   const sourceFamily = classifyCoachSource(fullText);
+  const programmeFamily = classifyCoachProgramme(fullText);
   const transferClass = sourceFamily === 'training-camp' ? 'unresolved' : classifyCoachTransfer(fullText);
 
   const tokens: Token[] = (result.blocks ?? [])
@@ -140,6 +151,7 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
     : null;
 
   const captureMap = new Map<string, StatCapture>();
+  const affectedSet = new Set<string>();
   const upsert = (candidate: StatCapture) => {
     const existing = captureMap.get(candidate.statName);
     if (!existing
@@ -183,9 +195,14 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
         const baseline = anchored && rowMatch[1] ? parseInt(rowMatch[1], 10) : 0;
         const lo = parseInt(rowMatch[anchored ? 2 : 1], 10);
         const hi = parseInt(rowMatch[anchored ? 3 : 2], 10);
-        if (validGain(lo, hi)) upsert({ statName, statBefore: baseline, gainLo: lo, gainHi: hi });
+        if (validGain(lo, hi)) {
+          affectedSet.add(statName);
+          upsert({ statName, statBefore: baseline, gainLo: lo, gainHi: hi });
+        }
       } else if (ARROW_RE.test(afterStat)) {
-        upsert({ statName, statBefore: 0, gainLo: 0, gainHi: 0 });
+        // Text OCR occasionally recognizes the arrow glyph. It proves the target
+        // row, but it does NOT prove a zero-gain interval.
+        affectedSet.add(statName);
       }
     }
   }
@@ -201,10 +218,13 @@ export function parseCoachPreview(result: OcrResult): CoachScanResult {
     ovrBoostLo: boostMatch ? parseInt(boostMatch[1], 10) : undefined,
     ovrBoostHi: boostMatch ? parseInt(boostMatch[2], 10) : undefined,
     sourceFamily,
+    programmeFamily,
     transferClass,
     isRewardCoach: transferClass === 'reward',
     isTrainingCamp: sourceFamily === 'training-camp',
     isAllRound: /\ball[\s\-]*round\b/i.test(fullText),
+    affectedStats: Array.from(affectedSet),
+    targetEvidenceSource: affectedSet.size > 0 ? 'ocr-observed' : 'unresolved',
     stats: Array.from(captureMap.values()),
     _debugBlocks: (result.blocks ?? [])
       .map((b, i) => `[${i}] ${b.text.replace(/\n/g, ' ').slice(0, 60)}`)

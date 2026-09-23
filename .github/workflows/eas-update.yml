@@ -37,6 +37,7 @@ jobs:
           # command text, and analyze.py sanitises it before parsing.
           pr-description: ${{ github.event.pull_request.body }}
 
+  # Main remains the canonical preview source after merge.
   update:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -60,3 +61,44 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           COMMIT_MSG: ${{ github.event.head_commit.message }}
+
+  # One physical preview build is currently pinned to the EAS "preview" channel.
+  # Publish same-repository PR heads into that preview slot so changes can be
+  # exercised on-device before merge. The latest PR publication intentionally
+  # wins; a subsequent main push restores the merged state.
+  update-pr-preview:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: payloadguard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: eas-android-pr-preview
+      cancel-in-progress: true
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck PR head
+        run: npm run typecheck
+
+      - name: Publish PR head to Android preview
+        run: npx eas-cli update --channel preview --platform android --message "$COMMIT_MSG" --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          COMMIT_MSG: "PR #${{ github.event.pull_request.number }} · ${{ github.event.pull_request.title }} · ${{ github.event.pull_request.head.sha }}"

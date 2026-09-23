@@ -1,0 +1,314 @@
+{
+  "schemaVersion": "resource-coach-experiment-v1",
+  "experiment": {
+    "experimentId": "1790098535017-6ng4hwdq",
+    "playerId": "WHqNFeREeqOqZ9sVlOhzV",
+    "createdAt": "2026-09-22T17:35:39.241Z",
+    "partition": "calibration",
+    "originPartition": null,
+    "currentPartition": "calibration",
+    "promotedAt": null,
+    "partitionHistory": [
+      {
+        "eventSeq": 1,
+        "recordedAt": "2026-09-22T19:58:00Z",
+        "eventKind": "legacy-snapshot",
+        "fromPartition": null,
+        "toPartition": "calibration",
+        "note": "Partition state predates provenance events; original partition is unknown."
+      }
+    ],
+    "status": "observed",
+    "observedAt": "2026-09-22T17:35:58.711Z",
+    "input": {
+      "playerId": "WHqNFeREeqOqZ9sVlOhzV",
+      "age": 19,
+      "tier": "T3",
+      "stateKey": "[19,\"T3\",[\"MC\"],[[\"AGGRESSION\",117],[\"BRAVERY\",192],[\"CREATIVITY\",199],[\"CROSSING\",151],[\"DRIBBLING\",245],[\"FINISHING\",153],[\"FITNESS\",213],[\"HEADING\",100],[\"MARKING\",194],[\"PASSING\",252],[\"POSITIONING\",202],[\"SHOOTING\",232],[\"SPEED\",183],[\"STRENGTH\",100],[\"TACKLING\",188]]]",
+      "sourceFamily": "resource-coach",
+      "sourceFamilySource": "manual-confirmed",
+      "transferClass": "ordinary",
+      "transferClassSource": "manual-confirmed",
+      "coachLabel": "Standard Attacking",
+      "multiplier": 5,
+      "programmeFamily": "drill-session",
+      "programmeFamilySource": "ocr-observed",
+      "targetSource": "glyph-observed",
+      "stats": [
+        {
+          "stat": "PASSING",
+          "displayedStat": 252,
+          "displayClass": "WHITE",
+          "classSource": "role-map"
+        },
+        {
+          "stat": "DRIBBLING",
+          "displayedStat": 245,
+          "displayClass": "WHITE",
+          "classSource": "role-map"
+        },
+        {
+          "stat": "FINISHING",
+          "displayedStat": 153,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map"
+        }
+      ]
+    }
+  },
+  "evidence": {
+    "fingerprint": "fnv64-c1aa4766d2782baa",
+    "isDuplicate": true,
+    "duplicateOfExperimentId": "1790098245150-5u2qap7n",
+    "detectedAt": "2026-09-22T17:35:58.711Z"
+  },
+  "observation": {
+    "id": "1790098535017-6ng4hwdq",
+    "capturedAt": "2026-09-22T17:35:58.711Z",
+    "input": {
+      "playerId": "WHqNFeREeqOqZ9sVlOhzV",
+      "age": 19,
+      "tier": "T3",
+      "stateKey": "[19,\"T3\",[\"MC\"],[[\"AGGRESSION\",117],[\"BRAVERY\",192],[\"CREATIVITY\",199],[\"CROSSING\",151],[\"DRIBBLING\",245],[\"FINISHING\",153],[\"FITNESS\",213],[\"HEADING\",100],[\"MARKING\",194],[\"PASSING\",252],[\"POSITIONING\",202],[\"SHOOTING\",232],[\"SPEED\",183],[\"STRENGTH\",100],[\"TACKLING\",188]]]",
+      "sourceFamily": "resource-coach",
+      "sourceFamilySource": "manual-confirmed",
+      "transferClass": "ordinary",
+      "transferClassSource": "manual-confirmed",
+      "coachLabel": "Standard Attacking",
+      "multiplier": 5,
+      "programmeFamily": "drill-session",
+      "programmeFamilySource": "ocr-observed",
+      "targetSource": "glyph-observed",
+      "stats": [
+        {
+          "stat": "PASSING",
+          "displayedStat": 252,
+          "displayClass": "WHITE",
+          "classSource": "role-map"
+        },
+        {
+          "stat": "DRIBBLING",
+          "displayedStat": 245,
+          "displayClass": "WHITE",
+          "classSource": "role-map"
+        },
+        {
+          "stat": "FINISHING",
+          "displayedStat": 153,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map"
+        }
+      ]
+    },
+    "intervals": [
+      {
+        "stat": "PASSING",
+        "gainLo": 1,
+        "gainHi": 2
+      },
+      {
+        "stat": "DRIBBLING",
+        "gainLo": 4,
+        "gainHi": 5
+      },
+      {
+        "stat": "FINISHING",
+        "gainLo": 5,
+        "gainHi": 7
+      }
+    ],
+    "evidenceKind": "observed-interval",
+    "source": "state-confirmed-preview",
+    "ovrBoost": {
+      "gainLo": 1,
+      "gainHi": 1
+    }
+  },
+  "ovrObservation": {
+    "observation_id": "1790098535017-6ng4hwdq",
+    "boost_lo": 1,
+    "boost_hi": 1,
+    "evidence_kind": "observed-boost-interval"
+  },
+  "predictions": [
+    {
+      "predictionId": "1790098539232-zz1frz2q",
+      "modelVersion": "shared-latent-rectified-calibration-candidate-2026-09-22",
+      "capturedAt": "2026-09-22T17:35:39.263Z",
+      "input": {
+        "playerId": "WHqNFeREeqOqZ9sVlOhzV",
+        "age": 19,
+        "tier": "T3",
+        "stateKey": "[19,\"T3\",[\"MC\"],[[\"AGGRESSION\",117],[\"BRAVERY\",192],[\"CREATIVITY\",199],[\"CROSSING\",151],[\"DRIBBLING\",245],[\"FINISHING\",153],[\"FITNESS\",213],[\"HEADING\",100],[\"MARKING\",194],[\"PASSING\",252],[\"POSITIONING\",202],[\"SHOOTING\",232],[\"SPEED\",183],[\"STRENGTH\",100],[\"TACKLING\",188]]]",
+        "sourceFamily": "resource-coach",
+        "sourceFamilySource": "manual-confirmed",
+        "transferClass": "ordinary",
+        "transferClassSource": "manual-confirmed",
+        "coachLabel": "Standard Attacking",
+        "multiplier": 5,
+        "programmeFamily": "drill-session",
+        "programmeFamilySource": "ocr-observed",
+        "targetSource": "glyph-observed",
+        "stats": [
+          {
+            "stat": "PASSING",
+            "displayedStat": 252,
+            "displayClass": "WHITE",
+            "classSource": "role-map"
+          },
+          {
+            "stat": "DRIBBLING",
+            "displayedStat": 245,
+            "displayClass": "WHITE",
+            "classSource": "role-map"
+          },
+          {
+            "stat": "FINISHING",
+            "displayedStat": 153,
+            "displayClass": "MID_GREY",
+            "classSource": "role-map"
+          }
+        ]
+      },
+      "prediction": {
+        "modelVersion": "shared-latent-rectified-calibration-candidate-2026-09-22",
+        "status": "predicted",
+        "intervals": [
+          {
+            "stat": "PASSING",
+            "gainLo": 1.2294378337523995,
+            "gainHi": 1.824656663102104
+          },
+          {
+            "stat": "DRIBBLING",
+            "gainLo": 1.5657351774564745,
+            "gainHi": 2.317217243788093
+          },
+          {
+            "stat": "FINISHING",
+            "gainLo": 3.904360371434592,
+            "gainHi": 5.67121193231614
+          }
+        ],
+        "ovrBoost": {
+          "gainLo": 0.44663555884289774,
+          "gainHi": 0.6542057226137559
+        }
+      }
+    }
+  ],
+  "scores": [
+    {
+      "modelVersion": "shared-latent-rectified-calibration-candidate-2026-09-22",
+      "status": "scored",
+      "matchedStatCount": 3,
+      "endpointMae": 1.3243760742758326,
+      "midpointMae": 1.2659282953098672,
+      "meanIntervalIou": 0.270681262435829,
+      "residuals": [
+        {
+          "stat": "PASSING",
+          "predictedLo": 1.2294378337523995,
+          "predictedHi": 1.824656663102104,
+          "observedLo": 1,
+          "observedHi": 2,
+          "lowError": 0.22943783375239946,
+          "highError": -0.17534333689789605,
+          "endpointAbsError": 0.20239058532514775,
+          "midpointError": 0.027047248427251702,
+          "widthError": -0.4047811706502955,
+          "intervalIou": 0.5952188293497045
+        },
+        {
+          "stat": "DRIBBLING",
+          "predictedLo": 1.5657351774564745,
+          "predictedHi": 2.317217243788093,
+          "observedLo": 4,
+          "observedHi": 5,
+          "lowError": -2.4342648225435255,
+          "highError": -2.682782756211907,
+          "endpointAbsError": 2.558523789377716,
+          "midpointError": -2.558523789377716,
+          "widthError": -0.24851793366838137,
+          "intervalIou": 0
+        },
+        {
+          "stat": "FINISHING",
+          "predictedLo": 3.904360371434592,
+          "predictedHi": 5.67121193231614,
+          "observedLo": 5,
+          "observedHi": 7,
+          "lowError": -1.095639628565408,
+          "highError": -1.3287880676838597,
+          "endpointAbsError": 1.2122138481246338,
+          "midpointError": -1.2122138481246338,
+          "widthError": -0.23314843911845173,
+          "intervalIou": 0.2168249579577826
+        }
+      ],
+      "ovrResidual": {
+        "stat": "__OVR__",
+        "predictedLo": 0.44663555884289774,
+        "predictedHi": 0.6542057226137559,
+        "observedLo": 1,
+        "observedHi": 1,
+        "lowError": -0.5533644411571023,
+        "highError": -0.34579427738624413,
+        "endpointAbsError": 0.4495793592716732,
+        "midpointError": -0.44957935927167325,
+        "widthError": 0.20757016377085813,
+        "intervalIou": 0
+      }
+    }
+  ],
+  "residuals": [
+    {
+      "experiment_id": "1790098535017-6ng4hwdq",
+      "prediction_id": "1790098539232-zz1frz2q",
+      "model_version": "shared-latent-rectified-calibration-candidate-2026-09-22",
+      "stat": "PASSING",
+      "predicted_lo": 1.2294378337523995,
+      "predicted_hi": 1.824656663102104,
+      "observed_lo": 1,
+      "observed_hi": 2,
+      "low_error": 0.22943783375239946,
+      "high_error": -0.17534333689789605,
+      "endpoint_abs_error": 0.20239058532514775,
+      "midpoint_error": 0.027047248427251702,
+      "width_error": -0.4047811706502955,
+      "interval_iou": 0.5952188293497045
+    },
+    {
+      "experiment_id": "1790098535017-6ng4hwdq",
+      "prediction_id": "1790098539232-zz1frz2q",
+      "model_version": "shared-latent-rectified-calibration-candidate-2026-09-22",
+      "stat": "DRIBBLING",
+      "predicted_lo": 1.5657351774564745,
+      "predicted_hi": 2.317217243788093,
+      "observed_lo": 4,
+      "observed_hi": 5,
+      "low_error": -2.4342648225435255,
+      "high_error": -2.682782756211907,
+      "endpoint_abs_error": 2.558523789377716,
+      "midpoint_error": -2.558523789377716,
+      "width_error": -0.24851793366838137,
+      "interval_iou": 0
+    },
+    {
+      "experiment_id": "1790098535017-6ng4hwdq",
+      "prediction_id": "1790098539232-zz1frz2q",
+      "model_version": "shared-latent-rectified-calibration-candidate-2026-09-22",
+      "stat": "FINISHING",
+      "predicted_lo": 3.904360371434592,
+      "predicted_hi": 5.67121193231614,
+      "observed_lo": 5,
+      "observed_hi": 7,
+      "low_error": -1.095639628565408,
+      "high_error": -1.3287880676838597,
+      "endpoint_abs_error": 1.2122138481246338,
+      "midpoint_error": -1.2122138481246338,
+      "width_error": -0.23314843911845173,
+      "interval_iou": 0.2168249579577826
+    }
+  ]
+}

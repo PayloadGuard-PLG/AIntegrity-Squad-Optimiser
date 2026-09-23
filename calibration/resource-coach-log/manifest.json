@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "resource-coach-log-manifest-v1",
+  "experimentSchemaVersion": "resource-coach-experiment-v1",
+  "googleSheet": {
+    "title": "Resource Coach Experiment Log — v1",
+    "id": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+    "url": "https://docs.google.com/spreadsheets/d/1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI/edit"
+  },
+  "runsDirectory": "calibration/resource-coach-log/runs",
+  "aggregateCommand": "node tools/resource-coach-v2/aggregate-experiment-log.mjs",
+  "ingestCommand": "node tools/resource-coach-v2/ingest-experiment.mjs <export.json>",
+  "longitudinalAnalysis": {
+    "script": "tools/resource-coach-v2/analyse-longitudinal-corpus.mjs",
+    "canonicalCorpus": "calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64",
+    "sourceWorkbook": "Squad_Optimiser_Corpus_Calibration_Transfer_2026-09-12.xlsx",
+    "sourceWorkbookSha256": "afdc3b421cde5ce0a49bfe3e451157905b3e0962eb6e3ddbe544448842e23f70",
+    "canonicalCounts": {
+      "players": 28,
+      "playerStates": 38,
+      "playerStateStats": 570,
+      "coachPreviews": 23,
+      "coachPreviewStats": 345
+    },
+    "outputs": [
+      "summary.json",
+      "form_intake.csv",
+      "experiment_state_matches.csv",
+      "experiment_matches.csv",
+      "state_comparisons.csv",
+      "state_reobservations.csv",
+      "cohort_metrics.csv",
+      "player_longitudinal_profiles.csv",
+      "corpus_control_pairs.csv",
+      "variable_identifiability.csv"
+    ],
+    "scope": "all immutable current experiments against the full canonical longitudinal corpus in one batch",
+    "displayClassEvidence": "calibration/longitudinal-corpus/display-class-evidence-v1.json.gz.b64",
+    "displayClassEvidenceSha256": "ee97b07648af03f575319a79f15893adbf090a506318b1c399b626cd87675cfd",
+    "displayClassEvidenceCounts": {
+      "previewStatRows": 345,
+      "white": 241,
+      "midGrey": 104,
+      "intervalRows": 79,
+      "playerStateCrossCheckMismatches": 0
+    },
+    "displayClassEvidenceContract": "direct observed UI extraction from pinned workbook; fill missing historical class only; never infer from roles; fail on conflicts"
+  },
+  "driveExchange": {
+    "schemaVersion": "drive-data-exchange-v1",
+    "config": "calibration/drive-data-exchange.json",
+    "credentialSecret": "GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON",
+    "serviceAccountEmail": "aintegrity-drive-ingest@aintegrity-d623c.iam.gserviceaccount.com",
+    "collectionScript": "tools/drive-data-exchange/collect-resource-coach.mjs",
+    "folders": {
+      "incoming": "1wll7bOcoJqUYFhmj8FuJc4eQdmNk6Z3x",
+      "analysisOutput": "1by8ijGsZ7ZCx0V_xm1aQBAciw2hgocQX",
+      "quarantine": "1qwOW5Isq6c8-I5t9kSa4FPImn0G8Y-lC"
+    },
+    "contract": [
+      "Drive source files are hashed before validation.",
+      "Only sealed resource-coach-experiment-v1 JSON can enter staged immutable runs.",
+      "Existing experiment IDs cannot be overwritten.",
+      "Drive source files are not moved or deleted by the initial bridge.",
+      "GitHub repository content is not mutated by collection runs.",
+      "My Drive service-account collection is read-only; write-back requires Shared Drive storage or delegated user OAuth."
+    ],
+    "writeBack": "disabled-on-my-drive"
+  }
+}

@@ -3,6 +3,8 @@ import { test } from 'node:test';
 import type { OcrBlock, OcrLine, OcrResult } from '../src/logic/playerCardParse';
 import { parseCoachPreview } from '../src/logic/coachPreviewParse';
 import { resolveCoachStats } from '../src/logic/coachPipeline';
+import { detectCoachArrowTargets } from '../src/logic/coachTargetGlyphReader';
+import { blankImage } from './helpers/png';
 import { projectCoachAction, resolveTalentPolicy } from '../src/logic/recommendation';
 import { withManualStatSelection } from '../src/logic/coachObservationState';
 import { normalisePersistedCoachTransferClass } from '../src/logic/coachTransfer';
@@ -45,6 +47,7 @@ test('V0: merged Reward row recovers class, targeting, baseline and the exact in
   assert.equal(scan.transferClass, 'reward');
   assert.equal(scan.ovrBefore, 115.3);
   assert.deepEqual(scan.stats, [{ statName: 'FINISHING', statBefore: 125, gainLo: 5, gainHi: 7 }]);
+  assert.deepEqual(scan.affectedStats, ['FINISHING']);
   assert.deepEqual(resolveCoachStats(scan, player().stats, player().role), ['FINISHING']);
   assert.equal(scan.ovrBoostLo, undefined, 'a stat interval must not be relabelled as an OVR boost');
 });
@@ -135,6 +138,112 @@ test('Focused targeting filters shared-row DEF and PHY columns identically for R
   assert.deepEqual(ordinary.stats, expected);
   assert.deepEqual(reward.stats, ordinary.stats,
     'transfer classification must not change the Focused targeting shape');
+});
+
+
+test('Standard Attacking Drill Session uses observed targets, not the five-stat category shortcut', () => {
+  const scan = parseCoachPreview(ocr(
+    block('DRILL SESSION', 60),
+    block('STANDARD ATTACKING ×5', 90),
+    block('PASSING 253 +1-2', 220, 350),
+    block('DRIBBLING 245 +4-5', 270, 350),
+    block('CROSSING 151', 320, 350),
+    block('SHOOTING 232', 370, 350),
+    block('FINISHING 153 +5-7', 420, 350),
+  ));
+
+  assert.equal(scan.programmeFamily, 'drill-session');
+  assert.equal(scan.sourceFamily, 'resource-coach');
+  assert.equal(scan.transferClass, 'unresolved');
+  assert.deepEqual(scan.stats.map(s => s.statName), ['PASSING', 'DRIBBLING', 'FINISHING']);
+  assert.deepEqual(scan.affectedStats, ['PASSING', 'DRIBBLING', 'FINISHING']);
+  assert.deepEqual(
+    resolveCoachStats(scan, {}, ['MC']),
+    ['PASSING', 'DRIBBLING', 'FINISHING'],
+    'coach category must not invent CROSSING or SHOOTING as affected targets',
+  );
+});
+
+test('arrow-only coach screenshot resolves target rows from pixels without fabricating zero-gain intervals', () => {
+  const rows = [
+    ['TACKLING','PASSING','FITNESS'],
+    ['MARKING','DRIBBLING','STRENGTH'],
+    ['POSITIONING','CROSSING','AGGRESSION'],
+    ['HEADING','SHOOTING','SPEED'],
+    ['BRAVERY','FINISHING','CREATIVITY'],
+  ] as const;
+  const blocks: OcrBlock[] = [
+    block('DRILL SESSION', 40, 350),
+    block('STANDARD ATTACKING ×5', 65, 350),
+  ];
+  const lefts = [100,350,600];
+  rows.forEach((row,ri)=>row.forEach((stat,ci)=>blocks.push(block(stat,100+ri*60,lefts[ci]))));
+  const result=ocr(...blocks);
+  const {img,fill}=blankImage(900,460,[110,110,110]);
+  for(const [stat,ri] of [['PASSING',0],['DRIBBLING',1],['FINISHING',4]] as const) {
+    const x=350+Math.round(250*.86);
+    const y=100+ri*60+6;
+    fill(x,y,x+12,y+12,[255,255,255]);
+  }
+  const glyphTargets=detectCoachArrowTargets(result,img);
+  assert.deepEqual([...glyphTargets].sort(),['DRIBBLING','FINISHING','PASSING']);
+
+  const scan=parseCoachPreview(result);
+  assert.deepEqual(scan.stats,[], 'arrow-only evidence must not become a synthetic [0,0] gain interval');
+  assert.deepEqual(scan.affectedStats,[]);
+});
+
+test('arrow reader does not mirror an ATT target into the DEF row through the next-column highlight', () => {
+  const rows = [
+    ['TACKLING','PASSING','FITNESS'],
+    ['MARKING','DRIBBLING','STRENGTH'],
+    ['POSITIONING','CROSSING','AGGRESSION'],
+    ['HEADING','SHOOTING','SPEED'],
+    ['BRAVERY','FINISHING','CREATIVITY'],
+  ] as const;
+  const blocks: OcrBlock[] = [
+    block('DRILL SESSION', 40, 350),
+    block('STANDARD ATTACKING ×5', 65, 350),
+  ];
+  const lefts = [100,350,600];
+  rows.forEach((row,ri)=>row.forEach((stat,ci)=>blocks.push(block(stat,100+ri*60,lefts[ci]))));
+  const result=ocr(...blocks);
+  const {img,fill}=blankImage(900,460,[110,110,110]);
+
+  for(const ri of [0,1,4]) {
+    // Reproduce the live layout: the selected ATT cell's bright leading wedge
+    // begins slightly LEFT of the ATT stat text. This used to sit inside the
+    // DEF row's .98-column ROI and duplicated targets across columns.
+    fill(340,100+ri*60-4,360,100+ri*60+24,[247,247,247]);
+
+    // Actual arrow remains near 0.86 of one column spacing from ATT label left.
+    const x=350+Math.round(250*.86);
+    const y=100+ri*60+6;
+    fill(x,y,x+12,y+12,[255,255,255]);
+  }
+
+  const targets=[...detectCoachArrowTargets(result,img)].sort();
+  assert.deepEqual(targets,['DRIBBLING','FINISHING','PASSING']);
+  for(const falseTarget of ['TACKLING','MARKING','BRAVERY']) {
+    assert.equal(targets.includes(falseTarget),false, `${falseTarget} must not mirror the ATT target in the same row`);
+  }
+});
+
+test('Standard category with no observed target rows remains unresolved instead of inventing five stats', () => {
+  const scan = parseCoachPreview(ocr(
+    block('SKILL SEMINAR', 60),
+    block('STANDARD ATTACKING ×5', 90),
+    block('PASSING 253', 220, 350),
+    block('DRIBBLING 245', 270, 350),
+    block('CROSSING 151', 320, 350),
+    block('SHOOTING 232', 370, 350),
+    block('FINISHING 153', 420, 350),
+  ));
+
+  assert.equal(scan.programmeFamily, 'skill-seminar');
+  assert.equal(scan.sourceFamily, 'resource-coach');
+  assert.deepEqual(scan.stats, []);
+  assert.deepEqual(resolveCoachStats(scan, {}, ['MC']), []);
 });
 
 test('two-word goalkeeper stats survive split ML Kit line tokens', () => {

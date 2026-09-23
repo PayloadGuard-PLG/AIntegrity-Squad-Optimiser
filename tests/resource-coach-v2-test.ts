@@ -3,16 +3,79 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import reference from './fixtures/resource-coach-v2-synthetic.json';
-import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
+import { RESOURCE_MODEL, integratedGain, predictResourceCoach, fitPlayerCalibration, inputSignature, validateObservation, buildResourceStatsFromState, resourceStateConfirmed, type ResourceInput, type ResourceObservation } from '../src/logic/resourceCoachV2';
+import { RESOURCE_CALIBRATION_CANDIDATE, candidateAgeScale, candidateTierCoordinate, candidateDose, latentMovement, displayedGainFromLatent, predictCalibrationCandidate } from '../src/logic/resourceCoachCandidate';
 import { createResourceCoachStore, type ResourceDatabase } from '../src/services/resourceCoachStore';
 import { RESOURCE_COACH_SCHEMA } from '../src/db/resourceCoachSchema';
-const input: ResourceInput = { playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',sourceFamily:'resource-coach',transferClass:'ordinary',coachLabel:'Synthetic anchor',multiplier:26,
-  stats:reference.anchor.coords.map((value,i)=>({stat:`STAT ${i}`,displayedStat:value,displayClass:'WHITE',classSource:'manual-observed'})) };
+import { evidenceIdentity, scorePrediction } from '../src/logic/resourceCoachExperiment';
+const input: ResourceInput = {
+  playerId:'synthetic-player',age:28,tier:'T0',stateKey:'synthetic-state',
+  sourceFamily:'resource-coach',sourceFamilySource:'manual-confirmed',
+  transferClass:'ordinary',transferClassSource:'manual-confirmed',
+  programmeFamily:'drill-session',programmeFamilySource:'manual-confirmed',
+  targetSource:'manual-confirmed',
+  coachLabel:'Synthetic anchor',multiplier:26,
+  stats:reference.anchor.coords.map((value,i)=>({stat:`STAT ${i}`,displayedStat:value,displayClass:'WHITE',classSource:'manual-observed'}))
+};
 const anchorId='synthetic-anchor';
 function observation(id: string): ResourceObservation {
   return {id,capturedAt:'2026-09-13',input,evidenceKind:'observed-interval',source:'manual-confirmed-preview',
     intervals:reference.anchor.observed.map((r,i)=>({stat:`STAT ${i}`,gainLo:r[0],gainHi:r[1]}))};
 }
+
+test('coach classes are derived from canonical established-role state without a second confirmation gate',()=>{
+  const values={TACKLING:181,MARKING:167,POSITIONING:181,HEADING:200,BRAVERY:160,SHOOTING:253};
+  const rows=buildResourceStatsFromState(['AML','AMC','MC'],values,['TACKLING','MARKING','POSITIONING','HEADING','BRAVERY','SHOOTING']);
+  assert.equal(resourceStateConfirmed(['AML','AMC','MC'],values,rows),true);
+  assert.equal(rows.find(r=>r.stat==='SHOOTING')!.displayClass,'WHITE');
+  assert.equal(rows[0].classSource,'role-map');
+
+  const wrong=rows.map(r=>r.stat==='TACKLING'?{...r,displayClass:'MID_GREY' as const}:r);
+  assert.equal(resourceStateConfirmed(['AML','AMC','MC'],values,wrong),false);
+  const manual=wrong.map(r=>r.stat==='TACKLING'?{...r,classSource:'manual-observed' as const}:r);
+  assert.equal(resourceStateConfirmed(['AML','AMC','MC'],values,manual),true);
+});
+
+test('21 Sep candidate preserves tier coordinate, age bands and below-zero rectification',()=>{
+  assert.equal(candidateTierCoordinate(135,'T3','WHITE'),85);
+  assert.equal(candidateTierCoordinate(135,'T3','MID_GREY'),135);
+  assert.deepEqual([18,22,26,30,32].map(candidateAgeScale),[8,6,4,2,1]);
+
+  const latent=latentMovement(-25,'WHITE',10);
+  assert.equal(displayedGainFromLatent(-25,latent),0);
+  const enough=latentMovement(-25,'WHITE',40);
+  assert.ok(displayedGainFromLatent(-25,enough)>0);
+});
+
+test('candidate dose separates multiplier, affected-stat count and Reward scale without hidden compensation',()=>{
+  const one={...input,age:21,multiplier:20,transferClass:'ordinary' as const,stats:[input.stats[0]]};
+  const five={...one,stats:[...input.stats.slice(0,5)]};
+  const reward={...one,transferClass:'reward' as const};
+  const d1=candidateDose(one)!;
+  const d5=candidateDose(five)!;
+  const dr=candidateDose(reward)!;
+  assert.ok(d1>d5);
+  assert.ok(Math.abs(dr/d1-RESOURCE_CALIBRATION_CANDIDATE.dose.rewardScale)<1e-12);
+  assert.equal(candidateDose({...one,transferClass:'unresolved'}),null);
+});
+
+test('calibration candidate emits finite ordered intervals and keeps programme family metadata non-causal',()=>{
+  const base={...input,age:21,tier:'T3',multiplier:20,transferClass:'ordinary' as const,
+    programmeFamily:'drill-session' as const,
+    stats:[
+      {stat:'TACKLING',displayedStat:181,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'MARKING',displayedStat:167,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'POSITIONING',displayedStat:181,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'HEADING',displayedStat:200,displayClass:'WHITE' as const,classSource:'role-map' as const},
+      {stat:'BRAVERY',displayedStat:160,displayClass:'WHITE' as const,classSource:'role-map' as const},
+    ]};
+  const drill=predictCalibrationCandidate(base);
+  const skill=predictCalibrationCandidate({...base,programmeFamily:'skill-seminar'});
+  assert.equal(drill.status,'predicted');
+  assert.deepEqual(skill.intervals,drill.intervals);
+  for(const r of drill.intervals) assert.ok(Number.isFinite(r.gainLo)&&r.gainLo>=0&&r.gainHi>=r.gainLo);
+  assert.equal(drill.ovrBoost!.gainHi,drill.intervals.reduce((n,r)=>n+r.gainHi,0)/15);
+});
 test('30 synthetic inputs agree with independent numerical integration across both regimes',()=>{
   for(const r of reference.rows) {
     assert.ok(Math.abs(integratedGain(r.u,r.age,r.exposure)-r.gain[0])<1e-7);
@@ -77,19 +140,125 @@ function memoryDb(): ResourceDatabase & {raw:DatabaseSync} {
     getAllSync:<T>(s:string,p:(string|number|null)[]=[])=>raw.prepare(s).all(...p) as T[],
     withTransactionSync:f=>{raw.exec('BEGIN');try{f();raw.exec('COMMIT');}catch(e){raw.exec('ROLLBACK');throw e;}}};
 }
-test('native SQLite writer persists predictions, observed bounds, OVR and anchors across restart',()=>{
+test('native SQLite writer isolates experiments, freezes predictions, scores residuals and gates calibration promotion',()=>{
   const db=memoryDb(),store=createResourceCoachStore(db),o={...observation(anchorId),ovrBoost:{gainLo:2,gainHi:3}};
-  store.savePrediction('p1',input,predictResourceCoach(input));store.saveObservation(o);store.saveCalibration(fitPlayerCalibration(o),o);
+  store.savePrediction(anchorId,'p1',input,predictResourceCoach(input),'prospective-holdout');
+  store.saveCandidatePrediction(anchorId,'candidate-1',input,predictCalibrationCandidate(input),'prospective-holdout');
+  const scores=store.saveObservation(o,'prospective-holdout');
+  assert.equal(scores.length,2);
+  assert.ok(scores.every(s=>s.status==='scored'));
+  assert.ok(scores.every(s=>s.endpointMae!==null&&Number.isFinite(s.endpointMae)));
+  assert.throws(()=>store.savePrediction(anchorId,'late',input,predictResourceCoach(input)));
+  assert.throws(()=>store.saveCalibration(fitPlayerCalibration(o),o),/promote/i);
+  assert.equal(store.setExperimentPartition(anchorId,'calibration'),'calibration');
+  store.saveCalibration(fitPlayerCalibration(o),o);
+
   const restart=createResourceCoachStore(db);
   assert.equal(restart.calibration(input.playerId)?.anchorId,anchorId);
-  const exported=JSON.parse(restart.exportPlayer(input.playerId));assert.equal(exported.predictions.length,1);assert.equal(exported.observations.length,1);
-  assert.equal(db.raw.prepare('SELECT boost_hi FROM resource_coach_ovr_observation').get()!.boost_hi,3);
+  const isolated=JSON.parse(restart.exportExperiment(anchorId));
+  assert.equal(isolated.experiment.experimentId,anchorId);
+  assert.equal(isolated.experiment.partition,'calibration');
+  assert.equal(isolated.experiment.originPartition,'prospective-holdout');
+  assert.equal(isolated.experiment.currentPartition,'calibration');
+  assert.ok(isolated.experiment.promotedAt);
+  assert.deepEqual(isolated.experiment.partitionHistory.map((e:any)=>e.eventKind),['created','transition']);
+  assert.equal(isolated.evidence.isDuplicate,false);
+  assert.match(isolated.evidence.fingerprint,/^fnv64-[0-9a-f]{16}$/);
+  assert.equal(isolated.predictions.length,2);
+  assert.equal(isolated.scores.length,2);
+  assert.ok(isolated.predictions.some((p:{modelVersion:string})=>p.modelVersion===RESOURCE_CALIBRATION_CANDIDATE.modelVersion));
+
+  const second={...observation('second-experiment'),capturedAt:'2026-09-14',ovrBoost:{gainLo:2,gainHi:3}};
+  store.saveObservation(second,'retrospective');
+  const secondExport=JSON.parse(store.exportExperiment(second.id));
+  assert.equal(secondExport.evidence.isDuplicate,true);
+  assert.equal(secondExport.evidence.duplicateOfExperimentId,anchorId);
+  assert.throws(()=>store.setExperimentPartition(second.id,'calibration'),/duplicate evidence/i);
+
+  // Simulate the pre-fix device state where an exact duplicate had already been
+  // promoted. Corpus export must still count the empirical observation once.
+  db.raw.prepare("UPDATE resource_coach_experiment SET partition='calibration' WHERE experiment_id=?").run(second.id);
+  assert.throws(()=>store.saveCalibration(fitPlayerCalibration(second),second),/duplicate evidence/i);
+  const calibrationCorpus=JSON.parse(store.exportCalibrationCorpus());
+  assert.equal(calibrationCorpus.schemaVersion,'resource-coach-calibration-corpus-v2');
+  assert.equal(calibrationCorpus.experiments.length,1);
+  assert.equal(calibrationCorpus.duplicateEvidence.length,1);
+  assert.equal(calibrationCorpus.duplicateEvidence[0].evidence.duplicateOfExperimentId,anchorId);
+
+  const isolatedAgain=JSON.parse(store.exportExperiment(anchorId));
+  assert.equal(isolatedAgain.observation.id,anchorId);
+  assert.equal(isolatedAgain.experiment.experimentId,anchorId);
+  const corpus=JSON.parse(store.exportPlayer(input.playerId));
+  assert.equal(corpus.experiments.length,2);
+  assert.equal(corpus.experiments.filter((e:any)=>e.experiment.experimentId===anchorId).length,1);
+
+  assert.equal(db.raw.prepare('SELECT boost_hi FROM resource_coach_ovr_observation WHERE observation_id=?').get(anchorId)!.boost_hi,3);
+  const observedRow=db.raw.prepare('SELECT transfer_class_source,coach_family,source_ref FROM resource_coach_observation WHERE observation_id=? LIMIT 1').get(anchorId)!;
+  assert.equal(observedRow.transfer_class_source,'manual-confirmed');
+  assert.equal(observedRow.coach_family,'drill-session');
+  assert.deepEqual(JSON.parse(String(observedRow.source_ref)),{
+    evidenceSource:'manual-confirmed-preview',
+    targetSource:'manual-confirmed',
+    sourceFamilySource:'manual-confirmed',
+    programmeFamilySource:'manual-confirmed',
+  });
   assert.equal(db.raw.prepare('SELECT gains FROM squad_plan_runs').get()!.gains,'original');
   assert.deepEqual(db.raw.prepare('PRAGMA foreign_key_check').all(),[]);
   assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_model_versions WHERE active=1').get()!.n,1);
-  assert.throws(()=>store.saveObservation(o));
-  assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,1);
+  assert.equal(db.raw.prepare('SELECT count(*) AS n FROM resource_coach_preview').get()!.n,2);
 });
+
+test('empirical evidence identity ignores experiment/timestamp/provenance but changes when the measured outcome changes',()=>{
+  const a={...observation('evidence-a'),capturedAt:'2026-09-22T10:00:00Z',source:'manual-confirmed-preview' as const,ovrBoost:{gainLo:1,gainHi:2}};
+  const b={...a,id:'evidence-b',capturedAt:'2026-09-22T11:00:00Z',source:'state-confirmed-preview' as const,
+    intervals:[...a.intervals].reverse()};
+  assert.equal(evidenceIdentity(a).canonicalKey,evidenceIdentity(b).canonicalKey);
+  assert.equal(evidenceIdentity(a).fingerprint,evidenceIdentity(b).fingerprint);
+  const changed={...b,intervals:b.intervals.map((r,i)=>i===0?{...r,gainHi:r.gainHi+1}:r)};
+  assert.notEqual(evidenceIdentity(a).canonicalKey,evidenceIdentity(changed).canonicalKey);
+});
+
+test('interval scoring is deterministic and keeps endpoint, midpoint, width and overlap errors separate',()=>{
+  const o:ResourceObservation={...observation('score-only'),intervals:[
+    {stat:'A',gainLo:1,gainHi:3},
+    {stat:'B',gainLo:4,gainHi:6},
+  ],input:{...input,stats:[
+    {stat:'A',displayedStat:100,displayClass:'WHITE',classSource:'manual-observed'},
+    {stat:'B',displayedStat:100,displayClass:'WHITE',classSource:'manual-observed'},
+  ]}};
+  const score=scorePrediction({modelVersion:'test',status:'predicted',intervals:[
+    {stat:'A',gainLo:2,gainHi:4},
+    {stat:'B',gainLo:4,gainHi:6},
+  ]},o);
+  assert.equal(score.status,'scored');
+  assert.equal(score.matchedStatCount,2);
+  assert.equal(score.endpointMae,.5);
+  assert.equal(score.midpointMae,.5);
+  assert.ok(score.meanIntervalIou!==null && Math.abs(score.meanIntervalIou-(2/3))<1e-12);
+  assert.equal(score.residuals[0].lowError,1);
+  assert.equal(score.residuals[0].highError,1);
+  assert.equal(score.residuals[0].widthError,0);
+});
+
+
+test('pre-provenance experiments remain honest: current partition is retained but origin is unknown',()=>{
+  const db=memoryDb();
+  db.execSync(RESOURCE_COACH_SCHEMA);
+  const legacy={...observation('legacy-partition'),capturedAt:'2026-09-01'};
+  db.raw.prepare(`INSERT INTO resource_coach_experiment
+    (experiment_id,player_id,created_at,input_json,partition,status,observed_at)
+    VALUES (?,?,?,?,?,'observed',?)`).run(legacy.id,input.playerId,'2026-09-01',JSON.stringify(input),'calibration',legacy.capturedAt);
+  db.raw.prepare('INSERT INTO resource_coach_preview VALUES (?,?,?,?)')
+    .run(legacy.id,input.playerId,JSON.stringify(input),JSON.stringify(legacy));
+  const store=createResourceCoachStore(db);
+  const exported=JSON.parse(store.exportExperiment(legacy.id));
+  assert.equal(exported.experiment.partition,'calibration');
+  assert.equal(exported.experiment.originPartition,null);
+  assert.equal(exported.experiment.partitionHistory[0].eventKind,'legacy-snapshot');
+  assert.match(exported.experiment.partitionHistory[0].note,/original partition is unknown/i);
+  assert.equal(exported.evidence.isDuplicate,false);
+});
+
 test('orphan OVR inserts fail and bundled migration matches reviewable SQL',()=>{
   assert.equal(RESOURCE_COACH_SCHEMA.replace(/\r\n?/g,'\n'),readFileSync('drizzle/001_resource_coach_v2.sql','utf8').replace(/\r\n?/g,'\n'));
   const db=memoryDb();db.execSync(RESOURCE_COACH_SCHEMA);db.execSync(RESOURCE_COACH_SCHEMA);

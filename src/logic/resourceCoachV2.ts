@@ -1,18 +1,27 @@
 import config from '../../profiles/resource_coach_v2.json';
-import type { CoachSourceFamily, CoachTransferClass } from './coachTransfer';
+import type {
+  CoachClassificationSource, CoachProgrammeFamily, CoachSourceFamily, CoachTransferClass,
+} from './coachTransfer';
+import { isWhiteStat } from '../utils/roleWeights';
 
 export const RESOURCE_MODEL = config;
 export type DisplayClass = 'WHITE' | 'MID_GREY' | 'UNKNOWN';
 export type ResourceStat = { stat: string; displayedStat: number; displayClass: DisplayClass; classSource: 'role-map' | 'manual-observed' };
+export type ResourceProgrammeFamily = CoachProgrammeFamily;
 export type ResourceInput = {
   playerId: string; age: number; tier: string; stateKey: string;
   sourceFamily: CoachSourceFamily; transferClass: CoachTransferClass; coachLabel: string; multiplier: number;
+  sourceFamilySource?: CoachClassificationSource;
+  transferClassSource?: CoachClassificationSource;
+  programmeFamily?: ResourceProgrammeFamily;
+  programmeFamilySource?: CoachClassificationSource;
+  targetSource?: 'ocr-observed' | 'glyph-observed' | 'mixed-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
   stats: ResourceStat[];
 };
 export type GainInterval = { stat: string; gainLo: number; gainHi: number };
 export type ResourceObservation = {
   id: string; capturedAt: string; input: ResourceInput; intervals: GainInterval[];
-  evidenceKind: 'observed-interval'; source: 'manual-confirmed-preview';
+  evidenceKind: 'observed-interval'; source: 'manual-confirmed-preview' | 'state-confirmed-preview';
   ovrBoost?: { gainLo: number; gainHi: number };
   predictionId?: string;
 };
@@ -28,6 +37,41 @@ export type ResourcePrediction = {
 };
 
 const P = config.parameters;
+
+/** Build affected-stat rows from persisted player state. Learning roles are not
+ * part of Player.role, so they cannot make a stat white here. */
+export function buildResourceStatsFromState(
+  roles: string[],
+  statValues: Record<string, number>,
+  affectedStats: string[],
+  overrides: Record<string, DisplayClass> = {},
+): ResourceStat[] {
+  return affectedStats.map(stat => {
+    const override = overrides[stat];
+    return {
+      stat,
+      displayedStat: statValues[stat],
+      displayClass: override ?? (isWhiteStat(roles, stat) ? 'WHITE' : 'MID_GREY'),
+      classSource: override ? 'manual-observed' : 'role-map',
+    };
+  });
+}
+
+/** Persisted player state is already the authority for starting value and
+ * white/grey classification. A manual override is explicit evidence, not a
+ * second confirmation gate. */
+export function resourceStateConfirmed(
+  roles: string[],
+  statValues: Record<string, number>,
+  rows: ResourceStat[],
+): boolean {
+  if (!rows.length) return false;
+  return rows.every(row => {
+    if (!Number.isFinite(row.displayedStat) || statValues[row.stat] !== row.displayedStat) return false;
+    if (row.classSource === 'manual-observed') return row.displayClass === 'WHITE' || row.displayClass === 'MID_GREY';
+    return row.displayClass === (isWhiteStat(roles, row.stat) ? 'WHITE' : 'MID_GREY');
+  });
+}
 export function inputSignature(input: ResourceInput): string {
   return JSON.stringify({ playerId:input.playerId, age:input.age, tier:input.tier, stateKey:input.stateKey,
     sourceFamily:input.sourceFamily, transferClass:input.transferClass, multiplier:input.multiplier,
@@ -47,7 +91,7 @@ export function validateInput(input: ResourceInput): string[] {
   if (!Number.isFinite(input.multiplier) || input.multiplier <= 0) reasons.push('Enter a positive displayed multiplier.');
   if (!input.playerId || !input.stateKey) reasons.push('Player state is missing.');
   if (!input.stats.length || input.stats.length > 15 || new Set(input.stats.map(s => s.stat)).size !== input.stats.length) reasons.push('Select 1–15 distinct affected stats.');
-  if (input.stats.some(s => !s.stat || !Number.isFinite(s.displayedStat) || !['WHITE','MID_GREY'].includes(s.displayClass))) reasons.push('Confirm every affected starting stat and white/grey class.');
+  if (input.stats.some(s => !s.stat || !Number.isFinite(s.displayedStat) || !['WHITE','MID_GREY'].includes(s.displayClass))) reasons.push('Every affected stat needs a stored starting value and resolved white/grey class.');
   return reasons;
 }
 
@@ -90,7 +134,7 @@ export function predictResourceCoach(input: ResourceInput, calibration?: PlayerC
   const intervals = intervalsFor(input, c?.logHigh, c?.logLow);
   return { modelVersion: config.modelVersion, status: 'predicted', mode: c ? 'player-calibrated' : 'cold-start',
     reasons: ['Experimental preview ranges; not outcome probabilities.',
-      'White/grey defaults use the role map. Confirm them against the game.',
+      'White/grey is derived from persisted established-role state; manual override is only for direct contradictory game evidence.',
       ...(calibration && !c ? ['Stored anchor is the same preview or no longer matches this player state; using cold start.'] : [])],
     intervals, ovrBoost: { gainLo: intervals.reduce((n,r) => n+r.gainLo,0)/15, gainHi: intervals.reduce((n,r) => n+r.gainHi,0)/15 },
     ...(c ? { anchorId: c.anchorId } : {}) };

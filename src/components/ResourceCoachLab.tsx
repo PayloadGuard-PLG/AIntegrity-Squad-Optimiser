@@ -1,14 +1,39 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, Share } from 'react-native';
 import type { Player } from '../database/playerSchema';
 import type { CoachPreviewInterval } from '../logic/recommendation';
-import type { CoachSourceFamily, CoachTransferClass } from '../logic/coachTransfer';
-import { isWhiteStat } from '../utils/roleWeights';
-import { RESOURCE_MODEL, predictResourceCoach, fitPlayerCalibration, type ResourceInput, type ResourcePrediction, type ResourceObservation, type DisplayClass } from '../logic/resourceCoachV2';
+import type {
+  CoachClassificationSource, CoachSourceFamily, CoachTransferClass,
+} from '../logic/coachTransfer';
+import {
+  RESOURCE_MODEL, predictResourceCoach, fitPlayerCalibration,
+  buildResourceStatsFromState, resourceStateConfirmed,
+  type ResourceInput, type ResourcePrediction, type ResourceObservation,
+  type DisplayClass, type ResourceProgrammeFamily,
+} from '../logic/resourceCoachV2';
+import {
+  RESOURCE_CALIBRATION_CANDIDATE, predictCalibrationCandidate,
+  type CandidatePrediction,
+} from '../logic/resourceCoachCandidate';
 import { resourceCoachService } from '../services/resourceCoachService';
+import type { ExperimentPartition, PredictionScore } from '../logic/resourceCoachExperiment';
 import { theme } from '../constants/theme';
 
-type Props = { player: Player; stats: string[]; multiplier: number; coachLabel: string; sourceFamily: CoachSourceFamily; transferClass: CoachTransferClass; observed: CoachPreviewInterval[]; identityConflict: boolean };
+type Props = {
+  player: Player;
+  stats: string[];
+  multiplier: number;
+  coachLabel: string;
+  sourceFamily: CoachSourceFamily;
+  sourceFamilySource?: CoachClassificationSource;
+  transferClass: CoachTransferClass;
+  transferClassSource?: CoachClassificationSource;
+  initialProgrammeFamily?: ResourceProgrammeFamily;
+  initialProgrammeFamilySource?: CoachClassificationSource;
+  targetSource?: 'ocr-observed' | 'glyph-observed' | 'mixed-observed' | 'manual-confirmed' | 'all-round-observed' | 'unresolved';
+  observed: CoachPreviewInterval[];
+  identityConflict: boolean;
+};
 const textStyle = { color: theme.inkSec, fontSize: 13, lineHeight: 19 };
 const fieldStyle = { color: theme.ink, borderWidth: 1, borderColor: theme.hairline2, padding: 8, minWidth: 64, fontSize: 15 };
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
@@ -20,37 +45,86 @@ function Button({ label, onPress, disabled = false }: {label:string;onPress:()=>
 }
 
 /** Remount when the source state changes: a target preview never inherits stale
- * edited observations or a previous player's prediction/anchor confirmation. */
+ * edited observations or a previous player's prediction state. */
 export function ResourceCoachLab(props: Props) {
-  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.transferClass,props.observed,props.identityConflict]);
+  // Observed ranges and provenance refinements must not remount the lab: a
+  // pre-outcome prediction has to survive the later reveal of the same preview.
+  const key = JSON.stringify([props.player.id,props.player.age,props.player.tier,props.player.role,props.player.stats,props.stats,props.multiplier,props.coachLabel,props.sourceFamily,props.transferClass,props.initialProgrammeFamily,props.identityConflict]);
   return <LabSession key={key} {...props} />;
 }
-function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferClass,observed,identityConflict}: Props) {
+function LabSession({
+  player,stats,multiplier,coachLabel,sourceFamily,sourceFamilySource='unresolved',
+  transferClass,transferClassSource='unresolved',
+  initialProgrammeFamily='unknown',initialProgrammeFamilySource='unresolved',
+  targetSource='unresolved',observed,identityConflict,
+}: Props) {
   const [classes,setClasses] = useState<Record<string,DisplayClass>>({});
+  const [programmeFamily,setProgrammeFamily] = useState<ResourceProgrammeFamily>(initialProgrammeFamily);
+  const [programmeFamilySource,setProgrammeFamilySource] = useState<CoachClassificationSource>(initialProgrammeFamilySource);
   const [values,setValues] = useState<Record<string,{lo:string;hi:string}>>(() => Object.fromEntries(stats.map(stat => {
     const r=observed.find(r=>r.stat===stat);return [stat,{lo:r?String(r.gainLo):'',hi:r?String(r.gainHi):''}];
   })));
   const [ovrLo,setOvrLo]=useState(''), [ovrHi,setOvrHi]=useState('');
-  const [confirmed,setConfirmed]=useState(false);
   const [prediction,setPrediction]=useState<ResourcePrediction|null>(null);
-  const [predictionId,setPredictionId]=useState<string|undefined>();
+  const [candidatePrediction,setCandidatePrediction]=useState<CandidatePrediction|null>(null);
+  const [experimentId,setExperimentId]=useState(()=>uid());
+  // If the first image already exposed +lo-hi, this is retrospective evidence.
+  // If the lab began without ranges, later OCR reveal remains a prospective holdout.
+  const [partition,setPartition]=useState<ExperimentPartition>(()=>observed.length>0?'retrospective':'prospective-holdout');
   const [savedObservation,setSavedObservation]=useState<ResourceObservation|null>(null);
+  const [scores,setScores]=useState<PredictionScore[]>([]);
   const [message,setMessage]=useState('');
   const [exportJson,setExportJson]=useState('');
   const input:ResourceInput=useMemo(()=>({ playerId:player.id,age:player.age,tier:player.tier,
-    // Conservative invalidation includes every stat and active role. No name or
-    // manual training-rate label can turn into a latent-rate predictor.
     stateKey:JSON.stringify([player.age,player.tier,[...player.role].sort(),Object.entries(player.stats).sort(([a],[b])=>a.localeCompare(b))]),
-    sourceFamily,transferClass,coachLabel,multiplier,
-    stats:stats.map(stat=>({stat,displayedStat:player.stats[stat],displayClass:classes[stat]??(isWhiteStat(player.role,stat)?'WHITE':'MID_GREY'),classSource:classes[stat]?'manual-observed':'role-map'})),
-  }),[player,stats,multiplier,coachLabel,sourceFamily,transferClass,classes]);
+    sourceFamily,sourceFamilySource,transferClass,transferClassSource,coachLabel,multiplier,
+    programmeFamily,programmeFamilySource,targetSource,
+    stats:buildResourceStatsFromState(player.role,player.stats,stats,classes),
+  }),[player,stats,multiplier,coachLabel,sourceFamily,sourceFamilySource,transferClass,transferClassSource,programmeFamily,programmeFamilySource,targetSource,classes]);
   const observedMismatch=observed.some(r=>r.statBefore!==undefined && player.stats[r.stat]!==r.statBefore);
   const hasZero=observed.some(r=>r.gainHi===0) || Object.values(values).some(v=>v.lo.trim()!=='' && v.hi.trim()!=='' && Number(v.hi)===0);
+  const mismatch=identityConflict||observedMismatch;
+  const basePlayerStateReady = !!player.id
+    && Number.isInteger(player.age)
+    && /^T[0-6]$/.test(player.tier)
+    && player.role.length > 0
+    && Object.values(player.stats).some(Number.isFinite);
+  const affectedStateConfirmed = input.stats.length === 0
+    ? true
+    : resourceStateConfirmed(player.role,player.stats,input.stats);
+  const stateConfirmed=!mismatch&&basePlayerStateReady&&affectedStateConfirmed;
+  const evidenceReady=stateConfirmed&&targetSource!=='unresolved'&&input.stats.length>0;
+
   function attempt(action:()=>void) { try { action(); } catch(e) { setMessage(e instanceof Error?e.message:String(e)); } }
+  function resetExperiment(nextPartition:ExperimentPartition=partition) {
+    setExperimentId(uid());setPartition(nextPartition);setPrediction(null);setCandidatePrediction(null);
+    setSavedObservation(null);setScores([]);setExportJson('');
+  }
+  function startNextExperiment() {
+    const nextPartition:ExperimentPartition='prospective-holdout';
+    resetExperiment(nextPartition);
+    setValues(Object.fromEntries(stats.map(stat=>[stat,{lo:'',hi:''}])));
+    setOvrLo('');setOvrHi('');
+    setMessage('New prospective experiment opened. Freeze predictions before revealing the next preview outcome.');
+  }
+  useEffect(()=>{
+    if(savedObservation) return;
+    setValues(prev=>{
+      const next={...prev};
+      for(const stat of stats) if(!next[stat]) next[stat]={lo:'',hi:''};
+      for(const r of observed) if(next[r.stat]) next[r.stat]={lo:String(r.gainLo),hi:String(r.gainHi)};
+      return next;
+    });
+  },[observed,stats,savedObservation]);
   function project() { attempt(()=>{
     const p=predictResourceCoach(input,resourceCoachService.calibration(player.id));
-    const id=uid();resourceCoachService.savePrediction(id,input,p);setPredictionId(id);
-    setPrediction(p);setMessage('Prediction snapshot saved with player state and model version.');
+    const id=uid();resourceCoachService.savePrediction(experimentId,id,input,p,partition);
+    setPrediction(p);setMessage('V2 pre-outcome snapshot frozen in this experiment.');
+  }); }
+  function projectCandidate() { attempt(()=>{
+    const p=predictCalibrationCandidate(input);
+    const id=uid();resourceCoachService.saveCandidatePrediction(experimentId,id,input,p,partition);
+    setCandidatePrediction(p);setMessage('Calibration-candidate pre-outcome snapshot frozen in this experiment.');
   }); }
   function saveObservation() { attempt(()=>{
     const intervals=stats.filter(stat=>values[stat].lo!==''||values[stat].hi!=='').map(stat=>{
@@ -58,67 +132,143 @@ function LabSession({player,stats,multiplier,coachLabel,sourceFamily,transferCla
       return {stat,gainLo:Number(v.lo),gainHi:Number(v.hi)};
     });
     if((ovrLo!==''||ovrHi!=='')&&(ovrLo.trim()===''||ovrHi.trim()===''))throw Error('Enter both OVR boost bounds.');
-    const o:ResourceObservation={id:uid(),capturedAt:new Date().toISOString(),input,intervals,evidenceKind:'observed-interval',source:'manual-confirmed-preview',predictionId,
+    const classSource=input.stats.some(s=>s.classSource==='manual-observed')?'manual-confirmed-preview':'state-confirmed-preview';
+    const o:ResourceObservation={id:experimentId,capturedAt:new Date().toISOString(),input,intervals,evidenceKind:'observed-interval',source:classSource,
       ...(ovrLo!==''?{ovrBoost:{gainLo:Number(ovrLo),gainHi:Number(ovrHi)}}:{})};
-    resourceCoachService.saveObservation(o);setSavedObservation(o);setMessage('Observed preview saved separately from predictions.');
+    const scored=resourceCoachService.saveObservation(o,partition);setSavedObservation(o);setScores(scored);
+    setMessage(scored.length
+      ? `Observed preview sealed · ${scored.length} frozen model snapshot${scored.length===1?'':'s'} scored automatically.`
+      : 'Observed preview sealed as an isolated experiment. No pre-outcome model snapshot existed to score.');
   }); }
   function changeValue(stat:string,part:'lo'|'hi',value:string) {
-    setValues(prev=>({...prev,[stat]:{...prev[stat],[part]:value}}));setSavedObservation(null);setConfirmed(false);
+    setValues(prev=>({...prev,[stat]:{...prev[stat],[part]:value}}));setSavedObservation(null);
   }
-  const mismatch=identityConflict||observedMismatch;
+  function toggleClass(stat:string, current:DisplayClass) {
+    setClasses(prev=>({...prev,[stat]:current==='WHITE'?'MID_GREY':'WHITE'}));
+    resetExperiment();
+  }
+
   return <View style={{borderWidth:1,borderColor:theme.steel,padding:14,marginBottom:14,backgroundColor:theme.bg}}>
-    <Text style={{...textStyle,color:theme.steelLight,fontWeight:'700'}}>{sourceFamily==='training-camp'?'TRAINING CAMP EVIDENCE · RESOURCE COACH V2 NOT APPLIED':'RESOURCE COACH V2 · EXPERIMENTAL'}</Text>
+    <Text style={{...textStyle,color:theme.steelLight,fontWeight:'700'}}>{sourceFamily==='training-camp'?'TRAINING CAMP EVIDENCE · RESOURCE COACH V2 NOT APPLIED':'RESOURCE COACH CALIBRATION LAB'}</Text>
     <Text style={textStyle}>{sourceFamily==='training-camp'
-      ? `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. Training Camp is evidence-only.`
+      ? `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. Training Camp remains evidence-only for V2.`
       : transferClass==='ordinary'
-        ? `Exposure ×${Number.isFinite(multiplier)?multiplier:'—'} / ${stats.length} affected stats. Training Rate is not used.`
-        : `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. Ordinary-model exposure is not evaluated for ${transferClass==='reward'?'Reward transfer':'an unresolved transfer class'}.`}</Text>
-    <Text style={textStyle}>Confirm white/grey rows below. Tier {player.tier}; age {player.age}.</Text>
+        ? `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. Stored player state supplies starting stats and classes.`
+        : `Displayed multiplier ×${Number.isFinite(multiplier)?multiplier:'—'} · ${stats.length} affected stats. V2 is unavailable for ${transferClass==='reward'?'Reward transfer':'an unresolved transfer class'}.`}</Text>
+
+    <Text style={{...textStyle,fontWeight:'700',marginTop:12}}>EXPERIMENT</Text>
+    <Text style={textStyle}>ID: {experimentId}</Text>
+    <Text style={{...textStyle,color:partition==='prospective-holdout'?theme.pos:theme.steelLight}}>
+      PARTITION: {partition.toUpperCase()} · {savedObservation?'OBSERVED / SEALED':'OPEN'}
+    </Text>
+    <Text style={{...textStyle,fontWeight:'700',marginTop:12}}>PROGRAMME METADATA</Text>
+    <Text style={textStyle}>Recorded for residual analysis. OCR uses the explicit DRILL SESSION / SKILL SEMINAR label when present; manual selection remains a fallback.</Text>
+    <View style={{flexDirection:'row',gap:6,flexWrap:'wrap',marginTop:6}}>
+      {([
+        ['unknown','UNKNOWN'],
+        ['drill-session','DRILL SESSION'],
+        ['skill-seminar','SKILL SEMINAR'],
+      ] as const).map(([value,label])=><Pressable key={value} onPress={()=>{
+        setProgrammeFamily(value);
+        setProgrammeFamilySource(value === 'unknown' ? 'unresolved' : 'manual-confirmed');
+        resetExperiment();
+      }} style={{padding:8,borderWidth:1,borderColor:programmeFamily===value?theme.steelLight:theme.steel}}>
+        <Text style={textStyle}>{label}</Text>
+      </Pressable>)}
+    </View>
+    <Text style={{...textStyle,marginTop:6}}>
+      PROGRAMME SOURCE: {programmeFamilySource==='ocr-observed'?'OCR OBSERVED':programmeFamilySource==='manual-confirmed'?'MANUAL CONFIRMED':'UNRESOLVED'}
+      {' · '}TRANSFER SOURCE: {transferClassSource==='ocr-observed'?'OCR OBSERVED':transferClassSource==='manual-confirmed'?'MANUAL CONFIRMED':'UNRESOLVED'}
+    </Text>
+
+    <Text style={{...textStyle,marginTop:12}}>Starting values and white/grey class are already resolved from this player's persisted scan state. No second confirmation is required.</Text>
+    <Text style={{...textStyle,color:targetSource==='unresolved'?theme.hot:theme.pos,marginTop:6}}>
+      TARGET SET: {targetSource==='ocr-observed'?'OCR OBSERVED':targetSource==='glyph-observed'?'GLYPH OBSERVED':targetSource==='mixed-observed'?'OCR + GLYPH OBSERVED':targetSource==='manual-confirmed'?'MANUAL CONFIRMED':targetSource==='all-round-observed'?'ALL-ROUND OBSERVED':'UNRESOLVED'}
+    </Text>
+    {targetSource==='unresolved'&&<Text style={{...textStyle,color:theme.hot}}>
+      Confirm the exact affected rows before saving this preview as calibration evidence. Coach type/category alone is not target evidence.
+    </Text>}
     {input.stats.map(s=><View key={s.stat} style={{marginTop:8,flexDirection:'row',flexWrap:'wrap',alignItems:'center',gap:8}}>
       <Text style={{...textStyle,flexGrow:1}}>{s.stat} {s.displayedStat}</Text>
-      <Pressable accessibilityRole="button" onPress={()=>{
-        setClasses({...classes,[s.stat]:s.displayClass==='WHITE'?'MID_GREY':'WHITE'});setPrediction(null);setPredictionId(undefined);setSavedObservation(null);setConfirmed(false);
-      }} style={{padding:10,borderWidth:1,borderColor:theme.steel}}>
-        <Text style={textStyle}>{s.displayClass==='WHITE'?'WHITE':'GREY'} · {s.classSource==='role-map'?'ROLE MAP':'CONFIRMED'}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Override ${s.stat} class`} onPress={()=>toggleClass(s.stat,s.displayClass)}
+        style={{padding:10,borderWidth:1,borderColor:theme.steel}}>
+        <Text style={textStyle}>{s.displayClass==='WHITE'?'WHITE':'GREY'} · {s.classSource==='role-map'?'STORED STATE':'MANUAL OVERRIDE'}</Text>
       </Pressable>
     </View>)}
+    <Text style={{...textStyle,color:stateConfirmed?theme.pos:theme.hot,marginTop:10}}>
+      {stateConfirmed
+        ? input.stats.length > 0
+          ? '✓ PLAYER STATE RESOLVED · STARTING STATS + CLASSES ARE READY'
+          : '✓ PLAYER STATE READY · WAITING FOR TARGET SET'
+        : 'PLAYER STATE UNRESOLVED · CHECK PLAYER IDENTITY OR STARTING STAT VALUES'}
+    </Text>
     {mismatch&&<Text style={{...textStyle,color:theme.hot}}>The scanned card or starting values do not match this player. Re-scan the correct preview before saving evidence.</Text>}
-    {hasZero&&<Text style={{...textStyle,color:theme.hot}}>A zero-gain preview is directly observed. Suppression is unresolved; keep the observation without fitting this model to it.</Text>}
-    {sourceFamily==='training-camp'&&<Text style={{...textStyle,color:theme.hot}}>Training Camp is a separate programme family. Save its observed intervals, but do not fit or project Resource Coach V2.</Text>}
-    <Button label="PROJECT & SAVE PREDICTION" onPress={project} disabled={sourceFamily==='training-camp'||!stats.length||!Number.isFinite(multiplier)||multiplier<=0||mismatch||hasZero}/>
+    {hasZero&&<Text style={{...textStyle,color:theme.hot}}>A zero-gain preview is directly observed. Preserve it: the 21 Sep candidate explicitly tests below-zero rectification; V2 anchor fitting still cannot consume zero-gain rows.</Text>}
+    {sourceFamily==='training-camp'&&<Text style={{...textStyle,color:theme.hot}}>Training Camp is a separate source family. Save its observed intervals; V2 remains blocked.</Text>}
+
+    <Button label="PROJECT V2 BASELINE" onPress={project}
+      disabled={!!savedObservation||!!prediction||sourceFamily==='training-camp'||!stats.length||!Number.isFinite(multiplier)||multiplier<=0||mismatch||hasZero}/>
     {prediction&&<View style={{marginTop:12,gap:6}}>
-      <Text style={{...textStyle,fontWeight:'700'}}>{prediction.mode.toUpperCase()}</Text>
+      <Text style={{...textStyle,fontWeight:'700'}}>V2 · {prediction.mode.toUpperCase()}</Text>
       {prediction.reasons.map(r=><Text key={r} style={textStyle}>{r}</Text>)}
-      {prediction.intervals.map(r=><Text key={r.stat} style={textStyle}>{r.stat}: +{r.gainLo.toFixed(1)}–{r.gainHi.toFixed(1)} predicted</Text>)}
-      {prediction.ovrBoost&&<Text style={textStyle}>Approx. OVR boost +{prediction.ovrBoost.gainLo.toFixed(2)}–{prediction.ovrBoost.gainHi.toFixed(2)}</Text>}
+      {prediction.intervals.map(r=><Text key={r.stat} style={textStyle}>{r.stat}: +{r.gainLo.toFixed(1)}–{r.gainHi.toFixed(1)}</Text>)}
+      {prediction.ovrBoost&&<Text style={textStyle}>Approx. OVR +{prediction.ovrBoost.gainLo.toFixed(2)}–{prediction.ovrBoost.gainHi.toFixed(2)}</Text>}
     </View>}
+
+    <Button label="PROJECT 21 SEP CALIBRATION CANDIDATE" onPress={projectCandidate}
+      disabled={!!savedObservation||!!candidatePrediction||!stateConfirmed||!stats.length||!Number.isFinite(multiplier)||multiplier<=0}/>
+    {candidatePrediction&&<View style={{marginTop:12,gap:6,borderWidth:1,borderColor:theme.hairline2,padding:10}}>
+      <Text style={{...textStyle,fontWeight:'700'}}>SHARED LATENT + RECTIFICATION · CALIBRATION ONLY</Text>
+      {candidatePrediction.reasons.map(r=><Text key={r} style={textStyle}>{r}</Text>)}
+      {candidatePrediction.intervals.map(r=><Text key={r.stat} style={textStyle}>{r.stat}: +{r.gainLo.toFixed(1)}–{r.gainHi.toFixed(1)} candidate</Text>)}
+      {candidatePrediction.ovrBoost&&<Text style={textStyle}>Approx. OVR +{candidatePrediction.ovrBoost.gainLo.toFixed(2)}–{candidatePrediction.ovrBoost.gainHi.toFixed(2)}</Text>}
+    </View>}
+
     <Text style={{...textStyle,fontWeight:'700',marginTop:18}}>OBSERVED PREVIEW · LOW / HIGH</Text>
-    <Text style={textStyle}>Copy the game’s preview bounds. Leave unobserved rows empty.</Text>
+    <Text style={textStyle}>Copy the game's preview bounds. Leave unobserved rows empty.</Text>
     {stats.map(stat=><View key={stat} style={{marginTop:10,gap:5}}>
       <Text style={textStyle}>{stat}</Text>
       <View style={{flexDirection:'row',gap:8}}>
-        <TextInput accessibilityLabel={`${stat} observed low`} keyboardType="decimal-pad" placeholder="Low" placeholderTextColor={theme.inkMuted} value={values[stat].lo} onChangeText={v=>changeValue(stat,'lo',v)} style={{...fieldStyle,flex:1}}/>
-        <TextInput accessibilityLabel={`${stat} observed high`} keyboardType="decimal-pad" placeholder="High" placeholderTextColor={theme.inkMuted} value={values[stat].hi} onChangeText={v=>changeValue(stat,'hi',v)} style={{...fieldStyle,flex:1}}/>
+        <TextInput accessibilityLabel={`${stat} observed low`} editable={!savedObservation} keyboardType="decimal-pad" placeholder="Low" placeholderTextColor={theme.inkMuted} value={values[stat].lo} onChangeText={v=>changeValue(stat,'lo',v)} style={{...fieldStyle,flex:1}}/>
+        <TextInput accessibilityLabel={`${stat} observed high`} editable={!savedObservation} keyboardType="decimal-pad" placeholder="High" placeholderTextColor={theme.inkMuted} value={values[stat].hi} onChangeText={v=>changeValue(stat,'hi',v)} style={{...fieldStyle,flex:1}}/>
       </View>
     </View>)}
     <Text style={{...textStyle,marginTop:10}}>Optional observed OVR boost</Text>
     <View style={{flexDirection:'row',gap:8}}>
-      <TextInput accessibilityLabel="Observed OVR boost low" placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);setConfirmed(false);}} style={{...fieldStyle,flex:1}}/>
-      <TextInput accessibilityLabel="Observed OVR boost high" placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);setConfirmed(false);}} style={{...fieldStyle,flex:1}}/>
+      <TextInput accessibilityLabel="Observed OVR boost low" editable={!savedObservation} placeholder="Low" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrLo} onChangeText={v=>{setOvrLo(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
+      <TextInput accessibilityLabel="Observed OVR boost high" editable={!savedObservation} placeholder="High" placeholderTextColor={theme.inkMuted} keyboardType="decimal-pad" value={ovrHi} onChangeText={v=>{setOvrHi(v);setSavedObservation(null);}} style={{...fieldStyle,flex:1}}/>
     </View>
-    <Button label={`${confirmed?'✓ ':''}I checked this player, age, tier, stats, classes and coach against the preview`} onPress={()=>setConfirmed(!confirmed)} disabled={mismatch||!stats.length}/>
-    <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!confirmed||mismatch||!!savedObservation}/>
-    <Button label="USE SAVED PREVIEW AS SEPARATE ANCHOR" disabled={!savedObservation||sourceFamily!=='resource-coach'||transferClass!=='ordinary'} onPress={()=>attempt(()=>{
+    <Button label={savedObservation?'OBSERVATION SAVED':'SAVE OBSERVED PREVIEW'} onPress={saveObservation} disabled={!evidenceReady||!!savedObservation}/>
+    {scores.length>0&&<View style={{marginTop:12,borderWidth:1,borderColor:theme.hairline2,padding:10,gap:5}}>
+      <Text style={{...textStyle,fontWeight:'700'}}>AUTOMATIC RESIDUALS · FROZEN PREDICTION VS OBSERVED</Text>
+      {scores.map(s=><Text key={s.modelVersion} style={textStyle}>
+        {s.modelVersion} · {s.status.toUpperCase()} · n={s.matchedStatCount}
+        {s.endpointMae!==null?` · endpoint MAE ${s.endpointMae.toFixed(2)}`:''}
+        {s.midpointMae!==null?` · midpoint MAE ${s.midpointMae.toFixed(2)}`:''}
+        {s.meanIntervalIou!==null?` · IoU ${(s.meanIntervalIou*100).toFixed(0)}%`:''}
+      </Text>)}
+    </View>}
+    {savedObservation&&partition!=='calibration'&&<Button label="PROMOTE THIS OBSERVATION TO CALIBRATION CORPUS" onPress={()=>attempt(()=>{
+      const next=resourceCoachService.setExperimentPartition(experimentId,'calibration');setPartition(next);
+      setMessage('Observation promoted explicitly. It is no longer a holdout.');
+    })}/>}
+    <Button label="FIT V2 SEPARATE ANCHOR · CALIBRATION ONLY" disabled={!savedObservation||partition!=='calibration'||sourceFamily!=='resource-coach'||transferClass!=='ordinary'||hasZero} onPress={()=>attempt(()=>{
       const c=fitPlayerCalibration(savedObservation!);resourceCoachService.saveCalibration(c,savedObservation!);
-      setPrediction(null);setMessage('Anchor saved. Select a different coach preview to test it. The anchor preview itself uses cold start.');
+      setPrediction(null);setMessage('V2 anchor saved from an explicitly promoted calibration observation.');
     })}/>
-    <Text style={{...textStyle,marginTop:8}}>Anchors apply only to this player state, age and tier. Predicted ranges do not update the player card.</Text>
-    <Button label="EXPORT PLAYER TEST DATA" onPress={()=>attempt(()=>{
+    <Text style={{...textStyle,marginTop:8}}>Predictions never update player facts. A sealed observation cannot receive a later prediction; start a new scan/experiment instead.</Text>
+    <Button label="EXPORT THIS EXPERIMENT" onPress={()=>attempt(()=>{
+      const data=resourceCoachService.exportExperiment(experimentId);setExportJson(data);
+      void Share.share({message:data,title:'Resource coach isolated experiment'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
+    })}/>
+    <Button label="EXPORT PLAYER CORPUS" onPress={()=>attempt(()=>{
       const data=resourceCoachService.exportPlayer(player.id);setExportJson(data);
-      void Share.share({message:data,title:'Resource coach test data'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
+      void Share.share({message:data,title:'Resource coach player corpus'}).catch(()=>setMessage('Share unavailable. Copy the JSON below.'));
     })}/>
+    {savedObservation&&<Button label="START NEXT PROSPECTIVE EXPERIMENT" onPress={startNextExperiment}/>} 
     {!!message&&<Text accessibilityRole="alert" style={{...textStyle,color:theme.hot,marginTop:10}}>{message}</Text>}
     {!!exportJson&&<TextInput accessibilityLabel="Exported test data JSON" multiline editable={false} selectTextOnFocus value={exportJson} style={{...fieldStyle,height:180,marginTop:8}}/>}
-    <Text style={{...textStyle,fontSize:10,marginTop:12}}>{RESOURCE_MODEL.modelVersion}</Text>
+    <Text style={{...textStyle,fontSize:10,marginTop:12}}>V2: {RESOURCE_MODEL.modelVersion}</Text>
+    <Text style={{...textStyle,fontSize:10}}>Candidate: {RESOURCE_CALIBRATION_CANDIDATE.modelVersion}</Text>
   </View>;
 }
