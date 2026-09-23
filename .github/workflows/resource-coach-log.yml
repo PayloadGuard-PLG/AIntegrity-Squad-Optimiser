@@ -6,6 +6,9 @@ on:
       - 'calibration/resource-coach-log/**'
       - 'calibration/longitudinal-corpus/**'
       - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
+      - 'tools/resource-coach-v2/quality-exclusions.mjs'
+      - 'calibration/resource-coach-log/quality-exclusions.json'
+      - 'tests/resource-coach-quality-exclusions-test.mjs'
       - 'tools/resource-coach-v2/ingest-experiment.mjs'
       - 'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs'
       - 'tests/resource-coach-longitudinal-analysis-test.mjs'
@@ -16,6 +19,9 @@ on:
       - 'calibration/resource-coach-log/**'
       - 'calibration/longitudinal-corpus/**'
       - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
+      - 'tools/resource-coach-v2/quality-exclusions.mjs'
+      - 'calibration/resource-coach-log/quality-exclusions.json'
+      - 'tests/resource-coach-quality-exclusions-test.mjs'
       - 'tools/resource-coach-v2/ingest-experiment.mjs'
       - 'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs'
       - 'tests/resource-coach-longitudinal-analysis-test.mjs'
@@ -44,7 +50,7 @@ jobs:
           node --check tools/resource-coach-v2/ingest-experiment.mjs
           node --check tools/resource-coach-v2/aggregate-experiment-log.mjs
           node --check tools/resource-coach-v2/analyse-longitudinal-corpus.mjs
-          node --test tests/resource-coach-longitudinal-analysis-test.mjs
+          node --test tests/resource-coach-longitudinal-analysis-test.mjs tests/resource-coach-quality-exclusions-test.mjs
 
       - name: Aggregate immutable experiments
         run: |
