@@ -55,7 +55,8 @@ node tools/resource-coach-v2/analyse-longitudinal-corpus.mjs \
 Generated outputs:
 
 - `form_intake.csv` — one normalized row per observed stat for **all** current experiments, including duplicate/fit weight, corpus envelope and strongest comparator metadata ready for metric/form intake.
-- `experiment_matches.csv` — ranked granular comparators across the complete empirical corpus; the similarity value is descriptive retrieval only, not a fitted transfer law.
+- `experiment_matches.csv` — ranked granular coach-response comparators across the complete empirical corpus; the similarity value is descriptive retrieval only, not a fitted transfer law.
+- `experiment_state_matches.csv` — ranked full-state analogues for every current experiment against all canonical player states. Exact re-observations are distinguished from nearest analogues; nearest matches never assert player identity.
 - `state_comparisons.csv` — every unique same-player state pair. Changed states are explicitly labelled non-causal unless a direct transition is evidenced.
 - `state_reobservations.csv` — repeated observations of the exact same player state, retained separately so repeated screenshots do not multiply longitudinal deltas.
 - `cohort_metrics.csv` — endpoint-preserving cohort summaries by stat, programme, coach, multiplier, age band, tier and display class.
