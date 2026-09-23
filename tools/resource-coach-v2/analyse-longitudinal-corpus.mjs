@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 
 const args = process.argv.slice(2);
 function arg(name, fallback) {
@@ -26,12 +27,12 @@ function num(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
 function ageBand(age){ const a=num(age); if(a===null)return 'unknown'; if(a<=21)return '17-21'; if(a<=25)return '22-25'; if(a<=29)return '26-29'; if(a<=31)return '30-31'; return '32+'; }
 function q(v){ if(v===null||v===undefined)return ''; const s=typeof v==='object'?JSON.stringify(v):String(v); return /[",\n\r]/.test(s)?`"${s.replaceAll('"','""')}"`:s; }
 function writeCsv(file, headers, rows){ fs.writeFileSync(path.join(outDir,file),[headers.join(','),...rows.map(r=>headers.map(h=>q(r[h])).join(','))].join('\n')+'\n'); }
-function safeJson(file){ try { return JSON.parse(fs.readFileSync(file,'utf8')); } catch(e){ return null; } }
-function walk(dir){ if(!fs.existsSync(dir))return []; const out=[]; for(const ent of fs.readdirSync(dir,{withFileTypes:true})){ const p=path.join(dir,ent.name); if(ent.isDirectory())out.push(...walk(p)); else if(ent.isFile()&&ent.name.endsWith('.json'))out.push(p); } return out.sort(); }
+function safeJson(file){ try { const text=fs.readFileSync(file,'utf8'); if(file.endsWith('.json.gz.b64')) return JSON.parse(zlib.gunzipSync(Buffer.from(text.trim(),'base64')).toString('utf8')); return JSON.parse(text); } catch(e){ return null; } }
+function walk(dir){ if(!fs.existsSync(dir))return []; const out=[]; for(const ent of fs.readdirSync(dir,{withFileTypes:true})){ const p=path.join(dir,ent.name); if(ent.isDirectory())out.push(...walk(p)); else if(ent.isFile()&&(ent.name.endsWith('.json')||ent.name.endsWith('.json.gz.b64')))out.push(p); } return out.sort(); }
 function stableString(obj){ if(obj===null||typeof obj!=='object')return JSON.stringify(obj); if(Array.isArray(obj))return '['+obj.map(stableString).join(',')+']'; return '{'+Object.keys(obj).sort().map(k=>JSON.stringify(k)+':'+stableString(obj[k])).join(',')+'}'; }
 function stateFingerprint(s){ return stableString({age:num(s.age),tier:s.tier??null,roles:[...(s.roles??[])].map(String).sort(),stats:Object.fromEntries(Object.entries(s.stats??{}).map(([k,v])=>[normStat(k),num(v)]).sort(([a],[b])=>a.localeCompare(b))) }); }
 function empiricalFingerprint(e){ return stableString({state:stateFingerprint(e),coach:{programme:normText(e.programmeFamily),title:normText(e.coachTitle),multiplier:num(e.multiplier),transferClass:normText(e.transferClass),affected:[...(e.affectedStats??[])].map(normStat).sort()},intervals:[...(e.intervals??[])].map(x=>({stat:normStat(x.stat),lo:num(x.lo),hi:num(x.hi)})).sort((a,b)=>a.stat.localeCompare(b.stat)),ovr:e.ovr??null}); }
-function playerKey(id,name){ const n=normText(name); return n || normText(id) || 'unknown-player'; }
+function playerKey(id,name){ const rawId=String(id??'').trim(); const i=normText(rawId); if(/^PLY-\d+$/i.test(rawId)) return i; const n=normText(name); return n || i || 'unknown-player'; }
 
 const states=[];
 const observations=[];
@@ -78,7 +79,7 @@ for(const file of walk(corpusDir)){
   const doc=safeJson(file); if(!doc)continue;
   const rel=path.relative(corpusDir,file); sources.push({source_file:rel,kind:'corpus-json'});
   if(Array.isArray(doc.experiments)){
-    for(const x of doc.experiments) addObservation({id:x.id,player:x.preOutcome?.player,coach:x.preOutcome?.coach,observed:x.observed,sourceFile:rel,sourceKind:'coach-experiments'});
+    for(const x of doc.experiments) addObservation({id:x.id,player:x.preOutcome?.player,coach:x.preOutcome?.coach,observed:x.observed,sourceFile:rel,sourceKind:'coach-experiments',classByStat:x._classByStat??{}});
   }
   if(doc.experimentId && doc.player && doc.coach && doc.observed?.statIntervals){
     addObservation({id:doc.experimentId,player:doc.player,coach:doc.coach,observed:doc.observed,sourceFile:rel,sourceKind:'observed-result',status:doc.validationClass??'observed'});
