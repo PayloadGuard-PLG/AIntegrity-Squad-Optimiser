@@ -142,15 +142,61 @@ const stateReobservations=[...uniqueStateMap.values()].filter(x=>x.observationCo
 
 // Same-player longitudinal comparisons use unique observed states. These are
 // OBSERVED STATE COMPARISONS unless a direct causal transition is explicitly evidenced.
+// Where both timestamps are usable, the pair is ordered temporally. Otherwise a stable
+// canonical order is used so delta signs are deterministic without pretending chronology.
+function orderStatePair(x,y){
+  const tx=Date.parse(x.observedAt??''), ty=Date.parse(y.observedAt??'');
+  if(Number.isFinite(tx)&&Number.isFinite(ty)&&tx!==ty) return tx<ty ? {a:x,b:y,orderClass:'OBSERVED_TEMPORAL_ORDER'} : {a:y,b:x,orderClass:'OBSERVED_TEMPORAL_ORDER'};
+  return x.stateFingerprint.localeCompare(y.stateFingerprint)<=0 ? {a:x,b:y,orderClass:'CANONICAL_NON_TEMPORAL_ORDER'} : {a:y,b:x,orderClass:'CANONICAL_NON_TEMPORAL_ORDER'};
+}
+function roleKey(roles){ return [...new Set((roles??[]).map(String))].sort().join('+') || 'unknown'; }
+
 const byPlayer=new Map(); for(const s of uniqueStates){ if(!byPlayer.has(s.playerKey))byPlayer.set(s.playerKey,[]); byPlayer.get(s.playerKey).push(s); }
 const stateComparisons=[];
 for(const [pk,ss] of byPlayer){
   for(let i=0;i<ss.length;i++) for(let j=i+1;j<ss.length;j++){
-    const a=ss[i],b=ss[j]; const keys=[...new Set([...Object.keys(a.stats),...Object.keys(b.stats)])].sort(); const deltas=[];
+    const ordered=orderStatePair(ss[i],ss[j]), a=ordered.a, b=ordered.b;
+    const keys=[...new Set([...Object.keys(a.stats),...Object.keys(b.stats)])].sort(); const deltas=[];
     for(const stat of keys){ if(finite(a.stats[stat])&&finite(b.stats[stat]))deltas.push({stat,delta:b.stats[stat]-a.stats[stat]}); }
     const changed=deltas.filter(x=>x.delta!==0);
-    stateComparisons.push({player_key:pk,player_name:b.playerName??a.playerName??'',state_a:a.stateFingerprint,state_b:b.stateFingerprint,source_a:a.sourceFile,source_b:b.sourceFile,age_a:a.age,age_b:b.age,tier_a:a.tier,tier_b:b.tier,ovr_a:a.overall,ovr_b:b.overall,comparison_class:'OBSERVED_STATE_DELTA_NOT_CAUSAL',shared_stat_count:deltas.length,changed_stat_count:changed.length,total_abs_stat_delta:changed.reduce((z,x)=>z+Math.abs(x.delta),0),max_abs_stat_delta:changed.length?Math.max(...changed.map(x=>Math.abs(x.delta))):0,changed_stats:changed.map(x=>`${x.stat}:${x.delta>=0?'+':''}${x.delta}`).join(' | ')});
+    const changedDimensions=[];
+    if(num(a.age)!==num(b.age))changedDimensions.push('age');
+    if((a.tier??null)!==(b.tier??null))changedDimensions.push('tier');
+    if(roleKey(a.roles)!==roleKey(b.roles))changedDimensions.push('roles');
+    if(num(a.overall)!==num(b.overall))changedDimensions.push('ovr');
+    if(changed.length)changedDimensions.push('stats');
+    stateComparisons.push({
+      player_key:pk,player_name:b.playerName??a.playerName??'',state_a:a.stateFingerprint,state_b:b.stateFingerprint,
+      source_a:a.sourceFile,source_b:b.sourceFile,observed_at_a:a.observedAt??'',observed_at_b:b.observedAt??'',
+      order_class:ordered.orderClass,age_a:a.age,age_b:b.age,tier_a:a.tier,tier_b:b.tier,roles_a:roleKey(a.roles),roles_b:roleKey(b.roles),
+      ovr_a:a.overall,ovr_b:b.overall,comparison_class:'OBSERVED_STATE_DELTA_NOT_CAUSAL',
+      changed_dimensions:changedDimensions.join('|'),shared_stat_count:deltas.length,changed_stat_count:changed.length,
+      total_abs_stat_delta:changed.reduce((z,x)=>z+Math.abs(x.delta),0),max_abs_stat_delta:changed.length?Math.max(...changed.map(x=>Math.abs(x.delta))):0,
+      changed_stats:changed.map(x=>`${x.stat}:${x.delta>=0?'+':''}${x.delta}`).join(' | ')
+    });
   }
+}
+
+const playerProfiles=[];
+for(const [pk,ss] of byPlayer){
+  const comps=stateComparisons.filter(x=>x.player_key===pk);
+  const rawObs=states.filter(x=>x.playerKey===pk);
+  const dims=new Set();
+  if(new Set(ss.map(x=>num(x.age))).size>1)dims.add('age');
+  if(new Set(ss.map(x=>x.tier??null)).size>1)dims.add('tier');
+  if(new Set(ss.map(x=>roleKey(x.roles))).size>1)dims.add('roles');
+  if(new Set(ss.map(x=>num(x.overall))).size>1)dims.add('ovr');
+  if(comps.some(x=>x.changed_stat_count>0))dims.add('stats');
+  playerProfiles.push({
+    player_key:pk,player_name:ss.find(x=>x.playerName)?.playerName??'',raw_observation_count:rawObs.length,unique_state_count:ss.length,
+    reobserved_state_count:[...uniqueStateMap.values()].filter(x=>x.state.playerKey===pk&&x.observationCount>1).length,
+    state_pair_count:comps.length,changed_stat_pair_count:comps.filter(x=>x.changed_stat_count>0).length,
+    age_values:[...new Set(ss.map(x=>x.age).filter(x=>x!==null))].sort((a,b)=>a-b).join('|'),
+    tier_values:[...new Set(ss.map(x=>x.tier).filter(Boolean))].sort().join('|'),
+    role_sets:[...new Set(ss.map(x=>roleKey(x.roles)))].sort().join(' | '),
+    varying_dimensions:[...dims].sort().join('|'),
+    longitudinal_class:ss.length<2?'SINGLE_STATE':'MULTI_STATE_OBSERVED_NOT_CAUSAL'
+  });
 }
 
 const empiricalStats=[];
@@ -213,6 +259,71 @@ for(const rec of runRecords){
   }
 }
 
+// Exhaustive corpus interrogation. This does not estimate effects. It inventories
+// exact/near cancellation opportunities and tells us which candidate variables the
+// present evidence can separate without silently allowing correlated covariates to compensate.
+const CONTROL_VARS=['programme_family','coach_title','multiplier','age','tier','display_class','affected_stat_count','role_set','start_stat'];
+function controlValues(x){
+  const e=x.event;
+  return {
+    programme_family:normText(e.programmeFamily)||'unknown',
+    coach_title:normText(e.coachTitle)||'unknown',
+    multiplier:num(e.multiplier),
+    age:num(e.age),
+    tier:e.tier??'unknown',
+    display_class:x.displayClass??'unknown',
+    affected_stat_count:e.affectedStats?.length??0,
+    role_set:roleKey(e.roles),
+    start_stat:num(x.start),
+  };
+}
+function sameValue(a,b){ return a===b || (a===null&&b===null); }
+
+const corpusControlPairs=[];
+const variablePairStats=new Map(CONTROL_VARS.map(v=>[v,{variable:v,candidatePairs:0,isolatedPairs:0,nearIsolatedPairs:0,players:new Set(),events:new Set(),levels:new Set()}]));
+const fitEmpiricalStats=empiricalStats.filter(x=>x.event.fitWeight===1);
+
+for(let i=0;i<fitEmpiricalStats.length;i++) for(let j=i+1;j<fitEmpiricalStats.length;j++){
+  const a=fitEmpiricalStats[i], b=fitEmpiricalStats[j];
+  if(a.stat!==b.stat || a.event.empiricalFingerprint===b.event.empiricalFingerprint)continue;
+  const av=controlValues(a), bv=controlValues(b);
+  const changed=CONTROL_VARS.filter(v=>!sameValue(av[v],bv[v]));
+  const matched=CONTROL_VARS.filter(v=>sameValue(av[v],bv[v]));
+  if(changed.length<=2){
+    corpusControlPairs.push({
+      stat:a.stat,event_a:a.event.eventId,event_b:b.event.eventId,player_a:a.event.playerName??a.event.playerId??'',player_b:b.event.playerName??b.event.playerId??'',
+      changed_variables:changed.join('|'),matched_variables:matched.join('|'),
+      comparison_class:changed.length===0?'REPLICATE_COVARIATES_NON_CAUSAL':changed.length===1?`ISOLATED_${changed[0].toUpperCase()}_NON_CAUSAL`:'NEAR_ISOLATED_TWO_VARIABLE_NON_CAUSAL',
+      programme_a:av.programme_family,programme_b:bv.programme_family,coach_a:av.coach_title,coach_b:bv.coach_title,
+      multiplier_a:av.multiplier,multiplier_b:bv.multiplier,age_a:av.age,age_b:bv.age,tier_a:av.tier,tier_b:bv.tier,
+      class_a:av.display_class,class_b:bv.display_class,affected_count_a:av.affected_stat_count,affected_count_b:bv.affected_stat_count,
+      role_set_a:av.role_set,role_set_b:bv.role_set,start_stat_a:av.start_stat,start_stat_b:bv.start_stat,
+      gain_lo_a:a.lo,gain_lo_b:b.lo,gain_lo_delta:b.lo-a.lo,gain_hi_a:a.hi,gain_hi_b:b.hi,gain_hi_delta:b.hi-a.hi
+    });
+  }
+  for(const variable of changed){
+    const s=variablePairStats.get(variable);
+    s.candidatePairs++;
+    s.players.add(a.event.playerKey);s.players.add(b.event.playerKey);
+    s.events.add(a.event.eventId);s.events.add(b.event.eventId);
+    s.levels.add(String(av[variable]));s.levels.add(String(bv[variable]));
+    if(changed.length===1)s.isolatedPairs++;
+    if(changed.length<=2)s.nearIsolatedPairs++;
+  }
+}
+
+const variableIdentifiability=[...variablePairStats.values()].map(s=>({
+  variable:s.variable,
+  observed_levels:s.levels.size,
+  candidate_pairs:s.candidatePairs,
+  isolated_pairs:s.isolatedPairs,
+  near_isolated_pairs:s.nearIsolatedPairs,
+  independent_players:s.players.size,
+  independent_events:s.events.size,
+  identifiability_class:s.isolatedPairs>0?'EXACT_CANCELLATION_AVAILABLE':s.nearIsolatedPairs>0?'NEAR_CANCELLATION_ONLY':'CONFOUNDED_OR_UNSUPPORTED',
+  inference_boundary:'DESCRIPTIVE_IDENTIFIABILITY_NOT_CAUSAL_EFFECT'
+}));
+
 function similarity(target, cand){
   let score=0; const reasons=[]; const te=target.event, ce=cand.event;
   if(target.stat===cand.stat){score+=30;reasons.push('same-stat');} else return {score:-Infinity,reasons:[]};
@@ -257,7 +368,10 @@ const metrics=[...groups.values()].map(g=>({stat:g.stat,programme_family:g.progr
 
 fs.mkdirSync(outDir,{recursive:true});
 writeCsv('state_reobservations.csv',['player_key','player_name','state_fingerprint','observation_count','sources'],stateReobservations);
-writeCsv('state_comparisons.csv',['player_key','player_name','state_a','state_b','source_a','source_b','age_a','age_b','tier_a','tier_b','ovr_a','ovr_b','comparison_class','shared_stat_count','changed_stat_count','total_abs_stat_delta','max_abs_stat_delta','changed_stats'],stateComparisons);
+writeCsv('player_longitudinal_profiles.csv',['player_key','player_name','raw_observation_count','unique_state_count','reobserved_state_count','state_pair_count','changed_stat_pair_count','age_values','tier_values','role_sets','varying_dimensions','longitudinal_class'],playerProfiles);
+writeCsv('corpus_control_pairs.csv',['stat','event_a','event_b','player_a','player_b','changed_variables','matched_variables','comparison_class','programme_a','programme_b','coach_a','coach_b','multiplier_a','multiplier_b','age_a','age_b','tier_a','tier_b','class_a','class_b','affected_count_a','affected_count_b','role_set_a','role_set_b','start_stat_a','start_stat_b','gain_lo_a','gain_lo_b','gain_lo_delta','gain_hi_a','gain_hi_b','gain_hi_delta'],corpusControlPairs);
+writeCsv('variable_identifiability.csv',['variable','observed_levels','candidate_pairs','isolated_pairs','near_isolated_pairs','independent_players','independent_events','identifiability_class','inference_boundary'],variableIdentifiability);
+writeCsv('state_comparisons.csv',['player_key','player_name','state_a','state_b','source_a','source_b','observed_at_a','observed_at_b','order_class','age_a','age_b','tier_a','tier_b','roles_a','roles_b','ovr_a','ovr_b','comparison_class','changed_dimensions','shared_stat_count','changed_stat_count','total_abs_stat_delta','max_abs_stat_delta','changed_stats'],stateComparisons);
 writeCsv('experiment_matches.csv',['experiment_id','target_stat','target_start_stat','target_gain_lo','target_gain_hi','rank','similarity_score','match_reasons','reference_event_id','reference_player','reference_age','reference_tier','reference_programme','reference_coach','reference_multiplier','reference_start_stat','reference_class','reference_gain_lo','reference_gain_hi','reference_source'],matches);
 writeCsv('experiment_state_matches.csv',['experiment_id','rank','target_age','target_tier','target_roles','target_stat_count','corpus_player_id','corpus_player_name','corpus_state_id','corpus_regime','corpus_age','corpus_tier','corpus_roles','shared_stat_count','exact_stat_count','stat_mae','max_abs_stat_diff','age_diff','tier_diff','role_jaccard_distance','match_class'],experimentStateMatches);
 writeCsv('cohort_metrics.csv',['stat','programme_family','coach_title','multiplier','age_band','tier','display_class','event_count','player_count','mean_lo','mean_hi','min_lo','max_lo','min_hi','max_hi'],metrics);
@@ -267,6 +381,10 @@ const summary={
   schemaVersion:'resource-coach-longitudinal-analysis-v1',
   corpusDirectory:path.relative(process.cwd(),corpusDir),runsDirectory:path.relative(process.cwd(),runsDir),sourceJsonFiles:sources.length,
   rawStateRecords:states.length,uniqueStateFingerprints:uniqueStates.length,stateReobservedFingerprints:stateReobservations.length,playerIdentities:byPlayer.size,stateComparisons:stateComparisons.length,
+  playerLongitudinalProfiles:playerProfiles.length,corpusControlPairs:corpusControlPairs.length,
+  variablesWithExactCancellation:variableIdentifiability.filter(x=>x.identifiability_class==='EXACT_CANCELLATION_AVAILABLE').length,
+  variablesWithNearCancellationOnly:variableIdentifiability.filter(x=>x.identifiability_class==='NEAR_CANCELLATION_ONLY').length,
+  variablesConfoundedOrUnsupported:variableIdentifiability.filter(x=>x.identifiability_class==='CONFOUNDED_OR_UNSUPPORTED').length,
   empiricalPreviewRecords:observations.length,uniqueEmpiricalPreviews:seenEvidence.size,duplicateEmpiricalPreviews:observations.length-seenEvidence.size,empiricalStatIntervals:empiricalStats.length,
   currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,experimentStateMatchRows:experimentStateMatches.length,cohortMetricRows:metrics.length,discardedNonPositiveStatValues,
   safeguards:[
@@ -275,6 +393,8 @@ const summary={
     'Interval endpoints remain separate; no midpoint is substituted for observed low/high bounds.',
     'Exact empirical duplicates are retained for provenance but receive zero analytical weight.',
     'Similarity is descriptive retrieval only; it is not a fitted transfer law or causal score.',
+    'Identifiability classes report exact/near covariate cancellation opportunities only; they do not estimate causal effects.',
+    'Untimestamped state pairs use stable canonical ordering, never implied chronology.',
     'Non-positive player stat values are treated as missing/sentinel evidence and excluded from state fingerprints and deltas.',
     'Nearest canonical state matches are labelled analogues unless the complete state is an exact re-observation; similarity never asserts player identity.'
   ]
