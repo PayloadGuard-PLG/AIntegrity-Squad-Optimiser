@@ -11,11 +11,16 @@
   "ingestCommand": "node tools/resource-coach-v2/ingest-experiment.mjs <export.json>",
   "longitudinalAnalysis": {
     "script": "tools/resource-coach-v2/analyse-longitudinal-corpus.mjs",
-    "historicalCorpusRef": "b7ffc212b703973d8ab29541e144e9fb52e7141e",
-    "currentStateSources": [
-      "profiles/calibration_data.json",
-      "profiles/player_seeds.json"
-    ],
+    "canonicalCorpus": "calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64",
+    "sourceWorkbook": "Squad_Optimiser_Corpus_Calibration_Transfer_2026-09-12.xlsx",
+    "sourceWorkbookSha256": "afdc3b421cde5ce0a49bfe3e451157905b3e0962eb6e3ddbe544448842e23f70",
+    "canonicalCounts": {
+      "players": 28,
+      "playerStates": 38,
+      "playerStateStats": 570,
+      "coachPreviews": 23,
+      "coachPreviewStats": 345
+    },
     "outputs": [
       "summary.json",
       "form_intake.csv",
@@ -24,6 +29,6 @@
       "state_reobservations.csv",
       "cohort_metrics.csv"
     ],
-    "scope": "all immutable current experiments against the full materialised corpus in one batch"
+    "scope": "all immutable current experiments against the full canonical longitudinal corpus in one batch"
   }
 }
