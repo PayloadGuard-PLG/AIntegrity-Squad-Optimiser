@@ -23,8 +23,14 @@ export interface GameProfile {
   seasonDecayPerLevel?: number;
   ageTable: Record<string, number>;
   talentMultipliers: Record<string, number>;
-  /** XP gain multipliers per drill difficulty (stat training) */
+  /**
+   * @deprecated Legacy intensity-indexed XP proxy. Current evidence separates
+   * drill intensity (condition cost) from drill quality/training effect, so the
+   * production drill projection must not infer permanent-stat XP from this table.
+   */
   drillLevelMultipliers: Record<string, number>;
+  /** Observed UI training-effect ladder for drill quality; transfer to permanent-stat XP is not yet calibrated. */
+  drillQualityTrainingEffectPct?: Record<string, number>;
   /** Cumulative attribute addition per tier (from T0 baseline) */
   tierAttrAdditions: Record<string, number>;
   /** Per-step tier increment (e.g. T1→T2 = +20 per white stat) */
@@ -107,6 +113,7 @@ export type DrillLevel = 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard';
 export interface DrillSession {
   drillName: string;
   sessionCount: number;
+  /** Legacy persisted mirror of the selected drill's fixed intensity. Not user-selectable. */
   drillLevel: DrillLevel;
 }
 
@@ -143,6 +150,7 @@ export interface ManagerProfile {
   storeBudget?: number;
   twoxAdActive: boolean;
   talentTier: TalentTier;
+  /** Legacy profile field retained for persistence compatibility; drill intensity comes from the drill catalogue. */
   drillLevel: DrillLevel;
   matchAdvisorActive: boolean;
   teamPlayPillars?: Partial<Record<TeamPlayPillar, number>>;
