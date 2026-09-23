@@ -25,7 +25,7 @@
 - 🎯 **Calibrated OVR Projections** — Models age, role and stat profile to project OVR outcomes for drill plans, legacy coaching paths and tier upgrades before you spend anything. Confirmed and assumed quantities are kept distinct; legacy Fastest/Fast/Average/Normal/Slow classifications remain empirical hypotheses unless independently evidenced, and Resource Coach V2 does not consume that selector.
 - 🧪 **Resource Coach V2** — Experimental ordinary-coach preview ranges use a two-regime integrated transfer model with exact affected-stat allocation, WHITE/MID_GREY coordinates and optional separate-player-state anchors. Reward/unresolved transfer deliberately returns unavailable rather than borrowing the wrong formula.
 - 📸 **Instant OCR Scanning** — Tap **SCAN PLAYER CARD** to read all 15 stats, OVR, age, role, and tier straight from a screenshot. No manual entry. Coach preview screens can also be scanned to auto-fill session details. Roles still being learned are recognised as such and kept separate from established ones, because they do not yet contribute to a player's key attributes. Anything the scan could not read confidently is flagged for review rather than filled in with a guess.
-- 📈 **Drill ROI Ranking** — All 40 drills ranked by return on investment for the selected player and current Fan Club state. Condition cost is shown as the range the game actually charges, not a single tidy figure it may not honour.
+- 📈 **Drill ROI Ranking** — All 29 baseline drills ranked by return on investment for the selected player and current Fan Club state. Condition cost is shown as the range the game actually charges, not a single tidy figure it may not honour.
 - 🔗 **Sequential Planning** — Chain drill plans, coaching sessions, tier upgrades, and restorers into one sequential plan with a per-step OVR breakdown in the Results hub.
 - 🙅 **It tells you when it doesn't know** — Where the app cannot honestly project something, it says so and shows what it *did* observe, instead of returning a confident-looking number. Some coach types and any history recorded before they could be identified fall into this category, and a plan containing one is reported as un-totalled rather than quietly totalled without it.
 
@@ -39,7 +39,7 @@
 
 **⚙️ PLAN** — Single-player projection tool. Select drills, set tier target, add restorers → get a step-by-step OVR breakdown.
 
-**💊 DRILLS** — All 40 drills ranked by ROI for the selected player. Fan Club surge controls. Condition cost per cycle shown alongside the range you may actually be billed. Build and save drill presets, then **push to Results** to include them in your combined plan.
+**💊 DRILLS** — All 29 baseline drills ranked by ROI for the selected player. Fan Club surge controls. Condition cost per cycle shown alongside the range you may actually be billed. Build and save drill presets, then **push to Results** to include them in your combined plan.
 
 **🧑‍🏫 COACHES** — Experimental Resource Coach V2 interval lab. Scan or enter a preview, select the exact affected stats, confirm WHITE/MID_GREY class and starting values, then project per-stat gain ranges. Ordinary transfer supports cold-start and separate-anchor calibration; Reward/unresolved transfer abstains. Predictions and observations are stored separately, and experimental forecasts never overwrite player facts.
 
