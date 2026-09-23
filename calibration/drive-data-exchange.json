@@ -24,9 +24,9 @@
     "ingestSchemaVersion": "resource-coach-experiment-v1"
   },
   "writeBack": {
-    "uploadReceipt": true,
+    "uploadReceipt": false,
     "moveAccepted": false,
     "moveRejected": false,
-    "note": "Initial bridge is non-destructive: Drive source files are never moved or deleted."
+    "note": "My Drive service accounts have no storage quota. Initial bridge is read-only from Drive and non-destructive; use a Shared Drive or delegated user OAuth before enabling receipt uploads."
   }
 }
