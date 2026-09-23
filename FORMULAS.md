@@ -75,7 +75,7 @@ Each factor:
 | `talentMult` | `talentMultipliers[talent]` | Fastest=1.5 … Slow=0.47 |
 | `greyMult` | `greyWeightMultiplier` | 1.0 if white (essential), 0.22 if grey |
 | `adMult` | `twoxAdMultiplier` | 2.0 if 2× ad active, else 1.0 |
-| `drillLevelMult` | drill intensity (§2.7) or 1.0 for coaches | Fixed per drill; coaches always 1.0 |
+| `drillLevelMult` | 1.0 in current production drill/coach paths | Drill quality→permanent-XP transfer is uncalibrated; never substitute intensity |
 
 **Coach sessions:** `drillLevelMult = 1.0` — coaches have no adjustable intensity. The engine hardcodes 1.0 for all coach projections regardless of drill level multiplier tables.
 
@@ -141,19 +141,31 @@ Values above 200 raised Sprint 24 from empirical evidence (Aggression 201 gainin
 | 29 | 0.50 |
 | 30+ | 0 (clamped) |
 
-### 2.7 Drill level multipliers (XP — fixed per drill)
+### 2.7 Drill intensity vs drill quality
 
-Each drill has one fixed intensity. The multiplier scales the XP yield:
+These are two separate observed axes.
 
-| Level | XP multiplier |
-|---|---|
-| Very Easy | 1.00 |
-| Easy | 1.15 |
-| Medium | 1.30 |
-| Hard | 1.55 |
-| Very Hard | 1.70 |
+| Fixed intensity | Nominal condition drain | Training XP / player |
+|---|---:|---:|
+| Very Easy | 0.75% | +1 |
+| Easy | 1.50% | +2 |
+| Medium | 2.25% | +3 |
+| Hard | 3.00% | +4 |
+| Very Hard | 3.75% | +5 |
 
-**These do NOT apply to coach sessions.** Coaches always use `drillLevelMult = 1.0`.
+| Drill quality | Displayed Training effect |
+|---|---:|
+| Amateur | +0% |
+| Semi-Pro | +10% |
+| Pro | +20% |
+| World-class | +30% |
+
+Intensity is catalogue-owned and drives condition cost. The +1…+5 value is the
+game's displayed training-experience award and is stored separately from permanent
+attribute gain. Drill quality/training effect is also separate. Its mapping to
+permanent-stat XP is not yet calibrated, therefore current production drill
+projections use `drillLevelMult = 1.0` rather than borrowing the old
+1.0/1.15/1.3/1.55/1.7 intensity proxy.
 
 ### 2.8 Talent multipliers
 
