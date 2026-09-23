@@ -69,6 +69,8 @@ Low/high preview endpoints stay separate throughout. The analyser never replaces
 
 State-pair delta signs use observed timestamp order only when both timestamps are available and distinct. Otherwise the analyser uses a stable canonical order and marks the comparison `CANONICAL_NON_TEMPORAL_ORDER`; this prevents source traversal order from being mistaken for chronology. Identifiability labels describe available covariate cancellation only and are not effect estimates.
 
+A covariate must be observed on both sides of a pair before it can count as controlled. Missing/unknown values are listed in `unobserved_variables`; such rows remain useful retrieval evidence but cannot qualify as exact or near cancellation for identifiability.
+
 The GitHub Action uploads both the ordinary experiment-log aggregation and the longitudinal analysis bundle as a workflow artifact, so a new run automatically receives whole-corpus comparison without manually choosing a player or repeatedly invoking analysis per state.
 
 For automated analysis, prefer repository JSON. For manual inspection and collaborative updating, append the same `resource-coach-experiment-v1` export to the Google Sheet. Never make the Sheet the only copy of an experiment.
