@@ -116,6 +116,13 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
 
     const matches = fs.readFileSync(path.join(out, 'experiment_matches.csv'), 'utf8');
     assert.match(matches, /HIST-A|HIST-B/);
+
+    const stateMatches = fs.readFileSync(path.join(out, 'experiment_state_matches.csv'), 'utf8');
+    assert.match(stateMatches, /RUN-1/);
+    assert.match(stateMatches, /Alpha/);
+    assert.match(stateMatches, /STRUCTURAL_MATCH_NEAREST_VECTOR_NOT_IDENTITY/);
+
+    assert.ok(summary.experimentStateMatchRows >= 2);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -126,6 +133,7 @@ test('observed interval endpoints remain distinct in generated intake', () => {
   try {
     const intake = fs.readFileSync(path.join(out, 'form_intake.csv'), 'utf8');
     assert.match(intake, /observed_lo,observed_hi/);
+    assert.match(intake, /nearest_corpus_player_name/);
     assert.doesNotMatch(intake, /midpoint/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
