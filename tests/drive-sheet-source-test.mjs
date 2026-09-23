@@ -18,8 +18,8 @@ const exp={
   displayed_multiplier:5,programme_family:'drill-session',programme_family_source:'ocr-observed',target_source:'glyph-observed',
 };
 const obs=[
-  {experiment_id:'e1',stat:'PASSING',displayed_stat:252,display_class:'WHITE',gain_lo:1,gain_hi:2,evidence_kind:'observed-interval',evidence_source:'state-confirmed-preview'},
-  {experiment_id:'e1',stat:'FINISHING',displayed_stat:153,display_class:'MID_GREY',gain_lo:5,gain_hi:7,evidence_kind:'observed-interval',evidence_source:'state-confirmed-preview'},
+  {experiment_id:'e1',stat:'PASSING',displayed_stat:252,display_class:'WHITE',class_source:'role-map',gain_lo:1,gain_hi:2,evidence_kind:'observed-interval',evidence_source:'state-confirmed-preview'},
+  {experiment_id:'e1',stat:'FINISHING',displayed_stat:153,display_class:'MID_GREY',class_source:'manual-observed',gain_lo:5,gain_hi:7,evidence_kind:'observed-interval',evidence_source:'state-confirmed-preview'},
 ];
 
 test('rowObjects maps a header row deterministically',()=>{
@@ -34,6 +34,7 @@ test('sheet record reconstruction creates sealed observed evidence only',()=>{
   assert.equal(rec.schemaVersion,'resource-coach-experiment-v1');
   assert.equal(rec.experiment.status,'observed');
   assert.equal(rec.experiment.input.stats.length,2);
+  assert.deepEqual(rec.experiment.input.stats.map(x=>x.classSource),['manual-observed','role-map']);
   assert.deepEqual(rec.observation.intervals.map(x=>x.stat),['FINISHING','PASSING']);
   assert.equal(rec.observation.source,'state-confirmed-preview');
 });
@@ -49,6 +50,12 @@ test('inconsistent Sheet provenance is rejected',()=>{
   const bad=[...obs.map(x=>({...x}))];
   bad[1].evidence_source='different-source';
   assert.throws(()=>buildRecord(exp,bad,[]),/inconsistent observation provenance/);
+});
+
+test('new Sheet records cannot silently upgrade a missing class source',()=>{
+  const bad=obs.map(x=>({...x}));
+  delete bad[0].class_source;
+  assert.throws(()=>buildRecord(exp,bad,[]),/class provenance/);
 });
 
 test('source digest is key-order stable',()=>{

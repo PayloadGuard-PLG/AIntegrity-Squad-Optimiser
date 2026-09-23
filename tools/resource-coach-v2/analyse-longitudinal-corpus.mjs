@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import { qualityExclusions } from './quality-exclusions.mjs';
 
 const args = process.argv.slice(2);
 function arg(name, fallback) {
@@ -167,7 +168,7 @@ for(const file of runFiles){
 
 // Deduplicate empirical previews without deleting provenance. First occurrence carries analytical weight.
 const seenEvidence=new Map();
-for(const e of observations){ const prior=seenEvidence.get(e.empiricalFingerprint); e.fitWeight=prior?0:1; e.duplicateOf=prior?.eventId??null; if(!prior)seenEvidence.set(e.empiricalFingerprint,e); }
+for(const e of observations){ const prior=seenEvidence.get(e.empiricalFingerprint); e.fitWeight=prior||qualityExclusions.has(e.eventId)?0:1; e.duplicateOf=prior?.eventId??null; if(!prior)seenEvidence.set(e.empiricalFingerprint,e); }
 
 // Collapse repeated representations of the same state before calculating deltas.
 // Re-observations are preserved separately, so repeated screenshots do not multiply
@@ -420,7 +421,7 @@ for(const rec of runRecords){
     const exactCoach=sameStat.filter(x=>normText(x.event.coachTitle)===normText(e.coachTitle)&&num(x.event.multiplier)===num(e.multiplier)&&normText(x.event.programmeFamily)===normText(e.programmeFamily));
     const cohort=exactCoach.length?exactCoach:sameStat;
     const bestState=bestStateByExperiment.get(id);
-    intakeRows.push({experiment_id:id,evidence_fingerprint:rec.evidence?.fingerprint??'',is_duplicate:!!rec.evidence?.isDuplicate,fit_weight:rec.evidence?.isDuplicate?0:1,player_id:e.playerId??'',age:e.age,tier:e.tier??'',programme_family:e.programmeFamily??'',coach_title:e.coachTitle??'',multiplier:e.multiplier,stat:r.stat,start_stat:target.start,display_class:target.displayClass??'',observed_lo:r.lo,observed_hi:r.hi,nearest_corpus_player_id:bestState?.state.playerId??'',nearest_corpus_player_name:bestState?.state.playerName??'',nearest_corpus_state_id:bestState?.state.stateId??'',nearest_state_stat_mae:bestState?Number(bestState.metrics.statMae.toFixed(6)):null,nearest_state_match_class:bestState?.metrics.matchClass??'',comparison_scope:exactCoach.length?'exact-coach-programme-multiplier':'same-stat-global',comparison_n:cohort.length,corpus_lo_min:cohort.length?Math.min(...cohort.map(x=>x.lo)):null,corpus_lo_max:cohort.length?Math.max(...cohort.map(x=>x.lo)):null,corpus_hi_min:cohort.length?Math.min(...cohort.map(x=>x.hi)):null,corpus_hi_max:cohort.length?Math.max(...cohort.map(x=>x.hi)):null,best_match_score:ranked[0]?Number(ranked[0].score.toFixed(4)):null,best_match_event:ranked[0]?.x.event.eventId??''});
+    intakeRows.push({experiment_id:id,evidence_fingerprint:rec.evidence?.fingerprint??'',is_duplicate:!!rec.evidence?.isDuplicate,fit_weight:e.fitWeight,player_id:e.playerId??'',age:e.age,tier:e.tier??'',programme_family:e.programmeFamily??'',coach_title:e.coachTitle??'',multiplier:e.multiplier,stat:r.stat,start_stat:target.start,display_class:target.displayClass??'',observed_lo:r.lo,observed_hi:r.hi,nearest_corpus_player_id:bestState?.state.playerId??'',nearest_corpus_player_name:bestState?.state.playerName??'',nearest_corpus_state_id:bestState?.state.stateId??'',nearest_state_stat_mae:bestState?Number(bestState.metrics.statMae.toFixed(6)):null,nearest_state_match_class:bestState?.metrics.matchClass??'',comparison_scope:exactCoach.length?'exact-coach-programme-multiplier':'same-stat-global',comparison_n:cohort.length,corpus_lo_min:cohort.length?Math.min(...cohort.map(x=>x.lo)):null,corpus_lo_max:cohort.length?Math.max(...cohort.map(x=>x.lo)):null,corpus_hi_min:cohort.length?Math.min(...cohort.map(x=>x.hi)):null,corpus_hi_max:cohort.length?Math.max(...cohort.map(x=>x.hi)):null,best_match_score:ranked[0]?Number(ranked[0].score.toFixed(4)):null,best_match_event:ranked[0]?.x.event.eventId??''});
   }
 }
 

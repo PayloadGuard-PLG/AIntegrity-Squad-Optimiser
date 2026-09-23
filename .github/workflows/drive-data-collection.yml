@@ -7,10 +7,12 @@ on:
     paths:
       - 'calibration/drive-data-exchange.json'
       - 'calibration/resource-coach-log/manifest.json'
+      - 'calibration/resource-coach-log/quality-exclusions.json'
       - 'tools/drive-data-exchange/**'
       - 'tools/resource-coach-v2/**'
       - 'tests/drive-data-exchange-test.mjs'
       - 'tests/drive-sheet-source-test.mjs'
+      - 'tests/resource-coach-promotion-test.mjs'
       - '.github/workflows/drive-data-collection.yml'
   pull_request:
     branches:
@@ -18,10 +20,12 @@ on:
     paths:
       - 'calibration/drive-data-exchange.json'
       - 'calibration/resource-coach-log/manifest.json'
+      - 'calibration/resource-coach-log/quality-exclusions.json'
       - 'tools/drive-data-exchange/**'
       - 'tools/resource-coach-v2/**'
       - 'tests/drive-data-exchange-test.mjs'
       - 'tests/drive-sheet-source-test.mjs'
+      - 'tests/resource-coach-promotion-test.mjs'
       - '.github/workflows/drive-data-collection.yml'
   workflow_dispatch:
   schedule:
@@ -42,7 +46,8 @@ jobs:
         run: |
           node --check tools/drive-data-exchange/collect-resource-coach.mjs
           node --check tools/drive-data-exchange/collect-resource-coach-sheet.mjs
-          node --test tests/drive-data-exchange-test.mjs tests/drive-sheet-source-test.mjs
+          node --check tools/drive-data-exchange/promote-reviewed-collection.mjs
+          node --test tests/drive-data-exchange-test.mjs tests/drive-sheet-source-test.mjs tests/resource-coach-promotion-test.mjs
 
   collect:
     if: github.event_name != 'pull_request'

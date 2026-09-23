@@ -116,7 +116,7 @@ function semanticFromSheet(exp,obsRows){
     programmeFamily:text(exp.programme_family)||'unknown',programmeFamilySource:text(exp.programme_family_source),
     targetSource:text(exp.target_source),
     evidence:{fingerprint:text(exp.evidence_fingerprint),isDuplicate:bool(exp.is_duplicate),duplicateOfExperimentId:nullable(exp.duplicate_of_experiment_id)},
-    stats:sortStats(obsRows.map(r=>({stat:text(r.stat),displayedStat:num(r.displayed_stat),displayClass:text(r.display_class),
+    stats:sortStats(obsRows.map(r=>({stat:text(r.stat),displayedStat:num(r.displayed_stat),displayClass:text(r.display_class),classSource:text(r.class_source),
       gainLo:num(r.gain_lo),gainHi:num(r.gain_hi),evidenceKind:text(r.evidence_kind),evidenceSource:text(r.evidence_source)}))),
   };
 }
@@ -132,7 +132,7 @@ function semanticFromRun(rec){
     targetSource:text(input.targetSource),
     evidence:{fingerprint:text(rec.evidence?.fingerprint),isDuplicate:!!rec.evidence?.isDuplicate,duplicateOfExperimentId:nullable(rec.evidence?.duplicateOfExperimentId)},
     stats:sortStats((o.intervals??[]).map(r=>{const s=statMap.get(r.stat)??{};return {
-      stat:text(r.stat),displayedStat:num(s.displayedStat),displayClass:text(s.displayClass),gainLo:num(r.gainLo),gainHi:num(r.gainHi),
+      stat:text(r.stat),displayedStat:num(s.displayedStat),displayClass:text(s.displayClass),classSource:text(s.classSource),gainLo:num(r.gainLo),gainHi:num(r.gainHi),
       evidenceKind:text(o.evidenceKind),evidenceSource:text(o.source)};})),
   };
 }
@@ -144,8 +144,8 @@ function buildRecord(exp,obsRows,partitionRows){
   if(obsRows.length===0)throw new Error(`Experiment ${exp.experiment_id} has no observed stat rows.`);
   const sourceFields=['transfer_class','transfer_class_source','coach_label','programme_family','displayed_multiplier','affected_stat_count','player_age','tier','target_source','source_family_source','programme_family_source'];
   for(const key of sourceFields){const vals=new Set(obsRows.map(r=>JSON.stringify(r[key]??'')));if(vals.size>1)throw new Error(`Experiment ${exp.experiment_id} has inconsistent Observed_Stats.${key} values.`);}
-  const stats=sortStats(obsRows.map(r=>({stat:text(r.stat),displayedStat:num(r.displayed_stat),displayClass:text(r.display_class),classSource:'sheet-observed'})));
-  if(stats.some(s=>!s.stat||s.displayedStat===null||!s.displayClass))throw new Error(`Experiment ${exp.experiment_id} has incomplete stat/class observations.`);
+  const stats=sortStats(obsRows.map(r=>({stat:text(r.stat),displayedStat:num(r.displayed_stat),displayClass:text(r.display_class),classSource:text(r.class_source)})));
+  if(stats.some(s=>!s.stat||s.displayedStat===null||!s.displayClass||!s.classSource))throw new Error(`Experiment ${exp.experiment_id} has incomplete stat/class observations or class provenance.`);
   const intervals=sortStats(obsRows.map(r=>({stat:text(r.stat),gainLo:num(r.gain_lo),gainHi:num(r.gain_hi)})));
   if(intervals.some(s=>s.gainLo===null||s.gainHi===null))throw new Error(`Experiment ${exp.experiment_id} has incomplete gain intervals.`);
   const evidenceKinds=new Set(obsRows.map(r=>text(r.evidence_kind))),evidenceSources=new Set(obsRows.map(r=>text(r.evidence_source)));
