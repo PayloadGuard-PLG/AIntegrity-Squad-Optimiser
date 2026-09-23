@@ -1,41 +1,41 @@
-Drill,Category,Intensity,Availability,Base Loss %,Condition Multiplier,Raw Drain %,Discrete Min %,Discrete Max %,Model Centre %,XP Intensity Multiplier,Affected Stat Count,Affected Stats
-Target Practice,Attacking,Medium,Base,0.75,3,2.25,1,3,2.25,1.3,5,"AGILITY, STRENGTH, SHOOTING, FINISHING, REFLEXES"
-Break Away,Attacking,Very Hard,Base,0.75,5,3.75,3,5,3.75,1.7,5,"CROSSING, PASSING, FINISHING, CREATIVITY, COMMUNICATION"
-Run & Strike,Attacking,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,4,"SHOOTING, ANTICIPATION, SPEED, PASSING"
-Wide Channel,Attacking,Hard,Base,0.75,4,3.0,2,4,3.0,1.55,5,"CROSSING, FINISHING, SHOOTING, HEADING, PUNCHING"
-Touch and Go,Attacking,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,4,"PASSING, DRIBBLING, CREATIVITY, FITNESS"
-Dead Ball Practice,Attacking,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,5,"MARKING, SHOOTING, CROSSING, RUSHING OUT, HEADING"
-Cone Weave,Attacking,Hard,Unlocked/Event,0.75,4,3.0,2,4,3.0,1.55,4,"SPEED, DRIBBLING, PASSING, FITNESS"
-Solo Finish,Attacking,Easy,Unlocked/Event,0.75,2,1.5,1,2,1.5,1.15,5,"DRIBBLING, FINISHING, ANTICIPATION, RUSHING OUT, TACKLING"
-Aerial Work,Attacking,Easy,Unlocked/Event,0.75,2,1.5,1,2,1.5,1.15,4,"POSITIONING, PASSING, HEADING, CREATIVITY"
-Attack Blueprint,Attacking,Very Hard,Unlocked/Event,0.75,5,3.75,3,5,3.75,1.7,5,"PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING"
-Touch Training,Possession,Very Easy,Base,0.75,1,0.75,1,2,1,1.0,4,"HEADING, CREATIVITY, CONCENTRATION, DRIBBLING"
-Porky in Centre,Possession,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,5,"AGGRESSION, POSITIONING, FITNESS, PASSING, TACKLING"
-Build-Up Play,Possession,Hard,Unlocked/Event,0.75,4,3.0,2,4,3.0,1.55,5,"POSITIONING, CREATIVITY, FINISHING, PASSING, ANTICIPATION"
-Wide Switch,Possession,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,6,"COMMUNICATION, POSITIONING, CREATIVITY, CROSSING, PASSING, SPEED"
-Channel Hold,Possession,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,4,"POSITIONING, AERIAL REACH, SPEED, FITNESS"
-Physical Duel,Possession,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,5,"DRIBBLING, STRENGTH, MARKING, BRAVERY, AGGRESSION"
-First Touch,Possession,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,4,"THROWING, DRIBBLING, PASSING, FITNESS"
-Tactical Review,Defending,Very Easy,Base,0.75,1,0.75,1,2,1,1.0,4,"POSITIONING, CREATIVITY, COMMUNICATION, BRAVERY"
-Pressure Trap,Defending,Medium,Base,0.75,3,2.25,1,3,2.25,1.3,4,"AGGRESSION, TACKLING, MARKING, POSITIONING"
-Back Line Drill,Defending,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,4,"MARKING, POSITIONING, HEADING, BRAVERY"
-Challenge Drill,Defending,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,3,"TACKLING, MARKING, BRAVERY"
-Box Clearance,Defending,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,3,"HEADING, POSITIONING, MARKING"
-Compact Block,Defending,Easy,Unlocked/Event,0.75,2,1.5,1,2,1.5,1.15,3,"POSITIONING, BRAVERY, MARKING"
-Win the Ball,Defending,Medium,Unlocked/Event,0.75,3,2.25,1,3,2.25,1.3,5,"DRIBBLING, STRENGTH, MARKING, BRAVERY, TACKLING"
-High Press,Defending,Hard,Unlocked/Event,0.75,4,3.0,2,4,3.0,1.55,5,"AGGRESSION, POSITIONING, MARKING, BRAVERY, TACKLING"
-GK Protocol,Defending,Hard,Unlocked/Event,0.75,4,3.0,2,4,3.0,1.55,5,"AGILITY, AERIAL REACH, THROWING, KICKING, REFLEXES"
-Defence Blueprint,Defending,Very Hard,Unlocked/Event,0.75,5,3.75,3,5,3.75,1.7,5,"TACKLING, MARKING, POSITIONING, HEADING, BRAVERY"
-Head Drill,Defending,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,4,"POSITIONING, HEADING, CREATIVITY, PASSING"
-Line Hold,Defending,Medium,Base,0.75,3,2.25,1,3,2.25,1.3,4,"POSITIONING, MARKING, CONCENTRATION, COMMUNICATION"
-Cross Defence,Defending,Medium,Base,0.75,3,2.25,1,3,2.25,1.3,5,"MARKING, AERIAL REACH, CROSSING, BRAVERY, HEADING"
-Weight Room,Physical,Very Hard,Base,0.75,5,3.75,3,5,3.75,1.7,4,"STRENGTH, KICKING, THROWING, FITNESS"
-Speed Work,Physical,Very Hard,Base,0.75,5,3.75,3,5,3.75,1.7,4,"RUSHING OUT, SPEED, DRIBBLING, FITNESS"
-Endurance Loop,Physical,Medium,Base,0.75,3,2.25,1,3,2.25,1.3,3,"SPEED, CONCENTRATION, FITNESS"
-Flexibility Session,Physical,Easy,Base,0.75,2,1.5,1,2,1.5,1.15,4,"STRENGTH, AGILITY, SPEED, FITNESS"
-Hurdle Work,Physical,Hard,Base,0.75,4,3.0,2,4,3.0,1.55,4,"AGGRESSION, KICKING, SPEED, BRAVERY"
-Activation,Physical,Very Easy,Unlocked/Event,0.75,1,0.75,1,2,1,1.0,4,"REFLEXES, HEADING, AGGRESSION, FITNESS"
-Footwork Ladder,Physical,Easy,Unlocked/Event,0.75,2,1.5,1,2,1.5,1.15,4,"AGGRESSION, AGILITY, CONCENTRATION, SPEED"
-Interval Runs,Physical,Hard,Unlocked/Event,0.75,4,3.0,2,4,3.0,1.55,2,"SPEED, FITNESS"
-Plyometrics,Physical,Hard,Unlocked/Event,0.75,4,3.0,2,4,3.0,1.55,3,"AGILITY, SPEED, STRENGTH"
-Shuttle Run,Physical,Hard,Base,0.75,4,3.0,2,4,3.0,1.55,4,"STRENGTH, AGILITY, SPEED, BRAVERY"
+Drill,Category,Intensity,Availability,Base Loss Unit %,Nominal Condition Drain %,Training XP / Player,Perfect Conditions L0 Exact %,L1 Exact %,L2 Exact %,L3 Exact %,L4 Exact %,Affected Stat Count,Affected Stats,Direct UI Verified,Evidence,Observed Drill Quality,Observed Training Effect %,Popup Evidence
+Target Practice,Attacking,Medium,Base,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,5,"AGILITY, STRENGTH, SHOOTING, FINISHING, REFLEXES",Yes,63892/63893 card,,,
+Break Away,Attacking,Very Hard,Base,0.75,3.75,5,3.375,3.1875,3,2.8125,1.875,5,"CROSSING, PASSING, FINISHING, CREATIVITY, COMMUNICATION",Yes,63893 card + 63898 popup,World-class,30,63898
+Run & Strike,Attacking,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"SHOOTING, ANTICIPATION, SPEED, PASSING",Yes,63892 card,,,
+Wide Channel,Attacking,Hard,Base,0.75,3,4,2.7,2.55,2.4,2.25,1.5,5,"CROSSING, FINISHING, SHOOTING, HEADING, PUNCHING",Yes,63893 card,,,
+Touch and Go,Attacking,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"PASSING, DRIBBLING, CREATIVITY, FITNESS",No,,,,
+Dead Ball Practice,Attacking,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,5,"MARKING, SHOOTING, CROSSING, RUSHING OUT, HEADING",Yes,63892/63893 card + 63896 popup,World-class,30,63896
+Cone Weave,Attacking,Hard,Unlocked/Event,0.75,3,4,2.7,2.55,2.4,2.25,1.5,4,"SPEED, DRIBBLING, PASSING, FITNESS",Yes,63892/63893 card + 63897 popup,World-class,30,63897
+Solo Finish,Attacking,Easy,Unlocked/Event,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,5,"DRIBBLING, FINISHING, ANTICIPATION, RUSHING OUT, TACKLING",Yes,63892 card + 63895 popup,World-class,30,63895
+Aerial Work,Attacking,Easy,Unlocked/Event,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"POSITIONING, PASSING, HEADING, CREATIVITY",No,,,,
+Attack Blueprint,Attacking,Very Hard,Unlocked/Event,0.75,3.75,5,3.375,3.1875,3,2.8125,1.875,5,"PASSING, DRIBBLING, CROSSING, SHOOTING, FINISHING",Yes,63897 card,,,
+Touch Training,Possession,Very Easy,Base,0.75,0.75,1,0.675,0.6375,0.6,0.5625,0.375,4,"HEADING, CREATIVITY, CONCENTRATION, DRIBBLING",No,,,,
+Porky in Centre,Possession,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,5,"AGGRESSION, POSITIONING, FITNESS, PASSING, TACKLING",No,,,,
+Build-Up Play,Possession,Hard,Unlocked/Event,0.75,3,4,2.7,2.55,2.4,2.25,1.5,5,"POSITIONING, CREATIVITY, FINISHING, PASSING, ANTICIPATION",No,,,,
+Wide Switch,Possession,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,6,"COMMUNICATION, POSITIONING, CREATIVITY, CROSSING, PASSING, SPEED",No,,,,
+Channel Hold,Possession,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,4,"POSITIONING, AERIAL REACH, SPEED, FITNESS",No,,,,
+Physical Duel,Possession,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,5,"DRIBBLING, STRENGTH, MARKING, BRAVERY, AGGRESSION",No,,,,
+First Touch,Possession,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"THROWING, DRIBBLING, PASSING, FITNESS",No,,,,
+Tactical Review,Defending,Very Easy,Base,0.75,0.75,1,0.675,0.6375,0.6,0.5625,0.375,4,"POSITIONING, CREATIVITY, COMMUNICATION, BRAVERY",Yes,63899 popup,World-class,30,63899
+Pressure Trap,Defending,Medium,Base,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,4,"AGGRESSION, TACKLING, MARKING, POSITIONING",No,,,,
+Back Line Drill,Defending,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"MARKING, POSITIONING, HEADING, BRAVERY",No,,,,
+Challenge Drill,Defending,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,3,"TACKLING, MARKING, BRAVERY",No,,,,
+Box Clearance,Defending,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,3,"HEADING, POSITIONING, MARKING",No,,,,
+Compact Block,Defending,Easy,Unlocked/Event,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,3,"POSITIONING, BRAVERY, MARKING",No,,,,
+Win the Ball,Defending,Medium,Unlocked/Event,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,5,"DRIBBLING, STRENGTH, MARKING, BRAVERY, TACKLING",Yes,63899/63900/63901 card,,,
+High Press,Defending,Hard,Unlocked/Event,0.75,3,4,2.7,2.55,2.4,2.25,1.5,5,"AGGRESSION, POSITIONING, MARKING, BRAVERY, TACKLING",No,,,,
+GK Protocol,Defending,Hard,Unlocked/Event,0.75,3,4,2.7,2.55,2.4,2.25,1.5,5,"AGILITY, AERIAL REACH, THROWING, KICKING, REFLEXES",No,,,,
+Defence Blueprint,Defending,Very Hard,Unlocked/Event,0.75,3.75,5,3.375,3.1875,3,2.8125,1.875,5,"TACKLING, MARKING, POSITIONING, HEADING, BRAVERY",Yes,63899/63900/63901 card,,,
+Head Drill,Defending,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"POSITIONING, HEADING, CREATIVITY, PASSING",Yes,63900 popup,World-class,30,63900
+Line Hold,Defending,Medium,Base,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,4,"POSITIONING, MARKING, CONCENTRATION, COMMUNICATION",Yes,63901 popup,World-class,30,63901
+Cross Defence,Defending,Medium,Base,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,5,"MARKING, AERIAL REACH, CROSSING, BRAVERY, HEADING",No,,,,
+Weight Room,Physical,Very Hard,Base,0.75,3.75,5,3.375,3.1875,3,2.8125,1.875,4,"STRENGTH, KICKING, THROWING, FITNESS",No,,,,
+Speed Work,Physical,Very Hard,Base,0.75,3.75,5,3.375,3.1875,3,2.8125,1.875,4,"RUSHING OUT, SPEED, DRIBBLING, FITNESS",No,,,,
+Endurance Loop,Physical,Medium,Base,0.75,2.25,3,2.025,1.9125,1.8,1.6875,1.125,3,"SPEED, CONCENTRATION, FITNESS",No,,,,
+Flexibility Session,Physical,Easy,Base,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"STRENGTH, AGILITY, SPEED, FITNESS",No,,,,
+Hurdle Work,Physical,Hard,Base,0.75,3,4,2.7,2.55,2.4,2.25,1.5,4,"AGGRESSION, KICKING, SPEED, BRAVERY",No,,,,
+Activation,Physical,Very Easy,Unlocked/Event,0.75,0.75,1,0.675,0.6375,0.6,0.5625,0.375,4,"REFLEXES, HEADING, AGGRESSION, FITNESS",No,,,,
+Footwork Ladder,Physical,Easy,Unlocked/Event,0.75,1.5,2,1.35,1.275,1.2,1.125,0.75,4,"AGGRESSION, AGILITY, CONCENTRATION, SPEED",No,,,,
+Interval Runs,Physical,Hard,Unlocked/Event,0.75,3,4,2.7,2.55,2.4,2.25,1.5,2,"SPEED, FITNESS",No,,,,
+Plyometrics,Physical,Hard,Unlocked/Event,0.75,3,4,2.7,2.55,2.4,2.25,1.5,3,"AGILITY, SPEED, STRENGTH",No,,,,
+Shuttle Run,Physical,Hard,Base,0.75,3,4,2.7,2.55,2.4,2.25,1.5,4,"STRENGTH, AGILITY, SPEED, BRAVERY",No,,,,
