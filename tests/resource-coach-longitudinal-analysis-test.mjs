@@ -24,7 +24,7 @@ function runFixture() {
       {
         id: 'HIST-A',
         preOutcome: {
-          player: { id: 'A', name: 'Alpha', role: ['MC'], age: 19, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
+          player: { id: 'PLY-0001', name: 'Alpha', role: ['MC'], age: 19, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
         _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
@@ -53,7 +53,7 @@ function runFixture() {
 
   writeJson(path.join(corpus, 'player_seeds.json'), {
     players: [
-      { id: 'PLY-A', name: 'Alpha', _stateId: 'STATE-ALPHA-1', _regime: 'CURRENT_TESTBED', age: 19, roles: ['MC'], tier: 'T3', ovr: 100, stats: { PASSING: 100, DRIBBLING: 110 }, last_updated: '2026-09-01' },
+      { id: 'PLY-0001', name: 'Alpha', _stateId: 'STATE-ALPHA-1', _regime: 'CURRENT_TESTBED', age: 19, roles: ['MC'], tier: 'T3', ovr: 100, stats: { PASSING: 100, DRIBBLING: 110 }, last_updated: '2026-09-01' },
       { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 102, stats: { PASSING: 104, DRIBBLING: 113, FITNESS: 0 }, last_updated: '2026-09-02' },
     ],
   });
