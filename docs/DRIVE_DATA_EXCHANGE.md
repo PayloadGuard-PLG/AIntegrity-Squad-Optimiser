@@ -65,7 +65,14 @@ Current allow-list:
 - WEBP
 - ZIP
 
-Only sealed `resource-coach-experiment-v1` JSON is analytically ingested automatically. Other types are retained as provenance-backed raw evidence.
+Two structured paths are now automatic:
+
+- sealed `resource-coach-experiment-v1` JSON from `incoming`;
+- the live **Resource Coach Experiment Log — v1** Sheet, read through `Experiments`, `Observed_Stats`, and `Partition_History`.
+
+For Sheet records whose experiment ID already exists in the immutable repository log, evidentiary fields are semantically cross-checked and any conflict fails the run. A complete new observed Sheet ID can be reconstructed into a sealed staging record and passed through the same immutable ingest validator.
+
+CSV/XLS/XLSX/images/ZIP remain provenance-backed raw evidence until a dedicated deterministic extractor is implemented. The pinned repository canonical snapshot remains authoritative for the historical workbook; the collector will not guess among similarly named Drive files.
 
 ## Operational path
 
@@ -75,4 +82,4 @@ A later promotion workflow can convert accepted staged evidence into a reviewabl
 
 ## Scheduling
 
-The workflow is configured for manual dispatch and a six-hour schedule. GitHub executes scheduled workflows from the repository default branch, so the schedule becomes operational when the calibration line is promoted through PR #149 into `main`. Until then, the bridge is live-tested on the calibration line but is not yet a default-branch scheduler.
+The workflow runs on relevant pushes and pull requests to `main`, supports manual dispatch, and performs scheduled collection every six hours from the default branch.

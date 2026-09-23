@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { collectResourceCoachSheet } from './collect-resource-coach-sheet.mjs';
 
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive';
 const TOKEN_AUD='https://oauth2.googleapis.com/token';
@@ -17,11 +18,11 @@ function parseServiceAccount(raw){
   for(const k of ['client_email','private_key']) if(!doc[k]) throw new Error(`Service account JSON missing ${k}.`);
   return doc;
 }
-function signAssertion(sa, now=Math.floor(Date.now()/1000)){
+function signAssertion(sa, now=Math.floor(Date.now()/1000), scope=DRIVE_SCOPE){
   const header=base64url(JSON.stringify({alg:'RS256',typ:'JWT'}));
   const payload=base64url(JSON.stringify({
     iss:sa.client_email,
-    scope:DRIVE_SCOPE,
+    scope,
     aud:sa.token_uri||TOKEN_AUD,
     iat:now-30,
     exp:now+3600,
@@ -30,8 +31,8 @@ function signAssertion(sa, now=Math.floor(Date.now()/1000)){
   const sig=crypto.sign('RSA-SHA256',Buffer.from(body),sa.private_key);
   return `${body}.${base64url(sig)}`;
 }
-async function tokenFor(sa){
-  const assertion=signAssertion(sa);
+async function tokenFor(sa, scope=DRIVE_SCOPE){
+  const assertion=signAssertion(sa,Math.floor(Date.now()/1000),scope);
   const res=await fetch(sa.token_uri||TOKEN_AUD,{
     method:'POST',
     headers:{'content-type':'application/x-www-form-urlencoded'},
@@ -121,7 +122,7 @@ function parseArgs(argv){
   return out;
 }
 
-export {base64url,parseServiceAccount,signAssertion,classifyFile,safeName};
+export {DRIVE_SCOPE,base64url,parseServiceAccount,signAssertion,tokenFor,classifyFile,safeName,sha256};
 
 async function main(){
   const args=parseArgs(process.argv.slice(2));
@@ -213,6 +214,18 @@ async function main(){
     records.push(row);
   }
 
+  let sheetSummary=null;
+  const sheetConfig=config.structuredSources?.resourceCoachSheet;
+  if(sheetConfig?.enabled){
+    sheetSummary=await collectResourceCoachSheet({
+      token,
+      spreadsheetId:sheetConfig.spreadsheetId,
+      stagedRuns,
+      outDir,
+      ingestScript,
+    });
+  }
+
   fs.mkdirSync(analysisDir,{recursive:true});
   runNode(analyseScript,['--corpus-dir',corpusDir,'--runs-dir',stagedRuns,'--out-dir',analysisDir,'--top-n','20']);
   const analysisSummary=JSON.parse(fs.readFileSync(path.join(analysisDir,'summary.json'),'utf8'));
@@ -235,7 +248,7 @@ async function main(){
       sourceFileCount:files.length,
       collectedBytes:totalBytes,
     },
-    results:{newExperiments,alreadyPresent,rejected,rawEvidence,unsupported},
+    results:{newExperiments,alreadyPresent,rejected,rawEvidence,unsupported,sheet:sheetSummary},
     safeguards:{
       sourceFilesMoved:false,
       sourceFilesDeleted:false,
@@ -262,6 +275,7 @@ async function main(){
     rejected,
     rawEvidence,
     unsupported,
+    sheet:sheetSummary,
     analysisCurrentExperiments:analysisSummary.currentExperimentRecords,
     receiptFileId:receipt?.id||null,
   },null,2));

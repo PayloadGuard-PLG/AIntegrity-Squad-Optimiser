@@ -28,5 +28,19 @@
     "moveAccepted": false,
     "moveRejected": false,
     "note": "My Drive service accounts have no storage quota. Initial bridge is read-only from Drive and non-destructive; use a Shared Drive or delegated user OAuth before enabling receipt uploads."
+  },
+  "structuredSources": {
+    "resourceCoachSheet": {
+      "enabled": true,
+      "spreadsheetId": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+      "title": "Resource Coach Experiment Log — v1",
+      "tabs": [
+        "Experiments",
+        "Observed_Stats",
+        "Partition_History"
+      ],
+      "access": "service-account-reader",
+      "contract": "Existing immutable IDs are semantically cross-checked; only complete new observed IDs are staged."
+    }
   }
 }

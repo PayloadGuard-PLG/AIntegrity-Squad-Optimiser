@@ -62,8 +62,43 @@
       "Existing experiment IDs cannot be overwritten.",
       "Drive source files are not moved or deleted by the initial bridge.",
       "GitHub repository content is not mutated by collection runs.",
-      "My Drive service-account collection is read-only; write-back requires Shared Drive storage or delegated user OAuth."
+      "My Drive service-account collection is read-only; write-back requires Shared Drive storage or delegated user OAuth.",
+      "Live Sheet mirror must match existing immutable experiment semantics or fail closed.",
+      "New Sheet IDs are staged only from complete observed Experiments + Observed_Stats + Partition_History joins."
     ],
-    "writeBack": "disabled-on-my-drive"
+    "writeBack": "disabled-on-my-drive",
+    "structuredSources": {
+      "resourceCoachSheet": {
+        "id": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+        "title": "Resource Coach Experiment Log — v1",
+        "tabs": [
+          "Experiments",
+          "Observed_Stats",
+          "Partition_History"
+        ],
+        "access": "service-account-reader",
+        "behavior": "semantic cross-check existing immutable IDs; stage only complete new observed IDs"
+      },
+      "canonicalCorpus": {
+        "repositorySnapshot": "calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64",
+        "sourceWorkbook": "Squad_Optimiser_Corpus_Calibration_Transfer_2026-09-12.xlsx",
+        "sourceWorkbookSha256": "afdc3b421cde5ce0a49bfe3e451157905b3e0962eb6e3ddbe544448842e23f70",
+        "behavior": "pinned repository snapshot remains authoritative; no ambiguous Drive workbook is auto-selected"
+      },
+      "rawDriveEvidence": {
+        "formats": [
+          "json",
+          "csv",
+          "xls",
+          "xlsx",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "zip"
+        ],
+        "behavior": "hash and stage only unless an explicit deterministic extractor exists"
+      }
+    }
   }
 }
