@@ -37,6 +37,14 @@ function runFixture() {
         },
         observed: { statIntervals: { PASSING: { lo: 3, hi: 4 }, DRIBBLING: { lo: 5, hi: 6 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
+      {
+        id: 'HIST-C',
+        preOutcome: {
+          player: { id: 'C', name: 'Gamma', role: ['MC'], age: 20, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
+          coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
+        },
+        observed: { statIntervals: { PASSING: { lo: 2, hi: 3 }, DRIBBLING: { lo: 4, hi: 5 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
+      },
     ],
   });
 
@@ -116,6 +124,21 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
 
     const matches = fs.readFileSync(path.join(out, 'experiment_matches.csv'), 'utf8');
     assert.match(matches, /HIST-A|HIST-B/);
+
+    const profiles = fs.readFileSync(path.join(out, 'player_longitudinal_profiles.csv'), 'utf8');
+    assert.match(profiles, /Alpha/);
+    assert.match(profiles, /MULTI_STATE_OBSERVED_NOT_CAUSAL/);
+
+    const controls = fs.readFileSync(path.join(out, 'corpus_control_pairs.csv'), 'utf8');
+    assert.match(controls, /ISOLATED_AGE_NON_CAUSAL/);
+
+    const identifiability = fs.readFileSync(path.join(out, 'variable_identifiability.csv'), 'utf8');
+    assert.match(identifiability, /age,/);
+    assert.match(identifiability, /EXACT_CANCELLATION_AVAILABLE/);
+
+    assert.match(comparisons, /order_class/);
+    assert.match(comparisons, /OBSERVED_TEMPORAL_ORDER|CANONICAL_NON_TEMPORAL_ORDER/);
+    assert.match(comparisons, /changed_dimensions/);
 
     const stateMatches = fs.readFileSync(path.join(out, 'experiment_state_matches.csv'), 'utf8');
     assert.match(stateMatches, /RUN-1/);
