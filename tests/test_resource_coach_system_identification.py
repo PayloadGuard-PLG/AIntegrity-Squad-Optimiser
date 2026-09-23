@@ -40,5 +40,14 @@ class SystemIdentificationTests(unittest.TestCase):
         self.assertEqual(rows[0]['x80']['skill_high_exponent'],[160,178])
         self.assertTrue(all(x['x80']['drill_like'][1] < x['x80']['skill_high_exponent'][0] for x in rows))
 
+    def test_new_live_preview_is_an_independent_state_and_constrains_equal_budget(self):
+        rec=REPLAY.live_gilmartin_check()
+        self.assertEqual(rec['observed']['DRIBBLING'],[4,5])
+        self.assertEqual(rec['unchanged_projected_finishing_endpoints'],[158,160])
+        self.assertEqual(rec['new_projected_finishing_endpoints'],[158,160])
+        nominal=next(x for x in rec['equal_budget_minimum_dribbling_over_passing'] if x['beta']==.0354)
+        self.assertGreater(nominal['half_point_display_tolerance'],1)
+        self.assertGreater(rec['minimum_beta_for_equal_budget']['half_point_display_tolerance'],.04)
+
 
 if __name__=='__main__':unittest.main()

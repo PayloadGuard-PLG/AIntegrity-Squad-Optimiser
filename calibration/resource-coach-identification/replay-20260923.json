@@ -1334,6 +1334,78 @@
       }
     }
   ],
+  "new_live_preview": {
+    "source": {
+      "playerCard": "63756.png (file_00000000090881f4978aad088fd1c429)",
+      "coachPreview": "63755.png (file_000000007e60820e92e3676fc1590105)",
+      "sourceKind": "user-supplied in-chat screenshots",
+      "pixelFileAvailableToReplay": false
+    },
+    "anchor_status": "new independent state; prior row has a baseline mismatch and Finishing changed",
+    "observed": {
+      "PASSING": [
+        1,
+        2
+      ],
+      "DRIBBLING": [
+        4,
+        5
+      ],
+      "FINISHING": [
+        4,
+        6
+      ]
+    },
+    "prior": {
+      "PASSING": [
+        1,
+        2
+      ],
+      "DRIBBLING": [
+        4,
+        5
+      ],
+      "FINISHING": [
+        5,
+        7
+      ]
+    },
+    "unchanged_projected_finishing_endpoints": [
+      158,
+      160
+    ],
+    "new_projected_finishing_endpoints": [
+      158,
+      160
+    ],
+    "equal_budget_minimum_dribbling_over_passing": [
+      {
+        "beta": 0,
+        "literal": 2.0,
+        "half_point_display_tolerance": 1.4
+      },
+      {
+        "beta": 0.025,
+        "literal": 1.6794387295030495,
+        "half_point_display_tolerance": 1.1608221122668039
+      },
+      {
+        "beta": 0.0354,
+        "literal": 1.5620102753675555,
+        "half_point_display_tolerance": 1.0738877406748322
+      },
+      {
+        "beta": 0.045,
+        "literal": 1.461055820407886,
+        "half_point_display_tolerance": 0.9994784646960532
+      }
+    ],
+    "minimum_beta_for_equal_budget": {
+      "literal": 0.0997302891213697,
+      "half_point_display_tolerance": 0.04493023481687008
+    },
+    "scope": "Conditional on equal allocation, a common increasing exponential marginal cost, and the same latent tier transform for both WHITE stats. Not a universal falsification of equal allocation."
+  },
   "models": {
     "flat_raw": {
       "parameters": [

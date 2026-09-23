@@ -15,7 +15,7 @@ import math
 from pathlib import Path
 
 import numpy as np
-from scipy.optimize import least_squares
+from scipy.optimize import brentq, least_squares
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'calibration' / 'resource-coach-identification'
@@ -262,6 +262,36 @@ def within_preview_order(rows):
                 equal_start_pairs=equal_start)
 
 
+def live_gilmartin_check():
+    rec=json.loads((DATA/'live-preview-20260923-gilmartin.json').read_text())
+    stats=rec['observed']['statIntervals']
+    # Both target stats are WHITE. Their coordinate separation is eight at any
+    # common tier offset; h cancels when both lie above the same threshold.
+    passing,dribbling=stats['PASSING'],stats['DRIBBLING']
+    u_p,u_d=passing['start']-50,dribbling['start']-50
+    def ratio(beta,slack):
+        return float(integrate(u_d,max(0,dribbling['lo']-slack),135,beta)
+                     /integrate(u_p,passing['hi']+slack,135,beta))
+    return dict(
+        source=rec['source'],
+        anchor_status='new independent state; prior row has a baseline mismatch and Finishing changed',
+        observed={k:[v['lo'],v['hi']] for k,v in stats.items()},
+        prior={k:v for k,v in rec['priorRecord']['statIntervals'].items()},
+        unchanged_projected_finishing_endpoints=[
+            rec['priorRecord']['storedFinishingStart']+rec['priorRecord']['statIntervals']['FINISHING'][0],
+            rec['priorRecord']['storedFinishingStart']+rec['priorRecord']['statIntervals']['FINISHING'][1]],
+        new_projected_finishing_endpoints=[stats['FINISHING']['start']+stats['FINISHING']['lo'],
+                                           stats['FINISHING']['start']+stats['FINISHING']['hi']],
+        equal_budget_minimum_dribbling_over_passing=[
+            dict(beta=beta,literal=ratio(beta,0),half_point_display_tolerance=ratio(beta,.5))
+            for beta in (0,.025,.0354,.045)],
+        minimum_beta_for_equal_budget=dict(
+            literal=brentq(lambda b:ratio(b,0)-1,.000001,.4),
+            half_point_display_tolerance=brentq(lambda b:ratio(b,.5)-1,.000001,.4)),
+        scope='Conditional on equal allocation, a common increasing exponential marginal cost, and the same latent tier transform for both WHITE stats. Not a universal falsification of equal allocation.'
+    )
+
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--out',required=True)
     args=parser.parse_args()
@@ -289,7 +319,8 @@ def main():
                              itertools.product([0,.5,1],[0,.015,.0354])],
                 ovr=ovr_check(doc),prospective=prospective_check(),
                 archive_matched_pairs=matched_archived_pairs(archive),
-                next_experiment=next_experiment_predictions(),models={},cost_sensitivity=[])
+                next_experiment=next_experiment_predictions(),
+                new_live_preview=live_gilmartin_check(),models={},cost_sensitivity=[])
     report['within_preview_order']={
         'archive':within_preview_order(archive),
         'canonical_undisputed':within_preview_order([r for r in canonical_rows if r['id'] not in DISPUTED]),
