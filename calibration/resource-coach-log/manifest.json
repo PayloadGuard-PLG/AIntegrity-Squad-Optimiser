@@ -28,7 +28,10 @@
       "experiment_matches.csv",
       "state_comparisons.csv",
       "state_reobservations.csv",
-      "cohort_metrics.csv"
+      "cohort_metrics.csv",
+      "player_longitudinal_profiles.csv",
+      "corpus_control_pairs.csv",
+      "variable_identifiability.csv"
     ],
     "scope": "all immutable current experiments against the full canonical longitudinal corpus in one batch"
   }
