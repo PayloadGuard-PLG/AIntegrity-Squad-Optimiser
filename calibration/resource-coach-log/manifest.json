@@ -33,6 +33,16 @@
       "corpus_control_pairs.csv",
       "variable_identifiability.csv"
     ],
-    "scope": "all immutable current experiments against the full canonical longitudinal corpus in one batch"
+    "scope": "all immutable current experiments against the full canonical longitudinal corpus in one batch",
+    "displayClassEvidence": "calibration/longitudinal-corpus/display-class-evidence-v1.json.gz.b64",
+    "displayClassEvidenceSha256": "ee97b07648af03f575319a79f15893adbf090a506318b1c399b626cd87675cfd",
+    "displayClassEvidenceCounts": {
+      "previewStatRows": 345,
+      "white": 241,
+      "midGrey": 104,
+      "intervalRows": 79,
+      "playerStateCrossCheckMismatches": 0
+    },
+    "displayClassEvidenceContract": "direct observed UI extraction from pinned workbook; fill missing historical class only; never infer from roles; fail on conflicts"
   }
 }
