@@ -1,0 +1,5 @@
+Drill Quality,Training Effect %,Evidence Grade,Current Evidence,Use in Model
+Amateur,,pending,"Current screenshots not yet captured; historical UI shows no displayed bonus",Do not assume
+Semi-Pro,10,historical-direct,"2016 UI/forum capture reports Semi-Pro +10% training effect",Keep as historical prior only
+Pro,,pending,"Four-tier quality ladder is documented; current direct +20 capture not yet found",Do not assume
+World-class,30,current-direct,"Seven 2026 screenshots show World-class +30 Training effect; user confirms this is max",Confirmed display variable
