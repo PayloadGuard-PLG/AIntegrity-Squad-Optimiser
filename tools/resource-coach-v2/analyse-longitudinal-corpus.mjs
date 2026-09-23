@@ -36,9 +36,10 @@ function playerKey(id,name){ const n=normText(name); return n || normText(id) ||
 const states=[];
 const observations=[];
 const sources=[];
+let discardedNonPositiveStatValues=0;
 function addState(raw, sourceFile, sourceKind){
   if(!raw)return null;
-  const stats={}; for(const [k,v] of Object.entries(raw.stats??{})){ const n=num(v); if(n!==null) stats[normStat(k)]=n; }
+  const stats={}; for(const [k,v] of Object.entries(raw.stats??{})){ const n=num(v); if(n!==null&&n>0) stats[normStat(k)]=n; else if(n!==null) discardedNonPositiveStatValues++; }
   if(Object.keys(stats).length===0)return null;
   const s={
     playerKey:playerKey(raw.id,raw.name), playerId:raw.id??null, playerName:raw.name??null,
@@ -209,13 +210,14 @@ const summary={
   corpusDirectory:path.relative(process.cwd(),corpusDir),runsDirectory:path.relative(process.cwd(),runsDir),sourceJsonFiles:sources.length,
   rawStateRecords:states.length,uniqueStateFingerprints:uniqueStates.length,stateReobservedFingerprints:stateReobservations.length,playerIdentities:byPlayer.size,stateComparisons:stateComparisons.length,
   empiricalPreviewRecords:observations.length,uniqueEmpiricalPreviews:seenEvidence.size,duplicateEmpiricalPreviews:observations.length-seenEvidence.size,empiricalStatIntervals:empiricalStats.length,
-  currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,cohortMetricRows:metrics.length,
+  currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,cohortMetricRows:metrics.length,discardedNonPositiveStatValues,
   safeguards:[
     'No player filter: every run is evaluated against the full available corpus in one batch.',
     'Same-player state pairs are labelled observed comparisons unless a direct causal transition is explicitly evidenced.',
     'Interval endpoints remain separate; no midpoint is substituted for observed low/high bounds.',
     'Exact empirical duplicates are retained for provenance but receive zero analytical weight.',
-    'Similarity is descriptive retrieval only; it is not a fitted transfer law or causal score.'
+    'Similarity is descriptive retrieval only; it is not a fitted transfer law or causal score.',
+    'Non-positive player stat values are treated as missing/sentinel evidence and excluded from state fingerprints and deltas.'
   ]
 };
 fs.writeFileSync(path.join(outDir,'summary.json'),JSON.stringify(summary,null,2)+'\n');
