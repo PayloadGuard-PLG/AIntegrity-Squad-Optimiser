@@ -23,7 +23,6 @@ const TALENT_LABEL: Record<TalentTier, string> = {
   Fastest: 'Fastest ×1.5', Fast: 'Fast ×1.25', Average: 'Average ×1.1', Normal: 'Normal ×1.0', Slow: 'Slow ×0.7', Unknown: 'Unknown — projected ×1.0',
 };
 const TALENT_INFO = 'Training rate multiplier — how quickly this player gains stats per session.\n\nFastest ×1.5 — learns 50% faster than normal\nFast ×1.25 — learns 25% faster\nAverage ×1.1 — learns 10% faster\nNormal ×1.0 — standard rate\nSlow ×0.7 — learns 30% slower\n\nDetected automatically from player card scan. Age reduces training rate separately.';
-const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 const _profile = gameProfile as unknown as GameProfile;
 const TIER_ADDITIONS: Record<TierName, number> = _profile.tierAttrAdditions as Record<TierName, number>;
