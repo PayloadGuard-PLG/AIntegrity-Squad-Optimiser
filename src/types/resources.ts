@@ -44,7 +44,7 @@ export interface GameProfile {
    * mechanic is a surge, not a fan club level.
    */
   fanClubCondReduction: number[];
-  /** Condition drain multiplier per drill difficulty (separate from XP multipliers) */
+  /** Condition drain multiplier per fixed drill intensity. */
   condLevelMultipliers: Record<string, number>;
   /** Base condition % lost per drill before level/fan modifiers */
   baseLossPerDrill: number;
