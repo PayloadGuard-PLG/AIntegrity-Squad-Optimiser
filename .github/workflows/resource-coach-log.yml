@@ -82,7 +82,13 @@ jobs:
             cat /tmp/resource-coach-longitudinal/summary.json
             echo '```'
             echo
-            echo 'The generated form_intake.csv contains one row per observed stat for every immutable experiment; experiment_matches.csv contains the strongest corpus comparators, and state_comparisons.csv contains all unique same-player observed state pairs without inventing causal transitions; state_reobservations.csv records repeated observations of identical states separately.'
+            echo 'The generated form_intake.csv contains one row per observed stat for every immutable experiment; experiment_matches.csv contains the strongest corpus comparators; state_comparisons.csv contains all unique same-player observed state pairs without inventing causal transitions; player_longitudinal_profiles.csv sweeps every player identity; corpus_control_pairs.csv enumerates exact/near covariate cancellations; variable_identifiability.csv reports which variables the current corpus can separate without claiming causal effects.'
+            echo
+            echo '### Variable identifiability'
+            echo
+            echo '```csv'
+            cat /tmp/resource-coach-longitudinal/variable_identifiability.csv
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify immutable-ingest idempotence
