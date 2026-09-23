@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { collectResourceCoachSheet, SHEETS_READ_SCOPE } from './collect-resource-coach-sheet.mjs';
 
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive';
 const TOKEN_AUD='https://oauth2.googleapis.com/token';
@@ -213,6 +214,19 @@ async function main(){
     records.push(row);
   }
 
+  let sheetSummary=null;
+  const sheetConfig=config.structuredSources?.resourceCoachSheet;
+  if(sheetConfig?.enabled){
+    const sheetsToken=await tokenFor(sa,SHEETS_READ_SCOPE);
+    sheetSummary=await collectResourceCoachSheet({
+      token:sheetsToken,
+      spreadsheetId:sheetConfig.spreadsheetId,
+      stagedRuns,
+      outDir,
+      ingestScript,
+    });
+  }
+
   fs.mkdirSync(analysisDir,{recursive:true});
   runNode(analyseScript,['--corpus-dir',corpusDir,'--runs-dir',stagedRuns,'--out-dir',analysisDir,'--top-n','20']);
   const analysisSummary=JSON.parse(fs.readFileSync(path.join(analysisDir,'summary.json'),'utf8'));
@@ -235,7 +249,7 @@ async function main(){
       sourceFileCount:files.length,
       collectedBytes:totalBytes,
     },
-    results:{newExperiments,alreadyPresent,rejected,rawEvidence,unsupported},
+    results:{newExperiments,alreadyPresent,rejected,rawEvidence,unsupported,sheet:sheetSummary},
     safeguards:{
       sourceFilesMoved:false,
       sourceFilesDeleted:false,
@@ -262,6 +276,7 @@ async function main(){
     rejected,
     rawEvidence,
     unsupported,
+    sheet:sheetSummary,
     analysisCurrentExperiments:analysisSummary.currentExperimentRecords,
     receiptFileId:receipt?.id||null,
   },null,2));
