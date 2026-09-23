@@ -1,267 +1,478 @@
 #!/usr/bin/env python3
-"""Seeded Resource Coach corpus holdout validation.
+"""Replay the current ordinary-coach model against observed screenshot outcomes.
 
-Research-only workflow:
-- imports the current 23 Sep system-identification implementation;
-- chooses one eligible archive player deterministically from a logged seed;
-- excludes that player completely from fitting;
-- predicts every held-out interval for that player;
-- repeats the same leave-one-player-out procedure for every player;
-- fits the archive once and scores the independent, non-duplicate,
-  non-disputed canonical workbook rows;
-- compares the current nominal response structure against simple controls.
+This is intentionally different from the older retrospective parameter-fit replay.
 
-This script does not mutate production profiles or calibrate from the outcome it
-is scoring. It writes audit artifacts for human/Work-mode review.
+Experiment:
+  1. Keep one exact player state fixed.
+  2. Use ONE observed coach card for that state only to calibrate C_P.
+  3. Predict every OTHER coach card for the same state without reading its outcome.
+  4. Compare prediction to the screenshot-observed gain interval.
+  5. Rotate every eligible coach card through the anchor role.
+  6. Repeat across every player/state with >=2 eligible coach events.
+
+Frozen/chat predictions are never used as truth. For the conversation-locked
+23-Sep file, only player state + coach metadata + observed screenshot ranges are
+read; the stored prediction/point fields are deliberately ignored.
 """
 
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
+import gzip
 import hashlib
-import importlib.util
 import json
 import math
 import pathlib
-from typing import Any, Iterable
-
-import numpy as np
+import re
+from collections import defaultdict
+from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-SI_PATH = ROOT / "tools" / "resource-coach-v2" / "system_identification.py"
-LIVE_CANDIDATE_PATH = (
-    ROOT / "calibration" / "resource-coach-identification"
-    / "live-calibration-candidate-20260923.json"
-)
+PROFILE_PATH = ROOT / "profiles" / "resource_coach_current_replay_20260923.json"
+ARCHIVE_PATH = ROOT / "calibration" / "resource-coach-identification" / "archived-preview-rows-v1.json"
+CHAT_PATH = ROOT / "calibration" / "resource-coach-identification" / "chat-locked-tests-20260923.json"
+CANONICAL_PATH = ROOT / "calibration" / "longitudinal-corpus" / "canonical-corpus-v1.json.gz.b64"
+EXCLUSIONS_PATH = ROOT / "calibration" / "resource-coach-log" / "quality-exclusions.json"
 
-SPEC = importlib.util.spec_from_file_location("resource_coach_system_identification", SI_PATH)
-if SPEC is None or SPEC.loader is None:
-    raise RuntimeError(f"Cannot import {SI_PATH}")
-SI = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(SI)
-
-# These are the exact structures already exercised in system_identification.py.
-VARIANTS: dict[str, tuple[float, float, float, bool]] = {
-    "current_plateau_tier": (0.0354, 135.0, 120.0, True),
-    "flat_tier_control": (0.0, 135.0, 120.0, True),
-    "plateau_raw_control": (0.0354, 135.0, 120.0, False),
-    "common_threshold_control": (0.0354, 135.0, 135.0, True),
-}
-CURRENT_VARIANT = "current_plateau_tier"
-KNOWN_CLASSES = {"WHITE", "MID_GREY"}
+PROFILE = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+R = PROFILE["response"]
+TIER = {f"T{i}": v for i, v in enumerate(PROFILE["tierAdditions"])}
+KNOWN_CLASS = {"WHITE", "MID_GREY"}
+SCREENSHOT_RE = re.compile(r"(\.png\b|screenshot|chat_upload|\bpreview\b|\bcard\b)", re.I)
 
 
-def finite_number(value: Any) -> bool:
-    return isinstance(value, (int, float)) and math.isfinite(float(value))
+def age_scale(age: int) -> float:
+    for band in PROFILE["ageScaleBands"]:
+        if band["minAge"] <= age <= band["maxAge"]:
+            return float(band["scale"])
+    raise ValueError(f"age outside replay profile: {age}")
 
 
-def archived_rows() -> list[dict[str, Any]]:
-    rows = [dict(r) for r in SI.archived() if r.get("cls") in KNOWN_CLASSES]
-    if not rows:
-        raise RuntimeError("No eligible archive rows with observed display class.")
-    for r in rows:
-        for key in ("player", "name", "id", "stat", "coach", "family", "cls"):
-            if not r.get(key):
-                raise RuntimeError(f"Incomplete archive row ({key}): {r}")
-        if not all(finite_number(r.get(k)) for k in ("age", "tier", "s", "N", "p")):
-            raise RuntimeError(f"Non-numeric archive covariate: {r}")
-        if not (
-            isinstance(r.get("g"), list)
-            and len(r["g"]) == 2
-            and all(finite_number(v) for v in r["g"])
-            and r["g"][0] <= r["g"][1]
-        ):
-            raise RuntimeError(f"Invalid observed interval: {r}")
-    return rows
+def tier_addition(tier: Any) -> float:
+    if isinstance(tier, int):
+        key = f"T{tier}"
+    else:
+        key = str(tier).upper()
+    if key not in TIER:
+        raise ValueError(f"unsupported tier: {tier}")
+    return float(TIER[key])
 
 
-def player_names(rows: Iterable[dict[str, Any]]) -> dict[str, str]:
-    out: dict[str, str] = {}
-    for r in rows:
-        out.setdefault(str(r["player"]), str(r.get("name") or r["player"]))
+def transformed_start(start: float, tier: Any, display_class: str) -> float:
+    return start - tier_addition(tier) if display_class == "WHITE" else start
+
+
+def threshold(display_class: str) -> float:
+    if display_class == "WHITE":
+        return float(R["whiteThreshold"])
+    if display_class == "MID_GREY":
+        return float(R["midGreyThreshold"])
+    raise ValueError(display_class)
+
+
+def latent_gain(u: float, h: float, budget: float) -> float:
+    """Invert integral of flat-then-exponential marginal cost."""
+    if budget <= 0:
+        return 0.0
+    k = float(R["K"])
+    if u < h:
+        flat = h - u
+        if budget <= flat:
+            movement = budget
+        else:
+            movement = flat + k * math.log1p((budget - flat) / k)
+    else:
+        cost_at_u = math.exp((u - h) / k)
+        movement = k * math.log1p(budget / (k * cost_at_u))
+    if R.get("visibleGainRectification", True):
+        return max(0.0, u + movement) - max(0.0, u)
+    return movement
+
+
+def predict_interval(row: dict[str, Any], c_player: float) -> tuple[float, float]:
+    p = float(row["p"])
+    if p <= 0:
+        raise ValueError("affected-stat count must be positive")
+    b_lo = c_player * age_scale(int(row["age"])) * float(row["N"]) / p
+    b_hi = b_lo * float(R["upperDoseRatio"])
+    u = transformed_start(float(row["s"]), row["tier"], row["cls"])
+    h = threshold(row["cls"])
+    return latent_gain(u, h, b_lo), latent_gain(u, h, b_hi)
+
+
+def row_endpoint_sse(row: dict[str, Any], b_lo: float) -> float:
+    b_hi = b_lo * float(R["upperDoseRatio"])
+    u = transformed_start(float(row["s"]), row["tier"], row["cls"])
+    h = threshold(row["cls"])
+    plo, phi = latent_gain(u, h, b_lo), latent_gain(u, h, b_hi)
+    olo, ohi = map(float, row["g"])
+    return (plo - olo) ** 2 + (phi - ohi) ** 2
+
+
+def implied_budget(row: dict[str, Any]) -> float:
+    """One-dimensional bounded minimisation of endpoint SSE for one observed stat."""
+    lo, hi = 0.0, 10000.0
+    for _ in range(160):
+        m1 = lo + (hi - lo) / 3.0
+        m2 = hi - (hi - lo) / 3.0
+        if row_endpoint_sse(row, m1) <= row_endpoint_sse(row, m2):
+            hi = m2
+        else:
+            lo = m1
+    return (lo + hi) / 2.0
+
+
+def calibrate_event(event: dict[str, Any]) -> dict[str, Any]:
+    rows = event["rows"]
+    budgets = [implied_budget(r) for r in rows]
+    common_b = sum(budgets) / len(budgets)
+    exemplar = rows[0]
+    denominator = age_scale(int(exemplar["age"])) * float(exemplar["N"]) / float(exemplar["p"])
+    c_player = common_b / denominator
+    fitted = [predict_interval(r, c_player) for r in rows]
+    anchor_endpoint_mae = sum(
+        (abs(p[0] - float(r["g"][0])) + abs(p[1] - float(r["g"][1]))) / 2.0
+        for r, p in zip(rows, fitted)
+    ) / len(rows)
+    return {
+        "cPlayer": c_player,
+        "commonBudgetLo": common_b,
+        "perStatBudgetLo": {r["stat"]: b for r, b in zip(rows, budgets)},
+        "anchorEndpointMae": anchor_endpoint_mae,
+    }
+
+
+def evidence_grade(source: str) -> str:
+    if SCREENSHOT_RE.search(source or ""):
+        return "direct-screenshot-reference"
+    if source.startswith("conversation-observed:"):
+        return "conversation-screenshot-observed"
+    return "structured-secondary"
+
+
+def normalize_family(v: Any) -> str:
+    return str(v or "UNKNOWN").replace("-", " ").strip().upper()
+
+
+def ordinary(row: dict[str, Any]) -> bool:
+    transfer = str(row.get("transferClass") or "ordinary").lower()
+    fam = normalize_family(row.get("family"))
+    coach = str(row.get("coach") or "").upper()
+    return transfer == "ordinary" and "REWARD" not in fam and "REWARD" not in coach
+
+
+def load_archive_rows() -> list[dict[str, Any]]:
+    doc = json.loads(ARCHIVE_PATH.read_text(encoding="utf-8"))
+    out = []
+    for raw in doc["rows"]:
+        if raw.get("cls") not in KNOWN_CLASS or not raw.get("state"):
+            continue
+        row = {
+            "partition": "archive",
+            "event": str(raw["id"]),
+            "player": str(raw["player"]),
+            "playerName": str(raw.get("name") or raw["player"]),
+            "state": str(raw["state"]),
+            "age": int(raw["age"]),
+            "tier": f"T{int(raw['tier'])}",
+            "stat": str(raw["stat"]).upper(),
+            "s": float(raw["s"]),
+            "cls": str(raw["cls"]),
+            "coach": str(raw.get("coach") or "UNKNOWN"),
+            "family": normalize_family(raw.get("family")),
+            "N": float(raw["N"]),
+            "p": int(raw["p"]),
+            "g": [float(raw["g"][0]), float(raw["g"][1])],
+            "source": str(raw.get("source") or ""),
+            "transferClass": "ordinary",
+        }
+        row["evidenceGrade"] = evidence_grade(row["source"])
+        if ordinary(row):
+            out.append(row)
     return out
 
 
-def choose_player(
-    rows: list[dict[str, Any]],
-    seed: str,
-    requested: str | None = None,
-) -> tuple[str, str, int]:
-    names = player_names(rows)
-    players = sorted(names)
-    if not players:
-        raise RuntimeError("No eligible players.")
+def load_chat_observed_rows() -> list[dict[str, Any]]:
+    """Use actual screenshot observations only. Never read prediction/point fields."""
+    doc = json.loads(CHAT_PATH.read_text(encoding="utf-8"))
+    states = doc["playerStates"]
+    out = []
+    for test in doc["tests"]:
+        coach = test["coach"]
+        if str(coach.get("transferClass", "ordinary")).lower() != "ordinary":
+            continue
+        state_id = test["playerStateId"]
+        state = states[state_id]
+        for stat in test["affectedStats"]:
+            row = {
+                "partition": "chat-observed",
+                "event": str(test["testId"]),
+                "player": state_id,
+                "playerName": str(state["playerName"]),
+                "state": state_id,
+                "age": int(state["age"]),
+                "tier": str(state["tier"]),
+                "stat": str(stat["stat"]).upper(),
+                "s": float(stat["start"]),
+                "cls": str(stat["displayClass"]),
+                "coach": str(coach["coachLabel"]),
+                "family": normalize_family(coach.get("programmeFamily")),
+                "N": float(coach["multiplier"]),
+                "p": int(coach["affectedStatCount"]),
+                "g": [float(stat["observed"][0]), float(stat["observed"][1])],
+                "source": f"conversation-observed:{test['testId']}",
+                "transferClass": "ordinary",
+                "evidenceGrade": "conversation-screenshot-observed",
+            }
+            if row["cls"] in KNOWN_CLASS:
+                out.append(row)
+    return out
 
-    if requested:
-        normalized = requested.casefold().strip()
-        matches = [
-            p for p in players
-            if p.casefold() == normalized or names[p].casefold() == normalized
-        ]
-        if len(matches) != 1:
-            raise RuntimeError(
-                f"--player must match exactly one eligible player id/name; got {matches}"
-            )
-        p = matches[0]
-        return p, names[p], players.index(p)
 
-    digest = hashlib.sha256(seed.encode("utf-8")).digest()
-    index = int.from_bytes(digest[:8], "big") % len(players)
-    p = players[index]
-    return p, names[p], index
+def load_canonical_rows() -> list[dict[str, Any]]:
+    packed = CANONICAL_PATH.read_text(encoding="utf-8").strip()
+    doc = json.loads(gzip.decompress(base64.b64decode(packed)).decode("utf-8"))
+    excluded = {
+        x["experimentId"]
+        for x in json.loads(EXCLUSIONS_PATH.read_text(encoding="utf-8"))["experiments"]
+    }
+    out = []
+    for exp in doc["experiments"]:
+        if exp["id"] in excluded or exp["id"] == "PRV-0022":
+            continue
+        player = exp["preOutcome"]["player"]
+        coach = exp["preOutcome"]["coach"]
+        state = str(exp.get("_stateId") or exp["id"])
+        intervals = exp["observed"]["statIntervals"]
+        p = len(intervals)
+        for stat, gain in intervals.items():
+            cls = exp.get("_classByStat", {}).get(stat)
+            if cls not in KNOWN_CLASS:
+                continue
+            row = {
+                "partition": "canonical-workbook",
+                "event": str(exp["id"]),
+                "player": str(player["id"]),
+                "playerName": str(player["name"]),
+                "state": state,
+                "age": int(player["age"]),
+                "tier": str(player["tier"]),
+                "stat": str(stat).upper(),
+                "s": float(player["stats"][stat]),
+                "cls": cls,
+                "coach": str(coach["title"]),
+                "family": normalize_family(coach.get("programmeFamily")),
+                "N": float(coach["multiplier"]),
+                "p": p,
+                "g": [float(gain["lo"]), float(gain["hi"])],
+                "source": "canonical-workbook",
+                "transferClass": str(coach.get("transferClass") or "ordinary"),
+                "evidenceGrade": "canonical-workbook",
+            }
+            if ordinary(row):
+                out.append(row)
+    return out
 
 
-def interval_detail(
-    row: dict[str, Any],
-    pred: np.ndarray,
-    variant: str,
-    heldout_player: str,
-) -> dict[str, Any]:
-    plo, phi = float(pred[0]), float(pred[1])
-    olo, ohi = float(row["g"][0]), float(row["g"][1])
+def event_fingerprint(rows: list[dict[str, Any]]) -> str:
+    payload = {
+        "player": rows[0]["player"], "state": rows[0]["state"],
+        "coach": rows[0]["coach"], "family": rows[0]["family"],
+        "N": rows[0]["N"], "p": rows[0]["p"],
+        "stats": sorted((r["stat"], r["s"], r["cls"], tuple(r["g"])) for r in rows),
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+
+def build_events(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for r in rows:
+        grouped[(r["partition"], r["player"], r["state"], r["event"])].append(r)
+    events = []
+    seen = set()
+    for (_, player, state, event), rr in sorted(grouped.items()):
+        rr.sort(key=lambda x: x["stat"])
+        fp = event_fingerprint(rr)
+        if fp in seen:
+            continue
+        seen.add(fp)
+        events.append({
+            "event": event,
+            "player": player,
+            "playerName": rr[0]["playerName"],
+            "state": state,
+            "partition": rr[0]["partition"],
+            "family": rr[0]["family"],
+            "coach": rr[0]["coach"],
+            "N": rr[0]["N"],
+            "p": rr[0]["p"],
+            "age": rr[0]["age"],
+            "tier": rr[0]["tier"],
+            "evidenceGrade": rr[0]["evidenceGrade"],
+            "rows": rr,
+        })
+    return events
+
+
+def score_row(anchor: dict[str, Any], target: dict[str, Any], row: dict[str, Any], c_player: float) -> dict[str, Any]:
+    plo, phi = predict_interval(row, c_player)
+    olo, ohi = map(float, row["g"])
+    pmid, omid = (plo + phi) / 2.0, (olo + ohi) / 2.0
+    inter = max(0.0, min(phi, ohi) - max(plo, olo))
+    union = max(phi, ohi) - min(plo, olo)
     overlap = max(plo, olo) <= min(phi, ohi)
-    gap = max(0.0, olo - phi, plo - ohi)
     return {
-        "variant": variant,
-        "heldout_player_id": heldout_player,
-        "player_id": row["player"],
-        "player_name": row.get("name", ""),
-        "event_id": row["id"],
-        "family": row["family"],
-        "coach": row["coach"],
-        "multiplier": row["N"],
-        "affected_count": row["p"],
-        "age": row["age"],
-        "tier": row["tier"],
+        "partition": target["partition"],
+        "player_id": target["player"],
+        "player_name": target["playerName"],
+        "state": target["state"],
+        "anchor_event": anchor["event"],
+        "anchor_family": anchor["family"],
+        "anchor_coach": anchor["coach"],
+        "target_event": target["event"],
+        "target_family": target["family"],
+        "target_coach": target["coach"],
+        "target_multiplier": target["N"],
+        "target_p": target["p"],
         "stat": row["stat"],
         "start": row["s"],
         "display_class": row["cls"],
+        "c_player": c_player,
         "pred_lo": plo,
         "pred_hi": phi,
+        "pred_mid": pmid,
+        "pred_display_lo": math.floor(plo),
+        "pred_display_hi": math.ceil(phi),
         "obs_lo": olo,
         "obs_hi": ohi,
-        "overlap": overlap,
-        "interval_gap": gap,
-        "endpoint_mae_literal": (abs(plo - olo) + abs(phi - ohi)) / 2.0,
-        "source": row.get("source", ""),
+        "obs_mid": omid,
+        "midpoint_abs_error": abs(pmid - omid),
+        "point_inside_observed": olo <= pmid <= ohi,
+        "interval_overlap": overlap,
+        "endpoint_mae": (abs(plo - olo) + abs(phi - ohi)) / 2.0,
+        "interval_iou": 1.0 if union == 0 else inter / union,
+        "evidence_grade": row["evidenceGrade"],
+        "source": row["source"],
     }
 
 
-def evaluate_player(
-    rows: list[dict[str, Any]],
-    player: str,
-    variant_name: str,
-) -> dict[str, Any]:
-    variant = VARIANTS[variant_name]
-    train = [r for r in rows if r["player"] != player]
-    test = [r for r in rows if r["player"] == player]
-    if len(train) < 9 or not test:
-        raise RuntimeError(
-            f"Insufficient fold data for {player}: train={len(train)} test={len(test)}"
-        )
+def cross_validate(events: list[dict[str, Any]], primary_only: bool) -> dict[str, Any]:
+    by_state: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for e in events:
+        if primary_only and e["evidenceGrade"] not in {
+            "direct-screenshot-reference", "conversation-screenshot-observed"
+        }:
+            continue
+        by_state[(e["partition"], e["player"], e["state"])].append(e)
 
-    coeff, diagnostic = SI.fit(train, variant)
-    pred = SI.predict(test, coeff, variant)
-    metrics = SI.score(test, pred)
-    details = [
-        interval_detail(row, p, variant_name, player)
-        for row, p in zip(test, pred, strict=True)
-    ]
+    predictions = []
+    anchor_records = []
+    eligible_groups = 0
+    for key, group in sorted(by_state.items()):
+        if len(group) < 2:
+            continue
+        eligible_groups += 1
+        for anchor in group:
+            cal = calibrate_event(anchor)
+            anchor_records.append({
+                "partition": anchor["partition"],
+                "player_id": anchor["player"],
+                "player_name": anchor["playerName"],
+                "state": anchor["state"],
+                "anchor_event": anchor["event"],
+                "anchor_family": anchor["family"],
+                "anchor_coach": anchor["coach"],
+                "anchor_multiplier": anchor["N"],
+                "anchor_p": anchor["p"],
+                "c_player": cal["cPlayer"],
+                "common_budget_lo": cal["commonBudgetLo"],
+                "anchor_endpoint_mae": cal["anchorEndpointMae"],
+                "per_stat_budget_lo": json.dumps(cal["perStatBudgetLo"], sort_keys=True),
+            })
+            for target in group:
+                if target["event"] == anchor["event"]:
+                    continue
+                for row in target["rows"]:
+                    predictions.append(score_row(anchor, target, row, cal["cPlayer"]))
+
     return {
-        "player": player,
-        "playerName": test[0].get("name", player),
-        "variant": variant_name,
-        "trainRows": len(train),
-        "heldoutRows": len(test),
-        "heldoutEvents": len({r["id"] for r in test}),
-        "fitDiagnostic": diagnostic,
-        "coefficients": [float(x) for x in coeff],
-        "metrics": metrics,
-        "details": details,
+        "eligiblePlayerStates": eligible_groups,
+        "anchors": anchor_records,
+        "predictions": predictions,
+        "metrics": aggregate(predictions),
+        "byTargetFamily": grouped_metrics(predictions, "target_family"),
+        "byAnchorTargetFamily": grouped_metrics(predictions, ("anchor_family", "target_family")),
     }
 
 
-def exhaustive_lopo(
-    rows: list[dict[str, Any]],
-    variant_name: str,
-) -> dict[str, Any]:
-    variant = VARIANTS[variant_name]
-    preds = np.zeros((len(rows), 2), dtype=float)
-    folds: list[dict[str, Any]] = []
-
-    for player in sorted({str(r["player"]) for r in rows}):
-        indices = [i for i, r in enumerate(rows) if r["player"] == player]
-        train = [r for r in rows if r["player"] != player]
-        held = [rows[i] for i in indices]
-        if len(train) < 9:
-            raise RuntimeError(f"Insufficient training rows for LOPO fold {player}")
-        coeff, diagnostic = SI.fit(train, variant)
-        fold_pred = SI.predict(held, coeff, variant)
-        preds[indices] = fold_pred
-        folds.append(
-            {
-                "player": player,
-                "playerName": held[0].get("name", player),
-                "trainRows": len(train),
-                "heldoutRows": len(held),
-                "heldoutEvents": len({r["id"] for r in held}),
-                "coefficients": [float(x) for x in coeff],
-                "fitDiagnostic": diagnostic,
-                "metrics": SI.score(held, fold_pred),
-            }
-        )
-
-    details = [
-        interval_detail(row, p, variant_name, str(row["player"]))
-        for row, p in zip(rows, preds, strict=True)
-    ]
+def aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    if not rows:
+        return {"n": 0}
     return {
-        "variant": variant_name,
-        "metrics": SI.score(rows, preds),
-        "folds": folds,
-        "details": details,
+        "n": len(rows),
+        "players": len({r["player_id"] for r in rows}),
+        "playerStates": len({(r["partition"], r["player_id"], r["state"]) for r in rows}),
+        "anchorTargetPairs": len({(r["partition"], r["anchor_event"], r["target_event"]) for r in rows}),
+        "distinctTargetCoaches": len({(r["target_family"], r["target_coach"], r["target_multiplier"]) for r in rows}),
+        "midpointMae": sum(r["midpoint_abs_error"] for r in rows) / len(rows),
+        "pointInsideObservedRate": sum(bool(r["point_inside_observed"]) for r in rows) / len(rows),
+        "intervalOverlapRate": sum(bool(r["interval_overlap"]) for r in rows) / len(rows),
+        "endpointMae": sum(r["endpoint_mae"] for r in rows) / len(rows),
+        "meanIntervalIou": sum(r["interval_iou"] for r in rows) / len(rows),
     }
 
 
-def independent_canonical_holdout(
-    archive: list[dict[str, Any]],
-    variant_name: str,
-) -> dict[str, Any]:
-    canonical_rows, _ = SI.canonical()
-    archive_fingerprints = {
-        (r["name"], r["s"], r["stat"], r["N"], r["p"], tuple(r["g"]))
-        for r in archive
-    }
-    heldout = [
-        r for r in canonical_rows
-        if r.get("cls") in KNOWN_CLASSES
-        and r["id"] not in SI.DISPUTED
-        and (r["name"], r["s"], r["stat"], r["N"], r["p"], tuple(r["g"]))
-        not in archive_fingerprints
-    ]
-    if not heldout:
-        raise RuntimeError("Independent canonical holdout is empty.")
+def grouped_metrics(rows: list[dict[str, Any]], field: Any) -> dict[str, Any]:
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for r in rows:
+        if isinstance(field, tuple):
+            key = " -> ".join(str(r[f]) for f in field)
+        else:
+            key = str(r[field])
+        groups[key].append(r)
+    return {k: aggregate(v) for k, v in sorted(groups.items())}
 
-    coeff, diagnostic = SI.fit(archive, VARIANTS[variant_name])
-    pred = SI.predict(heldout, coeff, VARIANTS[variant_name])
-    details = [
-        interval_detail(row, p, variant_name, "INDEPENDENT_CANONICAL")
-        for row, p in zip(heldout, pred, strict=True)
-    ]
+
+def global_baseline(events: list[dict[str, Any]], primary_only: bool) -> dict[str, Any]:
+    c = float(PROFILE["dose"]["globalAmplitude"])
+    rows = []
+    for e in events:
+        if primary_only and e["evidenceGrade"] not in {
+            "direct-screenshot-reference", "conversation-screenshot-observed"
+        }:
+            continue
+        for row in e["rows"]:
+            dummy = {"event": "GLOBAL", "family": "GLOBAL", "coach": "GLOBAL"}
+            rows.append(score_row(dummy, e, row, c))
+    return {"metrics": aggregate(rows), "byTargetFamily": grouped_metrics(rows, "target_family"), "predictions": rows}
+
+
+def seeded_spotlight(cv: dict[str, Any], seed: str) -> dict[str, Any] | None:
+    pairs: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for r in cv["predictions"]:
+        pairs[(r["partition"], r["anchor_event"], r["target_event"])].append(r)
+    if not pairs:
+        return None
+    keys = sorted(pairs)
+    idx = int.from_bytes(hashlib.sha256(seed.encode()).digest()[:8], "big") % len(keys)
+    key = keys[idx]
+    rows = pairs[key]
     return {
-        "variant": variant_name,
-        "trainRows": len(archive),
-        "heldoutRows": len(heldout),
-        "heldoutEvents": len({r["id"] for r in heldout}),
-        "fitDiagnostic": diagnostic,
-        "coefficients": [float(x) for x in coeff],
-        "metrics": SI.score(heldout, pred),
-        "details": details,
-        "exclusions": {
-            "qualityDisputedIds": sorted(SI.DISPUTED),
-            "exactCrossSourceDuplicatesRemoved": True,
-        },
+        "seed": seed,
+        "selectionIndex": idx,
+        "pairCount": len(keys),
+        "partition": key[0],
+        "anchorEvent": key[1],
+        "targetEvent": key[2],
+        "player": rows[0]["player_name"],
+        "state": rows[0]["state"],
+        "anchorCoach": rows[0]["anchor_coach"],
+        "targetCoach": rows[0]["target_coach"],
+        "metrics": aggregate(rows),
+        "rows": rows,
     }
 
 
@@ -271,212 +482,163 @@ def write_csv(path: pathlib.Path, rows: list[dict[str, Any]]) -> None:
         path.write_text("", encoding="utf-8")
         return
     headers = list(rows[0])
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=headers, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=headers, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
 
 
-def fmt_pct(value: Any) -> str:
-    return "n/a" if not finite_number(value) else f"{float(value) * 100:.1f}%"
+def pct(v: Any) -> str:
+    return "n/a" if v is None else f"{100*float(v):.1f}%"
 
 
-def fmt_num(value: Any) -> str:
-    return "n/a" if not finite_number(value) else f"{float(value):.3f}"
+def num(v: Any) -> str:
+    return "n/a" if v is None else f"{float(v):.3f}"
 
 
-def metric_line(label: str, metrics: dict[str, Any]) -> str:
-    return (
-        f"| {label} | {metrics.get('n', 0)} | {metrics.get('events', 0)} | "
-        f"{fmt_pct(metrics.get('overlap'))} | "
-        f"{fmt_num(metrics.get('endpoint_rounding_mae'))} | "
-        f"{fmt_num(metrics.get('mean_separation'))} |"
-    )
-
-
-def report_markdown(report: dict[str, Any]) -> str:
-    selected = report["selectedPlayer"]
+def markdown(report: dict[str, Any]) -> str:
+    m = report["primaryCrossValidation"]["metrics"]
+    g = report["globalBaseline"]["metrics"]
     lines = [
-        "# Resource Coach seeded corpus holdout",
+        "# Current Resource Coach model — screenshot replay",
         "",
-        f"- Seed: `{report['seed']}`",
-        f"- Selected player: **{selected['playerName']}** (`{selected['playerId']}`)",
-        f"- Selection index: {selected['selectionIndex']} of {report['eligiblePlayers']}",
-        f"- Eligible archive rows: {report['archiveRows']}",
-        f"- Current research structure: `{CURRENT_VARIANT}` = beta .0354, WHITE threshold 135, MID_GREY threshold 120, tier-adjusted WHITE coordinate.",
-        f"- Live hypothesis ledger: `{report['liveCandidate']['modelVersion']}` ({report['liveCandidate']['status']}).",
+        f"Model: `{PROFILE['modelVersion']}`",
         "",
-        "## Primary metrics",
+        "## Primary leave-one-coach-out result",
         "",
-        "| Evaluation | Stat rows | Events | Interval overlap | Endpoint rounding MAE | Mean non-overlap gap |",
-        "|---|---:|---:|---:|---:|---:|",
-        metric_line("Seeded selected-player holdout", selected["current"]["metrics"]),
-        metric_line("All-player LOPO", report["allPlayerLopo"][CURRENT_VARIANT]["metrics"]),
-        metric_line("Independent canonical workbook", report["canonicalHoldout"][CURRENT_VARIANT]["metrics"]),
+        "| Metric | Player-state calibrated | Global C baseline |",
+        "|---|---:|---:|",
+        f"| Stat predictions | {m.get('n',0)} | {g.get('n',0)} |",
+        f"| Players | {m.get('players',0)} | {g.get('players',0)} |",
+        f"| Player states | {m.get('playerStates',0)} | {g.get('playerStates',0)} |",
+        f"| Anchor→target coach pairs | {m.get('anchorTargetPairs',0)} | — |",
+        f"| Midpoint MAE | {num(m.get('midpointMae'))} | {num(g.get('midpointMae'))} |",
+        f"| Predicted midpoint inside observed range | {pct(m.get('pointInsideObservedRate'))} | {pct(g.get('pointInsideObservedRate'))} |",
+        f"| Interval overlap | {pct(m.get('intervalOverlapRate'))} | {pct(g.get('intervalOverlapRate'))} |",
+        f"| Endpoint MAE | {num(m.get('endpointMae'))} | {num(g.get('endpointMae'))} |",
+        f"| Mean interval IoU | {num(m.get('meanIntervalIou'))} | {num(g.get('meanIntervalIou'))} |",
         "",
-        "## Structural controls — all-player LOPO",
+        "The primary score uses only records with explicit screenshot references or conversation-observed screenshot provenance. Frozen assistant predictions are never read as truth.",
         "",
-        "| Variant | Stat rows | Events | Interval overlap | Endpoint rounding MAE | Mean non-overlap gap |",
+        "## By target family",
+        "",
+        "| Family | n | midpoint MAE | point inside | overlap | endpoint MAE |",
         "|---|---:|---:|---:|---:|---:|",
     ]
-    for name, result in report["allPlayerLopo"].items():
-        lines.append(metric_line(name, result["metrics"]))
-
-    lines.extend([
-        "",
-        "## Selected-player worst residuals",
-        "",
-        "| Event | Stat | Predicted | Observed | Gap |",
-        "|---|---|---:|---:|---:|",
-    ])
-    worst = sorted(
-        selected["current"]["details"],
-        key=lambda r: (r["interval_gap"], r["endpoint_mae_literal"]),
-        reverse=True,
-    )[:12]
-    for row in worst:
+    for family, fm in report["primaryCrossValidation"]["byTargetFamily"].items():
         lines.append(
-            f"| {row['event_id']} | {row['stat']} | "
-            f"[{row['pred_lo']:.2f}, {row['pred_hi']:.2f}] | "
-            f"[{row['obs_lo']:.2f}, {row['obs_hi']:.2f}] | "
-            f"{row['interval_gap']:.2f} |"
+            f"| {family} | {fm.get('n',0)} | {num(fm.get('midpointMae'))} | "
+            f"{pct(fm.get('pointInsideObservedRate'))} | {pct(fm.get('intervalOverlapRate'))} | "
+            f"{num(fm.get('endpointMae'))} |"
         )
 
-    lines.extend([
+    s = report.get("spotlight")
+    if s:
+        lines += [
+            "",
+            "## Seeded spotlight",
+            "",
+            f"- Seed: `{s['seed']}`",
+            f"- Player: **{s['player']}**",
+            f"- Anchor: **{s['anchorCoach']}**",
+            f"- Target: **{s['targetCoach']}**",
+            f"- Midpoint MAE: **{num(s['metrics'].get('midpointMae'))}**",
+            f"- Point-inside rate: **{pct(s['metrics'].get('pointInsideObservedRate'))}**",
+            "",
+            "| Stat | Start | Predicted | Pred mid | Observed | Obs mid | |mid err| |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+        for r in s["rows"]:
+            lines.append(
+                f"| {r['stat']} | {r['start']:.0f} | [{r['pred_lo']:.2f},{r['pred_hi']:.2f}] | "
+                f"{r['pred_mid']:.2f} | [{r['obs_lo']:.0f},{r['obs_hi']:.0f}] | "
+                f"{r['obs_mid']:.2f} | {r['midpoint_abs_error']:.2f} |"
+            )
+
+    lines += [
         "",
-        "## Interpretation boundary",
+        "## Boundary",
         "",
-        "- The selected player is completely excluded from that fold's fit.",
-        "- The all-player result repeats the same exclusion for every player; the seeded spotlight cannot be cherry-picked into the aggregate.",
-        "- The canonical holdout removes disputed records and exact archive duplicates before scoring.",
-        "- This is a research diagnostic. It does not promote coefficients, mutate app profiles, or claim the game mechanism is identified.",
-        "- The 23 Sep Skill-Seminar/Focused/allocation hypotheses remain a separate testing ledger; where they are not implemented as a complete predictive law, this workflow does not fabricate missing equations.",
+        "- One observed coach event calibrates C_P; every scored target is a different event.",
+        "- Calibration never crosses player-state boundaries.",
+        "- Reward is excluded from this ordinary-coach model.",
+        "- Programme/coach-family performance is reported separately rather than fitted away.",
+        "- Canonical workbook replay is emitted as a secondary provenance tier, not silently pooled into the primary screenshot score.",
         "",
-    ])
+    ]
     return "\n".join(lines)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--seed", default="vader-20260923")
-    parser.add_argument("--player", default=None)
-    parser.add_argument("--out-dir", required=True)
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seed", default="vader-20260923")
+    ap.add_argument("--out-dir", required=True)
+    args = ap.parse_args()
+    out = pathlib.Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
 
-    out_dir = pathlib.Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    archive = load_archive_rows()
+    chat = load_chat_observed_rows()
+    canonical = load_canonical_rows()
 
-    archive = archived_rows()
-    names = player_names(archive)
-    selected_id, selected_name, selected_index = choose_player(
-        archive, args.seed, args.player
-    )
+    # Primary data: direct screenshot references from archive + observed screenshot
+    # outcomes from chat. Secondary canonical workbook is scored separately.
+    primary_events = build_events(archive + chat)
+    canonical_events = build_events(canonical)
 
-    live_candidate = json.loads(LIVE_CANDIDATE_PATH.read_text(encoding="utf-8"))
-    selected_variants = {
-        name: evaluate_player(archive, selected_id, name)
-        for name in VARIANTS
-    }
-    lopo = {
-        name: exhaustive_lopo(archive, name)
-        for name in VARIANTS
-    }
-    canonical = {
-        name: independent_canonical_holdout(archive, name)
-        for name in VARIANTS
-    }
+    primary_cv = cross_validate(primary_events, primary_only=True)
+    canonical_cv = cross_validate(canonical_events, primary_only=False)
+    global_base = global_baseline(primary_events, primary_only=True)
+    spotlight = seeded_spotlight(primary_cv, args.seed)
 
     report = {
-        "schemaVersion": "resource-coach-seeded-corpus-holdout-v1",
+        "schemaVersion": "resource-coach-current-model-replay-v1",
+        "modelVersion": PROFILE["modelVersion"],
+        "profile": str(PROFILE_PATH.relative_to(ROOT)),
         "seed": args.seed,
-        "requestedPlayer": args.player,
-        "archiveRows": len(archive),
-        "eligiblePlayers": len(names),
-        "modelSource": str(SI_PATH.relative_to(ROOT)),
-        "liveCandidateSource": str(LIVE_CANDIDATE_PATH.relative_to(ROOT)),
-        "liveCandidate": {
-            "modelVersion": live_candidate.get("modelVersion"),
-            "status": live_candidate.get("status"),
-            "principles": live_candidate.get("principles", []),
+        "evidenceCounts": {
+            "archiveRowsKnownClass": len(archive),
+            "chatObservedRows": len(chat),
+            "canonicalRowsAfterExclusions": len(canonical),
+            "primaryEvents": len(primary_events),
+            "canonicalEvents": len(canonical_events),
         },
-        "variantDefinitions": {
-            name: {
-                "beta": v[0],
-                "whiteThreshold": v[1],
-                "midGreyThreshold": v[2],
-                "tierAdjustedWhite": v[3],
-            }
-            for name, v in VARIANTS.items()
+        "primaryCrossValidation": {
+            k: v for k, v in primary_cv.items() if k != "predictions" and k != "anchors"
         },
-        "selectedPlayer": {
-            "playerId": selected_id,
-            "playerName": selected_name,
-            "selectionIndex": selected_index,
-            "current": selected_variants[CURRENT_VARIANT],
-            "variants": selected_variants,
+        "canonicalCrossValidation": {
+            k: v for k, v in canonical_cv.items() if k != "predictions" and k != "anchors"
         },
-        "allPlayerLopo": lopo,
-        "canonicalHoldout": canonical,
-        "safeguards": [
-            "Seed selection is SHA-256 deterministic over sorted eligible player ids.",
-            "Held-out player rows never enter that fold's fit.",
-            "All-player LOPO repeats the same procedure for every eligible player.",
-            "Canonical transfer excludes disputed records and exact archive duplicates.",
-            "Observed low/high endpoints remain separate; no midpoint fitting is introduced here.",
-            "No production profile or app state is modified by this workflow.",
+        "globalBaseline": {
+            k: v for k, v in global_base.items() if k != "predictions"
+        },
+        "spotlight": spotlight,
+        "safeguards": PROFILE["evidenceBoundary"] + [
+            "chat-locked-tests prediction and point fields are deliberately never accessed",
+            "target event id must differ from anchor event id",
+            "same player/state is mandatory for C_P transfer",
         ],
     }
 
-    (out_dir / "summary.json").write_text(
-        json.dumps(report, indent=2, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
-    (out_dir / "REPORT.md").write_text(report_markdown(report), encoding="utf-8")
+    (out / "summary.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    (out / "REPORT.md").write_text(markdown(report), encoding="utf-8")
+    write_csv(out / "primary-predictions.csv", primary_cv["predictions"])
+    write_csv(out / "primary-anchor-calibrations.csv", primary_cv["anchors"])
+    write_csv(out / "canonical-predictions.csv", canonical_cv["predictions"])
+    write_csv(out / "canonical-anchor-calibrations.csv", canonical_cv["anchors"])
+    write_csv(out / "global-baseline-predictions.csv", global_base["predictions"])
 
-    selected_rows: list[dict[str, Any]] = []
-    for result in selected_variants.values():
-        selected_rows.extend(result["details"])
-    write_csv(out_dir / "selected-player-predictions.csv", selected_rows)
-
-    all_rows: list[dict[str, Any]] = []
-    for result in lopo.values():
-        all_rows.extend(result["details"])
-    write_csv(out_dir / "all-player-lopo-predictions.csv", all_rows)
-
-    canonical_rows: list[dict[str, Any]] = []
-    for result in canonical.values():
-        canonical_rows.extend(result["details"])
-    write_csv(out_dir / "canonical-holdout-predictions.csv", canonical_rows)
-
-    fold_rows: list[dict[str, Any]] = []
-    for variant_name, result in lopo.items():
-        for fold in result["folds"]:
-            m = fold["metrics"]
-            fold_rows.append({
-                "variant": variant_name,
-                "player_id": fold["player"],
-                "player_name": fold["playerName"],
-                "train_rows": fold["trainRows"],
-                "heldout_rows": fold["heldoutRows"],
-                "heldout_events": fold["heldoutEvents"],
-                "overlap": m.get("overlap"),
-                "endpoint_rounding_mae": m.get("endpoint_rounding_mae"),
-                "mean_separation": m.get("mean_separation"),
-            })
-    write_csv(out_dir / "per-player-fold-summary.csv", fold_rows)
-
-    compact = {
-        "seed": report["seed"],
-        "selectedPlayer": {
-            "id": selected_id,
-            "name": selected_name,
-            "metrics": selected_variants[CURRENT_VARIANT]["metrics"],
+    print(json.dumps({
+        "modelVersion": report["modelVersion"],
+        "primary": report["primaryCrossValidation"]["metrics"],
+        "canonical": report["canonicalCrossValidation"]["metrics"],
+        "spotlight": None if spotlight is None else {
+            "player": spotlight["player"],
+            "anchor": spotlight["anchorCoach"],
+            "target": spotlight["targetCoach"],
+            "metrics": spotlight["metrics"],
         },
-        "allPlayerLopo": lopo[CURRENT_VARIANT]["metrics"],
-        "canonicalHoldout": canonical[CURRENT_VARIANT]["metrics"],
-    }
-    print(json.dumps(compact, indent=2, allow_nan=False))
+    }, indent=2, allow_nan=False))
 
 
 if __name__ == "__main__":
