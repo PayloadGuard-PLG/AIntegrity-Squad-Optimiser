@@ -68,7 +68,13 @@ jobs:
           # 570 state-stat rows and 23 coach previews from the 2026-09-12 corpus.
           cp calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64 /tmp/resource-coach-corpus/
 
+          # Provenance companion derived from the exact same pinned workbook.
+          # It restores 345 directly observed preview-stat display classes that were
+          # lost by the compact snapshot normalization; no role-table inference.
+          cp calibration/longitudinal-corpus/display-class-evidence-v1.json.gz.b64 /tmp/resource-coach-corpus/
+
           test -s /tmp/resource-coach-corpus/canonical-corpus-v1.json.gz.b64
+          test -s /tmp/resource-coach-corpus/display-class-evidence-v1.json.gz.b64
 
       - name: Analyse every experiment against the full longitudinal corpus
         run: |
