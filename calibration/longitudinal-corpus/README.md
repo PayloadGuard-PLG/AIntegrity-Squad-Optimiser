@@ -24,3 +24,5 @@ Canonical source counts:
 The compact snapshot stores the player states and previews in the analyser's supported `players` / `experiments` representation. GitHub Actions decodes it in memory; the original workbook hash is retained in the snapshot and Resource Coach manifest.
 
 Non-positive player stat values are not valid attribute observations in this analysis path and are treated as missing/sentinel values. Preview gain endpoints may legitimately be zero and remain preserved.
+
+The analyser also emits `experiment_state_matches.csv`, ranking every current experiment state against the complete canonical state set using transparent structural fields (tier, age, roles) and full shared-stat vector error. A non-exact nearest state is always labelled as an analogue rather than an identity claim.
