@@ -121,7 +121,7 @@ section('2. Drill intensity multipliers');
 }
 
 {
-  // Touch Training is Very Easy; Pressure Trap is Medium — medium drill must give more gain
+  // Touch Training is Very Easy; Line Hold is Medium — medium drill must give more gain
   const mcStats = {
     TACKLING: 80, MARKING: 80, POSITIONING: 80, BRAVERY: 80,
     PASSING: 80, DRIBBLING: 80,
@@ -131,7 +131,7 @@ section('2. Drill intensity multipliers');
   const p = player({ role: ['MC'], stats: mcStats, overall: 80 });
 
   const veSession:  DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 10, drillLevel: 'Very Easy' }];
-  const medSession: DrillSession[] = [{ drillName: 'Pressure Trap',  sessionCount: 10, drillLevel: 'Medium'   }];
+  const medSession: DrillSession[] = [{ drillName: 'Line Hold',  sessionCount: 10, drillLevel: 'Medium'   }];
 
   const { finalOvr: veOvr  } = projectOvr(p, veSession,  'Normal', 'Very Easy', null, 0, false, profile);
   const { finalOvr: medOvr } = projectOvr(p, medSession, 'Normal', 'Medium',    null, 0, false, profile);
@@ -409,15 +409,15 @@ section('11. Drill database sanity checks');
 {
   const names = DRILL_LIST.map(d => d.name);
   assert('Touch Training in drill list',   names.includes('Touch Training'));
-  assert('Pressure Trap in drill list',    names.includes('Pressure Trap'));
-  assert('Defence Blueprint in drill list', names.includes('Defence Blueprint'));
+  assert('Line Hold in drill list',        names.includes('Line Hold'));
+  assert('Break Away in drill list',       names.includes('Break Away'));
 
   const tt = DRILL_LIST.find(d => d.name === 'Touch Training');
   assert('Touch Training intensity = Very Easy', tt?.intensity === 'Very Easy');
   assert('Touch Training type = Possession',     tt?.type === 'Possession');
 
-  const db = DRILL_LIST.find(d => d.name === 'Defence Blueprint');
-  assert('Defence Blueprint intensity = Very Hard', db?.intensity === 'Very Hard');
+  const db = DRILL_LIST.find(d => d.name === 'Break Away');
+  assert('Break Away intensity = Very Hard', db?.intensity === 'Very Hard');
 
   // All drills must have a non-empty stats array
   const missing = DRILL_LIST.filter(d => !d.stats || d.stats.length === 0);
