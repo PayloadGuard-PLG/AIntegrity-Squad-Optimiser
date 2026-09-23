@@ -1,6 +1,6 @@
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { DrillSession } from '../types/resources';
-import { DRILL_LIST } from '../database/drillDatabase';
+import { DRILL_LIST, TRAINING_XP_PER_PLAYER } from '../database/drillDatabase';
 
 interface Props {
   value: DrillSession;
@@ -67,7 +67,9 @@ export function DrillSessionRow({ value, onChange, onRemove }: Props) {
         <View style={{ flex: 1 }}>
           <Text style={{ color: '#9ca3af', fontSize: 11, marginBottom: 4 }}>INTENSITY</Text>
           <View style={{ backgroundColor: '#0f1117', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
-            <Text style={{ color: '#e2e8f0', fontSize: 12, fontWeight: '600' }}>{drill?.intensity ?? '—'}</Text>
+            <Text style={{ color: '#e2e8f0', fontSize: 12, fontWeight: '600' }}>
+              {drill ? `${drill.intensity} · +${TRAINING_XP_PER_PLAYER[drill.intensity]} XP/player` : '—'}
+            </Text>
           </View>
         </View>
       </View>
