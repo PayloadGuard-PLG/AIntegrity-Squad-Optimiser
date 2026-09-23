@@ -1,6 +1,14 @@
 export type DrillIntensity = 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard';
 export type DrillType = 'Attack' | 'Defence' | 'Possession' | 'Physical';
 
+export const TRAINING_XP_PER_PLAYER: Record<DrillIntensity, number> = {
+  'Very Easy': 1,
+  'Easy': 2,
+  'Medium': 3,
+  'Hard': 4,
+  'Very Hard': 5,
+};
+
 export interface Drill {
   name: string;
   type: DrillType;
