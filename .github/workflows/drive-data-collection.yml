@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'automation/live-drive-sources-20260923'
     paths:
       - 'calibration/drive-data-exchange.json'
       - 'calibration/resource-coach-log/manifest.json'
