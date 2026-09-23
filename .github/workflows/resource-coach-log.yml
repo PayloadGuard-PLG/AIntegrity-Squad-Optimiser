@@ -73,9 +73,10 @@ jobs:
           rm -rf /tmp/resource-coach-corpus
           mkdir -p /tmp/resource-coach-corpus/historical /tmp/resource-coach-corpus/current-profiles
 
-          # The historical calibration campaign is immutable Git evidence. Use the
-          # whole calibration tree so new/old schema families can be parsed without
-          # a hand-maintained player list.
+          # The historical calibration campaign is immutable Git evidence. The
+          # pinned commit is on a diverged calibration lineage, so fetch that exact
+          # object explicitly before archiving it.
+          git fetch --no-tags --depth=1 origin "$LONGITUDINAL_CORPUS_REF"
           git archive "$LONGITUDINAL_CORPUS_REF" calibration | tar -x -C /tmp/resource-coach-corpus/historical
 
           # Current profile states extend the historical corpus. They are evidence
@@ -98,7 +99,7 @@ jobs:
             cat /tmp/resource-coach-longitudinal/summary.json
             echo '```'
             echo
-            echo 'The generated form_intake.csv contains one row per observed stat for every immutable experiment; experiment_matches.csv contains the strongest corpus comparators, and state_comparisons.csv contains all same-player observed state pairs without inventing causal transitions.'
+            echo 'The generated form_intake.csv contains one row per observed stat for every immutable experiment; experiment_matches.csv contains the strongest corpus comparators, and state_comparisons.csv contains all unique same-player observed state pairs without inventing causal transitions; state_reobservations.csv records repeated observations of identical states separately.'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify immutable-ingest idempotence
