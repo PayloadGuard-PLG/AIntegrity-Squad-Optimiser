@@ -631,7 +631,7 @@ The drill optimiser (`getBestDrillSelections`) recommends all drills sorted by R
 
 Each drill returns:
 - `name` — drill name
-- `type` — Attack / Defence / Physical
+- `type` — Attack / Defence / Possession / Physical
 - `efficiency` — fraction 0–1 of the drill's stats that are white (essential) for this player's role (rendered as % in UI)
 - `conditionCost` — per-drill condition % lost (direct game display value; 0 when `isZeroDrain`)
 - `isZeroDrain` — true when `conditionLoss < 0.5%` (only VE+L4 qualifies under current ranges)
