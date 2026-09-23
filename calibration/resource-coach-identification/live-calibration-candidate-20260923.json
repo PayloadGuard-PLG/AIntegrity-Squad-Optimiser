@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "resource-coach-live-calibration-candidate-v1",
+  "modelVersion": "shared-latent-programme-dose-allocation-live-20260923",
+  "status": "testing-only-not-production",
+  "evidenceFile": "chat-locked-tests-20260923.json",
+  "principles": [
+    "Preserve separate Drill Session and Skill Seminar dose generators.",
+    "Preserve tier-adjusted latent-coordinate plus nonlinear marginal-cost response as a working response family, not a game constant.",
+    "Treat within-preview allocation lambda_i as a possible variable; default to 1 only where no replicated evidence supports a deviation.",
+    "Separate central-gain calibration from preview-interval rendering.",
+    "Do not promote conversation-ordered tests into the immutable timestamp-sealed run log using invented timestamps."
+  ],
+  "hypotheses": [
+    {
+      "id": "H-SKILL-Q",
+      "parameter": "q_skill",
+      "workingCentral": 1.43,
+      "workingRange": [
+        1.15,
+        1.71
+      ],
+      "status": "conditional-diagnostic",
+      "evidence": "Darren age19 Standard Skill Seminar x23 versus earlier x33, same player/programme/p but different affected stat identities.",
+      "falsifier": "Matched same-player, same affected-stat set, same p Skill Seminar multiplier contrast outside the admitted dose-ratio range."
+    },
+    {
+      "id": "H-SKILL-FOCUSED-SCALE",
+      "parameter": "focused_skill_scale_relative_to_standard",
+      "previousWorking": 0.7,
+      "testCentral": 0.95,
+      "testRange": [
+        0.9,
+        1
+      ],
+      "status": "previous-0.70-falsified-as-working-scalar",
+      "evidence": "Willie Ferguson age21 Focused Defending x20 Skill Seminar p=1: predicted Positioning [60,78], observed [86,101]. Holding the rest of that predictor fixed gives 0.70*(93.5/69) ≈ 0.95.",
+      "boundary": "This is conditional on the rest of the predictor; it is not an independently identified source-game coefficient.",
+      "falsifier": "Additional p=1 Focused Skill Seminar observations calibrated under the same response surface consistently require a materially different scale."
+    },
+    {
+      "id": "H-REWARD-DRILL-ALLOCATION",
+      "parameter": "lambda_stat_or_player",
+      "testValues": {
+        "TACKLING": 1.16,
+        "MARKING": 0.84
+      },
+      "status": "replication-required",
+      "evidence": "Willie Ferguson Reward Focused Defending x4 p=2: Tackling 89 -> [14,19], Marking 111 -> [10,14]. Endpoint ratios 14/10=1.40 and 19/14=1.36 despite both being WHITE and in the candidate low-cost region.",
+      "boundary": "Do not generalise these weights to all Tackling/Marking or all Reward sessions.",
+      "falsifier": "Matched repeats on the same or comparable state show equal allocations within display tolerance."
+    },
+    {
+      "id": "H-AGE-19-TO-21-SKILL",
+      "parameter": "A_skill(21)/A_skill(19)",
+      "testCentral": 0.95,
+      "testRange": [
+        0.93,
+        0.97
+      ],
+      "status": "weak-confounded-hypothesis",
+      "evidence": "Transferring the age19 Howden x33 Standard Skill Seminar calibration to age21 Ferguson x33 produced point estimates inside all four actual intervals but mostly high relative to observed midpoints.",
+      "boundary": "Player identity, stat mix/class, role and interval renderer all differ; age is not isolated.",
+      "falsifier": "Matched same-player age transition or stronger cross-player controls remove the residual without an age term."
+    },
+    {
+      "id": "H-INTERVAL-RENDERER",
+      "parameter": "preview_interval_calibration",
+      "status": "separate-layer-needed",
+      "evidence": "Ferguson x33 central predictions were strong (4/4 points inside observed) while interval edges were systematically high; Darren x23 showed the same central-versus-width distinction.",
+      "testPlan": "Fit central latent gain first, then calibrate low/high interval offsets or width as a distinct quantisation/renderer layer."
+    }
+  ],
+  "nextTests": [
+    "Same player, same affected stats, Standard Skill Seminar at two multipliers to isolate q_skill.",
+    "Same player, p=1 Standard versus Focused Skill Seminar at matched N to isolate focused_skill_scale.",
+    "Repeat Willie Ferguson Reward Focused Defending x4 p=2, or a same-state sibling session, to test Tackling/Marking allocation replication.",
+    "Age 19 versus 21 controls with matched programme/N/p/stat/class to test whether the current broad age band should become a smooth decline.",
+    "Record every future prediction before player selection in a timestamped repository or app log so it can enter the immutable prospective-holdout pipeline."
+  ]
+}
