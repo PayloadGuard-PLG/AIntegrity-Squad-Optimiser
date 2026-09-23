@@ -43,9 +43,9 @@ function addState(raw, sourceFile, sourceKind){
   const stats={}; for(const [k,v] of Object.entries(raw.stats??{})){ const n=num(v); if(n!==null&&n>0) stats[normStat(k)]=n; else if(n!==null) discardedNonPositiveStatValues++; }
   if(Object.keys(stats).length===0)return null;
   const s={
-    playerKey:playerKey(raw.id,raw.name), playerId:raw.id??null, playerName:raw.name??null,
+    playerKey:playerKey(raw.id,raw.name), playerId:raw.id??null, playerName:raw.name??null, stateId:raw._stateId??raw.stateId??null,
     age:num(raw.age), tier:raw.tier??null, roles:[...(raw.roles??raw.role??[])].map(String), overall:num(raw.overall??raw.ovr??raw.ovr_game), stats,
-    observedAt:raw.observedAt??raw.last_updated??null, sourceFile, sourceKind,
+    observedAt:raw.observedAt??raw.last_updated??null, regime:raw._regime??raw.regime??null, sourceFile, sourceKind,
   };
   s.stateFingerprint=stateFingerprint(s);
   states.push(s); return s;
@@ -158,6 +158,61 @@ for(const e of observations){
   for(const r of e.intervals){ empiricalStats.push({event:e,stat:r.stat,start:num(e.stats?.[r.stat]),displayClass:r.displayClass??null,lo:r.lo,hi:r.hi}); }
 }
 
+function statSchema(stats){
+  const keys=new Set(Object.keys(stats??{})); return keys.has('REFLEXES')||keys.has('AERIAL REACH')?'GK':'OUTFIELD';
+}
+function roleDistance(a,b){
+  const A=new Set((a??[]).map(normText).filter(Boolean)), B=new Set((b??[]).map(normText).filter(Boolean));
+  const union=new Set([...A,...B]); if(!union.size)return 0;
+  let inter=0; for(const x of A)if(B.has(x))inter++; return 1-inter/union.size;
+}
+function tierNumber(t){ const m=/^T([0-6])$/i.exec(String(t??'').trim()); return m?Number(m[1]):null; }
+function stateMatchMetrics(target,cand){
+  if(statSchema(target.stats)!==statSchema(cand.stats))return null;
+  const shared=Object.keys(target.stats??{}).filter(k=>finite(target.stats[k])&&finite(cand.stats?.[k]));
+  if(!shared.length)return null;
+  const diffs=shared.map(k=>Math.abs(target.stats[k]-cand.stats[k]));
+  const exactStatCount=diffs.filter(d=>d===0).length;
+  const statMae=diffs.reduce((a,b)=>a+b,0)/diffs.length;
+  const maxAbsStatDiff=Math.max(...diffs);
+  const aTier=tierNumber(target.tier), bTier=tierNumber(cand.tier);
+  const tierDiff=aTier!==null&&bTier!==null?Math.abs(aTier-bTier):null;
+  const tierMismatch=tierDiff===null?1:(tierDiff===0?0:1);
+  const ageDiff=finite(target.age)&&finite(cand.age)?Math.abs(target.age-cand.age):999;
+  const rolesDistance=roleDistance(target.roles,cand.roles);
+  const structuralExact=tierMismatch===0&&ageDiff===0&&rolesDistance===0;
+  const fullStatExact=shared.length===Object.keys(target.stats??{}).length&&shared.length===Object.keys(cand.stats??{}).length&&exactStatCount===shared.length;
+  const matchClass=structuralExact&&fullStatExact?'EXACT_STATE_REOBSERVATION':structuralExact?'STRUCTURAL_MATCH_NEAREST_VECTOR_NOT_IDENTITY':'STATE_ANALOGUE_NOT_IDENTITY';
+  return {sharedStatCount:shared.length,exactStatCount,statMae,maxAbsStatDiff,tierDiff,tierMismatch,ageDiff,rolesDistance,structuralExact,fullStatExact,matchClass};
+}
+function stateMatchSort(a,b){
+  return a.metrics.tierMismatch-b.metrics.tierMismatch
+    || a.metrics.ageDiff-b.metrics.ageDiff
+    || a.metrics.rolesDistance-b.metrics.rolesDistance
+    || a.metrics.statMae-b.metrics.statMae
+    || a.metrics.maxAbsStatDiff-b.metrics.maxAbsStatDiff
+    || String(a.state.stateId??a.state.stateFingerprint).localeCompare(String(b.state.stateId??b.state.stateFingerprint));
+}
+
+const canonicalStates=uniqueStates.filter(s=>s.sourceKind!=='resource-coach-experiment-v1');
+const experimentStateMatches=[];
+const bestStateByExperiment=new Map();
+for(const rec of runRecords){
+  const id=rec.experiment.experimentId;
+  const e=observations.find(x=>x.eventId===id&&x.sourceKind==='resource-coach-experiment-v1'); if(!e)continue;
+  const ranked=canonicalStates.map(state=>({state,metrics:stateMatchMetrics(e,state)})).filter(x=>x.metrics).sort(stateMatchSort).slice(0,topN);
+  if(ranked[0])bestStateByExperiment.set(id,ranked[0]);
+  for(let rank=0;rank<ranked.length;rank++){
+    const x=ranked[rank];
+    experimentStateMatches.push({
+      experiment_id:id,rank:rank+1,target_age:e.age,target_tier:e.tier??'',target_roles:(e.roles??[]).join('/'),target_stat_count:Object.keys(e.stats??{}).length,
+      corpus_player_id:x.state.playerId??'',corpus_player_name:x.state.playerName??'',corpus_state_id:x.state.stateId??'',corpus_regime:x.state.regime??'',corpus_age:x.state.age,corpus_tier:x.state.tier??'',corpus_roles:(x.state.roles??[]).join('/'),
+      shared_stat_count:x.metrics.sharedStatCount,exact_stat_count:x.metrics.exactStatCount,stat_mae:Number(x.metrics.statMae.toFixed(6)),max_abs_stat_diff:x.metrics.maxAbsStatDiff,
+      age_diff:x.metrics.ageDiff,tier_diff:x.metrics.tierDiff,role_jaccard_distance:Number(x.metrics.rolesDistance.toFixed(6)),match_class:x.metrics.matchClass
+    });
+  }
+}
+
 function similarity(target, cand){
   let score=0; const reasons=[]; const te=target.event, ce=cand.event;
   if(target.stat===cand.stat){score+=30;reasons.push('same-stat');} else return {score:-Infinity,reasons:[]};
@@ -186,7 +241,8 @@ for(const rec of runRecords){
     const sameStat=empiricalStats.filter(x=>x.event!==e&&x.event.fitWeight===1&&x.event.empiricalFingerprint!==e.empiricalFingerprint&&x.stat===r.stat);
     const exactCoach=sameStat.filter(x=>normText(x.event.coachTitle)===normText(e.coachTitle)&&num(x.event.multiplier)===num(e.multiplier)&&normText(x.event.programmeFamily)===normText(e.programmeFamily));
     const cohort=exactCoach.length?exactCoach:sameStat;
-    intakeRows.push({experiment_id:id,evidence_fingerprint:rec.evidence?.fingerprint??'',is_duplicate:!!rec.evidence?.isDuplicate,fit_weight:rec.evidence?.isDuplicate?0:1,player_id:e.playerId??'',age:e.age,tier:e.tier??'',programme_family:e.programmeFamily??'',coach_title:e.coachTitle??'',multiplier:e.multiplier,stat:r.stat,start_stat:target.start,display_class:target.displayClass??'',observed_lo:r.lo,observed_hi:r.hi,comparison_scope:exactCoach.length?'exact-coach-programme-multiplier':'same-stat-global',comparison_n:cohort.length,corpus_lo_min:cohort.length?Math.min(...cohort.map(x=>x.lo)):null,corpus_lo_max:cohort.length?Math.max(...cohort.map(x=>x.lo)):null,corpus_hi_min:cohort.length?Math.min(...cohort.map(x=>x.hi)):null,corpus_hi_max:cohort.length?Math.max(...cohort.map(x=>x.hi)):null,best_match_score:ranked[0]?Number(ranked[0].score.toFixed(4)):null,best_match_event:ranked[0]?.x.event.eventId??''});
+    const bestState=bestStateByExperiment.get(id);
+    intakeRows.push({experiment_id:id,evidence_fingerprint:rec.evidence?.fingerprint??'',is_duplicate:!!rec.evidence?.isDuplicate,fit_weight:rec.evidence?.isDuplicate?0:1,player_id:e.playerId??'',age:e.age,tier:e.tier??'',programme_family:e.programmeFamily??'',coach_title:e.coachTitle??'',multiplier:e.multiplier,stat:r.stat,start_stat:target.start,display_class:target.displayClass??'',observed_lo:r.lo,observed_hi:r.hi,nearest_corpus_player_id:bestState?.state.playerId??'',nearest_corpus_player_name:bestState?.state.playerName??'',nearest_corpus_state_id:bestState?.state.stateId??'',nearest_state_stat_mae:bestState?Number(bestState.metrics.statMae.toFixed(6)):null,nearest_state_match_class:bestState?.metrics.matchClass??'',comparison_scope:exactCoach.length?'exact-coach-programme-multiplier':'same-stat-global',comparison_n:cohort.length,corpus_lo_min:cohort.length?Math.min(...cohort.map(x=>x.lo)):null,corpus_lo_max:cohort.length?Math.max(...cohort.map(x=>x.lo)):null,corpus_hi_min:cohort.length?Math.min(...cohort.map(x=>x.hi)):null,corpus_hi_max:cohort.length?Math.max(...cohort.map(x=>x.hi)):null,best_match_score:ranked[0]?Number(ranked[0].score.toFixed(4)):null,best_match_event:ranked[0]?.x.event.eventId??''});
   }
 }
 
@@ -203,22 +259,24 @@ fs.mkdirSync(outDir,{recursive:true});
 writeCsv('state_reobservations.csv',['player_key','player_name','state_fingerprint','observation_count','sources'],stateReobservations);
 writeCsv('state_comparisons.csv',['player_key','player_name','state_a','state_b','source_a','source_b','age_a','age_b','tier_a','tier_b','ovr_a','ovr_b','comparison_class','shared_stat_count','changed_stat_count','total_abs_stat_delta','max_abs_stat_delta','changed_stats'],stateComparisons);
 writeCsv('experiment_matches.csv',['experiment_id','target_stat','target_start_stat','target_gain_lo','target_gain_hi','rank','similarity_score','match_reasons','reference_event_id','reference_player','reference_age','reference_tier','reference_programme','reference_coach','reference_multiplier','reference_start_stat','reference_class','reference_gain_lo','reference_gain_hi','reference_source'],matches);
+writeCsv('experiment_state_matches.csv',['experiment_id','rank','target_age','target_tier','target_roles','target_stat_count','corpus_player_id','corpus_player_name','corpus_state_id','corpus_regime','corpus_age','corpus_tier','corpus_roles','shared_stat_count','exact_stat_count','stat_mae','max_abs_stat_diff','age_diff','tier_diff','role_jaccard_distance','match_class'],experimentStateMatches);
 writeCsv('cohort_metrics.csv',['stat','programme_family','coach_title','multiplier','age_band','tier','display_class','event_count','player_count','mean_lo','mean_hi','min_lo','max_lo','min_hi','max_hi'],metrics);
-writeCsv('form_intake.csv',['experiment_id','evidence_fingerprint','is_duplicate','fit_weight','player_id','age','tier','programme_family','coach_title','multiplier','stat','start_stat','display_class','observed_lo','observed_hi','comparison_scope','comparison_n','corpus_lo_min','corpus_lo_max','corpus_hi_min','corpus_hi_max','best_match_score','best_match_event'],intakeRows);
+writeCsv('form_intake.csv',['experiment_id','evidence_fingerprint','is_duplicate','fit_weight','player_id','age','tier','programme_family','coach_title','multiplier','stat','start_stat','display_class','observed_lo','observed_hi','nearest_corpus_player_id','nearest_corpus_player_name','nearest_corpus_state_id','nearest_state_stat_mae','nearest_state_match_class','comparison_scope','comparison_n','corpus_lo_min','corpus_lo_max','corpus_hi_min','corpus_hi_max','best_match_score','best_match_event'],intakeRows);
 
 const summary={
   schemaVersion:'resource-coach-longitudinal-analysis-v1',
   corpusDirectory:path.relative(process.cwd(),corpusDir),runsDirectory:path.relative(process.cwd(),runsDir),sourceJsonFiles:sources.length,
   rawStateRecords:states.length,uniqueStateFingerprints:uniqueStates.length,stateReobservedFingerprints:stateReobservations.length,playerIdentities:byPlayer.size,stateComparisons:stateComparisons.length,
   empiricalPreviewRecords:observations.length,uniqueEmpiricalPreviews:seenEvidence.size,duplicateEmpiricalPreviews:observations.length-seenEvidence.size,empiricalStatIntervals:empiricalStats.length,
-  currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,cohortMetricRows:metrics.length,discardedNonPositiveStatValues,
+  currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,experimentStateMatchRows:experimentStateMatches.length,cohortMetricRows:metrics.length,discardedNonPositiveStatValues,
   safeguards:[
     'No player filter: every run is evaluated against the full available corpus in one batch.',
     'Same-player state pairs are labelled observed comparisons unless a direct causal transition is explicitly evidenced.',
     'Interval endpoints remain separate; no midpoint is substituted for observed low/high bounds.',
     'Exact empirical duplicates are retained for provenance but receive zero analytical weight.',
     'Similarity is descriptive retrieval only; it is not a fitted transfer law or causal score.',
-    'Non-positive player stat values are treated as missing/sentinel evidence and excluded from state fingerprints and deltas.'
+    'Non-positive player stat values are treated as missing/sentinel evidence and excluded from state fingerprints and deltas.',
+    'Nearest canonical state matches are labelled analogues unless the complete state is an exact re-observation; similarity never asserts player identity.'
   ]
 };
 fs.writeFileSync(path.join(outDir,'summary.json'),JSON.stringify(summary,null,2)+'\n');
