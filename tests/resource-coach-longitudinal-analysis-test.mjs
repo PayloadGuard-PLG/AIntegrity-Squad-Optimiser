@@ -43,7 +43,7 @@ function runFixture() {
   writeJson(path.join(corpus, 'player_seeds.json'), {
     players: [
       { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 100, stats: { PASSING: 100, DRIBBLING: 110 }, last_updated: '2026-09-01' },
-      { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 102, stats: { PASSING: 104, DRIBBLING: 113 }, last_updated: '2026-09-02' },
+      { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 102, stats: { PASSING: 104, DRIBBLING: 113, FITNESS: 0 }, last_updated: '2026-09-02' },
     ],
   });
 
@@ -104,6 +104,7 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
     assert.ok(summary.playerIdentities >= 2);
     assert.ok(summary.stateComparisons >= 1);
     assert.ok(summary.matchRows >= 4);
+    assert.equal(summary.discardedNonPositiveStatValues, 1);
 
     const intake = fs.readFileSync(path.join(out, 'form_intake.csv'), 'utf8');
     assert.match(intake, /RUN-1/);
@@ -111,6 +112,7 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
 
     const comparisons = fs.readFileSync(path.join(out, 'state_comparisons.csv'), 'utf8');
     assert.match(comparisons, /OBSERVED_STATE_DELTA_NOT_CAUSAL/);
+    assert.doesNotMatch(comparisons, /FITNESS:-/);
 
     const matches = fs.readFileSync(path.join(out, 'experiment_matches.csv'), 'utf8');
     assert.match(matches, /HIST-A|HIST-B/);
