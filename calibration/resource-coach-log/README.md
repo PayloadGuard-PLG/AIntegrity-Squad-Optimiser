@@ -38,9 +38,10 @@ The log workflow does **not** evaluate one selected player at a time. Every run 
 The automated corpus consists of:
 
 - `calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64`, a normalized immutable snapshot of the cleaned event-sourced workbook `Squad_Optimiser_Corpus_Calibration_Transfer_2026-09-12.xlsx` (28 stable players, 38 complete player states, 570 state-stat rows, 23 coach previews);
+- `calibration/longitudinal-corpus/display-class-evidence-v1.json.gz.b64`, a provenance companion containing 345 directly observed preview/stat display classes from that exact pinned workbook;
 - every current immutable `resource-coach-experiment-v1` run.
 
-The canonical snapshot is generated from observational sheets only. Derived workbook sheets are not treated as source truth.
+The canonical snapshot and display-class companion are generated from observational sheets only. Derived workbook sheets are not treated as source truth. Historical display class is recovered only when the compact snapshot omitted it, using exact `preview_id + stat` evidence. Existing classes are never overwritten, role tables are never used as recovery evidence, and any direct-evidence conflict fails the analysis.
 
 Run the same analysis locally against the canonical snapshot:
 
@@ -70,6 +71,8 @@ Low/high preview endpoints stay separate throughout. The analyser never replaces
 State-pair delta signs use observed timestamp order only when both timestamps are available and distinct. Otherwise the analyser uses a stable canonical order and marks the comparison `CANONICAL_NON_TEMPORAL_ORDER`; this prevents source traversal order from being mistaken for chronology. Identifiability labels describe available covariate cancellation only and are not effect estimates.
 
 A covariate must be observed on both sides of a pair before it can count as controlled. Missing/unknown values are listed in `unobserved_variables`; such rows remain useful retrieval evidence but cannot qualify as exact or near cancellation for identifiability.
+
+The pinned source workbook contains 241 `WHITE` and 104 `MID_GREY` preview/stat observations. All 345 agree with the independently recorded player-state display class for the same player-state/stat; therefore this recovery restores observed provenance rather than synthesizing whiteness from role logic.
 
 The GitHub Action uploads both the ordinary experiment-log aggregation and the longitudinal analysis bundle as a workflow artifact, so a new run automatically receives whole-corpus comparison without manually choosing a player or repeatedly invoking analysis per state.
 
