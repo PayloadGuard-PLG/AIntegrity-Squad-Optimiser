@@ -278,22 +278,25 @@ function controlValues(x){
   };
 }
 function sameValue(a,b){ return a===b || (a===null&&b===null); }
+function knownControlValue(v){ return v!==null&&v!==undefined&&v!==''&&v!=='unknown'; }
 
 const corpusControlPairs=[];
-const variablePairStats=new Map(CONTROL_VARS.map(v=>[v,{variable:v,candidatePairs:0,isolatedPairs:0,nearIsolatedPairs:0,players:new Set(),events:new Set(),levels:new Set()}]));
+const variablePairStats=new Map(CONTROL_VARS.map(v=>[v,{variable:v,candidatePairs:0,isolatedPairs:0,nearIsolatedPairs:0,incompleteControlPairs:0,players:new Set(),events:new Set(),levels:new Set()}]));
 const fitEmpiricalStats=empiricalStats.filter(x=>x.event.fitWeight===1);
 
 for(let i=0;i<fitEmpiricalStats.length;i++) for(let j=i+1;j<fitEmpiricalStats.length;j++){
   const a=fitEmpiricalStats[i], b=fitEmpiricalStats[j];
   if(a.stat!==b.stat || a.event.empiricalFingerprint===b.event.empiricalFingerprint)continue;
   const av=controlValues(a), bv=controlValues(b);
-  const changed=CONTROL_VARS.filter(v=>!sameValue(av[v],bv[v]));
-  const matched=CONTROL_VARS.filter(v=>sameValue(av[v],bv[v]));
+  const unobserved=CONTROL_VARS.filter(v=>!knownControlValue(av[v])||!knownControlValue(bv[v]));
+  const comparable=CONTROL_VARS.filter(v=>knownControlValue(av[v])&&knownControlValue(bv[v]));
+  const changed=comparable.filter(v=>!sameValue(av[v],bv[v]));
+  const matched=comparable.filter(v=>sameValue(av[v],bv[v]));
   if(changed.length<=2){
     corpusControlPairs.push({
       stat:a.stat,event_a:a.event.eventId,event_b:b.event.eventId,player_a:a.event.playerName??a.event.playerId??'',player_b:b.event.playerName??b.event.playerId??'',
-      changed_variables:changed.join('|'),matched_variables:matched.join('|'),
-      comparison_class:changed.length===0?'REPLICATE_COVARIATES_NON_CAUSAL':changed.length===1?`ISOLATED_${changed[0].toUpperCase()}_NON_CAUSAL`:'NEAR_ISOLATED_TWO_VARIABLE_NON_CAUSAL',
+      changed_variables:changed.join('|'),matched_variables:matched.join('|'),unobserved_variables:unobserved.join('|'),
+      comparison_class:unobserved.length?'INCOMPLETE_COVARIATE_CONTROL_NON_CAUSAL':changed.length===0?'REPLICATE_COVARIATES_NON_CAUSAL':changed.length===1?`ISOLATED_${changed[0].toUpperCase()}_NON_CAUSAL`:'NEAR_ISOLATED_TWO_VARIABLE_NON_CAUSAL',
       programme_a:av.programme_family,programme_b:bv.programme_family,coach_a:av.coach_title,coach_b:bv.coach_title,
       multiplier_a:av.multiplier,multiplier_b:bv.multiplier,age_a:av.age,age_b:bv.age,tier_a:av.tier,tier_b:bv.tier,
       class_a:av.display_class,class_b:bv.display_class,affected_count_a:av.affected_stat_count,affected_count_b:bv.affected_stat_count,
@@ -301,14 +304,19 @@ for(let i=0;i<fitEmpiricalStats.length;i++) for(let j=i+1;j<fitEmpiricalStats.le
       gain_lo_a:a.lo,gain_lo_b:b.lo,gain_lo_delta:b.lo-a.lo,gain_hi_a:a.hi,gain_hi_b:b.hi,gain_hi_delta:b.hi-a.hi
     });
   }
-  for(const variable of changed){
+  for(const variable of CONTROL_VARS){
+    if(!knownControlValue(av[variable])||!knownControlValue(bv[variable])||sameValue(av[variable],bv[variable]))continue;
     const s=variablePairStats.get(variable);
     s.candidatePairs++;
     s.players.add(a.event.playerKey);s.players.add(b.event.playerKey);
     s.events.add(a.event.eventId);s.events.add(b.event.eventId);
     s.levels.add(String(av[variable]));s.levels.add(String(bv[variable]));
-    if(changed.length===1)s.isolatedPairs++;
-    if(changed.length<=2)s.nearIsolatedPairs++;
+    const otherVars=CONTROL_VARS.filter(v=>v!==variable);
+    const incomplete=otherVars.some(v=>!knownControlValue(av[v])||!knownControlValue(bv[v]));
+    if(incomplete){ s.incompleteControlPairs++; continue; }
+    const otherChanged=otherVars.filter(v=>!sameValue(av[v],bv[v]));
+    if(otherChanged.length===0)s.isolatedPairs++;
+    if(otherChanged.length<=1)s.nearIsolatedPairs++;
   }
 }
 
@@ -318,6 +326,7 @@ const variableIdentifiability=[...variablePairStats.values()].map(s=>({
   candidate_pairs:s.candidatePairs,
   isolated_pairs:s.isolatedPairs,
   near_isolated_pairs:s.nearIsolatedPairs,
+  incomplete_control_pairs:s.incompleteControlPairs,
   independent_players:s.players.size,
   independent_events:s.events.size,
   identifiability_class:s.isolatedPairs>0?'EXACT_CANCELLATION_AVAILABLE':s.nearIsolatedPairs>0?'NEAR_CANCELLATION_ONLY':'CONFOUNDED_OR_UNSUPPORTED',
@@ -369,8 +378,8 @@ const metrics=[...groups.values()].map(g=>({stat:g.stat,programme_family:g.progr
 fs.mkdirSync(outDir,{recursive:true});
 writeCsv('state_reobservations.csv',['player_key','player_name','state_fingerprint','observation_count','sources'],stateReobservations);
 writeCsv('player_longitudinal_profiles.csv',['player_key','player_name','raw_observation_count','unique_state_count','reobserved_state_count','state_pair_count','changed_stat_pair_count','age_values','tier_values','role_sets','varying_dimensions','longitudinal_class'],playerProfiles);
-writeCsv('corpus_control_pairs.csv',['stat','event_a','event_b','player_a','player_b','changed_variables','matched_variables','comparison_class','programme_a','programme_b','coach_a','coach_b','multiplier_a','multiplier_b','age_a','age_b','tier_a','tier_b','class_a','class_b','affected_count_a','affected_count_b','role_set_a','role_set_b','start_stat_a','start_stat_b','gain_lo_a','gain_lo_b','gain_lo_delta','gain_hi_a','gain_hi_b','gain_hi_delta'],corpusControlPairs);
-writeCsv('variable_identifiability.csv',['variable','observed_levels','candidate_pairs','isolated_pairs','near_isolated_pairs','independent_players','independent_events','identifiability_class','inference_boundary'],variableIdentifiability);
+writeCsv('corpus_control_pairs.csv',['stat','event_a','event_b','player_a','player_b','changed_variables','matched_variables','unobserved_variables','comparison_class','programme_a','programme_b','coach_a','coach_b','multiplier_a','multiplier_b','age_a','age_b','tier_a','tier_b','class_a','class_b','affected_count_a','affected_count_b','role_set_a','role_set_b','start_stat_a','start_stat_b','gain_lo_a','gain_lo_b','gain_lo_delta','gain_hi_a','gain_hi_b','gain_hi_delta'],corpusControlPairs);
+writeCsv('variable_identifiability.csv',['variable','observed_levels','candidate_pairs','isolated_pairs','near_isolated_pairs','incomplete_control_pairs','independent_players','independent_events','identifiability_class','inference_boundary'],variableIdentifiability);
 writeCsv('state_comparisons.csv',['player_key','player_name','state_a','state_b','source_a','source_b','observed_at_a','observed_at_b','order_class','age_a','age_b','tier_a','tier_b','roles_a','roles_b','ovr_a','ovr_b','comparison_class','changed_dimensions','shared_stat_count','changed_stat_count','total_abs_stat_delta','max_abs_stat_delta','changed_stats'],stateComparisons);
 writeCsv('experiment_matches.csv',['experiment_id','target_stat','target_start_stat','target_gain_lo','target_gain_hi','rank','similarity_score','match_reasons','reference_event_id','reference_player','reference_age','reference_tier','reference_programme','reference_coach','reference_multiplier','reference_start_stat','reference_class','reference_gain_lo','reference_gain_hi','reference_source'],matches);
 writeCsv('experiment_state_matches.csv',['experiment_id','rank','target_age','target_tier','target_roles','target_stat_count','corpus_player_id','corpus_player_name','corpus_state_id','corpus_regime','corpus_age','corpus_tier','corpus_roles','shared_stat_count','exact_stat_count','stat_mae','max_abs_stat_diff','age_diff','tier_diff','role_jaccard_distance','match_class'],experimentStateMatches);
@@ -394,6 +403,7 @@ const summary={
     'Exact empirical duplicates are retained for provenance but receive zero analytical weight.',
     'Similarity is descriptive retrieval only; it is not a fitted transfer law or causal score.',
     'Identifiability classes report exact/near covariate cancellation opportunities only; they do not estimate causal effects.',
+    'Unknown covariates never count as matched controls; incomplete control pairs are reported separately and cannot establish exact cancellation.',
     'Untimestamped state pairs use stable canonical ordering, never implied chronology.',
     'Non-positive player stat values are treated as missing/sentinel evidence and excluded from state fingerprints and deltas.',
     'Nearest canonical state matches are labelled analogues unless the complete state is an exact re-observation; similarity never asserts player identity.'
