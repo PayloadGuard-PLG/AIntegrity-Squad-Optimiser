@@ -1,0 +1,99 @@
+name: Drive Resource Coach Collection
+
+on:
+  push:
+    branches:
+      - 'automation/drive-data-bridge-20260923'
+      - 'calibration/resource-coach-target-provenance-20260922'
+    paths:
+      - 'calibration/drive-data-exchange.json'
+      - 'calibration/resource-coach-log/manifest.json'
+      - 'tools/drive-data-exchange/**'
+      - 'tools/resource-coach-v2/**'
+      - 'tests/drive-data-exchange-test.mjs'
+      - '.github/workflows/drive-data-collection.yml'
+  pull_request:
+    branches:
+      - 'calibration/resource-coach-target-provenance-20260922'
+    paths:
+      - 'calibration/drive-data-exchange.json'
+      - 'calibration/resource-coach-log/manifest.json'
+      - 'tools/drive-data-exchange/**'
+      - 'tools/resource-coach-v2/**'
+      - 'tests/drive-data-exchange-test.mjs'
+      - '.github/workflows/drive-data-collection.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  boundary-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+      - name: Check collection bridge
+        run: |
+          node --check tools/drive-data-exchange/collect-resource-coach.mjs
+          node --test tests/drive-data-exchange-test.mjs
+
+  collect:
+    if: github.event_name != 'pull_request'
+    needs: boundary-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Verify Drive credential is configured
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          test -n "$GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON" || {
+            echo "::error::Repository secret GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON is missing or empty."
+            exit 1
+          }
+
+      - name: Collect Drive evidence and run longitudinal analysis
+        env:
+          GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          rm -rf /tmp/drive-data-collection
+          node tools/drive-data-exchange/collect-resource-coach.mjs \
+            --config calibration/drive-data-exchange.json \
+            --out-dir /tmp/drive-data-collection \
+            --runs-dir calibration/resource-coach-log/runs \
+            --corpus-dir calibration/longitudinal-corpus
+
+      - name: Publish collection summary
+        run: |
+          {
+            echo '## Google Drive data collection'
+            echo
+            echo '### Collection'
+            echo
+            echo '```json'
+            cat /tmp/drive-data-collection/collection-summary.json
+            echo '```'
+            echo
+            echo '### Variable identifiability after staged Drive evidence'
+            echo
+            echo '```csv'
+            cat /tmp/drive-data-collection/analysis/variable_identifiability.csv
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload provenance bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: drive-resource-coach-collection
+          path: /tmp/drive-data-collection
+          if-no-files-found: error
+          retention-days: 14
