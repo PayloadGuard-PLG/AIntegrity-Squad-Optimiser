@@ -5,7 +5,7 @@ This bridge connects the Resource Coach evidence pipeline to the dedicated Googl
 ## Topology
 
 - `incoming` — source material deliberately placed here for GitHub collection.
-- `analysis-output` — non-secret collection receipts written by GitHub Actions.
+- `analysis-output` — reserved for future write-back when the exchange is moved to a Shared Drive or delegated user OAuth is configured. My Drive service accounts have no storage quota.
 - `quarantine` — reserved for a later explicit remediation workflow. The initial bridge does **not** move files automatically.
 
 Configuration is pinned in `calibration/drive-data-exchange.json`. Folder IDs are identifiers, not credentials.
@@ -36,7 +36,7 @@ For each item in `incoming`:
 6. Non-JSON evidence such as screenshots, CSV/XLSX and ZIP is staged as raw evidence only until a dedicated deterministic extractor exists.
 7. Run the complete longitudinal analyser against a temporary run set consisting of the repository's immutable runs plus newly accepted Drive experiments.
 8. Upload the provenance bundle as a GitHub Actions artifact.
-9. Write a non-secret receipt JSON to Drive `analysis-output`.
+9. Upload the complete collection/analysis provenance bundle as a GitHub Actions artifact. Direct Drive write-back remains disabled on My Drive because service accounts have no storage quota.
 
 ## Non-destructive boundary
 
@@ -48,6 +48,7 @@ The initial bridge deliberately does **not**:
 - delete a Drive source;
 - move accepted Drive files;
 - move rejected Drive files to quarantine;
+- create output files in My Drive with the service account;
 - infer missing evidence from role tables or model output.
 
 This lets GitHub and Drive exchange evidence immediately while keeping promotion into the repository behind an explicit review boundary.
@@ -68,6 +69,10 @@ Only sealed `resource-coach-experiment-v1` JSON is analytically ingested automat
 
 ## Operational path
 
-`Drive/incoming → metadata + SHA-256 → validation → temporary immutable run set → corpus-wide longitudinal analysis → GitHub artifact + Drive receipt`
+`Drive/incoming → metadata + SHA-256 → validation → temporary immutable run set → corpus-wide longitudinal analysis → GitHub artifact`
 
 A later promotion workflow can convert accepted staged evidence into a reviewable PR rather than committing directly to the calibration branch.
+
+## Scheduling
+
+The workflow is configured for manual dispatch and a six-hour schedule. GitHub executes scheduled workflows from the repository default branch, so the schedule becomes operational when the calibration line is promoted through PR #149 into `main`. Until then, the bridge is live-tested on the calibration line but is not yet a default-branch scheduler.
