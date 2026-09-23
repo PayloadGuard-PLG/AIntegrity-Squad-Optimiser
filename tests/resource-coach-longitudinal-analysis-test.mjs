@@ -50,7 +50,7 @@ function runFixture() {
 
   writeJson(path.join(corpus, 'player_seeds.json'), {
     players: [
-      { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 100, stats: { PASSING: 100, DRIBBLING: 110 }, last_updated: '2026-09-01' },
+      { id: 'PLY-A', name: 'Alpha', _stateId: 'STATE-ALPHA-1', _regime: 'CURRENT_TESTBED', age: 19, roles: ['MC'], tier: 'T3', ovr: 100, stats: { PASSING: 100, DRIBBLING: 110 }, last_updated: '2026-09-01' },
       { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 102, stats: { PASSING: 104, DRIBBLING: 113, FITNESS: 0 }, last_updated: '2026-09-02' },
     ],
   });
@@ -143,6 +143,7 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
     const stateMatches = fs.readFileSync(path.join(out, 'experiment_state_matches.csv'), 'utf8');
     assert.match(stateMatches, /RUN-1/);
     assert.match(stateMatches, /Alpha/);
+    assert.match(stateMatches, /STATE-ALPHA-1/);
     assert.match(stateMatches, /STRUCTURAL_MATCH_NEAREST_VECTOR_NOT_IDENTITY/);
 
     assert.ok(summary.experimentStateMatchRows >= 2);
