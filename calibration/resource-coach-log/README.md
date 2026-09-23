@@ -31,37 +31,21 @@ node tools/resource-coach-v2/aggregate-experiment-log.mjs
 
 The first command validates causal ordering and writes the immutable run. The second produces normalized CSVs and `summary.json` in `calibration/resource-coach-log/generated` by default.
 
+For automated analysis, prefer repository JSON. For manual inspection and collaborative updating, append the same `resource-coach-experiment-v1` export to the Google Sheet. Never make the Sheet the only copy of an experiment.
+
 ## Corpus-wide longitudinal analysis
 
-The log workflow does **not** evaluate one selected player at a time. Every run in `runs/` is analysed in the same batch against the complete versioned Resource Coach evidence available to the repository.
-
-The automated corpus consists of:
-
-- the immutable historical calibration tree pinned by `LONGITUDINAL_CORPUS_REF` in `.github/workflows/resource-coach-log.yml`;
-- current `profiles/calibration_data.json` and `profiles/player_seeds.json` player-state evidence;
-- every current immutable `resource-coach-experiment-v1` run.
-
-Run the same analysis locally after materialising those sources:
+The workflow also loads `calibration/longitudinal-corpus/corpus-v1.json.gz.b64`, a normalized snapshot of the canonical longitudinal workbook, and analyzes **all observed player states plus all immutable experiment runs in one pass**:
 
 ```bash
-node tools/resource-coach-v2/analyse-longitudinal-corpus.mjs \
-  --corpus-dir /path/to/materialised-corpus \
-  --runs-dir calibration/resource-coach-log/runs \
-  --out-dir /tmp/resource-coach-longitudinal \
-  --top-n 20
+node tools/resource-coach-v2/analyze-longitudinal-corpus.mjs \
+  calibration/longitudinal-corpus/corpus-v1.json.gz.b64 \
+  calibration/resource-coach-log/runs \
+  calibration/resource-coach-log/longitudinal-generated
 ```
 
-Generated outputs:
+This is intentionally not a one-player-at-a-time loop. The analyzer builds the corpus state-space once, computes every same-player longitudinal comparison, builds cross-player state/response analogue indexes, and then evaluates every run against those indexes.
 
-- `form_intake.csv` — one normalized row per observed stat for **all** current experiments, including duplicate/fit weight, corpus envelope and strongest comparator metadata ready for metric/form intake.
-- `experiment_matches.csv` — ranked granular comparators across the complete empirical corpus; the similarity value is descriptive retrieval only, not a fitted transfer law.
-- `state_comparisons.csv` — every unique same-player state pair. Changed states are explicitly labelled non-causal unless a direct transition is evidenced.
-- `state_reobservations.csv` — repeated observations of the exact same player state, retained separately so repeated screenshots do not multiply longitudinal deltas.
-- `cohort_metrics.csv` — endpoint-preserving cohort summaries by stat, programme, coach, multiplier, age band, tier and display class.
-- `summary.json` — corpus/run counts and integrity safeguards.
+Causal semantics remain strict: a previous-state link is not a direct transition unless the source corpus explicitly says it is. Exact re-observations are not transitions. Similarity scores are retrieval metrics only; they are not game-model parameters.
 
-Low/high preview endpoints stay separate throughout. The analyser never replaces an observed interval with its midpoint, never lets an exact duplicate add empirical fitting weight, and never promotes a merely sequential pair of player states into a causal transition.
-
-The GitHub Action uploads both the ordinary experiment-log aggregation and the longitudinal analysis bundle as a workflow artifact, so a new run automatically receives whole-corpus comparison without manually choosing a player or repeatedly invoking analysis per state.
-
-For automated analysis, prefer repository JSON. For manual inspection and collaborative updating, append the same `resource-coach-experiment-v1` export to the Google Sheet. Never make the Sheet the only copy of an experiment.
+CI uploads both the normalized experiment aggregation and longitudinal outputs as a workflow artifact, so test intake can be inspected without manually reconstructing player comparisons.
