@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "resource-coach-log-manifest-v1",
+  "schemaVersion": "resource-coach-log-manifest-v2",
   "experimentSchemaVersion": "resource-coach-experiment-v1",
   "googleSheet": {
     "title": "Resource Coach Experiment Log — v1",
@@ -9,21 +9,22 @@
   "runsDirectory": "calibration/resource-coach-log/runs",
   "aggregateCommand": "node tools/resource-coach-v2/aggregate-experiment-log.mjs",
   "ingestCommand": "node tools/resource-coach-v2/ingest-experiment.mjs <export.json>",
-  "longitudinalAnalysis": {
-    "script": "tools/resource-coach-v2/analyse-longitudinal-corpus.mjs",
-    "historicalCorpusRef": "b7ffc212b703973d8ab29541e144e9fb52e7141e",
-    "currentStateSources": [
-      "profiles/calibration_data.json",
-      "profiles/player_seeds.json"
-    ],
-    "outputs": [
-      "summary.json",
-      "form_intake.csv",
-      "experiment_matches.csv",
-      "state_comparisons.csv",
-      "state_reobservations.csv",
-      "cohort_metrics.csv"
-    ],
-    "scope": "all immutable current experiments against the full materialised corpus in one batch"
-  }
+  "longitudinalCorpus": {
+    "path": "calibration/longitudinal-corpus/corpus-v1.json.gz.b64",
+    "schemaVersion": "squad-optimiser-longitudinal-corpus-v1",
+    "sourceWorkbook": "Squad_Optimiser_Corpus_Calibration_Transfer_2026-09-12.xlsx",
+    "sourceWorkbookSha256": "afdc3b421cde5ce0a49bfe3e451157905b3e0962eb6e3ddbe544448842e23f70"
+  },
+  "longitudinalAnalysisCommand": "node tools/resource-coach-v2/analyze-longitudinal-corpus.mjs calibration/longitudinal-corpus/corpus-v1.json.gz.b64 calibration/resource-coach-log/runs calibration/resource-coach-log/longitudinal-generated",
+  "longitudinalOutputs": [
+    "state_pairs.csv",
+    "state_neighbours.csv",
+    "response_rows.csv",
+    "response_analogues.csv",
+    "experiment_metrics.csv",
+    "experiment_state_neighbours.csv",
+    "experiment_stat_analogues.csv",
+    "summary.json",
+    "summary.md"
+  ]
 }
