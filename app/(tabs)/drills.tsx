@@ -11,7 +11,6 @@ import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { drillPlanHistoryService } from '../../src/services/drillPlanHistoryService';
-import { findSubFloorBundle } from '../../src/logic/zeroDrainEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { sessionDrain, MIN_CONDITION_DRAIN_PCT } from '../../src/utils/conditionEngine';
 import { projectDrillAction } from '../../src/logic/recommendation';
@@ -42,8 +41,6 @@ export default function DrillsScreen() {
   const [surgeActive, setSurgeActive] = useState(false);
   const [surgeLevel, setSurgeLevel] = useState<SurgeLevel>(0);
   const surge: SurgeState = { perfectConditionsActive: surgeActive, perfectConditionsLevel: surgeLevel };
-  // Sub-floor bundle only exists at Perfect Conditions active L4; null otherwise.
-  const bundle = findSubFloorBundle(surge);
   const [intensityFilter, setIntensityFilter] = useState<string>('Very Easy');
 
   // Preset build mode
@@ -238,9 +235,7 @@ export default function DrillsScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <MonoLabel color={theme.steelLight}>PERFECT CONDITIONS</MonoLabel>
           <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-          {bundle
-            ? <MonoLabel size={9} color={theme.pos}>BUNDLE: {bundle.intensities.length} DRILLS / 1 CHARGE</MonoLabel>
-            : <MonoLabel size={9} color={theme.inkGhost}>MIN CHARGE {MIN_CONDITION_DRAIN_PCT.toFixed(2)}%</MonoLabel>}
+          <MonoLabel size={9} color={theme.inkGhost}>MIN CHARGE {MIN_CONDITION_DRAIN_PCT.toFixed(2)}%</MonoLabel>
         </View>
         {/* Surge activation — loyalty resets each season, so OFF is the default */}
         <View style={{ flexDirection: 'row', marginBottom: 8, borderWidth: 1, borderColor: theme.hairline2 }}>
