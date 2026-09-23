@@ -3,7 +3,6 @@ name: Drive Resource Coach Collection
 on:
   push:
     branches:
-      - 'automation/drive-data-bridge-20260923'
       - 'calibration/resource-coach-target-provenance-20260922'
     paths:
       - 'calibration/drive-data-exchange.json'
