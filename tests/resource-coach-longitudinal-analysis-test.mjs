@@ -54,7 +54,7 @@ function runFixture() {
   writeJson(path.join(corpus, 'player_seeds.json'), {
     players: [
       { id: 'PLY-0001', name: 'Alpha', _stateId: 'STATE-ALPHA-1', _regime: 'CURRENT_TESTBED', age: 19, roles: ['MC'], tier: 'T3', ovr: 100, stats: { PASSING: 100, DRIBBLING: 110 }, last_updated: '2026-09-01' },
-      { name: 'Alpha', age: 19, roles: ['MC'], tier: 'T3', ovr: 102, stats: { PASSING: 104, DRIBBLING: 113, FITNESS: 0 }, last_updated: '2026-09-02' },
+      { id: 'PLY-0001', name: 'Alpha', _stateId: 'STATE-ALPHA-2', _regime: 'CURRENT_TESTBED', age: 19, roles: ['MC'], tier: 'T3', ovr: 102, stats: { PASSING: 104, DRIBBLING: 113, FITNESS: 0 }, last_updated: '2026-09-02' },
     ],
   });
 
