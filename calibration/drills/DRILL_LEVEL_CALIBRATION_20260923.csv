@@ -1,5 +1,5 @@
-Drill Quality,Training Effect %,Evidence Grade,Current Evidence,Use in Model
-Amateur,,pending,"Current screenshots not yet captured; historical UI shows no displayed bonus",Do not assume
-Semi-Pro,10,historical-direct,"2016 UI/forum capture reports Semi-Pro +10% training effect",Keep as historical prior only
-Pro,,pending,"Four-tier quality ladder is documented; current direct +20 capture not yet found",Do not assume
-World-class,30,current-direct,"Seven 2026 screenshots show World-class +30 Training effect; user confirms this is max",Confirmed display variable
+Drill Quality,Training Effect %,Evidence Grade,Evidence,Use in Model
+Amateur,0,historical-direct,Baseline/unupgraded drill level; no added training-effect bonus shown.,Confirmed level ladder
+Semi-Pro,10,historical-direct,Direct public UI report explicitly shows +10% training effect.,Confirmed level ladder
+Pro,20,historical-direct,Direct public UI report: three-whistle Pro drills give +20% training effect.,Confirmed level ladder
+World-class,30,current-direct,Current 2026 screenshots show +30 Training effect; this is the maximum.,Confirmed level ladder
