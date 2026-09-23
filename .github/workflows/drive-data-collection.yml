@@ -3,23 +3,25 @@ name: Drive Resource Coach Collection
 on:
   push:
     branches:
-      - 'calibration/resource-coach-target-provenance-20260922'
+      - 'main'
     paths:
       - 'calibration/drive-data-exchange.json'
       - 'calibration/resource-coach-log/manifest.json'
       - 'tools/drive-data-exchange/**'
       - 'tools/resource-coach-v2/**'
       - 'tests/drive-data-exchange-test.mjs'
+      - 'tests/drive-sheet-source-test.mjs'
       - '.github/workflows/drive-data-collection.yml'
   pull_request:
     branches:
-      - 'calibration/resource-coach-target-provenance-20260922'
+      - 'main'
     paths:
       - 'calibration/drive-data-exchange.json'
       - 'calibration/resource-coach-log/manifest.json'
       - 'tools/drive-data-exchange/**'
       - 'tools/resource-coach-v2/**'
       - 'tests/drive-data-exchange-test.mjs'
+      - 'tests/drive-sheet-source-test.mjs'
       - '.github/workflows/drive-data-collection.yml'
   workflow_dispatch:
   schedule:
@@ -39,7 +41,8 @@ jobs:
       - name: Check collection bridge
         run: |
           node --check tools/drive-data-exchange/collect-resource-coach.mjs
-          node --test tests/drive-data-exchange-test.mjs
+          node --check tools/drive-data-exchange/collect-resource-coach-sheet.mjs
+          node --test tests/drive-data-exchange-test.mjs tests/drive-sheet-source-test.mjs
 
   collect:
     if: github.event_name != 'pull_request'
