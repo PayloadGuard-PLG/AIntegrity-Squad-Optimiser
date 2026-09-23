@@ -1,106 +1,77 @@
 name: Resource Coach Log
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'calibration/resource-coach-log/**'
-      - 'profiles/calibration_data.json'
-      - 'profiles/player_seeds.json'
+      - 'calibration/longitudinal-corpus/**'
       - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
       - 'tools/resource-coach-v2/ingest-experiment.mjs'
-      - 'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs'
-      - 'tests/resource-coach-longitudinal-analysis-test.mjs'
+      - 'tools/resource-coach-v2/analyze-longitudinal-corpus.mjs'
+      - 'tests/longitudinal-corpus-analysis-test.mjs'
       - '.github/workflows/resource-coach-log.yml'
   push:
     branches: [main]
     paths:
       - 'calibration/resource-coach-log/**'
-      - 'profiles/calibration_data.json'
-      - 'profiles/player_seeds.json'
+      - 'calibration/longitudinal-corpus/**'
       - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
       - 'tools/resource-coach-v2/ingest-experiment.mjs'
-      - 'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs'
-      - 'tests/resource-coach-longitudinal-analysis-test.mjs'
+      - 'tools/resource-coach-v2/analyze-longitudinal-corpus.mjs'
+      - 'tests/longitudinal-corpus-analysis-test.mjs'
       - '.github/workflows/resource-coach-log.yml'
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Optional reason for an out-of-band corpus-wide analysis run'
-        required: false
-        default: 'manual longitudinal refresh'
 
 permissions:
   contents: read
-
-env:
-  # Immutable source commit containing the version-controlled calibration campaign
-  # that underpins the longitudinal workbook. Current immutable experiment runs
-  # and current profile snapshots are added separately below.
-  LONGITUDINAL_CORPUS_REF: b7ffc212b703973d8ab29541e144e9fb52e7141e
 
 jobs:
   verify-log:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
 
-      - name: Syntax and longitudinal regression checks
+      - name: Syntax check
         run: |
           node --check tools/resource-coach-v2/ingest-experiment.mjs
           node --check tools/resource-coach-v2/aggregate-experiment-log.mjs
-          node --check tools/resource-coach-v2/analyse-longitudinal-corpus.mjs
-          node --test tests/resource-coach-longitudinal-analysis-test.mjs
+          node --check tools/resource-coach-v2/analyze-longitudinal-corpus.mjs
+          node --check tests/longitudinal-corpus-analysis-test.mjs
+
+      - name: Longitudinal analyzer semantic regression
+        run: node --test tests/longitudinal-corpus-analysis-test.mjs
 
       - name: Aggregate immutable experiments
         run: |
           rm -rf /tmp/resource-coach-generated
-          node tools/resource-coach-v2/aggregate-experiment-log.mjs             calibration/resource-coach-log/runs             /tmp/resource-coach-generated
-          {
-            echo '## Immutable experiment log'
-            echo
-            echo '```json'
-            cat /tmp/resource-coach-generated/summary.json
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          node tools/resource-coach-v2/aggregate-experiment-log.mjs \
+            calibration/resource-coach-log/runs \
+            /tmp/resource-coach-generated
+          cat /tmp/resource-coach-generated/summary.json >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Materialize versioned longitudinal corpus
-        run: |
-          rm -rf /tmp/resource-coach-corpus
-          mkdir -p /tmp/resource-coach-corpus/historical /tmp/resource-coach-corpus/current-profiles
-
-          # The historical calibration campaign is immutable Git evidence. The
-          # pinned commit is on a diverged calibration lineage, so fetch that exact
-          # object explicitly before archiving it.
-          git fetch --no-tags --depth=1 origin "$LONGITUDINAL_CORPUS_REF"
-          git archive "$LONGITUDINAL_CORPUS_REF" calibration | tar -x -C /tmp/resource-coach-corpus/historical
-
-          # Current profile states extend the historical corpus. They are evidence
-          # sources, not replacements for older states.
-          cp profiles/calibration_data.json /tmp/resource-coach-corpus/current-profiles/calibration_data.json
-          cp profiles/player_seeds.json /tmp/resource-coach-corpus/current-profiles/player_seeds.json
-
-          test -s /tmp/resource-coach-corpus/historical/calibration/coach_experiments.v1.json
-          test -s /tmp/resource-coach-corpus/current-profiles/calibration_data.json
-
-      - name: Analyse every experiment against the full longitudinal corpus
+      - name: Analyze complete longitudinal corpus and all experiment runs
         run: |
           rm -rf /tmp/resource-coach-longitudinal
-          node tools/resource-coach-v2/analyse-longitudinal-corpus.mjs             --corpus-dir /tmp/resource-coach-corpus             --runs-dir calibration/resource-coach-log/runs             --out-dir /tmp/resource-coach-longitudinal             --top-n 20
-          {
-            echo
-            echo '## Corpus-wide longitudinal analysis'
-            echo
-            echo '```json'
-            cat /tmp/resource-coach-longitudinal/summary.json
-            echo '```'
-            echo
-            echo 'The generated form_intake.csv contains one row per observed stat for every immutable experiment; experiment_matches.csv contains the strongest corpus comparators, and state_comparisons.csv contains all unique same-player observed state pairs without inventing causal transitions; state_reobservations.csv records repeated observations of identical states separately.'
-          } >> "$GITHUB_STEP_SUMMARY"
+          node tools/resource-coach-v2/analyze-longitudinal-corpus.mjs \
+            calibration/longitudinal-corpus/corpus-v1.json.gz.b64 \
+            calibration/resource-coach-log/runs \
+            /tmp/resource-coach-longitudinal
+          cat /tmp/resource-coach-longitudinal/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify corpus-wide analysis semantics
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const s=JSON.parse(fs.readFileSync('/tmp/resource-coach-longitudinal/summary.json','utf8'));
+          if(s.analysisScope!=='all-corpus-states-and-all-immutable-runs') throw new Error('Longitudinal analysis is not corpus-wide.');
+          if(!s.integrity?.noInferredCausalTransitions) throw new Error('Analyzer inferred causal transitions absent from source evidence.');
+          if((s.counts?.players??0)<1 || (s.counts?.playerStates??0)<1) throw new Error('Corpus contains no player-state evidence.');
+          if((s.counts?.observedResponseRows??0)<1) throw new Error('Corpus contains no observed coach-response rows.');
+          if((s.counts?.uniqueObservedResponseRows??0)>(s.counts?.observedResponseRows??0)) throw new Error('Unique response count exceeds raw response count.');
+          NODE
 
       - name: Verify immutable-ingest idempotence
         run: |
@@ -110,12 +81,12 @@ jobs:
           node tools/resource-coach-v2/ingest-experiment.mjs "$first" /tmp/resource-coach-runs
           node tools/resource-coach-v2/ingest-experiment.mjs "$first" /tmp/resource-coach-runs
 
-      - name: Upload longitudinal analysis bundle
+      - name: Upload normalized and longitudinal analysis artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: resource-coach-longitudinal-analysis
+          name: resource-coach-analysis-${{ github.sha }}
           path: |
             /tmp/resource-coach-generated
             /tmp/resource-coach-longitudinal
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 14
