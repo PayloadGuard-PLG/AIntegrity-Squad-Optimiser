@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "resource-coach-quality-exclusions-v1",
+  "experiments": [
+    {
+      "experimentId": "1790098245150-5u2qap7n",
+      "reason": "The preview shows Passing 253 while the frozen input and state key say 252; baseline state is unreconciled. Exclude the entire preview from fitting until reobserved or resolved with provenance."
+    },
+    {
+      "experimentId": "1790098535017-6ng4hwdq",
+      "reason": "Exact duplicate of the unreconciled preview; the shared-latent candidate was captured after the first observation and is diagnostic, not a blind comparison."
+    }
+  ]
+}
