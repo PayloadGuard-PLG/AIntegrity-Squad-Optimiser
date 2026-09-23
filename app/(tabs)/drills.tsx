@@ -44,7 +44,7 @@ export default function DrillsScreen() {
   const surge: SurgeState = { perfectConditionsActive: surgeActive, perfectConditionsLevel: surgeLevel };
   // Sub-floor bundle only exists at Perfect Conditions active L4; null otherwise.
   const bundle = findSubFloorBundle(surge);
-  const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
+  const [intensityFilter, setIntensityFilter] = useState<string>('Very Easy');
 
   // Preset build mode
   const [presetMode, setPresetMode] = useState(false);
@@ -75,8 +75,8 @@ export default function DrillsScreen() {
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
     return getDrillRecommendations(selectedPlayer, surge)
-      .filter(d => d.intensity === drillLevel);
-  }, [selectedPlayer, surgeActive, surgeLevel, drillLevel]);
+      .filter(d => d.intensity === intensityFilter);
+  }, [selectedPlayer, surgeActive, surgeLevel, intensityFilter]);
 
   function togglePresetDrill(name: string) {
     setPresetSelection(prev => {
@@ -219,15 +219,15 @@ export default function DrillsScreen() {
           </View>
         )}
 
-        {/* Drill level selector */}
+        {/* Fixed drill-intensity filter */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <MonoLabel color={theme.steelLight}>DRILL LEVEL</MonoLabel>
+          <MonoLabel color={theme.steelLight}>INTENSITY</MonoLabel>
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 14, gap: 6, flexWrap: 'wrap' }}>
           {['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].map(l => {
-            const sel = drillLevel === l;
+            const sel = intensityFilter === l;
             return (
-              <Pressable key={l} onPress={() => setDrillLevel(l)} style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
+              <Pressable key={l} onPress={() => setIntensityFilter(l)} style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
                 <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>{l.toUpperCase()}</Text>
               </Pressable>
             );
