@@ -206,8 +206,12 @@ drill budget   = cycles × 450 × 0.3 (drillXpFactor) / drill.stats.length
 xpBase(stat)   = 2.94 × exp(stat / 55)          [exponential model, Sprint 25]
 xpCost(stat)   = xpBase(stat) / (ageMult × talentMult × greyMult × drillLevelMult)
 
-drillLevelMult = profile.drillLevelMultipliers[drill.intensity]  (drills only)
+drillLevelMult = 1.0 for baseline drills until drill-quality transfer is calibrated
 drillLevelMult = 1.0 for ALL coach sessions (no intensity adjustment)
+
+Drill intensity is fixed per drill and controls condition drain (+ the displayed +1…+5 training XP).
+Drill quality is a separate Amateur/Semi-Pro/Pro/World-class axis showing +0/+10/+20/+30
+Training effect. Do not infer permanent-stat XP from intensity.
 ```
 
 `drillXpFactor = 0.3` is **provisional** — uncalibrated. Needs real drill session before/after data.
