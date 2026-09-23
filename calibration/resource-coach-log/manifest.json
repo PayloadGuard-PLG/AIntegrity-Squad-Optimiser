@@ -8,5 +8,21 @@
   },
   "runsDirectory": "calibration/resource-coach-log/runs",
   "aggregateCommand": "node tools/resource-coach-v2/aggregate-experiment-log.mjs",
-  "ingestCommand": "node tools/resource-coach-v2/ingest-experiment.mjs <export.json>"
+  "ingestCommand": "node tools/resource-coach-v2/ingest-experiment.mjs <export.json>",
+  "longitudinalAnalysis": {
+    "script": "tools/resource-coach-v2/analyse-longitudinal-corpus.mjs",
+    "historicalCorpusRef": "b7ffc212b703973d8ab29541e144e9fb52e7141e",
+    "currentStateSources": [
+      "profiles/calibration_data.json",
+      "profiles/player_seeds.json"
+    ],
+    "outputs": [
+      "summary.json",
+      "form_intake.csv",
+      "experiment_matches.csv",
+      "state_comparisons.csv",
+      "cohort_metrics.csv"
+    ],
+    "scope": "all immutable current experiments against the full materialised corpus in one batch"
+  }
 }
