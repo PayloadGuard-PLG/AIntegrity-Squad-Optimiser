@@ -37,7 +37,11 @@ function playerKey(id,name){ const rawId=String(id??'').trim(); const i=normText
 const states=[];
 const observations=[];
 const sources=[];
+const displayClassEvidence=new Map();
 let discardedNonPositiveStatValues=0;
+let displayClassEvidenceRows=0;
+let displayClassRecoveredIntervals=0;
+let displayClassEvidenceConflicts=0;
 function addState(raw, sourceFile, sourceKind){
   if(!raw)return null;
   const stats={}; for(const [k,v] of Object.entries(raw.stats??{})){ const n=num(v); if(n!==null&&n>0) stats[normStat(k)]=n; else if(n!==null) discardedNonPositiveStatValues++; }
@@ -78,6 +82,27 @@ function addObservation({id,player,coach,observed,sourceFile,sourceKind,status='
 for(const file of walk(corpusDir)){
   const doc=safeJson(file); if(!doc)continue;
   const rel=path.relative(corpusDir,file); sources.push({source_file:rel,kind:'corpus-json'});
+  if(doc.schemaVersion==='resource-coach-display-class-evidence-v1'&&Array.isArray(doc.rows)){
+    for(const row of doc.rows){
+      const stat=normStat(row.stat), previewId=String(row.previewId??'').trim(), displayClass=String(row.displayClass??'').trim().toUpperCase();
+      if(!previewId||!stat||!displayClass)continue;
+      const key=`${previewId}::${stat}`;
+      const prior=displayClassEvidence.get(key);
+      if(prior&&prior.displayClass!==displayClass) throw new Error(`Conflicting display-class evidence for ${key}: ${prior.displayClass} vs ${displayClass}`);
+      if(!prior){
+        displayClassEvidence.set(key,{
+          displayClass,
+          playerStateId:row.playerStateId??null,
+          sourceScreenshot:row.sourceScreenshot??null,
+          sourceFileId:row.sourceFileId??null,
+          sourceId:row.sourceId??null,
+          qcStatus:row.qcStatus??null,
+          sourceFile:rel,
+        });
+        displayClassEvidenceRows++;
+      }
+    }
+  }
   if(Array.isArray(doc.experiments)){
     for(const x of doc.experiments) addObservation({id:x.id,player:x.preOutcome?.player,coach:x.preOutcome?.coach,observed:x.observed,sourceFile:rel,sourceKind:'coach-experiments',classByStat:x._classByStat??{}});
   }
@@ -98,6 +123,26 @@ for(const file of walk(corpusDir)){
     }
   }
 }
+
+// Recover missing historical display classes only from direct workbook-derived evidence.
+// Existing non-null classes are authoritative and are never overwritten.
+for(const e of observations){
+  for(const interval of e.intervals){
+    const evidence=displayClassEvidence.get(`${e.eventId}::${interval.stat}`);
+    if(!evidence)continue;
+    if(interval.displayClass&&interval.displayClass!==evidence.displayClass){
+      displayClassEvidenceConflicts++;
+      continue;
+    }
+    if(!interval.displayClass){
+      interval.displayClass=evidence.displayClass;
+      interval.displayClassSource='DIRECT_WORKBOOK_OBSERVATION';
+      interval.displayClassEvidence=evidence;
+      displayClassRecoveredIntervals++;
+    }
+  }
+}
+if(displayClassEvidenceConflicts>0) throw new Error(`Display-class evidence conflicts with ${displayClassEvidenceConflicts} existing interval classes`);
 
 // Current immutable experiment log is a second corpus partition and is always consumed in full; no player filter exists.
 const runFiles=walk(runsDir);
@@ -409,6 +454,9 @@ const summary={
   variablesConfoundedOrUnsupported:variableIdentifiability.filter(x=>x.identifiability_class==='CONFOUNDED_OR_UNSUPPORTED').length,
   empiricalPreviewRecords:observations.length,uniqueEmpiricalPreviews:seenEvidence.size,duplicateEmpiricalPreviews:observations.length-seenEvidence.size,empiricalStatIntervals:empiricalStats.length,
   currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,experimentStateMatchRows:experimentStateMatches.length,cohortMetricRows:metrics.length,discardedNonPositiveStatValues,
+  displayClassEvidenceRows,displayClassRecoveredIntervals,displayClassEvidenceConflicts,
+  empiricalIntervalsWithDisplayClass:empiricalStats.filter(x=>knownControlValue(x.displayClass)).length,
+  empiricalIntervalsMissingDisplayClass:empiricalStats.filter(x=>!knownControlValue(x.displayClass)).length,
   safeguards:[
     'No player filter: every run is evaluated against the full available corpus in one batch.',
     'Same-player state pairs are labelled observed comparisons unless a direct causal transition is explicitly evidenced.',
@@ -417,6 +465,7 @@ const summary={
     'Similarity is descriptive retrieval only; it is not a fitted transfer law or causal score.',
     'Identifiability classes report exact/near covariate cancellation opportunities only; they do not estimate causal effects.',
     'Unknown covariates never count as matched controls; incomplete control pairs are reported separately and cannot establish exact cancellation.',
+    'Missing historical display classes may be filled only from direct workbook-derived preview/stat evidence keyed by preview ID and stat; existing classes are never overwritten.',
     'Untimestamped state pairs use stable canonical ordering, never implied chronology.',
     'Non-positive player stat values are treated as missing/sentinel evidence and excluded from state fingerprints and deltas.',
     'Nearest canonical state matches are labelled analogues unless the complete state is an exact re-observation; similarity never asserts player identity.'
