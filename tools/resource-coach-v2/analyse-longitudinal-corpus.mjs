@@ -122,19 +122,32 @@ for(const file of runFiles){
 const seenEvidence=new Map();
 for(const e of observations){ const prior=seenEvidence.get(e.empiricalFingerprint); e.fitWeight=prior?0:1; e.duplicateOf=prior?.eventId??null; if(!prior)seenEvidence.set(e.empiricalFingerprint,e); }
 
-// State inventory: exact repeated states are retained but linked; this is identity evidence, not a new transition.
-const seenState=new Map();
-for(const s of states){ const prior=seenState.get(s.stateFingerprint); s.duplicateStateOf=prior?`${prior.playerKey}:${prior.sourceFile}`:null; if(!prior)seenState.set(s.stateFingerprint,s); }
+// Collapse repeated representations of the same state before calculating deltas.
+// Re-observations are preserved separately, so repeated screenshots do not multiply
+// the number of longitudinal comparisons.
+const uniqueStateMap=new Map();
+for(const s of states){
+  const key=`${s.playerKey}::${s.stateFingerprint}`;
+  const g=uniqueStateMap.get(key);
+  if(g){ g.observationCount++; g.sources.add(s.sourceFile); }
+  else uniqueStateMap.set(key,{state:s,observationCount:1,sources:new Set([s.sourceFile])});
+}
+const uniqueStates=[...uniqueStateMap.values()].map(x=>x.state);
+const stateReobservations=[...uniqueStateMap.values()].filter(x=>x.observationCount>1).map(x=>({
+  player_key:x.state.playerKey,player_name:x.state.playerName??'',state_fingerprint:x.state.stateFingerprint,
+  observation_count:x.observationCount,sources:[...x.sources].sort().join(' | ')
+}));
 
-// Same-player longitudinal comparisons. These are OBSERVED STATE COMPARISONS unless an explicit causal transition exists; do not invent causality.
-const byPlayer=new Map(); for(const s of states){ if(!byPlayer.has(s.playerKey))byPlayer.set(s.playerKey,[]); byPlayer.get(s.playerKey).push(s); }
+// Same-player longitudinal comparisons use unique observed states. These are
+// OBSERVED STATE COMPARISONS unless a direct causal transition is explicitly evidenced.
+const byPlayer=new Map(); for(const s of uniqueStates){ if(!byPlayer.has(s.playerKey))byPlayer.set(s.playerKey,[]); byPlayer.get(s.playerKey).push(s); }
 const stateComparisons=[];
 for(const [pk,ss] of byPlayer){
   for(let i=0;i<ss.length;i++) for(let j=i+1;j<ss.length;j++){
     const a=ss[i],b=ss[j]; const keys=[...new Set([...Object.keys(a.stats),...Object.keys(b.stats)])].sort(); const deltas=[];
     for(const stat of keys){ if(finite(a.stats[stat])&&finite(b.stats[stat]))deltas.push({stat,delta:b.stats[stat]-a.stats[stat]}); }
-    const changed=deltas.filter(x=>x.delta!==0); const exact=changed.length===0 && deltas.length>0;
-    stateComparisons.push({player_key:pk,player_name:b.playerName??a.playerName??'',state_a:a.stateFingerprint,state_b:b.stateFingerprint,source_a:a.sourceFile,source_b:b.sourceFile,age_a:a.age,age_b:b.age,tier_a:a.tier,tier_b:b.tier,ovr_a:a.overall,ovr_b:b.overall,comparison_class:exact?'EXACT_REOBSERVATION':'OBSERVED_STATE_DELTA_NOT_CAUSAL',shared_stat_count:deltas.length,changed_stat_count:changed.length,total_abs_stat_delta:changed.reduce((z,x)=>z+Math.abs(x.delta),0),max_abs_stat_delta:changed.length?Math.max(...changed.map(x=>Math.abs(x.delta))):0,changed_stats:changed.map(x=>`${x.stat}:${x.delta>=0?'+':''}${x.delta}`).join(' | ')});
+    const changed=deltas.filter(x=>x.delta!==0);
+    stateComparisons.push({player_key:pk,player_name:b.playerName??a.playerName??'',state_a:a.stateFingerprint,state_b:b.stateFingerprint,source_a:a.sourceFile,source_b:b.sourceFile,age_a:a.age,age_b:b.age,tier_a:a.tier,tier_b:b.tier,ovr_a:a.overall,ovr_b:b.overall,comparison_class:'OBSERVED_STATE_DELTA_NOT_CAUSAL',shared_stat_count:deltas.length,changed_stat_count:changed.length,total_abs_stat_delta:changed.reduce((z,x)=>z+Math.abs(x.delta),0),max_abs_stat_delta:changed.length?Math.max(...changed.map(x=>Math.abs(x.delta))):0,changed_stats:changed.map(x=>`${x.stat}:${x.delta>=0?'+':''}${x.delta}`).join(' | ')});
   }
 }
 
@@ -164,14 +177,14 @@ for(const rec of runRecords){
   const id=rec.experiment.experimentId; const e=observations.find(x=>x.eventId===id&&x.sourceKind==='resource-coach-experiment-v1'); if(!e)continue;
   for(const r of e.intervals){
     const target=empiricalStats.find(x=>x.event===e&&x.stat===r.stat&&x.lo===r.lo&&x.hi===r.hi); if(!target)continue;
-    const ranked=empiricalStats.filter(x=>x.event!==e&&x.event.fitWeight===1).map(x=>({x,...similarity(target,x)})).filter(x=>Number.isFinite(x.score)).sort((a,b)=>b.score-a.score).slice(0,topN);
+    const ranked=empiricalStats.filter(x=>x.event!==e&&x.event.fitWeight===1&&x.event.empiricalFingerprint!==e.empiricalFingerprint).map(x=>({x,...similarity(target,x)})).filter(x=>Number.isFinite(x.score)).sort((a,b)=>b.score-a.score).slice(0,topN);
     for(let rank=0;rank<ranked.length;rank++){
       const m=ranked[rank]; matches.push({experiment_id:id,target_stat:r.stat,target_start_stat:target.start,target_gain_lo:r.lo,target_gain_hi:r.hi,rank:rank+1,similarity_score:Number(m.score.toFixed(4)),match_reasons:m.reasons.join('|'),reference_event_id:m.x.event.eventId,reference_player:m.x.event.playerName??m.x.event.playerId??'',reference_age:m.x.event.age,reference_tier:m.x.event.tier,reference_programme:m.x.event.programmeFamily,reference_coach:m.x.event.coachTitle,reference_multiplier:m.x.event.multiplier,reference_start_stat:m.x.start,reference_class:m.x.displayClass,reference_gain_lo:m.x.lo,reference_gain_hi:m.x.hi,reference_source:m.x.event.sourceFile});
     }
-    const sameStat=empiricalStats.filter(x=>x.event!==e&&x.event.fitWeight===1&&x.stat===r.stat);
+    const sameStat=empiricalStats.filter(x=>x.event!==e&&x.event.fitWeight===1&&x.event.empiricalFingerprint!==e.empiricalFingerprint&&x.stat===r.stat);
     const exactCoach=sameStat.filter(x=>normText(x.event.coachTitle)===normText(e.coachTitle)&&num(x.event.multiplier)===num(e.multiplier)&&normText(x.event.programmeFamily)===normText(e.programmeFamily));
     const cohort=exactCoach.length?exactCoach:sameStat;
-    intakeRows.push({experiment_id:id,evidence_fingerprint:rec.evidence?.fingerprint??'',is_duplicate:!!rec.evidence?.isDuplicate,player_id:e.playerId??'',age:e.age,tier:e.tier??'',programme_family:e.programmeFamily??'',coach_title:e.coachTitle??'',multiplier:e.multiplier,stat:r.stat,start_stat:target.start,display_class:target.displayClass??'',observed_lo:r.lo,observed_hi:r.hi,comparison_scope:exactCoach.length?'exact-coach-programme-multiplier':'same-stat-global',comparison_n:cohort.length,corpus_lo_min:cohort.length?Math.min(...cohort.map(x=>x.lo)):null,corpus_lo_max:cohort.length?Math.max(...cohort.map(x=>x.lo)):null,corpus_hi_min:cohort.length?Math.min(...cohort.map(x=>x.hi)):null,corpus_hi_max:cohort.length?Math.max(...cohort.map(x=>x.hi)):null,best_match_score:ranked[0]?Number(ranked[0].score.toFixed(4)):null,best_match_event:ranked[0]?.x.event.eventId??''});
+    intakeRows.push({experiment_id:id,evidence_fingerprint:rec.evidence?.fingerprint??'',is_duplicate:!!rec.evidence?.isDuplicate,fit_weight:rec.evidence?.isDuplicate?0:1,player_id:e.playerId??'',age:e.age,tier:e.tier??'',programme_family:e.programmeFamily??'',coach_title:e.coachTitle??'',multiplier:e.multiplier,stat:r.stat,start_stat:target.start,display_class:target.displayClass??'',observed_lo:r.lo,observed_hi:r.hi,comparison_scope:exactCoach.length?'exact-coach-programme-multiplier':'same-stat-global',comparison_n:cohort.length,corpus_lo_min:cohort.length?Math.min(...cohort.map(x=>x.lo)):null,corpus_lo_max:cohort.length?Math.max(...cohort.map(x=>x.lo)):null,corpus_hi_min:cohort.length?Math.min(...cohort.map(x=>x.hi)):null,corpus_hi_max:cohort.length?Math.max(...cohort.map(x=>x.hi)):null,best_match_score:ranked[0]?Number(ranked[0].score.toFixed(4)):null,best_match_event:ranked[0]?.x.event.eventId??''});
   }
 }
 
@@ -185,15 +198,16 @@ for(const x of empiricalStats.filter(x=>x.event.fitWeight===1)){
 const metrics=[...groups.values()].map(g=>({stat:g.stat,programme_family:g.programme_family,coach_title:g.coach_title,multiplier:g.multiplier,age_band:g.age_band,tier:g.tier,display_class:g.display_class,event_count:g.events.size,player_count:g.players.size,mean_lo:g.lo.reduce((a,b)=>a+b,0)/g.lo.length,mean_hi:g.hi.reduce((a,b)=>a+b,0)/g.hi.length,min_lo:Math.min(...g.lo),max_lo:Math.max(...g.lo),min_hi:Math.min(...g.hi),max_hi:Math.max(...g.hi)})).sort((a,b)=>b.event_count-a.event_count||a.stat.localeCompare(b.stat));
 
 fs.mkdirSync(outDir,{recursive:true});
+writeCsv('state_reobservations.csv',['player_key','player_name','state_fingerprint','observation_count','sources'],stateReobservations);
 writeCsv('state_comparisons.csv',['player_key','player_name','state_a','state_b','source_a','source_b','age_a','age_b','tier_a','tier_b','ovr_a','ovr_b','comparison_class','shared_stat_count','changed_stat_count','total_abs_stat_delta','max_abs_stat_delta','changed_stats'],stateComparisons);
 writeCsv('experiment_matches.csv',['experiment_id','target_stat','target_start_stat','target_gain_lo','target_gain_hi','rank','similarity_score','match_reasons','reference_event_id','reference_player','reference_age','reference_tier','reference_programme','reference_coach','reference_multiplier','reference_start_stat','reference_class','reference_gain_lo','reference_gain_hi','reference_source'],matches);
 writeCsv('cohort_metrics.csv',['stat','programme_family','coach_title','multiplier','age_band','tier','display_class','event_count','player_count','mean_lo','mean_hi','min_lo','max_lo','min_hi','max_hi'],metrics);
-writeCsv('form_intake.csv',['experiment_id','evidence_fingerprint','is_duplicate','player_id','age','tier','programme_family','coach_title','multiplier','stat','start_stat','display_class','observed_lo','observed_hi','comparison_scope','comparison_n','corpus_lo_min','corpus_lo_max','corpus_hi_min','corpus_hi_max','best_match_score','best_match_event'],intakeRows);
+writeCsv('form_intake.csv',['experiment_id','evidence_fingerprint','is_duplicate','fit_weight','player_id','age','tier','programme_family','coach_title','multiplier','stat','start_stat','display_class','observed_lo','observed_hi','comparison_scope','comparison_n','corpus_lo_min','corpus_lo_max','corpus_hi_min','corpus_hi_max','best_match_score','best_match_event'],intakeRows);
 
 const summary={
   schemaVersion:'resource-coach-longitudinal-analysis-v1',
   corpusDirectory:path.relative(process.cwd(),corpusDir),runsDirectory:path.relative(process.cwd(),runsDir),sourceJsonFiles:sources.length,
-  rawStateRecords:states.length,uniqueStateFingerprints:seenState.size,playerIdentities:byPlayer.size,stateComparisons:stateComparisons.length,
+  rawStateRecords:states.length,uniqueStateFingerprints:uniqueStates.length,stateReobservedFingerprints:stateReobservations.length,playerIdentities:byPlayer.size,stateComparisons:stateComparisons.length,
   empiricalPreviewRecords:observations.length,uniqueEmpiricalPreviews:seenEvidence.size,duplicateEmpiricalPreviews:observations.length-seenEvidence.size,empiricalStatIntervals:empiricalStats.length,
   currentExperimentRecords:runRecords.length,currentIntakeRows:intakeRows.length,matchRows:matches.length,cohortMetricRows:metrics.length,
   safeguards:[
