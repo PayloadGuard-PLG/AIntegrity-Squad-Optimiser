@@ -221,7 +221,11 @@ a live defect in the verification layer until Sprint 38.
 > being right. 676 is deliberately left unchanged rather than swapped for another
 > convenient point.
 
-**Note:** `condLevelMultipliers` and `drillLevelMultipliers` are separate tables with different purposes. Condition drain and XP gain are independent systems.
+**Note:** `condLevelMultipliers` is the verified fixed-intensity condition table.
+The legacy `drillLevelMultipliers` table must not be indexed by drill intensity in
+the production drill predictor. The game exposes a separate drill-quality axis
+(Amateur/Semi-Pro/Pro/World-class = +0/+10/+20/+30 Training effect); its mapping
+to permanent-stat XP is not yet calibrated, so the current drill multiplier is 1.0.
 
 ### 3.1 RAW is not what you are charged
 
