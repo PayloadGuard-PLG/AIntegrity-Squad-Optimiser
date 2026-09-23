@@ -94,7 +94,7 @@ for(const file of walk(corpusDir)){
         const classByStat={}; for(const g of gains)classByStat[normStat(g.stat)]=g.isWhite===true?'WHITE':g.isWhite===false?'GREY':null;
         addObservation({id:`${p.id??p.name}:${o.screenshot??observations.length}`,player:{id:p.id,name:p.name,age:o.playerAge??p.age,tier:o.tier??null,roles:p.roles,overall:o.playerOvr,stats},coach:{programmeFamily:o.programmeFamily??'legacy-academy',title:`${o.coachType??''} ${o.coachCategory??''}`.trim(),multiplier:o.multiplier,transferClass:o.transferClass??'ordinary',affectedStats:gains.map(g=>g.stat)},observed:{statIntervals:Object.fromEntries(gains.map(g=>[g.stat,{lo:g.gainLo,hi:g.gainHi}])),ovrDelta:num(o.ovrBoostLo)!==null&&num(o.ovrBoostHi)!==null?{lo:o.ovrBoostLo,hi:o.ovrBoostHi}:null,stateChanged:false},sourceFile:rel,sourceKind:'legacy-calibration',classByStat});
       }
-      if(p.stats && !p.snapshots && !p.observations) addState({id:p.id??p.name,name:p.name,age:p.age,tier:p.tier,roles:p.roles,overall:p.ovr??p.ovr_game,stats:p.stats,observedAt:p.last_updated},rel,'player-seed');
+      if(p.stats && !p.snapshots && !p.observations) addState({id:p.id??p.name,name:p.name,age:p.age,tier:p.tier,roles:p.roles,overall:p.ovr??p.ovr_game,stats:p.stats,observedAt:p.last_updated,_stateId:p._stateId??p.stateId??null,_regime:p._regime??p.regime??null},rel,'player-seed');
     }
   }
 }
