@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "resource-coach-live-prediction-v1",
+  "status": "prediction recorded before current player-selected preview was supplied",
+  "date": "2026-09-23",
+  "player": "Mark Lurinsky",
+  "age": 18,
+  "ovr": 148,
+  "role": "MC established",
+  "coach": "Standard Offensive",
+  "family": "Drill Session",
+  "multiplier": 10,
+  "affectedCount": 4,
+  "duration": "1 hour",
+  "currentSources": ["chat attachment 63752.png: player card", "chat attachment 63753.png: unselected coach"],
+  "prediction": {
+    "CROSSING": {"start": 120, "class": "MID_GREY", "gain": [16, 22]},
+    "SHOOTING": {"start": 152, "class": "WHITE", "gain": [9, 13]},
+    "SPEED": {"start": 153, "class": "WHITE", "gain": [8, 12]},
+    "CREATIVITY": {"start": 139, "class": "WHITE", "gain": [9, 15]},
+    "OVR": {"start": 148, "gain": [2, 5]}
+  },
+  "rationale": "21 September prospective evidence MARK-DRILL-X10 reports a previous same-player, same-coach/family/multiplier/affected-set preview: Crossing 120 +[16,22], Shooting 152 +[9,13], Speed 153 +[8,12], Creativity 138 +[10,15]. The new screenshot has Creativity 139; other affected starts coincide. Creativity [9,15] conservatively permits a one-point lower gain; OVR [2,5] is the integer-display envelope for four gain sums [42,62] divided by 15, with unknown fractional starting OVR. These are conditional empirical forecasts, not independently inferred game constants. Tier and unrecorded hidden covariates were not matched from screenshot evidence. The prior observation is not an independent blind test of a new mechanistic model.",
+  "observed": null
+}
