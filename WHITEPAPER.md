@@ -638,9 +638,7 @@ Each drill returns:
 - `avgWhiteStatValue` — mean current value of white stats this drill trains; lower = cheaper XP per gain = higher ROI
 - `whiteHits` — `{ stat: string; white: boolean }[]` — every stat the drill trains, flagged white or grey
 
-**All 25 drills are shown for every player** (no efficiency filter). Drills are sorted ascending by `avgWhiteStatValue` — cheapest gains first. Drills that train no white stats for a given role (Infinity value) sink to the bottom naturally.
-
-Drills are classified as `isBase: true` (core daily drills available always) or `isBase: false` (event or lab drills with restricted availability).
+**All 29 verified ordinary baseline drills are available to the optimiser** (no efficiency filter). The Drills screen filters them by their fixed intensity and sorts the visible set by ROI. Special/reward/masterclass drills are intentionally outside `DRILL_LIST` until their separate mechanics are calibrated. All baseline entries carry `isBase: true` only for backward compatibility with older UI code; it no longer means “starter drill versus event drill”.
 
 ---
 
@@ -685,7 +683,7 @@ interface SquadPlanRun {
 interface DrillSession {
   drillName: string;
   sessionCount: number;    // How many times this drill is run
-  drillLevel: DrillLevel;  // 'Very Easy' | 'Easy' | 'Medium' | 'Hard' | 'Very Hard'
+  drillLevel: DrillLevel;  // legacy persisted mirror of the drill's fixed intensity; not user-selectable
 }
 ```
 
@@ -727,7 +725,7 @@ interface InvestmentPlan {
 | OVR formula | `Math.floor` — confirmed Sprint 32 from Grant T2→T3 clean tier upgrade. `floor(2615/15) = 174` ✓. `ceil = 175` ✗. Fixed in `qualityPctToOvr()`. |
 | Session budget decay | `sessionBudgetDecay = 0.99` — ⚠️ **Working value — not separately identified.** Geometric fits the ×114 result where linear does not, but coach type is confounded with session count (that run is the only Extensive AND the only high-N one; linear at an Extensive rate of 0.60× gives the same budget and the same OVR). Needs a low-N Extensive or high-N Standard run. Adopted Sprint 34. Effective sessions = `(1 − 0.99^N) / (1 − 0.99)`. Jables JaseysBoi ×114: 68.2 effective → 172 OVR projected, actual 173 ✓. 11/11 GK stat ranges confirmed Sprint 35. |
 | Coach XP baseline | `baseXpPerSession = 676` — a point retained near the **lower edge** of an admitted **675–930** (the endpoint is 675), not a confirmed point. Derived from Grant ×40 Standard Defending, all 5 stats within game range. |
-| Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Needs actual before/after stat data from a controlled drill run to back-calculate the true factor. |
+| Drill XP scaling | `drillXpFactor = 0.3` provisional — uncalibrated. Intensity is no longer used as an XP multiplier. The separate +0/+10/+20/+30 drill-quality training-effect transfer also needs controlled before/after data. |
 | XP cost model | Exponential `C₀ × exp(stat/K)` with C₀=2.94, K=47 — K confirmed via CV minimisation across 5 Grant ×40 observations (CV=3.2%). C₀ confirmed from Tackling/Positioning gain ratio. |
 | Talent multipliers | Normal (×1.0) confirmed for Grant, Rogers, McGinty, Nerimala. Talent is not a formula variable — locked to 1.0 for all players. Slow (0.70) is a community estimate placeholder; 0.47 was invalidated (linear budget artefact). Fastest/Fast/Average are community estimates. |
 | ×N anomaly | **RESOLVED** Sprint 34 — explained by `sessionBudgetDecay = 0.99`. Not a plateau artefact. |
@@ -910,8 +908,12 @@ Output: per-stat gains (float), OVR before/after banner.
 **Drill budget in projection:**
 ```
 budget = plan.cycles × baseXpPerSession × drillXpFactor / drill.stats.length
-drillLevelMult = profile.drillLevelMultipliers[drill.intensity]
+drillLevelMult = 1.0
 ```
+Drill intensity is a condition-cost / displayed-training-XP variable. The separate
+Amateur→World-class quality axis displays +0/+10/+20/+30 training effect, but the
+mapping from that display value to permanent-stat XP is not yet calibrated. The
+projection therefore does not manufacture an XP multiplier from intensity.
 
 **Coach budget in projection:**
 ```
