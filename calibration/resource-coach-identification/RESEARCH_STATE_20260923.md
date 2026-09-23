@@ -4,7 +4,7 @@ This is a research ledger, not a replacement for `src/logic/resourceCoachV2.ts` 
 
 ```bash
 OPENBLAS_NUM_THREADS=1 python tools/resource-coach-v2/system_identification.py --out calibration/resource-coach-identification/replay-20260923.json
-node --test tests/resource-coach-quality-exclusions-test.mjs tests/resource-coach-longitudinal-analysis-test.mjs
+node --test tests/resource-coach-quality-exclusions-test.mjs tests/resource-coach-longitudinal-analysis-test.mjs tests/resource-coach-chat-locked-tests-20260923-test.mjs
 OPENBLAS_NUM_THREADS=1 python -m unittest discover -s tests -p test_resource_coach_system_identification.py
 ```
 
@@ -45,6 +45,30 @@ Under the *conditional* shared plateau/exponential cost (.0354, WHITE threshold 
 Passing and Dribbling in the new preview are both WHITE and have a starting-stat difference of 8. If their tier-adjusted coordinates are 203 and 195 (the recorded T3 offset), they lie above the proposed WHITE threshold. Inverting the *candidate* exponential cost with slope .0354 gives a minimum Dribbling/Passing budget ratio of **1.562** from the literal interval endpoints. Giving each endpoint ±0.5 displayed-stat tolerance reduces that lower bound to **1.074**, still incompatible with an exactly equal budget. Equal budget becomes possible only at slope **≥0.09973** with literal endpoints or **≥0.04493** with that display tolerance, assuming one shared exponential cost and no stat-specific term. Thus the nominal `.0354 + equal allocation` conjunction is falsified by a direct live preview; **equal allocation across all possible cost functions is not falsified**. Slope .045 remains a possible compensator but scored worse in archive leave-one-player-out replay (78.8% versus 90.2% at .0354). A role/stat allocation effect and a steeper marginal cost remain confounded. The locked 22 September candidate predicted Dribbling roughly [1.57,2.32] at the same Dribbling start; that interval misses the new [4,5], but it had already seen related player evidence by this later date, so this is a replication of an existing failure, not a fresh blind validation.
 
 **OVR.** Exact equality `OVR gain interval = sum(affected gain intervals)/15` is disjoint in 9/22 distinct historical previews. Every one of the 22 is compatible with an integer displayed-difference envelope from `floor(sum_lo/15)` to `ceil(sum_hi/15)`, allowing an unknown fractional starting OVR. Thus aggregate/15 plus display rounding remains plausible, but neither exact equality nor an endpoint renderer is identified. No hard stat cap or threshold discontinuity is established: Neri's T6 WHITE Tackling 135 has latent coordinate −25 and visible [0,0] while WHITE Fitness 260 has +[16,24]; a movement below 25 can be fully hidden by rectification, and steep cost/rounding can also explain high-start zero gains. The 13 September report's claim that this pair alone falsifies shared budget overlooked rectification.
+
+## Later 23 September conversation-locked calibration series
+
+Five additional tests are recorded in [chat-locked-tests-20260923.json](chat-locked-tests-20260923.json), with the proposed test-only parameter updates in [live-calibration-candidate-20260923.json](live-calibration-candidate-20260923.json). In each case the prediction was stated in chat before the user supplied the selected-player outcome screenshot. The absolute per-turn prediction timestamps are not available from the evidence bundle, so these are **conversation-ordered locked tests**, not timestamp-sealed `resource-coach-experiment-v1` runs. Do not fabricate timestamps to promote them into the immutable run log.
+
+| Test | Locked prediction | Observed | Calibration consequence |
+|---|---|---|---|
+| Willie Howden, age 19, Standard Attacking x33 Skill Seminar, p=4 | Passing [93,100], Crossing [105,114], Shooting [93,100], Finishing [107,116], OVR [26,29] | [78,92], [97,111], [78,92], [98,113], OVR [23,27] | Global amplitude too high, especially WHITE 73; low MID_GREY rows still overlap. Do not repair with a single scalar. |
+| Darren Moore, age 19, Standard Attacking x23 Skill Seminar, p=3 | Passing [21,24], Dribbling [30,33], Crossing [41,45], OVR [6,7] | [22,32], [25,34], [34,44], OVR [5,7] | All stat point estimates and OVR point estimate land inside the game intervals. Conditional x23/x33 inversion keeps `q_skill` near 1.43 centrally, but affected-stat identities differ, so this is not an isolated exponent measurement. |
+| Willie Ferguson, age 21, Reward Focused Defending x4 Drill Session, p=2 | Tackling [11,14], Marking [11,14], OVR [1,2] | Tackling [14,19], Marking [10,14], OVR [1,2] | OVR/global dose is close while same-class low-cost stats split. Endpoint ratios are about 1.36-1.40 Tackling/Marking; exact equal allocation is a poor working assumption for this preview. |
+| Willie Ferguson, age 21, Focused Defending x20 Skill Seminar, p=1 | Positioning [60,78], OVR [4,6] | Positioning [86,101], OVR [5,6] | p=1 removes allocation ambiguity. The provisional Focused Skill coefficient 0.70 is too low. Holding the rest of that predictor fixed gives an effective coefficient about 0.95; test 0.90-1.00, do not promote it as a game constant. |
+| Willie Ferguson, age 21, Standard Attacking x33 Skill Seminar, p=4 | Passing [80,90], Crossing [56,65], Shooting [98,114], Finishing [87,99], OVR [21,25] | [74,85], [48,61], [98,113], [84,95], OVR [20,23] | **4/4 stat point estimates and OVR point estimate are inside the observed intervals.** Interval edges are mostly high. Separate the central gain model from the interval/quantisation renderer rather than shifting the whole mechanism. |
+
+The working calibration logic for further testing is therefore:
+
+1. Keep **programme-specific dose generators** for Drill Session and Skill Seminar.
+2. Keep the tier-adjusted latent-coordinate/nonlinear-cost response only as a **working response family**; the exact threshold/slope remain unidentified.
+3. For Standard Skill Seminar, retain `q_skill ~= 1.43` only as a conditional central diagnostic with a broad test region approximately 1.15-1.71.
+4. Replace the old Focused Skill Seminar scalar `0.70` with a **test range 0.90-1.00, central 0.95**, conditional on the current response model.
+5. Allow a per-stat/player allocation factor `lambda_i` in the experimental model. Default it to 1 unless replicated evidence supports a deviation; the Ferguson Reward x4 split is a replication target, not a universal Tackling/Marking coefficient.
+6. Test a mild age-19-to-21 Skill Seminar decline around **0.93-0.97** only as a weak, confounded hypothesis. The Ferguson x33 residual is also explainable by player/stat identity or interval-rendering bias.
+7. Fit **central latent gain and preview interval rendering separately**. The latest Ferguson x33 result shows that point calibration can be good while interval endpoints remain biased.
+
+No production Resource Coach logic is changed by this update. The new candidate is explicitly testing-only.
 
 ## Hypothesis ledger
 
