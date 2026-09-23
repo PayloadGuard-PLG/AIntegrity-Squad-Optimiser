@@ -44,5 +44,25 @@
       "playerStateCrossCheckMismatches": 0
     },
     "displayClassEvidenceContract": "direct observed UI extraction from pinned workbook; fill missing historical class only; never infer from roles; fail on conflicts"
+  },
+  "driveExchange": {
+    "schemaVersion": "drive-data-exchange-v1",
+    "config": "calibration/drive-data-exchange.json",
+    "credentialSecret": "GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON",
+    "serviceAccountEmail": "aintegrity-drive-ingest@aintegrity-d623c.iam.gserviceaccount.com",
+    "collectionScript": "tools/drive-data-exchange/collect-resource-coach.mjs",
+    "folders": {
+      "incoming": "1wll7bOcoJqUYFhmj8FuJc4eQdmNk6Z3x",
+      "analysisOutput": "1by8ijGsZ7ZCx0V_xm1aQBAciw2hgocQX",
+      "quarantine": "1qwOW5Isq6c8-I5t9kSa4FPImn0G8Y-lC"
+    },
+    "contract": [
+      "Drive source files are hashed before validation.",
+      "Only sealed resource-coach-experiment-v1 JSON can enter staged immutable runs.",
+      "Existing experiment IDs cannot be overwritten.",
+      "Drive source files are not moved or deleted by the initial bridge.",
+      "GitHub repository content is not mutated by collection runs.",
+      "A non-secret collection receipt is written to Drive analysis-output."
+    ]
   }
 }
