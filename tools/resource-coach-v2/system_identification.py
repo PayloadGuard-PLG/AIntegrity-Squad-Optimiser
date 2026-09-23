@@ -292,6 +292,51 @@ def live_gilmartin_check():
     )
 
 
+def live_oliver_check():
+    """Score a locked cross-player forecast and cancel the conditional cost law.
+
+    Same-endpoint comparisons matter: arbitrary low-to-high cross-pairing cannot
+    validate a common multiplier for both displayed interval endpoints.
+    """
+    locked=json.loads((DATA/'locked-prediction-20260923-lerchl-offensive-x10.json').read_text())
+    actual=json.loads((DATA/'live-preview-20260923-lerchl-offensive-x10.json').read_text())
+    mark=json.loads((DATA/'live-preview-20260923-lurinsky-offensive-x10.json').read_text())
+    stats={}
+    for stat,pred in locked['predictedStats'].items():
+        observed=actual['actual'][stat]['gain']
+        h=120 if pred['class']=='MID_GREY' else 135
+        old_start,new_start=mark['displayedStart'][stat],pred['start']
+        old_gain=mark['actualGains'][stat]
+        ratio_intervals={}
+        for slack in (.5,1):
+            pair=[]
+            for j in (0,1):
+                lo=float(integrate(new_start,max(0,observed[j]-slack),h,.0354)
+                         /integrate(old_start,old_gain[j]+slack,h,.0354))
+                hi=float(integrate(new_start,observed[j]+slack,h,.0354)
+                         /integrate(old_start,max(.001,old_gain[j]-slack),h,.0354))
+                pair.append([lo,hi])
+            ratio_intervals[str(slack)]=pair
+        stats[stat]=dict(observed=observed,primary=pred['primaryGain'],rival=pred['rivalGain'],
+                         primary_endpoint_absolute_errors=[abs(a-b) for a,b in zip(observed,pred['primaryGain'])],
+                         primary_interval_gap=max(0,observed[0]-pred['primaryGain'][1],
+                                                  pred['primaryGain'][0]-observed[1]),
+                         rival_interval_gap=max(0,observed[0]-pred['rivalGain'][1],
+                                                pred['rivalGain'][0]-observed[1]),
+                         implied_ratio_same_endpoint=ratio_intervals)
+    shared={}
+    for slack in ('0.5','1'):
+        shared[slack]=[]
+        for endpoint in (0,1):
+            intervals=[r['implied_ratio_same_endpoint'][slack][endpoint] for r in stats.values()]
+            shared[slack].append(dict(lower=max(x[0] for x in intervals),
+                                      upper=min(x[1] for x in intervals),
+                                      feasible=max(x[0] for x in intervals)<=min(x[1] for x in intervals)))
+    return dict(predictionCommit=actual['lockedPredictionAtGitHubCommit'],
+                screenshot=actual['source'],stats=stats,common_ratio_by_endpoint=shared,
+                scope='Shared endpoint dose ratio is conditional on the nominated cost curve, same latent tier coordinate transformation, and stable per-stat player allocation; cross-player age cannot be isolated.')
+
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--out',required=True)
     args=parser.parse_args()
@@ -320,7 +365,8 @@ def main():
                 ovr=ovr_check(doc),prospective=prospective_check(),
                 archive_matched_pairs=matched_archived_pairs(archive),
                 next_experiment=next_experiment_predictions(),
-                new_live_preview=live_gilmartin_check(),models={},cost_sensitivity=[])
+                new_live_preview=live_gilmartin_check(),
+                mark_oliver_live_check=live_oliver_check(),models={},cost_sensitivity=[])
     report['within_preview_order']={
         'archive':within_preview_order(archive),
         'canonical_undisputed':within_preview_order([r for r in canonical_rows if r['id'] not in DISPUTED]),

@@ -1406,6 +1406,207 @@
     },
     "scope": "Conditional on equal allocation, a common increasing exponential marginal cost, and the same latent tier transform for both WHITE stats. Not a universal falsification of equal allocation."
   },
+  "mark_oliver_live_check": {
+    "predictionCommit": "f93657566e45e1a641fe2ea592bc93195d8a26b1",
+    "screenshot": "63771.png: Oliver Lerchl selected-player Standard Offensive x10 Drill Session preview",
+    "stats": {
+      "CROSSING": {
+        "observed": [
+          14,
+          20
+        ],
+        "primary": [
+          15,
+          21
+        ],
+        "rival": [
+          10,
+          14
+        ],
+        "primary_endpoint_absolute_errors": [
+          1,
+          1
+        ],
+        "primary_interval_gap": 0,
+        "rival_interval_gap": 0,
+        "implied_ratio_same_endpoint": {
+          "0.5": [
+            [
+              0.6509936154789218,
+              0.7708252552478229
+            ],
+            [
+              0.6775396769754634,
+              0.7743054529534413
+            ]
+          ],
+          "1": [
+            [
+              0.5980163899245309,
+              0.8386728815891172
+            ],
+            [
+              0.6336968677480953,
+              0.8277162155710088
+            ]
+          ]
+        }
+      },
+      "SHOOTING": {
+        "observed": [
+          9,
+          13
+        ],
+        "primary": [
+          9,
+          13
+        ],
+        "rival": [
+          6,
+          8
+        ],
+        "primary_endpoint_absolute_errors": [
+          0,
+          0
+        ],
+        "primary_interval_gap": 0,
+        "rival_interval_gap": 1,
+        "implied_ratio_same_endpoint": {
+          "0.5": [
+            [
+              0.6854608357239288,
+              0.8887528545804657
+            ],
+            [
+              0.7090609030074488,
+              0.8591720004146857
+            ]
+          ],
+          "1": [
+            [
+              0.6015653647137679,
+              1.0127000492168
+            ],
+            [
+              0.6440001832867547,
+              0.9459706538336377
+            ]
+          ]
+        }
+      },
+      "SPEED": {
+        "observed": [
+          17,
+          24
+        ],
+        "primary": [
+          13,
+          21
+        ],
+        "rival": [
+          8,
+          13
+        ],
+        "primary_endpoint_absolute_errors": [
+          4,
+          3
+        ],
+        "primary_interval_gap": 0,
+        "rival_interval_gap": 4,
+        "implied_ratio_same_endpoint": {
+          "0.5": [
+            [
+              0.8797429873287631,
+              1.0772510691705637
+            ],
+            [
+              0.8095494767035056,
+              0.942850924621857
+            ]
+          ],
+          "1": [
+            [
+              0.7982274490597867,
+              1.1981807703848906
+            ],
+            [
+              0.7517560012224588,
+              1.020017591245382
+            ]
+          ]
+        }
+      },
+      "CREATIVITY": {
+        "observed": [
+          12,
+          17
+        ],
+        "primary": [
+          8,
+          13
+        ],
+        "rival": [
+          5,
+          9
+        ],
+        "primary_endpoint_absolute_errors": [
+          4,
+          4
+        ],
+        "primary_interval_gap": 0,
+        "rival_interval_gap": 3,
+        "implied_ratio_same_endpoint": {
+          "0.5": [
+            [
+              1.021691437290919,
+              1.288074223292291
+            ],
+            [
+              0.9595792148613785,
+              1.135883906012481
+            ]
+          ],
+          "1": [
+            [
+              0.9113835262045755,
+              1.4500002099004423
+            ],
+            [
+              0.8824017358147039,
+              1.236789285084171
+            ]
+          ]
+        }
+      }
+    },
+    "common_ratio_by_endpoint": {
+      "0.5": [
+        {
+          "lower": 1.021691437290919,
+          "upper": 0.7708252552478229,
+          "feasible": false
+        },
+        {
+          "lower": 0.9595792148613785,
+          "upper": 0.7743054529534413,
+          "feasible": false
+        }
+      ],
+      "1": [
+        {
+          "lower": 0.9113835262045755,
+          "upper": 0.8386728815891172,
+          "feasible": false
+        },
+        {
+          "lower": 0.8824017358147039,
+          "upper": 0.8277162155710088,
+          "feasible": false
+        }
+      ]
+    },
+    "scope": "Shared endpoint dose ratio is conditional on the nominated cost curve, same latent tier coordinate transformation, and stable per-stat player allocation; cross-player age cannot be isolated."
+  },
   "models": {
     "flat_raw": {
       "parameters": [

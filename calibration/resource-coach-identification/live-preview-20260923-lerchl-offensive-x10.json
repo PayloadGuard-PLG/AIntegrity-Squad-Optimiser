@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "resource-coach-live-observation-v1",
+  "date": "2026-09-23",
+  "source": "63771.png: Oliver Lerchl selected-player Standard Offensive x10 Drill Session preview",
+  "lockedPredictionAtGitHubCommit": "f93657566e45e1a641fe2ea592bc93195d8a26b1",
+  "age": 25,
+  "role": "MC established",
+  "actual": {
+    "CROSSING": {"start": 114, "class": "MID_GREY", "gain": [14, 20]},
+    "SHOOTING": {"start": 145, "class": "WHITE", "gain": [9, 13]},
+    "SPEED": {"start": 117, "class": "WHITE", "gain": [17, 24]},
+    "CREATIVITY": {"start": 133, "class": "WHITE", "gain": [12, 17]},
+    "OVR": {"start": 120.5, "gain": [3, 5]}
+  },
+  "categoryGains": {"ATTACK": [5, 7], "PHYSICAL_AND_MENTAL": [6, 8]},
+  "previewTrainingAvailable": false,
+  "note": "Screen says 'This player is currently unable to train in the Academy'. Preview is displayed but coach was not applied. Locked primary gains overlap all four observed intervals, but Speed and Creativity both miss observed endpoints by 4 at the low end and 3/4 at the high end. Rival gain ranges are disjoint for Shooting, Speed and Creativity. The preregistered Crossing +15-versus-+14 discriminator was inadequate for a reported [14,20] interval: the observation spans both sides."
+}

@@ -49,5 +49,14 @@ class SystemIdentificationTests(unittest.TestCase):
         self.assertGreater(nominal['half_point_display_tolerance'],1)
         self.assertGreater(rec['minimum_beta_for_equal_budget']['half_point_display_tolerance'],.04)
 
+    def test_oliver_locked_forecasts_and_endpointwise_budget_constraint(self):
+        rec=REPLAY.live_oliver_check()
+        self.assertEqual(rec['stats']['SPEED']['observed'],[17,24])
+        self.assertEqual(rec['stats']['SPEED']['primary_endpoint_absolute_errors'],[4,3])
+        self.assertEqual(rec['stats']['CREATIVITY']['primary_endpoint_absolute_errors'],[4,4])
+        self.assertEqual(sum(row['rival_interval_gap']>0 for row in rec['stats'].values()),3)
+        self.assertTrue(all(not item['feasible'] for item in rec['common_ratio_by_endpoint']['0.5']))
+        self.assertTrue(all(not item['feasible'] for item in rec['common_ratio_by_endpoint']['1']))
+
 
 if __name__=='__main__':unittest.main()
