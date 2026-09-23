@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "drive-data-exchange-v1",
+  "serviceAccountEmail": "aintegrity-drive-ingest@aintegrity-d623c.iam.gserviceaccount.com",
+  "folders": {
+    "root": "1Fx3muqXRYuOPdgMcIuRIgfaHe7jlY9Ud",
+    "incoming": "1wll7bOcoJqUYFhmj8FuJc4eQdmNk6Z3x",
+    "analysisOutput": "1by8ijGsZ7ZCx0V_xm1aQBAciw2hgocQX",
+    "quarantine": "1qwOW5Isq6c8-I5t9kSa4FPImn0G8Y-lC"
+  },
+  "collection": {
+    "maxFilesPerRun": 100,
+    "maxFileBytes": 20971520,
+    "rawEvidenceExtensions": [
+      ".json",
+      ".csv",
+      ".xlsx",
+      ".xls",
+      ".png",
+      ".jpg",
+      ".jpeg",
+      ".webp",
+      ".zip"
+    ],
+    "ingestSchemaVersion": "resource-coach-experiment-v1"
+  },
+  "writeBack": {
+    "uploadReceipt": true,
+    "moveAccepted": false,
+    "moveRejected": false,
+    "note": "Initial bridge is non-destructive: Drive source files are never moved or deleted."
+  }
+}
