@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "resource-coach-live-observation-v1",
+  "date": "2026-09-23",
+  "source": "63764.png, Mark Lurinsky selected-player Standard Offensive x10 Drill Session preview",
+  "lockedPredictionAtGitHubCommit": "1b433a9d933fc4468543abfe6e82ec0b6cca0d1a",
+  "actualGains": {"CROSSING": [16, 22], "SHOOTING": [9, 13], "SPEED": [8, 12], "CREATIVITY": [9, 14], "OVR": [3, 4]},
+  "displayedStart": {"CROSSING": 120, "SHOOTING": 152, "SPEED": 153, "CREATIVITY": 139, "OVR": 148.6},
+  "comparison": "All four gains overlap the locked intervals. The first three exactly match both endpoints; Creativity high was predicted 15 and observed 14. OVR gain [3,4] overlaps locked [2,5]. This is a near-repeat of a previously observed same-player x10 preview, not a new independent mechanism validation."
+}

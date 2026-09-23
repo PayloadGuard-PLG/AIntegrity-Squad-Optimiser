@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "resource-coach-live-prediction-v1",
+  "status": "locked before selected-player Oliver preview was supplied",
+  "date": "2026-09-23",
+  "sources": ["63767.png Oliver player card", "63753.png unselected Standard Offensive x10 Drill Session", "63764.png Mark selected-player preview supplied as an anchor before this lock"],
+  "player": "Oliver Lerchl",
+  "age": 25,
+  "role": "MC established",
+  "ovrOnCard": 120,
+  "coach": "Standard Offensive",
+  "family": "Drill Session",
+  "multiplier": 10,
+  "affectedCount": 4,
+  "predictedStats": {
+    "CROSSING": {"start": 114, "class": "MID_GREY", "primaryGain": [15, 21], "rivalGain": [10, 14]},
+    "SHOOTING": {"start": 145, "class": "WHITE", "primaryGain": [9, 13], "rivalGain": [6, 8]},
+    "SPEED": {"start": 117, "class": "WHITE", "primaryGain": [13, 21], "rivalGain": [8, 13]},
+    "CREATIVITY": {"start": 133, "class": "WHITE", "primaryGain": [8, 13], "rivalGain": [5, 9]}
+  },
+  "predictedOvrGain": {"primary": [3, 5], "rival": [1, 3]},
+  "mechanisms": {
+    "primary": "Same-stat dose ratio Oliver25/Mark18 = 6/8 = 0.75, a provisional age-band hypothesis; threshold cost flat through WHITE 135/MID_GREY 120 then exp slope 0.0354, no verified tier offset difference; invert Mark's independently observed x10 stat endpoints [16,22], [9,13], [8,12], [9,14] without interval midpoints; displayed endpoints rounded to nearest integer. Not a validated game law.",
+    "rival": "Dose ratio exp(-1.08769*(25-18)/10) = 0.467, the retrospectively fitted archive age coefficient under the same conditional marginal-cost surface and allocation. This age coefficient is confounded with player, programme and coach selection. Rounded endpoints [10,14], [6,8], [8,13], [5,9].",
+    "discriminator": "Crossing +15 or above favors the primary response over the rival under the joint assumed cost/age/allocation model; +14 or below favors rival. A miss of both models tests their shared response assumptions; it cannot uniquely isolate age. Oliver and Mark are different players, with unverified tier/history/latent allocation."
+  },
+  "observed": null
+}

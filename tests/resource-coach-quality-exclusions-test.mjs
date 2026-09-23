@@ -27,3 +27,25 @@ test('generated scores retain diagnostics but exclude the disputed family from f
     assert.match(csv,/role-map/);
   }finally{fs.rmSync(out,{recursive:true,force:true});}
 });
+
+test('source-conflicted historical previews remain inspectable but have zero fitting weight',()=>{
+  const ids=['PRV-0017','PRV-0018','PRV-0019','PRV-0020'];
+  for(const id of ids) assert.match(qualityExclusions.get(id)??'',/Provenance conflict/);
+  const out=fs.mkdtempSync(path.join(os.tmpdir(),'resource-coach-source-review-'));
+  try{
+    execFileSync(process.execPath,[
+      'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs',
+      '--corpus-dir','calibration/longitudinal-corpus',
+      '--runs-dir','calibration/resource-coach-log/runs',
+      '--out-dir',out,
+    ]);
+    const summary=JSON.parse(fs.readFileSync(path.join(out,'summary.json'),'utf8'));
+    assert.equal(summary.empiricalStatIntervals,85);
+    assert.equal(summary.variablesWithExactCancellation,0);
+    const csv=fs.readFileSync(path.join(out,'variable_identifiability.csv'),'utf8');
+    assert.match(csv,/multiplier,6,51,0,0,/);
+    assert.ok(summary.uniqueEmpiricalPreviews>=20);
+    // The archive remains intact; historical controls use registry fitting weights.
+    assert.equal(fittingWeight({experiment:{experimentId:'PRV-0017'},evidence:{isDuplicate:false}}),0);
+  }finally{fs.rmSync(out,{recursive:true,force:true});}
+});

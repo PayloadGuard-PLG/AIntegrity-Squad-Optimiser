@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "resource-coach-live-preview-v1",
+  "id": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+  "source": {
+    "playerCard": "63756.png (file_00000000090881f4978aad088fd1c429)",
+    "coachPreview": "63755.png (file_000000007e60820e92e3676fc1590105)",
+    "sourceKind": "user-supplied in-chat screenshots",
+    "pixelFileAvailableToReplay": false
+  },
+  "player": {
+    "name": "Ryan Gilmartin",
+    "age": 19,
+    "establishedRoles": ["MC"],
+    "tier": "T3 (prior recorded state; not independently decoded from this screenshot)",
+    "displayedOvr": 182,
+    "stats": {
+      "TACKLING": 188, "MARKING": 194, "POSITIONING": 202,
+      "HEADING": 100, "BRAVERY": 192, "PASSING": 253,
+      "DRIBBLING": 245, "CROSSING": 151, "SHOOTING": 232,
+      "FINISHING": 154, "FITNESS": 213, "STRENGTH": 100,
+      "AGGRESSION": 117, "SPEED": 183, "CREATIVITY": 199
+    }
+  },
+  "coach": {
+    "family": "DRILL SESSION", "title": "Standard Attacking",
+    "multiplier": 5, "duration": "1h", "affectedCount": 3,
+    "affectedStats": ["PASSING", "DRIBBLING", "FINISHING"]
+  },
+  "observed": {
+    "statIntervals": {
+      "PASSING": {"start":253,"class":"WHITE","lo":1,"hi":2},
+      "DRIBBLING": {"start":245,"class":"WHITE","lo":4,"hi":5},
+      "FINISHING": {"start":154,"class":"MID_GREY","lo":4,"hi":6}
+    },
+    "displayedOvrGain": {"lo":1,"hi":1},
+    "displayedAttackCategoryGain": {"lo":2,"hi":3},
+    "trainingApplied": false
+  },
+  "priorRecord": {
+    "source": "22 September Drive Sheet and quarantined immutable run 1790098245150-5u2qap7n",
+    "storedPassingStart": 252,
+    "screenshotPassingStart": 253,
+    "storedDribblingStart": 245,
+    "storedFinishingStart": 153,
+    "statIntervals": {"PASSING":[1,2],"DRIBBLING":[4,5],"FINISHING":[5,7]},
+    "qualityStatus": "excluded from fitting: baseline mismatch; not an identical state"
+  }
+}

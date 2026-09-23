@@ -1,0 +1,462 @@
+{
+  "schemaVersion": "resource-coach-chat-locked-tests-v1",
+  "recordedDate": "2026-09-23",
+  "provenance": {
+    "source": "user-supplied in-chat screenshots plus preceding assistant predictions",
+    "lockProof": "conversation order establishes prediction-before-outcome for each test",
+    "absolutePredictionTimestampsAvailable": false,
+    "immutableRunLogBoundary": "Do not promote these records into resource-coach-experiment-v1 until timestamp/source provenance can be represented without fabrication."
+  },
+  "playerStates": {
+    "willie-howden-20260923": {
+      "playerName": "Willie Howden",
+      "age": 19,
+      "tier": "T0",
+      "roles": [
+        "MC"
+      ],
+      "ovr": 59,
+      "stats": {
+        "TACKLING": 69,
+        "MARKING": 70,
+        "POSITIONING": 73,
+        "HEADING": 26,
+        "BRAVERY": 60,
+        "PASSING": 73,
+        "DRIBBLING": 81,
+        "CROSSING": 39,
+        "SHOOTING": 73,
+        "FINISHING": 35,
+        "FITNESS": 72,
+        "STRENGTH": 30,
+        "AGGRESSION": 33,
+        "SPEED": 78,
+        "CREATIVITY": 70
+      }
+    },
+    "darren-moore-20260923": {
+      "playerName": "Darren Moore",
+      "age": 19,
+      "tier": "T3",
+      "roles": [
+        "DC",
+        "DMC"
+      ],
+      "roleInProgress": {
+        "role": "MC",
+        "progress": "9/50"
+      },
+      "ovr": 193,
+      "stats": {
+        "TACKLING": 233,
+        "MARKING": 244,
+        "POSITIONING": 256,
+        "HEADING": 236,
+        "BRAVERY": 245,
+        "PASSING": 214,
+        "DRIBBLING": 134,
+        "CROSSING": 118,
+        "SHOOTING": 139,
+        "FINISHING": 124,
+        "FITNESS": 214,
+        "STRENGTH": 207,
+        "AGGRESSION": 199,
+        "SPEED": 138,
+        "CREATIVITY": 193
+      }
+    },
+    "willie-ferguson-20260923": {
+      "playerName": "Willie Ferguson",
+      "age": 21,
+      "tier": "T0",
+      "roles": [
+        "DL"
+      ],
+      "ovr": 72,
+      "stats": {
+        "TACKLING": 89,
+        "MARKING": 111,
+        "POSITIONING": 105,
+        "HEADING": 45,
+        "BRAVERY": 72,
+        "PASSING": 69,
+        "DRIBBLING": 38,
+        "CROSSING": 111,
+        "SHOOTING": 35,
+        "FINISHING": 57,
+        "FITNESS": 96,
+        "STRENGTH": 28,
+        "AGGRESSION": 59,
+        "SPEED": 111,
+        "CREATIVITY": 47
+      }
+    }
+  },
+  "tests": [
+    {
+      "testId": "CHAT-20260923-HOWDEN-STD-ATK-X33-SKILL",
+      "playerStateId": "willie-howden-20260923",
+      "coach": {
+        "programmeFamily": "skill-seminar",
+        "coachLabel": "Standard Attacking",
+        "multiplier": 33,
+        "duration": "8 days",
+        "transferClass": "ordinary",
+        "affectedStatCount": 4
+      },
+      "affectedStats": [
+        {
+          "stat": "PASSING",
+          "start": 73,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            93,
+            100
+          ],
+          "point": 97,
+          "observed": [
+            78,
+            92
+          ]
+        },
+        {
+          "stat": "CROSSING",
+          "start": 39,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            105,
+            114
+          ],
+          "point": 110,
+          "observed": [
+            97,
+            111
+          ]
+        },
+        {
+          "stat": "SHOOTING",
+          "start": 73,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            93,
+            100
+          ],
+          "point": 97,
+          "observed": [
+            78,
+            92
+          ]
+        },
+        {
+          "stat": "FINISHING",
+          "start": 35,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            107,
+            116
+          ],
+          "point": 112,
+          "observed": [
+            98,
+            113
+          ]
+        }
+      ],
+      "ovr": {
+        "prediction": [
+          26,
+          29
+        ],
+        "point": 28,
+        "observed": [
+          23,
+          27
+        ]
+      },
+      "lockProvenance": {
+        "kind": "conversation-locked",
+        "sequence": "prediction-before-outcome-in-chat",
+        "absoluteTimestamp": null
+      },
+      "note": "Prediction intentionally anchored to Darren x33 Skill Seminar and current nonlinear response; it was systematically high on WHITE 73 while low-stat MID_GREY overlapped."
+    },
+    {
+      "testId": "CHAT-20260923-DARREN-STD-ATK-X23-SKILL",
+      "playerStateId": "darren-moore-20260923",
+      "coach": {
+        "programmeFamily": "skill-seminar",
+        "coachLabel": "Standard Attacking",
+        "multiplier": 23,
+        "duration": "6 days",
+        "transferClass": "ordinary",
+        "affectedStatCount": 3
+      },
+      "affectedStats": [
+        {
+          "stat": "PASSING",
+          "start": 214,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            21,
+            24
+          ],
+          "point": 22,
+          "observed": [
+            22,
+            32
+          ]
+        },
+        {
+          "stat": "DRIBBLING",
+          "start": 134,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            30,
+            33
+          ],
+          "point": 31.5,
+          "observed": [
+            25,
+            34
+          ]
+        },
+        {
+          "stat": "CROSSING",
+          "start": 118,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            41,
+            45
+          ],
+          "point": 43,
+          "observed": [
+            34,
+            44
+          ]
+        }
+      ],
+      "ovr": {
+        "prediction": [
+          6,
+          7
+        ],
+        "point": 6.5,
+        "observed": [
+          5,
+          7
+        ]
+      },
+      "lockProvenance": {
+        "kind": "conversation-locked",
+        "sequence": "prediction-before-outcome-in-chat",
+        "absoluteTimestamp": null
+      },
+      "note": "All three stat point estimates and OVR point estimate landed inside the observed intervals. Conditional x23/x33 inversion keeps q_skill around 1.43 centrally but remains confounded by changed stat identities."
+    },
+    {
+      "testId": "CHAT-20260923-FERGUSON-FOC-DEF-X4-DRILL-REWARD",
+      "playerStateId": "willie-ferguson-20260923",
+      "coach": {
+        "programmeFamily": "drill-session",
+        "coachLabel": "Focused Defending",
+        "multiplier": 4,
+        "duration": "1 hour",
+        "transferClass": "reward",
+        "affectedStatCount": 2
+      },
+      "affectedStats": [
+        {
+          "stat": "TACKLING",
+          "start": 89,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            11,
+            14
+          ],
+          "point": 12,
+          "observed": [
+            14,
+            19
+          ]
+        },
+        {
+          "stat": "MARKING",
+          "start": 111,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            11,
+            14
+          ],
+          "point": 12,
+          "observed": [
+            10,
+            14
+          ]
+        }
+      ],
+      "ovr": {
+        "prediction": [
+          1,
+          2
+        ],
+        "point": 2,
+        "observed": [
+          1,
+          2
+        ]
+      },
+      "lockProvenance": {
+        "kind": "conversation-locked",
+        "sequence": "prediction-before-outcome-in-chat",
+        "absoluteTimestamp": null
+      },
+      "note": "Global dose/OVR scale was close, but the two same-class low-cost stats split materially; exact equal allocation is a poor working assumption here."
+    },
+    {
+      "testId": "CHAT-20260923-FERGUSON-FOC-DEF-X20-SKILL",
+      "playerStateId": "willie-ferguson-20260923",
+      "coach": {
+        "programmeFamily": "skill-seminar",
+        "coachLabel": "Focused Defending",
+        "multiplier": 20,
+        "duration": "10 days",
+        "transferClass": "ordinary",
+        "affectedStatCount": 1
+      },
+      "affectedStats": [
+        {
+          "stat": "POSITIONING",
+          "start": 105,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            60,
+            78
+          ],
+          "point": 69,
+          "observed": [
+            86,
+            101
+          ]
+        }
+      ],
+      "ovr": {
+        "prediction": [
+          4,
+          6
+        ],
+        "point": 5,
+        "observed": [
+          5,
+          6
+        ]
+      },
+      "lockProvenance": {
+        "kind": "conversation-locked",
+        "sequence": "prediction-before-outcome-in-chat",
+        "absoluteTimestamp": null
+      },
+      "note": "p=1 removes allocation ambiguity. The ~0.70 Focused Skill Seminar coefficient used in the prediction was too low; the observed midpoint implies a conditional effective coefficient near 0.95 if the rest of the model is held fixed."
+    },
+    {
+      "testId": "CHAT-20260923-FERGUSON-STD-ATK-X33-SKILL",
+      "playerStateId": "willie-ferguson-20260923",
+      "coach": {
+        "programmeFamily": "skill-seminar",
+        "coachLabel": "Standard Attacking",
+        "multiplier": 33,
+        "duration": "8 days",
+        "transferClass": "ordinary",
+        "affectedStatCount": 4
+      },
+      "affectedStats": [
+        {
+          "stat": "PASSING",
+          "start": 69,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            80,
+            90
+          ],
+          "point": 85,
+          "observed": [
+            74,
+            85
+          ]
+        },
+        {
+          "stat": "CROSSING",
+          "start": 111,
+          "displayClass": "WHITE",
+          "classSource": "role-map",
+          "prediction": [
+            56,
+            65
+          ],
+          "point": 60,
+          "observed": [
+            48,
+            61
+          ]
+        },
+        {
+          "stat": "SHOOTING",
+          "start": 35,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            98,
+            114
+          ],
+          "point": 106,
+          "observed": [
+            98,
+            113
+          ]
+        },
+        {
+          "stat": "FINISHING",
+          "start": 57,
+          "displayClass": "MID_GREY",
+          "classSource": "role-map",
+          "prediction": [
+            87,
+            99
+          ],
+          "point": 93,
+          "observed": [
+            84,
+            95
+          ]
+        }
+      ],
+      "ovr": {
+        "prediction": [
+          21,
+          25
+        ],
+        "point": 23,
+        "observed": [
+          20,
+          23
+        ]
+      },
+      "lockProvenance": {
+        "kind": "conversation-locked",
+        "sequence": "prediction-before-outcome-in-chat",
+        "absoluteTimestamp": null
+      },
+      "note": "All four point estimates and OVR point estimate landed inside the observed intervals. Residuals are mostly high, consistent with either mild age/player scaling or interval-calibration bias; age is not isolated."
+    }
+  ]
+}
