@@ -62,7 +62,8 @@
       "Existing experiment IDs cannot be overwritten.",
       "Drive source files are not moved or deleted by the initial bridge.",
       "GitHub repository content is not mutated by collection runs.",
-      "A non-secret collection receipt is written to Drive analysis-output."
-    ]
+      "My Drive service-account collection is read-only; write-back requires Shared Drive storage or delegated user OAuth."
+    ],
+    "writeBack": "disabled-on-my-drive"
   }
 }
