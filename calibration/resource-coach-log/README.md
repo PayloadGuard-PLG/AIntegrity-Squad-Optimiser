@@ -9,6 +9,7 @@ This directory is the version-controlled mirror of the app's immutable Resource 
 - A single experiment may contain multiple frozen model predictions; predictions do **not** create additional empirical observations.
 - Predictions must be timestamped before `experiment.observedAt`.
 - Exact empirical duplicates are retained for auditability but receive `fit_weight = 0` in fitting/aggregation views.
+- `quality-exclusions.json` holds reviewable experiment-level fitting exclusions when a sealed run has an unresolved evidence defect. Both current Ryan Gilmartin runs are excluded because the preview Passing baseline is 253 and the frozen input is 252. The duplicate candidate was captured after the first observation; its score is diagnostic only. The raw runs remain immutable.
 - `originPartition` and `currentPartition` are distinct. Pre-provenance legacy runs use `originPartition: null`; no origin is inferred after the fact.
 - Existing run files are immutable. Corrections require a new experiment or explicit provenance/exclusion event, never an in-place rewrite.
 
@@ -19,6 +20,7 @@ This directory is the version-controlled mirror of the app's immutable Resource 
 https://docs.google.com/spreadsheets/d/1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI/edit
 
 The Sheet uses normalized tabs matching this schema: Experiments, Observed_Stats, Predictions, Predicted_Stats, Scores, Residuals, Partition_History, Model_Registry, Raw_JSON and Schema_Map.
+`Observed_Stats.class_source` mirrors each stat's `classSource` exactly. The collector rejects a new Sheet experiment without that field; a role-derived class must never be recast as directly observed. The Sheet's Scores fitting weights reflect the exclusion registry, though the original scores remain visible for diagnosis.
 
 ## Add a run
 
@@ -75,5 +77,7 @@ A covariate must be observed on both sides of a pair before it can count as cont
 The pinned source workbook contains 241 `WHITE` and 104 `MID_GREY` preview/stat observations. All 345 agree with the independently recorded player-state display class for the same player-state/stat; therefore this recovery restores observed provenance rather than synthesizing whiteness from role logic.
 
 The GitHub Action uploads both the ordinary experiment-log aggregation and the longitudinal analysis bundle as a workflow artifact, so a new run automatically receives whole-corpus comparison without manually choosing a player or repeatedly invoking analysis per state.
+
+The scheduled Drive collector only stages evidence in a 14-day GitHub artifact; it does not grow the repository or Sheet automatically. Review its `collection-manifest.json`, the source hashes and each new experiment before promotion. Download the artifact and run `node tools/drive-data-exchange/promote-reviewed-collection.mjs --artifact-dir <downloaded-directory>` for validation and a dry run. After reviewing the IDs and source previews, repeat with `--apply` on a branch, regenerate the aggregates and longitudinal output, and open a PR. The promotion script refuses rejected files, manifest count mismatches, changed source hashes, conflicting immutable IDs and malformed staged runs. Raw screenshots and workbooks still require separate extraction before they can become experiments.
 
 For automated analysis, prefer repository JSON. For manual inspection and collaborative updating, append the same `resource-coach-experiment-v1` export to the Google Sheet. Never make the Sheet the only copy of an experiment.
