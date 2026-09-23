@@ -27,6 +27,7 @@ function runFixture() {
           player: { id: 'A', name: 'Alpha', role: ['MC'], age: 19, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
+        _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
         observed: { statIntervals: { PASSING: { lo: 2, hi: 3 }, DRIBBLING: { lo: 4, hi: 5 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
       {
@@ -35,6 +36,7 @@ function runFixture() {
           player: { id: 'B', name: 'Beta', role: ['MC'], age: 20, tier: 'T3', overall: 101, stats: { PASSING: 103, DRIBBLING: 108 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
+        _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
         observed: { statIntervals: { PASSING: { lo: 3, hi: 4 }, DRIBBLING: { lo: 5, hi: 6 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
       {
@@ -43,6 +45,7 @@ function runFixture() {
           player: { id: 'C', name: 'Gamma', role: ['MC'], age: 20, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
+        _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
         observed: { statIntervals: { PASSING: { lo: 2, hi: 3 }, DRIBBLING: { lo: 4, hi: 5 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
     ],
@@ -135,6 +138,7 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
     const identifiability = fs.readFileSync(path.join(out, 'variable_identifiability.csv'), 'utf8');
     assert.match(identifiability, /age,/);
     assert.match(identifiability, /EXACT_CANCELLATION_AVAILABLE/);
+    assert.match(identifiability, /incomplete_control_pairs/);
 
     assert.match(comparisons, /order_class/);
     assert.match(comparisons, /OBSERVED_TEMPORAL_ORDER|CANONICAL_NON_TEMPORAL_ORDER/);
