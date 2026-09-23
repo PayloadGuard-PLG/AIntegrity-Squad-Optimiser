@@ -32,7 +32,7 @@ function walk(dir){ if(!fs.existsSync(dir))return []; const out=[]; for(const en
 function stableString(obj){ if(obj===null||typeof obj!=='object')return JSON.stringify(obj); if(Array.isArray(obj))return '['+obj.map(stableString).join(',')+']'; return '{'+Object.keys(obj).sort().map(k=>JSON.stringify(k)+':'+stableString(obj[k])).join(',')+'}'; }
 function stateFingerprint(s){ return stableString({age:num(s.age),tier:s.tier??null,roles:[...(s.roles??[])].map(String).sort(),stats:Object.fromEntries(Object.entries(s.stats??{}).map(([k,v])=>[normStat(k),num(v)]).sort(([a],[b])=>a.localeCompare(b))) }); }
 function empiricalFingerprint(e){ return stableString({state:stateFingerprint(e),coach:{programme:normText(e.programmeFamily),title:normText(e.coachTitle),multiplier:num(e.multiplier),transferClass:normText(e.transferClass),affected:[...(e.affectedStats??[])].map(normStat).sort()},intervals:[...(e.intervals??[])].map(x=>({stat:normStat(x.stat),lo:num(x.lo),hi:num(x.hi)})).sort((a,b)=>a.stat.localeCompare(b.stat)),ovr:e.ovr??null}); }
-function playerKey(id,name){ const rawId=String(id??'').trim(); const i=normText(rawId); if(/^PLY-\d+$/i.test(rawId)) return i; const n=normText(name); return n || i || 'unknown-player'; }
+function playerKey(id,name){ const rawId=String(id??'').trim(); const i=normText(rawId); if(/^PLY-[A-Z0-9]+$/i.test(rawId)) return i; const n=normText(name); return n || i || 'unknown-player'; }
 
 const states=[];
 const observations=[];
@@ -131,13 +131,26 @@ const uniqueStateMap=new Map();
 for(const s of states){
   const key=`${s.playerKey}::${s.stateFingerprint}`;
   const g=uniqueStateMap.get(key);
-  if(g){ g.observationCount++; g.sources.add(s.sourceFile); }
-  else uniqueStateMap.set(key,{state:s,observationCount:1,sources:new Set([s.sourceFile])});
+  if(g){
+    g.observationCount++;
+    g.sources.add(s.sourceFile);
+    if(s.stateId)g.stateIds.add(s.stateId);
+    if(s.regime)g.regimes.add(s.regime);
+    // Exact re-observations may carry richer provenance than the first representation.
+    // Preserve it without turning a re-observation into a new mechanical state.
+    if(!g.state.stateId&&s.stateId)g.state.stateId=s.stateId;
+    if(!g.state.regime&&s.regime)g.state.regime=s.regime;
+    if(!g.state.observedAt&&s.observedAt)g.state.observedAt=s.observedAt;
+  } else uniqueStateMap.set(key,{
+    state:s,observationCount:1,sources:new Set([s.sourceFile]),
+    stateIds:new Set(s.stateId?[s.stateId]:[]),regimes:new Set(s.regime?[s.regime]:[])
+  });
 }
 const uniqueStates=[...uniqueStateMap.values()].map(x=>x.state);
 const stateReobservations=[...uniqueStateMap.values()].filter(x=>x.observationCount>1).map(x=>({
   player_key:x.state.playerKey,player_name:x.state.playerName??'',state_fingerprint:x.state.stateFingerprint,
-  observation_count:x.observationCount,sources:[...x.sources].sort().join(' | ')
+  observation_count:x.observationCount,state_ids:[...x.stateIds].sort().join(' | '),regimes:[...x.regimes].sort().join(' | '),
+  sources:[...x.sources].sort().join(' | ')
 }));
 
 // Same-player longitudinal comparisons use unique observed states. These are
@@ -376,7 +389,7 @@ for(const x of empiricalStats.filter(x=>x.event.fitWeight===1)){
 const metrics=[...groups.values()].map(g=>({stat:g.stat,programme_family:g.programme_family,coach_title:g.coach_title,multiplier:g.multiplier,age_band:g.age_band,tier:g.tier,display_class:g.display_class,event_count:g.events.size,player_count:g.players.size,mean_lo:g.lo.reduce((a,b)=>a+b,0)/g.lo.length,mean_hi:g.hi.reduce((a,b)=>a+b,0)/g.hi.length,min_lo:Math.min(...g.lo),max_lo:Math.max(...g.lo),min_hi:Math.min(...g.hi),max_hi:Math.max(...g.hi)})).sort((a,b)=>b.event_count-a.event_count||a.stat.localeCompare(b.stat));
 
 fs.mkdirSync(outDir,{recursive:true});
-writeCsv('state_reobservations.csv',['player_key','player_name','state_fingerprint','observation_count','sources'],stateReobservations);
+writeCsv('state_reobservations.csv',['player_key','player_name','state_fingerprint','observation_count','state_ids','regimes','sources'],stateReobservations);
 writeCsv('player_longitudinal_profiles.csv',['player_key','player_name','raw_observation_count','unique_state_count','reobserved_state_count','state_pair_count','changed_stat_pair_count','age_values','tier_values','role_sets','varying_dimensions','longitudinal_class'],playerProfiles);
 writeCsv('corpus_control_pairs.csv',['stat','event_a','event_b','player_a','player_b','changed_variables','matched_variables','unobserved_variables','comparison_class','programme_a','programme_b','coach_a','coach_b','multiplier_a','multiplier_b','age_a','age_b','tier_a','tier_b','class_a','class_b','affected_count_a','affected_count_b','role_set_a','role_set_b','start_stat_a','start_stat_b','gain_lo_a','gain_lo_b','gain_lo_delta','gain_hi_a','gain_hi_b','gain_hi_delta'],corpusControlPairs);
 writeCsv('variable_identifiability.csv',['variable','observed_levels','candidate_pairs','isolated_pairs','near_isolated_pairs','incomplete_control_pairs','independent_players','independent_events','identifiability_class','inference_boundary'],variableIdentifiability);
