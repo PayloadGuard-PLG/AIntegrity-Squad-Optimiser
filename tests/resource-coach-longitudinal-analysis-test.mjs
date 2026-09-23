@@ -27,7 +27,6 @@ function runFixture() {
           player: { id: 'PLY-0001', name: 'Alpha', role: ['MC'], age: 19, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
-        _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
         observed: { statIntervals: { PASSING: { lo: 2, hi: 3 }, DRIBBLING: { lo: 4, hi: 5 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
       {
@@ -36,7 +35,6 @@ function runFixture() {
           player: { id: 'B', name: 'Beta', role: ['MC'], age: 20, tier: 'T3', overall: 101, stats: { PASSING: 103, DRIBBLING: 108 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
-        _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
         observed: { statIntervals: { PASSING: { lo: 3, hi: 4 }, DRIBBLING: { lo: 5, hi: 6 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
       {
@@ -45,9 +43,20 @@ function runFixture() {
           player: { id: 'C', name: 'Gamma', role: ['MC'], age: 20, tier: 'T3', overall: 100, stats: { PASSING: 100, DRIBBLING: 110 } },
           coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING', 'DRIBBLING'], transferClass: 'ordinary' },
         },
-        _classByStat: { PASSING: 'WHITE', DRIBBLING: 'WHITE' },
         observed: { statIntervals: { PASSING: { lo: 2, hi: 3 }, DRIBBLING: { lo: 4, hi: 5 } }, ovrDelta: { lo: 1, hi: 2 }, stateChanged: false },
       },
+    ],
+  });
+
+  writeJson(path.join(corpus, 'display-class-evidence-v1.json'), {
+    schemaVersion: 'resource-coach-display-class-evidence-v1',
+    rows: [
+      { previewId: 'HIST-A', stat: 'PASSING', displayClass: 'WHITE', playerStateId: 'STATE-ALPHA-1', sourceId: 'SRC-A' },
+      { previewId: 'HIST-A', stat: 'DRIBBLING', displayClass: 'WHITE', playerStateId: 'STATE-ALPHA-1', sourceId: 'SRC-A' },
+      { previewId: 'HIST-B', stat: 'PASSING', displayClass: 'WHITE', playerStateId: 'STATE-BETA-1', sourceId: 'SRC-B' },
+      { previewId: 'HIST-B', stat: 'DRIBBLING', displayClass: 'WHITE', playerStateId: 'STATE-BETA-1', sourceId: 'SRC-B' },
+      { previewId: 'HIST-C', stat: 'PASSING', displayClass: 'WHITE', playerStateId: 'STATE-GAMMA-1', sourceId: 'SRC-C' },
+      { previewId: 'HIST-C', stat: 'DRIBBLING', displayClass: 'WHITE', playerStateId: 'STATE-GAMMA-1', sourceId: 'SRC-C' },
     ],
   });
 
@@ -116,6 +125,10 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
     assert.ok(summary.stateComparisons >= 1);
     assert.ok(summary.matchRows >= 4);
     assert.equal(summary.discardedNonPositiveStatValues, 1);
+    assert.equal(summary.displayClassEvidenceRows, 6);
+    assert.equal(summary.displayClassRecoveredIntervals, 6);
+    assert.equal(summary.displayClassEvidenceConflicts, 0);
+    assert.equal(summary.empiricalIntervalsMissingDisplayClass, 0);
 
     const intake = fs.readFileSync(path.join(out, 'form_intake.csv'), 'utf8');
     assert.match(intake, /RUN-1/);
@@ -151,6 +164,42 @@ test('longitudinal analyser batches every experiment against the whole corpus', 
     assert.match(stateMatches, /STRUCTURAL_MATCH_NEAREST_VECTOR_NOT_IDENTITY/);
 
     assert.ok(summary.experimentStateMatchRows >= 2);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('direct display-class evidence cannot overwrite a conflicting observed class', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'resource-coach-display-class-conflict-'));
+  const corpus = path.join(root, 'corpus');
+  const runs = path.join(root, 'runs');
+  const out = path.join(root, 'out');
+  try {
+    writeJson(path.join(corpus, 'coach_experiments.v1.json'), {
+      experiments: [{
+        id: 'HIST-CONFLICT',
+        preOutcome: {
+          player: { id: 'P', name: 'Conflict', role: ['MC'], age: 19, tier: 'T0', stats: { PASSING: 100 } },
+          coach: { programmeFamily: 'Drill Session', title: 'Standard Attacking', multiplier: 5, affectedStats: ['PASSING'], transferClass: 'ordinary' },
+        },
+        _classByStat: { PASSING: 'WHITE' },
+        observed: { statIntervals: { PASSING: { lo: 1, hi: 2 } }, stateChanged: false },
+      }],
+    });
+    writeJson(path.join(corpus, 'display-class-evidence-v1.json'), {
+      schemaVersion: 'resource-coach-display-class-evidence-v1',
+      rows: [{ previewId: 'HIST-CONFLICT', stat: 'PASSING', displayClass: 'MID_GREY', sourceId: 'SRC-CONFLICT' }],
+    });
+    fs.mkdirSync(runs, { recursive: true });
+
+    let stderr = '';
+    assert.throws(() => {
+      execFileSync(process.execPath, [script, '--corpus-dir', corpus, '--runs-dir', runs, '--out-dir', out], { stdio: 'pipe' });
+    }, err => {
+      stderr = String(err?.stderr ?? '');
+      return true;
+    });
+    assert.match(stderr, /Display-class evidence conflicts/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
