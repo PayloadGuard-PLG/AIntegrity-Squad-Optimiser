@@ -59,10 +59,15 @@ Generated outputs:
 - `experiment_state_matches.csv` — ranked full-state analogues for every current experiment against all canonical player states. Exact re-observations are distinguished from nearest analogues; nearest matches never assert player identity.
 - `state_comparisons.csv` — every unique same-player state pair. Changed states are explicitly labelled non-causal unless a direct transition is evidenced.
 - `state_reobservations.csv` — repeated observations of the exact same player state, retained separately so repeated screenshots do not multiply longitudinal deltas.
+- `player_longitudinal_profiles.csv` — one row per player identity summarising unique states, reobservations, pair counts, role/tier/age coverage and which dimensions actually vary.
+- `corpus_control_pairs.csv` — exhaustive same-stat empirical pairs where zero, one or two tracked covariates differ. Exact single-variable cancellations are labelled explicitly but remain non-causal observations.
+- `variable_identifiability.csv` — for each candidate variable, counts exact and near cancellation opportunities and reports whether the current corpus separates that variable or leaves it confounded/unsupported.
 - `cohort_metrics.csv` — endpoint-preserving cohort summaries by stat, programme, coach, multiplier, age band, tier and display class.
-- `summary.json` — corpus/run counts and integrity safeguards.
+- `summary.json` — corpus/run counts, cancellation coverage and integrity safeguards.
 
 Low/high preview endpoints stay separate throughout. The analyser never replaces an observed interval with its midpoint, never lets an exact duplicate add empirical fitting weight, and never promotes a merely sequential pair of player states into a causal transition.
+
+State-pair delta signs use observed timestamp order only when both timestamps are available and distinct. Otherwise the analyser uses a stable canonical order and marks the comparison `CANONICAL_NON_TEMPORAL_ORDER`; this prevents source traversal order from being mistaken for chronology. Identifiability labels describe available covariate cancellation only and are not effect estimates.
 
 The GitHub Action uploads both the ordinary experiment-log aggregation and the longitudinal analysis bundle as a workflow artifact, so a new run automatically receives whole-corpus comparison without manually choosing a player or repeatedly invoking analysis per state.
 
