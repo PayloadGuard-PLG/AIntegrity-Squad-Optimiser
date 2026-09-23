@@ -37,15 +37,16 @@ The log workflow does **not** evaluate one selected player at a time. Every run 
 
 The automated corpus consists of:
 
-- the immutable historical calibration tree pinned by `LONGITUDINAL_CORPUS_REF` in `.github/workflows/resource-coach-log.yml`;
-- current `profiles/calibration_data.json` and `profiles/player_seeds.json` player-state evidence;
+- `calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64`, a normalized immutable snapshot of the cleaned event-sourced workbook `Squad_Optimiser_Corpus_Calibration_Transfer_2026-09-12.xlsx` (28 stable players, 38 complete player states, 570 state-stat rows, 23 coach previews);
 - every current immutable `resource-coach-experiment-v1` run.
 
-Run the same analysis locally after materialising those sources:
+The canonical snapshot is generated from observational sheets only. Derived workbook sheets are not treated as source truth.
+
+Run the same analysis locally against the canonical snapshot:
 
 ```bash
 node tools/resource-coach-v2/analyse-longitudinal-corpus.mjs \
-  --corpus-dir /path/to/materialised-corpus \
+  --corpus-dir calibration/longitudinal-corpus \
   --runs-dir calibration/resource-coach-log/runs \
   --out-dir /tmp/resource-coach-longitudinal \
   --top-n 20
