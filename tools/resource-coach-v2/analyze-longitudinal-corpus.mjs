@@ -413,43 +413,6 @@ for (const {file,rec} of runs) {
     same_player_corpus_state_count:samePlayerStates,compatible_historical_response_rows:compatibleResponses,score_count:(rec.scores??[]).length,
   });
 }
-.stat!==other.stat) continue;
-      if (target.transferClass&&other.transferClass&&target.transferClass!==other.transferClass) continue;
-      compatibleResponses++;
-      let sd=null;
-      if (ef) {
-        const os=stateFeaturesById.get(other.playerStateId);
-        if (os&&os.statSchema===ef.statSchema) sd=compareStateFeatures(ef,os);
-      }
-      if (!sd) continue;
-      const multiplierDiff=finite(target.multiplier)&&finite(other.multiplier)?Math.abs(target.multiplier-other.multiplier):null;
-      const affectedDiff=finite(target.affectedStatCount)&&finite(other.affectedStatCount)?Math.abs(target.affectedStatCount-other.affectedStatCount):null;
-      const classMismatch=target.displayClass&&other.displayClass&&target.displayClass!==other.displayClass?1:0;
-      const currentStatDiff=finite(target.currentValue)&&finite(other.currentValue)?Math.abs(target.currentValue-other.currentValue):null;
-      const titleMismatch=upper(target.coachTitle)===upper(other.coachTitle)?0:0.5;
-      const distance=sd.distance+(multiplierDiff??50)/20+(affectedDiff??5)/3+classMismatch+titleMismatch;
-      candidates.push({other,distance,sd,multiplierDiff,affectedDiff,classMismatch,currentStatDiff});
-    }
-    candidates.sort((a,b)=>a.distance-b.distance||a.other.responseId.localeCompare(b.other.responseId));
-    for (const [idx,x] of candidates.slice(0,TOP_RESPONSE_ANALOGUES).entries()) experimentStatAnalogueRows.push({
-      experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',stat:target.stat,current_value:target.currentValue,display_class:target.displayClass,
-      observed_gain_lo:target.gainLo,observed_gain_hi:target.gainHi,coach_label:target.coachTitle,multiplier:target.multiplier,transfer_class:target.transferClass,rank:idx+1,
-      analogue_response_id:x.other.responseId,analogue_player_id:x.other.playerId,analogue_player_name:x.other.playerName,analogue_state_id:x.other.playerStateId,
-      analogue_current_value:x.other.currentValue,analogue_display_class:x.other.displayClass,analogue_coach_title:x.other.coachTitle,analogue_multiplier:x.other.multiplier,
-      analogue_gain_lo:x.other.gainLo,analogue_gain_hi:x.other.gainHi,distance:x.distance,state_distance:x.sd.distance,current_stat_diff:x.currentStatDiff,
-      multiplier_diff:x.multiplierDiff,affected_stat_count_diff:x.affectedDiff,class_mismatch:x.classMismatch,
-    });
-  }
-  const samePlayerStates=stateFeatures.filter(s=>s.playerId===(e.playerId??input.playerId)).length;
-  experimentRows.push({
-    experiment_id:e.experimentId,source_file:file,player_id:e.playerId??input.playerId??'',origin_partition:e.originPartition??'',current_partition:e.currentPartition??e.partition??'',status:e.status??'',
-    observed_at:e.observedAt??'',age:input.age??'',tier:input.tier??'',coach_label:input.coachLabel??'',multiplier:input.multiplier??'',programme_family:input.programmeFamily??'unknown',transfer_class:input.transferClass??'',
-    affected_stat_count:(input.stats??[]).length,observed_stat_count:(rec.observation?.intervals??[]).length,is_duplicate:!!rec.evidence?.isDuplicate,duplicate_of_experiment_id:rec.evidence?.duplicateOfExperimentId??'',fit_weight:rec.evidence?.isDuplicate?0:1,
-    state_key_complete:!!ef?.stateComplete,exact_corpus_state_id:exact?.stateId??'',nearest_corpus_state_id:nearest?.s.stateId??'',nearest_corpus_player_id:nearest?.s.playerId??'',nearest_corpus_player_name:nearest?.s.playerName??'',nearest_state_distance:nearest?.c.distance??'',
-    same_player_corpus_state_count:samePlayerStates,compatible_historical_response_rows:compatibleResponses,score_count:(rec.scores??[]).length,
-  });
-}
-
 writeCsv('state_pairs.csv',[
   'player_id','player_name','from_state_id','to_state_id','relation','is_causal_transition','from_regime','to_regime','from_sequence','to_sequence','from_observed_at','to_observed_at','age_delta','tier_delta','ovr_delta','roles_changed','common_stat_count','changed_stat_count','stat_delta_sum','stat_abs_delta_sum','max_abs_stat_delta','stat_deltas'
 ],statePairRows);
