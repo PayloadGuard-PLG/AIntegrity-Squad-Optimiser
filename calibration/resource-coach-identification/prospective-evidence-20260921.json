@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "resource-coach-prospective-evidence-v1",
+  "source": "https://docs.google.com/document/d/1xJugn6Tgu5hcy3jWhI6VTFaztF3Ff3EW13jRNjgSweE/edit",
+  "provenance": "Transcription of explicitly labelled locked predictions and subsequently observed previews in 21 September document. Original screenshot pixels and prediction timestamps are not present in this export; prospective status is based on the document's claim and has stronger priority than retrospective fitted scores, but weaker auditability than an immutable linked prediction/observation pair.",
+  "previews": [
+    {"id":"MARK-DRILL-X10","name":"Mark Lurinsky","family":"Drill Session","coach":"Standard Offensive","N":10,"p":4,"age":18,"stats":[
+      {"stat":"CROSSING","s":120,"cls":"MID_GREY","actual":[16,22],"locked":[17,22]},
+      {"stat":"SHOOTING","s":152,"cls":"WHITE","actual":[9,13],"locked":[10,14]},
+      {"stat":"SPEED","s":153,"cls":"WHITE","actual":[8,12],"locked":[10,14]},
+      {"stat":"CREATIVITY","s":138,"cls":"WHITE","actual":[10,15],"locked":[15,21]}]},
+    {"id":"MARK-REWARD-X3","name":"Mark Lurinsky","family":"Reward","coach":"Focused Defending","N":3,"p":2,"age":18,"ovr":[0,1],"lockedOvr":[0,1],"stats":[
+      {"stat":"POSITIONING","s":160,"cls":"WHITE","actual":[3,5],"locked":[3,4]},
+      {"stat":"BRAVERY","s":160,"cls":"WHITE","actual":[3,5],"locked":[3,5]}]},
+    {"id":"MARK-ORDINARY-X5","name":"Mark Lurinsky","family":"ordinary, session unspecified","coach":"Standard Attacking","N":5,"p":3,"age":18,"ovr":[1,2],"lockedOvr":[1,2],"stats":[
+      {"stat":"PASSING","s":167,"cls":"WHITE","actual":[5,8],"locked":[5,7]},
+      {"stat":"DRIBBLING","s":158,"cls":"WHITE","actual":[5,8],"locked":[6,10]},
+      {"stat":"FINISHING","s":135,"cls":"MID_GREY","actual":[7,9],"locked":[8,13]}]},
+    {"id":"ALFIE-SKILL-X30","name":"King Alfie","family":"Skill Seminar","coach":"Focused Physical","N":30,"p":2,"age":23,"ovr":[5,6],"lockedOvr":[3,5],"stats":[
+      {"stat":"STRENGTH","s":220,"cls":null,"actual":[34,45],"locked":[20,29]},
+      {"stat":"AGGRESSION","s":206,"cls":null,"actual":[45,56],"locked":[24,34]}]},
+    {"id":"DARREN-SKILL-X33","name":"Darren Moore","family":"Skill Seminar","coach":"Standard Offensive","N":33,"p":3,"age":19,"ovr":[6,8],"lockedOvr":[6,7],"predictionStatus":"updated prediction, not verified pre-observation lock","stats":[
+      {"stat":"FITNESS","s":214,"cls":"WHITE","actual":[30,39],"locked":[22,29]},
+      {"stat":"SHOOTING","s":139,"cls":"MID_GREY","actual":[29,41],"locked":[28,35]},
+      {"stat":"FINISHING","s":124,"cls":"MID_GREY","actual":[39,52],"locked":[38,47]}]},
+    {"id":"DARKVADER-SKILL-X20","name":"S DarkVader","family":"Skill Seminar","coach":"Standard Defending","N":20,"p":5,"age":25,"ovr":[8,11],"lockedOvr":[6,8],"stats":[
+      {"stat":"TACKLING","s":9,"cls":"MID_GREY","actual":[33,49],"locked":[26,40]},
+      {"stat":"MARKING","s":21,"cls":"MID_GREY","actual":[33,49],"locked":[26,40]},
+      {"stat":"POSITIONING","s":349,"cls":"WHITE","actual":[5,8],"locked":[4,6]},
+      {"stat":"HEADING","s":347,"cls":"WHITE","actual":[5,7],"locked":[4,6]},
+      {"stat":"BRAVERY","s":62,"cls":"MID_GREY","actual":[33,47],"locked":[26,40]}]}
+  ]
+}

@@ -8,6 +8,22 @@
     {
       "experimentId": "1790098535017-6ng4hwdq",
       "reason": "Exact duplicate of the unreconciled preview; the shared-latent candidate was captured after the first observation and is diagnostic, not a blind comparison."
+    },
+    {
+      "experimentId": "PRV-0017",
+      "reason": "Provenance conflict: the 21 September prospective system-identification document explicitly calls the seven Darren Moore x57 rows unsupported and excludes them, while the pinned workbook calls them MIGRATED_VERIFIED and references 61747.png. Screenshot pixels are unavailable here. Retain as sensitivity evidence only until source-image reconciliation."
+    },
+    {
+      "experimentId": "PRV-0018",
+      "reason": "Provenance conflict: the 21 September prospective system-identification document excludes David Farquhar's five Physical x35 rows as unsupported, although the pinned workbook labels 45890.png MIGRATED_VERIFIED. Retain for sensitivity analysis until source-image reconciliation."
+    },
+    {
+      "experimentId": "PRV-0019",
+      "reason": "Provenance conflict: the 21 September prospective system-identification document excludes Andrew Leslie's five Physical x35 rows as unsupported, although the pinned workbook labels 45888.png MIGRATED_VERIFIED. Retain for sensitivity analysis until source-image reconciliation."
+    },
+    {
+      "experimentId": "PRV-0020",
+      "reason": "Provenance conflict: the 21 September prospective system-identification document excludes Ryan Rodger's five Physical x35 rows as unsupported, although the pinned workbook labels 45887.png MIGRATED_VERIFIED. Retain for sensitivity analysis until source-image reconciliation."
     }
   ]
 }

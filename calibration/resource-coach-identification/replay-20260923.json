@@ -1,0 +1,7924 @@
+{
+  "canonical": {
+    "events": 22,
+    "rows": 72,
+    "disputed_events": [
+      "PRV-0017",
+      "PRV-0018",
+      "PRV-0019",
+      "PRV-0020"
+    ],
+    "supported_rows": 50
+  },
+  "archive": {
+    "events": 42,
+    "rows": 132,
+    "source_rows": 133,
+    "unknown_class_rows": 1,
+    "players": 15
+  },
+  "independent_canonical_holdout_rows": 46,
+  "darren_pair": [
+    {
+      "slack": 0,
+      "beta": 0,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 2.0526315789473686,
+      "upper": 2.0,
+      "compatible": false,
+      "limiting_lower": "PASSING",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          2.0,
+          2.0
+        ],
+        "PASSING": [
+          2.0526315789473686,
+          2.0526315789473686
+        ],
+        "DRIBBLING": [
+          1.875,
+          2.227272727272727
+        ],
+        "CROSSING": [
+          1.9310344827586208,
+          2.107142857142857
+        ],
+        "FITNESS": [
+          2.0526315789473686,
+          2.0526315789473686
+        ],
+        "SPEED": [
+          1.826086956521739,
+          2.238095238095238
+        ],
+        "CREATIVITY": [
+          2.0,
+          2.04
+        ]
+      }
+    },
+    {
+      "slack": 0,
+      "beta": 0.015,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 2.4549914146182013,
+      "upper": 2.127496851579375,
+      "compatible": false,
+      "limiting_lower": "CREATIVITY",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          2.127496851579375,
+          2.127496851579375
+        ],
+        "PASSING": [
+          2.410802087094913,
+          2.410802087094913
+        ],
+        "DRIBBLING": [
+          2.2247116017913613,
+          2.7763950907460937
+        ],
+        "CROSSING": [
+          2.4143244865448725,
+          2.7247075180024796
+        ],
+        "FITNESS": [
+          2.410802087094913,
+          2.410802087094913
+        ],
+        "SPEED": [
+          2.1301748838230976,
+          2.765215227879202
+        ],
+        "CREATIVITY": [
+          2.4549914146182013,
+          2.5253100118809493
+        ]
+      }
+    },
+    {
+      "slack": 0,
+      "beta": 0.0354,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 3.4905932597530356,
+      "upper": 2.327370609393392,
+      "compatible": false,
+      "limiting_lower": "CROSSING",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          2.327370609393392,
+          2.327370609393392
+        ],
+        "PASSING": [
+          3.103523251499861,
+          3.103523251499861
+        ],
+        "DRIBBLING": [
+          2.9270557545454907,
+          3.9586348237082287
+        ],
+        "CROSSING": [
+          3.4905932597530356,
+          4.169617725881688
+        ],
+        "FITNESS": [
+          3.103523251499861,
+          3.103523251499861
+        ],
+        "SPEED": [
+          2.7222870601578855,
+          3.8794631464242753
+        ],
+        "CREATIVITY": [
+          3.422984391485549,
+          3.5716512099310203
+        ]
+      }
+    },
+    {
+      "slack": 0.5,
+      "beta": 0,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 1.9743589743589745,
+      "upper": 2.1020408163265305,
+      "compatible": true,
+      "limiting_lower": "PASSING",
+      "limiting_upper": "CREATIVITY",
+      "by_stat": {
+        "POSITIONING": [
+          1.8235294117647058,
+          2.2
+        ],
+        "PASSING": [
+          1.9743589743589745,
+          2.135135135135135
+        ],
+        "DRIBBLING": [
+          1.816326530612245,
+          2.302325581395349
+        ],
+        "CROSSING": [
+          1.88135593220339,
+          2.1636363636363636
+        ],
+        "FITNESS": [
+          1.9743589743589745,
+          2.135135135135135
+        ],
+        "SPEED": [
+          1.7659574468085106,
+          2.317073170731707
+        ],
+        "CREATIVITY": [
+          1.9411764705882353,
+          2.1020408163265305
+        ]
+      }
+    },
+    {
+      "slack": 0.5,
+      "beta": 0.015,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 2.3633308769818426,
+      "upper": 2.3583945552440446,
+      "compatible": false,
+      "limiting_lower": "CREATIVITY",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          1.924849799426109,
+          2.3583945552440446
+        ],
+        "PASSING": [
+          2.3002990743140086,
+          2.527948720278092
+        ],
+        "DRIBBLING": [
+          2.137616544867519,
+          2.8934696822838517
+        ],
+        "CROSSING": [
+          2.3328452415948733,
+          2.82103124523157
+        ],
+        "FITNESS": [
+          2.3002990743140086,
+          2.527948720278092
+        ],
+        "SPEED": [
+          2.043400405537991,
+          2.8861737260127156
+        ],
+        "CREATIVITY": [
+          2.3633308769818426,
+          2.623554338659602
+        ]
+      }
+    },
+    {
+      "slack": 0.5,
+      "beta": 0.0354,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 3.327157419520443,
+      "upper": 2.609079102915034,
+      "compatible": false,
+      "limiting_lower": "CROSSING",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          2.0821843243981175,
+          2.609079102915034
+        ],
+        "PASSING": [
+          2.924136066594618,
+          3.2956505122723048
+        ],
+        "DRIBBLING": [
+          2.775994764528952,
+          4.180019015420771
+        ],
+        "CROSSING": [
+          3.327157419520443,
+          4.37647833343626
+        ],
+        "FITNESS": [
+          2.924136066594618,
+          3.2956505122723048
+        ],
+        "SPEED": [
+          2.5779253019759434,
+          4.102143154371952
+        ],
+        "CREATIVITY": [
+          3.251726307031288,
+          3.760315343361405
+        ]
+      }
+    },
+    {
+      "slack": 1,
+      "beta": 0,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 1.9,
+      "upper": 2.1666666666666665,
+      "compatible": true,
+      "limiting_lower": "PASSING",
+      "limiting_upper": "CREATIVITY",
+      "by_stat": {
+        "POSITIONING": [
+          1.6666666666666667,
+          2.4285714285714284
+        ],
+        "PASSING": [
+          1.9,
+          2.2222222222222223
+        ],
+        "DRIBBLING": [
+          1.76,
+          2.380952380952381
+        ],
+        "CROSSING": [
+          1.8333333333333333,
+          2.2222222222222223
+        ],
+        "FITNESS": [
+          1.9,
+          2.2222222222222223
+        ],
+        "SPEED": [
+          1.7083333333333333,
+          2.4
+        ],
+        "CREATIVITY": [
+          1.8846153846153846,
+          2.1666666666666665
+        ]
+      }
+    },
+    {
+      "slack": 1,
+      "beta": 0.015,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 2.2757352212636515,
+      "upper": 2.6236114130313064,
+      "compatible": true,
+      "limiting_lower": "CREATIVITY",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          1.7457335675779453,
+          2.6236114130313064
+        ],
+        "PASSING": [
+          2.195934573597486,
+          2.6523002829702462
+        ],
+        "DRIBBLING": [
+          2.054527413855594,
+          3.016804665156434
+        ],
+        "CROSSING": [
+          2.2545791172164424,
+          2.921517393539239
+        ],
+        "FITNESS": [
+          2.195934573597486,
+          2.6523002829702462
+        ],
+        "SPEED": [
+          1.96076373079911,
+          3.013882137052742
+        ],
+        "CREATIVITY": [
+          2.2757352212636515,
+          2.7264991154522313
+        ]
+      }
+    },
+    {
+      "slack": 1,
+      "beta": 0.0354,
+      "thresholds": [
+        135,
+        120
+      ],
+      "lower": 3.1720143831857412,
+      "upper": 2.9352446931458815,
+      "compatible": false,
+      "limiting_lower": "CROSSING",
+      "limiting_upper": "POSITIONING",
+      "by_stat": {
+        "POSITIONING": [
+          1.8673506724780942,
+          2.9352446931458815
+        ],
+        "PASSING": [
+          2.7564607138345996,
+          3.501662351071085
+        ],
+        "DRIBBLING": [
+          2.6334890185863395,
+          4.415709318494478
+        ],
+        "CROSSING": [
+          3.1720143831857412,
+          4.5947716705835395
+        ],
+        "FITNESS": [
+          2.7564607138345996,
+          3.501662351071085
+        ],
+        "SPEED": [
+          2.4419659022208635,
+          4.339694467115103
+        ],
+        "CREATIVITY": [
+          3.089901527757522,
+          3.9602100773897213
+        ]
+      }
+    }
+  ],
+  "ovr": {
+    "n": 22,
+    "incompatible": 9,
+    "integer_envelope_incompatible": 0,
+    "cases": [
+      {
+        "id": "PRV-0001",
+        "implied": [
+          0.2,
+          0.3333333333333333
+        ],
+        "observed": [
+          0,
+          0
+        ],
+        "gap": 0.2,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0003",
+        "implied": [
+          0.13333333333333333,
+          0.2
+        ],
+        "observed": [
+          0,
+          0
+        ],
+        "gap": 0.13333333333333333,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0005",
+        "implied": [
+          0.4666666666666667,
+          0.7333333333333333
+        ],
+        "observed": [
+          1,
+          1
+        ],
+        "gap": 0.2666666666666667,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0006",
+        "implied": [
+          0.4666666666666667,
+          0.5333333333333333
+        ],
+        "observed": [
+          0,
+          0
+        ],
+        "gap": 0.4666666666666667,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0007",
+        "implied": [
+          19.133333333333333,
+          20.0
+        ],
+        "observed": [
+          19,
+          19
+        ],
+        "gap": 0.13333333333333286,
+        "integer_envelope": [
+          19,
+          20
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0008",
+        "implied": [
+          0.3333333333333333,
+          0.4666666666666667
+        ],
+        "observed": [
+          1,
+          1
+        ],
+        "gap": 0.5333333333333333,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0009",
+        "implied": [
+          0.3333333333333333,
+          0.4666666666666667
+        ],
+        "observed": [
+          0,
+          0
+        ],
+        "gap": 0.3333333333333333,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0016",
+        "implied": [
+          0.3333333333333333,
+          0.4666666666666667
+        ],
+        "observed": [
+          0,
+          0
+        ],
+        "gap": 0.3333333333333333,
+        "integer_envelope": [
+          0,
+          1
+        ],
+        "integer_envelope_incompatible": false
+      },
+      {
+        "id": "PRV-0017",
+        "implied": [
+          9.466666666666667,
+          9.8
+        ],
+        "observed": [
+          9,
+          9
+        ],
+        "gap": 0.4666666666666668,
+        "integer_envelope": [
+          9,
+          10
+        ],
+        "integer_envelope_incompatible": false
+      }
+    ]
+  },
+  "prospective": [
+    {
+      "id": "MARK-DRILL-X10",
+      "family": "Drill Session",
+      "predictionStatus": "document says locked",
+      "n": 4,
+      "overlap": 4,
+      "incompatible": [],
+      "mean_endpoint_error": 2.25,
+      "ovr": null
+    },
+    {
+      "id": "MARK-REWARD-X3",
+      "family": "Reward",
+      "predictionStatus": "document says locked",
+      "n": 2,
+      "overlap": 2,
+      "incompatible": [],
+      "mean_endpoint_error": 0.25,
+      "ovr": {
+        "actual": [
+          0,
+          1
+        ],
+        "locked": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "id": "MARK-ORDINARY-X5",
+      "family": "ordinary, session unspecified",
+      "predictionStatus": "document says locked",
+      "n": 3,
+      "overlap": 3,
+      "incompatible": [],
+      "mean_endpoint_error": 1.5,
+      "ovr": {
+        "actual": [
+          1,
+          2
+        ],
+        "locked": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "ALFIE-SKILL-X30",
+      "family": "Skill Seminar",
+      "predictionStatus": "document says locked",
+      "n": 2,
+      "overlap": 0,
+      "incompatible": [
+        {
+          "stat": "STRENGTH",
+          "actual": [
+            34,
+            45
+          ],
+          "locked": [
+            20,
+            29
+          ],
+          "separation": 5,
+          "endpoint_error": [
+            14,
+            16
+          ]
+        },
+        {
+          "stat": "AGGRESSION",
+          "actual": [
+            45,
+            56
+          ],
+          "locked": [
+            24,
+            34
+          ],
+          "separation": 11,
+          "endpoint_error": [
+            21,
+            22
+          ]
+        }
+      ],
+      "mean_endpoint_error": 18.25,
+      "ovr": {
+        "actual": [
+          5,
+          6
+        ],
+        "locked": [
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "id": "DARREN-SKILL-X33",
+      "family": "Skill Seminar",
+      "predictionStatus": "updated prediction, not verified pre-observation lock",
+      "n": 3,
+      "overlap": 2,
+      "incompatible": [
+        {
+          "stat": "FITNESS",
+          "actual": [
+            30,
+            39
+          ],
+          "locked": [
+            22,
+            29
+          ],
+          "separation": 1,
+          "endpoint_error": [
+            8,
+            10
+          ]
+        }
+      ],
+      "mean_endpoint_error": 5.166666666666667,
+      "ovr": {
+        "actual": [
+          6,
+          8
+        ],
+        "locked": [
+          6,
+          7
+        ]
+      }
+    },
+    {
+      "id": "DARKVADER-SKILL-X20",
+      "family": "Skill Seminar",
+      "predictionStatus": "document says locked",
+      "n": 5,
+      "overlap": 5,
+      "incompatible": [],
+      "mean_endpoint_error": 5.1,
+      "ovr": {
+        "actual": [
+          8,
+          11
+        ],
+        "locked": [
+          6,
+          8
+        ]
+      }
+    }
+  ],
+  "archive_matched_pairs": [
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "TACKLING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          98,
+          118
+        ],
+        [
+          102,
+          121
+        ]
+      ],
+      "dose_ratio": [
+        0.6432271931605549,
+        1.8789750628553383
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "MARKING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          98,
+          118
+        ],
+        [
+          102,
+          121
+        ]
+      ],
+      "dose_ratio": [
+        0.6432271931605549,
+        1.8789750628553383
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "POSITIONING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          97,
+          116
+        ],
+        [
+          100,
+          120
+        ]
+      ],
+      "dose_ratio": [
+        0.6398891566600698,
+        1.9023048191324416
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "HEADING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          125,
+          142
+        ],
+        [
+          127,
+          145
+        ]
+      ],
+      "dose_ratio": [
+        0.7154013824345493,
+        1.566816196018876
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "BRAVERY",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          109,
+          128
+        ],
+        [
+          112,
+          132
+        ]
+      ],
+      "dose_ratio": [
+        0.6673552506364884,
+        1.791904426798132
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "FITNESS",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          101,
+          120
+        ],
+        [
+          104,
+          124
+        ]
+      ],
+      "dose_ratio": [
+        0.6504660500179092,
+        1.8584453827089964
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "STRENGTH",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          122,
+          139
+        ],
+        [
+          125,
+          143
+        ]
+      ],
+      "dose_ratio": [
+        0.726234179170094,
+        1.6195932608906938
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "AGGRESSION",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          119,
+          136
+        ],
+        [
+          121,
+          139
+        ]
+      ],
+      "dose_ratio": [
+        0.7029083648961637,
+        1.6037365038276212
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "TACKLING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          75,
+          112
+        ],
+        [
+          80,
+          119
+        ]
+      ],
+      "dose_ratio": [
+        0.7142857142857143,
+        1.5866666666666667
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "MARKING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          72,
+          93
+        ],
+        [
+          76,
+          97
+        ]
+      ],
+      "dose_ratio": [
+        0.7588547213479824,
+        1.5041808179580818
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "POSITIONING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          32,
+          43
+        ],
+        [
+          34,
+          45
+        ]
+      ],
+      "dose_ratio": [
+        0.6510046708697904,
+        1.8620987150491883
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "HEADING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          11,
+          15
+        ],
+        [
+          11,
+          16
+        ]
+      ],
+      "dose_ratio": [
+        0.6795219310465239,
+        1.6003380434354857
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "BRAVERY",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          49,
+          59
+        ],
+        [
+          50,
+          61
+        ]
+      ],
+      "dose_ratio": [
+        0.7147383844082784,
+        1.5643126675099734
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "FITNESS",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          46,
+          56
+        ],
+        [
+          47,
+          58
+        ]
+      ],
+      "dose_ratio": [
+        0.7029111914285152,
+        1.5989556677418526
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "STRENGTH",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          74,
+          107
+        ],
+        [
+          80,
+          113
+        ]
+      ],
+      "dose_ratio": [
+        0.7475384210044346,
+        1.5397784645881325
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "AGGRESSION",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          74,
+          104
+        ],
+        [
+          80,
+          108
+        ]
+      ],
+      "dose_ratio": [
+        0.7623141872091296,
+        1.49255415758501
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "TACKLING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          12,
+          16
+        ],
+        [
+          12,
+          17
+        ]
+      ],
+      "dose_ratio": [
+        0.6946786791673042,
+        1.5594666340479408
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "MARKING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          47,
+          58
+        ],
+        [
+          49,
+          60
+        ]
+      ],
+      "dose_ratio": [
+        0.7091799435253593,
+        1.6431010541572624
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "POSITIONING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          9,
+          13
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "dose_ratio": [
+        0.6420380235508774,
+        1.709703874798448
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "HEADING",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          21,
+          25
+        ],
+        [
+          21,
+          26
+        ]
+      ],
+      "dose_ratio": [
+        0.7751833611757319,
+        1.369168839562002
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "BRAVERY",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          27,
+          36
+        ],
+        [
+          29,
+          37
+        ]
+      ],
+      "dose_ratio": [
+        0.6953309743455637,
+        1.6901027381241434
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "FITNESS",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          51,
+          61
+        ],
+        [
+          53,
+          64
+        ]
+      ],
+      "dose_ratio": [
+        0.7500535735448921,
+        1.5956481637437523
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "STRENGTH",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          72,
+          93
+        ],
+        [
+          76,
+          97
+        ]
+      ],
+      "dose_ratio": [
+        0.7524512443482394,
+        1.5210958311971485
+      ]
+    },
+    {
+      "a": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+      "b": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+      "stat": "AGGRESSION",
+      "n": [
+        106,
+        114
+      ],
+      "gain": [
+        [
+          68,
+          87
+        ],
+        [
+          71,
+          89
+        ]
+      ],
+      "dose_ratio": [
+        0.7166248976684993,
+        1.5432157453003135
+      ]
+    }
+  ],
+  "next_experiment": [
+    {
+      "stat": "TACKLING",
+      "start": 9,
+      "anchor": [
+        33,
+        49
+      ],
+      "x80": {
+        "drill_like": [
+          130,
+          155
+        ],
+        "skill_high_exponent": [
+          160,
+          178
+        ]
+      }
+    },
+    {
+      "stat": "MARKING",
+      "start": 21,
+      "anchor": [
+        33,
+        49
+      ],
+      "x80": {
+        "drill_like": [
+          124,
+          146
+        ],
+        "skill_high_exponent": [
+          150,
+          167
+        ]
+      }
+    },
+    {
+      "stat": "BRAVERY",
+      "start": 62,
+      "anchor": [
+        33,
+        47
+      ],
+      "x80": {
+        "drill_like": [
+          96,
+          111
+        ],
+        "skill_high_exponent": [
+          114,
+          128
+        ]
+      }
+    }
+  ],
+  "models": {
+    "flat_raw": {
+      "parameters": [
+        1.52209,
+        -0.40943,
+        0.82172,
+        0.64209,
+        0.45118,
+        0.05034,
+        0.21381,
+        -0.21975,
+        -1.3169
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.48484848484848486,
+        "mean_separation": 8.338629648635985,
+        "endpoint_rounding_mae": 16.355281908504608,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.5694444444444444,
+            "mean_separation": 6.697667239041646
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.38333333333333336,
+            "mean_separation": 10.30778454014919
+          }
+        },
+        "worst": [
+          {
+            "gap": 49.64774431682605,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.4,
+              42.35
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 45.02648699832227,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              40.99,
+              51.97
+            ],
+            "obs": [
+              97.0,
+              116.0
+            ]
+          },
+          {
+            "gap": 37.48792918048395,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              27.22,
+              34.51
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 37.08231906244602,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              51.08,
+              64.77
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 36.39278524679017,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              64.36,
+              81.61
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 35.11773161006528,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              48.12,
+              61.01
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 35.08231906244602,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              51.08,
+              64.77
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 34.08231906244602,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              51.08,
+              64.77
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 33.11773161006528,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              48.12,
+              61.01
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 32.11773161006528,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              48.12,
+              61.01
+            ],
+            "obs": [
+              12.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 32.045593493684315,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              28.36,
+              35.95
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          },
+          {
+            "gap": 31.977567768112472,
+            "id": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              30.78,
+              39.02
+            ],
+            "obs": [
+              71.0,
+              94.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.3560606060606061,
+        "mean_separation": 12.113074784839597,
+        "endpoint_rounding_mae": 21.827855292485584,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.3611111111111111,
+            "mean_separation": 12.7120430271493
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.35,
+            "mean_separation": 11.394312894067957
+          }
+        },
+        "worst": [
+          {
+            "gap": 63.5858979446665,
+            "id": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              108.59,
+              128.37
+            ],
+            "obs": [
+              37.0,
+              45.0
+            ]
+          },
+          {
+            "gap": 60.03053449912731,
+            "id": "DOC-PLY-0017-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              98.03,
+              115.89
+            ],
+            "obs": [
+              31.0,
+              38.0
+            ]
+          },
+          {
+            "gap": 55.5858979446665,
+            "id": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              108.59,
+              128.37
+            ],
+            "obs": [
+              40.0,
+              53.0
+            ]
+          },
+          {
+            "gap": 49.83251607222134,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.21,
+              42.17
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 45.41442410055556,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              40.05,
+              51.59
+            ],
+            "obs": [
+              97.0,
+              116.0
+            ]
+          },
+          {
+            "gap": 45.03053449912731,
+            "id": "DOC-PLY-0017-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              98.03,
+              115.89
+            ],
+            "obs": [
+              38.0,
+              53.0
+            ]
+          },
+          {
+            "gap": 40.6928443929844,
+            "id": "DOC-PLY-0017-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              87.69,
+              103.67
+            ],
+            "obs": [
+              36.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 38.13892513012415,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              26.53,
+              33.86
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 37.969362052402104,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              53.96,
+              69.03
+            ],
+            "obs": [
+              107.0,
+              118.0
+            ]
+          },
+          {
+            "gap": 36.50615436053155,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              63.28,
+              81.49
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 36.47384888033963,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              52.47,
+              66.24
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 35.2318424208824,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              49.23,
+              62.98
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.4318181818181818,
+        "mean_separation": 8.78108235894327,
+        "endpoint_rounding_mae": 17.595411552287572,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.4861111111111111,
+            "mean_separation": 7.077807112146299
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.36666666666666664,
+            "mean_separation": 10.825012655099632
+          }
+        },
+        "worst": [
+          {
+            "gap": 49.83251607222134,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.21,
+              42.17
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 45.54783375951629,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              40.3,
+              51.45
+            ],
+            "obs": [
+              97.0,
+              116.0
+            ]
+          },
+          {
+            "gap": 38.13892513012415,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              26.53,
+              33.86
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 38.12384333867864,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              52.12,
+              65.95
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 36.64909924228408,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              63.71,
+              81.35
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 36.41201768288347,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              49.41,
+              62.59
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 35.87383428189287,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              51.87,
+              65.66
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 35.42901313345601,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              57.29,
+              71.57
+            ],
+            "obs": [
+              107.0,
+              118.0
+            ]
+          },
+          {
+            "gap": 35.12384333867864,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              52.12,
+              65.95
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 33.6054665937833,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              48.61,
+              61.65
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 33.41201768288347,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              49.41,
+              62.59
+            ],
+            "obs": [
+              12.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 32.63219524746017,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              27.7,
+              35.37
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.2608695652173913,
+        "mean_separation": 13.80056937309215,
+        "endpoint_rounding_mae": 20.068274565563787,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.4444444444444444,
+            "mean_separation": 1.5473932454029733
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.21621621621621623,
+            "mean_separation": 16.781071674421952
+          }
+        },
+        "worst": [
+          {
+            "gap": 73.12194411772401,
+            "id": "PRV-0007",
+            "stat": "SPEED",
+            "pred": [
+              120.12,
+              152.31
+            ],
+            "obs": [
+              42.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 71.12194411772401,
+            "id": "PRV-0007",
+            "stat": "DRIBBLING",
+            "pred": [
+              120.12,
+              152.31
+            ],
+            "obs": [
+              45.0,
+              49.0
+            ]
+          },
+          {
+            "gap": 61.12194411772401,
+            "id": "PRV-0007",
+            "stat": "CROSSING",
+            "pred": [
+              120.12,
+              152.31
+            ],
+            "obs": [
+              56.0,
+              59.0
+            ]
+          },
+          {
+            "gap": 60.5025426154956,
+            "id": "PRV-0007",
+            "stat": "POSITIONING",
+            "pred": [
+              76.5,
+              97.0
+            ],
+            "obs": [
+              16.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 37.5025426154956,
+            "id": "PRV-0007",
+            "stat": "PASSING",
+            "pred": [
+              76.5,
+              97.0
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 37.5025426154956,
+            "id": "PRV-0007",
+            "stat": "FITNESS",
+            "pred": [
+              76.5,
+              97.0
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 34.85551239621201,
+            "id": "PRV-0012",
+            "stat": "PASSING",
+            "pred": [
+              21.41,
+              27.14
+            ],
+            "obs": [
+              62.0,
+              78.0
+            ]
+          },
+          {
+            "gap": 25.5025426154956,
+            "id": "PRV-0007",
+            "stat": "CREATIVITY",
+            "pred": [
+              76.5,
+              97.0
+            ],
+            "obs": [
+              50.0,
+              51.0
+            ]
+          },
+          {
+            "gap": 20.855512396212013,
+            "id": "PRV-0011",
+            "stat": "SHOOTING",
+            "pred": [
+              21.41,
+              27.14
+            ],
+            "obs": [
+              48.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 19.02900552696701,
+            "id": "PRV-0021",
+            "stat": "HEADING",
+            "pred": [
+              26.03,
+              33.0
+            ],
+            "obs": [
+              5.0,
+              7.0
+            ]
+          },
+          {
+            "gap": 15.855512396212013,
+            "id": "PRV-0011",
+            "stat": "PASSING",
+            "pred": [
+              21.41,
+              27.14
+            ],
+            "obs": [
+              43.0,
+              51.0
+            ]
+          },
+          {
+            "gap": 14.61681738502152,
+            "id": "PRV-0015",
+            "stat": "TACKLING",
+            "pred": [
+              27.12,
+              34.38
+            ],
+            "obs": [
+              49.0,
+              58.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.13636363636363635,
+        "mean_separation": 16.764085678098194,
+        "endpoint_rounding_mae": 24.019506375971385,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.13636363636363635,
+            "mean_separation": 16.764085678098194
+          }
+        },
+        "worst": [
+          {
+            "gap": 44.96112281098584,
+            "id": "PRV-0017",
+            "stat": "SPEED",
+            "pred": [
+              67.96,
+              86.17
+            ],
+            "obs": [
+              21.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 43.96112281098584,
+            "id": "PRV-0017",
+            "stat": "DRIBBLING",
+            "pred": [
+              67.96,
+              86.17
+            ],
+            "obs": [
+              22.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 38.96112281098584,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              67.96,
+              86.17
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          },
+          {
+            "gap": 35.282671890066695,
+            "id": "PRV-0017",
+            "stat": "POSITIONING",
+            "pred": [
+              43.28,
+              54.88
+            ],
+            "obs": [
+              8.0,
+              8.0
+            ]
+          },
+          {
+            "gap": 24.282671890066695,
+            "id": "PRV-0017",
+            "stat": "PASSING",
+            "pred": [
+              43.28,
+              54.88
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 24.282671890066695,
+            "id": "PRV-0017",
+            "stat": "FITNESS",
+            "pred": [
+              43.28,
+              54.88
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 23.62293436202959,
+            "id": "PRV-0019",
+            "stat": "SPEED",
+            "pred": [
+              38.15,
+              48.38
+            ],
+            "obs": [
+              72.0,
+              90.0
+            ]
+          },
+          {
+            "gap": 21.189904869052338,
+            "id": "PRV-0019",
+            "stat": "AGGRESSION",
+            "pred": [
+              24.3,
+              30.81
+            ],
+            "obs": [
+              52.0,
+              64.0
+            ]
+          },
+          {
+            "gap": 19.189904869052338,
+            "id": "PRV-0019",
+            "stat": "STRENGTH",
+            "pred": [
+              24.3,
+              30.81
+            ],
+            "obs": [
+              50.0,
+              61.0
+            ]
+          },
+          {
+            "gap": 19.189904869052338,
+            "id": "PRV-0019",
+            "stat": "CREATIVITY",
+            "pred": [
+              24.3,
+              30.81
+            ],
+            "obs": [
+              50.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 18.282671890066695,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              43.28,
+              54.88
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 15.189904869052338,
+            "id": "PRV-0018",
+            "stat": "STRENGTH",
+            "pred": [
+              24.3,
+              30.81
+            ],
+            "obs": [
+              46.0,
+              56.0
+            ]
+          }
+        ]
+      }
+    },
+    "flat_tier": {
+      "parameters": [
+        1.54323,
+        -0.41392,
+        0.81353,
+        0.63953,
+        0.45441,
+        0.06282,
+        0.20779,
+        -0.2155,
+        -1.30795
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.49242424242424243,
+        "mean_separation": 8.189226691917229,
+        "endpoint_rounding_mae": 16.166121913803916,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.5833333333333334,
+            "mean_separation": 6.3823989129936205
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.38333333333333336,
+            "mean_separation": 10.357420026625554
+          }
+        },
+        "worst": [
+          {
+            "gap": 49.84058905658905,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.19,
+              42.16
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 45.1468306804592,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              40.82,
+              51.85
+            ],
+            "obs": [
+              97.0,
+              116.0
+            ]
+          },
+          {
+            "gap": 37.72213512847745,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              26.98,
+              34.28
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 36.5562525930693,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              50.56,
+              64.23
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 36.31828347704739,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              64.3,
+              81.68
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 34.65057983733976,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              47.65,
+              60.53
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 34.5562525930693,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              50.56,
+              64.23
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 33.5562525930693,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              50.56,
+              64.23
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 32.65057983733976,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              47.65,
+              60.53
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 32.2735456739632,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              28.12,
+              35.73
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          },
+          {
+            "gap": 32.19012664949308,
+            "id": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              30.55,
+              38.81
+            ],
+            "obs": [
+              71.0,
+              94.0
+            ]
+          },
+          {
+            "gap": 31.650579837339762,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              47.65,
+              60.53
+            ],
+            "obs": [
+              12.0,
+              16.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.3484848484848485,
+        "mean_separation": 12.218260164504631,
+        "endpoint_rounding_mae": 22.53116271921603,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.3472222222222222,
+            "mean_separation": 12.667037110609872
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.35,
+            "mean_separation": 11.679727829178338
+          }
+        },
+        "worst": [
+          {
+            "gap": 63.569398526635496,
+            "id": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              108.57,
+              128.39
+            ],
+            "obs": [
+              37.0,
+              45.0
+            ]
+          },
+          {
+            "gap": 60.03339751425585,
+            "id": "DOC-PLY-0017-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              98.03,
+              115.93
+            ],
+            "obs": [
+              31.0,
+              38.0
+            ]
+          },
+          {
+            "gap": 55.569398526635496,
+            "id": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              108.57,
+              128.39
+            ],
+            "obs": [
+              40.0,
+              53.0
+            ]
+          },
+          {
+            "gap": 49.871930636753746,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.22,
+              42.13
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 45.47077759190796,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              40.0,
+              51.53
+            ],
+            "obs": [
+              97.0,
+              116.0
+            ]
+          },
+          {
+            "gap": 45.03339751425585,
+            "id": "DOC-PLY-0017-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              98.03,
+              115.93
+            ],
+            "obs": [
+              38.0,
+              53.0
+            ]
+          },
+          {
+            "gap": 42.10614891978787,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "HEADING",
+            "pred": [
+              55.11,
+              65.06
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 40.65183730085016,
+            "id": "DOC-PLY-0017-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              87.65,
+              103.65
+            ],
+            "obs": [
+              36.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 40.345325574667015,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              54.35,
+              64.16
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 38.24162773797045,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              26.47,
+              33.76
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 36.86706524615391,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              55.38,
+              70.13
+            ],
+            "obs": [
+              107.0,
+              118.0
+            ]
+          },
+          {
+            "gap": 36.55732278946908,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              52.56,
+              66.28
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.44696969696969696,
+        "mean_separation": 8.590797901044901,
+        "endpoint_rounding_mae": 17.343844444065233,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.5138888888888888,
+            "mean_separation": 6.764127676233484
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.36666666666666664,
+            "mean_separation": 10.782802170818604
+          }
+        },
+        "worst": [
+          {
+            "gap": 49.871930636753746,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.22,
+              42.13
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 45.577523502628566,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              40.3,
+              51.42
+            ],
+            "obs": [
+              97.0,
+              116.0
+            ]
+          },
+          {
+            "gap": 38.533750405339106,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              52.53,
+              66.18
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 38.24162773797045,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              26.47,
+              33.76
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 36.68484654377403,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              49.68,
+              62.71
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 36.6675109381179,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              63.75,
+              81.33
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 36.071420878665634,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              52.07,
+              65.75
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 35.533750405339106,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              52.53,
+              66.18
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 33.68484654377403,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              49.68,
+              62.71
+            ],
+            "obs": [
+              12.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 33.27929208570632,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              48.28,
+              61.33
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 32.70911531107345,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              27.67,
+              35.29
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          },
+          {
+            "gap": 32.56369582659866,
+            "id": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              30.11,
+              38.44
+            ],
+            "obs": [
+              71.0,
+              94.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.2608695652173913,
+        "mean_separation": 13.51244753953727,
+        "endpoint_rounding_mae": 19.777415604545237,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.4444444444444444,
+            "mean_separation": 1.6111690803297805
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.21621621621621623,
+            "mean_separation": 16.40735311069585
+          }
+        },
+        "worst": [
+          {
+            "gap": 71.22636768047767,
+            "id": "PRV-0007",
+            "stat": "SPEED",
+            "pred": [
+              118.23,
+              150.19
+            ],
+            "obs": [
+              42.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 69.22636768047767,
+            "id": "PRV-0007",
+            "stat": "DRIBBLING",
+            "pred": [
+              118.23,
+              150.19
+            ],
+            "obs": [
+              45.0,
+              49.0
+            ]
+          },
+          {
+            "gap": 59.226367680477665,
+            "id": "PRV-0007",
+            "stat": "CROSSING",
+            "pred": [
+              118.23,
+              150.19
+            ],
+            "obs": [
+              56.0,
+              59.0
+            ]
+          },
+          {
+            "gap": 59.05243673040894,
+            "id": "PRV-0007",
+            "stat": "POSITIONING",
+            "pred": [
+              75.05,
+              95.34
+            ],
+            "obs": [
+              16.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 36.05243673040894,
+            "id": "PRV-0007",
+            "stat": "PASSING",
+            "pred": [
+              75.05,
+              95.34
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 36.05243673040894,
+            "id": "PRV-0007",
+            "stat": "FITNESS",
+            "pred": [
+              75.05,
+              95.34
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 34.75900679452842,
+            "id": "PRV-0012",
+            "stat": "PASSING",
+            "pred": [
+              21.44,
+              27.24
+            ],
+            "obs": [
+              62.0,
+              78.0
+            ]
+          },
+          {
+            "gap": 24.052436730408942,
+            "id": "PRV-0007",
+            "stat": "CREATIVITY",
+            "pred": [
+              75.05,
+              95.34
+            ],
+            "obs": [
+              50.0,
+              51.0
+            ]
+          },
+          {
+            "gap": 20.759006794528418,
+            "id": "PRV-0011",
+            "stat": "SHOOTING",
+            "pred": [
+              21.44,
+              27.24
+            ],
+            "obs": [
+              48.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 18.99899383687452,
+            "id": "PRV-0021",
+            "stat": "HEADING",
+            "pred": [
+              26.0,
+              33.03
+            ],
+            "obs": [
+              5.0,
+              7.0
+            ]
+          },
+          {
+            "gap": 15.759006794528418,
+            "id": "PRV-0011",
+            "stat": "PASSING",
+            "pred": [
+              21.44,
+              27.24
+            ],
+            "obs": [
+              43.0,
+              51.0
+            ]
+          },
+          {
+            "gap": 14.575772858466934,
+            "id": "PRV-0015",
+            "stat": "TACKLING",
+            "pred": [
+              27.1,
+              34.42
+            ],
+            "obs": [
+              49.0,
+              58.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.13636363636363635,
+        "mean_separation": 16.50646652110014,
+        "endpoint_rounding_mae": 23.761690790572676,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.13636363636363635,
+            "mean_separation": 16.50646652110014
+          }
+        },
+        "worst": [
+          {
+            "gap": 44.2694341935574,
+            "id": "PRV-0017",
+            "stat": "SPEED",
+            "pred": [
+              67.27,
+              85.46
+            ],
+            "obs": [
+              21.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 43.2694341935574,
+            "id": "PRV-0017",
+            "stat": "DRIBBLING",
+            "pred": [
+              67.27,
+              85.46
+            ],
+            "obs": [
+              22.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 38.2694341935574,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              67.27,
+              85.46
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          },
+          {
+            "gap": 34.70396742076389,
+            "id": "PRV-0017",
+            "stat": "POSITIONING",
+            "pred": [
+              42.7,
+              54.25
+            ],
+            "obs": [
+              8.0,
+              8.0
+            ]
+          },
+          {
+            "gap": 23.703967420763888,
+            "id": "PRV-0017",
+            "stat": "PASSING",
+            "pred": [
+              42.7,
+              54.25
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 23.703967420763888,
+            "id": "PRV-0017",
+            "stat": "FITNESS",
+            "pred": [
+              42.7,
+              54.25
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 23.355288817035813,
+            "id": "PRV-0019",
+            "stat": "SPEED",
+            "pred": [
+              38.29,
+              48.64
+            ],
+            "obs": [
+              72.0,
+              90.0
+            ]
+          },
+          {
+            "gap": 21.119375144845137,
+            "id": "PRV-0019",
+            "stat": "AGGRESSION",
+            "pred": [
+              24.31,
+              30.88
+            ],
+            "obs": [
+              52.0,
+              64.0
+            ]
+          },
+          {
+            "gap": 19.119375144845137,
+            "id": "PRV-0019",
+            "stat": "STRENGTH",
+            "pred": [
+              24.31,
+              30.88
+            ],
+            "obs": [
+              50.0,
+              61.0
+            ]
+          },
+          {
+            "gap": 19.119375144845137,
+            "id": "PRV-0019",
+            "stat": "CREATIVITY",
+            "pred": [
+              24.31,
+              30.88
+            ],
+            "obs": [
+              50.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 17.703967420763888,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              42.7,
+              54.25
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 15.119375144845137,
+            "id": "PRV-0018",
+            "stat": "STRENGTH",
+            "pred": [
+              24.31,
+              30.88
+            ],
+            "obs": [
+              46.0,
+              56.0
+            ]
+          }
+        ]
+      }
+    },
+    "plateau_015": {
+      "parameters": [
+        2.0709,
+        -0.74263,
+        0.85749,
+        0.69214,
+        0.1646,
+        0.06273,
+        0.03742,
+        -0.18447,
+        -1.08128
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.6742424242424242,
+        "mean_separation": 1.738975067171178,
+        "endpoint_rounding_mae": 7.798029710180441,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.6527777777777778,
+            "mean_separation": 1.909811465137844
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.7,
+            "mean_separation": 1.5339713896111786
+          }
+        },
+        "worst": [
+          {
+            "gap": 24.530778468963973,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              35.45,
+              47.47
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 23.186886074945107,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              51.39,
+              68.81
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 16.871396610207626,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              38.18,
+              51.13
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          },
+          {
+            "gap": 12.443275346006686,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.44,
+              44.79
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 11.684585393923683,
+            "id": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              44.29,
+              59.32
+            ],
+            "obs": [
+              71.0,
+              94.0
+            ]
+          },
+          {
+            "gap": 9.938600468191765,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              23.94,
+              30.43
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 9.710912820235734,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              22.71,
+              28.94
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 9.486891743827812,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              25.49,
+              32.31
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 9.193328546012253,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              24.19,
+              30.74
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 9.128842372796015,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              26.13,
+              33.08
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 8.808392740153351,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              24.81,
+              31.49
+            ],
+            "obs": [
+              12.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 7.610201427708972,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "stat": "BRAVERY",
+            "pred": [
+              38.37,
+              51.39
+            ],
+            "obs": [
+              59.0,
+              85.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.5,
+        "mean_separation": 2.6695878028669924,
+        "endpoint_rounding_mae": 13.46926821648747,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.3888888888888889,
+            "mean_separation": 3.4741825468176235
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.6333333333333333,
+            "mean_separation": 1.7040741101262362
+          }
+        },
+        "worst": [
+          {
+            "gap": 25.212818548910604,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              34.62,
+              46.79
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 24.174985039336207,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              50.2,
+              67.83
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 19.388189066052377,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              34.73,
+              48.61
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          },
+          {
+            "gap": 14.29025880090817,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              35.29,
+              48.3
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 12.744801895164997,
+            "id": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              43.54,
+              58.26
+            ],
+            "obs": [
+              71.0,
+              94.0
+            ]
+          },
+          {
+            "gap": 11.188581952175355,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "HEADING",
+            "pred": [
+              24.19,
+              31.08
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 10.818606023352572,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              24.82,
+              31.85
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 10.529005861946786,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              77.84,
+              107.47
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 9.779426822505897,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "stat": "BRAVERY",
+            "pred": [
+              35.02,
+              49.22
+            ],
+            "obs": [
+              59.0,
+              85.0
+            ]
+          },
+          {
+            "gap": 9.510013471569096,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              25.51,
+              32.39
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 9.218185247524104,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              24.22,
+              30.82
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 8.704429495700538,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              22.7,
+              29.99
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.6363636363636364,
+        "mean_separation": 1.9846621790134287,
+        "endpoint_rounding_mae": 9.304823716269667,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.5833333333333334,
+            "mean_separation": 2.2853476990334
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.7,
+            "mean_separation": 1.6238395549894626
+          }
+        },
+        "worst": [
+          {
+            "gap": 25.212818548910604,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              34.62,
+              46.79
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 24.174985039336207,
+            "id": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              50.2,
+              67.83
+            ],
+            "obs": [
+              92.0,
+              104.0
+            ]
+          },
+          {
+            "gap": 17.624061918908694,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              37.27,
+              50.38
+            ],
+            "obs": [
+              68.0,
+              86.0
+            ]
+          },
+          {
+            "gap": 12.75799574582728,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              33.76,
+              45.21
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 12.744801895164997,
+            "id": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              43.54,
+              58.26
+            ],
+            "obs": [
+              71.0,
+              94.0
+            ]
+          },
+          {
+            "gap": 9.972727536217747,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              23.97,
+              30.49
+            ],
+            "obs": [
+              9.0,
+              14.0
+            ]
+          },
+          {
+            "gap": 9.753879256627528,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "POSITIONING",
+            "pred": [
+              22.75,
+              29.03
+            ],
+            "obs": [
+              9.0,
+              13.0
+            ]
+          },
+          {
+            "gap": 9.521729444864093,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              25.52,
+              32.36
+            ],
+            "obs": [
+              11.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 9.185810406072278,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "HEADING",
+            "pred": [
+              24.19,
+              30.77
+            ],
+            "obs": [
+              11.0,
+              15.0
+            ]
+          },
+          {
+            "gap": 9.16552187513446,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              26.17,
+              33.15
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 9.012931210808858,
+            "id": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              82.71,
+              108.99
+            ],
+            "obs": [
+              118.0,
+              135.0
+            ]
+          },
+          {
+            "gap": 8.85463677495369,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              24.85,
+              31.59
+            ],
+            "obs": [
+              12.0,
+              16.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.32608695652173914,
+        "mean_separation": 5.981561682620969,
+        "endpoint_rounding_mae": 11.402218120379827,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.1111111111111111,
+            "mean_separation": 1.2785805090413918
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.3783783783783784,
+            "mean_separation": 7.1255300761943765
+          }
+        },
+        "worst": [
+          {
+            "gap": 24.807938058182657,
+            "id": "PRV-0015",
+            "stat": "BRAVERY",
+            "pred": [
+              46.81,
+              58.12
+            ],
+            "obs": [
+              15.0,
+              22.0
+            ]
+          },
+          {
+            "gap": 24.590122365779422,
+            "id": "PRV-0015",
+            "stat": "POSITIONING",
+            "pred": [
+              45.59,
+              56.48
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 23.603120021439082,
+            "id": "PRV-0015",
+            "stat": "HEADING",
+            "pred": [
+              44.6,
+              55.19
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 16.88583623043195,
+            "id": "PRV-0014",
+            "stat": "FITNESS",
+            "pred": [
+              44.89,
+              57.06
+            ],
+            "obs": [
+              21.0,
+              28.0
+            ]
+          },
+          {
+            "gap": 16.480665037916935,
+            "id": "PRV-0007",
+            "stat": "CROSSING",
+            "pred": [
+              75.48,
+              89.28
+            ],
+            "obs": [
+              56.0,
+              59.0
+            ]
+          },
+          {
+            "gap": 16.0774868320172,
+            "id": "PRV-0007",
+            "stat": "DRIBBLING",
+            "pred": [
+              65.08,
+              77.86
+            ],
+            "obs": [
+              45.0,
+              49.0
+            ]
+          },
+          {
+            "gap": 15.612816283311247,
+            "id": "PRV-0007",
+            "stat": "SPEED",
+            "pred": [
+              62.61,
+              75.13
+            ],
+            "obs": [
+              42.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 15.198131440789098,
+            "id": "PRV-0007",
+            "stat": "POSITIONING",
+            "pred": [
+              31.2,
+              39.15
+            ],
+            "obs": [
+              16.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 14.501002958459168,
+            "id": "PRV-0014",
+            "stat": "CREATIVITY",
+            "pred": [
+              45.5,
+              58.6
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 11.109155363703735,
+            "id": "PRV-0007",
+            "stat": "PASSING",
+            "pred": [
+              50.11,
+              61.1
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 11.109155363703735,
+            "id": "PRV-0007",
+            "stat": "FITNESS",
+            "pred": [
+              50.11,
+              61.1
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 11.021671100815752,
+            "id": "PRV-0007",
+            "stat": "CREATIVITY",
+            "pred": [
+              62.02,
+              74.48
+            ],
+            "obs": [
+              50.0,
+              51.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.45454545454545453,
+        "mean_separation": 6.352299485462998,
+        "endpoint_rounding_mae": 11.595876756241758,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.45454545454545453,
+            "mean_separation": 6.352299485462998
+          }
+        },
+        "worst": [
+          {
+            "gap": 22.346562415965195,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              51.35,
+              62.51
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          },
+          {
+            "gap": 19.244941978111314,
+            "id": "PRV-0017",
+            "stat": "DRIBBLING",
+            "pred": [
+              43.24,
+              53.25
+            ],
+            "obs": [
+              22.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 18.365801855594725,
+            "id": "PRV-0017",
+            "stat": "SPEED",
+            "pred": [
+              41.37,
+              51.08
+            ],
+            "obs": [
+              21.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 15.917560387397032,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              40.92,
+              50.56
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 13.095938693461278,
+            "id": "PRV-0017",
+            "stat": "PASSING",
+            "pred": [
+              32.1,
+              40.22
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 13.095938693461278,
+            "id": "PRV-0017",
+            "stat": "FITNESS",
+            "pred": [
+              32.1,
+              40.22
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 10.97962567047557,
+            "id": "PRV-0017",
+            "stat": "POSITIONING",
+            "pred": [
+              18.98,
+              24.36
+            ],
+            "obs": [
+              8.0,
+              8.0
+            ]
+          },
+          {
+            "gap": 10.181233613222844,
+            "id": "PRV-0020",
+            "stat": "FITNESS",
+            "pred": [
+              33.18,
+              41.5
+            ],
+            "obs": [
+              17.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 8.081747498430644,
+            "id": "PRV-0020",
+            "stat": "CREATIVITY",
+            "pred": [
+              25.08,
+              31.82
+            ],
+            "obs": [
+              13.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 4.973503417160373,
+            "id": "PRV-0018",
+            "stat": "CREATIVITY",
+            "pred": [
+              35.97,
+              44.8
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 2.063103543270671,
+            "id": "PRV-0020",
+            "stat": "SPEED",
+            "pred": [
+              44.06,
+              55.55
+            ],
+            "obs": [
+              33.0,
+              42.0
+            ]
+          },
+          {
+            "gap": 1.4046309136350317,
+            "id": "PRV-0019",
+            "stat": "SPEED",
+            "pred": [
+              53.83,
+              70.6
+            ],
+            "obs": [
+              72.0,
+              90.0
+            ]
+          }
+        ]
+      }
+    },
+    "plateau_0354": {
+      "parameters": [
+        2.44685,
+        -1.08769,
+        1.02206,
+        1.01091,
+        -0.14482,
+        0.16767,
+        -0.07938,
+        -0.14739,
+        -0.58078
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.9166666666666666,
+        "mean_separation": 0.3629954182416236,
+        "endpoint_rounding_mae": 4.139135963020516,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.8472222222222222,
+            "mean_separation": 0.6654916001096434
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 1.0,
+            "mean_separation": 0.0
+          }
+        },
+        "worst": [
+          {
+            "gap": 9.220873109792599,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              30.22,
+              47.13
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 8.661317181396697,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              34.66,
+              51.73
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          },
+          {
+            "gap": 7.930323137866935,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              34.93,
+              51.68
+            ],
+            "obs": [
+              18.0,
+              27.0
+            ]
+          },
+          {
+            "gap": 6.816424949599707,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              30.82,
+              45.73
+            ],
+            "obs": [
+              16.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 5.8164249495997,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              5.82,
+              23.06
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 3.157902490951571,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              20.16,
+              33.11
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 3.1359405759922083,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              9.14,
+              14.25
+            ],
+            "obs": [
+              4.0,
+              6.0
+            ]
+          },
+          {
+            "gap": 2.157902490951585,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "POSITIONING",
+            "pred": [
+              23.16,
+              35.34
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 0.7108714045542115,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              17.71,
+              24.25
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 0.17279594337236404,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "FINISHING",
+            "pred": [
+              0.17,
+              0.27
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 0.13461897381674248,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "HEADING",
+            "pred": [
+              20.13,
+              27.51
+            ],
+            "obs": [
+              14.0,
+              20.0
+            ]
+          },
+          {
+            "gap": 0.0,
+            "id": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              110.66,
+              125.87
+            ],
+            "obs": [
+              102.0,
+              121.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.9015151515151515,
+        "mean_separation": 0.5987094343162008,
+        "endpoint_rounding_mae": 7.236051107350246,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.8194444444444444,
+            "mean_separation": 1.097633962913035
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 1.0,
+            "mean_separation": 0.0
+          }
+        },
+        "worst": [
+          {
+            "gap": 12.429376746570426,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              38.43,
+              56.24
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          },
+          {
+            "gap": 11.58357534539195,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              32.58,
+              51.9
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 10.476452700655386,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              37.48,
+              54.94
+            ],
+            "obs": [
+              18.0,
+              27.0
+            ]
+          },
+          {
+            "gap": 9.034525202734073,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              33.03,
+              48.69
+            ],
+            "obs": [
+              16.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 8.034525202734088,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              8.03,
+              27.62
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 6.2376386912762705,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              23.24,
+              38.79
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 5.23763869127626,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "POSITIONING",
+            "pred": [
+              26.24,
+              39.55
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 4.814785695149055,
+            "id": "DOC-PLY-0009-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              28.79,
+              38.19
+            ],
+            "obs": [
+              43.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 4.299250707215606,
+            "id": "DOC-PLY-0017-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              24.35,
+              31.7
+            ],
+            "obs": [
+              36.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 3.7128903332531706,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              9.71,
+              15.47
+            ],
+            "obs": [
+              4.0,
+              6.0
+            ]
+          },
+          {
+            "gap": 2.0709774138607884,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "HEADING",
+            "pred": [
+              22.07,
+              30.22
+            ],
+            "obs": [
+              14.0,
+              20.0
+            ]
+          },
+          {
+            "gap": 0.9143357083035539,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              17.91,
+              24.03
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.8939393939393939,
+        "mean_separation": 0.5200312195855216,
+        "endpoint_rounding_mae": 5.7358119302233765,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.8055555555555556,
+            "mean_separation": 0.9533905692401229
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 1.0,
+            "mean_separation": 0.0
+          }
+        },
+        "worst": [
+          {
+            "gap": 10.293153078009027,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              36.29,
+              53.57
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          },
+          {
+            "gap": 9.736682950055332,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              30.74,
+              48.0
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 8.37622825748835,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              35.38,
+              52.19
+            ],
+            "obs": [
+              18.0,
+              27.0
+            ]
+          },
+          {
+            "gap": 7.336642338859178,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              31.34,
+              46.34
+            ],
+            "obs": [
+              16.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 6.336642338859171,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              6.34,
+              23.95
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 4.648136291754156,
+            "id": "DOC-PLY-0008-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              15.7,
+              21.35
+            ],
+            "obs": [
+              26.0,
+              35.0
+            ]
+          },
+          {
+            "gap": 4.485694350375724,
+            "id": "DOC-PLY-0009-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              28.83,
+              38.51
+            ],
+            "obs": [
+              43.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 4.321441040367205,
+            "id": "DOC-PLY-0017-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              24.28,
+              31.68
+            ],
+            "obs": [
+              36.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 4.278054937362139,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              21.28,
+              34.95
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 3.292804754755352,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              9.29,
+              14.5
+            ],
+            "obs": [
+              4.0,
+              6.0
+            ]
+          },
+          {
+            "gap": 3.2780549373621284,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "POSITIONING",
+            "pred": [
+              24.28,
+              36.77
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 1.2304744643579966,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              18.23,
+              24.89
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.41304347826086957,
+        "mean_separation": 7.3449214766278486,
+        "endpoint_rounding_mae": 13.680330418882791,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.2222222222222222,
+            "mean_separation": 1.050662627548335
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.4594594594594595,
+            "mean_separation": 8.875957412890433
+          }
+        },
+        "worst": [
+          {
+            "gap": 34.4989671738725,
+            "id": "PRV-0015",
+            "stat": "BRAVERY",
+            "pred": [
+              56.5,
+              68.56
+            ],
+            "obs": [
+              15.0,
+              22.0
+            ]
+          },
+          {
+            "gap": 32.73738043162072,
+            "id": "PRV-0015",
+            "stat": "POSITIONING",
+            "pred": [
+              53.74,
+              65.38
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 31.93636413206417,
+            "id": "PRV-0014",
+            "stat": "CREATIVITY",
+            "pred": [
+              62.94,
+              77.52
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 31.569671448209476,
+            "id": "PRV-0014",
+            "stat": "FITNESS",
+            "pred": [
+              59.57,
+              73.12
+            ],
+            "obs": [
+              21.0,
+              28.0
+            ]
+          },
+          {
+            "gap": 30.631814370250254,
+            "id": "PRV-0015",
+            "stat": "HEADING",
+            "pred": [
+              51.63,
+              62.97
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 28.005980945047327,
+            "id": "PRV-0015",
+            "stat": "MARKING",
+            "pred": [
+              83.01,
+              105.04
+            ],
+            "obs": [
+              47.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 26.049636200831912,
+            "id": "PRV-0015",
+            "stat": "TACKLING",
+            "pred": [
+              84.05,
+              107.72
+            ],
+            "obs": [
+              49.0,
+              58.0
+            ]
+          },
+          {
+            "gap": 23.383675962729797,
+            "id": "PRV-0014",
+            "stat": "STRENGTH",
+            "pred": [
+              73.38,
+              95.29
+            ],
+            "obs": [
+              42.0,
+              50.0
+            ]
+          },
+          {
+            "gap": 21.882988116735277,
+            "id": "PRV-0014",
+            "stat": "AGGRESSION",
+            "pred": [
+              73.88,
+              97.17
+            ],
+            "obs": [
+              45.0,
+              52.0
+            ]
+          },
+          {
+            "gap": 9.546100316887447,
+            "id": "PRV-0010",
+            "stat": "PASSING",
+            "pred": [
+              42.55,
+              53.17
+            ],
+            "obs": [
+              26.0,
+              33.0
+            ]
+          },
+          {
+            "gap": 8.64992856463536,
+            "id": "PRV-0010",
+            "stat": "FINISHING",
+            "pred": [
+              38.65,
+              48.63
+            ],
+            "obs": [
+              22.0,
+              30.0
+            ]
+          },
+          {
+            "gap": 8.290830241292952,
+            "id": "PRV-0010",
+            "stat": "DRIBBLING",
+            "pred": [
+              35.29,
+              44.8
+            ],
+            "obs": [
+              20.0,
+              27.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.2727272727272727,
+        "mean_separation": 4.086117591983731,
+        "endpoint_rounding_mae": 11.183858211155247,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.2727272727272727,
+            "mean_separation": 4.086117591983731
+          }
+        },
+        "worst": [
+          {
+            "gap": 14.590855076098478,
+            "id": "PRV-0020",
+            "stat": "SPEED",
+            "pred": [
+              56.59,
+              69.39
+            ],
+            "obs": [
+              33.0,
+              42.0
+            ]
+          },
+          {
+            "gap": 10.543903997110505,
+            "id": "PRV-0020",
+            "stat": "FITNESS",
+            "pred": [
+              33.54,
+              42.82
+            ],
+            "obs": [
+              17.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 10.03210848816886,
+            "id": "PRV-0018",
+            "stat": "STRENGTH",
+            "pred": [
+              66.03,
+              81.82
+            ],
+            "obs": [
+              46.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 8.258998920252822,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              37.26,
+              46.97
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          },
+          {
+            "gap": 8.073741671703942,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              33.07,
+              42.29
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 7.542949445446396,
+            "id": "PRV-0018",
+            "stat": "CREATIVITY",
+            "pred": [
+              38.54,
+              48.4
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 7.477029383210379,
+            "id": "PRV-0018",
+            "stat": "SPEED",
+            "pred": [
+              53.48,
+              65.6
+            ],
+            "obs": [
+              38.0,
+              46.0
+            ]
+          },
+          {
+            "gap": 6.5176521462633445,
+            "id": "PRV-0019",
+            "stat": "CREATIVITY",
+            "pred": [
+              66.52,
+              82.53
+            ],
+            "obs": [
+              50.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 5.255161494098132,
+            "id": "PRV-0019",
+            "stat": "FITNESS",
+            "pred": [
+              48.26,
+              59.44
+            ],
+            "obs": [
+              34.0,
+              43.0
+            ]
+          },
+          {
+            "gap": 2.7137286316146856,
+            "id": "PRV-0020",
+            "stat": "CREATIVITY",
+            "pred": [
+              19.71,
+              26.71
+            ],
+            "obs": [
+              13.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 2.5138055882381423,
+            "id": "PRV-0017",
+            "stat": "DRIBBLING",
+            "pred": [
+              26.51,
+              34.79
+            ],
+            "obs": [
+              22.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 1.9363641320641705,
+            "id": "PRV-0019",
+            "stat": "STRENGTH",
+            "pred": [
+              62.94,
+              77.52
+            ],
+            "obs": [
+              50.0,
+              61.0
+            ]
+          }
+        ]
+      }
+    },
+    "plateau_0354_raw": {
+      "parameters": [
+        2.44351,
+        -0.94694,
+        1.00804,
+        1.10765,
+        -0.18201,
+        0.30653,
+        0.08106,
+        -0.04404,
+        -0.54269
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.5757575757575758,
+        "mean_separation": 5.5676977808226065,
+        "endpoint_rounding_mae": 11.332327875028671,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.6111111111111112,
+            "mean_separation": 5.683241703536575
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.5333333333333333,
+            "mean_separation": 5.4290450735658435
+          }
+        },
+        "worst": [
+          {
+            "gap": 33.42798546118223,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              29.53,
+              38.57
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 29.217601730847292,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              3.12,
+              4.78
+            ],
+            "obs": [
+              34.0,
+              44.0
+            ]
+          },
+          {
+            "gap": 25.920794232862363,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              35.28,
+              45.08
+            ],
+            "obs": [
+              71.0,
+              81.0
+            ]
+          },
+          {
+            "gap": 25.9176900818305,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              68.92,
+              81.08
+            ],
+            "obs": [
+              107.0,
+              118.0
+            ]
+          },
+          {
+            "gap": 23.914041322858793,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              12.69,
+              18.09
+            ],
+            "obs": [
+              42.0,
+              52.0
+            ]
+          },
+          {
+            "gap": 23.79209099766777,
+            "id": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              17.49,
+              24.21
+            ],
+            "obs": [
+              48.0,
+              59.0
+            ]
+          },
+          {
+            "gap": 22.62223628558587,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "FITNESS",
+            "pred": [
+              22.54,
+              30.38
+            ],
+            "obs": [
+              53.0,
+              64.0
+            ]
+          },
+          {
+            "gap": 22.57081484353634,
+            "id": "DOC-PLY-0008-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              16.08,
+              22.43
+            ],
+            "obs": [
+              45.0,
+              57.0
+            ]
+          },
+          {
+            "gap": 22.07880838255764,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              22.08,
+              29.82
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 21.970042750865304,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "FITNESS",
+            "pred": [
+              21.42,
+              29.03
+            ],
+            "obs": [
+              51.0,
+              61.0
+            ]
+          },
+          {
+            "gap": 21.815152770331906,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              19.91,
+              27.18
+            ],
+            "obs": [
+              49.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 21.228574184955903,
+            "id": "DOC-PLY-0008-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              11.69,
+              16.77
+            ],
+            "obs": [
+              38.0,
+              49.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.5075757575757576,
+        "mean_separation": 7.064030365285332,
+        "endpoint_rounding_mae": 15.432046031948333,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.5833333333333334,
+            "mean_separation": 5.80913718486564
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.4166666666666667,
+            "mean_separation": 8.569902181788963
+          }
+        },
+        "worst": [
+          {
+            "gap": 33.52072659767606,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              29.45,
+              38.48
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 32.222748488200295,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              62.62,
+              74.78
+            ],
+            "obs": [
+              107.0,
+              118.0
+            ]
+          },
+          {
+            "gap": 31.103169881380836,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              30.55,
+              39.9
+            ],
+            "obs": [
+              71.0,
+              81.0
+            ]
+          },
+          {
+            "gap": 29.23696670970105,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              3.1,
+              4.76
+            ],
+            "obs": [
+              34.0,
+              44.0
+            ]
+          },
+          {
+            "gap": 28.63769981065994,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              165.64,
+              179.49
+            ],
+            "obs": [
+              121.0,
+              137.0
+            ]
+          },
+          {
+            "gap": 28.490377158254773,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              170.49,
+              184.4
+            ],
+            "obs": [
+              125.0,
+              142.0
+            ]
+          },
+          {
+            "gap": 28.119531778533684,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "FITNESS",
+            "pred": [
+              17.93,
+              24.88
+            ],
+            "obs": [
+              53.0,
+              64.0
+            ]
+          },
+          {
+            "gap": 27.493919460823093,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "FITNESS",
+            "pred": [
+              16.84,
+              23.51
+            ],
+            "obs": [
+              51.0,
+              61.0
+            ]
+          },
+          {
+            "gap": 26.938870053523118,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              15.69,
+              22.06
+            ],
+            "obs": [
+              49.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 26.20882164849712,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              14.7,
+              20.79
+            ],
+            "obs": [
+              47.0,
+              58.0
+            ]
+          },
+          {
+            "gap": 25.169557875318077,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              11.66,
+              16.83
+            ],
+            "obs": [
+              42.0,
+              52.0
+            ]
+          },
+          {
+            "gap": 24.310056836422234,
+            "id": "DOC-PLY-0008-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              14.62,
+              20.69
+            ],
+            "obs": [
+              45.0,
+              57.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.5454545454545454,
+        "mean_separation": 6.355585706834222,
+        "endpoint_rounding_mae": 14.01642648808863,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.5833333333333334,
+            "mean_separation": 5.662500889062361
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.5,
+            "mean_separation": 7.187287488160456
+          }
+        },
+        "worst": [
+          {
+            "gap": 33.52072659767606,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              29.45,
+              38.48
+            ],
+            "obs": [
+              72.0,
+              95.0
+            ]
+          },
+          {
+            "gap": 31.05973384544788,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              63.38,
+              75.94
+            ],
+            "obs": [
+              107.0,
+              118.0
+            ]
+          },
+          {
+            "gap": 30.162957555045466,
+            "id": "MCCLUSKEY-X65-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              31.11,
+              40.84
+            ],
+            "obs": [
+              71.0,
+              81.0
+            ]
+          },
+          {
+            "gap": 29.23696670970105,
+            "id": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              3.1,
+              4.76
+            ],
+            "obs": [
+              34.0,
+              44.0
+            ]
+          },
+          {
+            "gap": 26.914361096431662,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "FITNESS",
+            "pred": [
+              18.64,
+              26.09
+            ],
+            "obs": [
+              53.0,
+              64.0
+            ]
+          },
+          {
+            "gap": 26.24083438243997,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "FITNESS",
+            "pred": [
+              17.58,
+              24.76
+            ],
+            "obs": [
+              51.0,
+              61.0
+            ]
+          },
+          {
+            "gap": 25.821486044961034,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              16.33,
+              23.18
+            ],
+            "obs": [
+              49.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 25.051143024054085,
+            "id": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "MARKING",
+            "pred": [
+              15.37,
+              21.95
+            ],
+            "obs": [
+              47.0,
+              58.0
+            ]
+          },
+          {
+            "gap": 24.016905005567253,
+            "id": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              12.61,
+              17.98
+            ],
+            "obs": [
+              42.0,
+              52.0
+            ]
+          },
+          {
+            "gap": 23.855492702794947,
+            "id": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              17.44,
+              24.14
+            ],
+            "obs": [
+              48.0,
+              59.0
+            ]
+          },
+          {
+            "gap": 22.617989553852397,
+            "id": "DOC-PLY-0008-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              16.03,
+              22.38
+            ],
+            "obs": [
+              45.0,
+              57.0
+            ]
+          },
+          {
+            "gap": 22.187934970819384,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              22.19,
+              29.97
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.2391304347826087,
+        "mean_separation": 5.778621823371743,
+        "endpoint_rounding_mae": 11.167433384260852,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.0,
+            "mean_separation": 1.5847027568062468
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.2972972972972973,
+            "mean_separation": 6.798764299022808
+          }
+        },
+        "worst": [
+          {
+            "gap": 28.78276954463206,
+            "id": "PRV-0007",
+            "stat": "CREATIVITY",
+            "pred": [
+              15.12,
+              21.22
+            ],
+            "obs": [
+              50.0,
+              51.0
+            ]
+          },
+          {
+            "gap": 26.945734321242753,
+            "id": "PRV-0007",
+            "stat": "PASSING",
+            "pred": [
+              8.2,
+              12.05
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 26.945734321242753,
+            "id": "PRV-0007",
+            "stat": "FITNESS",
+            "pred": [
+              8.2,
+              12.05
+            ],
+            "obs": [
+              39.0,
+              39.0
+            ]
+          },
+          {
+            "gap": 12.790215953244342,
+            "id": "PRV-0007",
+            "stat": "POSITIONING",
+            "pred": [
+              2.07,
+              3.21
+            ],
+            "obs": [
+              16.0,
+              16.0
+            ]
+          },
+          {
+            "gap": 10.778807599369628,
+            "id": "PRV-0014",
+            "stat": "CREATIVITY",
+            "pred": [
+              41.78,
+              52.5
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 10.729782571961948,
+            "id": "PRV-0015",
+            "stat": "BRAVERY",
+            "pred": [
+              32.73,
+              42.21
+            ],
+            "obs": [
+              15.0,
+              22.0
+            ]
+          },
+          {
+            "gap": 10.022350818404561,
+            "id": "PRV-0015",
+            "stat": "MARKING",
+            "pred": [
+              65.02,
+              80.35
+            ],
+            "obs": [
+              47.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 9.728142142917704,
+            "id": "PRV-0014",
+            "stat": "FITNESS",
+            "pred": [
+              37.73,
+              47.85
+            ],
+            "obs": [
+              21.0,
+              28.0
+            ]
+          },
+          {
+            "gap": 9.125706997816849,
+            "id": "PRV-0015",
+            "stat": "TACKLING",
+            "pred": [
+              67.13,
+              83.26
+            ],
+            "obs": [
+              49.0,
+              58.0
+            ]
+          },
+          {
+            "gap": 9.04747435163199,
+            "id": "PRV-0015",
+            "stat": "POSITIONING",
+            "pred": [
+              30.05,
+              39.16
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 7.313693228160076,
+            "id": "PRV-0014",
+            "stat": "STRENGTH",
+            "pred": [
+              57.31,
+              71.78
+            ],
+            "obs": [
+              42.0,
+              50.0
+            ]
+          },
+          {
+            "gap": 7.201650549673161,
+            "id": "PRV-0021",
+            "stat": "BRAVERY",
+            "pred": [
+              3.13,
+              4.8
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.36363636363636365,
+        "mean_separation": 4.205926971764016,
+        "endpoint_rounding_mae": 10.423864459808284,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.36363636363636365,
+            "mean_separation": 4.205926971764016
+          }
+        },
+        "worst": [
+          {
+            "gap": 12.500918140425767,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              8.52,
+              12.5
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 12.367735721561957,
+            "id": "PRV-0017",
+            "stat": "PASSING",
+            "pred": [
+              4.37,
+              6.63
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 12.367735721561957,
+            "id": "PRV-0017",
+            "stat": "FITNESS",
+            "pred": [
+              4.37,
+              6.63
+            ],
+            "obs": [
+              19.0,
+              19.0
+            ]
+          },
+          {
+            "gap": 11.533354596760034,
+            "id": "PRV-0020",
+            "stat": "SPEED",
+            "pred": [
+              53.53,
+              66.75
+            ],
+            "obs": [
+              33.0,
+              42.0
+            ]
+          },
+          {
+            "gap": 8.505656867469497,
+            "id": "PRV-0020",
+            "stat": "FITNESS",
+            "pred": [
+              31.51,
+              40.82
+            ],
+            "obs": [
+              17.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 6.358456354132954,
+            "id": "PRV-0017",
+            "stat": "POSITIONING",
+            "pred": [
+              1.05,
+              1.64
+            ],
+            "obs": [
+              8.0,
+              8.0
+            ]
+          },
+          {
+            "gap": 5.99518953065035,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              35.0,
+              44.77
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          },
+          {
+            "gap": 5.966138718921599,
+            "id": "PRV-0018",
+            "stat": "STRENGTH",
+            "pred": [
+              61.97,
+              78.7
+            ],
+            "obs": [
+              46.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 5.34913189134997,
+            "id": "PRV-0018",
+            "stat": "CREATIVITY",
+            "pred": [
+              36.35,
+              46.29
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 4.627330990244445,
+            "id": "PRV-0018",
+            "stat": "SPEED",
+            "pred": [
+              50.63,
+              63.08
+            ],
+            "obs": [
+              38.0,
+              46.0
+            ]
+          },
+          {
+            "gap": 2.684919699992321,
+            "id": "PRV-0019",
+            "stat": "FITNESS",
+            "pred": [
+              45.68,
+              57.09
+            ],
+            "obs": [
+              34.0,
+              43.0
+            ]
+          },
+          {
+            "gap": 2.3711954934582877,
+            "id": "PRV-0019",
+            "stat": "CREATIVITY",
+            "pred": [
+              62.37,
+              79.37
+            ],
+            "obs": [
+              50.0,
+              60.0
+            ]
+          }
+        ]
+      }
+    },
+    "plateau_0354_common_threshold": {
+      "parameters": [
+        2.44671,
+        -1.14746,
+        1.02678,
+        0.89515,
+        -0.35429,
+        0.09612,
+        -0.21144,
+        -0.2215,
+        -0.80407
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.9090909090909091,
+        "mean_separation": 0.3853123056201683,
+        "endpoint_rounding_mae": 4.5870352142665825,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.8333333333333334,
+            "mean_separation": 0.7064058936369753
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 1.0,
+            "mean_separation": 0.0
+          }
+        },
+        "worst": [
+          {
+            "gap": 8.344485861110854,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              35.34,
+              49.41
+            ],
+            "obs": [
+              18.0,
+              27.0
+            ]
+          },
+          {
+            "gap": 7.163784863720849,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              31.16,
+              43.64
+            ],
+            "obs": [
+              16.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 6.262371959578729,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              32.26,
+              46.19
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          },
+          {
+            "gap": 6.163784863720846,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              6.16,
+              20.11
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 5.600813685527541,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "stat": "BRAVERY",
+            "pred": [
+              36.89,
+              53.4
+            ],
+            "obs": [
+              59.0,
+              85.0
+            ]
+          },
+          {
+            "gap": 3.8002930070615193,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              24.8,
+              35.9
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 3.6117099497692493,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "FINISHING",
+            "pred": [
+              27.61,
+              35.1
+            ],
+            "obs": [
+              19.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 3.1872307925336543,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              9.19,
+              13.3
+            ],
+            "obs": [
+              4.0,
+              6.0
+            ]
+          },
+          {
+            "gap": 2.8196655160775386,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              19.82,
+              30.03
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 1.9136552646413918,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              18.91,
+              24.49
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 1.8196655160775492,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "POSITIONING",
+            "pred": [
+              22.82,
+              32.77
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 0.17376306204249659,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "FINISHING",
+            "pred": [
+              0.17,
+              0.25
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.8257575757575758,
+        "mean_separation": 0.8096324754454512,
+        "endpoint_rounding_mae": 8.35995929684973,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.6805555555555556,
+            "mean_separation": 1.4843262049833272
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 1.0,
+            "mean_separation": 0.0
+          }
+        },
+        "worst": [
+          {
+            "gap": 12.187466099810365,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              39.19,
+              54.69
+            ],
+            "obs": [
+              18.0,
+              27.0
+            ]
+          },
+          {
+            "gap": 11.617235461835435,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              37.62,
+              53.61
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          },
+          {
+            "gap": 10.534274523933789,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              34.53,
+              48.45
+            ],
+            "obs": [
+              16.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 9.534274523933803,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              9.53,
+              27.23
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 6.391209069437842,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              23.39,
+              36.92
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 6.152379807222289,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "stat": "BRAVERY",
+            "pred": [
+              36.47,
+              52.85
+            ],
+            "obs": [
+              59.0,
+              85.0
+            ]
+          },
+          {
+            "gap": 5.804165717355893,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              26.8,
+              40.54
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 5.391209069437849,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "POSITIONING",
+            "pred": [
+              26.39,
+              38.23
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 4.522118752094002,
+            "id": "DOC-PLY-0009-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              26.55,
+              38.48
+            ],
+            "obs": [
+              43.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 4.458435354799974,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "FINISHING",
+            "pred": [
+              28.46,
+              35.91
+            ],
+            "obs": [
+              19.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 4.129733176038997,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              10.13,
+              15.32
+            ],
+            "obs": [
+              4.0,
+              6.0
+            ]
+          },
+          {
+            "gap": 4.0549983473449345,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "TACKLING",
+            "pred": [
+              59.05,
+              86.98
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.8712121212121212,
+        "mean_separation": 0.5188829551241773,
+        "endpoint_rounding_mae": 6.795566079499049,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.7638888888888888,
+            "mean_separation": 0.9512854177276583
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 1.0,
+            "mean_separation": 0.0
+          }
+        },
+        "worst": [
+          {
+            "gap": 8.961074159106317,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              34.96,
+              50.29
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          },
+          {
+            "gap": 8.958483298888751,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "PASSING",
+            "pred": [
+              35.96,
+              50.15
+            ],
+            "obs": [
+              18.0,
+              27.0
+            ]
+          },
+          {
+            "gap": 8.44101099540552,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "FITNESS",
+            "pred": [
+              32.44,
+              45.19
+            ],
+            "obs": [
+              16.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 7.441010995405534,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              7.44,
+              22.27
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 4.916265476518987,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "FINISHING",
+            "pred": [
+              28.92,
+              36.7
+            ],
+            "obs": [
+              19.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 4.751148800277107,
+            "id": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "stat": "BRAVERY",
+            "pred": [
+              37.08,
+              54.25
+            ],
+            "obs": [
+              59.0,
+              85.0
+            ]
+          },
+          {
+            "gap": 4.628549724259198,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              21.63,
+              32.99
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 4.29263296623833,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              25.29,
+              36.72
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 3.796346130981334,
+            "id": "DOC-PLY-0004-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              9.8,
+              14.22
+            ],
+            "obs": [
+              4.0,
+              6.0
+            ]
+          },
+          {
+            "gap": 3.6285497242591873,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "POSITIONING",
+            "pred": [
+              24.63,
+              35.25
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 2.9775139636188896,
+            "id": "DOC-PLY-0017-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              26.42,
+              33.02
+            ],
+            "obs": [
+              36.0,
+              47.0
+            ]
+          },
+          {
+            "gap": 2.9579680168502023,
+            "id": "DOC-PLY-0017-Focused Attacking-7",
+            "stat": "PASSING",
+            "pred": [
+              19.96,
+              25.85
+            ],
+            "obs": [
+              12.0,
+              17.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.34782608695652173,
+        "mean_separation": 9.2012310426798,
+        "endpoint_rounding_mae": 15.0863741007811,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.3333333333333333,
+            "mean_separation": 1.0759745652404535
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.35135135135135137,
+            "mean_separation": 11.177644780435315
+          }
+        },
+        "worst": [
+          {
+            "gap": 37.99223729703178,
+            "id": "PRV-0015",
+            "stat": "BRAVERY",
+            "pred": [
+              59.99,
+              70.07
+            ],
+            "obs": [
+              15.0,
+              22.0
+            ]
+          },
+          {
+            "gap": 36.275844582230405,
+            "id": "PRV-0014",
+            "stat": "CREATIVITY",
+            "pred": [
+              67.28,
+              79.24
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 36.08935592318247,
+            "id": "PRV-0015",
+            "stat": "POSITIONING",
+            "pred": [
+              57.09,
+              66.84
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 35.54882748276057,
+            "id": "PRV-0014",
+            "stat": "FITNESS",
+            "pred": [
+              63.55,
+              74.75
+            ],
+            "obs": [
+              21.0,
+              28.0
+            ]
+          },
+          {
+            "gap": 35.23993685901078,
+            "id": "PRV-0015",
+            "stat": "MARKING",
+            "pred": [
+              90.24,
+              107.35
+            ],
+            "obs": [
+              47.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 33.97906352627021,
+            "id": "PRV-0015",
+            "stat": "TACKLING",
+            "pred": [
+              91.98,
+              110.14
+            ],
+            "obs": [
+              49.0,
+              58.0
+            ]
+          },
+          {
+            "gap": 33.88510707154873,
+            "id": "PRV-0015",
+            "stat": "HEADING",
+            "pred": [
+              54.89,
+              64.41
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 30.532263453510808,
+            "id": "PRV-0014",
+            "stat": "STRENGTH",
+            "pred": [
+              80.53,
+              97.57
+            ],
+            "obs": [
+              42.0,
+              50.0
+            ]
+          },
+          {
+            "gap": 29.610203044434797,
+            "id": "PRV-0014",
+            "stat": "AGGRESSION",
+            "pred": [
+              81.61,
+              99.53
+            ],
+            "obs": [
+              45.0,
+              52.0
+            ]
+          },
+          {
+            "gap": 12.534160727456651,
+            "id": "PRV-0010",
+            "stat": "PASSING",
+            "pred": [
+              45.53,
+              54.5
+            ],
+            "obs": [
+              26.0,
+              33.0
+            ]
+          },
+          {
+            "gap": 11.68051265935128,
+            "id": "PRV-0011",
+            "stat": "DRIBBLING",
+            "pred": [
+              52.68,
+              62.75
+            ],
+            "obs": [
+              34.0,
+              41.0
+            ]
+          },
+          {
+            "gap": 11.497561395043192,
+            "id": "PRV-0011",
+            "stat": "FINISHING",
+            "pred": [
+              49.5,
+              59.03
+            ],
+            "obs": [
+              30.0,
+              38.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.22727272727272727,
+        "mean_separation": 7.098561007473282,
+        "endpoint_rounding_mae": 14.026495059563842,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.22727272727272727,
+            "mean_separation": 7.098561007473282
+          }
+        },
+        "worst": [
+          {
+            "gap": 18.31255421996096,
+            "id": "PRV-0020",
+            "stat": "SPEED",
+            "pred": [
+              60.31,
+              70.94
+            ],
+            "obs": [
+              33.0,
+              42.0
+            ]
+          },
+          {
+            "gap": 16.081016831630762,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              45.08,
+              54.21
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          },
+          {
+            "gap": 14.80383844101155,
+            "id": "PRV-0018",
+            "stat": "STRENGTH",
+            "pred": [
+              70.8,
+              83.64
+            ],
+            "obs": [
+              46.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 13.122022482288628,
+            "id": "PRV-0020",
+            "stat": "FITNESS",
+            "pred": [
+              36.12,
+              44.03
+            ],
+            "obs": [
+              17.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 11.369957896028183,
+            "id": "PRV-0019",
+            "stat": "CREATIVITY",
+            "pred": [
+              71.37,
+              84.37
+            ],
+            "obs": [
+              50.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 10.972602603667752,
+            "id": "PRV-0018",
+            "stat": "SPEED",
+            "pred": [
+              56.97,
+              67.09
+            ],
+            "obs": [
+              38.0,
+              46.0
+            ]
+          },
+          {
+            "gap": 10.456587485653898,
+            "id": "PRV-0017",
+            "stat": "DRIBBLING",
+            "pred": [
+              34.46,
+              42.2
+            ],
+            "obs": [
+              22.0,
+              24.0
+            ]
+          },
+          {
+            "gap": 10.30135376353067,
+            "id": "PRV-0018",
+            "stat": "CREATIVITY",
+            "pred": [
+              41.3,
+              49.66
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 10.17613139875138,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              35.18,
+              42.99
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 8.702955075269017,
+            "id": "PRV-0017",
+            "stat": "SPEED",
+            "pred": [
+              31.7,
+              39.15
+            ],
+            "obs": [
+              21.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 8.44107927230209,
+            "id": "PRV-0019",
+            "stat": "FITNESS",
+            "pred": [
+              51.44,
+              60.84
+            ],
+            "obs": [
+              34.0,
+              43.0
+            ]
+          },
+          {
+            "gap": 6.275844582230405,
+            "id": "PRV-0019",
+            "stat": "STRENGTH",
+            "pred": [
+              67.28,
+              79.24
+            ],
+            "obs": [
+              50.0,
+              61.0
+            ]
+          }
+        ]
+      }
+    },
+    "exp_0354": {
+      "parameters": [
+        6.6318,
+        -1.01588,
+        1.21684,
+        1.38141,
+        -0.72361,
+        -0.01301,
+        0.07264,
+        0.07817,
+        -0.33366
+      ],
+      "design": {
+        "rank": 8,
+        "columns": 8,
+        "condition": 76.32380543789509,
+        "singular_values": [
+          51.68176,
+          8.010209,
+          5.519214,
+          3.975777,
+          3.334489,
+          2.731611,
+          1.370395,
+          0.677138
+        ],
+        "success": true
+      },
+      "in_sample": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.7651515151515151,
+        "mean_separation": 8.470309975988439,
+        "endpoint_rounding_mae": 14.498051091381408,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.7361111111111112,
+            "mean_separation": 10.96655723044244
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.8,
+            "mean_separation": 5.474813270643635
+          }
+        },
+        "worst": [
+          {
+            "gap": 133.54315902779572,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              133.54,
+              148.79
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 112.29437429981411,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              129.29,
+              144.44
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 85.93628087622956,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              106.94,
+              121.93
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 78.10673032972136,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "STRENGTH",
+            "pred": [
+              134.11,
+              149.26
+            ],
+            "obs": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 76.22242645810172,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "STRENGTH",
+            "pred": [
+              136.22,
+              151.39
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 75.87454987777079,
+            "id": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              130.87,
+              146.02
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 72.17555250455305,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "TACKLING",
+            "pred": [
+              127.18,
+              142.3
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 71.17555250455305,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "AGGRESSION",
+            "pred": [
+              127.18,
+              142.3
+            ],
+            "obs": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 69.28628805513083,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              129.29,
+              144.42
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 69.28628805513083,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              129.29,
+              144.42
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 27.429986622585318,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "FITNESS",
+            "pred": [
+              82.43,
+              97.04
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 27.306845418681007,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              139.31,
+              154.48
+            ],
+            "obs": [
+              75.0,
+              112.0
+            ]
+          }
+        ]
+      },
+      "leave_one_player_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.7121212121212122,
+        "mean_separation": 8.701190205165576,
+        "endpoint_rounding_mae": 15.40746645842103,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.7222222222222222,
+            "mean_separation": 11.247898708587286
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.7,
+            "mean_separation": 5.645140001059521
+          }
+        },
+        "worst": [
+          {
+            "gap": 135.0732032451298,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              135.07,
+              150.47
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 114.27712948315639,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              131.28,
+              146.58
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 87.62780008791648,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              108.63,
+              123.78
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 79.07191886032678,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "STRENGTH",
+            "pred": [
+              135.07,
+              150.18
+            ],
+            "obs": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 76.9339611948879,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "STRENGTH",
+            "pred": [
+              136.93,
+              152.05
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 76.04584985921488,
+            "id": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              131.05,
+              146.14
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 73.13843197984701,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "TACKLING",
+            "pred": [
+              128.14,
+              143.22
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 72.13843197984701,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "AGGRESSION",
+            "pred": [
+              128.14,
+              143.22
+            ],
+            "obs": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 69.9962360641081,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              130.0,
+              145.08
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 69.99623606410805,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              130.0,
+              145.08
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 28.35171783473737,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "FITNESS",
+            "pred": [
+              83.35,
+              97.93
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 27.575896877317433,
+            "id": "DOC-PLY-0004-Focused Defending-13",
+            "stat": "BRAVERY",
+            "pred": [
+              53.58,
+              67.14
+            ],
+            "obs": [
+              17.0,
+              26.0
+            ]
+          }
+        ]
+      },
+      "leave_one_session_out": {
+        "n": 132,
+        "events": 42,
+        "players": 15,
+        "overlap": 0.7651515151515151,
+        "mean_separation": 8.574410277529243,
+        "endpoint_rounding_mae": 14.945031766042495,
+        "by_family": {
+          "TRAINING CAMP": {
+            "n": 72,
+            "overlap": 0.7361111111111112,
+            "mean_separation": 11.12335012123921
+          },
+          "DRILL SESSION": {
+            "n": 60,
+            "overlap": 0.8,
+            "mean_separation": 5.515682465077284
+          }
+        },
+        "worst": [
+          {
+            "gap": 133.91417214644989,
+            "id": "DOC-PLY-0004-Focused Safeguard-23",
+            "stat": "TACKLING",
+            "pred": [
+              133.91,
+              149.07
+            ],
+            "obs": [
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "gap": 113.38246594254309,
+            "id": "DOC-PLY-0004-Standard Defending-30",
+            "stat": "MARKING",
+            "pred": [
+              130.38,
+              145.57
+            ],
+            "obs": [
+              10.0,
+              17.0
+            ]
+          },
+          {
+            "gap": 86.35435416936657,
+            "id": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              107.35,
+              122.31
+            ],
+            "obs": [
+              14.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 79.24434562037678,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "STRENGTH",
+            "pred": [
+              135.24,
+              150.29
+            ],
+            "obs": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 76.91885433585702,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "STRENGTH",
+            "pred": [
+              136.92,
+              152.06
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 75.49719328784175,
+            "id": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "stat": "AGGRESSION",
+            "pred": [
+              130.5,
+              145.62
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 73.31045445976827,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "TACKLING",
+            "pred": [
+              128.31,
+              143.33
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 72.31045445976827,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "AGGRESSION",
+            "pred": [
+              128.31,
+              143.33
+            ],
+            "obs": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 69.98116248080169,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              129.98,
+              145.1
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 69.98116248080169,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "stat": "AGGRESSION",
+            "pred": [
+              129.98,
+              145.1
+            ],
+            "obs": [
+              40.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 28.51652936937893,
+            "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "stat": "FITNESS",
+            "pred": [
+              83.52,
+              98.04
+            ],
+            "obs": [
+              37.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 27.020447493250316,
+            "id": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "stat": "TACKLING",
+            "pred": [
+              139.02,
+              154.11
+            ],
+            "obs": [
+              75.0,
+              112.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_undisputed_workbook": {
+        "n": 46,
+        "events": 16,
+        "players": 15,
+        "overlap": 0.30434782608695654,
+        "mean_separation": 10.018721014541907,
+        "endpoint_rounding_mae": 17.40081260527475,
+        "by_family": {
+          "REWARD COACH": {
+            "n": 9,
+            "overlap": 0.3333333333333333,
+            "mean_separation": 10.23149607780698
+          },
+          "ORDINARY COACH": {
+            "n": 37,
+            "overlap": 0.2972972972972973,
+            "mean_separation": 9.966964918072023
+          }
+        },
+        "worst": [
+          {
+            "gap": 45.62702515491998,
+            "id": "PRV-0001",
+            "stat": "FINISHING",
+            "pred": [
+              50.63,
+              63.85
+            ],
+            "obs": [
+              3.0,
+              5.0
+            ]
+          },
+          {
+            "gap": 43.94023355271855,
+            "id": "PRV-0015",
+            "stat": "TACKLING",
+            "pred": [
+              101.94,
+              116.88
+            ],
+            "obs": [
+              49.0,
+              58.0
+            ]
+          },
+          {
+            "gap": 43.05639069936521,
+            "id": "PRV-0015",
+            "stat": "MARKING",
+            "pred": [
+              98.06,
+              112.95
+            ],
+            "obs": [
+              47.0,
+              55.0
+            ]
+          },
+          {
+            "gap": 38.735707338790576,
+            "id": "PRV-0014",
+            "stat": "AGGRESSION",
+            "pred": [
+              90.74,
+              105.52
+            ],
+            "obs": [
+              45.0,
+              52.0
+            ]
+          },
+          {
+            "gap": 37.862892171301894,
+            "id": "PRV-0014",
+            "stat": "STRENGTH",
+            "pred": [
+              87.86,
+              102.59
+            ],
+            "obs": [
+              42.0,
+              50.0
+            ]
+          },
+          {
+            "gap": 33.91648572329561,
+            "id": "PRV-0003",
+            "stat": "FINISHING",
+            "pred": [
+              36.92,
+              48.79
+            ],
+            "obs": [
+              2.0,
+              3.0
+            ]
+          },
+          {
+            "gap": 32.7037674964447,
+            "id": "PRV-0014",
+            "stat": "CREATIVITY",
+            "pred": [
+              63.7,
+              77.7
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 30.882343093997974,
+            "id": "PRV-0015",
+            "stat": "BRAVERY",
+            "pred": [
+              52.88,
+              66.27
+            ],
+            "obs": [
+              15.0,
+              22.0
+            ]
+          },
+          {
+            "gap": 30.396192172724028,
+            "id": "PRV-0014",
+            "stat": "FITNESS",
+            "pred": [
+              58.4,
+              72.12
+            ],
+            "obs": [
+              21.0,
+              28.0
+            ]
+          },
+          {
+            "gap": 28.53566108495417,
+            "id": "PRV-0015",
+            "stat": "POSITIONING",
+            "pred": [
+              49.54,
+              62.68
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 26.078467097692595,
+            "id": "PRV-0015",
+            "stat": "HEADING",
+            "pred": [
+              47.08,
+              60.02
+            ],
+            "obs": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "gap": 8.623296906537263,
+            "id": "PRV-0012",
+            "stat": "PASSING",
+            "pred": [
+              86.62,
+              101.33
+            ],
+            "obs": [
+              62.0,
+              78.0
+            ]
+          }
+        ]
+      },
+      "canonical_holdout_disputed": {
+        "n": 22,
+        "events": 4,
+        "players": 4,
+        "overlap": 0.45454545454545453,
+        "mean_separation": 2.481031650137626,
+        "endpoint_rounding_mae": 9.334111799465559,
+        "by_family": {
+          "ORDINARY COACH": {
+            "n": 22,
+            "overlap": 0.45454545454545453,
+            "mean_separation": 2.481031650137626
+          }
+        },
+        "worst": [
+          {
+            "gap": 13.13116117965302,
+            "id": "PRV-0018",
+            "stat": "STRENGTH",
+            "pred": [
+              69.13,
+              83.35
+            ],
+            "obs": [
+              46.0,
+              56.0
+            ]
+          },
+          {
+            "gap": 12.07997857388105,
+            "id": "PRV-0020",
+            "stat": "SPEED",
+            "pred": [
+              54.08,
+              67.55
+            ],
+            "obs": [
+              33.0,
+              42.0
+            ]
+          },
+          {
+            "gap": 10.046014867271111,
+            "id": "PRV-0019",
+            "stat": "CREATIVITY",
+            "pred": [
+              70.05,
+              84.3
+            ],
+            "obs": [
+              50.0,
+              60.0
+            ]
+          },
+          {
+            "gap": 5.4276872817087565,
+            "id": "PRV-0020",
+            "stat": "FITNESS",
+            "pred": [
+              28.43,
+              39.01
+            ],
+            "obs": [
+              17.0,
+              23.0
+            ]
+          },
+          {
+            "gap": 3.875072938475853,
+            "id": "PRV-0018",
+            "stat": "SPEED",
+            "pred": [
+              49.88,
+              63.04
+            ],
+            "obs": [
+              38.0,
+              46.0
+            ]
+          },
+          {
+            "gap": 2.703767496444698,
+            "id": "PRV-0019",
+            "stat": "STRENGTH",
+            "pred": [
+              63.7,
+              77.7
+            ],
+            "obs": [
+              50.0,
+              61.0
+            ]
+          },
+          {
+            "gap": 2.403723183754124,
+            "id": "PRV-0019",
+            "stat": "AGGRESSION",
+            "pred": [
+              66.4,
+              80.52
+            ],
+            "obs": [
+              52.0,
+              64.0
+            ]
+          },
+          {
+            "gap": 2.0651091687530823,
+            "id": "PRV-0018",
+            "stat": "CREATIVITY",
+            "pred": [
+              33.07,
+              44.41
+            ],
+            "obs": [
+              24.0,
+              31.0
+            ]
+          },
+          {
+            "gap": 1.3235234602708772,
+            "id": "PRV-0017",
+            "stat": "CREATIVITY",
+            "pred": [
+              26.32,
+              36.51
+            ],
+            "obs": [
+              25.0,
+              25.0
+            ]
+          },
+          {
+            "gap": 0.9382983694503935,
+            "id": "PRV-0017",
+            "stat": "POSITIONING",
+            "pred": [
+              4.33,
+              7.06
+            ],
+            "obs": [
+              8.0,
+              8.0
+            ]
+          },
+          {
+            "gap": 0.41453233653211896,
+            "id": "PRV-0019",
+            "stat": "FITNESS",
+            "pred": [
+              43.41,
+              56.02
+            ],
+            "obs": [
+              34.0,
+              43.0
+            ]
+          },
+          {
+            "gap": 0.17382744683268925,
+            "id": "PRV-0017",
+            "stat": "CROSSING",
+            "pred": [
+              29.17,
+              39.89
+            ],
+            "obs": [
+              28.0,
+              29.0
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "cost_sensitivity": [
+    {
+      "white_threshold": 100,
+      "grey_threshold": 85,
+      "beta": 0.025,
+      "overlap": 0.8181818181818182,
+      "mean_separation": 3.615246101935325
+    },
+    {
+      "white_threshold": 100,
+      "grey_threshold": 85,
+      "beta": 0.0354,
+      "overlap": 0.6439393939393939,
+      "mean_separation": 6.461020051721687
+    },
+    {
+      "white_threshold": 100,
+      "grey_threshold": 85,
+      "beta": 0.045,
+      "overlap": 0.42424242424242425,
+      "mean_separation": 8.103378303255571
+    },
+    {
+      "white_threshold": 135,
+      "grey_threshold": 120,
+      "beta": 0.025,
+      "overlap": 0.8409090909090909,
+      "mean_separation": 0.6013201962495148
+    },
+    {
+      "white_threshold": 135,
+      "grey_threshold": 120,
+      "beta": 0.0354,
+      "overlap": 0.9015151515151515,
+      "mean_separation": 0.5987094343162008
+    },
+    {
+      "white_threshold": 135,
+      "grey_threshold": 120,
+      "beta": 0.045,
+      "overlap": 0.7878787878787878,
+      "mean_separation": 0.8740069199349804
+    },
+    {
+      "white_threshold": 170,
+      "grey_threshold": 155,
+      "beta": 0.025,
+      "overlap": 0.48484848484848486,
+      "mean_separation": 5.529707728585718
+    },
+    {
+      "white_threshold": 170,
+      "grey_threshold": 155,
+      "beta": 0.0354,
+      "overlap": 0.5,
+      "mean_separation": 4.339248478143222
+    },
+    {
+      "white_threshold": 170,
+      "grey_threshold": 155,
+      "beta": 0.045,
+      "overlap": 0.5303030303030303,
+      "mean_separation": 3.425933022224773
+    }
+  ],
+  "within_preview_order": {
+    "archive": {
+      "comparable_pairs": 212,
+      "strict_inversions": [],
+      "equal_start_pairs": [
+        {
+          "id": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+          "stats": [
+            "TACKLING",
+            "MARKING"
+          ],
+          "gains": [
+            [
+              98,
+              118
+            ],
+            [
+              98,
+              118
+            ]
+          ],
+          "disjoint": false
+        },
+        {
+          "id": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+          "stats": [
+            "TACKLING",
+            "MARKING"
+          ],
+          "gains": [
+            [
+              102,
+              121
+            ],
+            [
+              102,
+              121
+            ]
+          ],
+          "disjoint": false
+        },
+        {
+          "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+          "stats": [
+            "TACKLING",
+            "AGGRESSION"
+          ],
+          "gains": [
+            [
+              37,
+              55
+            ],
+            [
+              37,
+              56
+            ]
+          ],
+          "disjoint": false
+        },
+        {
+          "id": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+          "stats": [
+            "TACKLING",
+            "AGGRESSION"
+          ],
+          "gains": [
+            [
+              40,
+              60
+            ],
+            [
+              40,
+              60
+            ]
+          ],
+          "disjoint": false
+        }
+      ]
+    },
+    "canonical_undisputed": {
+      "comparable_pairs": 55,
+      "strict_inversions": [],
+      "equal_start_pairs": [
+        {
+          "id": "PRV-0007",
+          "stats": [
+            "PASSING",
+            "FITNESS"
+          ],
+          "gains": [
+            [
+              39,
+              39
+            ],
+            [
+              39,
+              39
+            ]
+          ],
+          "disjoint": false
+        },
+        {
+          "id": "PRV-0010",
+          "stats": [
+            "DRIBBLING",
+            "CROSSING"
+          ],
+          "gains": [
+            [
+              20,
+              27
+            ],
+            [
+              19,
+              27
+            ]
+          ],
+          "disjoint": false
+        }
+      ]
+    }
+  }
+}
