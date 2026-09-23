@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fittingWeight, qualityExclusions } from './quality-exclusions.mjs';
 
 const runsDir=path.resolve(process.argv[2] ?? 'calibration/resource-coach-log/runs');
 const outDir=path.resolve(process.argv[3] ?? 'calibration/resource-coach-log/generated');
@@ -43,12 +44,12 @@ for(const {file,rec} of records){
 const experiments=[],observed=[],predictions=[],predictedStats=[],scores=[],residuals=[],partitions=[];
 const modelSet=new Map();
 for(const {file,rec} of records){
-  const e=rec.experiment,input=e.input??rec.observation?.input??{},ev=rec.evidence??{},fitWeight=ev.isDuplicate?0:1;
+  const e=rec.experiment,input=e.input??rec.observation?.input??{},ev=rec.evidence??{},fitWeight=fittingWeight(rec);
   experiments.push({experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',created_at:e.createdAt??'',partition:e.partition??'',origin_partition:e.originPartition??'',current_partition:e.currentPartition??e.partition??'',promoted_at:e.promotedAt??'',status:e.status??'',observed_at:e.observedAt??'',evidence_fingerprint:ev.fingerprint??'',is_duplicate:!!ev.isDuplicate,duplicate_of_experiment_id:ev.duplicateOfExperimentId??'',evidence_detected_at:ev.detectedAt??'',player_age:input.age??'',tier:input.tier??'',state_key:input.stateKey??'',source_family:input.sourceFamily??'',source_family_source:input.sourceFamilySource??'',transfer_class:input.transferClass??'',transfer_class_source:input.transferClassSource??'',coach_label:input.coachLabel??'',displayed_multiplier:input.multiplier??'',programme_family:input.programmeFamily??'unknown',programme_family_source:input.programmeFamilySource??'',target_source:input.targetSource??'',affected_stat_count:(input.stats??[]).length,fit_weight:fitWeight,source_file:file});
   for(const pe of e.partitionHistory??[])partitions.push({experiment_id:e.experimentId,event_seq:pe.eventSeq??'',recorded_at:pe.recordedAt??'',event_kind:pe.eventKind??'',from_partition:pe.fromPartition??'',to_partition:pe.toPartition??'',note:pe.note??''});
   const statMap=new Map((input.stats??[]).map(s=>[s.stat,s]));
   const o=rec.observation;
-  for(const r of o?.intervals??[]){const s=statMap.get(r.stat)??{};observed.push({experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',observed_at:o.capturedAt??e.observedAt??'',transfer_class:input.transferClass??'',transfer_class_source:input.transferClassSource??'',coach_label:input.coachLabel??'',programme_family:input.programmeFamily??'unknown',displayed_multiplier:input.multiplier??'',affected_stat_count:(input.stats??[]).length,player_age:input.age??'',tier:input.tier??'',stat:r.stat,displayed_stat:s.displayedStat??'',display_class:s.displayClass??'',gain_lo:r.gainLo,gain_hi:r.gainHi,evidence_kind:o.evidenceKind??'',evidence_source:o.source??'',target_source:input.targetSource??'',source_family_source:input.sourceFamilySource??'',programme_family_source:input.programmeFamilySource??'',fit_weight:fitWeight});}
+  for(const r of o?.intervals??[]){const s=statMap.get(r.stat)??{};observed.push({experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',observed_at:o.capturedAt??e.observedAt??'',transfer_class:input.transferClass??'',transfer_class_source:input.transferClassSource??'',coach_label:input.coachLabel??'',programme_family:input.programmeFamily??'unknown',displayed_multiplier:input.multiplier??'',affected_stat_count:(input.stats??[]).length,player_age:input.age??'',tier:input.tier??'',stat:r.stat,displayed_stat:s.displayedStat??'',display_class:s.displayClass??'',class_source:s.classSource??'',gain_lo:r.gainLo,gain_hi:r.gainHi,evidence_kind:o.evidenceKind??'',evidence_source:o.source??'',target_source:input.targetSource??'',source_family_source:input.sourceFamilySource??'',programme_family_source:input.programmeFamilySource??'',fit_weight:fitWeight});}
   const predByModel=new Map();
   for(const p of rec.predictions??[]){
     const pv=p.prediction??{},pi=p.input??input,mv=p.modelVersion??pv.modelVersion??'';
@@ -62,7 +63,7 @@ for(const {file,rec} of records){
 }
 const headers={
  experiments:['experiment_id','player_id','created_at','partition','origin_partition','current_partition','promoted_at','status','observed_at','evidence_fingerprint','is_duplicate','duplicate_of_experiment_id','evidence_detected_at','player_age','tier','state_key','source_family','source_family_source','transfer_class','transfer_class_source','coach_label','displayed_multiplier','programme_family','programme_family_source','target_source','affected_stat_count','fit_weight','source_file'],
- observed:['experiment_id','player_id','observed_at','transfer_class','transfer_class_source','coach_label','programme_family','displayed_multiplier','affected_stat_count','player_age','tier','stat','displayed_stat','display_class','gain_lo','gain_hi','evidence_kind','evidence_source','target_source','source_family_source','programme_family_source','fit_weight'],
+ observed:['experiment_id','player_id','observed_at','transfer_class','transfer_class_source','coach_label','programme_family','displayed_multiplier','affected_stat_count','player_age','tier','stat','displayed_stat','display_class','class_source','gain_lo','gain_hi','evidence_kind','evidence_source','target_source','source_family_source','programme_family_source','fit_weight'],
  predictions:['experiment_id','prediction_id','model_version','captured_at','prediction_status','mode','reason_summary','ovr_pred_lo','ovr_pred_hi','player_id','age','tier','state_key','coach_label','multiplier','programme_family','transfer_class','fit_weight'],
  predictedStats:['experiment_id','prediction_id','model_version','stat','predicted_lo','predicted_hi','fit_weight'],
  scores:['experiment_id','prediction_id','model_version','scored_at','status','matched_stat_count','endpoint_mae','midpoint_mae','mean_interval_iou','ovr_endpoint_abs_error','ovr_midpoint_error','fit_weight','reason'],
@@ -75,6 +76,6 @@ for(const s of scores){const mv=s.model_version||'unknown';modelSummary[mv]??={a
 for(const m of Object.values(modelSummary)){m.endpoint_mae=mean(m.endpoint);m.midpoint_mae=mean(m.midpoint);m.mean_interval_iou=mean(m.iou);delete m.endpoint;delete m.midpoint;delete m.iou;}
 const sourceTimes=experiments.map(e=>Date.parse(e.observed_at||e.created_at||'')).filter(Number.isFinite);
 const generatedAt=sourceTimes.length?new Date(Math.max(...sourceTimes)).toISOString():null;
-const summary={schemaVersion:'resource-coach-log-summary-v1',generatedAt,sourceFiles:files.length,experimentRecords:experiments.length,observedExperiments:experiments.filter(e=>e.status==='observed').length,exactDuplicateRecords:experiments.filter(e=>e.is_duplicate).length,uniqueEvidenceRecords:experiments.filter(e=>!e.is_duplicate).length,observedStatRows:observed.length,predictionRows:predictions.length,scoreRows:scores.length,residualRows:residuals.length,models:modelSummary};
+const summary={schemaVersion:'resource-coach-log-summary-v1',generatedAt,sourceFiles:files.length,experimentRecords:experiments.length,observedExperiments:experiments.filter(e=>e.status==='observed').length,exactDuplicateRecords:experiments.filter(e=>e.is_duplicate).length,qualityExcludedRecords:experiments.filter(e=>qualityExclusions.has(e.experiment_id)).length,uniqueEvidenceRecords:experiments.filter(e=>!e.is_duplicate).length,observedStatRows:observed.length,predictionRows:predictions.length,scoreRows:scores.length,residualRows:residuals.length,models:modelSummary};
 fs.writeFileSync(path.join(outDir,'summary.json'),JSON.stringify(summary,null,2)+'\n');
 console.log(JSON.stringify(summary,null,2));
