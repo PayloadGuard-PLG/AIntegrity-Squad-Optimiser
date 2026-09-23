@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "resource-coach-current-replay-profile-v1",
+  "modelVersion": "ordinary-player-amplitude-plateau-20260923",
+  "status": "research-replay-not-production",
+  "scope": "Ordinary coach screenshot replay. Reward remains separate.",
+  "tierAdditions": [0, 10, 30, 50, 80, 120, 160],
+  "ageScaleBands": [
+    {"minAge": 17, "maxAge": 21, "scale": 8.0},
+    {"minAge": 22, "maxAge": 25, "scale": 6.0},
+    {"minAge": 26, "maxAge": 29, "scale": 4.0},
+    {"minAge": 30, "maxAge": 31, "scale": 2.0},
+    {"minAge": 32, "maxAge": 99, "scale": 1.0}
+  ],
+  "response": {
+    "whiteThreshold": 132.6,
+    "midGreyThreshold": 120.1,
+    "K": 26.05,
+    "upperDoseRatio": 1.529,
+    "visibleGainRectification": true
+  },
+  "dose": {
+    "globalAmplitude": 1.324,
+    "law": "B_lo = C_P * A(age) * N / p; B_hi = upperDoseRatio * B_lo",
+    "playerStateCalibration": "For one observed anchor coach card, invert each affected stat against both observed interval endpoints under the fixed response/rho, minimise endpoint SSE for B_lo, then take the arithmetic mean implied B_lo and solve C_P = mean(B_lo)/(A(age)*N/p)."
+  },
+  "evaluation": {
+    "primary": "Predicted midpoint versus observed screenshot interval midpoint",
+    "alsoReport": [
+      "predicted midpoint inside observed interval",
+      "interval overlap",
+      "endpoint MAE",
+      "interval IoU"
+    ],
+    "targetLeakageRule": "The target coach event is never used to calibrate C_P."
+  },
+  "evidenceBoundary": [
+    "Observed screenshot ranges are answer keys; frozen assistant predictions are never answer keys.",
+    "Calibration is state-local: player, age, tier and stat state must match.",
+    "Reward is excluded from ordinary transfer scoring.",
+    "Programme/family effects are not silently fitted; results are stratified by family."
+  ]
+}
