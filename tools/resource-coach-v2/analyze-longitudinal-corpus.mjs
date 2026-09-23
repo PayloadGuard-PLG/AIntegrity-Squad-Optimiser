@@ -214,4 +214,202 @@ function responseRows(corpus, stateFeatures, statsByState) {
       previewId:r.preview_id,
       playerId:state.playerId,playerName:state.playerName,playerStateId:state.stateId,
       age:state.age,tier:state.tier,ovr:state.ovr,roles:state.roles.join('/'),statSchema:state.statSchema,
-    
+      stat:upper(r.stat_name),currentValue:r.current_value,displayClass:upper(r.display_class||stateStat?.displayClass),
+      gainLo:r.gain_lo,gainHi:r.gain_hi,coachId:inst.coach_id??p.coach_id??'',coachInstanceId:r.coach_instance_id,
+      coachTitle:inst.coach_title_observed??def.coach_title??'',coachClass:inst.coach_class_observed??def.coach_class??'',
+      multiplier:finite(inst.multiplier_observed)?inst.multiplier_observed:def.multiplier,
+      transferClass:def.transfer_class??'',rewardStatus:def.reward_status??inst.reward_status_observed??'',
+      affectedStatCount:affectedCounts.get(r.coach_instance_id)??null,
+      sourceId:r.source_id??p.source_id??'',sourceScreenshot:r.source_screenshot??p.source_screenshot??'',
+    });
+  }
+  const canonicalByKey=new Map();
+  for (const r of rows) {
+    const key=JSON.stringify([r.playerStateId,r.stat,r.currentValue,r.displayClass,r.gainLo,r.gainHi,upper(r.coachTitle),r.multiplier,r.transferClass]);
+    if (canonicalByKey.has(key)) {
+      r.isDuplicateEvidence=true;
+      r.duplicateOfResponseId=canonicalByKey.get(key);
+      r.fitWeight=0;
+    } else {
+      canonicalByKey.set(key,r.responseId);
+      r.isDuplicateEvidence=false;
+      r.duplicateOfResponseId='';
+      r.fitWeight=1;
+    }
+  }
+  return rows;
+}
+function responseDistance(a,b,stateFeaturesById) {
+  if (a.stat !== b.stat) return null;
+  if (a.transferClass && b.transferClass && a.transferClass !== b.transferClass) return null;
+  const sa=stateFeaturesById.get(a.playerStateId), sb=stateFeaturesById.get(b.playerStateId);
+  if (!sa || !sb || sa.statSchema !== sb.statSchema) return null;
+  const sd=compareStateFeatures(sa,sb);
+  const multiplierDiff=finite(a.multiplier)&&finite(b.multiplier)?Math.abs(a.multiplier-b.multiplier):null;
+  const affectedDiff=finite(a.affectedStatCount)&&finite(b.affectedStatCount)?Math.abs(a.affectedStatCount-b.affectedStatCount):null;
+  const classMismatch=a.displayClass&&b.displayClass&&a.displayClass!==b.displayClass?1:0;
+  const titleMismatch=upper(a.coachTitle)===upper(b.coachTitle)?0:0.5;
+  const distance=sd.distance+(multiplierDiff??50)/20+(affectedDiff??5)/3+classMismatch+titleMismatch;
+  return {distance,multiplierDiff,affectedDiff,classMismatch,titleMismatch,stateDistance:sd.distance,currentStatDiff:finite(a.currentValue)&&finite(b.currentValue)?Math.abs(a.currentValue-b.currentValue):null};
+}
+function experimentStateFeature(rec) {
+  const input=rec.experiment?.input??rec.observation?.input??{};
+  const parsed=parseStateKey(input.stateKey);
+  if (!parsed) return null;
+  return {
+    stateId:`RUN:${rec.experiment?.experimentId??rec.observation?.id??'unknown'}`,
+    playerId:input.playerId??rec.experiment?.playerId??'',playerName:'',age:parsed.age,tier:parsed.tier,tierIndex:tierIndex(parsed.tier),
+    ovr:null,roles:parsed.roles,stats:parsed.stats,classes:Object.fromEntries((input.stats??[]).map(s=>[upper(s.stat),upper(s.displayClass)])),statSchema:parsed.statSchema,
+    stateComplete:Object.keys(parsed.stats).length>=15,regime:rec.experiment?.originPartition??rec.experiment?.partition??'',sequenceNo:null,observedAt:rec.experiment?.observedAt??null,previousStateId:null,previousLinkType:null,
+  };
+}
+function loadRuns(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const out=[];
+  for (const file of fs.readdirSync(dir).filter(f=>f.endsWith('.json')).sort()) {
+    const full=path.join(dir,file); const rec=JSON.parse(fs.readFileSync(full,'utf8'));
+    if (rec.schemaVersion !== 'resource-coach-experiment-v1') continue;
+    out.push({file,rec});
+  }
+  return out;
+}
+
+if (!fs.existsSync(corpusPath)) die(`Corpus snapshot not found: ${corpusPath}`);
+let corpusBytes=fs.readFileSync(corpusPath);
+if(corpusPath.endsWith('.b64')) corpusBytes=Buffer.from(corpusBytes.toString('utf8').trim(),'base64');
+const corpusText=corpusPath.includes('.json.gz')?zlib.gunzipSync(corpusBytes).toString('utf8'):corpusBytes.toString('utf8');
+const root=JSON.parse(corpusText);
+if (root.schemaVersion !== 'squad-optimiser-longitudinal-corpus-v1') die(`Unsupported corpus schema: ${root.schemaVersion}`);
+const corpus=root.data??{};
+for (const key of ['players','playerStates','playerStateStats','coachDefinitions','coachInstances','coachAffectedStats','coachPreviews','coachPreviewStats','stateTransitions']) {
+  if (!Array.isArray(corpus[key])) die(`Corpus missing array: data.${key}`);
+}
+validateCorpus(root,corpus);
+fs.mkdirSync(outDir,{recursive:true});
+
+const statsByState=stateStatsMap(corpus.playerStateStats);
+const stateFeatures=corpus.playerStates.map(s=>stateFeature(s,statsByState));
+const stateFeaturesById=new Map(stateFeatures.map(s=>[s.stateId,s]));
+const statesByPlayer=new Map();
+for (const s of stateFeatures) { if(!statesByPlayer.has(s.playerId)) statesByPlayer.set(s.playerId,[]); statesByPlayer.get(s.playerId).push(s); }
+for (const arr of statesByPlayer.values()) arr.sort((a,b)=>(a.sequenceNo??1e9)-(b.sequenceNo??1e9)||String(a.stateId).localeCompare(String(b.stateId)));
+
+const directTransitionSet=new Set((corpus.stateTransitions??[]).map(t=>`${t.from_state_id}->${t.to_state_id}`));
+const statePairRows=[];
+for (const [playerId,arr] of statesByPlayer) for(let i=0;i<arr.length;i++) for(let j=i+1;j<arr.length;j++) {
+  const rel=pairRelation(arr[i],arr[j],directTransitionSet), d=deltaSummary(rel.from,rel.to);
+  statePairRows.push({
+    player_id:playerId,player_name:rel.from.playerName,from_state_id:rel.from.stateId,to_state_id:rel.to.stateId,
+    relation:rel.relation,is_causal_transition:rel.isCausal,from_regime:rel.from.regime,to_regime:rel.to.regime,
+    from_sequence:rel.from.sequenceNo,to_sequence:rel.to.sequenceNo,from_observed_at:rel.from.observedAt,to_observed_at:rel.to.observedAt,
+    age_delta:finite(rel.from.age)&&finite(rel.to.age)?rel.to.age-rel.from.age:null,
+    tier_delta:rel.from.tierIndex!==null&&rel.to.tierIndex!==null?rel.to.tierIndex-rel.from.tierIndex:null,
+    ovr_delta:finite(rel.from.ovr)&&finite(rel.to.ovr)?rel.to.ovr-rel.from.ovr:null,
+    roles_changed:jaccardDistance(rel.from.roles,rel.to.roles)>0,common_stat_count:d.commonStatCount,changed_stat_count:d.changedStatCount,
+    stat_delta_sum:d.statDeltaSum,stat_abs_delta_sum:d.statAbsDeltaSum,max_abs_stat_delta:d.maxAbsStatDelta,stat_deltas:d.deltas,
+  });
+}
+
+const stateNeighbourRows=[];
+for (const s of stateFeatures) {
+  const candidates=[];
+  for (const other of stateFeatures) {
+    if (other.stateId===s.stateId || other.playerId===s.playerId || other.statSchema!==s.statSchema) continue;
+    const c=compareStateFeatures(s,other); candidates.push({other,c});
+  }
+  candidates.sort((a,b)=>a.c.distance-b.c.distance||a.other.stateId.localeCompare(b.other.stateId));
+  for (const [idx,x] of candidates.slice(0,TOP_STATE_NEIGHBOURS).entries()) stateNeighbourRows.push({
+    player_state_id:s.stateId,player_id:s.playerId,player_name:s.playerName,rank:idx+1,
+    neighbour_state_id:x.other.stateId,neighbour_player_id:x.other.playerId,neighbour_player_name:x.other.playerName,
+    distance:x.c.distance,common_stat_count:x.c.commonStatCount,stat_mad:x.c.statMad,class_mismatch_rate:x.c.classMismatch,
+    age_diff:x.c.ageDiff,tier_diff:x.c.tierDiff,ovr_diff:x.c.ovrDiff,role_jaccard_distance:x.c.roleDistance,
+  });
+}
+
+const responses=responseRows(corpus,stateFeatures,statsByState);
+const responseAnalogueRows=[];
+for (const r of responses) {
+  const candidates=[];
+  for (const other of responses) {
+    if (other.responseId===r.responseId || other.playerId===r.playerId || other.fitWeight===0) continue;
+    const d=responseDistance(r,other,stateFeaturesById); if(d) candidates.push({other,d});
+  }
+  candidates.sort((a,b)=>a.d.distance-b.d.distance||a.other.responseId.localeCompare(b.other.responseId));
+  for (const [idx,x] of candidates.slice(0,TOP_RESPONSE_ANALOGUES).entries()) responseAnalogueRows.push({
+    response_id:r.responseId,player_id:r.playerId,player_name:r.playerName,player_state_id:r.playerStateId,stat:r.stat,current_value:r.currentValue,display_class:r.displayClass,
+    coach_title:r.coachTitle,multiplier:r.multiplier,transfer_class:r.transferClass,gain_lo:r.gainLo,gain_hi:r.gainHi,rank:idx+1,
+    analogue_response_id:x.other.responseId,analogue_player_id:x.other.playerId,analogue_player_name:x.other.playerName,analogue_state_id:x.other.playerStateId,
+    analogue_current_value:x.other.currentValue,analogue_display_class:x.other.displayClass,analogue_coach_title:x.other.coachTitle,analogue_multiplier:x.other.multiplier,
+    analogue_gain_lo:x.other.gainLo,analogue_gain_hi:x.other.gainHi,distance:x.d.distance,state_distance:x.d.stateDistance,current_stat_diff:x.d.currentStatDiff,
+    multiplier_diff:x.d.multiplierDiff,affected_stat_count_diff:x.d.affectedDiff,class_mismatch:x.d.classMismatch,
+  });
+}
+
+const runs=loadRuns(runsDir);
+const experimentRows=[], experimentStateNeighbourRows=[], experimentStatAnalogueRows=[];
+for (const {file,rec} of runs) {
+  const e=rec.experiment??{}, input=e.input??rec.observation?.input??{}, ef=experimentStateFeature(rec);
+  let nearest=null, exact=null;
+  if (ef) {
+    const candidates=[];
+    for (const s of stateFeatures) {
+      if (s.statSchema!==ef.statSchema) continue;
+      const c=compareStateFeatures(ef,s); candidates.push({s,c});
+      const allStats=Object.keys(ef.stats); const exactStats=allStats.length>0&&allStats.every(k=>s.stats[k]===ef.stats[k]);
+      if (exactStats && ef.age===s.age && ef.tier===s.tier && jaccardDistance(ef.roles,s.roles)===0) exact = exact ?? s;
+    }
+    candidates.sort((a,b)=>a.c.distance-b.c.distance||a.s.stateId.localeCompare(b.s.stateId)); nearest=candidates[0]??null;
+    for (const [idx,x] of candidates.slice(0,TOP_STATE_NEIGHBOURS).entries()) experimentStateNeighbourRows.push({
+      experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',rank:idx+1,corpus_state_id:x.s.stateId,corpus_player_id:x.s.playerId,corpus_player_name:x.s.playerName,
+      distance:x.c.distance,common_stat_count:x.c.commonStatCount,stat_mad:x.c.statMad,class_mismatch_rate:x.c.classMismatch,age_diff:x.c.ageDiff,tier_diff:x.c.tierDiff,ovr_diff:x.c.ovrDiff,role_jaccard_distance:x.c.roleDistance,
+      exact_state_match:exact?.stateId===x.s.stateId,
+    });
+  }
+  let compatibleResponses=0;
+  for (const obs of rec.observation?.intervals??[]) {
+    const target={
+      responseId:`RUN:${e.experimentId}:${upper(obs.stat)}`,playerId:e.playerId??input.playerId??'',playerName:'',playerStateId:ef?.stateId,
+      stat:upper(obs.stat),currentValue:(input.stats??[]).find(s=>upper(s.stat)===upper(obs.stat))?.displayedStat,
+      displayClass:upper((input.stats??[]).find(s=>upper(s.stat)===upper(obs.stat))?.displayClass),
+      coachTitle:input.coachLabel??'',multiplier:input.multiplier,transferClass:input.transferClass??'',affectedStatCount:(input.stats??[]).length,
+      gainLo:obs.gainLo,gainHi:obs.gainHi,
+    };
+    const candidates=[];
+    for (const other of responses) {
+      if (other.playerId===target.playerId || other.fitWeight===0) continue;
+      if (target.stat!==other.stat) continue;
+      if (target.transferClass&&other.transferClass&&target.transferClass!==other.transferClass) continue;
+      compatibleResponses++;
+      let sd=null;
+      if (ef) {
+        const os=stateFeaturesById.get(other.playerStateId);
+        if (os&&os.statSchema===ef.statSchema) sd=compareStateFeatures(ef,os);
+      }
+      if (!sd) continue;
+      const multiplierDiff=finite(target.multiplier)&&finite(other.multiplier)?Math.abs(target.multiplier-other.multiplier):null;
+      const affectedDiff=finite(target.affectedStatCount)&&finite(other.affectedStatCount)?Math.abs(target.affectedStatCount-other.affectedStatCount):null;
+      const classMismatch=target.displayClass&&other.displayClass&&target.displayClass!==other.displayClass?1:0;
+      const currentStatDiff=finite(target.currentValue)&&finite(other.currentValue)?Math.abs(target.currentValue-other.currentValue):null;
+      const titleMismatch=upper(target.coachTitle)===upper(other.coachTitle)?0:0.5;
+      const distance=sd.distance+(multiplierDiff??50)/20+(affectedDiff??5)/3+classMismatch+titleMismatch;
+      candidates.push({other,distance,sd,multiplierDiff,affectedDiff,classMismatch,currentStatDiff});
+    }
+    candidates.sort((a,b)=>a.distance-b.distance||a.other.responseId.localeCompare(b.other.responseId));
+    for (const [idx,x] of candidates.slice(0,TOP_RESPONSE_ANALOGUES).entries()) experimentStatAnalogueRows.push({
+      experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',stat:target.stat,current_value:target.currentValue,display_class:target.displayClass,
+      observed_gain_lo:target.gainLo,observed_gain_hi:target.gainHi,coach_label:target.coachTitle,multiplier:target.multiplier,transfer_class:target.transferClass,rank:idx+1,
+      analogue_response_id:x.other.responseId,analogue_player_id:x.other.playerId,analogue_player_name:x.other.playerName,analogue_state_id:x.other.playerStateId,
+      analogue_current_value:x.other.currentValue,analogue_display_class:x.other.displayClass,analogue_coach_title:x.other.coachTitle,analogue_multiplier:x.other.multiplier,
+      analogue_gain_lo:x.other.gainLo,analogue_gain_hi:x.other.gainHi,distance:x.distance,state_distance:x.sd.distance,current_stat_diff:x.currentStatDiff,
+      multiplier_diff:x.multiplierDiff,affected_stat_count_diff:x.affectedDiff,class_mismatch:x.classMismatch,
+    });
+  }
+  const samePlayerStates=stateFeatures.filter(s=>s.playerId===(e.playerId??input.playerId)).length;
+  experimentRows.push({
+    experiment_id:e.experimentId,source_file:file,player_id:e.playerId??input.playerId??'',origin_partition:e.originPartition??'',current_partition:e.currentPartition??e.partition??'',status:e.status??'',
+    observed_at:e.observedAt??'',age:input.age??'',tier:input.tier??'',coach_label:input.coachLabel??'',multiplier:input.multiplier??'',programme_family:input.programmeFamily??'unknown',transfer_class:input.transferClass??'',
+    affected_stat_count:(input.stats??[]).length,observed_stat_count:(rec.observation?.intervals??[]).length,is_duplicate:!!rec.evidence?.isDuplicate,duplicate_of_experiment_id:rec.evidence?.duplicateOfExperimentId??'',fit_weight:rec.evidence?.isDuplicate?0:1,
+    state_key_complete:!!ef?.stateComplete,exact_corpus_state_id:exact?.stateId??'',nearest_corpus_state_id:nearest?.s.stateId??'',nearest_corpus_player_id:nearest?.s.playerId??'',nearest_corpus_player_name:nearest?.s.playerName??'',nearest_state_distance:nearest?.c.distance??'',
+    same_player_corpus_state_count:samePlayerStates,compatible_historical_response_rows:compatibleResponses,score_count:(rec.scores??[]).length,
+  });
+}
