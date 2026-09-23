@@ -326,8 +326,10 @@ export default function DrillsScreen() {
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
                     </View>
                     <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
+                    <MonoLabel size={8} color={theme.inkGhost}>{d.intensity.toUpperCase()}</MonoLabel>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.steelLight }}>+{d.trainingXp} XP</Text>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{Math.round(d.efficiency * 100)}%</Text>
-                    <MonoLabel size={8} color={theme.inkGhost}>EFF</MonoLabel>
+                    <MonoLabel size={8} color={theme.inkGhost}>WHITE</MonoLabel>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.condition.expected < 2 ? theme.hot : theme.neg }}>{d.rawLoss.toFixed(2)}%</Text>
                     <MonoLabel size={7} color={theme.inkGhost}>{d.condition.low}–{d.condition.high} BILLED</MonoLabel>
                     <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>
