@@ -413,3 +413,105 @@ for (const {file,rec} of runs) {
     same_player_corpus_state_count:samePlayerStates,compatible_historical_response_rows:compatibleResponses,score_count:(rec.scores??[]).length,
   });
 }
+.stat!==other.stat) continue;
+      if (target.transferClass&&other.transferClass&&target.transferClass!==other.transferClass) continue;
+      compatibleResponses++;
+      let sd=null;
+      if (ef) {
+        const os=stateFeaturesById.get(other.playerStateId);
+        if (os&&os.statSchema===ef.statSchema) sd=compareStateFeatures(ef,os);
+      }
+      if (!sd) continue;
+      const multiplierDiff=finite(target.multiplier)&&finite(other.multiplier)?Math.abs(target.multiplier-other.multiplier):null;
+      const affectedDiff=finite(target.affectedStatCount)&&finite(other.affectedStatCount)?Math.abs(target.affectedStatCount-other.affectedStatCount):null;
+      const classMismatch=target.displayClass&&other.displayClass&&target.displayClass!==other.displayClass?1:0;
+      const currentStatDiff=finite(target.currentValue)&&finite(other.currentValue)?Math.abs(target.currentValue-other.currentValue):null;
+      const titleMismatch=upper(target.coachTitle)===upper(other.coachTitle)?0:0.5;
+      const distance=sd.distance+(multiplierDiff??50)/20+(affectedDiff??5)/3+classMismatch+titleMismatch;
+      candidates.push({other,distance,sd,multiplierDiff,affectedDiff,classMismatch,currentStatDiff});
+    }
+    candidates.sort((a,b)=>a.distance-b.distance||a.other.responseId.localeCompare(b.other.responseId));
+    for (const [idx,x] of candidates.slice(0,TOP_RESPONSE_ANALOGUES).entries()) experimentStatAnalogueRows.push({
+      experiment_id:e.experimentId,player_id:e.playerId??input.playerId??'',stat:target.stat,current_value:target.currentValue,display_class:target.displayClass,
+      observed_gain_lo:target.gainLo,observed_gain_hi:target.gainHi,coach_label:target.coachTitle,multiplier:target.multiplier,transfer_class:target.transferClass,rank:idx+1,
+      analogue_response_id:x.other.responseId,analogue_player_id:x.other.playerId,analogue_player_name:x.other.playerName,analogue_state_id:x.other.playerStateId,
+      analogue_current_value:x.other.currentValue,analogue_display_class:x.other.displayClass,analogue_coach_title:x.other.coachTitle,analogue_multiplier:x.other.multiplier,
+      analogue_gain_lo:x.other.gainLo,analogue_gain_hi:x.other.gainHi,distance:x.distance,state_distance:x.sd.distance,current_stat_diff:x.currentStatDiff,
+      multiplier_diff:x.multiplierDiff,affected_stat_count_diff:x.affectedDiff,class_mismatch:x.classMismatch,
+    });
+  }
+  const samePlayerStates=stateFeatures.filter(s=>s.playerId===(e.playerId??input.playerId)).length;
+  experimentRows.push({
+    experiment_id:e.experimentId,source_file:file,player_id:e.playerId??input.playerId??'',origin_partition:e.originPartition??'',current_partition:e.currentPartition??e.partition??'',status:e.status??'',
+    observed_at:e.observedAt??'',age:input.age??'',tier:input.tier??'',coach_label:input.coachLabel??'',multiplier:input.multiplier??'',programme_family:input.programmeFamily??'unknown',transfer_class:input.transferClass??'',
+    affected_stat_count:(input.stats??[]).length,observed_stat_count:(rec.observation?.intervals??[]).length,is_duplicate:!!rec.evidence?.isDuplicate,duplicate_of_experiment_id:rec.evidence?.duplicateOfExperimentId??'',fit_weight:rec.evidence?.isDuplicate?0:1,
+    state_key_complete:!!ef?.stateComplete,exact_corpus_state_id:exact?.stateId??'',nearest_corpus_state_id:nearest?.s.stateId??'',nearest_corpus_player_id:nearest?.s.playerId??'',nearest_corpus_player_name:nearest?.s.playerName??'',nearest_state_distance:nearest?.c.distance??'',
+    same_player_corpus_state_count:samePlayerStates,compatible_historical_response_rows:compatibleResponses,score_count:(rec.scores??[]).length,
+  });
+}
+
+writeCsv('state_pairs.csv',[
+  'player_id','player_name','from_state_id','to_state_id','relation','is_causal_transition','from_regime','to_regime','from_sequence','to_sequence','from_observed_at','to_observed_at','age_delta','tier_delta','ovr_delta','roles_changed','common_stat_count','changed_stat_count','stat_delta_sum','stat_abs_delta_sum','max_abs_stat_delta','stat_deltas'
+],statePairRows);
+writeCsv('state_neighbours.csv',[
+  'player_state_id','player_id','player_name','rank','neighbour_state_id','neighbour_player_id','neighbour_player_name','distance','common_stat_count','stat_mad','class_mismatch_rate','age_diff','tier_diff','ovr_diff','role_jaccard_distance'
+],stateNeighbourRows);
+writeCsv('response_rows.csv',[
+  'responseId','previewId','playerId','playerName','playerStateId','age','tier','ovr','roles','statSchema','stat','currentValue','displayClass','gainLo','gainHi','coachId','coachInstanceId','coachTitle','coachClass','multiplier','transferClass','rewardStatus','affectedStatCount','sourceId','sourceScreenshot','isDuplicateEvidence','duplicateOfResponseId','fitWeight'
+],responses);
+writeCsv('response_analogues.csv',[
+  'response_id','player_id','player_name','player_state_id','stat','current_value','display_class','coach_title','multiplier','transfer_class','gain_lo','gain_hi','rank','analogue_response_id','analogue_player_id','analogue_player_name','analogue_state_id','analogue_current_value','analogue_display_class','analogue_coach_title','analogue_multiplier','analogue_gain_lo','analogue_gain_hi','distance','state_distance','current_stat_diff','multiplier_diff','affected_stat_count_diff','class_mismatch'
+],responseAnalogueRows);
+writeCsv('experiment_metrics.csv',[
+  'experiment_id','source_file','player_id','origin_partition','current_partition','status','observed_at','age','tier','coach_label','multiplier','programme_family','transfer_class','affected_stat_count','observed_stat_count','is_duplicate','duplicate_of_experiment_id','fit_weight','state_key_complete','exact_corpus_state_id','nearest_corpus_state_id','nearest_corpus_player_id','nearest_corpus_player_name','nearest_state_distance','same_player_corpus_state_count','compatible_historical_response_rows','score_count'
+],experimentRows);
+writeCsv('experiment_state_neighbours.csv',[
+  'experiment_id','player_id','rank','corpus_state_id','corpus_player_id','corpus_player_name','distance','common_stat_count','stat_mad','class_mismatch_rate','age_diff','tier_diff','ovr_diff','role_jaccard_distance','exact_state_match'
+],experimentStateNeighbourRows);
+writeCsv('experiment_stat_analogues.csv',[
+  'experiment_id','player_id','stat','current_value','display_class','observed_gain_lo','observed_gain_hi','coach_label','multiplier','transfer_class','rank','analogue_response_id','analogue_player_id','analogue_player_name','analogue_state_id','analogue_current_value','analogue_display_class','analogue_coach_title','analogue_multiplier','analogue_gain_lo','analogue_gain_hi','distance','state_distance','current_stat_diff','multiplier_diff','affected_stat_count_diff','class_mismatch'
+],experimentStatAnalogueRows);
+
+const summary={
+  schemaVersion:'resource-coach-longitudinal-analysis-v1',
+  analysisScope:'all-corpus-states-and-all-immutable-runs',
+  corpusSchemaVersion:root.schemaVersion,
+  corpusSource:root.source??{},
+  counts:{
+    players:corpus.players.length,playerStates:stateFeatures.length,completePlayerStates:stateFeatures.filter(s=>s.stateComplete).length,
+    multiStatePlayers:[...statesByPlayer.values()].filter(a=>a.length>1).length,samePlayerStatePairs:statePairRows.length,
+    linkedLongitudinalPairs:statePairRows.filter(r=>r.relation==='linked-longitudinal-observations').length,
+    exactReobservations:statePairRows.filter(r=>r.relation==='exact-reobservation').length,
+    verifiedDirectTransitions:statePairRows.filter(r=>r.is_causal_transition).length,
+    coachDefinitions:corpus.coachDefinitions.length,coachInstances:corpus.coachInstances.length,coachPreviews:corpus.coachPreviews.length,
+    observedResponseRows:responses.length,uniqueObservedResponseRows:responses.filter(r=>r.fitWeight===1).length,duplicateObservedResponseRows:responses.filter(r=>r.fitWeight===0).length,responseAnalogueRows:responseAnalogueRows.length,immutableExperimentRuns:runs.length,
+    experimentMetricRows:experimentRows.length,experimentStateNeighbourRows:experimentStateNeighbourRows.length,experimentStatAnalogueRows:experimentStatAnalogueRows.length,
+  },
+  integrity:{
+    allStateStatsRetained:corpus.playerStateStats.length,
+    sourceDeclaredStateTransitions:corpus.stateTransitions.length,
+    noInferredCausalTransitions:statePairRows.filter(r=>r.is_causal_transition).length===corpus.stateTransitions.length,
+    heuristicDistancesAreDescriptiveOnly:true,
+    duplicateExperimentWeighting:'duplicates retained; fit_weight=0',
+  },
+  notes:[
+    'One run indexes the complete corpus; it does not select and persist one player at a time.',
+    'Same-player state pairs are longitudinal comparisons unless the corpus explicitly records a verified direct transition.',
+    'Exact re-observations are reported separately and are not counted as transitions.',
+    'State and response neighbour distances are deterministic similarity heuristics for retrieval/analysis, not fitted game equations.',
+    'Experiment intake is evaluated against the complete corpus in the same pass and emits per-experiment state and response analogues.'
+  ]
+};
+fs.writeFileSync(path.join(outDir,'summary.json'),JSON.stringify(summary,null,2)+'\n');
+const md=[
+  '## Corpus-wide longitudinal analysis','',
+  `- Players: **${summary.counts.players}** · states: **${summary.counts.playerStates}** · multi-state players: **${summary.counts.multiStatePlayers}**`,
+  `- Same-player state comparisons: **${summary.counts.samePlayerStatePairs}** · linked longitudinal: **${summary.counts.linkedLongitudinalPairs}** · exact re-observations: **${summary.counts.exactReobservations}**`,
+  `- Verified direct causal transitions: **${summary.counts.verifiedDirectTransitions}** (only source-declared transitions count)`,
+  `- Observed coach-response stat rows: **${summary.counts.observedResponseRows}** raw / **${summary.counts.uniqueObservedResponseRows}** unique · corpus analogue rows: **${summary.counts.responseAnalogueRows}**`,
+  `- Immutable experiment runs analyzed in the same pass: **${summary.counts.immutableExperimentRuns}** · experiment metric rows: **${summary.counts.experimentMetricRows}**`,
+  '',
+  'Analysis is corpus-wide. Similarity distances are descriptive retrieval metrics, not fitted transfer equations.'
+].join('\n');
+fs.writeFileSync(path.join(outDir,'summary.md'),md+'\n');
+console.log(JSON.stringify(summary,null,2));
