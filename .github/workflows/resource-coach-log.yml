@@ -4,8 +4,7 @@ on:
   pull_request:
     paths:
       - 'calibration/resource-coach-log/**'
-      - 'profiles/calibration_data.json'
-      - 'profiles/player_seeds.json'
+      - 'calibration/longitudinal-corpus/**'
       - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
       - 'tools/resource-coach-v2/ingest-experiment.mjs'
       - 'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs'
@@ -15,8 +14,7 @@ on:
     branches: [main]
     paths:
       - 'calibration/resource-coach-log/**'
-      - 'profiles/calibration_data.json'
-      - 'profiles/player_seeds.json'
+      - 'calibration/longitudinal-corpus/**'
       - 'tools/resource-coach-v2/aggregate-experiment-log.mjs'
       - 'tools/resource-coach-v2/ingest-experiment.mjs'
       - 'tools/resource-coach-v2/analyse-longitudinal-corpus.mjs'
@@ -32,19 +30,11 @@ on:
 permissions:
   contents: read
 
-env:
-  # Immutable source commit containing the version-controlled calibration campaign
-  # that underpins the longitudinal workbook. Current immutable experiment runs
-  # and current profile snapshots are added separately below.
-  LONGITUDINAL_CORPUS_REF: b7ffc212b703973d8ab29541e144e9fb52e7141e
-
 jobs:
   verify-log:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
@@ -68,24 +58,17 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Materialize versioned longitudinal corpus
+      - name: Materialize canonical longitudinal corpus
         run: |
           rm -rf /tmp/resource-coach-corpus
-          mkdir -p /tmp/resource-coach-corpus/historical /tmp/resource-coach-corpus/current-profiles
+          mkdir -p /tmp/resource-coach-corpus
 
-          # The historical calibration campaign is immutable Git evidence. The
-          # pinned commit is on a diverged calibration lineage, so fetch that exact
-          # object explicitly before archiving it.
-          git fetch --no-tags --depth=1 origin "$LONGITUDINAL_CORPUS_REF"
-          git archive "$LONGITUDINAL_CORPUS_REF" calibration | tar -x -C /tmp/resource-coach-corpus/historical
+          # Canonical normalized snapshot of the cleaned event-sourced workbook.
+          # It contains all 28 stable player identities, 38 immutable player states,
+          # 570 state-stat rows and 23 coach previews from the 2026-09-12 corpus.
+          cp calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64 /tmp/resource-coach-corpus/
 
-          # Current profile states extend the historical corpus. They are evidence
-          # sources, not replacements for older states.
-          cp profiles/calibration_data.json /tmp/resource-coach-corpus/current-profiles/calibration_data.json
-          cp profiles/player_seeds.json /tmp/resource-coach-corpus/current-profiles/player_seeds.json
-
-          test -s /tmp/resource-coach-corpus/historical/calibration/coach_experiments.v1.json
-          test -s /tmp/resource-coach-corpus/current-profiles/calibration_data.json
+          test -s /tmp/resource-coach-corpus/canonical-corpus-v1.json.gz.b64
 
       - name: Analyse every experiment against the full longitudinal corpus
         run: |
