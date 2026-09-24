@@ -292,3 +292,50 @@ The grey threshold falling on a round quality value suggests the game defines co
 scale. Displayed-unit constants are valid only at a fixed offset. Club level and view must now be
 recorded with every card and preview, and historic captures made under a different offset cannot
 be pooled in displayed units.
+
+## Addendum 4: Rodger substitute O arm; young-grey candidate
+
+Predictions frozen at `6b8731a`; files `control-*-20260924-rodger.json` and
+`preregistration-20260924-young-grey-control-O-substitute.json`. Ryan Rodger: 23, T0, AML/ML/AMC,
+club level 15. His four ordinary previews:
+
+- Drill Session Standard Attacking ×5 (1 hour);
+- Drill Session Standard Offensive ×10 (1 hour);
+- Drill Session Standard Defending ×20 (3 days);
+- Skill Seminar Standard Physical ×15 (8 days).
+
+A fifth preview, Reward Focused Defending ×4, is recorded as Reward evidence only.
+
+| Coach | H0 MAE / inside | Anchor A | Implied dose vs H0 |
+|---|---|---|---:|
+| ×5 | 1.74 / 67% | 1.66 | 0.95 |
+| ×10 | **2.11 / 100%** | 2.43 | 0.90 |
+| ×20 | 1.96 / 100% | — | 1.02 |
+| ×15 | 1.91 / 75% | — | 0.98 |
+| Pooled (15 rows) | **1.94 / 87%, 100% overlap** | | |
+
+- **Age-specificity supported (preregistered rule).** MID_GREY rows below 70 (Tackling 9, Bravery
+  28, Marking 49, Strength 41, Aggression 55) imply 1.018× H0, against 1.3–1.5× for Kawa and
+  Ferguson at 21.
+- **The regime-matched anchor also fails** (×10: A 2.43 against H0 2.11). Other-player coach
+  anchoring is not supported in any form tested.
+- **Transcription error, mine.** HEADING was frozen as MID_GREY; it is WHITE for an AMC and was
+  highlighted on the preview. The frozen file is left unchanged. Heading (start 84) is outside the
+  decision rule, and under the correct class the frozen model gives [39.7, 58.6] against the
+  observed [44, 59].
+
+**Post-hoc comparison (not validated).** "Controls" are the 35 rows from Ferguson, Kawa and Rodger.
+
+| Variant | CAL MAE (no Diamond) | x59 MAE / signed | Controls MAE / inside |
+|---|---|---|---|
+| frozen | 2.264 (2.047) | 2.342 / +2.09 | 4.990 / 59% |
+| young-grey g = 0.65, knot 80 | **2.208 (1.987)** | 2.342 / +2.09 | **1.979 / 94%** |
+| + young WHITE too | 2.159 (1.935) | 2.342 / +2.09 | 1.998 / 94% |
+| white threshold 127 | 3.485 (3.198) | **1.802 / −0.11** | 4.715 / 65% |
+| threshold 127 + young-grey | 3.429 (3.138) | 1.802 / −0.11 | 1.705 / 100% |
+
+The young-grey term is the one structural addition that improves or leaves unchanged every
+partition. It is recorded as research candidate `profiles/resource_coach_structure_candidate_20260924b.json`,
+superseding the falsified N − 1 candidate. The white-threshold change helps the 23–24 Sep data but
+degrades the 10–12 Sep archive at the same club level. That is an unresolved conflict between the
+two periods (same offset and ages; programme mix differs) and is not adopted.

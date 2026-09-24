@@ -1,0 +1,126 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "player": "Ryan Rodger",
+ "predictionsFrozenAtCommit": "6b8731a3e0efb014c771b73db471cf72c138f191",
+ "perCoach": {
+  "DS-STD-ATT-X5": {
+   "H0": {
+    "n": 3,
+    "midpointMae": 1.7448166666666676,
+    "pointInsideRate": 0.6666666666666666,
+    "overlapRate": 1.0,
+    "endpointMae": 1.7448166666666671,
+    "signedResidual": 0.9061500000000015,
+    "meanIoU": 0.5018397709766337
+   },
+   "A": {
+    "n": 3,
+    "midpointMae": 1.6590000000000014,
+    "pointInsideRate": 0.6666666666666666,
+    "overlapRate": 1.0,
+    "endpointMae": 1.6590000000000005,
+    "signedResidual": 0.5314000000000002,
+    "meanIoU": 0.5165753703585926
+   },
+   "impliedDoseVsH0_correctedClass": 0.9479232494637707,
+   "rowImpliedDoseVsH0_correctedClass": {
+    "PASSING": 1.0659829411539719,
+    "DRIBBLING": 0.7898896969140103,
+    "FINISHING": 0.8945432283400176
+   }
+  },
+  "DS-STD-OFF-X10": {
+   "H0": {
+    "n": 4,
+    "midpointMae": 2.1136625,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.1136624999999998,
+    "signedResidual": 2.1136625,
+    "meanIoU": 0.5832194476751651
+   },
+   "A": {
+    "n": 4,
+    "midpointMae": 2.4286125,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.4286125,
+    "signedResidual": -2.4286125,
+    "meanIoU": 0.5229101000977141
+   },
+   "impliedDoseVsH0_correctedClass": 0.8972957485703434,
+   "rowImpliedDoseVsH0_correctedClass": {
+    "CROSSING": 0.9229643865994113,
+    "SHOOTING": 0.8995352836833154,
+    "SPEED": 0.8810326941047778,
+    "CREATIVITY": 0.8810326941047778
+   }
+  },
+  "STD-DEF-X20": {
+   "H0": {
+    "n": 4,
+    "midpointMae": 1.964637500000002,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.1476124999999993,
+    "signedResidual": -1.964637500000002,
+    "meanIoU": 0.7898091770620449
+   },
+   "impliedDoseVsH0_correctedClass": 1.0236672228245918,
+   "rowImpliedDoseVsH0_correctedClass": {
+    "TACKLING": 1.024279517089696,
+    "MARKING": 1.0012140332455461,
+    "HEADING": 1.0607469374310092,
+    "BRAVERY": 1.0242795173461077
+   },
+   "headingCorrectedClassH0": [
+    39.72,
+    58.56004268694167
+   ]
+  },
+  "STD-PHY-X15": {
+   "H0": {
+    "n": 4,
+    "midpointMae": 1.905637500000001,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 1.9056374999999988,
+    "signedResidual": 1.0750874999999986,
+    "meanIoU": 0.6634033919276775
+   },
+   "impliedDoseVsH0_correctedClass": 0.9843988810775962,
+   "rowImpliedDoseVsH0_correctedClass": {
+    "FITNESS": 0.8534905687633386,
+    "STRENGTH": 1.019105245115469,
+    "AGGRESSION": 1.019105247335231,
+    "CREATIVITY": 0.8395732506662764
+   }
+  }
+ },
+ "lowGreyRowsImpliedDoseVsH0": 1.0178473582369902,
+ "pooled": {
+  "H0": {
+   "n": 15,
+   "midpointMae": 1.944680000000001,
+   "pointInsideRate": 0.8666666666666667,
+   "overlapRate": 1.0,
+   "endpointMae": 1.9934733333333328,
+   "signedResidual": 0.5076599999999994,
+   "meanIoU": 0.6434164919726302
+  },
+  "A": {
+   "n": 7,
+   "midpointMae": 2.098778571428572,
+   "pointInsideRate": 0.8571428571428571,
+   "overlapRate": 1.0,
+   "endpointMae": 2.098778571428572,
+   "signedResidual": -1.160035714285714,
+   "meanIoU": 0.5201952159238049
+  }
+ },
+ "verdicts": {
+  "ageSpecificity(O-substitute)": "SUPPORTED (MID_GREY rows below 70: Tackling 9, Bravery 28, Marking 49, Strength 41, Aggression 55; implied dose vs H0 = 1.018)",
+  "regimeMatchedAnchor(x10)": "A worse than H0",
+  "classError": "HEADING frozen as MID_GREY; correct class WHITE. Excluded from the decision by rule (start 84 >= 70)."
+ }
+}
