@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "fractional-settlement-evidence-v1",
+  "frozenDate": "2026-09-24",
+  "source": {
+    "googleDriveSpreadsheetId": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+    "title": "Resource Coach Experiment Log — v1",
+    "tabs": [
+      "Haggag_Drill_Sequence",
+      "Haggag_Teamplay_Raw",
+      "Haggag_Image_Index"
+    ],
+    "sourceImageCount": 163,
+    "uniqueFilenameCount": 152,
+    "providerDuplicateCount": 11
+  },
+  "player": {
+    "name": "Said Haggag",
+    "age": 22,
+    "roles": [
+      "ST"
+    ],
+    "tier": "T0",
+    "baseline": {
+      "ovr": 96,
+      "TACKLING": 82,
+      "DRIBBLING": 102,
+      "FINISHING": 121
+    },
+    "final": {
+      "ovr": 98,
+      "TACKLING": 87,
+      "DRIBBLING": 110,
+      "FINISHING": 129
+    },
+    "endpointGains": {
+      "TACKLING": 5,
+      "DRIBBLING": 8,
+      "FINISHING": 8,
+      "total": 21
+    }
+  },
+  "drill": {
+    "name": "1-on-1 Finishing",
+    "nominalConditionDrain": 1.5,
+    "campusConditionDrainModifier": 0.9,
+    "configuredConditionDrain": 1.35,
+    "affectedStats": [
+      "TACKLING",
+      "DRIBBLING",
+      "FINISHING"
+    ]
+  },
+  "reconstruction": {
+    "capturedTrainingReports": 115,
+    "transientBlankReport": "HAG-R047",
+    "inferredMissingRunsFromCaptureGaps": 9,
+    "inferredTotalRuns": 123,
+    "note": "123 is the minimal reconstruction that reconciles the marked multi-run -3/-4 capture gaps while treating HAG-R047 as a blank/transient report rather than an additional completed drill. It is a research reconstruction, not direct run-counter evidence.",
+    "conditionBlocks": [
+      {
+        "from": 100,
+        "to": 29,
+        "loss": 71,
+        "status": "conditional-on-start-100"
+      },
+      {
+        "from": 89,
+        "to": 29,
+        "loss": 60,
+        "status": "direct"
+      },
+      {
+        "from": 89,
+        "to": 54,
+        "loss": 35,
+        "status": "direct"
+      }
+    ],
+    "visibleConditionLoss": 166,
+    "configuredExpectedLossAt123Runs": 166.05
+  },
+  "cleanSingleRunCondition": {
+    "n": 102,
+    "loss1": 69,
+    "loss2": 33,
+    "pLoss2": 0.3235294117647059,
+    "nullFractionalPart": 0.35,
+    "exactTwoSidedBinomialP": 0.6053555959928927,
+    "wilson95": [
+      0.24057906530881729,
+      0.4192895683899344
+    ],
+    "adjacentPairCounts": {
+      "1->1": 44,
+      "1->2": 17,
+      "2->1": 19,
+      "2->2": 11
+    },
+    "lag1Correlation": 0.08960887825733524,
+    "fisherExactIndependenceP": 0.4705533789744172,
+    "chiSquareIndependenceP": 0.3926540059561756,
+    "conclusion": "Consistent with independent integer settlement around a fractional mean of 1.35; no detected serial dependence. This does not prove the game uses Bernoulli settlement."
+  },
+  "deterministicCarryTest": {
+    "model": "single conserved fractional phase; each run subtracts exactly 1.35; display is integer floor-state difference",
+    "verdict": "falsified-for-this-model",
+    "reason": "Clean adjacent -2/-2 outcomes occur. A 0.35 fractional increment cannot cross two integer boundaries on consecutive runs under a single conserved phase. Exhaustive phase scan also yields no admissible phase."
+  },
+  "statSettlement": {
+    "directRenderedPoints": 19,
+    "endpointPoints": 21,
+    "unrenderedPointsRequiredByEndpointConservation": 2,
+    "directGainRuns": {
+      "TACKLING": [
+        1,
+        53,
+        83,
+        114
+      ],
+      "DRIBBLING": [
+        9,
+        22,
+        35,
+        50,
+        66,
+        80,
+        97,
+        112
+      ],
+      "FINISHING": [
+        11,
+        23,
+        36,
+        51,
+        67,
+        82,
+        114
+      ]
+    },
+    "endpointGainCounts": {
+      "TACKLING": 5,
+      "DRIBBLING": 8,
+      "FINISHING": 8
+    },
+    "perRunEndpointRates": {
+      "TACKLING": 0.04065040650406504,
+      "DRIBBLING": 0.06504065040650407,
+      "FINISHING": 0.06504065040650407
+    },
+    "dribblingInterGainGaps": [
+      13,
+      13,
+      15,
+      16,
+      14,
+      17,
+      15
+    ],
+    "constantCarryVerdict": "falsified-for-dribbling",
+    "constantCarryReason": "A constant sub-unit increment crossing integer thresholds can generate at most two adjacent integer gap lengths; observed confirmed gaps span 13 through 17.",
+    "observedDirectDoubleGainRuns": 1,
+    "expectedDoubleGainRunsUnderIndependentEndpointRates": 1.1707317073170733,
+    "note": "The expected-double figure is a diagnostic using endpoint rates, not a fitted game mechanic."
+  },
+  "epistemicStatus": {
+    "established": [
+      "The configured condition cost is fractional (1.35%).",
+      "Observed per-run condition display settles to integers -1/-2.",
+      "A simple single-phase deterministic carry accumulator does not reproduce the clean ordered condition observations.",
+      "Endpoint stat gains exceed directly rendered report gains by two points."
+    ],
+    "supportedNotProven": [
+      "Independent stochastic integer settlement is compatible with the condition frequency and serial tests.",
+      "Per-stat low-probability settlement is compatible with the gain event pattern."
+    ],
+    "unresolved": [
+      "Whether Resource Coach uses the same settlement architecture.",
+      "Whether the coach preview interval endpoints are stochastic quantiles, rounded expectations, or another renderer.",
+      "Exact localization of the two unrendered stat points."
+    ]
+  }
+}
