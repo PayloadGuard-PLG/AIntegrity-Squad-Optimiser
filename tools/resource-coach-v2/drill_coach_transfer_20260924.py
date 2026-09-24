@@ -91,6 +91,14 @@ def gap_probability(first,last,k,width):
 
 def ordered_stat_checks(hag, rows):
     g=hag["statSettlement"]["directGainRuns"]
+    direct_ids = {stat:[] for stat in ("TACKLING","DRIBBLING","FINISHING")}
+    for r in rows:
+        if r.get("event_type") != "training_report": continue
+        gain = ",".join(str(r.get(k,"")) for k in ("stat_gain_1","stat_gain_2"))
+        for stat in direct_ids:
+            if stat+" +1" in gain: direct_ids[stat].append(r["record_id"])
+    if any(len(direct_ids[stat])!=len(g[stat]) for stat in direct_ids):
+        raise RuntimeError("Pinned inferred-run index gains disagree with ordered raw reported gains")
     D=g["DRIBBLING"]; F=g["FINISHING"]
     gaps=[b-a for a,b in zip(D,D[1:])]
     windows={d+lag for d in D for lag in (1,2)}
@@ -99,7 +107,7 @@ def ordered_stat_checks(hag, rows):
         shifted=[(f+shift-1)%123+1 for f in F]
         shift_hits.append(sum(f in windows for f in shifted))
     # No Bernoulli independence claim when gains share drill/session state.
-    return dict(directEvents=g,dribblingGaps=gaps,
+    return dict(directEvents=g,directRawIds=direct_ids,dribblingGaps=gaps,
                 independentFixedEndpointP=gap_probability(D[0],D[-1],len(D),max(gaps)-min(gaps)),
                 followingOneOrTwo=sum(f in windows for f in F),
                 totalFinishingReports=len(F),
