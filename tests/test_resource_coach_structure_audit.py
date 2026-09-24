@@ -267,6 +267,16 @@ class YoungGreyAnchorFreeze(unittest.TestCase):
                 if "YGA" in s:
                     self.assertEqual(s["YG"], s["YGA"])
 
+    FROZEN_PREDICTIONS = {'king-alfie': 'fb3c3f3260e401477f94e5eed9acbbb18faee6f52897604da7dee69acda077bc', 'andonov': '0c098b0b6eca0b4863f397148551ff4cc6bb435025c31578f8787059d5473558', 'cieran-morgan': 'e9f9f1c5399b78e43d3249b3632577015441f9202d8c1f710de65b1d6c94c68c', 'blakie': 'b6b5cf1235555c58a57337d37ab971ce96db1b67414bf7f21e30b34b4ff7affd'}
+
+    def test_player_predictions_are_frozen_and_regenerable(self):
+        for slug, digest in self.FROZEN_PREDICTIONS.items():
+            path = ROOT / "calibration" / "resource-coach-identification" / f"control-predictions-20260924-yga-{slug}.json"
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest, slug)
+            card = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-card-20260924-{slug}.json").read_text(encoding="utf-8"))
+            frozen = json.loads(path.read_text(encoding="utf-8"))["coaches"]
+            self.assertEqual(json.loads(json.dumps(self.fa.predict_card(card, self.table))), frozen, slug)
+
     def test_anchor_offsets_reproduce_from_committed_observations(self):
         yg = self.fa.yg_params()
         rebuilt = {ev["event"]: self.fa.yg_offset(ev, yg) for _, ev in self.fa.control_events()}

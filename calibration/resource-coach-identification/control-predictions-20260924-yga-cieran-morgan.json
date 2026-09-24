@@ -1,0 +1,2784 @@
+{
+ "schemaVersion": "resource-coach-control-predictions-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "anchorTable": "calibration/resource-coach-identification/anchor-table-20260924-young-grey.json",
+ "player": {
+  "name": "Cieran Morgan",
+  "age": 22,
+  "tier": "T4",
+  "roles": [
+   "DMC",
+   "MC",
+   "AMC"
+  ],
+  "stats": {
+   "TACKLING": 245,
+   "MARKING": 221,
+   "POSITIONING": 263,
+   "HEADING": 232,
+   "BRAVERY": 235,
+   "PASSING": 319,
+   "DRIBBLING": 263,
+   "CROSSING": 130,
+   "SHOOTING": 249,
+   "FINISHING": 220,
+   "FITNESS": 210,
+   "STRENGTH": 170,
+   "AGGRESSION": 173,
+   "SPEED": 199,
+   "CREATIVITY": 209
+  },
+  "classes": {
+   "TACKLING": "WHITE",
+   "MARKING": "WHITE",
+   "POSITIONING": "WHITE",
+   "HEADING": "WHITE",
+   "BRAVERY": "WHITE",
+   "PASSING": "WHITE",
+   "DRIBBLING": "WHITE",
+   "CROSSING": "MID_GREY",
+   "SHOOTING": "WHITE",
+   "FINISHING": "WHITE",
+   "FITNESS": "WHITE",
+   "STRENGTH": "WHITE",
+   "AGGRESSION": "WHITE",
+   "SPEED": "WHITE",
+   "CREATIVITY": "WHITE"
+  }
+ },
+ "coaches": [
+  {
+   "key": "DS-STD-ATT-X5",
+   "label": "Standard Attacking",
+   "programme": "DRILL SESSION",
+   "N": 5,
+   "p": 3,
+   "affectedSetKnown": true,
+   "anchor": {
+    "logOffset": -0.058704375,
+    "events": [
+     "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+     "MARK-ORDINARY-X5",
+     "CONTROL-ferguson-DS-STD-ATT-X5",
+     "CONTROL-kawa-DS-STD-ATT-X5",
+     "CONTROL-rodger-DS-STD-ATT-X5",
+     "CONTROL-midgley-DS-STD-ATT-X5",
+     "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+     "CONTROL-panic-DS-STD-ATT-X5"
+    ]
+   },
+   "anchorApplied": true,
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 245.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 3.562,
+      "rawHi": 5.2662,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.414
+     },
+     "YGA": {
+      "rawLo": 3.3715,
+      "rawHi": 4.9929,
+      "lo": 3,
+      "hi": 5,
+      "point": 4.182
+     },
+     "YGA_ungated": {
+      "rawLo": 3.3715,
+      "rawHi": 4.9929,
+      "lo": 3,
+      "hi": 5,
+      "point": 4.182
+     },
+     "YGA127": {
+      "rawLo": 2.7525,
+      "rawHi": 4.0989,
+      "lo": 2,
+      "hi": 5,
+      "point": 3.426
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 221.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 8.1658,
+      "rawHi": 11.6328,
+      "lo": 8,
+      "hi": 12,
+      "point": 9.899
+     },
+     "YGA": {
+      "rawLo": 7.7631,
+      "rawHi": 11.0923,
+      "lo": 7,
+      "hi": 12,
+      "point": 9.428
+     },
+     "YGA_ungated": {
+      "rawLo": 7.7631,
+      "rawHi": 11.0923,
+      "lo": 7,
+      "hi": 12,
+      "point": 9.428
+     },
+     "YGA127": {
+      "rawLo": 6.431,
+      "rawHi": 9.2836,
+      "lo": 6,
+      "hi": 10,
+      "point": 7.857
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 1.8457,
+      "rawHi": 2.7717,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.309
+     },
+     "YGA": {
+      "rawLo": 1.7439,
+      "rawHi": 2.6213,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.183
+     },
+     "YGA_ungated": {
+      "rawLo": 1.7439,
+      "rawHi": 2.6213,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.183
+     },
+     "YGA127": {
+      "rawLo": 1.4156,
+      "rawHi": 2.1344,
+      "lo": 1,
+      "hi": 3,
+      "point": 1.775
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 232.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 5.632,
+      "rawHi": 8.1823,
+      "lo": 5,
+      "hi": 9,
+      "point": 6.907
+     },
+     "YGA": {
+      "rawLo": 5.3417,
+      "rawHi": 7.7789,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.56
+     },
+     "YGA_ungated": {
+      "rawLo": 5.3417,
+      "rawHi": 7.7789,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.56
+     },
+     "YGA127": {
+      "rawLo": 4.3903,
+      "rawHi": 6.4444,
+      "lo": 4,
+      "hi": 7,
+      "point": 5.417
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 235.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 5.0752,
+      "rawHi": 7.4071,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.241
+     },
+     "YGA": {
+      "rawLo": 4.8109,
+      "rawHi": 7.0369,
+      "lo": 4,
+      "hi": 8,
+      "point": 5.924
+     },
+     "YGA_ungated": {
+      "rawLo": 4.8109,
+      "rawHi": 7.0369,
+      "lo": 4,
+      "hi": 8,
+      "point": 5.924
+     },
+     "YGA127": {
+      "rawLo": 3.947,
+      "rawHi": 5.8159,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.881
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 319.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 0.2219,
+      "rawHi": 0.3385,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.28
+     },
+     "YGA": {
+      "rawLo": 0.2093,
+      "rawHi": 0.3194,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.264
+     },
+     "YGA_ungated": {
+      "rawLo": 0.2093,
+      "rawHi": 0.3194,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.264
+     },
+     "YGA127": {
+      "rawLo": 0.169,
+      "rawHi": 0.2579,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.213
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 1.8457,
+      "rawHi": 2.7717,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.309
+     },
+     "YGA": {
+      "rawLo": 1.7439,
+      "rawHi": 2.6213,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.183
+     },
+     "YGA_ungated": {
+      "rawLo": 1.7439,
+      "rawHi": 2.6213,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.183
+     },
+     "YGA127": {
+      "rawLo": 1.4156,
+      "rawHi": 2.1344,
+      "lo": 1,
+      "hi": 3,
+      "point": 1.775
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 130.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 7.7706,
+      "rawHi": 11.1024,
+      "lo": 7,
+      "hi": 12,
+      "point": 9.437
+     },
+     "YGA": {
+      "rawLo": 7.3847,
+      "rawHi": 10.5819,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.983
+     },
+     "YGA_ungated": {
+      "rawLo": 7.3847,
+      "rawHi": 10.5819,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.983
+     },
+     "YGA127": {
+      "rawLo": 7.3847,
+      "rawHi": 10.5819,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.983
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 249.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 3.0838,
+      "rawHi": 4.5785,
+      "lo": 3,
+      "hi": 5,
+      "point": 3.831
+     },
+     "YGA": {
+      "rawLo": 2.9174,
+      "rawHi": 4.338,
+      "lo": 2,
+      "hi": 5,
+      "point": 3.628
+     },
+     "YGA_ungated": {
+      "rawLo": 2.9174,
+      "rawHi": 4.338,
+      "lo": 2,
+      "hi": 5,
+      "point": 3.628
+     },
+     "YGA127": {
+      "rawLo": 2.378,
+      "rawHi": 3.5533,
+      "lo": 2,
+      "hi": 4,
+      "point": 2.966
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 220.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 8.4387,
+      "rawHi": 11.9974,
+      "lo": 8,
+      "hi": 12,
+      "point": 10.218
+     },
+     "YGA": {
+      "rawLo": 8.0245,
+      "rawHi": 11.4434,
+      "lo": 8,
+      "hi": 12,
+      "point": 9.734
+     },
+     "YGA_ungated": {
+      "rawLo": 8.0245,
+      "rawHi": 11.4434,
+      "lo": 8,
+      "hi": 12,
+      "point": 9.734
+     },
+     "YGA127": {
+      "rawLo": 6.6531,
+      "rawHi": 9.5874,
+      "lo": 6,
+      "hi": 10,
+      "point": 8.12
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 210.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 11.5218,
+      "rawHi": 16.0729,
+      "lo": 11,
+      "hi": 17,
+      "point": 13.797
+     },
+     "YGA": {
+      "rawLo": 10.9802,
+      "rawHi": 15.3755,
+      "lo": 10,
+      "hi": 16,
+      "point": 13.178
+     },
+     "YGA_ungated": {
+      "rawLo": 10.9802,
+      "rawHi": 15.3755,
+      "lo": 10,
+      "hi": 16,
+      "point": 13.178
+     },
+     "YGA127": {
+      "rawLo": 9.2653,
+      "rawHi": 13.0941,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.18
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 170.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 13.24,
+      "rawHi": 20.244,
+      "lo": 13,
+      "hi": 21,
+      "point": 16.742
+     },
+     "YGA": {
+      "rawLo": 12.4851,
+      "rawHi": 19.0898,
+      "lo": 12,
+      "hi": 20,
+      "point": 15.787
+     },
+     "YGA_ungated": {
+      "rawLo": 12.4851,
+      "rawHi": 19.0898,
+      "lo": 12,
+      "hi": 20,
+      "point": 15.787
+     },
+     "YGA127": {
+      "rawLo": 12.4851,
+      "rawHi": 19.0898,
+      "lo": 12,
+      "hi": 20,
+      "point": 15.787
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 173.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 13.24,
+      "rawHi": 20.244,
+      "lo": 13,
+      "hi": 21,
+      "point": 16.742
+     },
+     "YGA": {
+      "rawLo": 12.4851,
+      "rawHi": 19.0898,
+      "lo": 12,
+      "hi": 20,
+      "point": 15.787
+     },
+     "YGA_ungated": {
+      "rawLo": 12.4851,
+      "rawHi": 19.0898,
+      "lo": 12,
+      "hi": 20,
+      "point": 15.787
+     },
+     "YGA127": {
+      "rawLo": 12.4851,
+      "rawHi": 19.0898,
+      "lo": 12,
+      "hi": 20,
+      "point": 15.787
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 199.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 13.24,
+      "rawHi": 19.5178,
+      "lo": 13,
+      "hi": 20,
+      "point": 16.379
+     },
+     "YGA": {
+      "rawLo": 12.4851,
+      "rawHi": 18.5816,
+      "lo": 12,
+      "hi": 19,
+      "point": 15.533
+     },
+     "YGA_ungated": {
+      "rawLo": 12.4851,
+      "rawHi": 18.5816,
+      "lo": 12,
+      "hi": 19,
+      "point": 15.533
+     },
+     "YGA127": {
+      "rawLo": 12.1383,
+      "rawHi": 17.2392,
+      "lo": 12,
+      "hi": 18,
+      "point": 14.689
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 209.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 11.8019,
+      "rawHi": 16.4697,
+      "lo": 11,
+      "hi": 17,
+      "point": 14.136
+     },
+     "YGA": {
+      "rawLo": 11.245,
+      "rawHi": 15.7558,
+      "lo": 11,
+      "hi": 16,
+      "point": 13.5
+     },
+     "YGA_ungated": {
+      "rawLo": 11.245,
+      "rawHi": 15.7558,
+      "lo": 11,
+      "hi": 16,
+      "point": 13.5
+     },
+     "YGA127": {
+      "rawLo": 9.5686,
+      "rawHi": 13.4937,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.531
+     }
+    }
+   ]
+  },
+  {
+   "key": "DS-STD-OFF-X10",
+   "label": "Standard Offensive",
+   "programme": "DRILL SESSION",
+   "N": 10,
+   "p": 4,
+   "affectedSetKnown": true,
+   "anchor": {
+    "logOffset": -0.13389974999999998,
+    "events": [
+     "LURINSKY-STD-OFF-X10-DRILL",
+     "LERCHL-STD-OFF-X10-DRILL",
+     "CONTROL-ferguson-DS-STD-OFF-X10",
+     "CONTROL-kawa-DS-STD-OFF-X10",
+     "CONTROL-rodger-DS-STD-OFF-X10",
+     "CONTROL-midgley-DS-STD-OFF-X10",
+     "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+     "CONTROL-panic-DS-STD-OFF-X10"
+    ]
+   },
+   "anchorApplied": true,
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 245.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 5.1756,
+      "rawHi": 7.5474,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.362
+     },
+     "YGA": {
+      "rawLo": 4.5806,
+      "rawHi": 6.713,
+      "lo": 4,
+      "hi": 7,
+      "point": 5.647
+     },
+     "YGA_ungated": {
+      "rawLo": 4.5806,
+      "rawHi": 6.713,
+      "lo": 4,
+      "hi": 7,
+      "point": 5.647
+     },
+     "YGA127": {
+      "rawLo": 3.7552,
+      "rawHi": 5.5424,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.649
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 221.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 11.4542,
+      "rawHi": 15.9463,
+      "lo": 11,
+      "hi": 16,
+      "point": 13.7
+     },
+     "YGA": {
+      "rawLo": 10.2661,
+      "rawHi": 14.4071,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.337
+     },
+     "YGA_ungated": {
+      "rawLo": 10.2661,
+      "rawHi": 14.4071,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.337
+     },
+     "YGA127": {
+      "rawLo": 8.5708,
+      "rawHi": 12.1734,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.372
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 2.7217,
+      "rawHi": 4.0542,
+      "lo": 2,
+      "hi": 5,
+      "point": 3.388
+     },
+     "YGA": {
+      "rawLo": 2.3958,
+      "rawHi": 3.5794,
+      "lo": 2,
+      "hi": 4,
+      "point": 2.988
+     },
+     "YGA_ungated": {
+      "rawLo": 2.3958,
+      "rawHi": 3.5794,
+      "lo": 2,
+      "hi": 4,
+      "point": 2.988
+     },
+     "YGA127": {
+      "rawLo": 1.9493,
+      "rawHi": 2.9243,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.437
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 232.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 8.0488,
+      "rawHi": 11.476,
+      "lo": 8,
+      "hi": 12,
+      "point": 9.762
+     },
+     "YGA": {
+      "rawLo": 7.1663,
+      "rawHi": 10.286,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.726
+     },
+     "YGA_ungated": {
+      "rawLo": 7.1663,
+      "rawHi": 10.286,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.726
+     },
+     "YGA127": {
+      "rawLo": 5.9253,
+      "rawHi": 8.588,
+      "lo": 5,
+      "hi": 9,
+      "point": 7.257
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 235.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 7.2845,
+      "rawHi": 10.4462,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.865
+     },
+     "YGA": {
+      "rawLo": 6.4757,
+      "rawHi": 9.3448,
+      "lo": 6,
+      "hi": 10,
+      "point": 7.91
+     },
+     "YGA_ungated": {
+      "rawLo": 6.4757,
+      "rawHi": 9.3448,
+      "lo": 6,
+      "hi": 10,
+      "point": 7.91
+     },
+     "YGA127": {
+      "rawLo": 5.3423,
+      "rawHi": 7.7798,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.561
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 319.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 0.3322,
+      "rawHi": 0.5062,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.419
+     },
+     "YGA": {
+      "rawLo": 0.2908,
+      "rawHi": 0.4433,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.367
+     },
+     "YGA_ungated": {
+      "rawLo": 0.2908,
+      "rawHi": 0.4433,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.367
+     },
+     "YGA127": {
+      "rawLo": 0.2348,
+      "rawHi": 0.3581,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.296
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 2.7217,
+      "rawHi": 4.0542,
+      "lo": 2,
+      "hi": 5,
+      "point": 3.388
+     },
+     "YGA": {
+      "rawLo": 2.3958,
+      "rawHi": 3.5794,
+      "lo": 2,
+      "hi": 4,
+      "point": 2.988
+     },
+     "YGA_ungated": {
+      "rawLo": 2.3958,
+      "rawHi": 3.5794,
+      "lo": 2,
+      "hi": 4,
+      "point": 2.988
+     },
+     "YGA127": {
+      "rawLo": 1.9493,
+      "rawHi": 2.9243,
+      "lo": 1,
+      "hi": 3,
+      "point": 2.437
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 130.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 10.9304,
+      "rawHi": 15.2703,
+      "lo": 10,
+      "hi": 16,
+      "point": 13.1
+     },
+     "YGA": {
+      "rawLo": 9.7869,
+      "rawHi": 13.7804,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.784
+     },
+     "YGA_ungated": {
+      "rawLo": 9.7869,
+      "rawHi": 13.7804,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.784
+     },
+     "YGA127": {
+      "rawLo": 9.7869,
+      "rawHi": 13.7804,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.784
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 249.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 4.4988,
+      "rawHi": 6.5976,
+      "lo": 4,
+      "hi": 7,
+      "point": 5.548
+     },
+     "YGA": {
+      "rawLo": 3.9758,
+      "rawHi": 5.8567,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.916
+     },
+     "YGA_ungated": {
+      "rawLo": 3.9758,
+      "rawHi": 5.8567,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.916
+     },
+     "YGA127": {
+      "rawLo": 3.2526,
+      "rawHi": 4.8219,
+      "lo": 3,
+      "hi": 5,
+      "point": 4.037
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 220.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 11.8144,
+      "rawHi": 16.4089,
+      "lo": 11,
+      "hi": 17,
+      "point": 14.112
+     },
+     "YGA": {
+      "rawLo": 10.596,
+      "rawHi": 14.8367,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.716
+     },
+     "YGA_ungated": {
+      "rawLo": 10.596,
+      "rawHi": 14.8367,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.716
+     },
+     "YGA127": {
+      "rawLo": 8.8551,
+      "rawHi": 12.5513,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.703
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 210.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 15.8429,
+      "rawHi": 21.5006,
+      "lo": 15,
+      "hi": 22,
+      "point": 18.672
+     },
+     "YGA": {
+      "rawLo": 14.3012,
+      "rawHi": 19.5902,
+      "lo": 14,
+      "hi": 20,
+      "point": 16.946
+     },
+     "YGA_ungated": {
+      "rawLo": 14.3012,
+      "rawHi": 19.5902,
+      "lo": 14,
+      "hi": 20,
+      "point": 16.946
+     },
+     "YGA127": {
+      "rawLo": 12.1506,
+      "rawHi": 16.8391,
+      "lo": 12,
+      "hi": 17,
+      "point": 14.495
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 170.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 19.86,
+      "rawHi": 30.3659,
+      "lo": 19,
+      "hi": 31,
+      "point": 25.113
+     },
+     "YGA": {
+      "rawLo": 17.3711,
+      "rawHi": 26.5604,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.966
+     },
+     "YGA_ungated": {
+      "rawLo": 17.3711,
+      "rawHi": 26.5604,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.966
+     },
+     "YGA127": {
+      "rawLo": 17.3711,
+      "rawHi": 26.5604,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.966
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 173.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 19.86,
+      "rawHi": 30.3659,
+      "lo": 19,
+      "hi": 31,
+      "point": 25.113
+     },
+     "YGA": {
+      "rawLo": 17.3711,
+      "rawHi": 26.5604,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.966
+     },
+     "YGA_ungated": {
+      "rawLo": 17.3711,
+      "rawHi": 26.5604,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.966
+     },
+     "YGA127": {
+      "rawLo": 17.3711,
+      "rawHi": 26.5604,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.966
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 199.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 19.2101,
+      "rawHi": 26.5441,
+      "lo": 19,
+      "hi": 27,
+      "point": 22.877
+     },
+     "YGA": {
+      "rawLo": 17.1219,
+      "rawHi": 24.1193,
+      "lo": 17,
+      "hi": 25,
+      "point": 20.621
+     },
+     "YGA_ungated": {
+      "rawLo": 17.1219,
+      "rawHi": 24.1193,
+      "lo": 17,
+      "hi": 25,
+      "point": 20.621
+     },
+     "YGA127": {
+      "rawLo": 16.0049,
+      "rawHi": 22.0136,
+      "lo": 16,
+      "hi": 23,
+      "point": 19.009
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 209.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 16.2344,
+      "rawHi": 22.012,
+      "lo": 16,
+      "hi": 23,
+      "point": 19.123
+     },
+     "YGA": {
+      "rawLo": 14.6551,
+      "rawHi": 20.064,
+      "lo": 14,
+      "hi": 21,
+      "point": 17.36
+     },
+     "YGA_ungated": {
+      "rawLo": 14.6551,
+      "rawHi": 20.064,
+      "lo": 14,
+      "hi": 21,
+      "point": 17.36
+     },
+     "YGA127": {
+      "rawLo": 12.5279,
+      "rawHi": 17.3199,
+      "lo": 12,
+      "hi": 18,
+      "point": 14.924
+     }
+    }
+   ]
+  },
+  {
+   "key": "STD-DEF-X20",
+   "label": "Standard Defending",
+   "programme": "DRILL SESSION",
+   "N": 20,
+   "p": 4,
+   "affectedSetKnown": false,
+   "anchor": {
+    "logOffset": 0.021972333333333344,
+    "events": [
+     "CONTROL-rodger-STD-DEF-X20",
+     "CONTROL-ljdark-leo-STD-DEF-X20",
+     "CONTROL-panic-STD-DEF-X20"
+    ]
+   },
+   "anchorApplied": true,
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 245.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 9.4914,
+      "rawHi": 13.3922,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.442
+     },
+     "YGA": {
+      "rawLo": 9.6676,
+      "rawHi": 13.6238,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.646
+     },
+     "YGA_ungated": {
+      "rawLo": 9.6676,
+      "rawHi": 13.6238,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.646
+     },
+     "YGA127": {
+      "rawLo": 8.0565,
+      "rawHi": 11.4863,
+      "lo": 8,
+      "hi": 12,
+      "point": 9.771
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 221.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 19.3831,
+      "rawHi": 25.7655,
+      "lo": 19,
+      "hi": 26,
+      "point": 22.574
+     },
+     "YGA": {
+      "rawLo": 19.685,
+      "rawHi": 26.1265,
+      "lo": 19,
+      "hi": 27,
+      "point": 22.906
+     },
+     "YGA_ungated": {
+      "rawLo": 19.685,
+      "rawHi": 26.1265,
+      "lo": 19,
+      "hi": 27,
+      "point": 22.906
+     },
+     "YGA127": {
+      "rawLo": 16.8656,
+      "rawHi": 22.7228,
+      "lo": 16,
+      "hi": 23,
+      "point": 19.794
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 5.1858,
+      "rawHi": 7.5616,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.374
+     },
+     "YGA": {
+      "rawLo": 5.2901,
+      "rawHi": 7.707,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.499
+     },
+     "YGA_ungated": {
+      "rawLo": 5.2901,
+      "rawHi": 7.707,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.499
+     },
+     "YGA127": {
+      "rawLo": 4.3471,
+      "rawHi": 6.3834,
+      "lo": 4,
+      "hi": 7,
+      "point": 5.365
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 232.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 14.1889,
+      "rawHi": 19.4152,
+      "lo": 14,
+      "hi": 20,
+      "point": 16.802
+     },
+     "YGA": {
+      "rawLo": 14.4308,
+      "rawHi": 19.7175,
+      "lo": 14,
+      "hi": 20,
+      "point": 17.074
+     },
+     "YGA_ungated": {
+      "rawLo": 14.4308,
+      "rawHi": 19.7175,
+      "lo": 14,
+      "hi": 20,
+      "point": 17.074
+     },
+     "YGA127": {
+      "rawLo": 12.1943,
+      "rawHi": 16.8948,
+      "lo": 12,
+      "hi": 17,
+      "point": 14.545
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 235.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 12.9708,
+      "rawHi": 17.8821,
+      "lo": 12,
+      "hi": 18,
+      "point": 15.426
+     },
+     "YGA": {
+      "rawLo": 13.1968,
+      "rawHi": 18.1679,
+      "lo": 13,
+      "hi": 19,
+      "point": 15.682
+     },
+     "YGA_ungated": {
+      "rawLo": 13.1968,
+      "rawHi": 18.1679,
+      "lo": 13,
+      "hi": 19,
+      "point": 15.682
+     },
+     "YGA127": {
+      "rawLo": 11.1128,
+      "rawHi": 15.5062,
+      "lo": 11,
+      "hi": 16,
+      "point": 13.31
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 319.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 0.6601,
+      "rawHi": 1.0027,
+      "lo": 0,
+      "hi": 2,
+      "point": 0.831
+     },
+     "YGA": {
+      "rawLo": 0.6746,
+      "rawHi": 1.0246,
+      "lo": 0,
+      "hi": 2,
+      "point": 0.85
+     },
+     "YGA_ungated": {
+      "rawLo": 0.6746,
+      "rawHi": 1.0246,
+      "lo": 0,
+      "hi": 2,
+      "point": 0.85
+     },
+     "YGA127": {
+      "rawLo": 0.5455,
+      "rawHi": 0.8295,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.687
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 5.1858,
+      "rawHi": 7.5616,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.374
+     },
+     "YGA": {
+      "rawLo": 5.2901,
+      "rawHi": 7.707,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.499
+     },
+     "YGA_ungated": {
+      "rawLo": 5.2901,
+      "rawHi": 7.707,
+      "lo": 5,
+      "hi": 8,
+      "point": 6.499
+     },
+     "YGA127": {
+      "rawLo": 4.3471,
+      "rawHi": 6.3834,
+      "lo": 4,
+      "hi": 7,
+      "point": 5.365
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 130.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 18.6066,
+      "rawHi": 24.8335,
+      "lo": 18,
+      "hi": 25,
+      "point": 21.72
+     },
+     "YGA": {
+      "rawLo": 18.9003,
+      "rawHi": 25.1868,
+      "lo": 18,
+      "hi": 26,
+      "point": 22.044
+     },
+     "YGA_ungated": {
+      "rawLo": 18.9003,
+      "rawHi": 25.1868,
+      "lo": 18,
+      "hi": 26,
+      "point": 22.044
+     },
+     "YGA127": {
+      "rawLo": 18.9003,
+      "rawHi": 25.1868,
+      "lo": 18,
+      "hi": 26,
+      "point": 22.044
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 249.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 8.3338,
+      "rawHi": 11.8574,
+      "lo": 8,
+      "hi": 12,
+      "point": 10.096
+     },
+     "YGA": {
+      "rawLo": 8.4918,
+      "rawHi": 12.0681,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.28
+     },
+     "YGA_ungated": {
+      "rawLo": 8.4918,
+      "rawHi": 12.0681,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.28
+     },
+     "YGA127": {
+      "rawLo": 7.0509,
+      "rawHi": 10.1294,
+      "lo": 7,
+      "hi": 11,
+      "point": 8.59
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 220.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 19.9127,
+      "rawHi": 26.3981,
+      "lo": 19,
+      "hi": 27,
+      "point": 23.155
+     },
+     "YGA": {
+      "rawLo": 20.2201,
+      "rawHi": 26.7641,
+      "lo": 20,
+      "hi": 27,
+      "point": 23.492
+     },
+     "YGA_ungated": {
+      "rawLo": 20.2201,
+      "rawHi": 26.7641,
+      "lo": 20,
+      "hi": 27,
+      "point": 23.492
+     },
+     "YGA127": {
+      "rawLo": 17.347,
+      "rawHi": 23.3095,
+      "lo": 17,
+      "hi": 24,
+      "point": 20.328
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 210.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 25.6754,
+      "rawHi": 33.1557,
+      "lo": 25,
+      "hi": 34,
+      "point": 29.416
+     },
+     "YGA": {
+      "rawLo": 26.0368,
+      "rawHi": 33.5699,
+      "lo": 26,
+      "hi": 34,
+      "point": 29.803
+     },
+     "YGA_ungated": {
+      "rawLo": 26.0368,
+      "rawHi": 33.5699,
+      "lo": 26,
+      "hi": 34,
+      "point": 29.803
+     },
+     "YGA127": {
+      "rawLo": 22.6872,
+      "rawHi": 29.6732,
+      "lo": 22,
+      "hi": 30,
+      "point": 26.18
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 170.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 39.72,
+      "rawHi": 56.3621,
+      "lo": 39,
+      "hi": 57,
+      "point": 48.041
+     },
+     "YGA": {
+      "rawLo": 40.6024,
+      "rawHi": 57.1457,
+      "lo": 40,
+      "hi": 58,
+      "point": 48.874
+     },
+     "YGA_ungated": {
+      "rawLo": 40.6024,
+      "rawHi": 57.1457,
+      "lo": 40,
+      "hi": 58,
+      "point": 48.874
+     },
+     "YGA127": {
+      "rawLo": 40.3741,
+      "rawHi": 54.5675,
+      "lo": 40,
+      "hi": 55,
+      "point": 47.471
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 173.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 39.7197,
+      "rawHi": 55.0735,
+      "lo": 39,
+      "hi": 56,
+      "point": 47.397
+     },
+     "YGA": {
+      "rawLo": 40.5836,
+      "rawHi": 55.808,
+      "lo": 40,
+      "hi": 56,
+      "point": 48.196
+     },
+     "YGA_ungated": {
+      "rawLo": 40.5836,
+      "rawHi": 55.808,
+      "lo": 40,
+      "hi": 56,
+      "point": 48.196
+     },
+     "YGA127": {
+      "rawLo": 39.8847,
+      "rawHi": 53.0527,
+      "lo": 39,
+      "hi": 54,
+      "point": 46.469
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 199.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 31.6915,
+      "rawHi": 40.5078,
+      "lo": 31,
+      "hi": 41,
+      "point": 36.1
+     },
+     "YGA": {
+      "rawLo": 32.1284,
+      "rawHi": 40.9837,
+      "lo": 32,
+      "hi": 41,
+      "point": 36.556
+     },
+     "YGA_ungated": {
+      "rawLo": 32.1284,
+      "rawHi": 40.9837,
+      "lo": 32,
+      "hi": 41,
+      "point": 36.556
+     },
+     "YGA127": {
+      "rawLo": 29.1425,
+      "rawHi": 37.271,
+      "lo": 29,
+      "hi": 38,
+      "point": 33.207
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 209.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 26.2597,
+      "rawHi": 33.8444,
+      "lo": 26,
+      "hi": 34,
+      "point": 30.052
+     },
+     "YGA": {
+      "rawLo": 26.6269,
+      "rawHi": 34.2635,
+      "lo": 26,
+      "hi": 35,
+      "point": 30.445
+     },
+     "YGA_ungated": {
+      "rawLo": 26.6269,
+      "rawHi": 34.2635,
+      "lo": 26,
+      "hi": 35,
+      "point": 30.445
+     },
+     "YGA127": {
+      "rawLo": 23.2733,
+      "rawHi": 30.3572,
+      "lo": 23,
+      "hi": 31,
+      "point": 26.815
+     }
+    }
+   ]
+  },
+  {
+   "key": "STD-PHY-X15",
+   "label": "Standard Physical",
+   "programme": "SKILL SEMINAR",
+   "N": 15,
+   "p": 4,
+   "affectedSetKnown": false,
+   "anchor": {
+    "logOffset": -0.07909474999999999,
+    "events": [
+     "CONTROL-rodger-STD-PHY-X15",
+     "CONTROL-midgley-STD-PHY-X15",
+     "CONTROL-ljdark-leo-STD-PHY-X15",
+     "CONTROL-panic-STD-PHY-X15"
+    ]
+   },
+   "anchorApplied": true,
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 245.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 7.4228,
+      "rawHi": 10.6334,
+      "lo": 7,
+      "hi": 11,
+      "point": 9.028
+     },
+     "YGA": {
+      "rawLo": 6.9269,
+      "rawHi": 9.9608,
+      "lo": 6,
+      "hi": 10,
+      "point": 8.444
+     },
+     "YGA_ungated": {
+      "rawLo": 6.9269,
+      "rawHi": 9.9608,
+      "lo": 6,
+      "hi": 10,
+      "point": 8.444
+     },
+     "YGA127": {
+      "rawLo": 5.723,
+      "rawHi": 8.3083,
+      "lo": 5,
+      "hi": 9,
+      "point": 7.016
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 221.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 15.7191,
+      "rawHi": 21.3159,
+      "lo": 15,
+      "hi": 22,
+      "point": 18.518
+     },
+     "YGA": {
+      "rawLo": 14.8058,
+      "rawHi": 20.1846,
+      "lo": 14,
+      "hi": 21,
+      "point": 17.495
+     },
+     "YGA_ungated": {
+      "rawLo": 14.8058,
+      "rawHi": 20.1846,
+      "lo": 14,
+      "hi": 21,
+      "point": 17.495
+     },
+     "YGA127": {
+      "rawLo": 12.5241,
+      "rawHi": 17.3151,
+      "lo": 12,
+      "hi": 18,
+      "point": 14.92
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 3.9829,
+      "rawHi": 5.8669,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.925
+     },
+     "YGA": {
+      "rawLo": 3.7005,
+      "rawHi": 5.4643,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.582
+     },
+     "YGA_ungated": {
+      "rawLo": 3.7005,
+      "rawHi": 5.4643,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.582
+     },
+     "YGA127": {
+      "rawLo": 3.0245,
+      "rawHi": 4.4929,
+      "lo": 3,
+      "hi": 5,
+      "point": 3.759
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 232.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 11.2994,
+      "rawHi": 15.7469,
+      "lo": 11,
+      "hi": 16,
+      "point": 13.523
+     },
+     "YGA": {
+      "rawLo": 10.5927,
+      "rawHi": 14.8323,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.712
+     },
+     "YGA_ungated": {
+      "rawLo": 10.5927,
+      "rawHi": 14.8323,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.712
+     },
+     "YGA127": {
+      "rawLo": 8.8522,
+      "rawHi": 12.5474,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.7
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 235.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 10.2825,
+      "rawHi": 14.4286,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.356
+     },
+     "YGA": {
+      "rawLo": 9.6283,
+      "rawHi": 13.5722,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.6
+     },
+     "YGA_ungated": {
+      "rawLo": 9.6283,
+      "rawHi": 13.5722,
+      "lo": 9,
+      "hi": 14,
+      "point": 11.6
+     },
+     "YGA127": {
+      "rawLo": 8.0228,
+      "rawHi": 11.4411,
+      "lo": 8,
+      "hi": 12,
+      "point": 9.732
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 319.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 0.4967,
+      "rawHi": 0.7556,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.626
+     },
+     "YGA": {
+      "rawLo": 0.4592,
+      "rawHi": 0.6989,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.579
+     },
+     "YGA_ungated": {
+      "rawLo": 0.4592,
+      "rawHi": 0.6989,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.579
+     },
+     "YGA127": {
+      "rawLo": 0.371,
+      "rawHi": 0.5652,
+      "lo": 0,
+      "hi": 1,
+      "point": 0.468
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 3.9829,
+      "rawHi": 5.8669,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.925
+     },
+     "YGA": {
+      "rawLo": 3.7005,
+      "rawHi": 5.4643,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.582
+     },
+     "YGA_ungated": {
+      "rawLo": 3.7005,
+      "rawHi": 5.4643,
+      "lo": 3,
+      "hi": 6,
+      "point": 4.582
+     },
+     "YGA127": {
+      "rawLo": 3.0245,
+      "rawHi": 4.4929,
+      "lo": 3,
+      "hi": 5,
+      "point": 3.759
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 130.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 15.0502,
+      "rawHi": 20.4883,
+      "lo": 15,
+      "hi": 21,
+      "point": 17.769
+     },
+     "YGA": {
+      "rawLo": 14.166,
+      "rawHi": 19.3866,
+      "lo": 14,
+      "hi": 20,
+      "point": 16.776
+     },
+     "YGA_ungated": {
+      "rawLo": 14.166,
+      "rawHi": 19.3866,
+      "lo": 14,
+      "hi": 20,
+      "point": 16.776
+     },
+     "YGA127": {
+      "rawLo": 14.166,
+      "rawHi": 19.3866,
+      "lo": 14,
+      "hi": 20,
+      "point": 16.776
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 249.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 6.4868,
+      "rawHi": 9.36,
+      "lo": 6,
+      "hi": 10,
+      "point": 7.923
+     },
+     "YGA": {
+      "rawLo": 6.0464,
+      "rawHi": 8.7551,
+      "lo": 6,
+      "hi": 9,
+      "point": 7.401
+     },
+     "YGA_ungated": {
+      "rawLo": 6.0464,
+      "rawHi": 8.7551,
+      "lo": 6,
+      "hi": 9,
+      "point": 7.401
+     },
+     "YGA127": {
+      "rawLo": 4.9812,
+      "rawHi": 7.2755,
+      "lo": 4,
+      "hi": 8,
+      "point": 6.128
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 220.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 16.177,
+      "rawHi": 21.8794,
+      "lo": 16,
+      "hi": 22,
+      "point": 19.028
+     },
+     "YGA": {
+      "rawLo": 15.244,
+      "rawHi": 20.7286,
+      "lo": 15,
+      "hi": 21,
+      "point": 17.986
+     },
+     "YGA_ungated": {
+      "rawLo": 15.244,
+      "rawHi": 20.7286,
+      "lo": 15,
+      "hi": 21,
+      "point": 17.986
+     },
+     "YGA127": {
+      "rawLo": 12.9103,
+      "rawHi": 17.8055,
+      "lo": 12,
+      "hi": 18,
+      "point": 15.358
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 210.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 21.2203,
+      "rawHi": 27.9746,
+      "lo": 21,
+      "hi": 28,
+      "point": 24.597
+     },
+     "YGA": {
+      "rawLo": 20.0876,
+      "rawHi": 26.6329,
+      "lo": 20,
+      "hi": 27,
+      "point": 23.36
+     },
+     "YGA_ungated": {
+      "rawLo": 20.0876,
+      "rawHi": 26.6329,
+      "lo": 20,
+      "hi": 27,
+      "point": 23.36
+     },
+     "YGA127": {
+      "rawLo": 17.2854,
+      "rawHi": 23.2345,
+      "lo": 17,
+      "hi": 24,
+      "point": 20.26
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 170.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 29.79,
+      "rawHi": 45.3936,
+      "lo": 29,
+      "hi": 46,
+      "point": 37.592
+     },
+     "YGA": {
+      "rawLo": 27.5245,
+      "rawHi": 42.085,
+      "lo": 27,
+      "hi": 43,
+      "point": 34.805
+     },
+     "YGA_ungated": {
+      "rawLo": 27.5245,
+      "rawHi": 42.085,
+      "lo": 27,
+      "hi": 43,
+      "point": 34.805
+     },
+     "YGA127": {
+      "rawLo": 27.5245,
+      "rawHi": 41.6451,
+      "lo": 27,
+      "hi": 42,
+      "point": 34.585
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 173.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 29.79,
+      "rawHi": 44.9581,
+      "lo": 29,
+      "hi": 45,
+      "point": 37.374
+     },
+     "YGA": {
+      "rawLo": 27.5245,
+      "rawHi": 41.9735,
+      "lo": 27,
+      "hi": 42,
+      "point": 34.749
+     },
+     "YGA_ungated": {
+      "rawLo": 27.5245,
+      "rawHi": 41.9735,
+      "lo": 27,
+      "hi": 42,
+      "point": 34.749
+     },
+     "YGA127": {
+      "rawLo": 27.5245,
+      "rawHi": 41.0415,
+      "lo": 27,
+      "hi": 42,
+      "point": 34.283
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 199.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 26.1913,
+      "rawHi": 34.4506,
+      "lo": 26,
+      "hi": 35,
+      "point": 30.321
+     },
+     "YGA": {
+      "rawLo": 24.7553,
+      "rawHi": 32.8464,
+      "lo": 24,
+      "hi": 33,
+      "point": 28.801
+     },
+     "YGA_ungated": {
+      "rawLo": 24.7553,
+      "rawHi": 32.8464,
+      "lo": 24,
+      "hi": 33,
+      "point": 28.801
+     },
+     "YGA127": {
+      "rawLo": 22.5706,
+      "rawHi": 29.7928,
+      "lo": 22,
+      "hi": 30,
+      "point": 26.182
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 209.0,
+     "displayClass": "WHITE",
+     "registeredAffected": null,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 21.7264,
+      "rawHi": 28.5943,
+      "lo": 21,
+      "hi": 29,
+      "point": 25.16
+     },
+     "YGA": {
+      "rawLo": 20.5715,
+      "rawHi": 27.2323,
+      "lo": 20,
+      "hi": 28,
+      "point": 23.902
+     },
+     "YGA_ungated": {
+      "rawLo": 20.5715,
+      "rawHi": 27.2323,
+      "lo": 20,
+      "hi": 28,
+      "point": 23.902
+     },
+     "YGA127": {
+      "rawLo": 17.7752,
+      "rawHi": 23.8293,
+      "lo": 17,
+      "hi": 24,
+      "point": 20.802
+     }
+    }
+   ]
+  },
+  {
+   "key": "SS-STD-SAFE-X59",
+   "label": "Standard Safeguard",
+   "programme": "SKILL SEMINAR",
+   "N": 59,
+   "p": 5,
+   "affectedSetKnown": true,
+   "anchor": {
+    "logOffset": -0.0785254,
+    "events": [
+     "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+     "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+     "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+     "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+     "CONTROL-ferguson-SS-STD-SAFE-X59"
+    ]
+   },
+   "anchorApplied": true,
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 245.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 18.5394,
+      "rawHi": 24.7526,
+      "lo": 18,
+      "hi": 25,
+      "point": 21.646
+     },
+     "YGA": {
+      "rawLo": 17.5179,
+      "rawHi": 23.5171,
+      "lo": 17,
+      "hi": 24,
+      "point": 20.517
+     },
+     "YGA_ungated": {
+      "rawLo": 17.5179,
+      "rawHi": 23.5171,
+      "lo": 17,
+      "hi": 24,
+      "point": 20.517
+     },
+     "YGA127": {
+      "rawLo": 14.9263,
+      "rawHi": 20.3344,
+      "lo": 14,
+      "hi": 21,
+      "point": 17.63
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 221.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 33.416,
+      "rawHi": 41.8501,
+      "lo": 33,
+      "hi": 42,
+      "point": 37.633
+     },
+     "YGA": {
+      "rawLo": 31.9538,
+      "rawHi": 40.2279,
+      "lo": 31,
+      "hi": 41,
+      "point": 36.091
+     },
+     "YGA_ungated": {
+      "rawLo": 31.9538,
+      "rawHi": 40.2279,
+      "lo": 31,
+      "hi": 41,
+      "point": 36.091
+     },
+     "YGA127": {
+      "rawLo": 28.1245,
+      "rawHi": 35.9285,
+      "lo": 28,
+      "hi": 36,
+      "point": 32.027
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 10.9046,
+      "rawHi": 15.2369,
+      "lo": 10,
+      "hi": 16,
+      "point": 13.071
+     },
+     "YGA": {
+      "rawLo": 10.2229,
+      "rawHi": 14.3508,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.287
+     },
+     "YGA_ungated": {
+      "rawLo": 10.2229,
+      "rawHi": 14.3508,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.287
+     },
+     "YGA127": {
+      "rawLo": 8.5337,
+      "rawHi": 12.1239,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.329
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 232.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 25.9587,
+      "rawHi": 33.4602,
+      "lo": 25,
+      "hi": 34,
+      "point": 29.709
+     },
+     "YGA": {
+      "rawLo": 24.6872,
+      "rawHi": 31.9971,
+      "lo": 24,
+      "hi": 32,
+      "point": 28.342
+     },
+     "YGA_ungated": {
+      "rawLo": 24.6872,
+      "rawHi": 31.9971,
+      "lo": 24,
+      "hi": 32,
+      "point": 28.342
+     },
+     "YGA127": {
+      "rawLo": 21.4029,
+      "rawHi": 28.1649,
+      "lo": 21,
+      "hi": 29,
+      "point": 24.784
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 235.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 24.1069,
+      "rawHi": 31.3258,
+      "lo": 24,
+      "hi": 32,
+      "point": 27.716
+     },
+     "YGA": {
+      "rawLo": 22.8914,
+      "rawHi": 29.9118,
+      "lo": 22,
+      "hi": 30,
+      "point": 26.402
+     },
+     "YGA_ungated": {
+      "rawLo": 22.8914,
+      "rawHi": 29.9118,
+      "lo": 22,
+      "hi": 30,
+      "point": 26.402
+     },
+     "YGA127": {
+      "rawLo": 19.7648,
+      "rawHi": 26.2217,
+      "lo": 19,
+      "hi": 27,
+      "point": 22.993
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 319.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 1.5319,
+      "rawHi": 2.3073,
+      "lo": 1,
+      "hi": 3,
+      "point": 1.92
+     },
+     "YGA": {
+      "rawLo": 1.4193,
+      "rawHi": 2.14,
+      "lo": 1,
+      "hi": 3,
+      "point": 1.78
+     },
+     "YGA_ungated": {
+      "rawLo": 1.4193,
+      "rawHi": 2.14,
+      "lo": 1,
+      "hi": 3,
+      "point": 1.78
+     },
+     "YGA127": {
+      "rawLo": 1.1507,
+      "rawHi": 1.7395,
+      "lo": 1,
+      "hi": 2,
+      "point": 1.445
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 263.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 10.9046,
+      "rawHi": 15.2369,
+      "lo": 10,
+      "hi": 16,
+      "point": 13.071
+     },
+     "YGA": {
+      "rawLo": 10.2229,
+      "rawHi": 14.3508,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.287
+     },
+     "YGA_ungated": {
+      "rawLo": 10.2229,
+      "rawHi": 14.3508,
+      "lo": 10,
+      "hi": 15,
+      "point": 12.287
+     },
+     "YGA127": {
+      "rawLo": 8.5337,
+      "rawHi": 12.1239,
+      "lo": 8,
+      "hi": 13,
+      "point": 10.329
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 130.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 32.3406,
+      "rawHi": 40.6579,
+      "lo": 32,
+      "hi": 41,
+      "point": 36.499
+     },
+     "YGA": {
+      "rawLo": 30.9028,
+      "rawHi": 39.0554,
+      "lo": 30,
+      "hi": 40,
+      "point": 34.979
+     },
+     "YGA_ungated": {
+      "rawLo": 30.9028,
+      "rawHi": 39.0554,
+      "lo": 30,
+      "hi": 40,
+      "point": 34.979
+     },
+     "YGA127": {
+      "rawLo": 30.9028,
+      "rawHi": 39.0554,
+      "lo": 30,
+      "hi": 40,
+      "point": 34.979
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 249.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 16.5794,
+      "rawHi": 22.3729,
+      "lo": 16,
+      "hi": 23,
+      "point": 19.476
+     },
+     "YGA": {
+      "rawLo": 15.6362,
+      "rawHi": 21.2136,
+      "lo": 15,
+      "hi": 22,
+      "point": 18.425
+     },
+     "YGA_ungated": {
+      "rawLo": 15.6362,
+      "rawHi": 21.2136,
+      "lo": 15,
+      "hi": 22,
+      "point": 18.425
+     },
+     "YGA127": {
+      "rawLo": 13.2566,
+      "rawHi": 18.2434,
+      "lo": 13,
+      "hi": 19,
+      "point": 15.75
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 220.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 34.1425,
+      "rawHi": 42.6525,
+      "lo": 34,
+      "hi": 43,
+      "point": 38.398
+     },
+     "YGA": {
+      "rawLo": 32.6645,
+      "rawHi": 41.0176,
+      "lo": 32,
+      "hi": 42,
+      "point": 36.841
+     },
+     "YGA_ungated": {
+      "rawLo": 32.6645,
+      "rawHi": 41.0176,
+      "lo": 32,
+      "hi": 42,
+      "point": 36.841
+     },
+     "YGA127": {
+      "rawLo": 28.7891,
+      "rawHi": 36.6803,
+      "lo": 28,
+      "hi": 37,
+      "point": 32.735
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 210.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 41.7733,
+      "rawHi": 50.9655,
+      "lo": 41,
+      "hi": 51,
+      "point": 46.369
+     },
+     "YGA": {
+      "rawLo": 40.1501,
+      "rawHi": 49.2174,
+      "lo": 40,
+      "hi": 50,
+      "point": 44.684
+     },
+     "YGA_ungated": {
+      "rawLo": 40.1501,
+      "rawHi": 49.2174,
+      "lo": 40,
+      "hi": 50,
+      "point": 44.684
+     },
+     "YGA127": {
+      "rawLo": 35.8827,
+      "rawHi": 44.5654,
+      "lo": 35,
+      "hi": 45,
+      "point": 40.224
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 170.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 70.8966,
+      "rawHi": 83.8219,
+      "lo": 70,
+      "hi": 84,
+      "point": 77.359
+     },
+     "YGA": {
+      "rawLo": 68.3907,
+      "rawHi": 81.497,
+      "lo": 68,
+      "hi": 82,
+      "point": 74.944
+     },
+     "YGA_ungated": {
+      "rawLo": 68.3907,
+      "rawHi": 81.497,
+      "lo": 68,
+      "hi": 82,
+      "point": 74.944
+     },
+     "YGA127": {
+      "rawLo": 64.7925,
+      "rawHi": 77.1257,
+      "lo": 64,
+      "hi": 78,
+      "point": 70.959
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 173.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 68.8899,
+      "rawHi": 81.4311,
+      "lo": 68,
+      "hi": 82,
+      "point": 75.16
+     },
+     "YGA": {
+      "rawLo": 66.4822,
+      "rawHi": 79.1624,
+      "lo": 66,
+      "hi": 80,
+      "point": 72.822
+     },
+     "YGA_ungated": {
+      "rawLo": 66.4822,
+      "rawHi": 79.1624,
+      "lo": 66,
+      "hi": 80,
+      "point": 72.822
+     },
+     "YGA127": {
+      "rawLo": 62.8048,
+      "rawHi": 74.7608,
+      "lo": 62,
+      "hi": 75,
+      "point": 68.783
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 199.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "categoryStat": false,
+     "YG": {
+      "rawLo": 50.2056,
+      "rawHi": 60.1881,
+      "lo": 50,
+      "hi": 61,
+      "point": 55.197
+     },
+     "YGA": {
+      "rawLo": 48.4083,
+      "rawHi": 58.312,
+      "lo": 48,
+      "hi": 59,
+      "point": 53.36
+     },
+     "YGA_ungated": {
+      "rawLo": 48.4083,
+      "rawHi": 58.312,
+      "lo": 48,
+      "hi": 59,
+      "point": 53.36
+     },
+     "YGA127": {
+      "rawLo": 44.2401,
+      "rawHi": 53.6994,
+      "lo": 44,
+      "hi": 54,
+      "point": 48.97
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 209.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "categoryStat": true,
+     "YG": {
+      "rawLo": 42.55,
+      "rawHi": 51.8088,
+      "lo": 42,
+      "hi": 52,
+      "point": 47.179
+     },
+     "YGA": {
+      "rawLo": 40.9124,
+      "rawHi": 50.0499,
+      "lo": 40,
+      "hi": 51,
+      "point": 45.481
+     },
+     "YGA_ungated": {
+      "rawLo": 40.9124,
+      "rawHi": 50.0499,
+      "lo": 40,
+      "hi": 51,
+      "point": 45.481
+     },
+     "YGA127": {
+      "rawLo": 36.6341,
+      "rawHi": 45.3875,
+      "lo": 36,
+      "hi": 46,
+      "point": 41.011
+     }
+    }
+   ]
+  }
+ ]
+}
