@@ -4,7 +4,7 @@
  * Run with:  npm run test:projection
  *
  * Tests the core logic chain in isolation — no Expo, no React Native, no DB.
- * Covers: OVR formula, drill XP pipeline, drill intensity multipliers,
+ * Covers: OVR formula, drill XP pipeline, fixed drill intensity / catalogue invariants,
  * tier upgrades, training-cap (180-rule), role weight classification,
  * fixture window, and restorer bridge.
  */
@@ -12,7 +12,7 @@
 import { projectOvr, computeOvrWithPadding, applyDrillSessionsToStats } from '../src/logic/ovrProjector';
 import { calculateFixtureCycles, calculateRestorersBridge } from '../src/logic/fixtureEngine';
 import { isWhiteStat, getWhiteStatKeys, getAllStatKeys, validateRoleAdjacency } from '../src/utils/roleWeights';
-import { DRILL_LIST } from '../src/database/drillDatabase';
+import { DRILL_LIST, TRAINING_XP_PER_PLAYER } from '../src/database/drillDatabase';
 import gameProfileJson from '../profiles/game_2025.json';
 import { GameProfile, DrillSession, TalentTier, TierName } from '../src/types/resources';
 
@@ -104,51 +104,44 @@ section('1. OVR formula  (floor of stat mean / qualityOvrDivisor)');
   assert(`Partial stats (7×120 pad 8×100) → OVR ${expected}`, ovr === expected);
 }
 
-// ─── 2. Drill intensity multipliers ───────────────────────────────────────────
+// ─── 2. Verified ordinary drill baseline ───────────────────────────────────────
 
-section('2. Drill intensity multipliers');
+section('2. Verified ordinary drill baseline');
 
 {
-  const ve   = profile.drillLevelMultipliers['Very Easy'];
-  const easy = profile.drillLevelMultipliers['Easy'];
-  const med  = profile.drillLevelMultipliers['Medium'];
-  const hard = profile.drillLevelMultipliers['Hard'];
-  const vh   = profile.drillLevelMultipliers['Very Hard'];
-  assert(`VE (${ve}) < Easy (${easy})`,    ve   < easy);
-  assert(`Easy (${easy}) < Med (${med})`,  easy < med);
-  assert(`Med (${med}) < Hard (${hard})`,  med  < hard);
-  assert(`Hard (${hard}) < VH (${vh})`,    hard < vh);
+  assert('Ordinary baseline contains exactly 29 drills', DRILL_LIST.length === 29);
+
+  const counts = DRILL_LIST.reduce<Record<string, number>>((acc, d) => {
+    acc[d.type] = (acc[d.type] ?? 0) + 1;
+    return acc;
+  }, {});
+  assert('Attack baseline count = 7', counts.Attack === 7);
+  assert('Defence baseline count = 7', counts.Defence === 7);
+  assert('Possession baseline count = 7', counts.Possession === 7);
+  assert('Physical baseline count = 8', counts.Physical === 8);
+  assert('All ordinary baseline drills use baseLoss 0.75', DRILL_LIST.every(d => d.baseLoss === 0.75));
+  assert('Special/reward drills are outside DRILL_LIST', DRILL_LIST.every(d => d.isBase));
 }
 
 {
-  // Touch Training is Very Easy; Pressure Trap is Medium — medium drill must give more gain
-  const mcStats = {
-    TACKLING: 80, MARKING: 80, POSITIONING: 80, BRAVERY: 80,
-    PASSING: 80, DRIBBLING: 80,
-    FITNESS: 80, STRENGTH: 80, SPEED: 80, CREATIVITY: 80,
-    HEADING: 70, CROSSING: 70, SHOOTING: 70, FINISHING: 70, AGGRESSION: 70,
-  };
-  const p = player({ role: ['MC'], stats: mcStats, overall: 80 });
+  assert('Very Easy awards +1 training XP/player', TRAINING_XP_PER_PLAYER['Very Easy'] === 1);
+  assert('Easy awards +2 training XP/player', TRAINING_XP_PER_PLAYER['Easy'] === 2);
+  assert('Medium awards +3 training XP/player', TRAINING_XP_PER_PLAYER['Medium'] === 3);
+  assert('Hard awards +4 training XP/player', TRAINING_XP_PER_PLAYER['Hard'] === 4);
+  assert('Very Hard awards +5 training XP/player', TRAINING_XP_PER_PLAYER['Very Hard'] === 5);
 
-  const veSession:  DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 10, drillLevel: 'Very Easy' }];
-  const medSession: DrillSession[] = [{ drillName: 'Pressure Trap',  sessionCount: 10, drillLevel: 'Medium'   }];
-
-  const { finalOvr: veOvr  } = projectOvr(p, veSession,  'Normal', 'Very Easy', null, 0, false, profile);
-  const { finalOvr: medOvr } = projectOvr(p, medSession, 'Normal', 'Medium',    null, 0, false, profile);
-
-  assert(
-    `Medium drill (OVR ${medOvr.toFixed(1)}) ≥ VE drill (OVR ${veOvr.toFixed(1)}) for same session count`,
-    medOvr >= veOvr
-  );
+  const q = profile.drillQualityTrainingEffectPct ?? {};
+  assert('Amateur training effect = +0%', q['Amateur'] === 0);
+  assert('Semi-Pro training effect = +10%', q['Semi-Pro'] === 10);
+  assert('Pro training effect = +20%', q['Pro'] === 20);
+  assert('World-class training effect = +30%', q['World-class'] === 30);
 }
 
-// ─── 3. Drill uses drill.intensity (not session.drillLevel) ───────────────────
+// ─── 3. Fixed intensity is catalogue-owned; quality is a separate axis ───────
 
-section('3. ovrProjector uses drill.intensity (not session.drillLevel hardcode)');
+section('3. Drill intensity is catalogue-owned and not a selectable XP multiplier');
 
 {
-  // Touch Training is VE intensity. Sending it as session.drillLevel='Hard' must NOT
-  // produce a Hard-level gain — the engine must ignore session.drillLevel and use drill.intensity.
   const mc = player({
     role: ['MC'],
     overall: 80,
@@ -160,19 +153,17 @@ section('3. ovrProjector uses drill.intensity (not session.drillLevel hardcode)'
     },
   });
 
-  // Touch Training has VE intensity; "Hurdle Work" is Hard intensity.
-  const sessionA: DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 10, drillLevel: 'Hard' }]; // wrong level
-  const sessionB: DrillSession[] = [{ drillName: 'Hurdle Work',    sessionCount: 10, drillLevel: 'Very Easy' }]; // wrong level
+  // Same drill, same state, same sessions. The legacy persisted drillLevel field
+  // must not change permanent-stat output: intensity comes from the catalogue,
+  // and the separate Amateur→World-class training-effect transfer is uncalibrated.
+  const veLabel: DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 10, drillLevel: 'Very Easy' }];
+  const hardLabel: DrillSession[] = [{ drillName: 'Touch Training', sessionCount: 10, drillLevel: 'Hard' }];
 
-  const { finalOvr: ovrA } = projectOvr(mc, sessionA, 'Normal', 'Hard',      null, 0, false, profile);
-  const { finalOvr: ovrB } = projectOvr(mc, sessionB, 'Normal', 'Very Easy', null, 0, false, profile);
+  const a = projectOvr(mc, veLabel, 'Normal', 'Very Easy', null, 0, false, profile);
+  const b = projectOvr(mc, hardLabel, 'Normal', 'Hard', null, 0, false, profile);
 
-  // ovrB (Hurdle Work, hard intensity) should beat or equal ovrA (Touch Training, VE intensity)
-  // regardless of what drillLevel the session specified
-  assert(
-    `Hurdle Work (hard intensity) gain ≥ Touch Training (VE intensity) — intensity comes from drill DB not session`,
-    ovrB >= ovrA
-  );
+  assertClose('Legacy session.drillLevel cannot change fixed-drill OVR projection', b.finalOvr, a.finalOvr, 1e-9);
+  assert('Touch Training remains Very Easy in catalogue', DRILL_LIST.find(d => d.name === 'Touch Training')?.intensity === 'Very Easy');
 }
 
 // ─── 4. Tier upgrade OVR ──────────────────────────────────────────────────────
@@ -409,15 +400,15 @@ section('11. Drill database sanity checks');
 {
   const names = DRILL_LIST.map(d => d.name);
   assert('Touch Training in drill list',   names.includes('Touch Training'));
-  assert('Pressure Trap in drill list',    names.includes('Pressure Trap'));
-  assert('Defence Blueprint in drill list', names.includes('Defence Blueprint'));
+  assert('Line Hold in drill list',        names.includes('Line Hold'));
+  assert('Break Away in drill list',       names.includes('Break Away'));
 
   const tt = DRILL_LIST.find(d => d.name === 'Touch Training');
   assert('Touch Training intensity = Very Easy', tt?.intensity === 'Very Easy');
   assert('Touch Training type = Possession',     tt?.type === 'Possession');
 
-  const db = DRILL_LIST.find(d => d.name === 'Defence Blueprint');
-  assert('Defence Blueprint intensity = Very Hard', db?.intensity === 'Very Hard');
+  const db = DRILL_LIST.find(d => d.name === 'Break Away');
+  assert('Break Away intensity = Very Hard', db?.intensity === 'Very Hard');
 
   // All drills must have a non-empty stats array
   const missing = DRILL_LIST.filter(d => !d.stats || d.stats.length === 0);

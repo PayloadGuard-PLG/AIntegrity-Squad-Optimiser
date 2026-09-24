@@ -1,11 +1,6 @@
-import { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
-import { DrillSession, DrillLevel } from '../types/resources';
-import { DRILL_LIST } from '../database/drillDatabase';
-
-const DRILL_LEVELS: DrillLevel[] = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'];
-const BASE_DRILLS = DRILL_LIST.filter(d => d.isBase);
-const ALL_DRILLS = DRILL_LIST;
+import { DrillSession } from '../types/resources';
+import { DRILL_LIST, TRAINING_XP_PER_PLAYER } from '../database/drillDatabase';
 
 interface Props {
   value: DrillSession;
@@ -26,10 +21,11 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
 }
 
 export function DrillSessionRow({ value, onChange, onRemove }: Props) {
-  const [showAll, setShowAll] = useState(false);
   const drill = DRILL_LIST.find(d => d.name === value.drillName);
-  const typeColor = drill?.type === 'Attack' ? '#6366f1' : drill?.type === 'Defence' ? '#22c55e' : '#f59e0b';
-  const visibleDrills = showAll ? ALL_DRILLS : BASE_DRILLS;
+  const typeColor = drill?.type === 'Attack' ? '#6366f1'
+    : drill?.type === 'Defence' ? '#22c55e'
+    : drill?.type === 'Possession' ? '#f59e0b'
+    : '#a78bfa';
 
   return (
     <View style={{ backgroundColor: '#1a1d27', borderRadius: 12, padding: 14, marginBottom: 10, gap: 10 }}>
@@ -43,27 +39,22 @@ export function DrillSessionRow({ value, onChange, onRemove }: Props) {
           )}
           <Text style={{ color: '#9ca3af', fontSize: 12, fontWeight: '600' }}>DRILL</Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Pressable onPress={() => setShowAll(v => !v)}>
-            <Text style={{ color: showAll ? '#6366f1' : '#4b5563', fontSize: 11 }}>{showAll ? 'Base only' : '+ Lab/Event'}</Text>
-          </Pressable>
-          <Pressable onPress={onRemove}>
-            <Text style={{ color: '#ef4444', fontSize: 18, fontWeight: '700', paddingHorizontal: 8 }}>×</Text>
-          </Pressable>
-        </View>
+        <Pressable onPress={onRemove}>
+          <Text style={{ color: '#ef4444', fontSize: 18, fontWeight: '700', paddingHorizontal: 8 }}>×</Text>
+        </Pressable>
       </View>
 
-      {/* Drill name picker */}
+      {/* Ordinary baseline drill picker. Special/reward drills are deliberately outside DRILL_LIST. */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{ flexDirection: 'row', flexWrap: 'nowrap' }}>
-          {visibleDrills.map(d => (
+          {DRILL_LIST.map(d => (
             <Chip key={d.name} label={d.name} active={value.drillName === d.name}
-              onPress={() => onChange({ ...value, drillName: d.name })} />
+              onPress={() => onChange({ ...value, drillName: d.name, drillLevel: d.intensity })} />
           ))}
         </View>
       </ScrollView>
 
-      {/* Sessions + Level */}
+      {/* Session count + fixed drill intensity. Intensity is a property of the drill, not a user-selected level. */}
       <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
         <View style={{ width: 90 }}>
           <Text style={{ color: '#9ca3af', fontSize: 11, marginBottom: 4 }}>SESSIONS</Text>
@@ -74,17 +65,15 @@ export function DrillSessionRow({ value, onChange, onRemove }: Props) {
             style={{ backgroundColor: '#0f1117', color: '#e2e8f0', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 14 }} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#9ca3af', fontSize: 11, marginBottom: 4 }}>LEVEL</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-            {DRILL_LEVELS.map(level => (
-              <Chip key={level} label={level} active={value.drillLevel === level}
-                onPress={() => onChange({ ...value, drillLevel: level })} />
-            ))}
+          <Text style={{ color: '#9ca3af', fontSize: 11, marginBottom: 4 }}>INTENSITY</Text>
+          <View style={{ backgroundColor: '#0f1117', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+            <Text style={{ color: '#e2e8f0', fontSize: 12, fontWeight: '600' }}>
+              {drill ? `${drill.intensity} · +${TRAINING_XP_PER_PLAYER[drill.intensity]} XP/player` : '—'}
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* Trained stats */}
       {drill && (
         <Text style={{ color: '#4b5563', fontSize: 11 }}>
           Trains: {drill.stats.join(' · ')}

@@ -584,42 +584,59 @@ PLAYER STATS section uses `OUTFIELD_STATS` or `GK_STATS_ALL` (full 15) — not `
 
 ## Drill System
 
-### Intensity Levels (Fixed Per Drill)
-Each drill has one fixed `DrillIntensity` level per drill.
-The drills tab filters to `d.intensity === drillLevel` — it does NOT weight by intensity.
+### Current ordinary baseline (2026-09-23)
 
-| Intensity | Drills |
+`DRILL_LIST` contains **29 ordinary baseline drills** verified directly from the current
+drill-picker UI. Special/reward/masterclass drills are deliberately outside the runtime
+baseline and are calibrated separately.
+
+Each drill has one fixed **intensity**. Intensity controls nominal condition drain and the
+displayed training-XP award; it is not a user-selectable drill level and it is not a
+permanent-stat XP multiplier.
+
+| Intensity | Baseline drills |
 |---|---|
 | Very Easy | Touch Training, Tactical Review, Activation |
-| Easy | Run & Strike, Solo Finish, Aerial Work, Touch and Go, Porky in Centre, First Touch, Back Line Drill, Compact Block, Head Drill, Flexibility Session, Footwork Ladder |
-| Medium | Target Practice, Dead Ball Practice, Endurance Loop, Wide Switch, Channel Hold, Physical Duel, Build-Up Play (Hard), Pressure Trap, Challenge Drill, Box Clearance, Win the Ball, Line Hold, Cross Defence |
-| Hard | Wide Channel, Cone Weave, High Press, GK Protocol, Hurdle Work, Interval Runs, Plyometrics, Shuttle Run |
-| Very Hard | Break Away, Attack Blueprint, Defence Blueprint, Weight Room, Speed Work |
+| Easy | Solo Finish, Run & Strike, Head Drill, Porky in Centre, First Touch, Flexibility Session, Footwork Ladder |
+| Medium | Dead Ball Practice, Target Practice, Line Hold, Win the Ball, Cross Defence, Wide Switch, Channel Hold, Physical Duel, Endurance Loop |
+| Hard | Cone Weave, Wide Channel, High Press, GK Protocol, Build-Up Play, Shuttle Run, Hurdle Work |
+| Very Hard | Break Away, Weight Room, Speed Work |
 
-Touch Training trains: `['HEADING', 'CREATIVITY', 'CONCENTRATION', 'DRIBBLING']`, intensity Very Easy, baseLoss 0.75.
+The Drills tab's selector is an **INTENSITY filter** only. Session editors display the
+selected drill's intensity read-only. The persisted `DrillSession.drillLevel` field remains
+for backward compatibility but cannot override the catalogue.
 
-### Condition Drain Formula (calibrated from game screenshots)
+### Intensity outputs
 
-```
-actualLoss = baseLoss × intensityMultiplier × (1 - fanReduction / 100)
-```
+| Intensity | Nominal condition drain | Training XP / player |
+|---|---:|---:|
+| Very Easy | 0.75% | +1 |
+| Easy | 1.50% | +2 |
+| Medium | 2.25% | +3 |
+| Hard | 3.00% | +4 |
+| Very Hard | 3.75% | +5 |
 
-| Intensity | baseLoss | Multiplier | Drain L0 (−10%) | Drain L4 (−50%) |
-|---|---|---|---|---|
-| Very Easy | 0.75 | ×1 | 0.675% | **0.375% → ZERO DRAIN** |
-| Easy | 0.75 | ×2 | 1.35% | 0.75% |
-| Medium | 0.75 | ×3 | 2.025% | 1.125% |
-| Hard | 0.75 | ×4 | 2.70% | 1.50% |
-| Very Hard | 0.75 | ×5 | 3.375% | 1.875% |
+Perfect Conditions is a separate condition modifier: L0–L4 remove
+10% / 15% / 20% / 25% / 50% of raw drain while active.
 
-Fan club reductions: `{ L0: 10%, L1: 15%, L2: 20%, L3: 25%, L4: 50% }` — confirmed from screenshots.
-Zero-drain threshold: `actualLoss < 0.38` — only Very Easy at L4 (0.375%) qualifies.
-Max drain cap: Very Hard at L0 = 3.375% — naturally under 3.5% with no clamping needed.
+**RAW is exact; charged drain is not.** Charged drain remains the observed integer
+per-player distribution/envelope with a 1% minimum. There is no zero-drain drill.
 
-**Items needing further calibration** (marked UNCONFIRMED):
-- Age penalty on training rate — formula unknown
-- XP cost curve above stat 100 — only Infinity at ≥180 confirmed
-- Exact training rate multipliers for talent tiers beyond Normal/Slow
+### Drill quality / training effect is a separate axis
+
+The game displays drill quality independently of intensity:
+
+| Drill quality | Displayed training effect |
+|---|---:|
+| Amateur | +0% |
+| Semi-Pro | +10% |
+| Pro | +20% |
+| World-class | +30% |
+
+These percentages are observed UI values. Their transfer into permanent-stat XP is **not
+yet calibrated**. The production drill predictor therefore applies `drillLevelMult = 1.0`
+instead of fabricating a quality effect from intensity. The global `drillXpFactor` remains
+explicitly provisional until controlled before/after drill experiments identify the dose law.
 
 ---
 

@@ -11,7 +11,6 @@ import { NewRoleBar } from '../../src/components/atoms/NewRoleBar';
 import { getDrillRecommendations } from '../../src/logic/controller';
 import { drillPresetService } from '../../src/services/drillPresetService';
 import { drillPlanHistoryService } from '../../src/services/drillPlanHistoryService';
-import { findSubFloorBundle } from '../../src/logic/zeroDrainEngine';
 import { DRILL_LIST } from '../../src/database/drillDatabase';
 import { sessionDrain, MIN_CONDITION_DRAIN_PCT } from '../../src/utils/conditionEngine';
 import { projectDrillAction } from '../../src/logic/recommendation';
@@ -42,9 +41,7 @@ export default function DrillsScreen() {
   const [surgeActive, setSurgeActive] = useState(false);
   const [surgeLevel, setSurgeLevel] = useState<SurgeLevel>(0);
   const surge: SurgeState = { perfectConditionsActive: surgeActive, perfectConditionsLevel: surgeLevel };
-  // Sub-floor bundle only exists at Perfect Conditions active L4; null otherwise.
-  const bundle = findSubFloorBundle(surge);
-  const [drillLevel, setDrillLevel] = useState<string>('Very Easy');
+  const [intensityFilter, setIntensityFilter] = useState<string>('Very Easy');
 
   // Preset build mode
   const [presetMode, setPresetMode] = useState(false);
@@ -75,8 +72,8 @@ export default function DrillsScreen() {
   const drills = useMemo(() => {
     if (!selectedPlayer) return [];
     return getDrillRecommendations(selectedPlayer, surge)
-      .filter(d => d.intensity === drillLevel);
-  }, [selectedPlayer, surgeActive, surgeLevel, drillLevel]);
+      .filter(d => d.intensity === intensityFilter);
+  }, [selectedPlayer, surgeActive, surgeLevel, intensityFilter]);
 
   function togglePresetDrill(name: string) {
     setPresetSelection(prev => {
@@ -219,15 +216,15 @@ export default function DrillsScreen() {
           </View>
         )}
 
-        {/* Drill level selector */}
+        {/* Fixed drill-intensity filter */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <MonoLabel color={theme.steelLight}>DRILL LEVEL</MonoLabel>
+          <MonoLabel color={theme.steelLight}>INTENSITY</MonoLabel>
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 14, gap: 6, flexWrap: 'wrap' }}>
           {['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'].map(l => {
-            const sel = drillLevel === l;
+            const sel = intensityFilter === l;
             return (
-              <Pressable key={l} onPress={() => setDrillLevel(l)} style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
+              <Pressable key={l} onPress={() => setIntensityFilter(l)} style={{ paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: sel ? theme.ink : theme.hairline2, backgroundColor: sel ? theme.ink : 'transparent' }}>
                 <Text style={{ fontFamily: theme.mono, fontSize: 10, letterSpacing: 1, color: sel ? theme.bg : theme.inkSec }}>{l.toUpperCase()}</Text>
               </Pressable>
             );
@@ -238,9 +235,7 @@ export default function DrillsScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <MonoLabel color={theme.steelLight}>PERFECT CONDITIONS</MonoLabel>
           <View style={{ flex: 1, height: 1, backgroundColor: theme.hairline }} />
-          {bundle
-            ? <MonoLabel size={9} color={theme.pos}>BUNDLE: {bundle.intensities.length} DRILLS / 1 CHARGE</MonoLabel>
-            : <MonoLabel size={9} color={theme.inkGhost}>MIN CHARGE {MIN_CONDITION_DRAIN_PCT.toFixed(2)}%</MonoLabel>}
+          <MonoLabel size={9} color={theme.inkGhost}>MIN CHARGE {MIN_CONDITION_DRAIN_PCT.toFixed(2)}%</MonoLabel>
         </View>
         {/* Surge activation — loyalty resets each season, so OFF is the default */}
         <View style={{ flexDirection: 'row', marginBottom: 8, borderWidth: 1, borderColor: theme.hairline2 }}>
@@ -326,8 +321,10 @@ export default function DrillsScreen() {
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
                     </View>
                     <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
+                    <MonoLabel size={8} color={theme.inkGhost}>{d.intensity.toUpperCase()}</MonoLabel>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.steelLight }}>+{d.trainingXp} XP</Text>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{Math.round(d.efficiency * 100)}%</Text>
-                    <MonoLabel size={8} color={theme.inkGhost}>EFF</MonoLabel>
+                    <MonoLabel size={8} color={theme.inkGhost}>WHITE</MonoLabel>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.condition.expected < 2 ? theme.hot : theme.neg }}>{d.rawLoss.toFixed(2)}%</Text>
                     <MonoLabel size={7} color={theme.inkGhost}>{d.condition.low}–{d.condition.high} BILLED</MonoLabel>
                     <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>

@@ -676,11 +676,11 @@ test('the match-form doubling item cannot change academy coach stat gain', () =>
   assert.equal(on.finalOvr, off.finalOvr);
 });
 
-test('the drill level / intensity conflation is reported as unresolved, not modelled away', () => {
+test('drill quality / training effect is surfaced separately from fixed intensity', () => {
   const result = projectDrillAction({ player: player(), drillNames: ['Touch Training'], cycles: 10, profile });
-  const flag = result.reasons.find(r => r.code === 'drill.levelVsIntensity');
-  assert.ok(flag, 'the uncalibrated intensity→training-effect mapping must be surfaced');
-  assert.equal(flag!.evidence, 'assumed');
+  const flag = result.reasons.find(r => r.code === 'drill.trainingEffectUncalibrated');
+  assert.ok(flag, 'the uncalibrated drill-quality → permanent-stat XP mapping must be surfaced');
+  assert.equal(flag!.evidence, 'unavailable');
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

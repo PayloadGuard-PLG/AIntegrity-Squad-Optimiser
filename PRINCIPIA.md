@@ -139,7 +139,8 @@ recorded against each; a constant with no game observation behind it is marked s
 | `ρ(ℓ)` | fanClubCondReduction | .10 / .15 / .20 / .25 / .50 | **Confirmed** — fractions, not percentages |
 | `m` | minimumConditionDrainPct | 1.0 | **Confirmed** |
 | — | conditionPerRestorer | 15 | **Confirmed** |
-| — | drillLevelMultipliers (XP) | 1.0 / 1.15 / 1.3 / 1.55 / 1.7 | **Assumed** |
+| — | drillLevelMultipliers (legacy XP proxy) | 1.0 / 1.15 / 1.3 / 1.55 / 1.7 | **Retired from production drill path** — conflated intensity with quality |
+| — | drillQualityTrainingEffectPct | 0 / 10 / 20 / 30 | **Observed** — Amateur / Semi-Pro / Pro / World-class display values; XP transfer uncalibrated |
 | — | drillXpFactor | 0.3 | **Assumed** — uncalibrated |
 | — | starDecayPerSession | 0.85 | **Inert** — not applied in the budget path |
 | — | zeroDrainThreshold | 0.38 | **Retired** — the mechanic was patched out |

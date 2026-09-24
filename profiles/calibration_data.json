@@ -2269,7 +2269,7 @@
       "talent_slow_0_47": "PROVISIONAL — Cieran Morgan ×30 ATK back-calculation gives mean implied mult 0.46 ≈ 0.47. Edit screen not yet confirmed. 5/5 stats in range at 0.47.",
       "talent_grant": "Normal ×1.0 (confirmed sprint 26)",
       "talent_rodger": "Normal ×1.0 (confirmed sprint 26)",
-      "drillLevelMultipliers": "confirmed from game screenshots",
+      "drillLevelMultipliers": "RETIRED AS XP EVIDENCE — this table conflated fixed drill intensity with the separate drill-quality/training-effect axis. Current UI confirms condition intensity and +1..+5 training XP; quality displays +0/+10/+20/+30, but its permanent-stat XP transfer is uncalibrated.",
       "greyWeightMultiplier_0_22": "0.22 confirmed for ordinary Academy coaching — back-calculated from Grant ×40 HEADING. It is excluded as a universal Reward Coach multiplier by the matched age-26 Reward pair.",
       "ageTable": "Ordinary-coach support remains at 18-20 and the existing ordinary observations. Former McCluskey/Reward and 2026-09-08 Reward-sweep age inferences are withdrawn. The Reward rows do not calibrate age 24/28/29/30+.",
       "ageTable_21_23_0_85_partial": "Validated by use: Dallas (age 23) ×4 Safeguard observations used ageMult=0.85 and all 3 stats landed inside game ranges at bXPS=676/K=47. Not a standalone controlled test — ageMult and bXPS were solved simultaneously. Treat as partial confirmation pending a dedicated age 21-23 controlled observation.",
