@@ -1,6 +1,6 @@
 {
   "schemaVersion": "resource-coach-prospective-input-v1",
-  "status": "frozen-before-selected-player-preview",
+  "status": "scored-prospective-outcomes",
   "recordedDate": "2026-09-24",
   "lockProvenance": "GitHub commit created before any selected-player coach preview was supplied in this conversation.",
   "evidence": {
@@ -146,7 +146,158 @@
           "rawHi": 22.430857
         }
       },
-      "observed": null
+      "observed": {
+        "source": "chat_upload:63920.png",
+        "statIntervals": {
+          "HEADING": [
+            48,
+            57
+          ],
+          "BRAVERY": [
+            57,
+            69
+          ],
+          "FITNESS": [
+            49,
+            58
+          ],
+          "STRENGTH": [
+            60,
+            72
+          ],
+          "CREATIVITY": [
+            52,
+            61
+          ]
+        },
+        "ovr": [
+          18,
+          22
+        ],
+        "scoredStats": [
+          {
+            "stat": "HEADING",
+            "start": 116,
+            "displayClass": "WHITE",
+            "predicted": [
+              52,
+              63
+            ],
+            "point": 57.57,
+            "observed": [
+              48,
+              57
+            ],
+            "pointInsideObserved": false,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 6,
+            "midpointError": 5,
+            "midpointAbsError": 5,
+            "intervalIoU": 0.3333333333333333
+          },
+          {
+            "stat": "BRAVERY",
+            "start": 94,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              59,
+              71
+            ],
+            "point": 64.976,
+            "observed": [
+              57,
+              69
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 2,
+            "highError": 2,
+            "midpointError": 2,
+            "midpointAbsError": 2,
+            "intervalIoU": 0.7142857142857143
+          },
+          {
+            "stat": "FITNESS",
+            "start": 115,
+            "displayClass": "WHITE",
+            "predicted": [
+              53,
+              64
+            ],
+            "point": 58.358,
+            "observed": [
+              49,
+              58
+            ],
+            "pointInsideObserved": false,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 6,
+            "midpointError": 5,
+            "midpointAbsError": 5,
+            "intervalIoU": 0.3333333333333333
+          },
+          {
+            "stat": "STRENGTH",
+            "start": 90,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              62,
+              74
+            ],
+            "point": 68.039,
+            "observed": [
+              60,
+              72
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 2,
+            "highError": 2,
+            "midpointError": 2,
+            "midpointAbsError": 2,
+            "intervalIoU": 0.7142857142857143
+          },
+          {
+            "stat": "CREATIVITY",
+            "start": 112,
+            "displayClass": "WHITE",
+            "predicted": [
+              55,
+              66
+            ],
+            "point": 60.71,
+            "observed": [
+              52,
+              61
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 3,
+            "highError": 5,
+            "midpointError": 4,
+            "midpointAbsError": 4,
+            "intervalIoU": 0.42857142857142855
+          }
+        ],
+        "ovrScore": {
+          "predicted": [
+            18,
+            23
+          ],
+          "point": 20.644,
+          "observed": [
+            18,
+            22
+          ],
+          "pointInsideObserved": true,
+          "intervalOverlap": true,
+          "midpointError": 0.5,
+          "midpointAbsError": 0.5,
+          "intervalIoU": 0.8
+        }
+      }
     },
     {
       "testId": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
@@ -275,7 +426,158 @@
           "rawHi": 19.105908
         }
       },
-      "observed": null
+      "observed": {
+        "source": "chat_upload:63932.png",
+        "statIntervals": {
+          "HEADING": [
+            54,
+            65
+          ],
+          "BRAVERY": [
+            40,
+            49
+          ],
+          "FITNESS": [
+            41,
+            50
+          ],
+          "STRENGTH": [
+            51,
+            60
+          ],
+          "CREATIVITY": [
+            35,
+            44
+          ]
+        },
+        "ovr": [
+          15,
+          18
+        ],
+        "scoredStats": [
+          {
+            "stat": "HEADING",
+            "start": 98,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              56,
+              68
+            ],
+            "point": 61.879,
+            "observed": [
+              54,
+              65
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 2,
+            "highError": 3,
+            "midpointError": 2.5,
+            "midpointAbsError": 2.5,
+            "intervalIoU": 0.6428571428571429
+          },
+          {
+            "stat": "BRAVERY",
+            "start": 127,
+            "displayClass": "WHITE",
+            "predicted": [
+              44,
+              54
+            ],
+            "point": 48.795,
+            "observed": [
+              40,
+              49
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 5,
+            "midpointError": 4.5,
+            "midpointAbsError": 4.5,
+            "intervalIoU": 0.35714285714285715
+          },
+          {
+            "stat": "FITNESS",
+            "start": 125,
+            "displayClass": "WHITE",
+            "predicted": [
+              45,
+              56
+            ],
+            "point": 50.405,
+            "observed": [
+              41,
+              50
+            ],
+            "pointInsideObserved": false,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 6,
+            "midpointError": 5,
+            "midpointAbsError": 5,
+            "intervalIoU": 0.3333333333333333
+          },
+          {
+            "stat": "STRENGTH",
+            "start": 104,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              52,
+              63
+            ],
+            "point": 57.176,
+            "observed": [
+              51,
+              60
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 1,
+            "highError": 3,
+            "midpointError": 2,
+            "midpointAbsError": 2,
+            "intervalIoU": 0.6666666666666666
+          },
+          {
+            "stat": "CREATIVITY",
+            "start": 133,
+            "displayClass": "WHITE",
+            "predicted": [
+              39,
+              49
+            ],
+            "point": 43.931,
+            "observed": [
+              35,
+              44
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 5,
+            "midpointError": 4.5,
+            "midpointAbsError": 4.5,
+            "intervalIoU": 0.35714285714285715
+          }
+        ],
+        "ovrScore": {
+          "predicted": [
+            15,
+            20
+          ],
+          "point": 17.479,
+          "observed": [
+            15,
+            18
+          ],
+          "pointInsideObserved": true,
+          "intervalOverlap": true,
+          "midpointError": 1,
+          "midpointAbsError": 1,
+          "intervalIoU": 0.6
+        }
+      }
     },
     {
       "testId": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
@@ -404,7 +706,158 @@
           "rawHi": 13.734922
         }
       },
-      "observed": null
+      "observed": {
+        "source": "chat_upload:63929.png",
+        "statIntervals": {
+          "HEADING": [
+            33,
+            43
+          ],
+          "BRAVERY": [
+            34,
+            46
+          ],
+          "FITNESS": [
+            31,
+            41
+          ],
+          "STRENGTH": [
+            38,
+            50
+          ],
+          "CREATIVITY": [
+            25,
+            34
+          ]
+        },
+        "ovr": [
+          11,
+          14
+        ],
+        "scoredStats": [
+          {
+            "stat": "HEADING",
+            "start": 119,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              32,
+              41
+            ],
+            "point": 36.823,
+            "observed": [
+              33,
+              43
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": -1,
+            "highError": -2,
+            "midpointError": -1.5,
+            "midpointAbsError": 1.5,
+            "intervalIoU": 0.7272727272727273
+          },
+          {
+            "stat": "BRAVERY",
+            "start": 115,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              35,
+              45
+            ],
+            "point": 39.773,
+            "observed": [
+              34,
+              46
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 1,
+            "highError": -1,
+            "midpointError": 0,
+            "midpointAbsError": 0,
+            "intervalIoU": 0.8333333333333334
+          },
+          {
+            "stat": "FITNESS",
+            "start": 133,
+            "displayClass": "WHITE",
+            "predicted": [
+              31,
+              40
+            ],
+            "point": 35.706,
+            "observed": [
+              31,
+              41
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 0,
+            "highError": -1,
+            "midpointError": -0.5,
+            "midpointAbsError": 0.5,
+            "intervalIoU": 0.9
+          },
+          {
+            "stat": "STRENGTH",
+            "start": 109,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              39,
+              49
+            ],
+            "point": 44.112,
+            "observed": [
+              38,
+              50
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 1,
+            "highError": -1,
+            "midpointError": 0,
+            "midpointAbsError": 0,
+            "intervalIoU": 0.8333333333333334
+          },
+          {
+            "stat": "CREATIVITY",
+            "start": 143,
+            "displayClass": "WHITE",
+            "predicted": [
+              24,
+              33
+            ],
+            "point": 28.662,
+            "observed": [
+              25,
+              34
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": -1,
+            "highError": -1,
+            "midpointError": -1,
+            "midpointAbsError": 1,
+            "intervalIoU": 0.8
+          }
+        ],
+        "ovrScore": {
+          "predicted": [
+            10,
+            14
+          ],
+          "point": 12.338,
+          "observed": [
+            11,
+            14
+          ],
+          "pointInsideObserved": true,
+          "intervalOverlap": true,
+          "midpointError": -0.5,
+          "midpointAbsError": 0.5,
+          "intervalIoU": 0.75
+        }
+      }
     },
     {
       "testId": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
@@ -533,7 +986,170 @@
           "rawHi": 24.723009
         }
       },
-      "observed": null
+      "observed": {
+        "source": "chat_upload:63926.png",
+        "statIntervals": {
+          "HEADING": [
+            68,
+            82
+          ],
+          "BRAVERY": [
+            66,
+            81
+          ],
+          "FITNESS": [
+            51,
+            67
+          ],
+          "STRENGTH": [
+            62,
+            76
+          ],
+          "CREATIVITY": [
+            51,
+            67
+          ]
+        },
+        "ovr": [
+          20,
+          25
+        ],
+        "scoredStats": [
+          {
+            "stat": "HEADING",
+            "start": 88,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              71,
+              84
+            ],
+            "point": 77.416,
+            "observed": [
+              68,
+              82
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 3,
+            "highError": 2,
+            "midpointError": 2.5,
+            "midpointAbsError": 2.5,
+            "intervalIoU": 0.6875
+          },
+          {
+            "stat": "BRAVERY",
+            "start": 90,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              70,
+              82
+            ],
+            "point": 75.774,
+            "observed": [
+              66,
+              81
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 1,
+            "midpointError": 2.5,
+            "midpointAbsError": 2.5,
+            "intervalIoU": 0.6875
+          },
+          {
+            "stat": "FITNESS",
+            "start": 152,
+            "displayClass": "WHITE",
+            "predicted": [
+              54,
+              65
+            ],
+            "point": 59.512,
+            "observed": [
+              51,
+              67
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 3,
+            "highError": -2,
+            "midpointError": 0.5,
+            "midpointAbsError": 0.5,
+            "intervalIoU": 0.6875
+          },
+          {
+            "stat": "STRENGTH",
+            "start": 95,
+            "displayClass": "MID_GREY",
+            "predicted": [
+              66,
+              78
+            ],
+            "point": 71.645,
+            "observed": [
+              62,
+              76
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 4,
+            "highError": 2,
+            "midpointError": 3,
+            "midpointAbsError": 3,
+            "intervalIoU": 0.625
+          },
+          {
+            "stat": "CREATIVITY",
+            "start": 152,
+            "displayClass": "WHITE",
+            "predicted": [
+              54,
+              65
+            ],
+            "point": 59.512,
+            "observed": [
+              51,
+              67
+            ],
+            "pointInsideObserved": true,
+            "intervalOverlap": true,
+            "lowError": 3,
+            "highError": -2,
+            "midpointError": 0.5,
+            "midpointAbsError": 0.5,
+            "intervalIoU": 0.6875
+          }
+        ],
+        "ovrScore": {
+          "predicted": [
+            21,
+            25
+          ],
+          "point": 22.924,
+          "observed": [
+            20,
+            25
+          ],
+          "pointInsideObserved": true,
+          "intervalOverlap": true,
+          "midpointError": 0.5,
+          "midpointAbsError": 0.5,
+          "intervalIoU": 0.8
+        }
+      }
     }
-  ]
+  ],
+  "observedDate": "2026-09-24",
+  "scoreSummary": {
+    "statPredictions": 20,
+    "pointInsideObservedRate": 0.85,
+    "intervalOverlapRate": 1,
+    "midpointMAE": 2.425,
+    "endpointMAE": 2.725,
+    "meanIntervalIoU": 0.6174945887445887,
+    "signedMidpointResidual": 2.125,
+    "frozenAtCommit": "46a77209b33174195aa0a6e680378e3ee3c5aabb",
+    "note": "Predictions were frozen before any selected-player preview was supplied. Observed values added afterward from four user-supplied screenshots."
+  }
 }
