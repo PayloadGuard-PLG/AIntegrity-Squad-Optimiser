@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "resource-coach-observation-v1",
+  "observedDate": "2026-09-24",
+  "testId": "CHAT-20260924-GALILEO-STD-ATK-X25-SKILL-TEMPORAL",
+  "player": {
+    "name": "LJ Galileo",
+    "age": 31,
+    "tier": "T2",
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "ovrBefore": 82
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Attacking",
+    "multiplier": 25,
+    "transferClass": "ordinary",
+    "affectedStatCount": 3
+  },
+  "immutablePrediction": {
+    "commit": "cea38f6d4d86e2a4096712b7dc1ef54892ec5803",
+    "path": "calibration/resource-coach-identification/frozen-prediction-20260924-galileo-standard-attacking-x25.json"
+  },
+  "evidence": {
+    "preOutcomePlayerCard": "chat_upload:64240.png",
+    "preOutcomePlayerCardSha256": "3a8a234d050be17c91568ada9a3c365b0b43a7f31597644a530075e7772768ca",
+    "preOutcomeCoachCard": "chat_upload:64248.png",
+    "preOutcomeCoachCardSha256": "3262a9e124cf60e5e326cbb853a53ea7792e6d1da5848f974cafb258543d931a",
+    "outcomePreview": "chat_upload:64249.png",
+    "outcomePreviewSha256": "35fbb4db75c9a52984783726d1aad5210ad06c31d6bdeec88f4f6f668745dca7"
+  },
+  "observed": {
+    "PASSING": {
+      "start": 170,
+      "displayClass": "WHITE",
+      "gain": [
+        15,
+        22
+      ]
+    },
+    "DRIBBLING": {
+      "start": 69,
+      "displayClass": "WHITE",
+      "gain": [
+        23,
+        34
+      ]
+    },
+    "CROSSING": {
+      "start": 1,
+      "displayClass": "MID_GREY",
+      "gain": [
+        0,
+        0
+      ]
+    },
+    "ovrBoost": [
+      3,
+      5
+    ]
+  },
+  "frozenPrimary": {
+    "PASSING": [
+      12,
+      17
+    ],
+    "DRIBBLING": [
+      23,
+      35
+    ],
+    "CROSSING": [
+      23,
+      35
+    ],
+    "ovrProxy": [
+      3,
+      6
+    ]
+  },
+  "scoring": {
+    "pointInside": {
+      "PASSING": false,
+      "DRIBBLING": true,
+      "CROSSING": false
+    },
+    "endpointErrorSigned": {
+      "PASSING": [
+        -3,
+        -5
+      ],
+      "DRIBBLING": [
+        0,
+        1
+      ],
+      "CROSSING": [
+        23,
+        35
+      ]
+    },
+    "midpointErrorSigned": {
+      "PASSING": -4,
+      "DRIBBLING": 0.5,
+      "CROSSING": 29
+    },
+    "intervalIoU": {
+      "PASSING": 0.2,
+      "DRIBBLING": 0.9166666667,
+      "CROSSING": 0
+    },
+    "zeroGainSpecialCase": true
+  },
+  "researchInterpretation": "The coach amplitude is not globally absent: Dribbling is nearly exact and Passing remains positive. Crossing=1 returns +0 under the same event. Treat as stat-specific zero-gain suppression / hidden-state evidence, not as a reason to rescale the whole coach."
+}
