@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "resource-coach-fractional-settlement-preregistration-v1",
+  "id": "PREREG-20260924-FRACTIONAL-SETTLEMENT",
+  "date": "2026-09-24",
+  "branch": "research/fractional-settlement-20260924",
+  "baseMain": "9dec1ef0beb666c638ea75f3b58b7a28eed5bf08",
+  "motivation": "The 123-run Haggag reconstruction shows a known 1.35 condition cost settling to integer -1/-2 with frequencies compatible with an unbiased stochastic quantizer, while simple conserved carry is falsified. Stat gain timing also falsifies a constant carry model. Test whether Resource Coach residuals arise partly in a downstream discrete renderer rather than by altering the continuous response law.",
+  "frozenUpstreamModels": [
+    "YG: profiles/resource_coach_structure_candidate_20260924b.json",
+    "M1/Mstar/Mstarstar: calibration/resource-coach-identification/shape-models-20260924.json"
+  ],
+  "invariants": [
+    "Do not refit age bands, tier offsets, N/p dose, young-grey term, thresholds, K, rho or coach anchors in the primary settlement comparison.",
+    "Do not edit src/logic/resourceCoachV2.ts, production profiles, or frozen prior predictions.",
+    "HIST/quarantined records remain excluded exactly as in STRUCTURE_AUDIT_20260924.md.",
+    "A prediction generated after observing its target preview is never prospective evidence."
+  ],
+  "rendererHypotheses": {
+    "R0": "Continuous endpoints scored directly, current research baseline.",
+    "RFLOOR": "floor each continuous endpoint.",
+    "RNEAREST": "nearest integer, half up.",
+    "RCEIL": "ceil each continuous endpoint.",
+    "RSUPPORT": "conservative support [floor(mu_lo), ceil(mu_hi)]; no fitted parameters.",
+    "RSTOCH1": "Unbiased one-step stochastic quantizer: Y=floor(mu)+Bernoulli(frac(mu)); evaluate endpoint likelihood, not a deterministic replacement.",
+    "RCOUNT": "Only if RSTOCH1 is inadequate: count/quantile renderer with one dispersion parameter fitted on CAL only; parameter and quantile levels must be frozen before holdout scoring."
+  },
+  "primaryQuestions": [
+    "Do deterministic renderers materially improve player-disjoint MAE/inside rate versus R0 without changing upstream physics?",
+    "Are observed integer endpoints statistically calibrated under RSTOCH1, or do many lie outside {floor(mu),ceil(mu)}?",
+    "If RSTOCH1 fails, can a one-parameter discrete count renderer explain residual width and integer endpoints out of sample?",
+    "Does any renderer reduce the current Mstar prospective/player-disjoint residuals without erasing known coordinate-dependent structure?"
+  ],
+  "partitions": {
+    "calibration": "Use the same admissible CAL pool frozen by the shape-model research, excluding HIST and all prospective targets used for final scoring.",
+    "validation": "Leave-one-player-out and leave-one-coach-out, preserving preview clusters.",
+    "prospective": "All predictions already frozen before observation plus future eligible PREREG-20260924-SHAPE-FIVE-MODEL arms. Never fit renderer parameters on these."
+  },
+  "metrics": [
+    "endpoint MAE",
+    "midpoint MAE",
+    "point-inside rate",
+    "interval overlap",
+    "endpoint negative log likelihood for stochastic renderers",
+    "calibration of ceil/floor frequencies versus fractional part",
+    "preview-clustered bootstrap confidence intervals"
+  ],
+  "promotionRule": "No production change from this branch. A renderer becomes a production candidate only if it improves held-out/prespective error materially and calibration diagnostics pass without changing frozen upstream parameters. A retrospective-only improvement is recorded but not promoted.",
+  "falsifiers": [
+    "If Resource Coach endpoints frequently lie farther than one integer from frozen continuous endpoints, RSTOCH1 is falsified as the sole renderer.",
+    "If deterministic rounding improves in-sample but not player-disjoint/prospective scores, rounding is not the missing mechanism.",
+    "If residuals retain strong coordinate/age/coach structure after settlement, upstream response/dose structure remains missing."
+  ]
+}
