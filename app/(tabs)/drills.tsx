@@ -54,6 +54,7 @@ export default function DrillsScreen() {
   const [presetCycles, setPresetCycles] = useState<Record<string, number>>({});
   const [selectedPresetIds, setSelectedPresetIds] = useState<Set<string>>(new Set());
   const [drillProjection, setDrillProjection] = useState<DrillProjection | null>(null);
+  const [showProjectionNotes, setShowProjectionNotes] = useState(false);
   const [pushSuccess, setPushSuccess] = useState(false);
 
   const selectedPlayer = squad.find(p => p.id === manager.selectedPlayerId) ?? (squad.length === 1 ? squad[0] : null);
@@ -162,6 +163,7 @@ export default function DrillsScreen() {
       .sort((a, b) => b.gain - a.gain);
 
     const before = ovrBefore ?? 0;
+    setShowProjectionNotes(false);
     setDrillProjection({
       gains,
       ovrBefore: before,
@@ -299,6 +301,7 @@ export default function DrillsScreen() {
 
             {drills.map((d, i) => {
               const tc = d.type === 'Attack' ? theme.steelLight : d.type === 'Defence' ? '#86c5d6' : d.type === 'Possession' ? '#a78bfa' : theme.hot;
+              const ic = INTENSITY_COLORS[d.intensity] ?? theme.inkGhost;
               const isSelected = presetSelection.includes(d.name);
               const selRank = presetSelection.indexOf(d.name) + 1;
 
@@ -309,7 +312,10 @@ export default function DrillsScreen() {
                   backgroundColor: presetMode && isSelected ? 'rgba(251,146,60,0.08)' : theme.surface,
                   padding: 12, paddingHorizontal: 14,
                 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  {/* Keep the historic compact hierarchy: identity first, secondary mechanics below.
+                      Do not pack every metric into this row — on Android it squeezes the drill name
+                      to ~zero width and makes the card hundreds of pixels tall. */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     {presetMode ? (
                       <View style={{ width: 22, height: 22, borderWidth: 1, borderColor: isSelected ? theme.hot : theme.hairline2, alignItems: 'center', justifyContent: 'center', backgroundColor: isSelected ? theme.hot : 'transparent' }}>
                         <Text style={{ fontFamily: theme.mono, fontSize: isSelected ? 10 : 9, fontWeight: '700', color: isSelected ? theme.bg : theme.inkGhost }}>{isSelected ? selRank : i + 1}</Text>
@@ -320,21 +326,34 @@ export default function DrillsScreen() {
                     <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderWidth: 1, borderColor: tc + '55' }}>
                       <Text style={{ fontFamily: theme.mono, fontSize: 9, letterSpacing: 1.2, color: tc }}>{((d as any).type ?? 'DRILL').toUpperCase()}</Text>
                     </View>
-                    <Text style={{ flex: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}>{d.name}</Text>
-                    <MonoLabel size={8} color={theme.inkGhost}>{d.intensity.toUpperCase()}</MonoLabel>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 11, fontWeight: '700', color: theme.steelLight }}>+{d.trainingXp} XP</Text>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={{ flex: 1, minWidth: 0, flexShrink: 1, fontSize: 13, color: theme.ink, fontWeight: '600', fontFamily: theme.display }}
+                    >
+                      {d.name}
+                    </Text>
                     <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: theme.pos }}>{Math.round(d.efficiency * 100)}%</Text>
                     <MonoLabel size={8} color={theme.inkGhost}>WHITE</MonoLabel>
-                    <Text style={{ fontFamily: theme.mono, fontSize: 13, fontWeight: '700', color: d.condition.expected < 2 ? theme.hot : theme.neg }}>{d.rawLoss.toFixed(2)}%</Text>
+                  </View>
+
+                  {/* Intensity/XP/condition are still visible, but no longer compete with the name. */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 7, paddingLeft: presetMode ? 30 : 26 }}>
+                    <View style={{ paddingHorizontal: 5, paddingVertical: 1, borderWidth: 1, borderColor: ic + '55' }}>
+                      <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 0.8, color: ic }}>{d.intensity.toUpperCase()}</Text>
+                    </View>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, fontWeight: '700', color: theme.steelLight }}>+{d.trainingXp} XP</Text>
+                    <MonoLabel size={7} color={theme.inkGhost}>RAW</MonoLabel>
+                    <Text style={{ fontFamily: theme.mono, fontSize: 9, fontWeight: '700', color: d.condition.expected < 2 ? theme.hot : theme.neg }}>{d.rawLoss.toFixed(2)}%</Text>
                     <MonoLabel size={7} color={theme.inkGhost}>{d.condition.low}–{d.condition.high} BILLED</MonoLabel>
-                    <MonoLabel size={8} color={theme.inkGhost}>COND</MonoLabel>
                     {d.isFloored && (
-                      <View style={{ paddingHorizontal: 5, paddingVertical: 2, borderWidth: 1, borderColor: theme.hot + '66', backgroundColor: theme.hot + '12' }}>
-                        <Text style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 1, color: theme.hot }}>MIN</Text>
+                      <View style={{ paddingHorizontal: 5, paddingVertical: 1, borderWidth: 1, borderColor: theme.hot + '66', backgroundColor: theme.hot + '12' }}>
+                        <Text style={{ fontFamily: theme.mono, fontSize: 7, letterSpacing: 1, color: theme.hot }}>MIN</Text>
                       </View>
                     )}
                   </View>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
+
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, paddingLeft: presetMode ? 30 : 26 }}>
                     {d.whiteHits.map(({ stat, white }) => (
                       <Text key={stat} style={{ fontFamily: theme.mono, fontSize: 8, letterSpacing: 0.6, color: white ? theme.steelLight : theme.inkGhost }}>
                         {white ? '●' : '○'} {stat}
@@ -440,9 +459,11 @@ export default function DrillsScreen() {
               {/* Projection results */}
               {drillProjection && (
                 <View style={{ borderWidth: 1, borderColor: theme.pos + '55', padding: 14, marginBottom: 10 }}>
-                  {drillProjection.reasons.map((reason, i) => (
-                    <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 4 }}>{reason}</MonoLabel>
-                  ))}
+                  {drillProjection.trainingLocked && (
+                    <MonoLabel size={8} color={theme.neg} style={{ marginBottom: 8 }}>
+                      TRAINING LOCKED — MODEL NOTES HAVE THE DOMAIN REASON
+                    </MonoLabel>
+                  )}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: theme.hairline }}>
                     <View>
                       <MonoLabel size={8} color={theme.inkGhost} style={{ marginBottom: 2 }}>BEFORE</MonoLabel>
@@ -467,6 +488,29 @@ export default function DrillsScreen() {
                       <MonoLabel size={9} color={theme.pos} style={{ marginLeft: 8, minWidth: 40, textAlign: 'right' }}>+{g.gain}</MonoLabel>
                     </View>
                   ))}
+
+                  {drillProjection.reasons.length > 0 && (
+                    <View style={{ marginTop: 10, paddingTop: 9, borderTopWidth: 1, borderTopColor: theme.hairline }}>
+                      <Pressable
+                        onPress={() => setShowProjectionNotes(v => !v)}
+                        style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}
+                      >
+                        <MonoLabel size={8} color={theme.inkSec} style={{ flex: 1 }}>
+                          MODEL NOTES ({drillProjection.reasons.length})
+                        </MonoLabel>
+                        <MonoLabel size={8} color={theme.steelLight}>
+                          {showProjectionNotes ? 'HIDE ▲' : 'SHOW ▼'}
+                        </MonoLabel>
+                      </Pressable>
+                      {showProjectionNotes && (
+                        <View style={{ paddingTop: 6 }}>
+                          {drillProjection.reasons.map((reason, i) => (
+                            <MonoLabel key={i} size={8} color={theme.inkMuted} style={{ marginBottom: 5 }}>{reason}</MonoLabel>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  )}
 
                   <Pressable onPress={pushToResults}
                     style={{ marginTop: 14, borderWidth: 1,
