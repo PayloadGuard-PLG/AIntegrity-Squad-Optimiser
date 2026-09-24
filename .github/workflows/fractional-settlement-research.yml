@@ -51,6 +51,13 @@ jobs:
             --report /tmp/fractional-settlement/QUANTIZATION_AWARE_REFIT.md
           cat /tmp/fractional-settlement/QUANTIZATION_AWARE_REFIT.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Freeze Haggag post-drill prospective predictions
+        run: |
+          python tools/resource-coach-v2/freeze_shape_test.py \
+            --card calibration/fractional-settlement/haggag-postdrill-card-20260924.json \
+            --out /tmp/fractional-settlement/haggag-postdrill-shape-predictions.json
+          test -s /tmp/fractional-settlement/haggag-postdrill-shape-predictions.json
+
       - name: Guard production boundary
         run: |
           git diff 9dec1ef0beb666c638ea75f3b58b7a28eed5bf08...HEAD --name-only > /tmp/fractional-settlement/changed-files.txt
@@ -65,6 +72,7 @@ jobs:
           test -s /tmp/fractional-settlement/REPORT.md
           test -s /tmp/fractional-settlement/quantization-aware-refit.json
           test -s /tmp/fractional-settlement/QUANTIZATION_AWARE_REFIT.md
+          test -s /tmp/fractional-settlement/haggag-postdrill-shape-predictions.json
           test -s /tmp/fractional-settlement/changed-files.txt
 
       - name: Upload research artifact
