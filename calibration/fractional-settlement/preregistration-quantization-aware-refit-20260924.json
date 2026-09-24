@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "resource-coach-quantization-aware-refit-v1",
+  "id": "PREREG-20260924-QUANTIZATION-AWARE-REFIT",
+  "date": "2026-09-24",
+  "status": "exploratory-selected-after-fractional-settlement-replay",
+  "branch": "research/fractional-settlement-20260924",
+  "motivation": "Haggag proves a fractional upstream quantity can be observed only through integer outcomes. The first Resource Coach settlement replay falsifies a one-step quantizer as the sole missing mechanism, but integer endpoints may still bias fitting when treated as exact real targets.",
+  "epistemicBoundary": "This hypothesis was selected after seeing the 341-row renderer replay. LOPO is diagnostic, not fresh prospective validation. Any promotion requires future frozen previews.",
+  "hiddenEndpointHypothesis": {
+    "renderer": "nearest-integer interval censoring",
+    "observation": "displayed integer endpoint y",
+    "latentAdmissibleInterval": "[y-0.5, y+0.5)",
+    "trainingLoss": "squared distance of predicted continuous endpoint to the admissible interval; zero inside",
+    "tolerance": 0.5
+  },
+  "models": [
+    "Mstar",
+    "Mstarstar"
+  ],
+  "invariants": [
+    "Same event pool and exclusions as shape-models-20260924.json.",
+    "Same model equations and same declared free parameters as Mstar/Mstarstar.",
+    "No new age, tier, coach, stat, allocation, dose, or renderer parameters.",
+    "Fixed optimizer start from shape_models.START; held-out player is excluded from every fold fit.",
+    "Production src/ and profiles/ remain untouched."
+  ],
+  "comparison": {
+    "primary": "LOPO censored-loss Mstar versus LOPO exact-endpoint-SSE Mstar on the same held-out rows.",
+    "secondary": "Mstarstar under the same comparison.",
+    "metrics": [
+      "midpoint MAE",
+      "endpoint MAE",
+      "inside rate",
+      "overlap rate",
+      "latent-band endpoint satisfaction",
+      "nearest-rendered MAE/inside"
+    ]
+  },
+  "interpretationRules": [
+    "If censored-loss improves LOPO MAE/inside materially, integer endpoint censoring is a useful identification correction, not proof of the game's exact renderer.",
+    "If it only improves in-sample or only widens apparent coverage, reject it as an identification improvement.",
+    "Even a positive LOPO result remains exploratory until scored on future preregistered player previews."
+  ]
+}
