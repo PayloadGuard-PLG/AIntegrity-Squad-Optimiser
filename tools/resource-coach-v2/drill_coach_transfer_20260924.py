@@ -237,14 +237,6 @@ def evaluate(events,yg,candidates):
             allpred[label].append((player,test,X,lo,hi))
     output={}
     for label,folds in allpred.items():
-        records=[]
-        for player,test,X,lo,hi in folds:
-            for i in range(len(lo)):
-                records.append(dict(player=player,partition=next(e["partition"] for e in test if
-                    any(r["g"][0]==X.lo[i] and r["g"][1]==X.hi[i] for r in e["rows"])),
-                    lo=float(lo[i]),hi=float(hi[i]),ol=float(X.lo[i]),oh=float(X.hi[i])))
-        # For partition-specific scores use row metadata aligned to each event, not
-        # ambiguous interval-value matching. Redo event slices below.
         bypart=collections.defaultdict(list); allrows=[]
         for player,test,X,lo,hi in folds:
             index=0
