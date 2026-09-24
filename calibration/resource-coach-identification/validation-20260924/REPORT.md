@@ -1,3 +1,17 @@
+# SUPERSEDED VALIDATION CONTRACT
+
+> **Superseded on 24 September 2026 by PR #157 direct player-card replay.**
+>
+> This report evaluated a leave-one-coach-out design that required at least two coach outputs on the same recorded player state and calibrated a player-specific amplitude from one observed coach card. That is no longer the primary validation method.
+>
+> The corrected contract predicts each ordinary coach preview directly from **player-card inputs + coach metadata + the frozen global model**. The observed preview is an answer key only. A second coach output and an exact repeated state are not required.
+>
+> Corrected PR #157 head: `21ff2e7db1cd2578671fef0d657577c1712da300`.
+>
+> Clean CI direct replay: **184 stat predictions, 21 players, 24 player states, 54 coach events; midpoint MAE 5.039; midpoint inside 71.2%; interval overlap 84.8%.** The old 127-row / 94.5% result below remains preserved for audit history but must not be cited as the primary empirical validation.
+
+---
+
 # Ordinary Resource Coach: independent validation, 24 September 2026
 
 Research only. Repo input: PR #157 head `b7df869ddad595e075c323b52f728d1c0cfd539d`, stacked on open PR #156. The answer key is the game's **displayed preview intervals**, not measured gains after applying a coach. This replay independently evaluates recorded ranges; the original screenshot pixels were not present in the accessed repository or Drive log, so the screenshot references are provenance claims pending image inspection. Neither previous assistant predictions nor frozen model output are scored as truth.
