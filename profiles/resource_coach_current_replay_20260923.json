@@ -1,15 +1,43 @@
 {
-  "schemaVersion": "resource-coach-current-replay-profile-v1",
-  "modelVersion": "ordinary-player-amplitude-plateau-20260923",
+  "schemaVersion": "resource-coach-current-replay-profile-v2",
+  "modelVersion": "ordinary-global-amplitude-plateau-20260924-direct",
   "status": "research-replay-not-production",
-  "scope": "Ordinary coach screenshot replay. Reward remains separate.",
-  "tierAdditions": [0, 10, 30, 50, 80, 120, 160],
+  "scope": "Ordinary coach direct player-card replay. Reward remains separate.",
+  "tierAdditions": [
+    0,
+    10,
+    30,
+    50,
+    80,
+    120,
+    160
+  ],
   "ageScaleBands": [
-    {"minAge": 17, "maxAge": 21, "scale": 8.0},
-    {"minAge": 22, "maxAge": 25, "scale": 6.0},
-    {"minAge": 26, "maxAge": 29, "scale": 4.0},
-    {"minAge": 30, "maxAge": 31, "scale": 2.0},
-    {"minAge": 32, "maxAge": 99, "scale": 1.0}
+    {
+      "minAge": 17,
+      "maxAge": 21,
+      "scale": 8
+    },
+    {
+      "minAge": 22,
+      "maxAge": 25,
+      "scale": 6
+    },
+    {
+      "minAge": 26,
+      "maxAge": 29,
+      "scale": 4
+    },
+    {
+      "minAge": 30,
+      "maxAge": 31,
+      "scale": 2
+    },
+    {
+      "minAge": 32,
+      "maxAge": 99,
+      "scale": 1
+    }
   ],
   "response": {
     "whiteThreshold": 132.6,
@@ -20,23 +48,30 @@
   },
   "dose": {
     "globalAmplitude": 1.324,
-    "law": "B_lo = C_P * A(age) * N / p; B_hi = upperDoseRatio * B_lo",
-    "playerStateCalibration": "For one observed anchor coach card, invert each affected stat against both observed interval endpoints under the fixed response/rho, minimise endpoint SSE for B_lo, then take the arithmetic mean implied B_lo and solve C_P = mean(B_lo)/(A(age)*N/p)."
+    "law": "B_lo = C_GLOBAL * A(age) * N / p; B_hi = upperDoseRatio * B_lo",
+    "primaryPrediction": "C_GLOBAL is frozen before replay. No observed coach preview from the scored player is used to calibrate amplitude.",
+    "pairedCoachCalibration": "Deprecated as a primary validation method. Same-state anchor transfer may be retained only as a secondary mechanism diagnostic."
   },
   "evaluation": {
-    "primary": "Predicted midpoint versus observed screenshot interval midpoint",
+    "primary": "Direct prediction from player-card state plus coach metadata versus the observed game preview interval",
+    "eligibility": "One complete player card and one ordinary coach preview answer key are sufficient. A second coach output and an exact repeated state are not required.",
     "alsoReport": [
       "predicted midpoint inside observed interval",
       "interval overlap",
       "endpoint MAE",
-      "interval IoU"
+      "interval IoU",
+      "signed residual",
+      "coverage by player, family and evidence provenance"
     ],
-    "targetLeakageRule": "The target coach event is never used to calibrate C_P."
+    "leakageRule": "Observed preview endpoints are answer keys only and must not affect prediction parameters for that row or player."
   },
   "evidenceBoundary": [
     "Observed screenshot ranges are answer keys; frozen assistant predictions are never answer keys.",
-    "Calibration is state-local: player, age, tier and stat state must match.",
+    "Primary prediction uses player-card inputs age, tier, stat value and display class plus coach multiplier/family/affected-stat count.",
+    "Single-event players are valid empirical tests; repeated coach outputs are optional diagnostics.",
+    "State identifiers are provenance labels, not eligibility gates.",
     "Reward is excluded from ordinary transfer scoring.",
-    "Programme/family effects are not silently fitted; results are stratified by family."
+    "Programme/family effects are not silently fitted; results are stratified by family.",
+    "Incomplete player-card records remain inventoried and quarantined by missing field rather than disappearing from corpus coverage."
   ]
 }
