@@ -267,6 +267,16 @@ class YoungGreyAnchorFreeze(unittest.TestCase):
                 if "YGA" in s:
                     self.assertEqual(s["YG"], s["YGA"])
 
+    FROZEN_PREDICTIONS = {'king-alfie': 'fb3c3f3260e401477f94e5eed9acbbb18faee6f52897604da7dee69acda077bc', 'andonov': '0c098b0b6eca0b4863f397148551ff4cc6bb435025c31578f8787059d5473558', 'cieran-morgan': 'e9f9f1c5399b78e43d3249b3632577015441f9202d8c1f710de65b1d6c94c68c', 'blakie': 'b6b5cf1235555c58a57337d37ab971ce96db1b67414bf7f21e30b34b4ff7affd'}
+
+    def test_player_predictions_are_frozen_and_regenerable(self):
+        for slug, digest in self.FROZEN_PREDICTIONS.items():
+            path = ROOT / "calibration" / "resource-coach-identification" / f"control-predictions-20260924-yga-{slug}.json"
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest, slug)
+            card = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-card-20260924-{slug}.json").read_text(encoding="utf-8"))
+            frozen = json.loads(path.read_text(encoding="utf-8"))["coaches"]
+            self.assertEqual(json.loads(json.dumps(self.fa.predict_card(card, self.table))), frozen, slug)
+
     def test_anchor_offsets_reproduce_from_committed_observations(self):
         yg = self.fa.yg_params()
         rebuilt = {ev["event"]: self.fa.yg_offset(ev, yg) for _, ev in self.fa.control_events()}
@@ -275,6 +285,104 @@ class YoungGreyAnchorFreeze(unittest.TestCase):
                 if e["event"] in rebuilt:
                     self.assertAlmostEqual(rebuilt[e["event"]], e["logOffset"], places=5)
 
+
+class YoungGreyAnchorScore(unittest.TestCase):
+    """The committed YGA verdict reproduces from the frozen predictions and the observations alone."""
+
+    REC = ROOT / "calibration" / "resource-coach-identification" / "control-score-20260924-young-grey-anchor.json"
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("sya", ROOT / "tools" / "resource-coach-v2" / "score_young_grey_anchor.py")
+        cls.s = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.s)
+        cls.rec = json.loads(cls.REC.read_text(encoding="utf-8"))
+
+    def test_verdict_reproduces(self):
+        yg = self.s.fya.yg_params()
+        scored = [self.s.score_player(slug, yg) for slug in self.s.PLAYERS]
+        d = self.s.verdict([p for p in scored if p["arm"] == "primary"])
+        self.assertEqual((d["rows"], d["players"], d["cells"], d["ygaWins"]), (60, 3, 15, 9))
+        self.assertAlmostEqual(d["mae"]["YG"], self.rec["decision"]["mae"]["YG"], places=9)
+        self.assertAlmostEqual(d["mae"]["YGA"], self.rec["decision"]["mae"]["YGA"], places=9)
+        self.assertEqual(d["verdict"], self.rec["decision"]["verdict"])
+        self.assertEqual(d["verdict"], "inconclusive")
+
+    def test_every_scored_preview_obeys_the_game_arithmetic(self):
+        cats = dict(DEFENSE=["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY"],
+                    ATTACK=["PASSING", "DRIBBLING", "CROSSING", "SHOOTING", "FINISHING"],
+                    PHYSICAL_AND_MENTAL=["FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"])
+        for slug in self.s.PLAYERS:
+            obs = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-observation-20260924-{slug}.json").read_text(encoding="utf-8"))
+            for key, iv in obs["statIntervals"].items():
+                lo, hi = obs["ovrBoost"][key]
+                self.assertLessEqual(math.floor(sum(v[0] for v in iv.values()) / 15), lo)
+                self.assertGreaterEqual(math.ceil(sum(v[1] for v in iv.values()) / 15), hi)
+                for cat, g in obs["categoryAverageGain"][key].items():
+                    for i in (0, 1):
+                        self.assertEqual(round(sum(v[i] for s, v in iv.items() if s in cats[cat]) / 5), g[i], (slug, key, cat))
+
+    def test_prediction_files_were_frozen_before_the_observations(self):
+        for slug in self.s.PLAYERS:
+            obs = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-observation-20260924-{slug}.json").read_text(encoding="utf-8"))
+            self.assertEqual(obs["predictionsFrozenAtCommit"], "5e42483")
+            self.assertIn(slug, YoungGreyAnchorFreeze.FROZEN_PREDICTIONS)
+
+
+class SingleDoseFreeze(unittest.TestCase):
+    """PREREG-20260924-SINGLE-DOSE-22PLUS: the dose is the pinned table's 22+ mean, is the object behind the post-hoc
+    finding, and can only be applied to eligible players."""
+
+    PREREG = ROOT / "calibration" / "resource-coach-identification" / "preregistration-20260924-single-dose-22plus.json"
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("fsd", ROOT / "tools" / "resource-coach-v2" / "freeze_single_dose.py")
+        cls.m = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.m)
+        cls.table = json.loads(cls.m.fya.ANCHOR_TABLE.read_text(encoding="utf-8"))
+
+    def test_preregistration_is_byte_stable(self):
+        self.assertEqual(hashlib.sha256(self.PREREG.read_bytes()).hexdigest(), "096ba081b5881acf2836a421fb75ac73568e48e5f0275c1a865bf0398a8f95d5")
+
+    def test_dose_literal_equals_the_pinned_table(self):
+        mean, n = self.m.dose_from_table(self.table)
+        self.assertAlmostEqual(mean, self.m.DOSE_LOG, places=12)
+        self.assertEqual(n, self.m.DOSE_EVENTS)
+        contributors = {e["player"] for c in self.table["coaches"].values() for e in c["events"] if e["age"] >= self.m.DOSE_MIN_AGE}
+        self.assertEqual(contributors, set(self.m.DOSE_PLAYERS))
+        pre = json.loads(self.PREREG.read_text(encoding="utf-8"))["dose"]
+        self.assertEqual(pre["doseLog"], self.m.DOSE_LOG)
+        self.assertEqual(set(pre["contributingPlayers"]), contributors)
+
+    def test_frozen_dose_is_the_one_behind_the_post_hoc_finding(self):
+        rec = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-score-20260924-young-grey-anchor.json").read_text(encoding="utf-8"))
+        ph = rec["postHocGlobalDose"]["age22plus"]
+        self.assertEqual(ph["dose"], round(math.exp(self.m.DOSE_LOG), 4))
+        self.assertEqual(ph["anchorEvents"], self.m.DOSE_EVENTS)
+
+    def test_ineligible_players_are_refused(self):
+        card = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-card-20260924-blakie.json").read_text(encoding="utf-8"))
+        with self.assertRaises(SystemExit):  # 21 today
+            self.m.predict_card(card, self.table, self.m.fya.COACHES)
+        for slug in ("king-alfie", "rodger"):
+            card = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-card-20260924-{slug}.json").read_text(encoding="utf-8"))
+            with self.assertRaises(SystemExit):
+                self.m.predict_card(card, self.table, self.m.fya.COACHES)
+
+    def test_sd22_is_yg_shifted_by_the_dose_only(self):
+        card = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-card-20260924-blakie.json").read_text(encoding="utf-8"))
+        card = dict(card, name="Eligibility Probe", age=22)
+        for c in self.m.predict_card(card, self.table, self.m.fya.COACHES):
+            for s in c["statIntervals"]:
+                if s["YG"]["rawHi"] > 0.5:
+                    self.assertLess(s["SD22"]["rawHi"], s["YG"]["rawHi"])
+        saved = self.m.DOSE_LOG
+        try:
+            self.m.DOSE_LOG = 0.0
+            for c in self.m.predict_card(card, self.table, self.m.fya.COACHES):
+                for s in c["statIntervals"]:
+                    self.assertEqual(s["SD22"], s["YG"])
+        finally:
+            self.m.DOSE_LOG = saved
 
 if __name__ == "__main__":
     unittest.main()

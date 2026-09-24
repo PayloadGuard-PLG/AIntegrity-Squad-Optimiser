@@ -1,0 +1,67 @@
+{
+ "schemaVersion": "resource-coach-control-card-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "arm": "primary (22+)",
+ "name": "Plamen Andonov",
+ "age": 23,
+ "tier": "T0",
+ "roles": [
+  "ST"
+ ],
+ "learningRoles": [],
+ "ovr": 100,
+ "source": "user-supplied in-chat player card screenshot (Skills tab), 24 Sep 2026, after the model freeze at 89ff060 and before any preview",
+ "tierNote": "No tier badge on the card; recorded as T0.",
+ "checks": {
+  "columnMeans": [
+   92.8,
+   102.0,
+   105.8
+  ],
+  "columnHeaders": [
+   93,
+   102,
+   106
+  ],
+  "sum": 1503,
+  "sumOver15": 100.2,
+  "baseOvr": 100.2,
+  "whiteCount": 9,
+  "whiteSetEqualsRoleMap": true
+ },
+ "corpusStatus": "NO-ORDINARY-EVIDENCE (tools/resource-coach-v2/corpus_roster.py); not one of the six control players",
+ "stats": {
+  "TACKLING": 71,
+  "MARKING": 84,
+  "POSITIONING": 116,
+  "HEADING": 110,
+  "BRAVERY": 83,
+  "PASSING": 108,
+  "DRIBBLING": 100,
+  "CROSSING": 82,
+  "SHOOTING": 105,
+  "FINISHING": 115,
+  "FITNESS": 90,
+  "STRENGTH": 125,
+  "AGGRESSION": 94,
+  "SPEED": 103,
+  "CREATIVITY": 117
+ },
+ "classes": {
+  "TACKLING": "MID_GREY",
+  "MARKING": "MID_GREY",
+  "POSITIONING": "WHITE",
+  "HEADING": "WHITE",
+  "BRAVERY": "MID_GREY",
+  "PASSING": "WHITE",
+  "DRIBBLING": "WHITE",
+  "CROSSING": "MID_GREY",
+  "SHOOTING": "WHITE",
+  "FINISHING": "WHITE",
+  "FITNESS": "MID_GREY",
+  "STRENGTH": "WHITE",
+  "AGGRESSION": "MID_GREY",
+  "SPEED": "WHITE",
+  "CREATIVITY": "WHITE"
+ }
+}

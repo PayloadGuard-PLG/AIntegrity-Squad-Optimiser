@@ -1,0 +1,178 @@
+{
+ "player": "Cieran Morgan",
+ "displayedOvr": 223,
+ "statIntervals": {
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    0,
+    0
+   ],
+   "DRIBBLING": [
+    2,
+    3
+   ],
+   "FINISHING": [
+    6,
+    9
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    11,
+    15
+   ],
+   "SHOOTING": [
+    4,
+    5
+   ],
+   "SPEED": [
+    17,
+    23
+   ],
+   "CREATIVITY": [
+    14,
+    19
+   ]
+  },
+  "STD-DEF-X20": {
+   "TACKLING": [
+    7,
+    11
+   ],
+   "MARKING": [
+    18,
+    22
+   ],
+   "HEADING": [
+    12,
+    16
+   ],
+   "BRAVERY": [
+    10,
+    14
+   ]
+  },
+  "STD-PHY-X15": {
+   "FITNESS": [
+    18,
+    25
+   ],
+   "STRENGTH": [
+    33,
+    46
+   ],
+   "AGGRESSION": [
+    33,
+    45
+   ],
+   "CREATIVITY": [
+    19,
+    25
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "HEADING": [
+    23,
+    31
+   ],
+   "BRAVERY": [
+    21,
+    29
+   ],
+   "FITNESS": [
+    37,
+    46
+   ],
+   "STRENGTH": [
+    70,
+    79
+   ],
+   "CREATIVITY": [
+    38,
+    47
+   ]
+  }
+ },
+ "ovrBoost": {
+  "DS-STD-ATT-X5": [
+   0,
+   1
+  ],
+  "DS-STD-OFF-X10": [
+   3,
+   4
+  ],
+  "STD-DEF-X20": [
+   3,
+   4
+  ],
+  "STD-PHY-X15": [
+   7,
+   9
+  ],
+  "SS-STD-SAFE-X59": [
+   12,
+   15
+  ]
+ },
+ "categoryAverageGain": {
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    2,
+    2
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    3,
+    4
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    6,
+    8
+   ]
+  },
+  "STD-DEF-X20": {
+   "DEFENSE": [
+    9,
+    13
+   ]
+  },
+  "STD-PHY-X15": {
+   "PHYSICAL_AND_MENTAL": [
+    21,
+    28
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "DEFENSE": [
+    9,
+    12
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    29,
+    34
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENSE": "239 (129.9)",
+  "ATTACK": "236 (129.1)",
+  "PHYSICAL_AND_MENTAL": "192 (118.1)"
+ },
+ "notes": "x5 Passing shows '+0' (recorded as the degenerate interval [0,0]); displayed OVR box reads '223' with no decimal.",
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "predictionsFrozenAtCommit": "5e42483",
+ "observedDate": "2026-09-24",
+ "clubLevel": 15,
+ "startValuesMatchFrozenCard": true,
+ "programmeLabels": {
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available",
+  "STD-DEF-X20": "DRILL SESSION, 3 days, cost 30/38/60/150",
+  "STD-PHY-X15": "SKILL SEMINAR, 8 days, cost 90",
+  "SS-STD-SAFE-X59": "SKILL SEMINAR, Standard Safeguard x59, 8 days, cost 180/216/540"
+ },
+ "source": "user-supplied in-chat preview screenshots supplied after the frozen commit; previews only, nothing applied; x5/x10/x20/x15 and x59 supplied"
+}

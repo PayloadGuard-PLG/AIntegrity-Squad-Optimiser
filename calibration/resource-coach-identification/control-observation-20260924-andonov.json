@@ -1,0 +1,178 @@
+{
+ "player": "Plamen Andonov",
+ "displayedOvr": 100.7,
+ "statIntervals": {
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    14,
+    19
+   ],
+   "DRIBBLING": [
+    14,
+    21
+   ],
+   "FINISHING": [
+    12,
+    18
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    20,
+    28
+   ],
+   "SHOOTING": [
+    20,
+    29
+   ],
+   "SPEED": [
+    20,
+    29
+   ],
+   "CREATIVITY": [
+    17,
+    24
+   ]
+  },
+  "STD-DEF-X20": {
+   "TACKLING": [
+    39,
+    53
+   ],
+   "MARKING": [
+    36,
+    48
+   ],
+   "HEADING": [
+    33,
+    42
+   ],
+   "BRAVERY": [
+    36,
+    49
+   ]
+  },
+  "STD-PHY-X15": {
+   "FITNESS": [
+    26,
+    36
+   ],
+   "STRENGTH": [
+    20,
+    27
+   ],
+   "AGGRESSION": [
+    26,
+    35
+   ],
+   "CREATIVITY": [
+    24,
+    31
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "HEADING": [
+    53,
+    62
+   ],
+   "BRAVERY": [
+    64,
+    78
+   ],
+   "FITNESS": [
+    60,
+    72
+   ],
+   "STRENGTH": [
+    41,
+    50
+   ],
+   "CREATIVITY": [
+    47,
+    56
+   ]
+  }
+ },
+ "ovrBoost": {
+  "DS-STD-ATT-X5": [
+   3,
+   4
+  ],
+  "DS-STD-OFF-X10": [
+   5,
+   7
+  ],
+  "STD-DEF-X20": [
+   10,
+   13
+  ],
+  "STD-PHY-X15": [
+   7,
+   9
+  ],
+  "SS-STD-SAFE-X59": [
+   18,
+   21
+  ]
+ },
+ "categoryAverageGain": {
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    8,
+    12
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    8,
+    11
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    7,
+    11
+   ]
+  },
+  "STD-DEF-X20": {
+   "DEFENSE": [
+    29,
+    38
+   ]
+  },
+  "STD-PHY-X15": {
+   "PHYSICAL_AND_MENTAL": [
+    19,
+    26
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "DEFENSE": [
+    23,
+    28
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    30,
+    36
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENSE": "93 (93.3)",
+  "ATTACK": "102 (95.6)",
+  "PHYSICAL_AND_MENTAL": "106 (96.5)"
+ },
+ "academyLock": "Every preview shows 'This player is currently unable to train in the Academy' and a disabled START TRAINING button. The user confirmed this is a contract state to be ignored: the ranges are scored as ordinary evidence and Andonov is not excluded.",
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "predictionsFrozenAtCommit": "5e42483",
+ "observedDate": "2026-09-24",
+ "clubLevel": 15,
+ "startValuesMatchFrozenCard": true,
+ "programmeLabels": {
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available",
+  "STD-DEF-X20": "DRILL SESSION, 3 days, cost 30/38/60/150",
+  "STD-PHY-X15": "SKILL SEMINAR, 8 days, cost 90",
+  "SS-STD-SAFE-X59": "SKILL SEMINAR, Standard Safeguard x59, 8 days, cost 180/216/540"
+ },
+ "source": "user-supplied in-chat preview screenshots supplied after the frozen commit; previews only, nothing applied; x5/x10/x20/x15 and x59 supplied"
+}

@@ -1,0 +1,177 @@
+{
+ "player": "King Alfie",
+ "displayedOvr": 208.3,
+ "statIntervals": {
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    6,
+    9
+   ],
+   "DRIBBLING": [
+    9,
+    13
+   ],
+   "FINISHING": [
+    14,
+    19
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    18,
+    26
+   ],
+   "SHOOTING": [
+    12,
+    19
+   ],
+   "SPEED": [
+    4,
+    6
+   ],
+   "CREATIVITY": [
+    7,
+    9
+   ]
+  },
+  "STD-DEF-X20": {
+   "TACKLING": [
+    8,
+    11
+   ],
+   "MARKING": [
+    8,
+    11
+   ],
+   "HEADING": [
+    10,
+    14
+   ],
+   "BRAVERY": [
+    8,
+    11
+   ]
+  },
+  "STD-PHY-X15": {
+   "FITNESS": [
+    7,
+    10
+   ],
+   "STRENGTH": [
+    14,
+    20
+   ],
+   "AGGRESSION": [
+    20,
+    26
+   ],
+   "CREATIVITY": [
+    9,
+    11
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "HEADING": [
+    21,
+    29
+   ],
+   "BRAVERY": [
+    17,
+    25
+   ],
+   "FITNESS": [
+    19,
+    27
+   ],
+   "STRENGTH": [
+    30,
+    39
+   ],
+   "CREATIVITY": [
+    21,
+    29
+   ]
+  }
+ },
+ "ovrBoost": {
+  "DS-STD-ATT-X5": [
+   2,
+   3
+  ],
+  "DS-STD-OFF-X10": [
+   3,
+   4
+  ],
+  "STD-DEF-X20": [
+   2,
+   3
+  ],
+  "STD-PHY-X15": [
+   3,
+   4
+  ],
+  "SS-STD-SAFE-X59": [
+   7,
+   10
+  ]
+ },
+ "categoryAverageGain": {
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    6,
+    8
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    6,
+    9
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    2,
+    3
+   ]
+  },
+  "STD-DEF-X20": {
+   "DEFENSE": [
+    7,
+    9
+   ]
+  },
+  "STD-PHY-X15": {
+   "PHYSICAL_AND_MENTAL": [
+    10,
+    13
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "DEFENSE": [
+    8,
+    11
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    14,
+    19
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENSE": "245 (131.4)",
+  "ATTACK": "149 (107.4)",
+  "PHYSICAL_AND_MENTAL": "229 (127.3)"
+ },
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "predictionsFrozenAtCommit": "5e42483",
+ "observedDate": "2026-09-24",
+ "clubLevel": 15,
+ "startValuesMatchFrozenCard": true,
+ "programmeLabels": {
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available",
+  "STD-DEF-X20": "DRILL SESSION, 3 days, cost 30/38/60/150",
+  "STD-PHY-X15": "SKILL SEMINAR, 8 days, cost 90",
+  "SS-STD-SAFE-X59": "SKILL SEMINAR, Standard Safeguard x59, 8 days, cost 180/216/540"
+ },
+ "source": "user-supplied in-chat preview screenshots supplied after the frozen commit; previews only, nothing applied; x5/x10/x20/x15 and x59 supplied"
+}

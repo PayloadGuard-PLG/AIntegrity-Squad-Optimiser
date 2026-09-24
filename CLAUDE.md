@@ -72,6 +72,23 @@ fails the collection run.
 - **HIST PRV-0015 carries a tier from an 11 Sep source attached to an 18 Apr preview.** Never pair a
   tier with a preview unless a card of the identical state in the same season shows it.
 
+### Resource Coach research status (2026-09-24)
+
+The ledger is `calibration/resource-coach-identification/STRUCTURE_AUDIT_20260924.md`; read its status box
+first. None of this is production; `resourceCoachV2.ts` is unchanged.
+
+- **Young-grey** (ages 18–21, MID_GREY cost 0.65 below 80) is the research candidate. It passed prospectively.
+- **Young-grey + coach anchor** (PREREG-20260924-YOUNG-GREY-ANCHOR) is **inconclusive** (addendum 7).
+  - 22+ MAE 2.46 → 1.94, but YGA won 9 of 15 cells against the required 10.
+  - Post hoc, one coach-agnostic dose of ×0.90 does better. It is now pre-registered as
+    PREREG-20260924-SINGLE-DOSE-22PLUS (addendum 8, `freeze_single_dose.py`). The first eligible players are
+    Blakie, Ferguson and Kawa after the S215 rollover. Commit each player's predictions from their card before
+    any preview.
+- **WHITE threshold 127** has helped out of sample twice. It is not adopted while the 10–12 Sep archive
+  conflict lacks a mechanism.
+- Frozen prediction files are pinned by sha256 in `tests/test_resource_coach_structure_audit.py`. Never
+  regenerate them to fit an observation.
+
 ### Stop guessing the fucking answer
 
 This app does not automate a decision by manufacturing a quantity. It reports

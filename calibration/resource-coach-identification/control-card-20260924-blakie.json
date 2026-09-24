@@ -1,0 +1,69 @@
+{
+ "schemaVersion": "resource-coach-control-card-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "arm": "secondary (18-21)",
+ "name": "Ryan Blakie",
+ "age": 21,
+ "tier": "T3",
+ "roles": [
+  "AML",
+  "AMC",
+  "MC"
+ ],
+ "learningRoles": [],
+ "ovr": 196,
+ "source": "user-supplied in-chat player card screenshot (Skills tab), 24 Sep 2026, after the model freeze at 89ff060 and before any preview",
+ "tierNote": "Card badge 'Stellar'",
+ "checks": {
+  "columnMeans": [
+   178.0,
+   251.4,
+   157.2
+  ],
+  "columnHeaders": [
+   178,
+   251,
+   157
+  ],
+  "sum": 2933,
+  "sumOver15": 195.53,
+  "baseOvr": 152.2,
+  "whiteCount": 13,
+  "whiteSetEqualsRoleMap": true
+ },
+ "corpusStatus": "NO-ORDINARY-EVIDENCE (tools/resource-coach-v2/corpus_roster.py); not one of the six control players",
+ "stats": {
+  "TACKLING": 181,
+  "MARKING": 167,
+  "POSITIONING": 181,
+  "HEADING": 200,
+  "BRAVERY": 161,
+  "PASSING": 247,
+  "DRIBBLING": 229,
+  "CROSSING": 264,
+  "SHOOTING": 254,
+  "FINISHING": 263,
+  "FITNESS": 182,
+  "STRENGTH": 87,
+  "AGGRESSION": 88,
+  "SPEED": 205,
+  "CREATIVITY": 224
+ },
+ "classes": {
+  "TACKLING": "WHITE",
+  "MARKING": "WHITE",
+  "POSITIONING": "WHITE",
+  "HEADING": "WHITE",
+  "BRAVERY": "WHITE",
+  "PASSING": "WHITE",
+  "DRIBBLING": "WHITE",
+  "CROSSING": "WHITE",
+  "SHOOTING": "WHITE",
+  "FINISHING": "WHITE",
+  "FITNESS": "WHITE",
+  "STRENGTH": "MID_GREY",
+  "AGGRESSION": "MID_GREY",
+  "SPEED": "WHITE",
+  "CREATIVITY": "WHITE"
+ }
+}

@@ -1,0 +1,43 @@
+{
+ "schemaVersion": "resource-coach-preregistration-v1",
+ "id": "PREREG-20260924-SINGLE-DOSE-22PLUS",
+ "registeredDate": "2026-09-24",
+ "question": "For players aged 22+, does one coach-agnostic dose on the young-grey model predict better than young-grey alone, and is the effect a level shift rather than per-coach efficiency?",
+ "origin": "Post hoc in STRUCTURE_AUDIT addendum 7: on King Alfie, Andonov and Morgan (60 rows), YG x 0.903 scored MAE 1.427 against YG 2.463 and the per-coach anchor 1.939, better than YG in 11 of 15 cells. It was chosen after seeing those data, so only new players can test it.",
+ "models": {
+  "YG": "frozen model + young-grey term (profiles/resource_coach_structure_candidate_20260924b.json)",
+  "SD22": "YG with the budget multiplied by exp(doseLog) = 0.9031, for players aged 22+",
+  "YGA": "comparison: the per-coach anchor from the same pinned table (target excluded), where the coach has one",
+  "SD22_127": "exploratory: SD22 with WHITE threshold 127 (not in the decision rule)"
+ },
+ "dose": {
+  "doseLog": -0.1019518947368421,
+  "dose": 0.903073,
+  "definition": "mean per-event log offset, fitted under YG, of every event aged 22+ in anchor-table-20260924-young-grey.json",
+  "events": 19,
+  "contributingPlayers": ["Ryan Rodger", "David Midgley", "LJDark leo", "Mirsad Panic", "Oliver Lerchl", "Vince Németh"],
+  "neverRefitted": "The dose is a literal in tools/resource-coach-v2/freeze_single_dose.py and is not updated with any later observation, including the 24 Sep previews of King Alfie, Andonov and Morgan. Tests check that it still equals the pinned table's mean."
+ },
+ "frozenArtefacts": {
+  "generator": "tools/resource-coach-v2/freeze_single_dose.py --card <card.json> --out <predictions.json> [--coaches <extra.json>]",
+  "anchorTable": "anchor-table-20260924-young-grey.json (sha256 pinned by tests/test_resource_coach_structure_audit.py)",
+  "rule": "A player's prediction file is generated from their card and committed BEFORE any preview of that card state. The generator, dose and table do not change during this test."
+ },
+ "eligiblePlayers": {
+  "primaryArm": "Aged 22-32 on the card, outfield, not ORDINARY-EVIDENCE in tools/resource-coach-v2/corpus_roster.py when frozen, and not one of the dose contributors or the three players whose data suggested the model (King Alfie, Plamen Andonov, Cieran Morgan). The generator refuses anyone else.",
+  "expected": "Ryan Blakie, Willie Ferguson and Michal Kawa become eligible when they turn 22 at the S215 rollover (4 Oct 2026); their existing events are all at age 21 and never entered the 22+ dose. Any new outfield signing aged 22-32 is also eligible.",
+  "caveat": "If the arm is filled by 22-year-olds, the test speaks to age 22; the dose events span 23-26 and the suggesting players were 22-23."
+ },
+ "scoredRows": "Every row showing a +lo-hi range on a preview whose start values equal the frozen card. For the five registered coaches, p must equal the registered p (3/4/4/4/5). A coach outside the 24 Sep inventory is scored if its prediction is generated with --coaches from its pre-outcome metadata alone (programme, label, N, affected-stat set) and committed before scoring; the outcome numbers never enter the generator.",
+ "decisionRule": {
+  "minimum": "at least 20 scored rows from at least 3 eligible players",
+  "supportsSD22": "pooled midpoint MAE(SD22) <= MAE(YG) - 0.2 AND SD22 has the strictly lower MAE in at least two thirds of player x coach cells",
+  "falsifiesSD22": "MAE(SD22) >= MAE(YG)",
+  "otherwise": "inconclusive",
+  "levelVersusCoach": "Reported, not decisive: on cells where a per-coach anchor exists, the level-shift reading is supported if MAE(SD22) <= MAE(YGA) and contradicted if MAE(YGA) <= MAE(SD22) - 0.2",
+  "marginRationale": "the same 0.2 margin and two-thirds cell share as PREREG-20260924-YOUNG-GREY-ANCHOR, so the two results are comparable"
+ },
+ "consequence": "Supported: SD22 becomes the research candidate for ages 22+, not production; the age boundary and whether the dose belongs in the age table (bands 8/6/4/2/1) stay open. Falsified: the 24 Sep over-prediction is attributed to those three players, not to age.",
+ "procedure": "After the rollover, send each eligible player's card (all 15 stats, role chips including any learning chip, age, tier). Predictions are generated and pushed. Then preview every coach you have for that player, screenshot, and do not start training.",
+ "doesNotChange": "Every earlier frozen prediction, score, profile and the anchor table."
+}
