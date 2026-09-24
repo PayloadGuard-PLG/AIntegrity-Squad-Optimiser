@@ -6,6 +6,7 @@ on:
       - research/fractional-settlement-20260924
     paths:
       - 'tools/resource-coach-v2/fractional_settlement.py'
+      - 'tools/resource-coach-v2/quantization_aware_refit.py'
       - 'calibration/fractional-settlement/**'
       - '.github/workflows/fractional-settlement-research.yml'
   workflow_dispatch:
@@ -31,7 +32,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check 'numpy>=1.26,<3' 'scipy>=1.11,<2'
 
       - name: Compile research replay
-        run: python -m py_compile tools/resource-coach-v2/fractional_settlement.py
+        run: python -m py_compile tools/resource-coach-v2/fractional_settlement.py tools/resource-coach-v2/quantization_aware_refit.py
 
       - name: Run Haggag and Resource Coach settlement replay
         run: |
@@ -42,6 +43,13 @@ jobs:
             --out-dir /tmp/fractional-settlement \
             --json > /tmp/fractional-settlement/stdout.json
           cat /tmp/fractional-settlement/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run quantization-aware shape refit
+        run: |
+          python tools/resource-coach-v2/quantization_aware_refit.py \
+            --out /tmp/fractional-settlement/quantization-aware-refit.json \
+            --report /tmp/fractional-settlement/QUANTIZATION_AWARE_REFIT.md
+          cat /tmp/fractional-settlement/QUANTIZATION_AWARE_REFIT.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Guard production boundary
         run: |
@@ -55,6 +63,8 @@ jobs:
         run: |
           test -s /tmp/fractional-settlement/fractional-settlement.json
           test -s /tmp/fractional-settlement/REPORT.md
+          test -s /tmp/fractional-settlement/quantization-aware-refit.json
+          test -s /tmp/fractional-settlement/QUANTIZATION_AWARE_REFIT.md
           test -s /tmp/fractional-settlement/changed-files.txt
 
       - name: Upload research artifact
