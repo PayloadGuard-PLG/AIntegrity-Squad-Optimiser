@@ -51,8 +51,9 @@ and can emit each predicted and observed row for audit.
 `inside` means the midpoint of the predicted interval lies inclusively in the
 game's observed `[lo,hi]`; `overlap` means the intervals intersect. A whole
 preview succeeds only if **all** its rows succeed. Zero-gain rows are included
-in the table below; the three observed `[0,0]` rows are separately reported in
-the JSON. Reported model intervals are never widened with a tolerance.
+in the table below; the JSON gives a separate nonzero denominator (338), and
+`--include-rows` exposes the three observed `[0,0]` rows. Reported model
+intervals are never widened with a tolerance.
 
 | Player-disjoint model and output | Rows inside | Whole previews inside | Mean absolute midpoint error | Overlap |
 | --- | ---: | ---: | ---: | ---: |
