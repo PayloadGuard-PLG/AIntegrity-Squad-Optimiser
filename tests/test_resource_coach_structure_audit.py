@@ -286,5 +286,47 @@ class YoungGreyAnchorFreeze(unittest.TestCase):
                     self.assertAlmostEqual(rebuilt[e["event"]], e["logOffset"], places=5)
 
 
+class YoungGreyAnchorScore(unittest.TestCase):
+    """The committed YGA verdict reproduces from the frozen predictions and the observations alone."""
+
+    REC = ROOT / "calibration" / "resource-coach-identification" / "control-score-20260924-young-grey-anchor.json"
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("sya", ROOT / "tools" / "resource-coach-v2" / "score_young_grey_anchor.py")
+        cls.s = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.s)
+        cls.rec = json.loads(cls.REC.read_text(encoding="utf-8"))
+
+    def test_verdict_reproduces(self):
+        yg = self.s.fya.yg_params()
+        scored = [self.s.score_player(slug, yg) for slug in self.s.PLAYERS]
+        d = self.s.verdict([p for p in scored if p["arm"] == "primary"])
+        self.assertEqual((d["rows"], d["players"], d["cells"], d["ygaWins"]), (60, 3, 15, 9))
+        self.assertAlmostEqual(d["mae"]["YG"], self.rec["decision"]["mae"]["YG"], places=9)
+        self.assertAlmostEqual(d["mae"]["YGA"], self.rec["decision"]["mae"]["YGA"], places=9)
+        self.assertEqual(d["verdict"], self.rec["decision"]["verdict"])
+        self.assertEqual(d["verdict"], "inconclusive")
+
+    def test_every_scored_preview_obeys_the_game_arithmetic(self):
+        cats = dict(DEFENSE=["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY"],
+                    ATTACK=["PASSING", "DRIBBLING", "CROSSING", "SHOOTING", "FINISHING"],
+                    PHYSICAL_AND_MENTAL=["FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"])
+        for slug in self.s.PLAYERS:
+            obs = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-observation-20260924-{slug}.json").read_text(encoding="utf-8"))
+            for key, iv in obs["statIntervals"].items():
+                lo, hi = obs["ovrBoost"][key]
+                self.assertLessEqual(math.floor(sum(v[0] for v in iv.values()) / 15), lo)
+                self.assertGreaterEqual(math.ceil(sum(v[1] for v in iv.values()) / 15), hi)
+                for cat, g in obs["categoryAverageGain"][key].items():
+                    for i in (0, 1):
+                        self.assertEqual(round(sum(v[i] for s, v in iv.items() if s in cats[cat]) / 5), g[i], (slug, key, cat))
+
+    def test_prediction_files_were_frozen_before_the_observations(self):
+        for slug in self.s.PLAYERS:
+            obs = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-observation-20260924-{slug}.json").read_text(encoding="utf-8"))
+            self.assertEqual(obs["predictionsFrozenAtCommit"], "5e42483")
+            self.assertIn(slug, YoungGreyAnchorFreeze.FROZEN_PREDICTIONS)
+
+
 if __name__ == "__main__":
     unittest.main()

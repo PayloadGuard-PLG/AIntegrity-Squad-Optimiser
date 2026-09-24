@@ -1,0 +1,3437 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "predictionsFrozenAtCommit": "5e42483",
+ "decision": {
+  "rows": 60,
+  "players": 3,
+  "mae": {
+   "YG": 2.4628075000000007,
+   "YGA": 1.9391816666666668
+  },
+  "cells": 15,
+  "ygaWins": 9,
+  "cellWinShare": 0.6,
+  "verdict": "inconclusive",
+  "cellTable": [
+   {
+    "player": "King Alfie",
+    "coach": "DS-STD-ATT-X5",
+    "ygaBetter": true
+   },
+   {
+    "player": "King Alfie",
+    "coach": "DS-STD-OFF-X10",
+    "ygaBetter": true
+   },
+   {
+    "player": "King Alfie",
+    "coach": "STD-DEF-X20",
+    "ygaBetter": false
+   },
+   {
+    "player": "King Alfie",
+    "coach": "STD-PHY-X15",
+    "ygaBetter": true
+   },
+   {
+    "player": "King Alfie",
+    "coach": "SS-STD-SAFE-X59",
+    "ygaBetter": true
+   },
+   {
+    "player": "Plamen Andonov",
+    "coach": "DS-STD-ATT-X5",
+    "ygaBetter": false
+   },
+   {
+    "player": "Plamen Andonov",
+    "coach": "DS-STD-OFF-X10",
+    "ygaBetter": false
+   },
+   {
+    "player": "Plamen Andonov",
+    "coach": "STD-DEF-X20",
+    "ygaBetter": false
+   },
+   {
+    "player": "Plamen Andonov",
+    "coach": "STD-PHY-X15",
+    "ygaBetter": true
+   },
+   {
+    "player": "Plamen Andonov",
+    "coach": "SS-STD-SAFE-X59",
+    "ygaBetter": true
+   },
+   {
+    "player": "Cieran Morgan",
+    "coach": "DS-STD-ATT-X5",
+    "ygaBetter": true
+   },
+   {
+    "player": "Cieran Morgan",
+    "coach": "DS-STD-OFF-X10",
+    "ygaBetter": true
+   },
+   {
+    "player": "Cieran Morgan",
+    "coach": "STD-DEF-X20",
+    "ygaBetter": false
+   },
+   {
+    "player": "Cieran Morgan",
+    "coach": "STD-PHY-X15",
+    "ygaBetter": false
+   },
+   {
+    "player": "Cieran Morgan",
+    "coach": "SS-STD-SAFE-X59",
+    "ygaBetter": true
+   }
+  ]
+ },
+ "secondaryArm": {
+  "rows": 20,
+  "YG": {
+   "n": 20,
+   "midpointMae": 3.3866124999999996,
+   "pointInsideRate": 0.4,
+   "overlapRate": 0.75,
+   "endpointMae": 3.5534774999999987,
+   "signedResidual": 0.06585749999999964,
+   "meanIoU": 0.30713006078918687
+  },
+  "YGA_ungated": {
+   "n": 20,
+   "midpointMae": 3.562502500000001,
+   "pointInsideRate": 0.35,
+   "overlapRate": 0.65,
+   "endpointMae": 3.7367025000000007,
+   "signedResidual": -0.7365824999999999,
+   "meanIoU": 0.290402473072931
+  },
+  "youngGreyRetestRows": 0,
+  "youngGreyRetest": "untestable: no MID_GREY row below the knot (80), where YG and the frozen model are identical"
+ },
+ "exploratory": {
+  "YG": {
+   "n": 60,
+   "midpointMae": 2.4628075000000007,
+   "pointInsideRate": 0.5833333333333334,
+   "overlapRate": 0.9833333333333333,
+   "endpointMae": 2.505304166666667,
+   "signedResidual": 2.2980991666666672,
+   "meanIoU": 0.4650517691099933
+  },
+  "YGA": {
+   "n": 60,
+   "midpointMae": 1.9391816666666668,
+   "pointInsideRate": 0.8166666666666667,
+   "overlapRate": 0.9833333333333333,
+   "endpointMae": 1.9885300000000001,
+   "signedResidual": 1.1600149999999998,
+   "meanIoU": 0.5465780864321503
+  },
+  "YGA_ungated": {
+   "n": 60,
+   "midpointMae": 1.9391816666666668,
+   "pointInsideRate": 0.8166666666666667,
+   "overlapRate": 0.9833333333333333,
+   "endpointMae": 1.9885300000000001,
+   "signedResidual": 1.1600149999999998,
+   "meanIoU": 0.5465780864321503
+  },
+  "YGA127": {
+   "n": 60,
+   "midpointMae": 1.5594124999999999,
+   "pointInsideRate": 0.9166666666666666,
+   "overlapRate": 0.9833333333333333,
+   "endpointMae": 1.5965241666666663,
+   "signedResidual": -0.5966458333333332,
+   "meanIoU": 0.6151498401314919
+  }
+ },
+ "postHocGlobalDose": {
+  "allAges": {
+   "anchorEvents": 28,
+   "dose": 0.925,
+   "primaryArm": {
+    "n": 60,
+    "midpointMae": 1.5791146858911815,
+    "pointInsideRate": 0.8833333333333333,
+    "overlapRate": 0.9833333333333333,
+    "endpointMae": 1.6678331135263993,
+    "signedResidual": 0.9376218866328689,
+    "meanIoU": 0.5885161454934263
+   },
+   "betterThanYGInCells": "12/15"
+  },
+  "age22plus": {
+   "anchorEvents": 19,
+   "dose": 0.9031,
+   "primaryArm": {
+    "n": 60,
+    "midpointMae": 1.426841008013627,
+    "pointInsideRate": 0.8833333333333333,
+    "overlapRate": 0.9833333333333333,
+    "endpointMae": 1.4967774766714295,
+    "signedResidual": 0.5269680603914162,
+    "meanIoU": 0.6209622811006796
+   },
+   "betterThanYGInCells": "11/15"
+  }
+ },
+ "players": [
+  {
+   "player": "King Alfie",
+   "age": 23,
+   "tier": "T4",
+   "roles": [
+    "DC",
+    "DL",
+    "DMC"
+   ],
+   "arm": "primary",
+   "perCoach": {
+    "DS-STD-ATT-X5": {
+     "p": 3,
+     "stats": [
+      "PASSING",
+      "DRIBBLING",
+      "FINISHING"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 3,
+      "midpointMae": 0.9993833333333338,
+      "pointInsideRate": 0.6666666666666666,
+      "overlapRate": 1.0,
+      "endpointMae": 1.252716666666667,
+      "signedResidual": 0.9993833333333338,
+      "meanIoU": 0.6205830383907108
+     },
+     "YGA": {
+      "n": 3,
+      "midpointMae": 0.9889333333333333,
+      "pointInsideRate": 0.6666666666666666,
+      "overlapRate": 1.0,
+      "endpointMae": 1.0188666666666668,
+      "signedResidual": 0.35109999999999975,
+      "meanIoU": 0.6492386337477789
+     },
+     "YGA_ungated": {
+      "n": 3,
+      "midpointMae": 0.9889333333333333,
+      "pointInsideRate": 0.6666666666666666,
+      "overlapRate": 1.0,
+      "endpointMae": 1.0188666666666668,
+      "signedResidual": 0.35109999999999975,
+      "meanIoU": 0.6492386337477789
+     },
+     "YGA127": {
+      "n": 3,
+      "midpointMae": 1.4057166666666667,
+      "pointInsideRate": 0.6666666666666666,
+      "overlapRate": 1.0,
+      "endpointMae": 1.43565,
+      "signedResidual": -0.06568333333333361,
+      "meanIoU": 0.4604086849150832
+     },
+     "impliedDoseVsYG": 0.9183,
+     "anchorDose": 0.943
+    },
+    "DS-STD-OFF-X10": {
+     "p": 4,
+     "stats": [
+      "CROSSING",
+      "SHOOTING",
+      "SPEED",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 1.6629500000000004,
+      "pointInsideRate": 0.75,
+      "overlapRate": 1.0,
+      "endpointMae": 1.66295,
+      "signedResidual": 1.6629500000000004,
+      "meanIoU": 0.46763586110815836
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 0.5560750000000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.6029250000000003,
+      "signedResidual": 0.16762499999999947,
+      "meanIoU": 0.7179991569497205
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 0.5560750000000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.6029250000000003,
+      "signedResidual": 0.16762499999999947,
+      "meanIoU": 0.7179991569497205
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 1.0246999999999997,
+      "pointInsideRate": 0.75,
+      "overlapRate": 1.0,
+      "endpointMae": 1.0596999999999999,
+      "signedResidual": -0.6244000000000001,
+      "meanIoU": 0.5657647134251859
+     },
+     "impliedDoseVsYG": 0.8718,
+     "anchorDose": 0.8747
+    },
+    "STD-DEF-X20": {
+     "p": 4,
+     "stats": [
+      "TACKLING",
+      "MARKING",
+      "HEADING",
+      "BRAVERY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 1.7975249999999998,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 1.797525,
+      "signedResidual": 1.7975249999999998,
+      "meanIoU": 0.37862116089569475
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 2.0070125,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 2.0070125,
+      "signedResidual": 2.0070125,
+      "meanIoU": 0.328552816794051
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 2.0070125,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 2.0070125,
+      "signedResidual": 2.0070125,
+      "meanIoU": 0.328552816794051
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 0.5766875000000002,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.6102125,
+      "signedResidual": 0.0780624999999997,
+      "meanIoU": 0.722790485981168
+     },
+     "impliedDoseVsYG": 0.8054,
+     "anchorDose": 1.0222
+    },
+    "STD-PHY-X15": {
+     "p": 4,
+     "stats": [
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 2.645725,
+      "pointInsideRate": 0.25,
+      "overlapRate": 1.0,
+      "endpointMae": 2.645725,
+      "signedResidual": 2.645725,
+      "meanIoU": 0.26728814638474807
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 1.6938374999999994,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 1.6938375,
+      "signedResidual": 1.6938374999999994,
+      "meanIoU": 0.4480541321277859
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 1.6938374999999994,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 1.6938375,
+      "signedResidual": 1.6938374999999994,
+      "meanIoU": 0.4480541321277859
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 0.7691750000000002,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.7916750000000001,
+      "signedResidual": -0.6005499999999997,
+      "meanIoU": 0.6960196988321831
+     },
+     "impliedDoseVsYG": 0.7992,
+     "anchorDose": 0.924
+    },
+    "SS-STD-SAFE-X59": {
+     "p": 5,
+     "stats": [
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 5,
+      "midpointMae": 2.3882799999999995,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.49632,
+      "signedResidual": 2.2051600000000002,
+      "meanIoU": 0.5265699689015487
+     },
+     "YGA": {
+      "n": 5,
+      "midpointMae": 1.5206199999999996,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.5206199999999999,
+      "signedResidual": 0.9015199999999993,
+      "meanIoU": 0.672019609346705
+     },
+     "YGA_ungated": {
+      "n": 5,
+      "midpointMae": 1.5206199999999996,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.5206199999999999,
+      "signedResidual": 0.9015199999999993,
+      "meanIoU": 0.672019609346705
+     },
+     "YGA127": {
+      "n": 5,
+      "midpointMae": 2.4800899999999984,
+      "pointInsideRate": 0.8,
+      "overlapRate": 1.0,
+      "endpointMae": 2.4800899999999997,
+      "signedResidual": -2.4800899999999984,
+      "meanIoU": 0.5015021003852169
+     },
+     "impliedDoseVsYG": 0.8706,
+     "anchorDose": 0.9245
+    }
+   },
+   "rows": [
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "PASSING",
+     "start": 229,
+     "cls": "WHITE",
+     "observed": [
+      6,
+      9
+     ],
+     "YG": [
+      6.243,
+      9.0256
+     ],
+     "YGA": [
+      5.9246,
+      8.587
+     ],
+     "YGA_ungated": [
+      5.9246,
+      8.587
+     ],
+     "YGA127": [
+      4.8788,
+      7.1321
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "DRIBBLING",
+     "start": 118,
+     "cls": "MID_GREY",
+     "observed": [
+      9,
+      13
+     ],
+     "YG": [
+      11.3744,
+      15.8693
+     ],
+     "YGA": [
+      10.8402,
+      15.1799
+     ],
+     "YGA_ungated": [
+      10.8402,
+      15.1799
+     ],
+     "YGA127": [
+      10.8402,
+      15.1799
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "FINISHING",
+     "start": 87,
+     "cls": "MID_GREY",
+     "observed": [
+      14,
+      19
+     ],
+     "YG": [
+      13.24,
+      20.244
+     ],
+     "YGA": [
+      12.4851,
+      19.0898
+     ],
+     "YGA_ungated": [
+      12.4851,
+      19.0898
+     ],
+     "YGA127": [
+      12.4851,
+      19.0898
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CROSSING",
+     "start": 193,
+     "cls": "WHITE",
+     "observed": [
+      18,
+      26
+     ],
+     "YG": [
+      19.8587,
+      28.611
+     ],
+     "YGA": [
+      17.3711,
+      25.7688
+     ],
+     "YGA_ungated": [
+      17.3711,
+      25.7688
+     ],
+     "YGA127": [
+      17.1701,
+      24.2508
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SHOOTING",
+     "start": 119,
+     "cls": "MID_GREY",
+     "observed": [
+      12,
+      19
+     ],
+     "YG": [
+      15.2299,
+      20.7168
+     ],
+     "YGA": [
+      13.7412,
+      18.86
+     ],
+     "YGA_ungated": [
+      13.7412,
+      18.86
+     ],
+     "YGA127": [
+      13.7412,
+      18.86
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SPEED",
+     "start": 245,
+     "cls": "WHITE",
+     "observed": [
+      4,
+      6
+     ],
+     "YG": [
+      5.1756,
+      7.5474
+     ],
+     "YGA": [
+      4.5806,
+      6.713
+     ],
+     "YGA_ungated": [
+      4.5806,
+      6.713
+     ],
+     "YGA127": [
+      3.7552,
+      5.5424
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CREATIVITY",
+     "start": 236,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      9
+     ],
+     "YG": [
+      7.0441,
+      10.1201
+     ],
+     "YGA": [
+      6.2589,
+      9.0474
+     ],
+     "YGA_ungated": [
+      6.2589,
+      9.0474
+     ],
+     "YGA127": [
+      5.1598,
+      7.5253
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "TACKLING",
+     "start": 248,
+     "cls": "WHITE",
+     "observed": [
+      8,
+      11
+     ],
+     "YG": [
+      8.6115,
+      12.2275
+     ],
+     "YGA": [
+      8.7739,
+      12.4434
+     ],
+     "YGA_ungated": [
+      8.7739,
+      12.4434
+     ],
+     "YGA127": [
+      7.2915,
+      10.4558
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "MARKING",
+     "start": 246,
+     "cls": "WHITE",
+     "observed": [
+      8,
+      11
+     ],
+     "YG": [
+      9.1901,
+      12.9948
+     ],
+     "YGA": [
+      9.3616,
+      13.2211
+     ],
+     "YGA_ungated": [
+      9.3616,
+      13.2211
+     ],
+     "YGA127": [
+      7.7942,
+      11.1341
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "HEADING",
+     "start": 235,
+     "cls": "WHITE",
+     "observed": [
+      10,
+      14
+     ],
+     "YG": [
+      12.9708,
+      17.8821
+     ],
+     "YGA": [
+      13.1968,
+      18.1679
+     ],
+     "YGA_ungated": [
+      13.1968,
+      18.1679
+     ],
+     "YGA127": [
+      11.1128,
+      15.5062
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "BRAVERY",
+     "start": 247,
+     "cls": "WHITE",
+     "observed": [
+      8,
+      11
+     ],
+     "YG": [
+      8.8968,
+      12.6066
+     ],
+     "YGA": [
+      9.0637,
+      12.8277
+     ],
+     "YGA_ungated": [
+      9.0637,
+      12.8277
+     ],
+     "YGA127": [
+      7.5393,
+      10.7906
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "FITNESS",
+     "start": 238,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      10
+     ],
+     "YG": [
+      9.3415,
+      13.1947
+     ],
+     "YGA": [
+      8.7376,
+      12.3953
+     ],
+     "YGA_ungated": [
+      8.7376,
+      12.3953
+     ],
+     "YGA127": [
+      7.2606,
+      10.4139
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "STRENGTH",
+     "start": 220,
+     "cls": "WHITE",
+     "observed": [
+      14,
+      20
+     ],
+     "YG": [
+      16.177,
+      21.8794
+     ],
+     "YGA": [
+      15.244,
+      20.7286
+     ],
+     "YGA_ungated": [
+      15.244,
+      20.7286
+     ],
+     "YGA127": [
+      12.9103,
+      17.8055
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "AGGRESSION",
+     "start": 206,
+     "cls": "WHITE",
+     "observed": [
+      20,
+      26
+     ],
+     "YG": [
+      23.1857,
+      30.4189
+     ],
+     "YGA": [
+      21.9588,
+      28.9923
+     ],
+     "YGA_ungated": [
+      21.9588,
+      28.9923
+     ],
+     "YGA127": [
+      19.2927,
+      25.6612
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "CREATIVITY",
+     "start": 236,
+     "cls": "WHITE",
+     "observed": [
+      9,
+      11
+     ],
+     "YG": [
+      9.9606,
+      14.008
+     ],
+     "YGA": [
+      9.3234,
+      13.1707
+     ],
+     "YGA_ungated": [
+      9.3234,
+      13.1707
+     ],
+     "YGA127": [
+      7.7614,
+      11.09
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "HEADING",
+     "start": 235,
+     "cls": "WHITE",
+     "observed": [
+      21,
+      29
+     ],
+     "YG": [
+      24.1069,
+      31.3258
+     ],
+     "YGA": [
+      22.8914,
+      29.9118
+     ],
+     "YGA_ungated": [
+      22.8914,
+      29.9118
+     ],
+     "YGA127": [
+      19.7648,
+      26.2217
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "BRAVERY",
+     "start": 247,
+     "cls": "WHITE",
+     "observed": [
+      17,
+      25
+     ],
+     "YG": [
+      17.5402,
+      23.5442
+     ],
+     "YGA": [
+      16.5579,
+      22.3466
+     ],
+     "YGA_ungated": [
+      16.5579,
+      22.3466
+     ],
+     "YGA127": [
+      14.0728,
+      19.2698
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "FITNESS",
+     "start": 238,
+     "cls": "WHITE",
+     "observed": [
+      19,
+      27
+     ],
+     "YG": [
+      22.3376,
+      29.2639
+     ],
+     "YGA": [
+      21.1795,
+      27.9013
+     ],
+     "YGA_ungated": [
+      21.1795,
+      27.9013
+     ],
+     "YGA127": [
+      18.2127,
+      24.3585
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "STRENGTH",
+     "start": 220,
+     "cls": "WHITE",
+     "observed": [
+      30,
+      39
+     ],
+     "YG": [
+      34.1425,
+      42.6525
+     ],
+     "YGA": [
+      32.6645,
+      41.0176
+     ],
+     "YGA_ungated": [
+      32.6645,
+      41.0176
+     ],
+     "YGA127": [
+      28.7891,
+      36.6803
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "CREATIVITY",
+     "start": 236,
+     "cls": "WHITE",
+     "observed": [
+      21,
+      29
+     ],
+     "YG": [
+      23.5078,
+      30.6302
+     ],
+     "YGA": [
+      22.3114,
+      29.2332
+     ],
+     "YGA_ungated": [
+      22.3114,
+      29.2332
+     ],
+     "YGA127": [
+      19.2378,
+      25.5916
+     ]
+    }
+   ],
+   "pooled": {
+    "YG": {
+     "n": 20,
+     "midpointMae": 1.9682175000000002,
+     "pointInsideRate": 0.65,
+     "overlapRate": 1.0,
+     "endpointMae": 2.0332275,
+     "signedResidual": 1.9224375000000002,
+     "meanIoU": 0.44743898166171403
+    },
+    "YGA": {
+     "n": 20,
+     "midpointMae": 1.3798799999999998,
+     "pointInsideRate": 0.75,
+     "overlapRate": 1.0,
+     "endpointMae": 1.39374,
+     "signedResidual": 1.0517399999999997,
+     "meanIoU": 0.5643119185731545
+    },
+    "YGA_ungated": {
+     "n": 20,
+     "midpointMae": 1.3798799999999998,
+     "pointInsideRate": 0.75,
+     "overlapRate": 1.0,
+     "endpointMae": 1.39374,
+     "signedResidual": 1.0517399999999997,
+     "meanIoU": 0.5643119185731545
+    },
+    "YGA127": {
+     "n": 20,
+     "midpointMae": 1.3049924999999996,
+     "pointInsideRate": 0.85,
+     "overlapRate": 1.0,
+     "endpointMae": 1.3276874999999995,
+     "signedResidual": -0.8592524999999996,
+     "meanIoU": 0.591351807481274
+    }
+   }
+  },
+  {
+   "player": "Plamen Andonov",
+   "age": 23,
+   "tier": "T0",
+   "roles": [
+    "ST"
+   ],
+   "arm": "primary",
+   "perCoach": {
+    "DS-STD-ATT-X5": {
+     "p": 3,
+     "stats": [
+      "PASSING",
+      "DRIBBLING",
+      "FINISHING"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 3,
+      "midpointMae": 0.8930333333333339,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.146366666666667,
+      "signedResidual": 0.3877000000000012,
+      "meanIoU": 0.7016179440289539
+     },
+     "YGA": {
+      "n": 3,
+      "midpointMae": 1.064,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.0939333333333334,
+      "signedResidual": -0.5527333333333336,
+      "meanIoU": 0.7123961409089862
+     },
+     "YGA_ungated": {
+      "n": 3,
+      "midpointMae": 1.064,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.0939333333333334,
+      "signedResidual": -0.5527333333333336,
+      "meanIoU": 0.7123961409089862
+     },
+     "YGA127": {
+      "n": 3,
+      "midpointMae": 0.9336333333333341,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.9635000000000007,
+      "signedResidual": -0.6831666666666661,
+      "meanIoU": 0.744994874550008
+     },
+     "impliedDoseVsYG": 0.9729,
+     "anchorDose": 0.943
+    },
+    "DS-STD-OFF-X10": {
+     "p": 4,
+     "stats": [
+      "CROSSING",
+      "SHOOTING",
+      "SPEED",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 1.2966125000000002,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.4016125000000001,
+      "signedResidual": 1.2966125000000002,
+      "meanIoU": 0.7298992858926123
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 1.9084125000000007,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.9084125000000003,
+      "signedResidual": -1.6429624999999994,
+      "meanIoU": 0.6521196968150975
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 1.9084125000000007,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.9084125000000003,
+      "signedResidual": -1.6429624999999994,
+      "meanIoU": 0.6521196968150975
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 2.0465,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.0465000000000004,
+      "signedResidual": -2.0465,
+      "meanIoU": 0.6198651664867791
+     },
+     "impliedDoseVsYG": 0.9446,
+     "anchorDose": 0.8747
+    },
+    "STD-DEF-X20": {
+     "p": 4,
+     "stats": [
+      "TACKLING",
+      "MARKING",
+      "HEADING",
+      "BRAVERY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 3.8408625,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.840862500000001,
+      "signedResidual": 3.8408625,
+      "meanIoU": 0.540802727219639
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 4.566262500000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 4.566262500000001,
+      "signedResidual": 4.566262500000001,
+      "meanIoU": 0.477564500750702
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 4.566262500000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 4.566262500000001,
+      "signedResidual": 4.566262500000001,
+      "meanIoU": 0.477564500750702
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 3.8229375,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.8229375,
+      "signedResidual": 3.8229375,
+      "meanIoU": 0.5743144536116229
+     },
+     "impliedDoseVsYG": 0.8923,
+     "anchorDose": 1.0222
+    },
+    "STD-PHY-X15": {
+     "p": 4,
+     "stats": [
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 4.2911,
+      "pointInsideRate": 0.0,
+      "overlapRate": 1.0,
+      "endpointMae": 4.2911,
+      "signedResidual": 4.2911,
+      "meanIoU": 0.35304004737758027
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 2.473837500000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.4738374999999997,
+      "signedResidual": 2.473837500000001,
+      "meanIoU": 0.5628831286659898
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 2.473837500000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.4738374999999997,
+      "signedResidual": 2.473837500000001,
+      "meanIoU": 0.5628831286659898
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 1.519962500000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.5199625,
+      "signedResidual": 1.1139625000000004,
+      "meanIoU": 0.746169383032585
+     },
+     "impliedDoseVsYG": 0.8284,
+     "anchorDose": 0.924
+    },
+    "SS-STD-SAFE-X59": {
+     "p": 5,
+     "stats": [
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 5,
+      "midpointMae": 3.8603799999999993,
+      "pointInsideRate": 0.4,
+      "overlapRate": 1.0,
+      "endpointMae": 3.86038,
+      "signedResidual": 3.8603799999999993,
+      "meanIoU": 0.46994968062852716
+     },
+     "YGA": {
+      "n": 5,
+      "midpointMae": 1.893990000000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.0860700000000003,
+      "signedResidual": 1.8596899999999992,
+      "meanIoU": 0.6724572904524975
+     },
+     "YGA_ungated": {
+      "n": 5,
+      "midpointMae": 1.893990000000001,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.0860700000000003,
+      "signedResidual": 1.8596899999999992,
+      "meanIoU": 0.6724572904524975
+     },
+     "YGA127": {
+      "n": 5,
+      "midpointMae": 0.7743200000000016,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.9663999999999995,
+      "signedResidual": -0.7618600000000029,
+      "meanIoU": 0.82633239898614
+     },
+     "impliedDoseVsYG": 0.8645,
+     "anchorDose": 0.9245
+    }
+   },
+   "rows": [
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "PASSING",
+     "start": 108,
+     "cls": "WHITE",
+     "observed": [
+      14,
+      19
+     ],
+     "YG": [
+      13.24,
+      20.244
+     ],
+     "YGA": [
+      12.4851,
+      19.0898
+     ],
+     "YGA_ungated": [
+      12.4851,
+      19.0898
+     ],
+     "YGA127": [
+      12.4851,
+      19.0896
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "DRIBBLING",
+     "start": 100,
+     "cls": "WHITE",
+     "observed": [
+      14,
+      21
+     ],
+     "YG": [
+      13.24,
+      20.244
+     ],
+     "YGA": [
+      12.4851,
+      19.0898
+     ],
+     "YGA_ungated": [
+      12.4851,
+      19.0898
+     ],
+     "YGA127": [
+      12.4851,
+      19.0898
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "FINISHING",
+     "start": 115,
+     "cls": "WHITE",
+     "observed": [
+      12,
+      18
+     ],
+     "YG": [
+      13.24,
+      20.1182
+     ],
+     "YGA": [
+      12.4851,
+      19.0487
+     ],
+     "YGA_ungated": [
+      12.4851,
+      19.0487
+     ],
+     "YGA127": [
+      12.4807,
+      18.2707
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CROSSING",
+     "start": 82,
+     "cls": "MID_GREY",
+     "observed": [
+      20,
+      28
+     ],
+     "YG": [
+      19.86,
+      30.3659
+     ],
+     "YGA": [
+      17.3711,
+      26.5604
+     ],
+     "YGA_ungated": [
+      17.3711,
+      26.5604
+     ],
+     "YGA127": [
+      17.3711,
+      26.5604
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SHOOTING",
+     "start": 105,
+     "cls": "WHITE",
+     "observed": [
+      20,
+      29
+     ],
+     "YG": [
+      19.86,
+      30.2287
+     ],
+     "YGA": [
+      17.3711,
+      26.5604
+     ],
+     "YGA_ungated": [
+      17.3711,
+      26.5604
+     ],
+     "YGA127": [
+      17.3711,
+      26.2024
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SPEED",
+     "start": 103,
+     "cls": "WHITE",
+     "observed": [
+      20,
+      29
+     ],
+     "YG": [
+      19.86,
+      30.3549
+     ],
+     "YGA": [
+      17.3711,
+      26.5604
+     ],
+     "YGA_ungated": [
+      17.3711,
+      26.5604
+     ],
+     "YGA127": [
+      17.3711,
+      26.4423
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CREATIVITY",
+     "start": 117,
+     "cls": "WHITE",
+     "observed": [
+      17,
+      24
+     ],
+     "YG": [
+      19.5455,
+      27.2979
+     ],
+     "YGA": [
+      17.3135,
+      24.7483
+     ],
+     "YGA_ungated": [
+      17.3135,
+      24.7483
+     ],
+     "YGA127": [
+      16.4909,
+      22.8187
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "TACKLING",
+     "start": 71,
+     "cls": "MID_GREY",
+     "observed": [
+      39,
+      53
+     ],
+     "YG": [
+      39.72,
+      58.7167
+     ],
+     "YGA": [
+      40.6024,
+      59.6331
+     ],
+     "YGA_ungated": [
+      40.6024,
+      59.6331
+     ],
+     "YGA127": [
+      40.6024,
+      59.6331
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "MARKING",
+     "start": 84,
+     "cls": "MID_GREY",
+     "observed": [
+      36,
+      48
+     ],
+     "YG": [
+      39.4896,
+      53.4376
+     ],
+     "YGA": [
+      40.253,
+      54.122
+     ],
+     "YGA_ungated": [
+      40.253,
+      54.122
+     ],
+     "YGA127": [
+      40.253,
+      54.122
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "HEADING",
+     "start": 110,
+     "cls": "WHITE",
+     "observed": [
+      33,
+      42
+     ],
+     "YG": [
+      35.7586,
+      46.0894
+     ],
+     "YGA": [
+      36.2857,
+      46.6313
+     ],
+     "YGA_ungated": [
+      36.2857,
+      46.6313
+     ],
+     "YGA127": [
+      33.803,
+      43.1674
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "BRAVERY",
+     "start": 83,
+     "cls": "MID_GREY",
+     "observed": [
+      36,
+      49
+     ],
+     "YG": [
+      39.5965,
+      53.9185
+     ],
+     "YGA": [
+      40.3861,
+      54.6165
+     ],
+     "YGA_ungated": [
+      40.3861,
+      54.6165
+     ],
+     "YGA127": [
+      40.3861,
+      54.6165
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "FITNESS",
+     "start": 90,
+     "cls": "MID_GREY",
+     "observed": [
+      26,
+      36
+     ],
+     "YG": [
+      29.79,
+      42.2302
+     ],
+     "YGA": [
+      27.5245,
+      39.9597
+     ],
+     "YGA_ungated": [
+      27.5245,
+      39.9597
+     ],
+     "YGA127": [
+      27.5245,
+      39.9597
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "STRENGTH",
+     "start": 125,
+     "cls": "WHITE",
+     "observed": [
+      20,
+      27
+     ],
+     "YG": [
+      23.6512,
+      31.015
+     ],
+     "YGA": [
+      22.3982,
+      29.5655
+     ],
+     "YGA_ungated": [
+      22.3982,
+      29.5655
+     ],
+     "YGA127": [
+      19.7924,
+      26.2703
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "AGGRESSION",
+     "start": 94,
+     "cls": "MID_GREY",
+     "observed": [
+      26,
+      35
+     ],
+     "YG": [
+      29.551,
+      40.6273
+     ],
+     "YGA": [
+      27.487,
+      38.5645
+     ],
+     "YGA_ungated": [
+      27.487,
+      38.5645
+     ],
+     "YGA127": [
+      27.487,
+      38.5645
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "CREATIVITY",
+     "start": 117,
+     "cls": "WHITE",
+     "observed": [
+      24,
+      31
+     ],
+     "YG": [
+      26.9277,
+      35.5364
+     ],
+     "YGA": [
+      25.4182,
+      33.8731
+     ],
+     "YGA_ungated": [
+      25.4182,
+      33.8731
+     ],
+     "YGA127": [
+      23.4016,
+      30.9117
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "HEADING",
+     "start": 110,
+     "cls": "WHITE",
+     "observed": [
+      53,
+      62
+     ],
+     "YG": [
+      56.8985,
+      67.6378
+     ],
+     "YGA": [
+      54.9284,
+      65.6422
+     ],
+     "YGA_ungated": [
+      54.9284,
+      65.6422
+     ],
+     "YGA127": [
+      50.899,
+      61.0937
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "BRAVERY",
+     "start": 83,
+     "cls": "MID_GREY",
+     "observed": [
+      64,
+      78
+     ],
+     "YG": [
+      67.1896,
+      79.4282
+     ],
+     "YGA": [
+      64.8581,
+      77.2042
+     ],
+     "YGA_ungated": [
+      64.8581,
+      77.2042
+     ],
+     "YGA127": [
+      64.8581,
+      77.2042
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "FITNESS",
+     "start": 90,
+     "cls": "MID_GREY",
+     "observed": [
+      60,
+      72
+     ],
+     "YG": [
+      62.3065,
+      73.7715
+     ],
+     "YGA": [
+      60.1646,
+      71.6639
+     ],
+     "YGA_ungated": [
+      60.1646,
+      71.6639
+     ],
+     "YGA127": [
+      60.1646,
+      71.6639
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "STRENGTH",
+     "start": 125,
+     "cls": "WHITE",
+     "observed": [
+      41,
+      50
+     ],
+     "YG": [
+      45.6374,
+      55.1726
+     ],
+     "YGA": [
+      43.9395,
+      53.3686
+     ],
+     "YGA_ungated": [
+      43.9395,
+      53.3686
+     ],
+     "YGA127": [
+      39.6916,
+      48.7175
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "CREATIVITY",
+     "start": 117,
+     "cls": "WHITE",
+     "observed": [
+      47,
+      56
+     ],
+     "YG": [
+      51.7103,
+      61.8514
+     ],
+     "YGA": [
+      49.8773,
+      59.9501
+     ],
+     "YGA_ungated": [
+      49.8773,
+      59.9501
+     ],
+     "YGA127": [
+      45.7377,
+      55.3511
+     ]
+    }
+   ],
+   "pooled": {
+    "YG": {
+     "n": 20,
+     "midpointMae": 2.9847650000000003,
+     "pointInsideRate": 0.65,
+     "overlapRate": 1.0,
+     "endpointMae": 3.0437649999999996,
+     "signedResidual": 2.908965,
+     "meanIoU": 0.5474785238594413
+    },
+    "YGA": {
+     "n": 20,
+     "midpointMae": 2.4228000000000005,
+     "pointInsideRate": 1.0,
+     "overlapRate": 1.0,
+     "endpointMae": 2.47531,
+     "signedResidual": 1.46144,
+     "meanIoU": 0.6134872089958302
+    },
+    "YGA_ungated": {
+     "n": 20,
+     "midpointMae": 2.4228000000000005,
+     "pointInsideRate": 1.0,
+     "overlapRate": 1.0,
+     "endpointMae": 2.47531,
+     "signedResidual": 1.46144,
+     "meanIoU": 0.6134872089958302
+    },
+    "YGA127": {
+     "n": 20,
+     "midpointMae": 1.8115050000000008,
+     "pointInsideRate": 1.0,
+     "overlapRate": 1.0,
+     "endpointMae": 1.8640050000000001,
+     "signedResidual": 0.28513999999999945,
+     "meanIoU": 0.7064021315552336
+    }
+   }
+  },
+  {
+   "player": "Cieran Morgan",
+   "age": 22,
+   "tier": "T4",
+   "roles": [
+    "DMC",
+    "MC",
+    "AMC"
+   ],
+   "arm": "primary",
+   "perCoach": {
+    "DS-STD-ATT-X5": {
+     "p": 3,
+     "stats": [
+      "PASSING",
+      "DRIBBLING",
+      "FINISHING"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 3,
+      "midpointMae": 1.0631833333333338,
+      "pointInsideRate": 0.3333333333333333,
+      "overlapRate": 0.6666666666666666,
+      "endpointMae": 1.0631833333333336,
+      "signedResidual": 0.9356500000000004,
+      "meanIoU": 0.2540447540166035
+     },
+     "YGA": {
+      "n": 3,
+      "midpointMae": 0.9385666666666669,
+      "pointInsideRate": 0.3333333333333333,
+      "overlapRate": 0.6666666666666666,
+      "endpointMae": 0.9385666666666667,
+      "signedResidual": 0.7269666666666666,
+      "meanIoU": 0.22461135735430116
+     },
+     "YGA_ungated": {
+      "n": 3,
+      "midpointMae": 0.9385666666666669,
+      "pointInsideRate": 0.3333333333333333,
+      "overlapRate": 0.6666666666666666,
+      "endpointMae": 0.9385666666666667,
+      "signedResidual": 0.7269666666666666,
+      "meanIoU": 0.22461135735430116
+     },
+     "YGA127": {
+      "n": 3,
+      "midpointMae": 0.5195666666666668,
+      "pointInsideRate": 0.3333333333333333,
+      "overlapRate": 0.6666666666666666,
+      "endpointMae": 0.5195666666666668,
+      "signedResidual": 0.03623333333333345,
+      "meanIoU": 0.2463444843003416
+     },
+     "impliedDoseVsYG": 0.7168,
+     "anchorDose": 0.943
+    },
+    "DS-STD-OFF-X10": {
+     "p": 4,
+     "stats": [
+      "CROSSING",
+      "SHOOTING",
+      "SPEED",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 1.6622124999999999,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 1.6796125000000002,
+      "signedResidual": 1.6622124999999999,
+      "meanIoU": 0.4642258195059278
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 0.7781874999999996,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.7842374999999999,
+      "signedResidual": 0.17001249999999946,
+      "meanIoU": 0.6517933318547897
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 0.7781874999999996,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.7842374999999999,
+      "signedResidual": 0.17001249999999946,
+      "meanIoU": 0.6517933318547897
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 1.0614874999999997,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 1.0614875,
+      "signedResidual": -1.0614874999999997,
+      "meanIoU": 0.5583476321999336
+     },
+     "impliedDoseVsYG": 0.8543,
+     "anchorDose": 0.8747
+    },
+    "STD-DEF-X20": {
+     "p": 4,
+     "stats": [
+      "TACKLING",
+      "MARKING",
+      "HEADING",
+      "BRAVERY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 2.811150000000001,
+      "pointInsideRate": 0.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.81115,
+      "signedResidual": 2.811150000000001,
+      "meanIoU": 0.23695320376121237
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 3.076987499999999,
+      "pointInsideRate": 0.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.0769874999999995,
+      "signedResidual": 3.076987499999999,
+      "meanIoU": 0.19692254137468873
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 3.076987499999999,
+      "pointInsideRate": 0.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.0769874999999995,
+      "signedResidual": 3.076987499999999,
+      "meanIoU": 0.19692254137468873
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 0.7078125000000002,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 0.8885124999999998,
+      "signedResidual": 0.6049125000000002,
+      "meanIoU": 0.6602204244999531
+     },
+     "impliedDoseVsYG": 0.7837,
+     "anchorDose": 1.0222
+    },
+    "STD-PHY-X15": {
+     "p": 4,
+     "stats": [
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 4,
+      "midpointMae": 2.4479875000000018,
+      "pointInsideRate": 0.75,
+      "overlapRate": 1.0,
+      "endpointMae": 2.4479875000000004,
+      "signedResidual": 0.6809124999999998,
+      "meanIoU": 0.5677250073368922
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 3.1770999999999994,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.1770999999999994,
+      "signedResidual": -1.2960250000000002,
+      "meanIoU": 0.528049260131147
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 3.1770999999999994,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.1770999999999994,
+      "signedResidual": -1.2960250000000002,
+      "meanIoU": 0.528049260131147
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 3.017499999999999,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 3.0175,
+      "signedResidual": -3.017499999999999,
+      "meanIoU": 0.5687583181338384
+     },
+     "impliedDoseVsYG": 1.0028,
+     "anchorDose": 0.924
+    },
+    "SS-STD-SAFE-X59": {
+     "p": 5,
+     "stats": [
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "CREATIVITY"
+     ],
+     "anchorApplied": true,
+     "YG": {
+      "n": 5,
+      "midpointMae": 3.5667700000000004,
+      "pointInsideRate": 0.6,
+      "overlapRate": 1.0,
+      "endpointMae": 3.5667699999999996,
+      "signedResidual": 3.5667700000000004,
+      "meanIoU": 0.4334011303421111
+     },
+     "YGA": {
+      "n": 5,
+      "midpointMae": 1.8705000000000005,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.1923600000000003,
+      "signedResidual": 1.8705000000000005,
+      "meanIoU": 0.611561605808783
+     },
+     "YGA_ungated": {
+      "n": 5,
+      "midpointMae": 1.8705000000000005,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.1923600000000003,
+      "signedResidual": 1.8705000000000005,
+      "meanIoU": 0.611561605808783
+     },
+     "YGA127": {
+      "n": 5,
+      "midpointMae": 2.1057799999999984,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.1057800000000007,
+      "signedResidual": -2.1057799999999984,
+      "meanIoU": 0.6131145349846872
+     },
+     "impliedDoseVsYG": 0.8566,
+     "anchorDose": 0.9245
+    }
+   },
+   "rows": [
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "PASSING",
+     "start": 319,
+     "cls": "WHITE",
+     "observed": [
+      0,
+      0
+     ],
+     "YG": [
+      0.2219,
+      0.3385
+     ],
+     "YGA": [
+      0.2093,
+      0.3194
+     ],
+     "YGA_ungated": [
+      0.2093,
+      0.3194
+     ],
+     "YGA127": [
+      0.169,
+      0.2579
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "DRIBBLING",
+     "start": 263,
+     "cls": "WHITE",
+     "observed": [
+      2,
+      3
+     ],
+     "YG": [
+      1.8457,
+      2.7717
+     ],
+     "YGA": [
+      1.7439,
+      2.6213
+     ],
+     "YGA_ungated": [
+      1.7439,
+      2.6213
+     ],
+     "YGA127": [
+      1.4156,
+      2.1344
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "FINISHING",
+     "start": 220,
+     "cls": "WHITE",
+     "observed": [
+      6,
+      9
+     ],
+     "YG": [
+      8.4387,
+      11.9974
+     ],
+     "YGA": [
+      8.0245,
+      11.4434
+     ],
+     "YGA_ungated": [
+      8.0245,
+      11.4434
+     ],
+     "YGA127": [
+      6.6531,
+      9.5874
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CROSSING",
+     "start": 130,
+     "cls": "MID_GREY",
+     "observed": [
+      11,
+      15
+     ],
+     "YG": [
+      10.9304,
+      15.2703
+     ],
+     "YGA": [
+      9.7869,
+      13.7804
+     ],
+     "YGA_ungated": [
+      9.7869,
+      13.7804
+     ],
+     "YGA127": [
+      9.7869,
+      13.7804
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SHOOTING",
+     "start": 249,
+     "cls": "WHITE",
+     "observed": [
+      4,
+      5
+     ],
+     "YG": [
+      4.4988,
+      6.5976
+     ],
+     "YGA": [
+      3.9758,
+      5.8567
+     ],
+     "YGA_ungated": [
+      3.9758,
+      5.8567
+     ],
+     "YGA127": [
+      3.2526,
+      4.8219
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SPEED",
+     "start": 199,
+     "cls": "WHITE",
+     "observed": [
+      17,
+      23
+     ],
+     "YG": [
+      19.2101,
+      26.5441
+     ],
+     "YGA": [
+      17.1219,
+      24.1193
+     ],
+     "YGA_ungated": [
+      17.1219,
+      24.1193
+     ],
+     "YGA127": [
+      16.0049,
+      22.0136
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CREATIVITY",
+     "start": 209,
+     "cls": "WHITE",
+     "observed": [
+      14,
+      19
+     ],
+     "YG": [
+      16.2344,
+      22.012
+     ],
+     "YGA": [
+      14.6551,
+      20.064
+     ],
+     "YGA_ungated": [
+      14.6551,
+      20.064
+     ],
+     "YGA127": [
+      12.5279,
+      17.3199
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "TACKLING",
+     "start": 245,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      11
+     ],
+     "YG": [
+      9.4914,
+      13.3922
+     ],
+     "YGA": [
+      9.6676,
+      13.6238
+     ],
+     "YGA_ungated": [
+      9.6676,
+      13.6238
+     ],
+     "YGA127": [
+      8.0565,
+      11.4863
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "MARKING",
+     "start": 221,
+     "cls": "WHITE",
+     "observed": [
+      18,
+      22
+     ],
+     "YG": [
+      19.3831,
+      25.7655
+     ],
+     "YGA": [
+      19.685,
+      26.1265
+     ],
+     "YGA_ungated": [
+      19.685,
+      26.1265
+     ],
+     "YGA127": [
+      16.8656,
+      22.7228
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "HEADING",
+     "start": 232,
+     "cls": "WHITE",
+     "observed": [
+      12,
+      16
+     ],
+     "YG": [
+      14.1889,
+      19.4152
+     ],
+     "YGA": [
+      14.4308,
+      19.7175
+     ],
+     "YGA_ungated": [
+      14.4308,
+      19.7175
+     ],
+     "YGA127": [
+      12.1943,
+      16.8948
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "BRAVERY",
+     "start": 235,
+     "cls": "WHITE",
+     "observed": [
+      10,
+      14
+     ],
+     "YG": [
+      12.9708,
+      17.8821
+     ],
+     "YGA": [
+      13.1968,
+      18.1679
+     ],
+     "YGA_ungated": [
+      13.1968,
+      18.1679
+     ],
+     "YGA127": [
+      11.1128,
+      15.5062
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "FITNESS",
+     "start": 210,
+     "cls": "WHITE",
+     "observed": [
+      18,
+      25
+     ],
+     "YG": [
+      21.2203,
+      27.9746
+     ],
+     "YGA": [
+      20.0876,
+      26.6329
+     ],
+     "YGA_ungated": [
+      20.0876,
+      26.6329
+     ],
+     "YGA127": [
+      17.2854,
+      23.2345
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "STRENGTH",
+     "start": 170,
+     "cls": "WHITE",
+     "observed": [
+      33,
+      46
+     ],
+     "YG": [
+      29.79,
+      45.3936
+     ],
+     "YGA": [
+      27.5245,
+      42.085
+     ],
+     "YGA_ungated": [
+      27.5245,
+      42.085
+     ],
+     "YGA127": [
+      27.5245,
+      41.6451
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "AGGRESSION",
+     "start": 173,
+     "cls": "WHITE",
+     "observed": [
+      33,
+      45
+     ],
+     "YG": [
+      29.79,
+      44.9581
+     ],
+     "YGA": [
+      27.5245,
+      41.9735
+     ],
+     "YGA_ungated": [
+      27.5245,
+      41.9735
+     ],
+     "YGA127": [
+      27.5245,
+      41.0415
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "CREATIVITY",
+     "start": 209,
+     "cls": "WHITE",
+     "observed": [
+      19,
+      25
+     ],
+     "YG": [
+      21.7264,
+      28.5943
+     ],
+     "YGA": [
+      20.5715,
+      27.2323
+     ],
+     "YGA_ungated": [
+      20.5715,
+      27.2323
+     ],
+     "YGA127": [
+      17.7752,
+      23.8293
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "HEADING",
+     "start": 232,
+     "cls": "WHITE",
+     "observed": [
+      23,
+      31
+     ],
+     "YG": [
+      25.9587,
+      33.4602
+     ],
+     "YGA": [
+      24.6872,
+      31.9971
+     ],
+     "YGA_ungated": [
+      24.6872,
+      31.9971
+     ],
+     "YGA127": [
+      21.4029,
+      28.1649
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "BRAVERY",
+     "start": 235,
+     "cls": "WHITE",
+     "observed": [
+      21,
+      29
+     ],
+     "YG": [
+      24.1069,
+      31.3258
+     ],
+     "YGA": [
+      22.8914,
+      29.9118
+     ],
+     "YGA_ungated": [
+      22.8914,
+      29.9118
+     ],
+     "YGA127": [
+      19.7648,
+      26.2217
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "FITNESS",
+     "start": 210,
+     "cls": "WHITE",
+     "observed": [
+      37,
+      46
+     ],
+     "YG": [
+      41.7733,
+      50.9655
+     ],
+     "YGA": [
+      40.1501,
+      49.2174
+     ],
+     "YGA_ungated": [
+      40.1501,
+      49.2174
+     ],
+     "YGA127": [
+      35.8827,
+      44.5654
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "STRENGTH",
+     "start": 170,
+     "cls": "WHITE",
+     "observed": [
+      70,
+      79
+     ],
+     "YG": [
+      70.8966,
+      83.8219
+     ],
+     "YGA": [
+      68.3907,
+      81.497
+     ],
+     "YGA_ungated": [
+      68.3907,
+      81.497
+     ],
+     "YGA127": [
+      64.7925,
+      77.1257
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "CREATIVITY",
+     "start": 209,
+     "cls": "WHITE",
+     "observed": [
+      38,
+      47
+     ],
+     "YG": [
+      42.55,
+      51.8088
+     ],
+     "YGA": [
+      40.9124,
+      50.0499
+     ],
+     "YGA_ungated": [
+      40.9124,
+      50.0499
+     ],
+     "YGA127": [
+      36.6341,
+      45.3875
+     ]
+    }
+   ],
+   "pooled": {
+    "YG": {
+     "n": 20,
+     "midpointMae": 2.4354400000000007,
+     "pointInsideRate": 0.45,
+     "overlapRate": 0.95,
+     "endpointMae": 2.4389200000000004,
+     "signedResidual": 2.062895,
+     "meanIoU": 0.40023780180882484
+    },
+    "YGA": {
+     "n": 20,
+     "midpointMae": 2.0148649999999995,
+     "pointInsideRate": 0.7,
+     "overlapRate": 0.95,
+     "endpointMae": 2.09654,
+     "signedResidual": 0.9668649999999998,
+     "meanIoU": 0.4619351317274661
+    },
+    "YGA_ungated": {
+     "n": 20,
+     "midpointMae": 2.0148649999999995,
+     "pointInsideRate": 0.7,
+     "overlapRate": 0.95,
+     "endpointMae": 2.09654,
+     "signedResidual": 0.9668649999999998,
+     "meanIoU": 0.4619351317274661
+    },
+    "YGA127": {
+     "n": 20,
+     "midpointMae": 1.5617399999999995,
+     "pointInsideRate": 0.9,
+     "overlapRate": 0.95,
+     "endpointMae": 1.5978800000000002,
+     "signedResidual": -1.2158249999999993,
+     "meanIoU": 0.5476955813579681
+    }
+   }
+  },
+  {
+   "player": "Ryan Blakie",
+   "age": 21,
+   "tier": "T3",
+   "roles": [
+    "AML",
+    "AMC",
+    "MC"
+   ],
+   "arm": "secondary",
+   "perCoach": {
+    "DS-STD-ATT-X5": {
+     "p": 3,
+     "stats": [
+      "PASSING",
+      "DRIBBLING",
+      "FINISHING"
+     ],
+     "anchorApplied": false,
+     "YG": {
+      "n": 3,
+      "midpointMae": 1.8937333333333335,
+      "pointInsideRate": 0.0,
+      "overlapRate": 0.0,
+      "endpointMae": 1.8937333333333335,
+      "signedResidual": -1.8937333333333335,
+      "meanIoU": 0.0
+     },
+     "YGA": {
+      "n": 3,
+      "midpointMae": 1.8937333333333335,
+      "pointInsideRate": 0.0,
+      "overlapRate": 0.0,
+      "endpointMae": 1.8937333333333335,
+      "signedResidual": -1.8937333333333335,
+      "meanIoU": 0.0
+     },
+     "YGA_ungated": {
+      "n": 3,
+      "midpointMae": 2.0081333333333338,
+      "pointInsideRate": 0.0,
+      "overlapRate": 0.0,
+      "endpointMae": 2.0081333333333338,
+      "signedResidual": -2.0081333333333338,
+      "meanIoU": 0.0
+     },
+     "YGA127": {
+      "n": 3,
+      "midpointMae": 2.2844166666666665,
+      "pointInsideRate": 0.0,
+      "overlapRate": 0.0,
+      "endpointMae": 2.2844166666666665,
+      "signedResidual": -2.2844166666666665,
+      "meanIoU": 0.0
+     },
+     "impliedDoseVsYG": 1.8924,
+     "anchorDose": 0.943
+    },
+    "DS-STD-OFF-X10": {
+     "p": 4,
+     "stats": [
+      "CROSSING",
+      "SHOOTING",
+      "SPEED",
+      "CREATIVITY"
+     ],
+     "anchorApplied": false,
+     "YG": {
+      "n": 4,
+      "midpointMae": 1.299725,
+      "pointInsideRate": 0.5,
+      "overlapRate": 0.75,
+      "endpointMae": 1.299725,
+      "signedResidual": -1.1775750000000005,
+      "meanIoU": 0.281514993916825
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 1.299725,
+      "pointInsideRate": 0.5,
+      "overlapRate": 0.75,
+      "endpointMae": 1.299725,
+      "signedResidual": -1.1775750000000005,
+      "meanIoU": 0.281514993916825
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 1.7457499999999995,
+      "pointInsideRate": 0.25,
+      "overlapRate": 0.5,
+      "endpointMae": 1.7457499999999997,
+      "signedResidual": -1.7457499999999995,
+      "meanIoU": 0.17029930028519114
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 2.0626625,
+      "pointInsideRate": 0.25,
+      "overlapRate": 0.5,
+      "endpointMae": 2.0626625,
+      "signedResidual": -2.0626625,
+      "meanIoU": 0.10201020596781857
+     },
+     "impliedDoseVsYG": 1.1377,
+     "anchorDose": 0.8747
+    },
+    "STD-DEF-X20": {
+     "p": 4,
+     "stats": [
+      "TACKLING",
+      "MARKING",
+      "HEADING",
+      "BRAVERY"
+     ],
+     "anchorApplied": false,
+     "YG": {
+      "n": 4,
+      "midpointMae": 5.2780999999999985,
+      "pointInsideRate": 0.25,
+      "overlapRate": 1.0,
+      "endpointMae": 5.320625,
+      "signedResidual": 5.2780999999999985,
+      "meanIoU": 0.30503294803846337
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 5.2780999999999985,
+      "pointInsideRate": 0.25,
+      "overlapRate": 1.0,
+      "endpointMae": 5.320625,
+      "signedResidual": 5.2780999999999985,
+      "meanIoU": 0.30503294803846337
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 5.7204250000000005,
+      "pointInsideRate": 0.25,
+      "overlapRate": 1.0,
+      "endpointMae": 5.7204250000000005,
+      "signedResidual": 5.7204250000000005,
+      "meanIoU": 0.2723453204769922
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 2.8673374999999997,
+      "pointInsideRate": 1.0,
+      "overlapRate": 1.0,
+      "endpointMae": 2.8673374999999997,
+      "signedResidual": 1.724662499999999,
+      "meanIoU": 0.48973136810616996
+     },
+     "impliedDoseVsYG": 0.754,
+     "anchorDose": 1.0222
+    },
+    "STD-PHY-X15": {
+     "p": 4,
+     "stats": [
+      "FITNESS",
+      "STRENGTH",
+      "AGGRESSION",
+      "CREATIVITY"
+     ],
+     "anchorApplied": false,
+     "YG": {
+      "n": 4,
+      "midpointMae": 3.3992499999999994,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 3.3992499999999994,
+      "signedResidual": 1.448199999999999,
+      "meanIoU": 0.40551556581059633
+     },
+     "YGA": {
+      "n": 4,
+      "midpointMae": 3.3992499999999994,
+      "pointInsideRate": 0.5,
+      "overlapRate": 1.0,
+      "endpointMae": 3.3992499999999994,
+      "signedResidual": 1.448199999999999,
+      "meanIoU": 0.40551556581059633
+     },
+     "YGA_ungated": {
+      "n": 4,
+      "midpointMae": 2.8739999999999997,
+      "pointInsideRate": 0.5,
+      "overlapRate": 0.75,
+      "endpointMae": 2.874,
+      "signedResidual": -0.22809999999999864,
+      "meanIoU": 0.4713713692869087
+     },
+     "YGA127": {
+      "n": 4,
+      "midpointMae": 2.8769625,
+      "pointInsideRate": 0.75,
+      "overlapRate": 0.75,
+      "endpointMae": 2.8769624999999994,
+      "signedResidual": 0.20051249999999987,
+      "meanIoU": 0.4867426813202015
+     },
+     "impliedDoseVsYG": 0.923,
+     "anchorDose": 0.924
+    },
+    "SS-STD-SAFE-X59": {
+     "p": 5,
+     "stats": [
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "CREATIVITY"
+     ],
+     "anchorApplied": false,
+     "YG": {
+      "n": 5,
+      "midpointMae": 4.4285499999999995,
+      "pointInsideRate": 0.6,
+      "overlapRate": 0.8,
+      "endpointMae": 5.061989999999999,
+      "signedResidual": -3.039309999999999,
+      "meanIoU": 0.43486943694403973
+     },
+     "YGA": {
+      "n": 5,
+      "midpointMae": 4.4285499999999995,
+      "pointInsideRate": 0.6,
+      "overlapRate": 0.8,
+      "endpointMae": 5.061989999999999,
+      "signedResidual": -3.039309999999999,
+      "meanIoU": 0.43486943694403973
+     },
+     "YGA_ungated": {
+      "n": 5,
+      "midpointMae": 4.772990000000003,
+      "pointInsideRate": 0.6,
+      "overlapRate": 0.8,
+      "endpointMae": 5.469790000000001,
+      "signedResidual": -4.738710000000002,
+      "meanIoU": 0.4303971002524506
+     },
+     "YGA127": {
+      "n": 5,
+      "midpointMae": 7.214099999999999,
+      "pointInsideRate": 0.6,
+      "overlapRate": 0.6,
+      "endpointMae": 7.214100000000002,
+      "signedResidual": -6.3197399999999995,
+      "meanIoU": 0.324596658110516
+     },
+     "impliedDoseVsYG": 1.099,
+     "anchorDose": 0.9245
+    }
+   },
+   "rows": [
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "PASSING",
+     "start": 247,
+     "cls": "WHITE",
+     "observed": [
+      3,
+      4
+     ],
+     "YG": [
+      1.4489,
+      2.184
+     ],
+     "YGA": [
+      1.4489,
+      2.184
+     ],
+     "YGA_ungated": [
+      1.3684,
+      2.0643
+     ],
+     "YGA127": [
+      1.1749,
+      1.7756
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "DRIBBLING",
+     "start": 229,
+     "cls": "WHITE",
+     "observed": [
+      5,
+      7
+     ],
+     "YG": [
+      2.8157,
+      4.1906
+     ],
+     "YGA": [
+      2.8157,
+      4.1906
+     ],
+     "YGA_ungated": [
+      2.6631,
+      3.9689
+     ],
+     "YGA127": [
+      2.2942,
+      3.4308
+     ]
+    },
+    {
+     "coach": "DS-STD-ATT-X5",
+     "stat": "FINISHING",
+     "start": 263,
+     "cls": "WHITE",
+     "observed": [
+      2,
+      3
+     ],
+     "YG": [
+      0.794,
+      1.2044
+     ],
+     "YGA": [
+      0.794,
+      1.2044
+     ],
+     "YGA_ungated": [
+      0.7493,
+      1.1372
+     ],
+     "YGA127": [
+      0.6423,
+      0.9757
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CROSSING",
+     "start": 264,
+     "cls": "WHITE",
+     "observed": [
+      2,
+      4
+     ],
+     "YG": [
+      1.1385,
+      1.7212
+     ],
+     "YGA": [
+      1.1385,
+      1.7212
+     ],
+     "YGA_ungated": [
+      0.9985,
+      1.5116
+     ],
+     "YGA127": [
+      0.9221,
+      1.397
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SHOOTING",
+     "start": 254,
+     "cls": "WHITE",
+     "observed": [
+      2,
+      4
+     ],
+     "YG": [
+      1.6546,
+      2.4892
+     ],
+     "YGA": [
+      1.6546,
+      2.4892
+     ],
+     "YGA_ungated": [
+      1.4529,
+      2.19
+     ],
+     "YGA127": [
+      1.3427,
+      2.0259
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "SPEED",
+     "start": 205,
+     "cls": "WHITE",
+     "observed": [
+      9,
+      13
+     ],
+     "YG": [
+      9.321,
+      13.1676
+     ],
+     "YGA": [
+      9.321,
+      13.1676
+     ],
+     "YGA_ungated": [
+      8.32,
+      11.8389
+     ],
+     "YGA127": [
+      7.7594,
+      11.0873
+     ]
+    },
+    {
+     "coach": "DS-STD-OFF-X10",
+     "stat": "CREATIVITY",
+     "start": 224,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      10
+     ],
+     "YG": [
+      4.9106,
+      7.1767
+     ],
+     "YGA": [
+      4.9106,
+      7.1767
+     ],
+     "YGA_ungated": [
+      4.3436,
+      6.3785
+     ],
+     "YGA127": [
+      4.0302,
+      5.9341
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "TACKLING",
+     "start": 181,
+     "cls": "WHITE",
+     "observed": [
+      23,
+      32
+     ],
+     "YG": [
+      29.971,
+      38.0176
+     ],
+     "YGA": [
+      29.971,
+      38.0176
+     ],
+     "YGA_ungated": [
+      30.364,
+      38.4584
+     ],
+     "YGA127": [
+      26.2918,
+      33.8416
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "MARKING",
+     "start": 167,
+     "cls": "WHITE",
+     "observed": [
+      32,
+      41
+     ],
+     "YG": [
+      38.7742,
+      48.306
+     ],
+     "YGA": [
+      38.7742,
+      48.306
+     ],
+     "YGA_ungated": [
+      39.2531,
+      48.8136
+     ],
+     "YGA127": [
+      35.3788,
+      44.2547
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "HEADING",
+     "start": 200,
+     "cls": "WHITE",
+     "observed": [
+      17,
+      25
+     ],
+     "YG": [
+      18.6036,
+      24.8299
+     ],
+     "YGA": [
+      18.6036,
+      24.8299
+     ],
+     "YGA_ungated": [
+      18.8973,
+      25.1831
+     ],
+     "YGA127": [
+      15.8958,
+      21.5335
+     ]
+    },
+    {
+     "coach": "STD-DEF-X20",
+     "stat": "BRAVERY",
+     "start": 161,
+     "cls": "WHITE",
+     "observed": [
+      36,
+      45
+     ],
+     "YG": [
+      42.1847,
+      52.5378
+     ],
+     "YGA": [
+      42.1847,
+      52.5378
+     ],
+     "YGA_ungated": [
+      42.7132,
+      53.0807
+     ],
+     "YGA127": [
+      39.0093,
+      48.5918
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "FITNESS",
+     "start": 182,
+     "cls": "WHITE",
+     "observed": [
+      18,
+      25
+     ],
+     "YG": [
+      24.4874,
+      31.7673
+     ],
+     "YGA": [
+      24.4874,
+      31.7673
+     ],
+     "YGA_ungated": [
+      23.2511,
+      30.3325
+     ],
+     "YGA127": [
+      21.2226,
+      27.9522
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "STRENGTH",
+     "start": 87,
+     "cls": "MID_GREY",
+     "observed": [
+      38,
+      50
+     ],
+     "YG": [
+      38.9987,
+      51.9357
+     ],
+     "YGA": [
+      38.9987,
+      51.9357
+     ],
+     "YGA_ungated": [
+      36.4715,
+      49.5921
+     ],
+     "YGA127": [
+      38.9987,
+      51.9357
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "AGGRESSION",
+     "start": 88,
+     "cls": "MID_GREY",
+     "observed": [
+      37,
+      50
+     ],
+     "YG": [
+      38.7842,
+      51.4165
+     ],
+     "YGA": [
+      38.7842,
+      51.4165
+     ],
+     "YGA_ungated": [
+      36.3356,
+      49.1177
+     ],
+     "YGA127": [
+      38.7842,
+      51.4165
+     ]
+    },
+    {
+     "coach": "STD-PHY-X15",
+     "stat": "CREATIVITY",
+     "start": 224,
+     "cls": "WHITE",
+     "observed": [
+      10,
+      15
+     ],
+     "YG": [
+      7.0575,
+      10.1383
+     ],
+     "YGA": [
+      7.0575,
+      10.1383
+     ],
+     "YGA_ungated": [
+      6.583,
+      9.4917
+     ],
+     "YGA127": [
+      5.8333,
+      8.4609
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "HEADING",
+     "start": 200,
+     "cls": "WHITE",
+     "observed": [
+      37,
+      50
+     ],
+     "YG": [
+      32.3364,
+      40.6533
+     ],
+     "YGA": [
+      32.3364,
+      40.6533
+     ],
+     "YGA_ungated": [
+      30.8987,
+      39.0508
+     ],
+     "YGA127": [
+      28.4821,
+      36.3334
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "BRAVERY",
+     "start": 161,
+     "cls": "WHITE",
+     "observed": [
+      59,
+      76
+     ],
+     "YG": [
+      63.3625,
+      74.1119
+     ],
+     "YGA": [
+      63.3625,
+      74.1119
+     ],
+     "YGA_ungated": [
+      61.3899,
+      72.1147
+     ],
+     "YGA127": [
+      58.8658,
+      69.2474
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "FITNESS",
+     "start": 182,
+     "cls": "WHITE",
+     "observed": [
+      45,
+      60
+     ],
+     "YG": [
+      46.2791,
+      55.7691
+     ],
+     "YGA": [
+      46.2791,
+      55.7691
+     ],
+     "YGA_ungated": [
+      44.5911,
+      53.9725
+     ],
+     "YGA127": [
+      41.7166,
+      50.8942
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "STRENGTH",
+     "start": 87,
+     "cls": "MID_GREY",
+     "observed": [
+      69,
+      83
+     ],
+     "YG": [
+      72.4387,
+      84.0331
+     ],
+     "YGA": [
+      72.4387,
+      84.0331
+     ],
+     "YGA_ungated": [
+      70.2655,
+      81.9059
+     ],
+     "YGA127": [
+      72.4387,
+      84.0331
+     ]
+    },
+    {
+     "coach": "SS-STD-SAFE-X59",
+     "stat": "CREATIVITY",
+     "start": 224,
+     "cls": "WHITE",
+     "observed": [
+      28,
+      34
+     ],
+     "YG": [
+      17.7835,
+      23.8393
+     ],
+     "YGA": [
+      17.7835,
+      23.8393
+     ],
+     "YGA_ungated": [
+      16.7915,
+      22.6323
+     ],
+     "YGA127": [
+      15.163,
+      20.6283
+     ]
+    }
+   ],
+   "pooled": {
+    "YG": {
+     "n": 20,
+     "midpointMae": 3.3866124999999996,
+     "pointInsideRate": 0.4,
+     "overlapRate": 0.75,
+     "endpointMae": 3.5534774999999987,
+     "signedResidual": 0.06585749999999964,
+     "meanIoU": 0.30713006078918687
+    },
+    "YGA": {
+     "n": 20,
+     "midpointMae": 3.3866124999999996,
+     "pointInsideRate": 0.4,
+     "overlapRate": 0.75,
+     "endpointMae": 3.5534774999999987,
+     "signedResidual": 0.06585749999999964,
+     "meanIoU": 0.30713006078918687
+    },
+    "YGA_ungated": {
+     "n": 20,
+     "midpointMae": 3.562502500000001,
+     "pointInsideRate": 0.35,
+     "overlapRate": 0.65,
+     "endpointMae": 3.7367025000000007,
+     "signedResidual": -0.7365824999999999,
+     "meanIoU": 0.290402473072931
+    },
+    "YGA127": {
+     "n": 20,
+     "midpointMae": 3.70758,
+     "pointInsideRate": 0.55,
+     "overlapRate": 0.6,
+     "endpointMae": 3.70758,
+     "signedResidual": -1.9500950000000004,
+     "meanIoU": 0.296846015606467
+    }
+   }
+  }
+ ]
+}
