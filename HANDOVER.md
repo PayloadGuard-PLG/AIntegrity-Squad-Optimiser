@@ -8,6 +8,18 @@
 
 ## Current State
 
+### 2026-09-24 Drills mobile layout invariant
+
+PR #159 device testing found and fixed a visual-only regression in
+`app/(tabs)/drills.tsx`. Keep recommendation cards compact: the first row owns
+rank/category/name/WHITE efficiency only; intensity, training XP and condition
+metadata belong on the secondary row. The drill name must remain a one-line,
+shrinkable flex cell. Do not move every metric back onto the first row.
+Projection `reasons` remain evidence and must not be deleted, but they are
+collapsed under **MODEL NOTES** by default so the before/after result stays
+primary. This restores the original Drill Library information hierarchy without
+reverting the newer condition, Perfect Conditions or recommendation-seam logic.
+
 
 ### Sprint 39 — Resource Coach V2 state
 
