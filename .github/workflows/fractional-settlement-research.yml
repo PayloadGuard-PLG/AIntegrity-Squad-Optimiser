@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout research branch
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -34,6 +36,7 @@ jobs:
       - name: Run Haggag and Resource Coach settlement replay
         run: |
           rm -rf /tmp/fractional-settlement
+          mkdir -p /tmp/fractional-settlement
           python tools/resource-coach-v2/fractional_settlement.py \
             --resource-pool --lopo \
             --out-dir /tmp/fractional-settlement \
