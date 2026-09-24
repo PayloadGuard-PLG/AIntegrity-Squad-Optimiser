@@ -1,0 +1,114 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "player": "Michal Kawa",
+ "predictionsFrozenAtCommit": "cb238fc3da9c95458a33e0a49c9b3d9b6c091c97",
+ "perCoach": {
+  "DS-STD-ATT-X5": {
+   "H0": {
+    "n": 3,
+    "midpointMae": 9.344066666666665,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.3333333333333333,
+    "endpointMae": 9.344066666666665,
+    "signedResidual": -9.344066666666665,
+    "meanIoU": 0.05749220312797249
+   },
+   "HYG": {
+    "n": 3,
+    "midpointMae": 1.5764500000000001,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.6294499999999996,
+    "signedResidual": -1.5764500000000001,
+    "meanIoU": 0.7302079331381367
+   },
+   "A": {
+    "n": 3,
+    "midpointMae": 9.921866666666668,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.3333333333333333,
+    "endpointMae": 9.921866666666666,
+    "signedResidual": -9.921866666666668,
+    "meanIoU": 0.04293513671392301
+   },
+   "impliedDoseVsH0": 1.4099965871123847,
+   "rowImpliedDoseVsH0": {
+    "PASSING": 1.4702153784592176,
+    "DRIBBLING": 1.4442667079864144,
+    "FINISHING": 1.315507677753034
+   }
+  },
+  "DS-STD-OFF-X10": {
+   "H0": {
+    "n": 4,
+    "midpointMae": 11.39105,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 11.391049999999998,
+    "signedResidual": -11.39105,
+    "meanIoU": 0.09932608179439131
+   },
+   "HYG": {
+    "n": 4,
+    "midpointMae": 2.903549999999999,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.903549999999999,
+    "signedResidual": -2.903549999999999,
+    "meanIoU": 0.6540169009549418
+   },
+   "A": {
+    "n": 4,
+    "midpointMae": 18.4715,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.0,
+    "endpointMae": 18.4715,
+    "signedResidual": -18.4715,
+    "meanIoU": 0.0
+   },
+   "impliedDoseVsH0": 1.3251613489640806,
+   "rowImpliedDoseVsH0": {
+    "CROSSING": 1.3008730022834545,
+    "SHOOTING": 1.358099246202747,
+    "SPEED": 1.3121870136820708,
+    "CREATIVITY": 1.3294861271797176
+   }
+  }
+ },
+ "pooled": {
+  "H0": {
+   "n": 7,
+   "midpointMae": 10.513771428571427,
+   "pointInsideRate": 0.0,
+   "overlapRate": 0.7142857142857143,
+   "endpointMae": 10.513771428571427,
+   "signedResidual": -10.513771428571427,
+   "meanIoU": 0.0813972766516404
+  },
+  "HYG": {
+   "n": 7,
+   "midpointMae": 2.334792857142857,
+   "pointInsideRate": 1.0,
+   "overlapRate": 1.0,
+   "endpointMae": 2.357507142857142,
+   "signedResidual": -2.334792857142857,
+   "meanIoU": 0.6866702004620253
+  },
+  "A": {
+   "n": 7,
+   "midpointMae": 14.807371428571429,
+   "pointInsideRate": 0.0,
+   "overlapRate": 0.14285714285714285,
+   "endpointMae": 14.807371428571425,
+   "signedResidual": -14.807371428571429,
+   "meanIoU": 0.018400772877395576
+  }
+ },
+ "verdict": {
+  "Yleg": "H-YG lower MAE than H0 on Y low-grey rows",
+  "falsificationCheck": "Y low-grey implied dose vs H0 = 1.360; falsified only if within 0.90-1.10 -> not falsified",
+  "Oleg": "NOT EVALUABLE: no eligible O player (see corpus-roster-20260924.json). Age-specificity remains supported only retrospectively.",
+  "overall": "Y leg passed; H-YG survives its prospective falsification test on an out-of-corpus player, but its age-specificity is untested prospectively."
+ }
+}

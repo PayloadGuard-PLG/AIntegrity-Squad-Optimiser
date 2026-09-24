@@ -1,0 +1,1349 @@
+{
+ "schemaVersion": "resource-coach-control-predictions-v1",
+ "preregistration": "PREREG-20260924-COACH-ANCHOR-CONTROL",
+ "player": {
+  "name": "Willie Ferguson",
+  "age": 21,
+  "tier": "T0",
+  "roles": [
+   "DL"
+  ],
+  "ovr": 72,
+  "stats": {
+   "TACKLING": 89,
+   "MARKING": 111,
+   "POSITIONING": 105,
+   "HEADING": 45,
+   "BRAVERY": 72,
+   "PASSING": 69,
+   "DRIBBLING": 38,
+   "CROSSING": 111,
+   "SHOOTING": 35,
+   "FINISHING": 57,
+   "FITNESS": 96,
+   "STRENGTH": 28,
+   "AGGRESSION": 59,
+   "SPEED": 111,
+   "CREATIVITY": 47
+  },
+  "classes": {
+   "TACKLING": "WHITE",
+   "MARKING": "WHITE",
+   "POSITIONING": "WHITE",
+   "HEADING": "MID_GREY",
+   "BRAVERY": "WHITE",
+   "PASSING": "MID_GREY",
+   "DRIBBLING": "MID_GREY",
+   "CROSSING": "WHITE",
+   "SHOOTING": "MID_GREY",
+   "FINISHING": "MID_GREY",
+   "FITNESS": "WHITE",
+   "STRENGTH": "MID_GREY",
+   "AGGRESSION": "WHITE",
+   "SPEED": "WHITE",
+   "CREATIVITY": "MID_GREY"
+  },
+  "source": "user-supplied in-chat player card screenshot, 24 Sep 2026 (Skills tab); no preview of this player on the three registered coaches had been supplied"
+ },
+ "corpusStatus": "KNOWN PLAYER, not out-of-corpus: identical state to chat-locked-tests-20260923.json willie-ferguson-20260923 (same 15 stats, age, tier, role). His Skill Seminar x20 and x33 previews are in the calibration partition (5 of 166 rows used to fit the candidate amplitude). None of the three registered coaches has been previewed on him; none of his previews enters any prediction.",
+ "coaches": [
+  {
+   "key": "DS-STD-ATT-X5",
+   "programme": "Drill Session (1h, free)",
+   "label": "Standard Attacking",
+   "N": 5,
+   "p": 3,
+   "registeredStats": [
+    "PASSING",
+    "DRIBBLING",
+    "FINISHING"
+   ],
+   "anchor": {
+    "logOffset": -0.026226684051901192,
+    "anchors": [
+     "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+     "MARK-ORDINARY-X5"
+    ]
+   },
+   "doseRelativeToFrozen": {
+    "F": 1.0,
+    "N1": 0.8384894259818731,
+    "A": 0.9741142484142614
+   },
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 89.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.5007,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.077
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6125,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.707
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 25.9152,
+      "lo": 17,
+      "hi": 26,
+      "point": 21.556
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 105.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 45.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 72.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 69.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 38.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.5007,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.077
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6125,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.707
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 25.9152,
+      "lo": 17,
+      "hi": 26,
+      "point": 21.556
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 35.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 57.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 96.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 28.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 59.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.5007,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.077
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6125,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.707
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 25.9152,
+      "lo": 17,
+      "hi": 26,
+      "point": 21.556
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 47.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 17.6533,
+      "rawHi": 26.9919,
+      "lo": 17,
+      "hi": 27,
+      "point": 22.323
+     },
+     "N1": {
+      "rawLo": 14.8021,
+      "rawHi": 22.6325,
+      "lo": 14,
+      "hi": 23,
+      "point": 18.717
+     },
+     "A": {
+      "rawLo": 17.1964,
+      "rawHi": 26.2932,
+      "lo": 17,
+      "hi": 27,
+      "point": 21.745
+     }
+    }
+   ]
+  },
+  {
+   "key": "DS-STD-OFF-X10",
+   "programme": "Drill Session (1h, free)",
+   "label": "Standard Offensive",
+   "N": 10,
+   "p": 4,
+   "registeredStats": [
+    "CROSSING",
+    "SHOOTING",
+    "SPEED",
+    "CREATIVITY"
+   ],
+   "anchor": {
+    "logOffset": -0.23757150379924807,
+    "anchors": [
+     "LURINSKY-STD-OFF-X10-DRILL",
+     "LERCHL-STD-OFF-X10-DRILL"
+    ]
+   },
+   "doseRelativeToFrozen": {
+    "F": 1.0,
+    "N1": 0.9433006042296073,
+    "A": 0.7885405053232146
+   },
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 89.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.073,
+      "rawHi": 35.8041,
+      "lo": 26,
+      "hi": 36,
+      "point": 30.939
+     },
+     "N1": {
+      "rawLo": 24.7768,
+      "rawHi": 34.4382,
+      "lo": 24,
+      "hi": 35,
+      "point": 29.607
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 30.2981,
+      "lo": 20,
+      "hi": 31,
+      "point": 25.589
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 105.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 38.0708,
+      "lo": 26,
+      "hi": 39,
+      "point": 32.275
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 36.4879,
+      "lo": 24,
+      "hi": 37,
+      "point": 30.733
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.6025,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.242
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 45.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 72.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 69.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 38.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 26.073,
+      "rawHi": 35.8041,
+      "lo": 26,
+      "hi": 36,
+      "point": 30.939
+     },
+     "N1": {
+      "rawLo": 24.7768,
+      "rawHi": 34.4382,
+      "lo": 24,
+      "hi": 35,
+      "point": 29.607
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 30.2981,
+      "lo": 20,
+      "hi": 31,
+      "point": 25.589
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 35.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 57.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 96.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.2238,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.352
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1455,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.562
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 28.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 59.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 26.073,
+      "rawHi": 35.8041,
+      "lo": 26,
+      "hi": 36,
+      "point": 30.939
+     },
+     "N1": {
+      "rawLo": 24.7768,
+      "rawHi": 34.4382,
+      "lo": 24,
+      "hi": 35,
+      "point": 29.607
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 30.2981,
+      "lo": 20,
+      "hi": 31,
+      "point": 25.589
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 47.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 26.48,
+      "rawHi": 40.4879,
+      "lo": 26,
+      "hi": 41,
+      "point": 33.484
+     },
+     "N1": {
+      "rawLo": 24.9786,
+      "rawHi": 38.1923,
+      "lo": 24,
+      "hi": 39,
+      "point": 31.585
+     },
+     "A": {
+      "rawLo": 20.8806,
+      "rawHi": 31.9264,
+      "lo": 20,
+      "hi": 32,
+      "point": 26.403
+     }
+    }
+   ]
+  },
+  {
+   "key": "SS-STD-SAFE-X59",
+   "programme": "Skill Seminar (8 days)",
+   "label": "Standard Safeguard",
+   "N": 59,
+   "p": 5,
+   "registeredStats": [
+    "HEADING",
+    "BRAVERY",
+    "FITNESS",
+    "STRENGTH",
+    "CREATIVITY"
+   ],
+   "anchor": {
+    "logOffset": -0.08352608853671754,
+    "anchors": [
+     "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+     "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+     "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+     "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL"
+    ]
+   },
+   "doseRelativeToFrozen": {
+    "F": 1.0,
+    "N1": 1.0303471759946747,
+    "A": 0.9198670883718874
+   },
+   "statIntervals": [
+    {
+     "stat": "TACKLING",
+     "start": 89.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 80.5096,
+      "rawHi": 93.0029,
+      "lo": 80,
+      "hi": 94,
+      "point": 86.756
+     },
+     "N1": {
+      "rawLo": 81.4134,
+      "rawHi": 93.8592,
+      "lo": 81,
+      "hi": 94,
+      "point": 87.636
+     },
+     "A": {
+      "rawLo": 77.9603,
+      "rawHi": 90.5966,
+      "lo": 77,
+      "hi": 91,
+      "point": 84.278
+     }
+    },
+    {
+     "stat": "MARKING",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 63.3625,
+      "rawHi": 74.1119,
+      "lo": 63,
+      "hi": 75,
+      "point": 68.737
+     },
+     "N1": {
+      "rawLo": 64.1149,
+      "rawHi": 74.8733,
+      "lo": 64,
+      "hi": 75,
+      "point": 69.494
+     },
+     "A": {
+      "rawLo": 61.2645,
+      "rawHi": 71.9877,
+      "lo": 61,
+      "hi": 72,
+      "point": 66.626
+     }
+    },
+    {
+     "stat": "POSITIONING",
+     "start": 105.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 68.126,
+      "rawHi": 79.3002,
+      "lo": 68,
+      "hi": 80,
+      "point": 73.713
+     },
+     "N1": {
+      "rawLo": 68.9145,
+      "rawHi": 80.0852,
+      "lo": 68,
+      "hi": 81,
+      "point": 74.5
+     },
+     "A": {
+      "rawLo": 65.9217,
+      "rawHi": 77.1057,
+      "lo": 65,
+      "hi": 78,
+      "point": 71.514
+     }
+    },
+    {
+     "stat": "HEADING",
+     "start": 45.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 102.9701,
+      "rawHi": 119.2855,
+      "lo": 102,
+      "hi": 120,
+      "point": 111.128
+     },
+     "N1": {
+      "rawLo": 104.2398,
+      "rawHi": 120.3279,
+      "lo": 104,
+      "hi": 121,
+      "point": 112.284
+     },
+     "A": {
+      "rawLo": 99.2855,
+      "rawHi": 116.3141,
+      "lo": 99,
+      "hi": 117,
+      "point": 107.8
+     }
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 72.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 93.0224,
+      "rawHi": 107.3175,
+      "lo": 93,
+      "hi": 108,
+      "point": 100.17
+     },
+     "N1": {
+      "rawLo": 94.0926,
+      "rawHi": 108.265,
+      "lo": 94,
+      "hi": 109,
+      "point": 101.179
+     },
+     "A": {
+      "rawLo": 89.9648,
+      "rawHi": 104.6359,
+      "lo": 89,
+      "hi": 105,
+      "point": 97.3
+     }
+    },
+    {
+     "stat": "PASSING",
+     "start": 69.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 86.1244,
+      "rawHi": 99.3521,
+      "lo": 86,
+      "hi": 100,
+      "point": 92.738
+     },
+     "N1": {
+      "rawLo": 87.0948,
+      "rawHi": 100.2464,
+      "lo": 87,
+      "hi": 101,
+      "point": 93.671
+     },
+     "A": {
+      "rawLo": 83.3735,
+      "rawHi": 96.8317,
+      "lo": 83,
+      "hi": 97,
+      "point": 90.103
+     }
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 38.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 107.4507,
+      "rawHi": 124.9692,
+      "lo": 107,
+      "hi": 125,
+      "point": 116.21
+     },
+     "N1": {
+      "rawLo": 108.846,
+      "rawHi": 126.0645,
+      "lo": 108,
+      "hi": 127,
+      "point": 117.455
+     },
+     "A": {
+      "rawLo": 103.3611,
+      "rawHi": 121.8341,
+      "lo": 103,
+      "hi": 122,
+      "point": 112.598
+     }
+    },
+    {
+     "stat": "CROSSING",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 63.3625,
+      "rawHi": 74.1119,
+      "lo": 63,
+      "hi": 75,
+      "point": 68.737
+     },
+     "N1": {
+      "rawLo": 64.1149,
+      "rawHi": 74.8733,
+      "lo": 64,
+      "hi": 75,
+      "point": 69.494
+     },
+     "A": {
+      "rawLo": 61.2645,
+      "rawHi": 71.9877,
+      "lo": 61,
+      "hi": 72,
+      "point": 66.626
+     }
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 35.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 109.2916,
+      "rawHi": 127.384,
+      "lo": 109,
+      "hi": 128,
+      "point": 118.338
+     },
+     "N1": {
+      "rawLo": 110.7486,
+      "rawHi": 128.5036,
+      "lo": 110,
+      "hi": 129,
+      "point": 119.626
+     },
+     "A": {
+      "rawLo": 104.9998,
+      "rawHi": 124.1731,
+      "lo": 104,
+      "hi": 125,
+      "point": 114.586
+     }
+    },
+    {
+     "stat": "FINISHING",
+     "start": 57.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 94.7921,
+      "rawHi": 109.3981,
+      "lo": 94,
+      "hi": 110,
+      "point": 102.095
+     },
+     "N1": {
+      "rawLo": 95.8922,
+      "rawHi": 110.3608,
+      "lo": 95,
+      "hi": 111,
+      "point": 103.126
+     },
+     "A": {
+      "rawLo": 91.6421,
+      "rawHi": 106.6707,
+      "lo": 91,
+      "hi": 107,
+      "point": 99.156
+     }
+    },
+    {
+     "stat": "FITNESS",
+     "start": 96.0,
+     "displayClass": "WHITE",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 75.1539,
+      "rawHi": 87.033,
+      "lo": 75,
+      "hi": 88,
+      "point": 81.093
+     },
+     "N1": {
+      "rawLo": 76.0033,
+      "rawHi": 87.8565,
+      "lo": 76,
+      "hi": 88,
+      "point": 81.93
+     },
+     "A": {
+      "rawLo": 72.7679,
+      "rawHi": 84.7242,
+      "lo": 72,
+      "hi": 85,
+      "point": 78.746
+     }
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 28.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 113.3679,
+      "rawHi": 132.9651,
+      "lo": 113,
+      "hi": 133,
+      "point": 123.167
+     },
+     "N1": {
+      "rawLo": 114.9927,
+      "rawHi": 134.1461,
+      "lo": 114,
+      "hi": 135,
+      "point": 124.569
+     },
+     "A": {
+      "rawLo": 108.516,
+      "rawHi": 129.5622,
+      "lo": 108,
+      "hi": 130,
+      "point": 119.039
+     }
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 59.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 101.9796,
+      "rawHi": 118.0592,
+      "lo": 101,
+      "hi": 119,
+      "point": 110.019
+     },
+     "N1": {
+      "rawLo": 103.2253,
+      "rawHi": 119.0909,
+      "lo": 103,
+      "hi": 120,
+      "point": 111.158
+     },
+     "A": {
+      "rawLo": 98.3716,
+      "rawHi": 115.1206,
+      "lo": 98,
+      "hi": 116,
+      "point": 106.746
+     }
+    },
+    {
+     "stat": "SPEED",
+     "start": 111.0,
+     "displayClass": "WHITE",
+     "registeredAffected": false,
+     "F": {
+      "rawLo": 63.3625,
+      "rawHi": 74.1119,
+      "lo": 63,
+      "hi": 75,
+      "point": 68.737
+     },
+     "N1": {
+      "rawLo": 64.1149,
+      "rawHi": 74.8733,
+      "lo": 64,
+      "hi": 75,
+      "point": 69.494
+     },
+     "A": {
+      "rawLo": 61.2645,
+      "rawHi": 71.9877,
+      "lo": 61,
+      "hi": 72,
+      "point": 66.626
+     }
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 47.0,
+     "displayClass": "MID_GREY",
+     "registeredAffected": true,
+     "F": {
+      "rawLo": 101.6473,
+      "rawHi": 117.6498,
+      "lo": 101,
+      "hi": 118,
+      "point": 109.649
+     },
+     "N1": {
+      "rawLo": 102.8852,
+      "rawHi": 118.6779,
+      "lo": 102,
+      "hi": 119,
+      "point": 110.782
+     },
+     "A": {
+      "rawLo": 98.0641,
+      "rawHi": 114.722,
+      "lo": 98,
+      "hi": 115,
+      "point": 106.393
+     }
+    }
+   ]
+  }
+ ]
+}

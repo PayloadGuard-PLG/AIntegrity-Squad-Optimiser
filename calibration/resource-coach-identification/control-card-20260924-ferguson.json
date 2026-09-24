@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "resource-coach-control-card-v1",
+  "preregistration": "PREREG-20260924-COACH-ANCHOR-CONTROL",
+  "name": "Willie Ferguson",
+  "age": 21,
+  "tier": "T0",
+  "roles": ["DL"],
+  "learningRoles": [],
+  "ovr": 72,
+  "source": "user-supplied in-chat player card screenshot, 24 Sep 2026 (Skills tab); no preview of this player on the three registered coaches had been supplied",
+  "corpusStatus": "KNOWN PLAYER, not out-of-corpus: identical state to chat-locked-tests-20260923.json willie-ferguson-20260923 (same 15 stats, age, tier, role). His Skill Seminar x20 and x33 previews are in the calibration partition (5 of 166 rows used to fit the candidate amplitude). None of the three registered coaches has been previewed on him; none of his previews enters any prediction.",
+  "stats": {"TACKLING": 89, "MARKING": 111, "POSITIONING": 105, "HEADING": 45, "BRAVERY": 72, "PASSING": 69, "DRIBBLING": 38, "CROSSING": 111,
+            "SHOOTING": 35, "FINISHING": 57, "FITNESS": 96, "STRENGTH": 28, "AGGRESSION": 59, "SPEED": 111, "CREATIVITY": 47},
+  "classes": {"TACKLING": "WHITE", "MARKING": "WHITE", "POSITIONING": "WHITE", "HEADING": "MID_GREY", "BRAVERY": "WHITE",
+              "PASSING": "MID_GREY", "DRIBBLING": "MID_GREY", "CROSSING": "WHITE", "SHOOTING": "MID_GREY", "FINISHING": "MID_GREY",
+              "FITNESS": "WHITE", "STRENGTH": "MID_GREY", "AGGRESSION": "WHITE", "SPEED": "WHITE", "CREATIVITY": "MID_GREY"},
+  "classSource": "highlighted rows on the card (DL essentials: Tackling, Marking, Positioning, Bravery, Crossing, Fitness, Aggression, Speed)"
+}

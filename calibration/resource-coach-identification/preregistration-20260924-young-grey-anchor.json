@@ -1,0 +1,39 @@
+{
+ "schemaVersion": "resource-coach-preregistration-v1",
+ "id": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "registeredDate": "2026-09-24",
+ "question": "Does an other-player coach anchor, applied on top of the young-grey candidate to players aged 22+, improve card-plus-metadata prediction?",
+ "models": {
+  "YG": "frozen model + young-grey term (profiles/resource_coach_structure_candidate_20260924b.json)",
+  "YGA": "age-gated: players 22+ get YG with the coach anchor from anchor-table-20260924-young-grey.json (mean of OTHER players' per-event log offsets fitted under YG; the target's own events are excluded); players 18-21 get YG unchanged",
+  "YGA_ungated": "exploratory: the anchor at every age (not in the decision rule)",
+  "YGA127": "exploratory: YGA with WHITE threshold 127 (not in the decision rule)"
+ },
+ "frozenArtefacts": {
+  "anchorTable": "anchor-table-20260924-young-grey.json (sha256 pinned by tests/test_resource_coach_structure_audit.py)",
+  "generator": "tools/resource-coach-v2/freeze_young_grey_anchor.py --card <card.json> --out <predictions.json>",
+  "rule": "A new player's predictions are generated from their card and committed BEFORE any preview of that player; the anchor table is never rebuilt during this test."
+ },
+ "whyAgeGated": "Leave-one-player-out over the six control arms (75 rows): players 22+ improve 2.12 -> 1.90 with the anchor; players 18-21 worsen under every anchor variant (all-pool 3.85, age-matched 2.86, vs YG 2.15). The gate was chosen from these data, so only a prospective test can support it.",
+ "anchorsAtRegistration": {
+  "DS-STD-ATT-X5": "n=8, pooled dose 0.943",
+  "DS-STD-OFF-X10": "n=8, pooled dose 0.875",
+  "SS-STD-SAFE-X59": "n=5, pooled dose 0.924",
+  "STD-DEF-X20": "n=3, pooled dose 1.022",
+  "STD-PHY-X15": "n=4, pooled dose 0.924"
+ },
+ "eligiblePlayers": "Not ORDINARY-EVIDENCE in tools/resource-coach-v2/corpus_roster.py at the time their card is frozen, and not one of the six control players. Any tier. Primary arm: aged 22+. Secondary arm: aged 18-21 (YGA = YG there; checks that the gate does no harm and re-tests young-grey).",
+ "coaches": ["DS-STD-ATT-X5", "DS-STD-OFF-X10", "STD-DEF-X20", "STD-PHY-X15", "SS-STD-SAFE-X59"],
+ "scoredRows": "Every row showing a +lo-hi range on a preview whose start values equal the frozen card and whose p equals the registered p (3/4/4/4/5). Other previews are recorded, not scored.",
+ "decisionRule": {
+  "primaryArm": "players aged 22+",
+  "minimum": "at least 20 scored rows from at least 3 players",
+  "supportsYGA": "pooled midpoint MAE(YGA) <= MAE(YG) - 0.2 AND YGA has the lower MAE in at least two thirds of player x coach cells",
+  "falsifiesYGA": "MAE(YGA) >= MAE(YG)",
+  "otherwise": "inconclusive",
+  "secondaryArm": "players 18-21: reported under YG (young-grey re-test: supported if YG MAE < frozen-model MAE on MID_GREY rows below 80); YGA_ungated reported for the record",
+  "marginRationale": "the leave-one-player-out effect was 0.22; a smaller prospective margin would not distinguish the anchor from noise"
+ },
+ "procedure": "Send each player's card (all 15 stats, roles with chip state, age, tier). Predictions are generated and pushed. Then preview every coach you still have for that player, screenshot, and do not start training.",
+ "doesNotChange": "Frozen x59 predictions, frozen profiles, every earlier control prediction and score."
+}

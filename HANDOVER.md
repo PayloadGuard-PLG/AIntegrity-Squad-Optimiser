@@ -8,6 +8,18 @@
 
 ## Current State
 
+### 2026-09-24 Drills mobile layout invariant
+
+PR #159 device testing found and fixed a visual-only regression in
+`app/(tabs)/drills.tsx`. Keep recommendation cards compact: the first row owns
+rank/category/name/WHITE efficiency only; intensity, training XP and condition
+metadata belong on the secondary row. The drill name must remain a one-line,
+shrinkable flex cell. Do not move every metric back onto the first row.
+Projection `reasons` remain evidence and must not be deleted, but they are
+collapsed under **MODEL NOTES** by default so the before/after result stays
+primary. This restores the original Drill Library information hierarchy without
+reverting the newer condition, Perfect Conditions or recommendation-seam logic.
+
 
 ### Sprint 39 — Resource Coach V2 state
 
@@ -54,7 +66,7 @@ All tabs functional. Engine calibrated against empirical session data (Normal ta
 
 - **SQUAD tab** — player list, tap → edit/delete, OVR badge, QualityMeter atom (10-bar), tier/age/role display, snapshot revert banner, NewRoleBar for new-role progress
 - **PLAN tab** — select player → configure drills + tier + restorers → step-by-step OVR projection. Auto-selects best affordable tier. Stats-derived OVR baseline when stats entered.
-- **DRILLS tab** — 40 drills (all roles). Fan Club surge controls (active flag + level, independent axes). Condition cost per cycle shown as raw plus the billed envelope — the charge is not a deterministic function of raw. Zero-drain is RETIRED (patched out; 1% session minimum). Drill presets (saved drill plans). **PUSH TO RESULTS** button saves the active preset to `drill_plan_history` table for import into Results.
+- **DRILLS tab** — 29 ordinary baseline drills across 4 categories. Special/reward drills are intentionally excluded pending separate calibration. Fan Club surge controls (active flag + level, independent axes). Condition cost per cycle shown as raw plus the billed envelope — the charge is not a deterministic function of raw. Zero-drain is RETIRED (patched out; 1% session minimum). Drill presets (saved drill plans). **PUSH TO RESULTS** button saves the active preset to `drill_plan_history` table for import into Results.
 - **COACHES tab** — Resource Coach V2 experimental preview lab. Select the exact affected stats, confirm WHITE/MID_GREY display class and starting values, enter/scan the displayed multiplier, and project per-stat `+lo–hi` intervals. Ordinary transfer supports cold-start and separate-anchor player calibration; Reward/unresolved transfer abstains while preserving observations. Forecasts are stored separately from observations and do **not** write predicted stats back to the player card.
 - **RESULTS tab** — the single authoritative plan hub. Chains: **DRILL PLANS** (from drills history, amber, max 10) → **COACHING SESSIONS** (from coach history, max 5) → **TIER UPGRADE** → **CONDITION RESTORE** → PROJECT button → per-step OVR chain → APPLY FULL PLAN TO CARD write-back.
 - **Add Player** (`/player/new`) — SCAN PLAYER CARD screenshot button (ML Kit OCR). 3-col DEF/ATT/PHY scan preview. Role picker, stat grid, tier, talent, save.
@@ -206,8 +218,12 @@ drill budget   = cycles × 450 × 0.3 (drillXpFactor) / drill.stats.length
 xpBase(stat)   = 2.94 × exp(stat / 55)          [exponential model, Sprint 25]
 xpCost(stat)   = xpBase(stat) / (ageMult × talentMult × greyMult × drillLevelMult)
 
-drillLevelMult = profile.drillLevelMultipliers[drill.intensity]  (drills only)
+drillLevelMult = 1.0 for baseline drills until drill-quality transfer is calibrated
 drillLevelMult = 1.0 for ALL coach sessions (no intensity adjustment)
+
+Drill intensity is fixed per drill and controls condition drain (+ the displayed +1…+5 training XP).
+Drill quality is a separate Amateur/Semi-Pro/Pro/World-class axis showing +0/+10/+20/+30
+Training effect. Do not infer permanent-stat XP from intensity.
 ```
 
 `drillXpFactor = 0.3` is **provisional** — uncalibrated. Needs real drill session before/after data.

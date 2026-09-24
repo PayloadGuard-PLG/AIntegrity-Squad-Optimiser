@@ -1,0 +1,437 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "player": "Mirsad Panic",
+ "age": 26,
+ "tier": "T0",
+ "roles": [
+  "DC"
+ ],
+ "predictionsFrozenAtCommit": {
+  "H0/HYG/A": "eb7b8a4",
+  "H0/T127": "bd43e5ee401c37e876054048933e113035b08ff3"
+ },
+ "perCoach": {
+  "STD-DEF-X20": {
+   "p": 4,
+   "stats": [
+    "TACKLING",
+    "MARKING",
+    "HEADING",
+    "BRAVERY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 3.877362500000001,
+    "pointInsideRate": 0.25,
+    "overlapRate": 1.0,
+    "endpointMae": 3.8773625000000003,
+    "signedResidual": -3.3711124999999997,
+    "meanIoU": 0.23078044207701043
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 4.067875000000001,
+    "pointInsideRate": 0.25,
+    "overlapRate": 1.0,
+    "endpointMae": 4.067875,
+    "signedResidual": -4.067875000000001,
+    "meanIoU": 0.18646234079500718
+   },
+   "impliedDoseVsH0": 1.297055297764083,
+   "rows": [
+    {
+     "stat": "TACKLING",
+     "start": 136,
+     "cls": "MID_GREY",
+     "observed": [
+      15,
+      22
+     ],
+     "H0": [
+      11.4521,
+      15.9436
+     ],
+     "T127": [
+      11.4521,
+      15.9436
+     ]
+    },
+    {
+     "stat": "MARKING",
+     "start": 138,
+     "cls": "MID_GREY",
+     "observed": [
+      15,
+      21
+     ],
+     "H0": [
+      10.7581,
+      15.0471
+     ],
+     "T127": [
+      10.7581,
+      15.0471
+     ]
+    },
+    {
+     "stat": "HEADING",
+     "start": 136,
+     "cls": "WHITE",
+     "observed": [
+      15,
+      22
+     ],
+     "H0": [
+      16.6121,
+      22.4129
+     ],
+     "T127": [
+      14.1209,
+      19.33
+     ]
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 138,
+     "cls": "MID_GREY",
+     "observed": [
+      14,
+      21
+     ],
+     "H0": [
+      10.7581,
+      15.0471
+     ],
+     "T127": [
+      10.7581,
+      15.0471
+     ]
+    }
+   ]
+  },
+  "STD-PHY-X15": {
+   "p": 4,
+   "stats": [
+    "FITNESS",
+    "STRENGTH",
+    "AGGRESSION",
+    "CREATIVITY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 1.9578875,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.9578875000000002,
+    "signedResidual": 1.6688124999999996,
+    "meanIoU": 0.48812555469275154
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 1.4432875000000003,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 1.4906625,
+    "signedResidual": -0.0543875000000007,
+    "meanIoU": 0.5742868567769502
+   },
+   "impliedDoseVsH0": 0.8618401967918218,
+   "rows": [
+    {
+     "stat": "FITNESS",
+     "start": 130,
+     "cls": "WHITE",
+     "observed": [
+      14,
+      19
+     ],
+     "H0": [
+      15.8429,
+      21.5006
+     ],
+     "T127": [
+      13.506,
+      18.558
+     ]
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 125,
+     "cls": "WHITE",
+     "observed": [
+      16,
+      21
+     ],
+     "H0": [
+      17.6473,
+      23.9604
+     ],
+     "T127": [
+      15.6013,
+      21.1895
+     ]
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 147,
+     "cls": "WHITE",
+     "observed": [
+      10,
+      14
+     ],
+     "H0": [
+      9.4742,
+      13.3695
+     ],
+     "T127": [
+      7.8907,
+      11.2638
+     ]
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 115,
+     "cls": "MID_GREY",
+     "observed": [
+      14,
+      20
+     ],
+     "H0": [
+      16.7941,
+      22.7615
+     ],
+     "T127": [
+      16.7941,
+      22.7615
+     ]
+    }
+   ]
+  },
+  "DS-STD-ATT-X5": {
+   "p": 3,
+   "stats": [
+    "PASSING",
+    "DRIBBLING",
+    "FINISHING"
+   ],
+   "H0": {
+    "n": 3,
+    "midpointMae": 2.61185,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.61185,
+    "signedResidual": 2.61185,
+    "meanIoU": 0.10106287241893751
+   },
+   "T127": {
+    "n": 3,
+    "midpointMae": 2.61185,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.61185,
+    "signedResidual": 2.61185,
+    "meanIoU": 0.10106287241893751
+   },
+   "HYG": {
+    "n": 3,
+    "midpointMae": 2.61185,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.61185,
+    "signedResidual": 2.61185,
+    "meanIoU": 0.10106287241893751
+   },
+   "A": {
+    "n": 3,
+    "midpointMae": 2.3613666666666666,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 2.3613666666666666,
+    "signedResidual": 2.3613666666666666,
+    "meanIoU": 0.14507696883869003
+   },
+   "impliedDoseVsH0": 0.7339942305568055,
+   "rows": [
+    {
+     "stat": "PASSING",
+     "start": 113,
+     "cls": "MID_GREY",
+     "observed": [
+      7,
+      9
+     ],
+     "H0": [
+      8.7719,
+      12.8195
+     ],
+     "T127": [
+      8.7719,
+      12.8195
+     ]
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 110,
+     "cls": "MID_GREY",
+     "observed": [
+      7,
+      10
+     ],
+     "H0": [
+      8.8267,
+      13.2922
+     ],
+     "T127": [
+      8.8267,
+      13.2922
+     ]
+    },
+    {
+     "stat": "FINISHING",
+     "start": 115,
+     "cls": "MID_GREY",
+     "observed": [
+      7,
+      9
+     ],
+     "H0": [
+      8.5831,
+      12.3777
+     ],
+     "T127": [
+      8.5831,
+      12.3777
+     ]
+    }
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "p": 4,
+   "stats": [
+    "CROSSING",
+    "SHOOTING",
+    "SPEED",
+    "CREATIVITY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 3.3805875,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.3805875,
+    "signedResidual": 3.3805875,
+    "meanIoU": 0.1869113916725559
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 3.3805875,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.3805875,
+    "signedResidual": 3.3805875,
+    "meanIoU": 0.1869113916725559
+   },
+   "HYG": {
+    "n": 4,
+    "midpointMae": 3.3805875,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.3805875,
+    "signedResidual": 3.3805875,
+    "meanIoU": 0.1869113916725559
+   },
+   "A": {
+    "n": 4,
+    "midpointMae": 0.5741624999999995,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 0.7140875,
+    "signedResidual": 0.5741624999999995,
+    "meanIoU": 0.7271763313121048
+   },
+   "impliedDoseVsH0": 0.7494561995183795,
+   "rows": [
+    {
+     "stat": "CROSSING",
+     "start": 107,
+     "cls": "MID_GREY",
+     "observed": [
+      10,
+      15
+     ],
+     "H0": [
+      13.2396,
+      19.4132
+     ],
+     "T127": [
+      13.2396,
+      19.4132
+     ]
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 107,
+     "cls": "MID_GREY",
+     "observed": [
+      11,
+      15
+     ],
+     "H0": [
+      13.2396,
+      19.4132
+     ],
+     "T127": [
+      13.2396,
+      19.4132
+     ]
+    },
+    {
+     "stat": "SPEED",
+     "start": 119,
+     "cls": "MID_GREY",
+     "observed": [
+      8,
+      12
+     ],
+     "H0": [
+      11.0656,
+      15.4521
+     ],
+     "T127": [
+      11.0656,
+      15.4521
+     ]
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 115,
+     "cls": "MID_GREY",
+     "observed": [
+      9,
+      14
+     ],
+     "H0": [
+      12.1834,
+      17.038
+     ],
+     "T127": [
+      12.1834,
+      17.038
+     ]
+    }
+   ]
+  }
+ },
+ "pooled": {
+  "H0": {
+   "n": 15,
+   "midpointMae": 2.9799266666666666,
+   "pointInsideRate": 0.3333333333333333,
+   "overlapRate": 1.0,
+   "endpointMae": 2.9799266666666666,
+   "signedResidual": 0.9699133333333332,
+   "meanIoU": 0.26176387806840556
+  },
+  "rows": 15
+ }
+}

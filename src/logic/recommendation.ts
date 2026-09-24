@@ -814,7 +814,10 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
   const unread = new Set<string>();
   const firstValue: Record<string, number> = {};
   for (const drill of drills) {
-    const drillLevelMult = (profile.drillLevelMultipliers as Record<string, number>)[drill.intensity] ?? 1.0;
+    // Intensity is a condition-cost variable. The game's separate drill quality /
+    // training-effect axis (Amateur → World-class, +0 → +30) has not yet been
+    // calibrated to permanent-stat XP. Do not fabricate that effect from intensity.
+    const drillLevelMult = 1.0;
     const budget = drillBudgetPerStat(cycles, drill.stats.length);
     for (const rawStat of drill.stats) {
       const stat = rawStat.toUpperCase();
@@ -879,16 +882,14 @@ export function projectDrillAction(input: DrillActionInput): RecommendationResul
     detail: `Drill XP factor ${profile.drillXpFactor ?? 1.0} is assumed, not calibrated — drill gain magnitudes are provisional.`,
     evidence: 'assumed',
   });
-  // Unresolved model issue, recorded rather than guessed at. The game shows a
-  // drill's INTENSITY (which drives condition cost) separately from its LEVEL /
-  // training effect (which drives how much training a drill delivers). This code
-  // indexes drillLevelMultipliers by intensity, conflating the two. The mapping
-  // from displayed training effect to permanent XP has never been calibrated, so
-  // no replacement formula is invented here — the magnitude is simply flagged.
+  // Drill quality/training effect is observed as a separate axis from intensity:
+  // Amateur / Semi-Pro / Pro / World-class display +0 / +10 / +20 / +30.
+  // Its mapping to permanent-stat XP is not yet identified, so the production
+  // predictor uses no quality multiplier rather than borrowing the intensity.
   reasons.push({
-    code: 'drill.levelVsIntensity',
-    detail: 'Training magnitude is derived from drill intensity, which the game shows separately from drill level / training effect. That mapping is uncalibrated — treat drill gain magnitude as provisional.',
-    evidence: 'assumed',
+    code: 'drill.trainingEffectUncalibrated',
+    detail: 'Drill intensity affects condition cost only. Drill quality / training effect is a separate observed axis and is not yet calibrated to permanent-stat XP, so no quality multiplier is applied.',
+    evidence: 'unavailable',
   });
 
   return {

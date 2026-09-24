@@ -1,0 +1,117 @@
+{
+ "player": "David Midgley",
+ "preregistration": [
+  "PREREG-20260924-YOUNG-GREY-CONTROL",
+  "PREREG-20260924-WHITE-THRESHOLD-127"
+ ],
+ "predictionsFrozenAtCommit": {
+  "H0/HYG/A": "cb238fc3da9c95458a33e0a49c9b3d9b6c091c97",
+  "H0/T127": "bd43e5ee401c37e876054048933e113035b08ff3"
+ },
+ "displayedOvr": 130.4,
+ "startValuesMatchFrozenCard": true,
+ "programmeLabels": {
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available",
+  "STD-PHY-X15": "SKILL SEMINAR, 8 days, cost 90"
+ },
+ "statIntervals": {
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    5,
+    7
+   ],
+   "DRIBBLING": [
+    7,
+    11
+   ],
+   "FINISHING": [
+    5,
+    7
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    5,
+    7
+   ],
+   "SHOOTING": [
+    9,
+    12
+   ],
+   "SPEED": [
+    7,
+    11
+   ],
+   "CREATIVITY": [
+    6,
+    10
+   ]
+  },
+  "STD-PHY-X15": {
+   "FITNESS": [
+    13,
+    18
+   ],
+   "STRENGTH": [
+    15,
+    21
+   ],
+   "AGGRESSION": [
+    12,
+    17
+   ],
+   "CREATIVITY": [
+    10,
+    15
+   ]
+  }
+ },
+ "ovrBoost": {
+  "DS-STD-ATT-X5": [
+   1,
+   2
+  ],
+  "DS-STD-OFF-X10": [
+   2,
+   3
+  ],
+  "STD-PHY-X15": [
+   3,
+   5
+  ]
+ },
+ "categoryAverageGain": {
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    3,
+    5
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    3,
+    4
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    3,
+    4
+   ]
+  },
+  "STD-PHY-X15": {
+   "PHYSICAL_AND_MENTAL": [
+    10,
+    14
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENSE": "117 (99.4)",
+  "ATTACK": "142 (105.7)",
+  "PHYSICAL_AND_MENTAL": "130 (102.6)"
+ },
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "observedDate": "2026-09-24",
+ "clubLevel": 15,
+ "source": "user-supplied in-chat preview screenshots supplied after the frozen commits; previews only, nothing applied"
+}

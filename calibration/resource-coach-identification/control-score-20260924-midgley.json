@@ -1,0 +1,339 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "player": "David Midgley",
+ "age": 26,
+ "tier": "T0",
+ "roles": [
+  "AMR"
+ ],
+ "predictionsFrozenAtCommit": {
+  "H0/HYG/A": "cb238fc3da9c95458a33e0a49c9b3d9b6c091c97",
+  "H0/T127": "bd43e5ee401c37e876054048933e113035b08ff3"
+ },
+ "perCoach": {
+  "DS-STD-ATT-X5": {
+   "p": 3,
+   "stats": [
+    "PASSING",
+    "DRIBBLING",
+    "FINISHING"
+   ],
+   "H0": {
+    "n": 3,
+    "midpointMae": 1.256833333333333,
+    "pointInsideRate": 0.3333333333333333,
+    "overlapRate": 1.0,
+    "endpointMae": 1.2568333333333332,
+    "signedResidual": 0.46229999999999993,
+    "meanIoU": 0.35061973672814345
+   },
+   "T127": {
+    "n": 3,
+    "midpointMae": 0.8313833333333335,
+    "pointInsideRate": 0.6666666666666666,
+    "overlapRate": 0.6666666666666666,
+    "endpointMae": 0.8732166666666669,
+    "signedResidual": -0.6727500000000003,
+    "meanIoU": 0.5470596522572772
+   },
+   "HYG": {
+    "n": 3,
+    "midpointMae": 1.256833333333333,
+    "pointInsideRate": 0.3333333333333333,
+    "overlapRate": 1.0,
+    "endpointMae": 1.2568333333333332,
+    "signedResidual": 0.46229999999999993,
+    "meanIoU": 0.35061973672814345
+   },
+   "A": {
+    "n": 3,
+    "midpointMae": 1.1627833333333333,
+    "pointInsideRate": 0.6666666666666666,
+    "overlapRate": 1.0,
+    "endpointMae": 1.1627833333333333,
+    "signedResidual": 0.29255000000000003,
+    "meanIoU": 0.37676814710749995
+   },
+   "impliedDoseVsH0": 0.8931428048035664,
+   "rows": [
+    {
+     "stat": "PASSING",
+     "start": 152,
+     "cls": "WHITE",
+     "observed": [
+      5,
+      7
+     ],
+     "H0": [
+      3.8866,
+      5.7298
+     ],
+     "T127": [
+      3.1786,
+      4.7154
+     ]
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 127,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      11
+     ],
+     "H0": [
+      8.6419,
+      12.4968
+     ],
+     "T127": [
+      7.6014,
+      10.8745
+     ]
+    },
+    {
+     "stat": "FINISHING",
+     "start": 141,
+     "cls": "WHITE",
+     "observed": [
+      5,
+      7
+     ],
+     "H0": [
+      5.7177,
+      8.301
+     ],
+     "T127": [
+      4.7052,
+      6.8884
+     ]
+    }
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "p": 4,
+   "stats": [
+    "CROSSING",
+    "SHOOTING",
+    "SPEED",
+    "CREATIVITY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 0.8364125000000002,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 0.8611874999999999,
+    "signedResidual": 0.8364125000000002,
+    "meanIoU": 0.6266085929284974
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 0.6925374999999998,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 0.7747375,
+    "signedResidual": -0.6925374999999998,
+    "meanIoU": 0.5769362398098393
+   },
+   "HYG": {
+    "n": 4,
+    "midpointMae": 0.8364125000000002,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 0.8611874999999999,
+    "signedResidual": 0.8364125000000002,
+    "meanIoU": 0.6266085929284974
+   },
+   "A": {
+    "n": 4,
+    "midpointMae": 0.8399875000000001,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 0.8907125,
+    "signedResidual": -0.8399875000000001,
+    "meanIoU": 0.5273248476732808
+   },
+   "impliedDoseVsH0": 0.8871215032973229,
+   "rows": [
+    {
+     "stat": "CROSSING",
+     "start": 156,
+     "cls": "WHITE",
+     "observed": [
+      5,
+      7
+     ],
+     "H0": [
+      4.9009,
+      7.1631
+     ],
+     "T127": [
+      4.0221,
+      5.9226
+     ]
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 135,
+     "cls": "WHITE",
+     "observed": [
+      9,
+      12
+     ],
+     "H0": [
+      9.921,
+      13.9562
+     ],
+     "T127": [
+      8.2741,
+      11.7776
+     ]
+    },
+    {
+     "stat": "SPEED",
+     "start": 142,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      11
+     ],
+     "H0": [
+      7.9005,
+      11.277
+     ],
+     "T127": [
+      6.5477,
+      9.4434
+     ]
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 143,
+     "cls": "WHITE",
+     "observed": [
+      6,
+      10
+     ],
+     "H0": [
+      7.6426,
+      10.93
+     ],
+     "T127": [
+      6.3288,
+      9.1434
+     ]
+    }
+   ]
+  },
+  "STD-PHY-X15": {
+   "p": 4,
+   "stats": [
+    "FITNESS",
+    "STRENGTH",
+    "AGGRESSION",
+    "CREATIVITY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 1.8421625000000001,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 1.8421624999999997,
+    "signedResidual": 1.8421625000000001,
+    "meanIoU": 0.5468859304960125
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 1.9101500000000002,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 1.9101499999999998,
+    "signedResidual": 0.6956000000000002,
+    "meanIoU": 0.5074130477509163
+   },
+   "impliedDoseVsH0": 0.846601475121454,
+   "rows": [
+    {
+     "stat": "FITNESS",
+     "start": 133,
+     "cls": "WHITE",
+     "observed": [
+      13,
+      18
+     ],
+     "H0": [
+      14.5893,
+      19.9152
+     ],
+     "T127": [
+      12.3336,
+      17.0726
+     ]
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 109,
+     "cls": "MID_GREY",
+     "observed": [
+      15,
+      21
+     ],
+     "H0": [
+      18.6516,
+      25.5224
+     ],
+     "T127": [
+      18.6516,
+      25.5224
+     ]
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 124,
+     "cls": "MID_GREY",
+     "observed": [
+      12,
+      17
+     ],
+     "H0": [
+      13.1457,
+      18.1033
+     ],
+     "T127": [
+      13.1457,
+      18.1033
+     ]
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 143,
+     "cls": "WHITE",
+     "observed": [
+      10,
+      15
+     ],
+     "H0": [
+      10.7601,
+      15.0497
+     ],
+     "T127": [
+      8.9967,
+      12.7389
+     ]
+    }
+   ]
+  }
+ },
+ "pooled": {
+  "H0": {
+   "n": 11,
+   "midpointMae": 1.3168000000000002,
+   "pointInsideRate": 0.7272727272727273,
+   "overlapRate": 1.0,
+   "endpointMae": 1.3258090909090907,
+   "signedResidual": 1.100109090909091,
+   "meanIoU": 0.5223488458074973
+  },
+  "rows": 11
+ }
+}

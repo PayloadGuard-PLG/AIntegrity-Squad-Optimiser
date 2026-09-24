@@ -15,8 +15,8 @@ const TALENT_TIERS: TalentTier[] = ['Fastest', 'Fast', 'Average', 'Normal', 'Slo
 const TIER_ORDER: TierName[] = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
 
 const DEFAULT_DRILLS: DrillSession[] = [
-  { drillName: 'Touch Training', sessionCount: 5, drillLevel: 'Medium' },
-  { drillName: 'Stamina Run', sessionCount: 3, drillLevel: 'Medium' },
+  { drillName: 'Touch Training', sessionCount: 5, drillLevel: 'Very Easy' },
+  { drillName: 'Endurance Loop', sessionCount: 3, drillLevel: 'Medium' },
 ];
 
 export default function CompareScreen() {

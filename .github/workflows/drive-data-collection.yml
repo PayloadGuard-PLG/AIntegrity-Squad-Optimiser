@@ -13,6 +13,9 @@ on:
       - 'tests/drive-data-exchange-test.mjs'
       - 'tests/drive-sheet-source-test.mjs'
       - 'tests/resource-coach-promotion-test.mjs'
+      - 'tests/archive-validate-test.mjs'
+      - 'calibration/archive-s208-s209/**'
+      - 'src/utils/roleWeights.ts'
       - '.github/workflows/drive-data-collection.yml'
   pull_request:
     branches:
@@ -26,6 +29,9 @@ on:
       - 'tests/drive-data-exchange-test.mjs'
       - 'tests/drive-sheet-source-test.mjs'
       - 'tests/resource-coach-promotion-test.mjs'
+      - 'tests/archive-validate-test.mjs'
+      - 'calibration/archive-s208-s209/**'
+      - 'src/utils/roleWeights.ts'
       - '.github/workflows/drive-data-collection.yml'
   workflow_dispatch:
   schedule:
@@ -47,7 +53,10 @@ jobs:
           node --check tools/drive-data-exchange/collect-resource-coach.mjs
           node --check tools/drive-data-exchange/collect-resource-coach-sheet.mjs
           node --check tools/drive-data-exchange/promote-reviewed-collection.mjs
-          node --test tests/drive-data-exchange-test.mjs tests/drive-sheet-source-test.mjs tests/resource-coach-promotion-test.mjs
+          node --check tools/drive-data-exchange/archive-validate.mjs
+          node --test tests/drive-data-exchange-test.mjs tests/drive-sheet-source-test.mjs tests/resource-coach-promotion-test.mjs tests/archive-validate-test.mjs
+      - name: Check committed archive snapshot
+        run: node tools/drive-data-exchange/archive-validate.mjs --check-snapshot calibration/archive-s208-s209/snapshot
 
   collect:
     if: github.event_name != 'pull_request'
@@ -80,7 +89,9 @@ jobs:
             --corpus-dir calibration/longitudinal-corpus
 
       - name: Publish collection summary
+        if: always()
         run: |
+          test -f /tmp/drive-data-collection/collection-summary.json || { echo 'No collection summary produced.' >> "$GITHUB_STEP_SUMMARY"; exit 0; }
           {
             echo '## Google Drive data collection'
             echo
@@ -95,9 +106,18 @@ jobs:
             echo '```csv'
             cat /tmp/drive-data-collection/analysis/variable_identifiability.csv
             echo '```'
+            if [ -f /tmp/drive-data-collection/archive/archive-validation.json ]; then
+              echo
+              echo '### Screenshot archive (S208-S209)'
+              echo
+              echo '```json'
+              node -e "const r=require('/tmp/drive-data-collection/archive/archive-validation.json');console.log(JSON.stringify({summary:r.summary,identity:r.identity&&{status:r.identity.status,sealed:r.identity.sealed,tabs:r.identity.tabs},clubTimeline:r.clubTimeline},null,1))"
+              echo '```'
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload provenance bundle
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: drive-resource-coach-collection

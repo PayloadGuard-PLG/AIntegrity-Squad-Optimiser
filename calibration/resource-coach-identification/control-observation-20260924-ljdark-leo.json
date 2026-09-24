@@ -1,0 +1,146 @@
+{
+ "player": "LJDark leo",
+ "preregistration": [
+  "PREREG-20260924-YOUNG-GREY-CONTROL",
+  "PREREG-20260924-WHITE-THRESHOLD-127"
+ ],
+ "predictionsFrozenAtCommit": {
+  "H0/HYG/A": "eb7b8a4",
+  "H0/T127": "bd43e5ee401c37e876054048933e113035b08ff3"
+ },
+ "displayedOvr": 169.3,
+ "startValuesMatchFrozenCard": true,
+ "programmeLabels": {
+  "STD-DEF-X20": "DRILL SESSION, 3 days, cost 30/38/60/150",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available",
+  "STD-PHY-X15": "SKILL SEMINAR, 8 days, cost 90",
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available"
+ },
+ "statIntervals": {
+  "STD-DEF-X20": {
+   "TACKLING": [
+    7,
+    10
+   ],
+   "MARKING": [
+    8,
+    12
+   ],
+   "HEADING": [
+    14,
+    18
+   ],
+   "BRAVERY": [
+    6,
+    10
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    9,
+    14
+   ],
+   "SHOOTING": [
+    11,
+    15
+   ],
+   "SPEED": [
+    17,
+    22
+   ],
+   "CREATIVITY": [
+    17,
+    25
+   ]
+  },
+  "STD-PHY-X15": {
+   "FITNESS": [
+    19,
+    26
+   ],
+   "STRENGTH": [
+    35,
+    48
+   ],
+   "AGGRESSION": [
+    34,
+    47
+   ],
+   "CREATIVITY": [
+    25,
+    35
+   ]
+  },
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    4,
+    5
+   ],
+   "DRIBBLING": [
+    8,
+    10
+   ],
+   "FINISHING": [
+    8,
+    12
+   ]
+  }
+ },
+ "ovrBoost": {
+  "STD-DEF-X20": [
+   2,
+   3
+  ],
+  "DS-STD-OFF-X10": [
+   3,
+   5
+  ],
+  "STD-PHY-X15": [
+   7,
+   10
+  ],
+  "DS-STD-ATT-X5": [
+   1,
+   1
+  ]
+ },
+ "categoryAverageGain": {
+  "STD-DEF-X20": {
+   "DEFENSE": [
+    7,
+    10
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    4,
+    6
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    7,
+    9
+   ]
+  },
+  "STD-PHY-X15": {
+   "PHYSICAL_AND_MENTAL": [
+    23,
+    31
+   ]
+  },
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    4,
+    5
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENSE": "217 (124.2)",
+  "ATTACK": "146 (106.6)",
+  "PHYSICAL_AND_MENTAL": "144 (106)"
+ },
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "observedDate": "2026-09-24",
+ "clubLevel": 15,
+ "source": "user-supplied in-chat preview screenshots supplied after the frozen commits; previews only, nothing applied"
+}

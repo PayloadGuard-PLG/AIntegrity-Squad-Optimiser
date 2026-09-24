@@ -5,7 +5,8 @@
     "root": "1Fx3muqXRYuOPdgMcIuRIgfaHe7jlY9Ud",
     "incoming": "1wll7bOcoJqUYFhmj8FuJc4eQdmNk6Z3x",
     "analysisOutput": "1by8ijGsZ7ZCx0V_xm1aQBAciw2hgocQX",
-    "quarantine": "1qwOW5Isq6c8-I5t9kSa4FPImn0G8Y-lC"
+    "quarantine": "1qwOW5Isq6c8-I5t9kSa4FPImn0G8Y-lC",
+    "archiveCoaches": "1CfEZSCr4QTuUts0HTu7BiCDw7_N5DnRP"
   },
   "collection": {
     "maxFilesPerRun": 100,
@@ -40,7 +41,27 @@
         "Partition_History"
       ],
       "access": "service-account-reader",
-      "contract": "Existing immutable IDs are semantically cross-checked; only complete new observed IDs are staged."
+      "contract": "Existing immutable IDs are semantically cross-checked; only complete new observed IDs are staged. Rows whose partition, log_source or log_batch_id begins with 'archive' are refused: archive screenshots are transcribed only into the Archive_* tabs."
+    },
+    "screenshotArchive": {
+      "enabled": true,
+      "title": "S208-S209 screenshot archive (18 Apr - 16 May 2026)",
+      "spreadsheetId": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+      "tabs": [
+        "Archive_Sources",
+        "Archive_Previews",
+        "Archive_Preview_Stats",
+        "Archive_Preview_Categories",
+        "Archive_Cards",
+        "Archive_Card_Stats",
+        "Archive_Club_State",
+        "Archive_Decisions"
+      ],
+      "driveFolderId": "1CfEZSCr4QTuUts0HTu7BiCDw7_N5DnRP",
+      "schema": "calibration/archive-s208-s209/archive-schema.json",
+      "snapshotDir": "calibration/archive-s208-s209/snapshot",
+      "protocol": "calibration/archive-s208-s209/PROTOCOL.md",
+      "contract": "Read-only. Grades, seasons, tier pairing and club-level readings are computed, never typed. The Drive tabs and the committed snapshot must hash identically; a sealed snapshot that drifts fails the run. Nothing is promoted into the run log; VERIFIED ordinary previews are listed as archive-partition candidates only."
     }
   }
 }

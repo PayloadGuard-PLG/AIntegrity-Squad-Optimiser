@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { collectResourceCoachSheet } from './collect-resource-coach-sheet.mjs';
+import { collectResourceCoachSheet, readWorkbookTables, parseWorkbookSheets } from './collect-resource-coach-sheet.mjs';
+import { runArchive, writeOutputs as writeArchiveOutputs, readArchiveTabsFromXlsx, loadSchema as loadArchiveSchema } from './archive-validate.mjs';
 
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive';
 const TOKEN_AUD='https://oauth2.googleapis.com/token';
@@ -226,6 +227,23 @@ async function main(){
     });
   }
 
+  // Screenshot archive: graded from the Archive_* tabs of the same export, checked against the Drive folder
+  // and against the snapshot committed in the repository. Never staged into the run log.
+  let archiveSummary=null,archiveFailure=null;
+  const archiveConfig=config.structuredSources?.screenshotArchive;
+  if(archiveConfig?.enabled&&sheetSummary?.xlsxPath){
+    const archiveFiles=await listFolder(token,archiveConfig.driveFolderId);
+    fs.writeFileSync(path.join(outDir,'archive-drive-inventory.json'),JSON.stringify(archiveFiles,null,1)+'\n');
+    const schema=loadArchiveSchema(path.resolve(archiveConfig.schema));
+    const rawTables=readArchiveTabsFromXlsx(sheetSummary.xlsxPath,schema,{readWorkbookTables,parseWorkbookSheets});
+    const result=runArchive({rawTables,schema,driveFiles:archiveFiles,snapshotDir:path.resolve(archiveConfig.snapshotDir),
+      meta:{spreadsheetId:sheetSummary.spreadsheetId,driveFolderId:archiveConfig.driveFolderId,exportSha256:sheetSummary.exportSha256}});
+    writeArchiveOutputs(path.join(outDir,'archive'),result);
+    archiveSummary={...result.summary,driveFiles:archiveFiles.length,identity:result.identity?{status:result.identity.status,sealed:result.identity.sealed}:null};
+    if(result.summary.status==='INVALID')archiveFailure='Archive transcription is INVALID; see archive/archive-validation.json.';
+    if(result.identity?.sealed&&!result.identity.identical)archiveFailure='Sealed archive snapshot in the repository differs from the Drive tabs.';
+  }
+
   fs.mkdirSync(analysisDir,{recursive:true});
   runNode(analyseScript,['--corpus-dir',corpusDir,'--runs-dir',stagedRuns,'--out-dir',analysisDir,'--top-n','20']);
   const analysisSummary=JSON.parse(fs.readFileSync(path.join(analysisDir,'summary.json'),'utf8'));
@@ -248,7 +266,7 @@ async function main(){
       sourceFileCount:files.length,
       collectedBytes:totalBytes,
     },
-    results:{newExperiments,alreadyPresent,rejected,rawEvidence,unsupported,sheet:sheetSummary},
+    results:{newExperiments,alreadyPresent,rejected,rawEvidence,unsupported,sheet:sheetSummary,archive:archiveSummary},
     safeguards:{
       sourceFilesMoved:false,
       sourceFilesDeleted:false,
@@ -276,9 +294,11 @@ async function main(){
     rawEvidence,
     unsupported,
     sheet:sheetSummary,
+    archive:archiveSummary,
     analysisCurrentExperiments:analysisSummary.currentExperimentRecords,
     receiptFileId:receipt?.id||null,
   },null,2));
+  if(archiveFailure)throw new Error(archiveFailure);
 }
 
 if(import.meta.url===new URL(`file://${process.argv[1]}`).href){

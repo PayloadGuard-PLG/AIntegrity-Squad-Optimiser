@@ -167,7 +167,16 @@ function buildRecord(exp,obsRows,partitionRows){
   };
 }
 
-export {rowObjects,xmlDecode,colIndex,parseSharedStrings,parseWorkbookSheets,parseSheetXml,readWorkbookTables,semanticFromSheet,semanticFromRun,buildRecord,digest};
+// Screenshot-archive transcriptions live in the Archive_* tabs and are graded by archive-validate.mjs.
+// They must never enter the immutable run log through the Experiments tab, whatever their grade.
+function archiveRowReason(exp){
+  for(const k of ['partition','origin_partition','current_partition','log_source','log_batch_id']){
+    if(/^archive/i.test(text(exp[k])))return `Experiments.${k}=${text(exp[k])}`;
+  }
+  return null;
+}
+
+export {rowObjects,xmlDecode,colIndex,parseSharedStrings,parseWorkbookSheets,parseSheetXml,readWorkbookTables,semanticFromSheet,semanticFromRun,buildRecord,digest,archiveRowReason};
 
 export async function collectResourceCoachSheet({token,spreadsheetId,stagedRuns,outDir,ingestScript}){
   const bytes=await exportSpreadsheet(token,spreadsheetId);
@@ -183,6 +192,8 @@ export async function collectResourceCoachSheet({token,spreadsheetId,stagedRuns,
   for(const exp of experiments){
     const id=text(exp.experiment_id);if(!id){invalid++;records.push({experiment_id:null,status:'INVALID_MISSING_ID'});continue;}
     const obsRows=obsById.get(id)??[],sourceHash=digest({experiment:exp,observedStats:obsRows,partitionHistory:partById.get(id)??[]});
+    const archiveReason=archiveRowReason(exp);
+    if(archiveReason){invalid++;records.push({experiment_id:id,status:'REJECTED_ARCHIVE_ROW_IN_EXPERIMENTS',source_sha256:sourceHash,detail:`${archiveReason}; archive screenshots belong in the Archive_* tabs.`});continue;}
     const dest=path.join(stagedRuns,`${id}.json`);
     if(fs.existsSync(dest)){
       try{
@@ -199,7 +210,7 @@ export async function collectResourceCoachSheet({token,spreadsheetId,stagedRuns,
       newExperiments++;records.push({experiment_id:id,status:'STAGED_NEW_SHEET_EXPERIMENT',source_sha256:sourceHash});
     }catch(e){invalid++;records.push({experiment_id:id,status:'REJECTED_INCOMPLETE_SHEET_EXPERIMENT',source_sha256:sourceHash,detail:String(e.stderr||e.message||e).slice(0,700).trim()});}
   }
-  const summary={schemaVersion:'resource-coach-sheet-collection-v1',transport:'drive-xlsx-export',spreadsheetId,exportSha256,exportBytes:bytes.length,
+  const summary={schemaVersion:'resource-coach-sheet-collection-v1',transport:'drive-xlsx-export',spreadsheetId,exportSha256,exportBytes:bytes.length,xlsxPath,
     experimentRows:experiments.length,observedStatRows:observed.length,partitionRows:partitions.length,mirrorMatches,mirrorConflicts,newExperiments,invalid};
   fs.writeFileSync(path.join(outDir,'sheet-source-manifest.json'),JSON.stringify({summary,records},null,2)+'\n');
   if(mirrorConflicts>0)throw new Error(`Resource Coach Sheet mirror conflicts with ${mirrorConflicts} immutable experiment(s).`);

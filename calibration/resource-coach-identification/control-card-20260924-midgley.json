@@ -1,0 +1,50 @@
+{
+ "schemaVersion": "resource-coach-control-card-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "arm": "KNOWN-PLAYER regime-matched anchor check (does NOT satisfy the O arm)",
+ "name": "David Midgley",
+ "age": 26,
+ "tier": "T0",
+ "roles": [
+  "AMR"
+ ],
+ "learningRoles": [],
+ "ovr": 130,
+ "source": "user-supplied in-chat player card screenshot, 24 Sep 2026 (Skills tab); no x5/x10 preview supplied",
+ "corpusStatus": "KNOWN PLAYER: identical state to the x59 prospective record (CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL). Registered x5/x10 affected stats are all WHITE at 127-156, so this card cannot test the age-specificity of H-YG. It tests whether an other-player anchor transfers when the target's rows sit in the same coordinate regime as the anchors' rows (x10 anchors Lurinsky 120-153, Lerchl 114-145).",
+ "stats": {
+  "TACKLING": 115,
+  "MARKING": 111,
+  "POSITIONING": 125,
+  "HEADING": 119,
+  "BRAVERY": 115,
+  "PASSING": 152,
+  "DRIBBLING": 127,
+  "CROSSING": 156,
+  "SHOOTING": 135,
+  "FINISHING": 141,
+  "FITNESS": 133,
+  "STRENGTH": 109,
+  "AGGRESSION": 124,
+  "SPEED": 142,
+  "CREATIVITY": 143
+ },
+ "classes": {
+  "TACKLING": "MID_GREY",
+  "MARKING": "MID_GREY",
+  "POSITIONING": "MID_GREY",
+  "HEADING": "MID_GREY",
+  "BRAVERY": "MID_GREY",
+  "PASSING": "WHITE",
+  "DRIBBLING": "WHITE",
+  "CROSSING": "WHITE",
+  "SHOOTING": "WHITE",
+  "FINISHING": "WHITE",
+  "FITNESS": "WHITE",
+  "STRENGTH": "MID_GREY",
+  "AGGRESSION": "MID_GREY",
+  "SPEED": "WHITE",
+  "CREATIVITY": "WHITE"
+ },
+ "classSource": "AMR essentials per src/utils/roleWeights.ts; consistent with card highlighting and the x59 record"
+}

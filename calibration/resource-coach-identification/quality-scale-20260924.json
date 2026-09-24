@@ -1,0 +1,155 @@
+{
+ "schemaVersion": "resource-coach-quality-scale-evidence-v1",
+ "recordedDate": "2026-09-24",
+ "source": "User-supplied in-chat screenshots, 24 Sep 2026: Kawa and Ferguson coach previews (per-category 'Avg: X (Q)'), and nine club overview tooltips ('Team OVR for your club level' / 'Total Team Quality value').",
+ "userExplanation": "The bracketed value is attribute quality. Player quality increases with manager level; in association play player OVR supersedes quality, and the same 180 rule applies at every manager level.",
+ "points": {
+  "categoryAverages_clubLevel15": [
+   {
+    "player": "Michal Kawa",
+    "category": "DEFENCE",
+    "displayedMean": 94.2,
+    "quality": 93.6
+   },
+   {
+    "player": "Michal Kawa",
+    "category": "ATTACK",
+    "displayedMean": 56.6,
+    "quality": 84.2
+   },
+   {
+    "player": "Michal Kawa",
+    "category": "PHYSICAL_AND_MENTAL",
+    "displayedMean": 80.0,
+    "quality": 90.1
+   },
+   {
+    "player": "Willie Ferguson",
+    "category": "DEFENCE",
+    "displayedMean": 84.4,
+    "quality": 91.2
+   },
+   {
+    "player": "Willie Ferguson",
+    "category": "ATTACK",
+    "displayedMean": 62.0,
+    "quality": 85.6
+   },
+   {
+    "player": "Willie Ferguson",
+    "category": "PHYSICAL_AND_MENTAL",
+    "displayedMean": 68.2,
+    "quality": 87.1
+   },
+   {
+    "player": "Ryan Rodger",
+    "category": "DEFENCE",
+    "displayedMean": 64.0,
+    "quality": 86.1
+   },
+   {
+    "player": "Ryan Rodger",
+    "category": "ATTACK",
+    "displayedMean": 114.4,
+    "quality": 98.6
+   },
+   {
+    "player": "Ryan Rodger",
+    "category": "PHYSICAL_AND_MENTAL",
+    "displayedMean": 91.8,
+    "quality": 93.0
+   }
+  ],
+  "teamOverview": [
+   {
+    "club": "DarkVader FC (own)",
+    "clubLevel": 15,
+    "view": "own",
+    "teamOvr": 206.7,
+    "teamQuality": 121.7
+   },
+   {
+    "club": "Truong Chelsea",
+    "clubLevel": 22,
+    "view": "friends",
+    "teamOvr": 319.2,
+    "teamQuality": 149.8
+   },
+   {
+    "club": "KSG OLKUSZ",
+    "clubLevel": 21,
+    "view": "friends",
+    "teamOvr": 349.0,
+    "teamQuality": 157.3
+   },
+   {
+    "club": "UFC united",
+    "clubLevel": 17,
+    "view": "friends",
+    "teamOvr": 197.8,
+    "teamQuality": 119.5
+   },
+   {
+    "club": "UFC united",
+    "clubLevel": 17,
+    "view": "association",
+    "teamOvr": 157.8,
+    "teamQuality": 119.5
+   },
+   {
+    "club": "Master blasters",
+    "clubLevel": 31,
+    "view": "association",
+    "teamOvr": 169.8,
+    "teamQuality": 192.4
+   },
+   {
+    "club": "Ballinluig FC",
+    "clubLevel": 54,
+    "view": "association",
+    "teamOvr": 148.8,
+    "teamQuality": 302.2
+   }
+  ]
+ },
+ "finding": {
+  "law": "quality = offset + displayed / 4",
+  "fitClubLevel15": "least squares over 7 points: quality = 70.10 + 0.2497 * displayed, max |residual| 0.03 (display rounding and fractional stats)",
+  "offsetsAtSlopeQuarter": {
+   "own L15": 70.0,
+   "friends L17/L21/L22": 70.0,
+   "association L17": 80.0,
+   "association L31": 150.0,
+   "association L54": 265.0
+  },
+  "bracketCarriesNoExtraInformation": "At a fixed offset the bracketed quality is a deterministic rescaling of the displayed category mean. The 'target gap' interpretation recorded in STRUCTURE_AUDIT_20260924.md addendum 2 is withdrawn.",
+  "frozenConstantsInQualityUnits_offset70": {
+   "midGreyThreshold": 100.0,
+   "whiteThreshold": 103.15,
+   "K": 6.51,
+   "baseOvrCap180": 115.0,
+   "youngGreyKnot80": 90.0,
+   "youngGreyKnotBestPostHoc88": 92.0
+  },
+  "implication": "At a fixed offset the displayed-unit model and a quality-unit model are identical. If the offset differs between captures (club level or view), every displayed-unit threshold shifts by 4 x the offset difference. Every card and preview must therefore record the club level and the view it was captured in; historic records captured under a different offset are not directly comparable in displayed units.",
+  "archiveComparability": "The 10-12 Sep archive and the 23-24 Sep captures share club level 15, so they share the displayed-unit scale; no conversion is needed inside the calibration partition.",
+  "histNote": "An offset change cannot by itself rescue the HIST dose anomaly. Ryan Rodger's OVR 114 (HIST) -> 89 (current) implies either an older, lower offset, which inflates HIST displayed coordinates and makes his low implied dose (0.47) worse, or seasonal decay; the two are not separable from the records.",
+  "replication": "Ryan Rodger's coach screen (24 Sep, club level 15) reproduces 70 + mean/4 on all three categories (86.0 / 98.6 / 93.0 vs displayed 86.1 / 98.6 / 93)."
+ },
+ "openQuestions": [
+  "Club level and offset during the canonical-workbook HISTORICAL_CALIBRATION captures (the quarantined ORDINARY COACH stratum). Unknown; those records stay quarantined for the dose-free reasons already documented.",
+  "Whether the own-view offset stays 70 at DarkVader's next club levels (friends-view clubs at 17-22 also show 70)."
+ ],
+ "clubLevelHistory": [
+  {
+   "period": "10-12 Sep 2026 (archive previews, canonical CURRENT_TESTBED cards)",
+   "clubLevel": 15,
+   "source": "user statement with fixtures screenshot (7-8 Sep 2026 DarkVader FC fixtures), 24 Sep 2026"
+  },
+  {
+   "period": "23-24 Sep 2026 (chat-locked tests, live previews, x59 prospective, control arms)",
+   "clubLevel": 15,
+   "source": "own team overview tooltip 24 Sep 2026: Team OVR 206.7 / Team Quality 121.7 -> offset 70"
+  }
+ ]
+}

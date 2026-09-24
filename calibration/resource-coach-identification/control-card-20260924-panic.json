@@ -1,0 +1,51 @@
+{
+ "schemaVersion": "resource-coach-control-card-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "arm": "Known-player T0 arm (does NOT satisfy the O arm: x5/x10 greys 107-119, none below 70)",
+ "name": "Mirsad Panic",
+ "age": 26,
+ "tier": "T0",
+ "roles": [
+  "DC"
+ ],
+ "learningRoles": [],
+ "ovr": 125,
+ "source": "user-supplied in-chat player card screenshot, 24 Sep 2026 (Skills tab); no x5/x10 preview supplied",
+ "corpusStatus": "ORDINARY-EVIDENCE: archive Training Camp Focused Offensive x26 preview (Aggression 146, Passing 112) in the calibration partition; also a Reward preview. Never previewed on x5/x10.",
+ "stats": {
+  "TACKLING": 136,
+  "MARKING": 138,
+  "POSITIONING": 140,
+  "HEADING": 136,
+  "BRAVERY": 138,
+  "PASSING": 113,
+  "DRIBBLING": 110,
+  "CROSSING": 107,
+  "SHOOTING": 107,
+  "FINISHING": 115,
+  "FITNESS": 130,
+  "STRENGTH": 125,
+  "AGGRESSION": 147,
+  "SPEED": 119,
+  "CREATIVITY": 115
+ },
+ "classes": {
+  "TACKLING": "MID_GREY",
+  "MARKING": "MID_GREY",
+  "POSITIONING": "WHITE",
+  "HEADING": "WHITE",
+  "BRAVERY": "MID_GREY",
+  "PASSING": "MID_GREY",
+  "DRIBBLING": "MID_GREY",
+  "CROSSING": "MID_GREY",
+  "SHOOTING": "MID_GREY",
+  "FINISHING": "MID_GREY",
+  "FITNESS": "WHITE",
+  "STRENGTH": "WHITE",
+  "AGGRESSION": "WHITE",
+  "SPEED": "MID_GREY",
+  "CREATIVITY": "MID_GREY"
+ },
+ "classSource": "DC essentials (src/utils/roleWeights.ts); archive record shows Passing MID_GREY and Aggression WHITE for this player",
+ "ovrCheck": "sum 1876 / 15 = 125.1, displayed 125"
+}

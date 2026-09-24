@@ -1,0 +1,53 @@
+{
+ "schemaVersion": "resource-coach-reward-observation-v1",
+ "recordedDate": "2026-09-24",
+ "player": "Ryan Rodger",
+ "clubLevel": 15,
+ "transferClass": "reward",
+ "note": "Reward coach (gift badge). Outside the ordinary model; recorded for the Reward corpus only, never used for ordinary fitting or scoring.",
+ "coach": {
+  "programme": "DRILL SESSION",
+  "label": "Focused Defending",
+  "multiplier": 4,
+  "duration": "1h",
+  "badge": "REWARD COACH",
+  "affectedStats": [
+   "TACKLING",
+   "MARKING"
+  ]
+ },
+ "statIntervals": {
+  "TACKLING": {
+   "start": 9,
+   "class": "MID_GREY",
+   "gain": [
+    7,
+    10
+   ]
+  },
+  "MARKING": {
+   "start": 49,
+   "class": "MID_GREY",
+   "gain": [
+    7,
+    10
+   ]
+  }
+ },
+ "ovrBoost": [
+  1,
+  1
+ ],
+ "displayedOvr": 90.6,
+ "categoryAverageDisplay": {
+  "DEFENCE": "64 (86.1)",
+  "ATTACK": "114 (98.6)",
+  "PHYSICAL_AND_MENTAL": "92 (93)"
+ },
+ "categoryAverageGain": {
+  "DEFENCE": [
+   3,
+   4
+  ]
+ }
+}

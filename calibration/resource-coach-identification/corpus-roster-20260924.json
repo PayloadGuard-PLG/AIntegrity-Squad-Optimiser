@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "resource-coach-corpus-roster-v1",
+  "recordedDate": "2026-09-24",
+  "source": "DarkVader FC squad list screenshots (24 Sep 2026). Status is checked mechanically by tools/resource-coach-v2/corpus_roster.py --roster <this file>; the script, not this file, is authoritative when they disagree. Historic records are comparison only: they never change a player's status and are never overwritten by a newer card.",
+  "statusMeaning": {
+    "ORDINARY-EVIDENCE": "has at least one scored ordinary Resource Coach preview (calibration partition or x59 prospective)",
+    "HIST-QUARANTINE-ONLY": "only quarantined canonical-workbook ORDINARY COACH previews",
+    "NO-ORDINARY-EVIDENCE": "no ordinary preview; legacy Academy records, cards, Reward previews, incomplete records and frozen control cards are comparison only"
+  },
+  "players": [
+    {
+      "name": "Jables JaseysBoi",
+      "squad": "GK, 22",
+      "status": "NO-ORDINARY-EVIDENCE",
+      "note": "legacy Academy GK x114 session"
+    },
+    {
+      "name": "King Alfie",
+      "squad": "DC/DL/DMC, 23",
+      "status": "NO-ORDINARY-EVIDENCE",
+      "note": "21 Sep Skill x30 record lacks tier and class"
+    },
+    {
+      "name": "Darren Moore",
+      "squad": "DC/DMC (+MC learning), 19",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "LJDark leo",
+      "squad": "DL/DC/DR, 24, STELLAR (T3), OVR 169",
+      "status": "NO-ORDINARY-EVIDENCE",
+      "note": "Legacy Academy records only (comparison). 24 Sep 2026 card: in-game player, DL/DC/DR, 24, STELLAR (T3); see profiles/calibration_data.json gillespie.correction_20260924."
+    },
+    {
+      "name": "Cieran Morgan",
+      "squad": "DMC/MC/AMC, 22",
+      "status": "NO-ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "SD Faye",
+      "squad": "DMC/MC/DC, 29",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Ryan Gilmartin",
+      "squad": "MC, 19",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "R. Blakie",
+      "squad": "AML/AMC/MC, 21",
+      "status": "NO-ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "G Neri",
+      "squad": "ST/AMC/MC, 32",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "S DarkVader",
+      "squad": "ST/AMC/AMR, 25",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Cptn Dallas",
+      "squad": "AMR/MR/DR, 27",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Mark Saunders",
+      "squad": "GK, 24",
+      "status": "NO-ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Scott Ritchie",
+      "squad": "DC/DMC/MC, 24",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Willie Howden",
+      "squad": "MC, 19",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "LJ Galileo",
+      "squad": "DMC/MC/AMC, 31",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Ryan Rodger",
+      "squad": "AML/ML/AMC, 23",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Willie Ferguson",
+      "squad": "DL, 21",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Paul Watson",
+      "squad": "DC/DR/DL, 26",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Kevin Mehlem",
+      "squad": "ST, 26",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "JS Alfie III",
+      "squad": "ML/DL/AML, 35",
+      "status": "NO-ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Garry McCluskey",
+      "squad": "DC/DMC/MC, 28",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Mirsad Panic",
+      "squad": "DC, 26",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Ross Ritchie",
+      "squad": "ST, 18",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Mark Lurinsky",
+      "squad": "MC, 18",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Russell Diamond",
+      "squad": "DL/ML, 18",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Erling Highland",
+      "squad": "DL, 17",
+      "status": "NO-ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "David Midgley",
+      "squad": "AMR, 26",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "P. Andonov",
+      "squad": "ST, 23",
+      "status": "NO-ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Oliver Lerchl",
+      "squad": "MC, 25",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Vince Németh",
+      "squad": "AMC, 23",
+      "status": "ORDINARY-EVIDENCE"
+    },
+    {
+      "name": "Michal Kawa",
+      "squad": "DC, 21",
+      "status": "NO-ORDINARY-EVIDENCE",
+      "note": "Y arm of PREREG-20260924-YOUNG-GREY-CONTROL"
+    }
+  ],
+  "preregistrationArms": {
+    "PREREG-20260924-YOUNG-GREY-CONTROL": {
+      "Y": "Michal Kawa (frozen cb238fc).",
+      "O": "No eligible player in the squad. The O arm needs age 24-29, no ordinary evidence, T0 and >=2 MID_GREY x5/x10 stats below 70. Mirsad Panic (26, T0, ORDINARY-EVIDENCE) has x5/x10 greys at 107-119. LJDark leo (24, NO-ORDINARY-EVIDENCE) is T3 with greys at 95-155. Both are frozen as labelled extra arms, not as O."
+    }
+  }
+}

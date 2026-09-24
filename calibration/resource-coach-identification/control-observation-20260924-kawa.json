@@ -1,0 +1,82 @@
+{
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "player": "Michal Kawa",
+ "arm": "Y",
+ "predictionsFrozenAtCommit": "cb238fc3da9c95458a33e0a49c9b3d9b6c091c97",
+ "observedDate": "2026-09-24",
+ "source": "two user-supplied in-chat preview screenshots supplied after the frozen commit; previews only, nothing applied",
+ "programmeLabels": {
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available"
+ },
+ "statIntervals": {
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    27,
+    39
+   ],
+   "DRIBBLING": [
+    27,
+    38
+   ],
+   "FINISHING": [
+    24,
+    35
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    37,
+    51
+   ],
+   "SHOOTING": [
+    39,
+    53
+   ],
+   "SPEED": [
+    38,
+    51
+   ],
+   "CREATIVITY": [
+    38,
+    52
+   ]
+  }
+ },
+ "ovrBoost": {
+  "DS-STD-ATT-X5": [
+   5,
+   7
+  ],
+  "DS-STD-OFF-X10": [
+   10,
+   14
+  ]
+ },
+ "displayedOvr": 77.5,
+ "categoryAverageGain": {
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    16,
+    22
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    15,
+    21
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    15,
+    21
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENCE": "94 (93.6)",
+  "ATTACK": "57 (84.2)",
+  "PHYSICAL_AND_MENTAL": "80 (90.1)",
+  "note": "parenthetical identical on both previews"
+ }
+}

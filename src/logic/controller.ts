@@ -1,5 +1,5 @@
 import { isWhiteStat, validateRoleAdjacency, getWhiteStatKeys } from '../utils/roleWeights';
-import { DRILL_LIST } from '../database/drillDatabase';
+import { DRILL_LIST, TRAINING_XP_PER_PLAYER } from '../database/drillDatabase';
 import { chargedDrainRange, rawDrillDrain } from '../utils/conditionEngine';
 import { SurgeState, SURGE_STATE_SEASON_START } from '../types/resources';
 import { Player } from '../database/playerSchema';
@@ -43,6 +43,7 @@ export function getRecommendedDrills(
             name: drill.name,
             type: drill.type,
             intensity: drill.intensity,
+            trainingXp: TRAINING_XP_PER_PLAYER[drill.intensity],
             efficiency,
             condition,
             rawLoss,

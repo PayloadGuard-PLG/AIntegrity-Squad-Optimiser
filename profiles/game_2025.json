@@ -99,6 +99,12 @@
     "Hard": 1.55,
     "Very Hard": 1.7
   },
+  "drillQualityTrainingEffectPct": {
+    "Amateur": 0,
+    "Semi-Pro": 10,
+    "Pro": 20,
+    "World-class": 30
+  },
   "tierAttrAdditions": {
     "T0": 0,
     "T1": 10,

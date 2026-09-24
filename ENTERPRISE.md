@@ -114,7 +114,7 @@ No step in this chain makes a network request. The profile parameters (`profiles
 | `src/logic/coachScanner.ts` | Coach preview OCR: type/category/multiplier, highlighted stat detection |
 | `src/logic/playerScanner.ts` | Player card OCR: stats, roles, tier, talent, OVR |
 | `src/logic/coachPipeline.ts` | Post-OCR consolidation: discards image values, resolves stat names, dispatches to projection engine |
-| `src/database/drillDatabase.ts` | Drill catalogue: 40 drills across 4 types and 5 intensities |
+| `src/database/drillDatabase.ts` | Drill catalogue: 29 ordinary baseline drills across 4 types and 5 intensities; special/reward drills are kept outside the baseline |
 | `profiles/game_2025.json` | Calibrated game parameters: XP curve, age table, tier additions, drill multipliers |
 
 ### Local Database (SQLite)

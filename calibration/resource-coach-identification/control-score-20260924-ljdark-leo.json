@@ -1,0 +1,439 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "player": "LJDark leo",
+ "age": 24,
+ "tier": "T3",
+ "roles": [
+  "DL",
+  "DC",
+  "DR"
+ ],
+ "predictionsFrozenAtCommit": {
+  "H0/HYG/A": "eb7b8a4",
+  "H0/T127": "bd43e5ee401c37e876054048933e113035b08ff3"
+ },
+ "perCoach": {
+  "STD-DEF-X20": {
+   "p": 4,
+   "stats": [
+    "TACKLING",
+    "MARKING",
+    "HEADING",
+    "BRAVERY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 1.8432000000000004,
+    "pointInsideRate": 0.5,
+    "overlapRate": 1.0,
+    "endpointMae": 1.9372250000000002,
+    "signedResidual": 1.7393,
+    "meanIoU": 0.4226185745060257
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 1.0105000000000004,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.128275,
+    "signedResidual": -0.18959999999999955,
+    "meanIoU": 0.5280890333559088
+   },
+   "impliedDoseVsH0": 0.8044704380917592,
+   "rows": [
+    {
+     "stat": "TACKLING",
+     "start": 222,
+     "cls": "WHITE",
+     "observed": [
+      7,
+      10
+     ],
+     "H0": [
+      7.5462,
+      10.8
+     ],
+     "T127": [
+      6.247,
+      9.0311
+     ]
+    },
+    {
+     "stat": "MARKING",
+     "start": 209,
+     "cls": "WHITE",
+     "observed": [
+      8,
+      12
+     ],
+     "H0": [
+      11.4743,
+      15.9722
+     ],
+     "T127": [
+      9.6142,
+      13.5537
+     ]
+    },
+    {
+     "stat": "HEADING",
+     "start": 198,
+     "cls": "WHITE",
+     "observed": [
+      14,
+      18
+     ],
+     "H0": [
+      15.9442,
+      21.5931
+     ],
+     "T127": [
+      13.5289,
+      18.5868
+     ]
+    },
+    {
+     "stat": "BRAVERY",
+     "start": 227,
+     "cls": "WHITE",
+     "observed": [
+      6,
+      10
+     ],
+     "H0": [
+      6.3761,
+      9.2083
+     ],
+     "T127": [
+      5.2585,
+      7.663
+     ]
+    }
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "p": 4,
+   "stats": [
+    "CROSSING",
+    "SHOOTING",
+    "SPEED",
+    "CREATIVITY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 2.2514250000000002,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 2.2688249999999996,
+    "signedResidual": 2.2514250000000002,
+    "meanIoU": 0.5084342644813156
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 1.1595625000000003,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.2523625,
+    "signedResidual": 1.1595625000000003,
+    "meanIoU": 0.7415663755012143
+   },
+   "HYG": {
+    "n": 4,
+    "midpointMae": 2.2514250000000002,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 2.2688249999999996,
+    "signedResidual": 2.2514250000000002,
+    "meanIoU": 0.5084342644813156
+   },
+   "A": {
+    "n": 4,
+    "midpointMae": 1.1928125,
+    "pointInsideRate": 0.75,
+    "overlapRate": 1.0,
+    "endpointMae": 1.2682624999999996,
+    "signedResidual": -1.0872125000000001,
+    "meanIoU": 0.6166979094531813
+   },
+   "impliedDoseVsH0": 0.8466774437183712,
+   "rows": [
+    {
+     "stat": "CROSSING",
+     "start": 190,
+     "cls": "WHITE",
+     "observed": [
+      9,
+      14
+     ],
+     "H0": [
+      11.8144,
+      16.4089
+     ],
+     "T127": [
+      9.9091,
+      13.9406
+     ]
+    },
+    {
+     "stat": "SHOOTING",
+     "start": 130,
+     "cls": "MID_GREY",
+     "observed": [
+      11,
+      15
+     ],
+     "H0": [
+      10.9304,
+      15.2703
+     ],
+     "T127": [
+      10.9304,
+      15.2703
+     ]
+    },
+    {
+     "stat": "SPEED",
+     "start": 172,
+     "cls": "WHITE",
+     "observed": [
+      17,
+      22
+     ],
+     "H0": [
+      18.5231,
+      25.3082
+     ],
+     "T127": [
+      16.7578,
+      22.7122
+     ]
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 95,
+     "cls": "MID_GREY",
+     "observed": [
+      17,
+      25
+     ],
+     "H0": [
+      19.86,
+      29.8961
+     ],
+     "T127": [
+      19.86,
+      29.8961
+     ]
+    }
+   ]
+  },
+  "STD-PHY-X15": {
+   "p": 4,
+   "stats": [
+    "FITNESS",
+    "STRENGTH",
+    "AGGRESSION",
+    "CREATIVITY"
+   ],
+   "H0": {
+    "n": 4,
+    "midpointMae": 3.6720750000000004,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.6720750000000004,
+    "signedResidual": 0.33729999999999993,
+    "meanIoU": 0.49677936479994805
+   },
+   "T127": {
+    "n": 4,
+    "midpointMae": 2.9871625,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.0605375000000006,
+    "signedResidual": -0.5755625000000002,
+    "meanIoU": 0.618811288212863
+   },
+   "impliedDoseVsH0": 1.0146609930262078,
+   "rows": [
+    {
+     "stat": "FITNESS",
+     "start": 178,
+     "cls": "WHITE",
+     "observed": [
+      19,
+      26
+     ],
+     "H0": [
+      22.2229,
+      29.2084
+     ],
+     "T127": [
+      19.3337,
+      25.7065
+     ]
+    },
+    {
+     "stat": "STRENGTH",
+     "start": 135,
+     "cls": "WHITE",
+     "observed": [
+      35,
+      48
+     ],
+     "H0": [
+      29.79,
+      45.5489
+     ],
+     "T127": [
+      29.79,
+      45.3271
+     ]
+    },
+    {
+     "stat": "AGGRESSION",
+     "start": 138,
+     "cls": "WHITE",
+     "observed": [
+      34,
+      47
+     ],
+     "H0": [
+      29.79,
+      45.532
+     ],
+     "T127": [
+      29.79,
+      44.842
+     ]
+    },
+    {
+     "stat": "CREATIVITY",
+     "start": 95,
+     "cls": "MID_GREY",
+     "observed": [
+      25,
+      35
+     ],
+     "H0": [
+      29.4125,
+      40.1937
+     ],
+     "T127": [
+      29.4125,
+      40.1937
+     ]
+    }
+   ]
+  },
+  "DS-STD-ATT-X5": {
+   "p": 3,
+   "stats": [
+    "PASSING",
+    "DRIBBLING",
+    "FINISHING"
+   ],
+   "H0": {
+    "n": 3,
+    "midpointMae": 0.6704833333333337,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 0.8123833333333333,
+    "signedResidual": 0.2627500000000002,
+    "meanIoU": 0.5278054030046452
+   },
+   "T127": {
+    "n": 3,
+    "midpointMae": 0.6704833333333337,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 0.8123833333333333,
+    "signedResidual": 0.2627500000000002,
+    "meanIoU": 0.5278054030046452
+   },
+   "HYG": {
+    "n": 3,
+    "midpointMae": 0.6704833333333337,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 0.8123833333333333,
+    "signedResidual": 0.2627500000000002,
+    "meanIoU": 0.5278054030046452
+   },
+   "A": {
+    "n": 3,
+    "midpointMae": 0.6878166666666669,
+    "pointInsideRate": 0.6666666666666666,
+    "overlapRate": 1.0,
+    "endpointMae": 0.7552500000000002,
+    "signedResidual": 0.08614999999999966,
+    "meanIoU": 0.5260878355783521
+   },
+   "impliedDoseVsH0": 0.9318589886559548,
+   "rows": [
+    {
+     "stat": "PASSING",
+     "start": 155,
+     "cls": "MID_GREY",
+     "observed": [
+      4,
+      5
+     ],
+     "H0": [
+      3.2556,
+      4.8262
+     ],
+     "T127": [
+      3.2556,
+      4.8262
+     ]
+    },
+    {
+     "stat": "DRIBBLING",
+     "start": 132,
+     "cls": "MID_GREY",
+     "observed": [
+      8,
+      10
+     ],
+     "H0": [
+      7.2693,
+      10.4257
+     ],
+     "T127": [
+      7.2693,
+      10.4257
+     ]
+    },
+    {
+     "stat": "FINISHING",
+     "start": 124,
+     "cls": "MID_GREY",
+     "observed": [
+      8,
+      12
+     ],
+     "H0": [
+      9.4552,
+      13.3445
+     ],
+     "T127": [
+      9.4552,
+      13.3445
+     ]
+    }
+   ]
+  }
+ },
+ "pooled": {
+  "H0": {
+   "n": 15,
+   "midpointMae": 2.205216666666667,
+   "pointInsideRate": 0.8,
+   "overlapRate": 1.0,
+   "endpointMae": 2.2633099999999997,
+   "signedResidual": 1.2066900000000003,
+   "meanIoU": 0.4863163349442062
+  },
+  "rows": 15
+ }
+}

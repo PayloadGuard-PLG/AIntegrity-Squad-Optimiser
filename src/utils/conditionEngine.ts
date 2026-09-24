@@ -3,8 +3,9 @@ import { GameProfile, SurgeState, SURGE_STATE_SEASON_START } from '../types/reso
 
 const profile = gameProfileJson as unknown as GameProfile;
 
-// Condition drain multipliers per drill difficulty — loaded from profile.
-// These are SEPARATE from profile.drillLevelMultipliers (which scale XP gain only).
+// Condition drain multipliers per fixed drill intensity — loaded from profile.
+// These are condition-only. The legacy profile.drillLevelMultipliers table is
+// not a production drill-XP input: drill quality/training effect is a separate axis.
 export const COND_LEVEL_MULTIPLIERS: Record<string, number> = profile.condLevelMultipliers;
 
 /**

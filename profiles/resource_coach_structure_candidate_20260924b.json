@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "resource-coach-structure-candidate-v1",
+  "modelVersion": "ordinary-young-grey-20260924-research",
+  "status": "research-candidate-not-production",
+  "baselineProfile": "profiles/resource_coach_current_replay_20260923.json",
+  "supersedesCandidate": "profiles/resource_coach_structure_candidate_20260924.json (N-1 multiplier; falsified at x5 by the Ferguson control arm, implied dose 1.42 vs predicted 0.84)",
+  "structuralChange": {
+    "hypothesis": "For players aged 18-21, MID_GREY marginal cost below displayed coordinate 80 (quality 90 at offset 70) is 0.65 of the flat-zone cost.",
+    "law": "cost(x) = g for x < knot, 1 for knot <= x < h_class, exp((x - h_class)/K) above; g = 0.65 applies only to MID_GREY rows of players aged 18-21",
+    "parameters": {"g": 0.65, "knotDisplayed": 80, "knotQualityAtOffset70": 90, "ageBand": [18, 21], "class": "MID_GREY"},
+    "parameterOrigin": "Read from the Ferguson control rows (post hoc) and then frozen in PREREG-20260924-YOUNG-GREY-CONTROL before any further test.",
+    "unchanged": "dose C*A(age)*N/p with C = 1.324, age bands 8/6/4/2/1, tier additions, class thresholds 132.6/120.1, K = 26.05, rho = 1.529, rectification"
+  },
+  "evidence": {
+    "prospectiveOutOfCorpus": "Michal Kawa (21, DC), predictions frozen at cb238fc: 7/7 MID_GREY rows 52-66, pooled MAE 2.33 vs frozen 10.51, 7/7 midpoints inside vs 0/7.",
+    "ageSpecificity": "Ryan Rodger (23, T0), predictions frozen at 6b8731a: MID_GREY rows 9-55 implied dose 1.018 of frozen (preregistered supported range 0.80-1.20). Retrospective support: DarkVader (25, T6) greys 9-62 at 1.0; Rodger's 12 Sep Bravery 27 at 1.06.",
+    "retrospective": "Calibration partition MAE 2.264 -> 2.208 (2.047 -> 1.987 without Russell Diamond); x59 unchanged (2.342).",
+    "openItems": [
+      "Only two 18-21 players with grey rows below 80 have been observed (Ferguson, Kawa); a third out-of-corpus young player is the next confirmation.",
+      "Extension to young WHITE rows is weakly supported retrospectively (Howden) and untested prospectively.",
+      "Unresolved period conflict: T0 WHITE rows at 100-135 for players aged 22+ are over-predicted on 23-24 Sep (a white threshold near 127 fits them and the x59 test) but a lower threshold degrades the 10-12 Sep archive (MAE 2.26 -> 3.49). Not adopted."
+    ]
+  }
+}
