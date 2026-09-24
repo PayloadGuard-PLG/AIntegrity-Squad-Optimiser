@@ -1,0 +1,302 @@
+{
+  "schemaVersion": "resource-coach-temporal-diagnostic-freeze-v1",
+  "status": "frozen-pending-observation",
+  "recordedDate": "2026-09-24",
+  "evidenceBoundary": {
+    "purpose": "Freeze a new same-state Standard Safeguard x59 Skill Seminar prediction for LJ Galileo before any selected-player preview is revealed.",
+    "independence": "Temporal/state-shift diagnostic only. LJ Galileo is one of the 30 players used in the historical shape-fitting pool, so this is NOT an unseen-player prospective validation and does NOT satisfy PREREG-20260924-CARD-ONLY-TRUST primary-arm or minimumSingleSlateFalsifier requirements.",
+    "leakageRule": "No preview endpoints, displayed OVR boost, or coach outcome from this current card state may enter this file before scoring."
+  },
+  "source": {
+    "playerCard": "chat_upload:64240.png",
+    "playerCardSha256": "3a8a234d050be17c91568ada9a3c365b0b43a7f31597644a530075e7772768ca",
+    "imageSize": [
+      1536,
+      690
+    ],
+    "coachInventorySource": "Google Drive Resource Coach Experiment Log — v1 / current x59 Standard Safeguard evidence",
+    "researchBranchBase": "research/card-only-trust-20260924",
+    "trustPr": 164
+  },
+  "player": {
+    "name": "LJ Galileo",
+    "age": 31,
+    "tier": "T2",
+    "tierIndex": 2,
+    "ovrDisplayed": 81,
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "stats": {
+      "TACKLING": 40,
+      "MARKING": 94,
+      "POSITIONING": 168,
+      "HEADING": 209,
+      "BRAVERY": 126,
+      "PASSING": 170,
+      "DRIBBLING": 69,
+      "CROSSING": 1,
+      "SHOOTING": 21,
+      "FINISHING": 64,
+      "FITNESS": 86,
+      "STRENGTH": 34,
+      "AGGRESSION": 40,
+      "SPEED": 38,
+      "CREATIVITY": 105
+    },
+    "classes": {
+      "TACKLING": "WHITE",
+      "MARKING": "WHITE",
+      "POSITIONING": "WHITE",
+      "HEADING": "WHITE",
+      "BRAVERY": "WHITE",
+      "PASSING": "WHITE",
+      "DRIBBLING": "WHITE",
+      "CROSSING": "MID_GREY",
+      "SHOOTING": "WHITE",
+      "FINISHING": "WHITE",
+      "FITNESS": "WHITE",
+      "STRENGTH": "WHITE",
+      "AGGRESSION": "WHITE",
+      "SPEED": "WHITE",
+      "CREATIVITY": "WHITE"
+    },
+    "classBasis": "Established-role union DMC/MC/AMC plus the repo's exact AMC|DMC|MC STRENGTH override. CROSSING is the only MID_GREY stat."
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Safeguard",
+    "multiplier": 59,
+    "transferClass": "ordinary",
+    "affectedStatCount": 5,
+    "affectedStats": [
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "CREATIVITY"
+    ]
+  },
+  "frozenModel": {
+    "primaryDiagnostic": "Mstarstar_nearest",
+    "rationale": "Current research trust challenger: full frozen M** response with independent nearest rounding of endpoints. It is a temporal diagnostic here, not an independent-player estimate.",
+    "modelConstants": "calibration/resource-coach-identification/shape-models-20260924.json",
+    "trustProtocol": "calibration/resource-coach-identification/preregistration-20260924-card-only-trust.json",
+    "renderer": "nearest independently: floor(x + 0.5) for each endpoint",
+    "comparators": [
+      "productionCold_continuous",
+      "productionCold_nearest",
+      "Mstar_continuous",
+      "Mstarstar_continuous",
+      "Mstarstar_nearest",
+      "Mstarstar_floorBoth"
+    ]
+  },
+  "predictions": [
+    {
+      "stat": "HEADING",
+      "start": 209,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          8.247912,
+          11.907514
+        ],
+        "nearest": [
+          8,
+          12
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          6.04142,
+          8.858556
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          5.606781,
+          8.213203
+        ],
+        "nearest": [
+          6,
+          8
+        ],
+        "floorBoth": [
+          5,
+          8
+        ],
+        "pointRaw": 6.909992,
+        "pointNearest": 7
+      }
+    },
+    {
+      "stat": "BRAVERY",
+      "start": 126,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          32.953617,
+          46.964289
+        ],
+        "nearest": [
+          33,
+          47
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          32.128074,
+          44.622844
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          32.331722,
+          45.400864
+        ],
+        "nearest": [
+          32,
+          45
+        ],
+        "floorBoth": [
+          32,
+          45
+        ],
+        "pointRaw": 38.866293,
+        "pointNearest": 38.5
+      }
+    },
+    {
+      "stat": "FITNESS",
+      "start": 86,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          32.95534,
+          49.936446
+        ],
+        "nearest": [
+          33,
+          50
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          32.450142,
+          49.616267
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          32.382384,
+          49.512665
+        ],
+        "nearest": [
+          32,
+          50
+        ],
+        "floorBoth": [
+          32,
+          49
+        ],
+        "pointRaw": 40.947524,
+        "pointNearest": 41
+      }
+    },
+    {
+      "stat": "STRENGTH",
+      "start": 34,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          32.95534,
+          49.936446
+        ],
+        "nearest": [
+          33,
+          50
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          32.450142,
+          49.616267
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          32.382384,
+          49.512665
+        ],
+        "nearest": [
+          32,
+          50
+        ],
+        "floorBoth": [
+          32,
+          49
+        ],
+        "pointRaw": 40.947524,
+        "pointNearest": 41
+      }
+    },
+    {
+      "stat": "CREATIVITY",
+      "start": 105,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          32.95534,
+          49.936446
+        ],
+        "nearest": [
+          33,
+          50
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          32.450142,
+          49.598626
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          32.382384,
+          49.512665
+        ],
+        "nearest": [
+          32,
+          50
+        ],
+        "floorBoth": [
+          32,
+          49
+        ],
+        "pointRaw": 40.947524,
+        "pointNearest": 41
+      }
+    }
+  ],
+  "ovrProxy": {
+    "definition": "sum of affected-stat predicted gains / 15; ranking/aggregate proxy only, not a claim about the game's separate displayed OVR renderer",
+    "MstarstarRaw": {
+      "lo": 9.00571,
+      "hi": 13.476804,
+      "point": 11.241257
+    },
+    "standingEnvelopeRule": {
+      "lo": 9,
+      "hi": 14
+    },
+    "nearestStatEndpointAggregate": {
+      "lo": 8.933333,
+      "hi": 13.533333,
+      "point": 11.233333
+    }
+  },
+  "revealProtocol": "After this commit exists, open the Galileo x59 preview once and capture all five printed endpoints plus separately displayed OVR boost. Do not train. Score without changing this file."
+}
