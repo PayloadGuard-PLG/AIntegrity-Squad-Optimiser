@@ -16,7 +16,7 @@ on:
       seed:
         description: 'Deterministic spotlight anchor→target pair'
         required: false
-        default: 'vader-20260923'
+        default: 'vader-20260924-rerun-2'
 
 permissions:
   contents: read
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run screenshot-grounded leave-one-coach-out replay
         env:
-          REPLAY_SEED: ${{ inputs.seed || 'vader-20260923' }}
+          REPLAY_SEED: ${{ inputs.seed || 'vader-20260924-rerun-2' }}
         run: |
           rm -rf /tmp/resource-coach-current-replay
           mkdir -p /tmp/resource-coach-current-replay
