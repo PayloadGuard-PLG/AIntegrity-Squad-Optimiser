@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "resource-coach-quality-scale-evidence-v1",
+  "recordedDate": "2026-09-24",
+  "source": "User-supplied in-chat screenshots, 24 Sep 2026: Kawa and Ferguson coach previews (per-category 'Avg: X (Q)'), and nine club overview tooltips ('Team OVR for your club level' / 'Total Team Quality value').",
+  "userExplanation": "The bracketed value is attribute quality. Player quality increases with manager level; in association play player OVR supersedes quality, and the same 180 rule applies at every manager level.",
+  "points": {
+    "categoryAverages_clubLevel15": [
+      {"player": "Michal Kawa", "category": "DEFENCE", "displayedMean": 94.2, "quality": 93.6},
+      {"player": "Michal Kawa", "category": "ATTACK", "displayedMean": 56.6, "quality": 84.2},
+      {"player": "Michal Kawa", "category": "PHYSICAL_AND_MENTAL", "displayedMean": 80.0, "quality": 90.1},
+      {"player": "Willie Ferguson", "category": "DEFENCE", "displayedMean": 84.4, "quality": 91.2},
+      {"player": "Willie Ferguson", "category": "ATTACK", "displayedMean": 62.0, "quality": 85.6},
+      {"player": "Willie Ferguson", "category": "PHYSICAL_AND_MENTAL", "displayedMean": 68.2, "quality": 87.1}
+    ],
+    "teamOverview": [
+      {"club": "DarkVader FC (own)", "clubLevel": 15, "view": "own", "teamOvr": 206.7, "teamQuality": 121.7},
+      {"club": "Truong Chelsea", "clubLevel": 22, "view": "friends", "teamOvr": 319.2, "teamQuality": 149.8},
+      {"club": "KSG OLKUSZ", "clubLevel": 21, "view": "friends", "teamOvr": 349.0, "teamQuality": 157.3},
+      {"club": "UFC united", "clubLevel": 17, "view": "friends", "teamOvr": 197.8, "teamQuality": 119.5},
+      {"club": "UFC united", "clubLevel": 17, "view": "association", "teamOvr": 157.8, "teamQuality": 119.5},
+      {"club": "Master blasters", "clubLevel": 31, "view": "association", "teamOvr": 169.8, "teamQuality": 192.4},
+      {"club": "Ballinluig FC", "clubLevel": 54, "view": "association", "teamOvr": 148.8, "teamQuality": 302.2}
+    ]
+  },
+  "finding": {
+    "law": "quality = offset + displayed / 4",
+    "fitClubLevel15": "least squares over 7 points: quality = 70.10 + 0.2497 * displayed, max |residual| 0.03 (display rounding and fractional stats)",
+    "offsetsAtSlopeQuarter": {"own L15": 70.0, "friends L17/L21/L22": 70.0, "association L17": 80.0, "association L31": 150.0, "association L54": 265.0},
+    "bracketCarriesNoExtraInformation": "At a fixed offset the bracketed quality is a deterministic rescaling of the displayed category mean. The 'target gap' interpretation recorded in STRUCTURE_AUDIT_20260924.md addendum 2 is withdrawn.",
+    "frozenConstantsInQualityUnits_offset70": {"midGreyThreshold": 100.0, "whiteThreshold": 103.15, "K": 6.51, "baseOvrCap180": 115.0, "youngGreyKnot80": 90.0, "youngGreyKnotBestPostHoc88": 92.0},
+    "implication": "At a fixed offset the displayed-unit model and a quality-unit model are identical. If the offset differs between captures (club level or view), every displayed-unit threshold shifts by 4 x the offset difference. Every card and preview must therefore record the club level and the view it was captured in; historic records captured under a different offset are not directly comparable in displayed units."
+  },
+  "openQuestions": [
+    "DarkVader FC club level and offset at the time of the 10-12 Sep archive and of the canonical workbook (HIST) captures.",
+    "Whether the offset in the own-squad view is constant across the club levels DarkVader has held."
+  ]
+}

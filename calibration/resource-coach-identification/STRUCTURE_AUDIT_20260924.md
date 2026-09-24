@@ -268,3 +268,27 @@ value as the knot instead of 80, with g = 0.65, lowers Kawa's MAE from 2.33 to 0
 at or below their stats, this would explain the apparent age specificity as a target-gap effect.
 Before it can enter a card-only predictor, two things are needed: where the bracketed value can be
 read without opening a coach preview, and its value for older players with low grey rows.
+
+## Addendum 3: the bracketed value is the quality scale (withdraws the target-gap lead)
+
+`quality-scale-20260924.json`. At DarkVader's club level 15, **quality = 70 + displayed / 4**
+exactly (7 points, slope 0.2497, max residual 0.03). Friends-view clubs at levels 17–22 share the
+offset 70; association views show offsets of 80, 150 and 265. The bracketed preview value is
+therefore a rescaled category mean, not new information, and the target-gap interpretation in
+addendum 2 is withdrawn. Its apparent gain was only a knot near 85–90: a fixed knot of 88
+(quality 92) gives MAE 0.91 on the 15 young low-grey rows.
+
+**Constants in quality units:**
+
+| Frozen constant | Displayed units | Quality units |
+|---|---:|---:|
+| MID_GREY threshold | 120.1 | **100.0** |
+| WHITE threshold | 132.6 | 103.2 |
+| K | 26.05 | 6.5 |
+| Base-OVR cap | 180 | 115 |
+| Young-grey knot | 80–88 | 90–92 |
+
+The grey threshold falling on a round quality value suggests the game defines cost on the quality
+scale. Displayed-unit constants are valid only at a fixed offset. Club level and view must now be
+recorded with every card and preview, and historic captures made under a different offset cannot
+be pooled in displayed units.
