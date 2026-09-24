@@ -238,3 +238,33 @@ independent of the value. The hypothesis is pre-registered for a fresh test in
 `preregistration-20260924-young-grey-control.json`. The preview's `Avg: X (Y)` category values
 (Ferguson: 85 (91.2), 62 (85.6), 68 (87.1); constant across all three coaches) are an unrecorded
 player-level quantity and a candidate catch-up variable. Capture them from now on.
+
+## Addendum 2: Kawa, the out-of-corpus Y arm of PREREG-20260924-YOUNG-GREY-CONTROL
+
+Predictions frozen at `cb238fc` before either preview; files `control-*-20260924-kawa.json`.
+Michal Kawa: 21, DC, no ordinary evidence (`corpus-roster-20260924.json`), all seven x5/x10 rows
+MID_GREY at 52–66.
+
+| Kawa | H0 (frozen) | H-YG (g = 0.65 below 80, registered) | Anchor A |
+|---|---|---|---|
+| ×5 (3 rows) | MAE 9.34, 0/3 inside | **MAE 1.58, 3/3 inside** | 9.92, 0/3 |
+| ×10 (4 rows) | MAE 11.39, 0/4 inside | **MAE 2.90, 4/4 inside** | 18.47, 0/4 |
+| Pooled | 10.51, signed −10.51 | **2.33, 7/7 inside, signed −2.33** | 14.81 |
+
+Row-implied dose relative to H0 is 1.32–1.47, replicating Ferguson (1.29–1.52) on a player with no
+prior evidence. Verdicts:
+
+- **Y leg passes.** H-YG beats H0.
+- **Falsification check passes.** Implied dose 1.36 lies outside 0.90–1.10.
+- **O leg cannot be evaluated.** There is no eligible 24–29 T0 player with grey rows below 70.
+
+The low-grey cheapness is therefore established prospectively for 18–21-year-olds; that it is
+specific to that age remains supported only retrospectively.
+
+**Post-hoc lead, not validated.** The preview shows a bracketed value per category that is constant
+across coaches: Kawa 93.6 / 84.2 / 90.1, Ferguson 91.2 / 85.6 / 87.1 for DEF / ATT / PHY. Using that
+value as the knot instead of 80, with g = 0.65, lowers Kawa's MAE from 2.33 to 0.71 and Ferguson's
+(all 12 rows) from 2.04 to 1.71, with no new fitted number. If older players' bracketed values sit
+at or below their stats, this would explain the apparent age specificity as a target-gap effect.
+Before it can enter a card-only predictor, two things are needed: where the bracketed value can be
+read without opening a coach preview, and its value for older players with low grey rows.
