@@ -42,6 +42,8 @@ The generated tables (`STRUCTURE_AUDIT.md`, `structure-audit.json`,
 >   coach-agnostic dose (×0.90, from the same frozen table) does better: 1.43, winning 11 of 15 cells. So the
 >   anchor's gain looks like a general over-prediction at ages 22+, not a coach effect. That is the next test
 >   to pre-register. T127 helped the 22+ WHITE rows again (1.87 → 1.40).
+> - **Pre-registered, awaiting players (addendum 8).** PREREG-20260924-SINGLE-DOSE-22PLUS freezes that dose
+>   (×0.9031) and its generator. The first eligible players are Blakie, Ferguson and Kawa after the S215 rollover.
 
 ## Answer in one paragraph
 
@@ -517,4 +519,31 @@ young-grey re-test is **untestable**: his only MID_GREY rows (STRENGTH 87, AGGRE
 (80), where YG and the frozen model are identical. His doses scatter in both directions: ×5 implies ×1.89
 (under-predicted) and ×20 implies ×0.75. That spread is larger than anything in the primary arm and is left
 open.
+
+## Addendum 8: the single-dose 22+ test is pre-registered (frozen at `e394bcf`)
+
+`preregistration-20260924-single-dose-22plus.json` (sha256 pinned) turns addendum 7's post-hoc finding into a
+prospective test. The CI run for `e394bcf` is green.
+
+**What is frozen.**
+- **The dose.** `DOSE_LOG = −0.10195` (×0.9031) is a literal in `tools/resource-coach-v2/freeze_single_dose.py`.
+  It is the mean of the 19 events aged 22+ in the pinned anchor table, contributed by Rodger, Midgley, LJDark leo,
+  Panic, Lerchl and Németh. `SingleDoseFreeze` checks that it still equals that mean and is the same dose that
+  produced the post-hoc 1.427. It is never refitted, and the 24 Sep previews are not added to it.
+- **The generator.** It turns a card, plus pre-outcome metadata for any new coach, into YG / SD22 / YGA / SD22_127
+  predictions. It refuses players under 22, the six dose contributors, and King Alfie, Andonov and Morgan.
+
+**Eligibility.** No squad player qualifies today. Blakie, Ferguson and Kawa turn 22 at the S215 rollover
+(4 Oct 2026), and every event of theirs so far is at age 21, outside the 22+ dose. Any new outfield signing aged
+22–32 also qualifies. A test filled by 22-year-olds speaks to age 22. The dose events span ages 23–26.
+
+**Decision rule.** The same thresholds as PREREG-20260924-YOUNG-GREY-ANCHOR:
+
+| Outcome | Condition |
+|---|---|
+| Supports SD22 | ≥ 20 rows from ≥ 3 players, SD22 ≤ YG − 0.2, and SD22 better in ≥ 2/3 of player × coach cells |
+| Falsifies SD22 | SD22 ≥ YG |
+| Inconclusive | otherwise |
+
+SD22 against YGA is reported as the level-versus-coach reading, but it does not decide the verdict.
 

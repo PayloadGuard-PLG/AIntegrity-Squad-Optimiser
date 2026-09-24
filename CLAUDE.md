@@ -80,8 +80,10 @@ first. None of this is production; `resourceCoachV2.ts` is unchanged.
 - **Young-grey** (ages 18–21, MID_GREY cost 0.65 below 80) is the research candidate. It passed prospectively.
 - **Young-grey + coach anchor** (PREREG-20260924-YOUNG-GREY-ANCHOR) is **inconclusive** (addendum 7).
   - 22+ MAE 2.46 → 1.94, but YGA won 9 of 15 cells against the required 10.
-  - Post hoc, one coach-agnostic dose of ×0.90 does better. That is the next test; pre-register it before
-    scoring anything.
+  - Post hoc, one coach-agnostic dose of ×0.90 does better. It is now pre-registered as
+    PREREG-20260924-SINGLE-DOSE-22PLUS (addendum 8, `freeze_single_dose.py`). The first eligible players are
+    Blakie, Ferguson and Kawa after the S215 rollover. Commit each player's predictions from their card before
+    any preview.
 - **WHITE threshold 127** has helped out of sample twice. It is not adopted while the 10–12 Sep archive
   conflict lacks a mechanism.
 - Frozen prediction files are pinned by sha256 in `tests/test_resource_coach_structure_audit.py`. Never
