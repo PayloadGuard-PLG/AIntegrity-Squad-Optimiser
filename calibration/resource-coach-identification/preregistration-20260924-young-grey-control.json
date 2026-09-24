@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "resource-coach-preregistration-v1",
+  "id": "PREREG-20260924-YOUNG-GREY-CONTROL",
+  "recordedDate": "2026-09-24",
+  "status": "registered-after-ferguson-arm-before-new-controls",
+  "motivation": "Ferguson control arm: MID_GREY rows at 35-69 implied 1.29-1.52x frozen dose at x5/x10 while WHITE rows at 111 implied 0.88-0.90. Corpus 25-32/T6 low grey rows are flat. Post-hoc; needs out-of-corpus test.",
+  "hypothesis": {
+    "H-YG": "For players aged 18-21, MID_GREY marginal cost below latent coordinate 80 is g = 0.65 of the flat-zone cost; unchanged otherwise.",
+    "H0": "Frozen model: flat cost below the class threshold for every age."
+  },
+  "fixedParameters": {"g": 0.65, "knot": 80, "ageBand": [18, 21], "class": "MID_GREY", "everythingElse": "profiles/resource_coach_current_replay_20260923.json"},
+  "design": {
+    "controls": [
+      "Y: a player NOT in the corpus, age 18-21, T0, with at least two MID_GREY affected stats below 70 on the x5 or x10 Drill Session coach.",
+      "O: a player NOT in the corpus, age 24-29, T0, with at least two MID_GREY affected stats below 70 on the same coach(es)."
+    ],
+    "coaches": ["Drill Session Standard Attacking x5 (Passing, Dribbling, Finishing)", "Drill Session Standard Offensive x10 (Crossing, Shooting, Speed, Creativity)"],
+    "procedure": "Cards (incl. the preview's Avg: X (Y) values if visible on the card, else from the first preview) are sent first; predictions under H0 and H-YG are frozen and pushed; then previews only, nothing applied."
+  },
+  "decisionRules": [
+    "H-YG is supported if, on Y's MID_GREY rows below 70, H-YG has lower midpoint MAE than H0 AND, on O's MID_GREY rows below 70, H0 is no worse than H-YG by more than 0.5 (the effect must be age-specific).",
+    "H-YG is falsified if Y's low MID_GREY rows imply dose within 0.90-1.10 of H0, or if O's low MID_GREY rows imply dose >= 1.25 of H0 (then the effect is not age-specific).",
+    "WHITE rows are reported but not used for the decision."
+  ],
+  "leakageRules": ["No control previews enter any prediction.", "g and the knot are fixed by this file."]
+}

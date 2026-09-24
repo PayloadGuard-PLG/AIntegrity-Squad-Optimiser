@@ -193,3 +193,48 @@ the residual is a whole-coach multiplicative term.
 5. **HIST reconciliation.** Re-read `45887.png`, `45888.png`, `45890.png`, `61747.png` and the
    Scott Ritchie previews with the card captured on the same screen. Readmit a record only if it
    passes the geometry test at its recorded tier.
+
+## Addendum: Ferguson control arm (predictions frozen at `e0fd9f2`, scored after)
+
+Files: `control-card-20260924-ferguson.json`, `control-predictions-20260924-ferguson.json`,
+`control-observation-20260924-ferguson.json`, `control-score-20260924-ferguson.json`.
+Ferguson is a **known** corpus player (identical 23 Sep card), so this is a known-player arm,
+not an out-of-corpus control.
+
+| Coach | Frozen F MAE / inside | N−1 MAE / inside | Anchor A MAE / inside | Implied dose vs F |
+|---|---|---|---|---:|
+| Drill Standard Attacking ×5 | 9.51 / 0% | 13.12 / 0% | 10.09 / 0% | **1.42** |
+| Drill Standard Offensive ×10 | 8.98 / 50% | 9.26 / 50% | 12.50 / 50% | **1.31** |
+| Skill Standard Safeguard ×59 | **1.02 / 100%** | 1.42 / 100% | 3.44 / 100% | 1.02 |
+| Pooled (12 rows) | **5.80** | 6.96 | 8.13 | — |
+
+Pre-registered verdicts:
+
+- **N − 1 is falsified at low multiplier** (×5 implied dose 1.42; the rule required ≤ 0.92).
+- **The coach anchor as a coach-level scalar is falsified** (×10 implied dose 1.31 ≥ 0.865, and A is
+  the worst model pooled).
+- **Frozen F is the best pooled model.** Its pattern distance (0.143) is within 0.05 of A's (0.170),
+  so the pattern comparison is formally inconclusive.
+
+**Correction to the conclusions above.** Within the single ×10 preview, implied dose is 0.88–0.90 on
+the WHITE rows at 111 and 1.39–1.50 on the MID_GREY rows at 35–47. Implied dose is therefore not a
+property of the coach alone. The ×10 anchors (Lurinsky, Lerchl) sat only on rows at 114–153, so the
+"coach efficiency" they carried was partly a coordinate-regime effect and does not transfer to a
+player with low grey rows. The earlier x59 anchor success (four mid-stat players anchoring each
+other) is consistent with this.
+
+**New post-hoc hypothesis (not validated).** For players aged 18–21, MID_GREY cost below about 80 is
+about 0.65 of the flat-zone cost. This is not a global curve change: 25–32-year-old and T6 low grey
+rows (Galileo, DarkVader, Rodger at 23) are flat at dose ≈ 1.0. Ferguson and Howden are the only
+18–21 T0 players in the corpus with grey rows below 80.
+
+| g = 0.65 below 80 (age ≤ 21, MID_GREY) | Ferguson ×5 | ×10 | ×59 | Ferguson ×33 | Howden ×33 | Howden ×106 | Howden ×26 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| frozen MAE | 9.51 | 8.98 | 1.02 | 3.29 | 3.62 | 2.01 | 1.67 |
+| hypothesis MAE | 1.77 | 2.34 | 1.96 | 3.22 | 1.77 | 1.88 | 1.83 |
+
+g and the 80 knot were read from the Ferguson control rows, so only the Howden columns are
+independent of the value. The hypothesis is pre-registered for a fresh test in
+`preregistration-20260924-young-grey-control.json`. The preview's `Avg: X (Y)` category values
+(Ferguson: 85 (91.2), 62 (85.6), 68 (87.1); constant across all three coaches) are an unrecorded
+player-level quantity and a candidate catch-up variable. Capture them from now on.

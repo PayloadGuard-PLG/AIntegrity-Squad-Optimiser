@@ -1,0 +1,239 @@
+{
+ "schemaVersion": "resource-coach-control-score-v1",
+ "preregistration": "PREREG-20260924-COACH-ANCHOR-CONTROL",
+ "player": "Willie Ferguson",
+ "predictionsFrozenAtCommit": "e0fd9f25743f6f25c2f90bc140786c14551a1ecb",
+ "perCoach": {
+  "DS-STD-ATT-X5": {
+   "F": {
+    "n": 3,
+    "midpointMae": 9.510733333333333,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.3333333333333333,
+    "endpointMae": 9.510733333333333,
+    "signedResidual": -9.510733333333333,
+    "meanIoU": 0.06100925569075107
+   },
+   "F_display": {
+    "n": 3,
+    "midpointMae": 9.833333333333334,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 9.833333333333334,
+    "signedResidual": -9.833333333333334,
+    "meanIoU": 0.05882352941176471
+   },
+   "N1": {
+    "n": 3,
+    "midpointMae": 13.116033333333332,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.0,
+    "endpointMae": 13.116033333333334,
+    "signedResidual": -13.116033333333332,
+    "meanIoU": 0.0
+   },
+   "N1_display": {
+    "n": 3,
+    "midpointMae": 13.333333333333334,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.0,
+    "endpointMae": 13.333333333333334,
+    "signedResidual": -13.333333333333334,
+    "meanIoU": 0.0
+   },
+   "A": {
+    "n": 3,
+    "midpointMae": 10.088533333333336,
+    "pointInsideRate": 0.0,
+    "overlapRate": 0.3333333333333333,
+    "endpointMae": 10.088533333333332,
+    "signedResidual": -10.088533333333336,
+    "meanIoU": 0.045490252088838085
+   },
+   "A_display": {
+    "n": 3,
+    "midpointMae": 9.833333333333334,
+    "pointInsideRate": 0.0,
+    "overlapRate": 1.0,
+    "endpointMae": 9.833333333333334,
+    "signedResidual": -9.833333333333334,
+    "meanIoU": 0.05882352941176471
+   },
+   "impliedDoseVsFrozen": 1.4186461438099656,
+   "rowImpliedDoseVsFrozen": {
+    "PASSING": 1.289559009203492,
+    "DRIBBLING": 1.5221127206972274,
+    "FINISHING": 1.4442667079920284
+   }
+  },
+  "DS-STD-OFF-X10": {
+   "F": {
+    "n": 4,
+    "midpointMae": 8.9773,
+    "pointInsideRate": 0.5,
+    "overlapRate": 0.75,
+    "endpointMae": 8.9773,
+    "signedResidual": -6.28875,
+    "meanIoU": 0.26419725593465626
+   },
+   "F_display": {
+    "n": 4,
+    "midpointMae": 9.0,
+    "pointInsideRate": 0.5,
+    "overlapRate": 0.75,
+    "endpointMae": 9.0,
+    "signedResidual": -6.25,
+    "meanIoU": 0.2672413793103448
+   },
+   "N1": {
+    "n": 4,
+    "midpointMae": 9.261025,
+    "pointInsideRate": 0.5,
+    "overlapRate": 0.5,
+    "endpointMae": 9.372625,
+    "signedResidual": -7.903524999999998,
+    "meanIoU": 0.336390171196721
+   },
+   "N1_display": {
+    "n": 4,
+    "midpointMae": 9.25,
+    "pointInsideRate": 0.5,
+    "overlapRate": 0.75,
+    "endpointMae": 9.75,
+    "signedResidual": -8.0,
+    "meanIoU": 0.2954545454545454
+   },
+   "A": {
+    "n": 4,
+    "midpointMae": 12.503574999999998,
+    "pointInsideRate": 0.5,
+    "overlapRate": 0.5,
+    "endpointMae": 12.503574999999998,
+    "signedResidual": -12.503574999999998,
+    "meanIoU": 0.25000806493638084
+   },
+   "A_display": {
+    "n": 4,
+    "midpointMae": 12.75,
+    "pointInsideRate": 0.5,
+    "overlapRate": 0.5,
+    "endpointMae": 12.75,
+    "signedResidual": -12.75,
+    "meanIoU": 0.26136363636363635
+   },
+   "impliedDoseVsFrozen": 1.3065932431226217,
+   "rowImpliedDoseVsFrozen": {
+    "CROSSING": 0.8968366532159224,
+    "SHOOTING": 1.4958359429772805,
+    "SPEED": 0.8765908342690042,
+    "CREATIVITY": 1.3926974735279891
+   }
+  },
+  "SS-STD-SAFE-X59": {
+   "F": {
+    "n": 5,
+    "midpointMae": 1.0235299999999938,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.6810699999999983,
+    "signedResidual": -0.2587499999999977,
+    "meanIoU": 0.8150008100955908
+   },
+   "F_display": {
+    "n": 5,
+    "midpointMae": 1.2,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.8,
+    "signedResidual": -0.2,
+    "meanIoU": 0.8056022408963586
+   },
+   "N1": {
+    "n": 5,
+    "midpointMae": 1.4209399999999988,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.6258599999999988,
+    "signedResidual": 0.8486999999999995,
+    "meanIoU": 0.8140534896265927
+   },
+   "N1_display": {
+    "n": 5,
+    "midpointMae": 1.5,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 1.7,
+    "signedResidual": 0.9,
+    "meanIoU": 0.8131652661064426
+   },
+   "A": {
+    "n": 5,
+    "midpointMae": 3.444330000000002,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.7979100000000017,
+    "signedResidual": -3.444330000000002,
+    "meanIoU": 0.6339669749399683
+   },
+   "A_display": {
+    "n": 5,
+    "midpointMae": 3.5,
+    "pointInsideRate": 1.0,
+    "overlapRate": 1.0,
+    "endpointMae": 3.7,
+    "signedResidual": -3.5,
+    "meanIoU": 0.6520909740414385
+   },
+   "impliedDoseVsFrozen": 1.014626116477524,
+   "rowImpliedDoseVsFrozen": {
+    "HEADING": 1.0112064943135441,
+    "BRAVERY": 0.9916422238865328,
+    "FITNESS": 0.9434006057494316,
+    "STRENGTH": 1.0676324630126675,
+    "CREATIVITY": 0.9973838791972588
+   }
+  }
+ },
+ "pooled": {
+  "F": {
+   "n": 12,
+   "midpointMae": 5.796587499999997,
+   "pointInsideRate": 0.5833333333333334,
+   "overlapRate": 0.75,
+   "endpointMae": 6.0705624999999985,
+   "signedResidual": -4.581745833333332,
+   "meanIoU": 0.44290173677406935
+  },
+  "N1": {
+   "n": 12,
+   "midpointMae": 6.958075,
+   "pointInsideRate": 0.5833333333333334,
+   "overlapRate": 0.5833333333333334,
+   "endpointMae": 7.080658333333331,
+   "signedResidual": -5.559891666666666,
+   "meanIoU": 0.451319011076654
+  },
+  "A": {
+   "n": 12,
+   "midpointMae": 8.125129166666667,
+   "pointInsideRate": 0.5833333333333334,
+   "overlapRate": 0.6666666666666666,
+   "endpointMae": 8.272454166666668,
+   "signedResidual": -8.125129166666667,
+   "meanIoU": 0.3588614908926566
+  }
+ },
+ "patternRms": {
+  "F": 0.14262515211687268,
+  "N1": 0.22353584084972167,
+  "A": 0.1696705976855327
+ },
+ "verdicts": {
+  "coachAnchor": "FALSIFIED for this arm",
+  "Nminus1": "FALSIFIED at low multiplier",
+  "pooledBestModel": "F",
+  "patternBest": "F",
+  "patternInconclusive": true,
+  "note": "Known-player arm (Ferguson is in the calibration partition). All three models under-predict x5 and x10 by 30-40%; frozen F is near-exact at x59."
+ }
+}

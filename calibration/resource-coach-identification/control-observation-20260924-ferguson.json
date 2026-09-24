@@ -1,0 +1,117 @@
+{
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "preregistration": "PREREG-20260924-COACH-ANCHOR-CONTROL",
+ "player": "Willie Ferguson",
+ "predictionsFrozenAtCommit": "e0fd9f25743f6f25c2f90bc140786c14551a1ecb",
+ "observedDate": "2026-09-24",
+ "source": "three user-supplied in-chat preview screenshots supplied after the frozen commit; previews only, no coach applied",
+ "programmeLabels": {
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available",
+  "SS-STD-SAFE-X59": "SKILL SEMINAR, 8 days"
+ },
+ "statIntervals": {
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    24,
+    34
+   ],
+   "DRIBBLING": [
+    27,
+    41
+   ],
+   "FINISHING": [
+    27,
+    38
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    25,
+    32
+   ],
+   "SHOOTING": [
+    42,
+    59
+   ],
+   "SPEED": [
+    25,
+    31
+   ],
+   "CREATIVITY": [
+    39,
+    55
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "HEADING": [
+    104,
+    119
+   ],
+   "BRAVERY": [
+    91,
+    109
+   ],
+   "FITNESS": [
+    71,
+    88
+   ],
+   "STRENGTH": [
+    118,
+    134
+   ],
+   "CREATIVITY": [
+    102,
+    117
+   ]
+  }
+ },
+ "ovrBoost": {
+  "DS-STD-ATT-X5": [
+   5,
+   7
+  ],
+  "DS-STD-OFF-X10": [
+   8,
+   11
+  ],
+  "SS-STD-SAFE-X59": [
+   32,
+   37
+  ]
+ },
+ "categoryAverageGain": {
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    16,
+    23
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    13,
+    18
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    13,
+    17
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "DEFENCE": [
+    39,
+    46
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    58,
+    68
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENCE": "85 (91.2)",
+  "ATTACK": "62 (85.6)",
+  "PHYSICAL_AND_MENTAL": "68 (87.1)",
+  "note": "parenthetical value is identical on all three previews; meaning not yet identified"
+ }
+}
