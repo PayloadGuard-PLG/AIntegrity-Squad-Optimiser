@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "resource-coach-preregistration-v1",
+  "id": "PREREG-20260924-COACH-ANCHOR-CONTROL",
+  "recordedDate": "2026-09-24",
+  "status": "registered-before-control-player-selected",
+  "purpose": "Out-of-corpus control: discriminate frozen C*N/p, the N-1 candidate, and other-player coach anchoring, using one previously unseen player previewed on three ordinary coaches.",
+  "controlPlayer": {
+    "selection": "Chosen by the user from outside the corpus. Card (age, tier, established and learning roles, all 15 stats, white/grey appearance of affected stats) is supplied BEFORE any preview of that player.",
+    "preferred": "T0 (keeps the unexplained tiered grey/white anomaly out), age 18-21 (largest gains), several affected stats below about 100 (flat-zone rows read dose one-for-one).",
+    "rule": "Previews only; no coach is applied. Predictions are committed and pushed before the player's previews are supplied."
+  },
+  "coaches": [
+    {"key": "DS-STD-ATT-X5", "programme": "Drill Session (1h, free)", "label": "Standard Attacking", "N": 5, "p": 3, "stats": ["PASSING", "DRIBBLING", "FINISHING"],
+     "historicalAnchors": ["GILMARTIN-STANDARD-ATTACKING-X5-20260923", "MARK-ORDINARY-X5 (21 Sep; programme recorded as unspecified, identical label, N and stat set)"]},
+    {"key": "DS-STD-OFF-X10", "programme": "Drill Session (1h, free)", "label": "Standard Offensive", "N": 10, "p": 4, "stats": ["CROSSING", "SHOOTING", "SPEED", "CREATIVITY"],
+     "historicalAnchors": ["LURINSKY-STD-OFF-X10-DRILL", "LERCHL-STD-OFF-X10-DRILL"]},
+    {"key": "SS-STD-SAFE-X59", "programme": "Skill Seminar (8 days)", "label": "Standard Safeguard", "N": 59, "p": 5, "stats": ["HEADING", "BRAVERY", "FITNESS", "STRENGTH", "CREATIVITY"],
+     "historicalAnchors": ["CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL", "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL", "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL", "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL"]}
+  ],
+  "models": {
+    "F": "Frozen card-only: profiles/resource_coach_current_replay_20260923.json (C=1.324, dose N/p).",
+    "N1": "Candidate card-only: profiles/resource_coach_structure_candidate_20260924.json (C=1.3877, dose (N-1)/p).",
+    "A": "Frozen response plus other-player coach anchor: log C shifted by the mean per-event dose offset of the listed historical anchors (anchor_offset in tools/resource-coach-v2/structure_audit.py). The control player's own previews are never used."
+  },
+  "predictedDoseRelativeToFrozen": {
+    "DS-STD-ATT-X5":  {"F": 1.000, "N1": 0.838, "A": 0.974},
+    "DS-STD-OFF-X10": {"F": 1.000, "N1": 0.943, "A": 0.789},
+    "SS-STD-SAFE-X59": {"F": 1.000, "N1": 1.030, "A": 0.920}
+  },
+  "scoring": {
+    "primary": "Per coach and pooled: midpoint MAE, point-inside rate, interval overlap, endpoint MAE and signed residual of F, N1 and A against the control player's observed intervals.",
+    "pattern": "After the previews, the control player's implied dose offset relative to F is computed per coach (endpoint least squares, frozen response). The log-dose vector is compared with each hypothesis's predicted vector; a common player factor is removed by comparing the vectors after subtracting their means (between-coach ratios).",
+    "decisions": [
+      "Coach anchoring is supported if A has the lowest pooled midpoint MAE and the lowest between-coach pattern distance. It is falsified if the control's x10 implied dose relative to F is at least 0.865 (halfway between A 0.789 and N1 0.943) AND A is not the best pooled model.",
+      "N-1 is supported at low multiplier if the control's x5 implied dose relative to F is at most 0.92 (halfway between N1 0.838 and F 1.000); falsified if it is at least 0.92.",
+      "If the two best hypotheses are within 0.05 RMS in log-dose pattern distance the result is recorded as inconclusive, not as a win."
+    ],
+    "secondary": "If the control is T0 and has a WHITE and a MID_GREY affected stat both below about 100 on the same coach, equal allocation predicts equal implied budgets (ratio 1.0 +/- 0.1)."
+  },
+  "leakageRules": [
+    "The control player's previews never enter any prediction.",
+    "Historical anchors are fixed by this file before the control player is chosen.",
+    "Frozen baseline profile and frozen x59 predictions are not modified."
+  ]
+}
