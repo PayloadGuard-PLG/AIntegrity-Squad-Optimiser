@@ -33,6 +33,7 @@ def _load(name, file):
 
 
 fc = _load("freeze_control_predictions", "freeze_control_predictions.py")
+cr = _load("corpus_roster", "corpus_roster.py")
 sa = fc.sa
 
 COACHES = [
@@ -80,7 +81,8 @@ def main():
     anchors = fc.anchor_offsets(F, card["name"])
     out = dict(schemaVersion="resource-coach-control-predictions-v1", preregistration=prereg["id"],
                player={k: card[k] for k in ("name", "age", "tier", "roles", "ovr", "stats", "classes", "source")},
-               arm=card.get("arm"), corpusStatus=card.get("corpusStatus"), fixedParameters=fp, coaches=[])
+               arm=card.get("arm"), corpusStatus=card.get("corpusStatus"),
+               corpusStatusFromRoster=cr.lookup(card["name"], *cr.sources()), fixedParameters=fp, coaches=[])
     for c in COACHES:
         rows = [dict(stat=s, s=float(card["stats"][s]), cls=card["classes"][s], g=[0.0, 0.0]) for s in fc.OUTFIELD]
         ev = sa._event(event=f"CONTROL-{c['key']}", playerName=card["name"], partition="control", family=c["family"],
@@ -100,7 +102,7 @@ def main():
         out["coaches"].append(dict(key=c["key"], programme=c["family"], label=c["label"], N=c["N"], p=c["p"], registeredStats=c["stats"],
                                    anchor=anchors[c["key"]], statIntervals=stats))
     pathlib.Path(args.out).write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(card["name"], "|", card.get("arm"))
+    print(card["name"], "|", card.get("arm"), "|", out["corpusStatusFromRoster"]["status"])
     for c in out["coaches"]:
         print(f"  {c['key']}")
         for s in c["statIntervals"]:

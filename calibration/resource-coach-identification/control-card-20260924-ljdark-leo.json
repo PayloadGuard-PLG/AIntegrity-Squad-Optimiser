@@ -1,0 +1,53 @@
+{
+ "schemaVersion": "resource-coach-control-card-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "arm": "Tiered arm (does NOT satisfy the O arm: T3 and x5/x10 greys 95-155)",
+ "name": "LJDark leo",
+ "age": 24,
+ "tier": "T3",
+ "roles": [
+  "DL",
+  "DC",
+  "DR"
+ ],
+ "learningRoles": [],
+ "ovr": 169,
+ "source": "user-supplied in-chat player card screenshot, 24 Sep 2026 (Skills tab; STELLAR badge, '+50 permanent increase on all key attributes'); no x5/x10 preview supplied",
+ "corpusStatus": "NO-ORDINARY-EVIDENCE: no ordinary Resource Coach preview. Named in the legacy Academy records, which are comparison only.",
+ "stats": {
+  "TACKLING": 222,
+  "MARKING": 209,
+  "POSITIONING": 228,
+  "HEADING": 198,
+  "BRAVERY": 227,
+  "PASSING": 155,
+  "DRIBBLING": 132,
+  "CROSSING": 190,
+  "SHOOTING": 130,
+  "FINISHING": 124,
+  "FITNESS": 178,
+  "STRENGTH": 135,
+  "AGGRESSION": 138,
+  "SPEED": 172,
+  "CREATIVITY": 95
+ },
+ "classes": {
+  "TACKLING": "WHITE",
+  "MARKING": "WHITE",
+  "POSITIONING": "WHITE",
+  "HEADING": "WHITE",
+  "BRAVERY": "WHITE",
+  "PASSING": "MID_GREY",
+  "DRIBBLING": "MID_GREY",
+  "CROSSING": "WHITE",
+  "SHOOTING": "MID_GREY",
+  "FINISHING": "MID_GREY",
+  "FITNESS": "WHITE",
+  "STRENGTH": "WHITE",
+  "AGGRESSION": "WHITE",
+  "SPEED": "WHITE",
+  "CREATIVITY": "MID_GREY"
+ },
+ "classSource": "union of DL/DC/DR essentials (src/utils/roleWeights.ts); consistent with card highlighting of Crossing, Fitness, Strength, Aggression and Speed",
+ "ovrCheck": "sum 2533 / 15 = 168.9, displayed 169"
+}

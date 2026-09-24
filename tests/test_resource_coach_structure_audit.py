@@ -129,3 +129,34 @@ class StructuralFindings(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CorpusRoster(unittest.TestCase):
+    """Corpus membership is decided mechanically, never by assertion."""
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("corpus_roster", ROOT / "tools" / "resource-coach-v2" / "corpus_roster.py")
+        cls.cr = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.cr)
+        cls.found, cls.legacy = cls.cr.sources()
+
+    def status(self, name):
+        return self.cr.lookup(name, self.found, self.legacy)["status"]
+
+    def test_roster_file_agrees_with_the_script(self):
+        roster = json.loads((ROOT / "calibration" / "resource-coach-identification" / "corpus-roster-20260924.json").read_text(encoding="utf-8"))
+        for p in roster["players"]:
+            self.assertEqual(self.status(p["name"]), p["status"], p["name"])
+
+    def test_known_cases(self):
+        self.assertEqual(self.status("LJDark leo"), "NO-ORDINARY-EVIDENCE")   # legacy records are comparison only
+        self.assertEqual(self.status("Jables JaseysBoi"), "NO-ORDINARY-EVIDENCE")
+        self.assertEqual(self.status("Mirsad Panic"), "ORDINARY-EVIDENCE")
+        self.assertEqual(self.status("Willie Ferguson"), "ORDINARY-EVIDENCE")
+        self.assertEqual(self.status("Michal Kawa"), "NO-ORDINARY-EVIDENCE")  # a frozen control card is not prior evidence
+        self.assertEqual(self.status("LJ Galileo"), "ORDINARY-EVIDENCE")      # substring 'leo' must not leak across players
+
+    def test_user_handle_claim_is_withdrawn(self):
+        d = json.loads((ROOT / "profiles" / "calibration_data.json").read_text(encoding="utf-8"))
+        self.assertIn("WITHDRAWN", d["gillespie"]["correction_20260924"])
