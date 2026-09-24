@@ -1,8 +1,8 @@
 {
-  "schema": "drill-coach-cross-transfer-replayed-v2",
+  "schema": "drill-coach-cross-transfer-replayed-v3",
   "run": {
-    "workflowUrl": "https://github.com/PayloadGuard-PLG/AIntegrity-Squad-Optimiser/actions/runs/36036874191",
-    "headSha": "e9c0c23fdb0ede7bf743f75e559775ee83f00c68",
+    "workflowUrl": "https://github.com/PayloadGuard-PLG/AIntegrity-Squad-Optimiser/actions/runs/36037174077",
+    "headSha": "cc28569452f8da1056937d52884baba672006d4c",
     "output": "CI stdout subset; workflow artifact contains complete machine output including all allocation grids and WHITE/GREY metrics"
   },
   "drill": {
@@ -31,6 +31,33 @@
         67,
         82,
         114
+      ]
+    },
+    "directRawIds": {
+      "TACKLING": [
+        "HAG-R002",
+        "HAG-R051",
+        "HAG-R081",
+        "HAG-R110"
+      ],
+      "DRIBBLING": [
+        "HAG-R008",
+        "HAG-R020",
+        "HAG-R031",
+        "HAG-R046",
+        "HAG-R064",
+        "HAG-R078",
+        "HAG-R095",
+        "HAG-R108"
+      ],
+      "FINISHING": [
+        "HAG-R010",
+        "HAG-R021",
+        "HAG-R032",
+        "HAG-R048",
+        "HAG-R065",
+        "HAG-R080",
+        "HAG-R110"
       ]
     },
     "dribblingGaps": [
