@@ -546,7 +546,7 @@ def markdown(report: dict[str, Any]) -> str:
     lines = [
         "# Ordinary Resource Coach — direct player-card replay",
         "",
-        f"Model: \`{PROFILE['modelVersion']}\`",
+        f"Model: `{PROFILE['modelVersion']}`",
         f"Frozen global amplitude: **{GLOBAL_C:.3f}**",
         "",
         "## Primary result",
@@ -613,7 +613,7 @@ def markdown(report: dict[str, Any]) -> str:
             "",
             f"- Player: **{spotlight['player']}**",
             f"- Coach: **{spotlight['coach']}** ({spotlight['family']})",
-            f"- Event: \`{spotlight['event']}\`",
+            f"- Event: `{spotlight['event']}`",
             f"- Midpoint MAE: **{num(spotlight['metrics'].get('midpointMae'))}**",
             f"- Point-inside rate: **{pct(spotlight['metrics'].get('pointInsideObservedRate'))}**",
             "",
