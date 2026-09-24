@@ -1,0 +1,51 @@
+{
+ "schemaVersion": "resource-coach-control-card-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "arm": "Y (age 18-21, out of corpus)",
+ "name": "Michal Kawa",
+ "age": 21,
+ "tier": "T0",
+ "roles": [
+  "DC"
+ ],
+ "learningRoles": [],
+ "ovr": 77,
+ "source": "user-supplied in-chat player card screenshot, 24 Sep 2026 (Skills tab), newly acquired player; no preview supplied",
+ "corpusStatus": "OUT OF CORPUS: no record of this player in any corpus file.",
+ "tierNote": "No tier badge on the card; recorded as T0. All registered x5/x10 affected stats are MID_GREY, whose latent coordinate does not depend on tier, so the x5/x10 predictions are tier-invariant.",
+ "stats": {
+  "TACKLING": 92,
+  "MARKING": 105,
+  "POSITIONING": 86,
+  "HEADING": 91,
+  "BRAVERY": 97,
+  "PASSING": 52,
+  "DRIBBLING": 55,
+  "CROSSING": 58,
+  "SHOOTING": 52,
+  "FINISHING": 66,
+  "FITNESS": 91,
+  "STRENGTH": 94,
+  "AGGRESSION": 102,
+  "SPEED": 57,
+  "CREATIVITY": 56
+ },
+ "classes": {
+  "TACKLING": "WHITE",
+  "MARKING": "WHITE",
+  "POSITIONING": "WHITE",
+  "HEADING": "WHITE",
+  "BRAVERY": "WHITE",
+  "PASSING": "MID_GREY",
+  "DRIBBLING": "MID_GREY",
+  "CROSSING": "MID_GREY",
+  "SHOOTING": "MID_GREY",
+  "FINISHING": "MID_GREY",
+  "FITNESS": "WHITE",
+  "STRENGTH": "WHITE",
+  "AGGRESSION": "WHITE",
+  "SPEED": "MID_GREY",
+  "CREATIVITY": "MID_GREY"
+ },
+ "classSource": "card highlighting; defence column and Fitness/Strength/Aggression appear highlighted. Tackling/Marking/Bravery highlighting on a pure DC conflicts with src/utils/roleWeights.ts (DC essentials: Positioning, Heading, Fitness, Strength, Aggression) and is unverified here; none of these stats is affected by the registered coaches."
+}
