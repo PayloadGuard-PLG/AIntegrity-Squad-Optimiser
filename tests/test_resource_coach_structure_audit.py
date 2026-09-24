@@ -237,5 +237,44 @@ class WhiteThresholdScore(unittest.TestCase):
         self.assertEqual(rec["verdict"], "supports T127")
 
 
+class YoungGreyAnchorFreeze(unittest.TestCase):
+    """PREREG-20260924-YOUNG-GREY-ANCHOR: the anchor table is frozen; the gate and target exclusion are mechanical."""
+
+    TABLE = ROOT / "calibration" / "resource-coach-identification" / "anchor-table-20260924-young-grey.json"
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("fa", ROOT / "tools" / "resource-coach-v2" / "freeze_young_grey_anchor.py")
+        cls.fa = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.fa)
+        cls.table = json.loads(cls.TABLE.read_text(encoding="utf-8"))
+
+    def test_anchor_table_is_byte_stable(self):
+        self.assertEqual(hashlib.sha256(self.TABLE.read_bytes()).hexdigest(), "fa9ac4c8f762fd71295f95a0e6c4553f2afb2e2f502764fc74edcfcf35db4f08")
+
+    def test_target_never_anchors_itself(self):
+        for key, c in self.table["coaches"].items():
+            for name in {e["player"] for e in c["events"]}:
+                a = self.fa.anchor_for(self.table, key, name)
+                if a:
+                    self.assertTrue(all(name not in ev for ev in a["events"]) or all(
+                        e["player"] != name for e in c["events"] if e["event"] in a["events"]))
+
+    def test_gate_leaves_young_players_on_young_grey(self):
+        card = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-card-20260924-kawa.json").read_text(encoding="utf-8"))
+        for c in self.fa.predict_card(card, self.table):
+            self.assertFalse(c["anchorApplied"])
+            for s in c["statIntervals"]:
+                if "YGA" in s:
+                    self.assertEqual(s["YG"], s["YGA"])
+
+    def test_anchor_offsets_reproduce_from_committed_observations(self):
+        yg = self.fa.yg_params()
+        rebuilt = {ev["event"]: self.fa.yg_offset(ev, yg) for _, ev in self.fa.control_events()}
+        for c in self.table["coaches"].values():
+            for e in c["events"]:
+                if e["event"] in rebuilt:
+                    self.assertAlmostEqual(rebuilt[e["event"]], e["logOffset"], places=5)
+
+
 if __name__ == "__main__":
     unittest.main()

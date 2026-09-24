@@ -236,12 +236,12 @@ test('snapshot identity is order-independent, round-trips through CSV and detect
 
 test('the observed club-level timeline resolves boundary days and the 16 May preview agrees with it', () => {
   const levels = loadClubLevels();
-  assert.deepEqual(levels, { 209: 10, 210: 11, 214: 15 });
+  assert.deepEqual(levels, { 208: 9, 209: 10, 210: 11, 214: 15 });
   const t = blank();
   source(t, 'ARC-1', 'Screenshot_20260418-092812.png'); preview(t, 'PV-1', 'ARC-1', RITCHIE);
   source(t, 'ARC-2', 'Screenshot_20260516-125335.png'); preview(t, 'PV-2', 'ARC-2', BENWELL);
   const r = run(t, { clubLevels: levels });
-  // 18 Apr: level 9 excludes S209 (observed 10), leaving S208. 16 May: level 10 excludes S210 (observed 11).
+  // 18 Apr: level 9 = observed S208, excludes S209 (10). 16 May: level 10 excludes S210 (observed 11).
   assert.equal(pv(r, 'PV-1').season, 'S208'); assert.ok(pv(r, 'PV-1').flags.includes('SEASON_BY_LEVEL'));
   assert.equal(pv(r, 'PV-2').season, 'S209'); assert.ok(pv(r, 'PV-2').flags.includes('SEASON_BY_LEVEL'));
   // Age and level disagreeing on a boundary day is a hard conflict, never a silent pick.

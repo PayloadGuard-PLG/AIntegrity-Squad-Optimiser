@@ -375,7 +375,7 @@ in mid-May.
 
 **First direct check: agree.** The user's Season 209 Trophies page shows League level 10, and the
 season review promotes the club to 11 for S210. Level 10 in S209 is also consistent with 15 in S214 after one
-promotion per season. S208 = 9 is still to confirm. The observed levels are in
+promotion per season. The second check, S208 = 9, also agrees (Trophies page, predicted from the 18 Apr preview). The observed levels are in
 `calibration/archive-s208-s209/club-level-timeline.json`.
 
 **Correction to addendum 3.** Addendum 3 read the grey threshold landing on quality 100 as a sign that

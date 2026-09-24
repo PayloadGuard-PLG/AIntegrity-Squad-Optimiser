@@ -28,8 +28,8 @@ and a transcriber never types it. Anything that cannot be read is left **absent*
 
    **The first direct check agrees.** The Season 209 Trophies page shows League level 10, and the season
    review says "Promoted to League level 11". The observed levels are kept in
-   [`club-level-timeline.json`](club-level-timeline.json). **S208 = 9 is still a prediction:** open the Season
-   208 page of Manager → Trophies and add it there. Any archive screen that shows the level also goes in
+   [`club-level-timeline.json`](club-level-timeline.json). The Season 208 page then showed League level 9, matching
+   the level 9 predicted from the 18 Apr preview. That makes **both archive seasons directly confirmed**. Any archive screen that shows the level also goes in
    `Archive_Club_State.club_level_displayed`.
 
    The level doubles as a season marker. Offset 45 on 16 May 12:53 means level 10, so S209 had not yet
@@ -298,5 +298,4 @@ A Reward or unread-badge preview can be VERIFIED as a record, but it is never an
 
 ## 10. Still needed from the user
 
-- The Season 208 Trophies page (League level): the second direct test of `offset = 5 × (level − 1)`.
 - Adjudication of every `READ_DISAGREE` from the image.

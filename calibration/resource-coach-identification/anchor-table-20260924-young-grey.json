@@ -1,0 +1,341 @@
+{
+ "schemaVersion": "resource-coach-anchor-table-v1",
+ "preregistration": "PREREG-20260924-YOUNG-GREY-ANCHOR",
+ "model": "young-grey (profile 20260924b), frozen amplitude; offset = log budget multiplier fitted per event under YG",
+ "youngGrey": {
+  "g": 0.65,
+  "knot": 80.0,
+  "ageBand": [
+   18,
+   21
+  ]
+ },
+ "coaches": {
+  "DS-STD-ATT-X5": {
+   "family": "DRILL SESSION",
+   "label": "Standard Attacking",
+   "N": 5,
+   "registeredP": 3,
+   "affected": [
+    "PASSING",
+    "DRIBBLING",
+    "FINISHING"
+   ],
+   "events": [
+    {
+     "event": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+     "player": "Ryan Gilmartin",
+     "age": 19,
+     "tier": "T3",
+     "p": 3,
+     "source": "corpus",
+     "logOffset": 0.089304
+    },
+    {
+     "event": "MARK-ORDINARY-X5",
+     "player": "Mark Lurinsky",
+     "age": 18,
+     "tier": "T0",
+     "p": 3,
+     "source": "corpus",
+     "logOffset": -0.141757
+    },
+    {
+     "event": "CONTROL-ferguson-DS-STD-ATT-X5",
+     "player": "Willie Ferguson",
+     "age": 21,
+     "tier": "T0",
+     "p": 3,
+     "source": "control-observation",
+     "logOffset": 0.057274
+    },
+    {
+     "event": "CONTROL-kawa-DS-STD-ATT-X5",
+     "player": "Michal Kawa",
+     "age": 21,
+     "tier": "T0",
+     "p": 3,
+     "source": "control-observation",
+     "logOffset": 0.071863
+    },
+    {
+     "event": "CONTROL-rodger-DS-STD-ATT-X5",
+     "player": "Ryan Rodger",
+     "age": 23,
+     "tier": "T0",
+     "p": 3,
+     "source": "control-observation",
+     "logOffset": -0.053482
+    },
+    {
+     "event": "CONTROL-midgley-DS-STD-ATT-X5",
+     "player": "David Midgley",
+     "age": 26,
+     "tier": "T0",
+     "p": 3,
+     "source": "control-observation",
+     "logOffset": -0.113009
+    },
+    {
+     "event": "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+     "player": "LJDark leo",
+     "age": 24,
+     "tier": "T3",
+     "p": 3,
+     "source": "control-observation",
+     "logOffset": -0.070574
+    },
+    {
+     "event": "CONTROL-panic-DS-STD-ATT-X5",
+     "player": "Mirsad Panic",
+     "age": 26,
+     "tier": "T0",
+     "p": 3,
+     "source": "control-observation",
+     "logOffset": -0.309254
+    }
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "family": "DRILL SESSION",
+   "label": "Standard Offensive",
+   "N": 10,
+   "registeredP": 4,
+   "affected": [
+    "CROSSING",
+    "SHOOTING",
+    "SPEED",
+    "CREATIVITY"
+   ],
+   "events": [
+    {
+     "event": "LURINSKY-STD-OFF-X10-DRILL",
+     "player": "Mark Lurinsky",
+     "age": 18,
+     "tier": "T0",
+     "p": 4,
+     "source": "corpus",
+     "logOffset": -0.284885
+    },
+    {
+     "event": "LERCHL-STD-OFF-X10-DRILL",
+     "player": "Oliver Lerchl",
+     "age": 25,
+     "tier": "T0",
+     "p": 4,
+     "source": "corpus",
+     "logOffset": -0.190258
+    },
+    {
+     "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+     "player": "Willie Ferguson",
+     "age": 21,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": 0.007835
+    },
+    {
+     "event": "CONTROL-kawa-DS-STD-OFF-X10",
+     "player": "Michal Kawa",
+     "age": 21,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": 0.079095
+    },
+    {
+     "event": "CONTROL-rodger-DS-STD-OFF-X10",
+     "player": "Ryan Rodger",
+     "age": 23,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.10837
+    },
+    {
+     "event": "CONTROL-midgley-DS-STD-OFF-X10",
+     "player": "David Midgley",
+     "age": 26,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.119773
+    },
+    {
+     "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+     "player": "LJDark leo",
+     "age": 24,
+     "tier": "T3",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.166435
+    },
+    {
+     "event": "CONTROL-panic-DS-STD-OFF-X10",
+     "player": "Mirsad Panic",
+     "age": 26,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.288407
+    }
+   ]
+  },
+  "SS-STD-SAFE-X59": {
+   "family": "SKILL SEMINAR",
+   "label": "Standard Safeguard",
+   "N": 59,
+   "registeredP": 5,
+   "affected": [
+    "HEADING",
+    "BRAVERY",
+    "FITNESS",
+    "STRENGTH",
+    "CREATIVITY"
+   ],
+   "events": [
+    {
+     "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+     "player": "Vince Németh",
+     "age": 23,
+     "tier": "T0",
+     "p": 5,
+     "source": "corpus",
+     "logOffset": -0.141343
+    },
+    {
+     "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+     "player": "Oliver Lerchl",
+     "age": 25,
+     "tier": "T0",
+     "p": 5,
+     "source": "corpus",
+     "logOffset": -0.151607
+    },
+    {
+     "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+     "player": "David Midgley",
+     "age": 26,
+     "tier": "T0",
+     "p": 5,
+     "source": "corpus",
+     "logOffset": 0.025888
+    },
+    {
+     "event": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+     "player": "Bryan Baxter",
+     "age": 20,
+     "tier": "T2",
+     "p": 5,
+     "source": "corpus",
+     "logOffset": -0.067042
+    },
+    {
+     "event": "CONTROL-ferguson-SS-STD-SAFE-X59",
+     "player": "Willie Ferguson",
+     "age": 21,
+     "tier": "T0",
+     "p": 5,
+     "source": "control-observation",
+     "logOffset": -0.058523
+    }
+   ]
+  },
+  "STD-DEF-X20": {
+   "family": "DRILL SESSION",
+   "label": "Standard Defending",
+   "N": 20,
+   "registeredP": 4,
+   "affected": null,
+   "category": [
+    "TACKLING",
+    "MARKING",
+    "POSITIONING",
+    "HEADING",
+    "BRAVERY"
+   ],
+   "events": [
+    {
+     "event": "CONTROL-rodger-STD-DEF-X20",
+     "player": "Ryan Rodger",
+     "age": 23,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": 0.023391
+    },
+    {
+     "event": "CONTROL-ljdark-leo-STD-DEF-X20",
+     "player": "LJDark leo",
+     "age": 24,
+     "tier": "T3",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.217571
+    },
+    {
+     "event": "CONTROL-panic-STD-DEF-X20",
+     "player": "Mirsad Panic",
+     "age": 26,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": 0.260097
+    }
+   ]
+  },
+  "STD-PHY-X15": {
+   "family": "SKILL SEMINAR",
+   "label": "Standard Physical",
+   "N": 15,
+   "registeredP": 4,
+   "affected": null,
+   "category": [
+    "FITNESS",
+    "STRENGTH",
+    "AGGRESSION",
+    "SPEED",
+    "CREATIVITY"
+   ],
+   "events": [
+    {
+     "event": "CONTROL-rodger-STD-PHY-X15",
+     "player": "Ryan Rodger",
+     "age": 23,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.015724
+    },
+    {
+     "event": "CONTROL-midgley-STD-PHY-X15",
+     "player": "David Midgley",
+     "age": 26,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.166525
+    },
+    {
+     "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+     "player": "LJDark leo",
+     "age": 24,
+     "tier": "T3",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": 0.014555
+    },
+    {
+     "event": "CONTROL-panic-STD-PHY-X15",
+     "player": "Mirsad Panic",
+     "age": 26,
+     "tier": "T0",
+     "p": 4,
+     "source": "control-observation",
+     "logOffset": -0.148685
+    }
+   ]
+  }
+ }
+}

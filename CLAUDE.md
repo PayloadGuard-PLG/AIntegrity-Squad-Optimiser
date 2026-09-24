@@ -64,8 +64,8 @@ into the run log. Archive rows in `Experiments` are refused by the collector. Th
 fails the collection run.
 
 - **Club level is readable from every preview:** `Avg: X (Q)` obeys `Q = 5(level−1) + mean/4` (fits
-  L15/L17/L31/L54 exactly). The archive reads level 9 (April) and 10 (May). S209 = League level 10 is
-  confirmed on the Trophies page; S208 = 9 is still to confirm. The level is the league level.
+  L15/L17/L31/L54 exactly). The archive reads level 9 (April) and 10 (May). S208 = 9 and S209 = 10 are both
+  confirmed on the Trophies pages. The level is the league level.
 - **Displayed-unit thresholds carry across levels;** the "cost is defined in quality units" reading is
   withdrawn (Scott Ritchie April previews). Whether the dose scales with level (`H-LEVEL-DOSE`) is open
   and is decided by the archive.

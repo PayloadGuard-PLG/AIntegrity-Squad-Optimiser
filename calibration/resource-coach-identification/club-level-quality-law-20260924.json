@@ -2,7 +2,7 @@
  "schemaVersion": "resource-coach-finding-v1",
  "id": "FINDING-20260924-CLUB-LEVEL-QUALITY-LAW",
  "recordedDate": "2026-09-24",
- "status": "supported: fits the four levels on record and passed its first direct check (S209 = League level 10, predicted 10 from the 16 May preview); S208 = 9 still to confirm",
+ "status": "supported: fits the four levels on record and both archive-era direct checks (S208 = 9, S209 = 10), each predicted from a preview before the level was seen",
  "law": "quality = 5 * (clubLevel - 1) + displayed / 4",
  "evidence": {
   "alreadyOnRecord": {
@@ -108,9 +108,10 @@
   },
   {
    "season": "S208",
-   "observedLevel": null,
+   "observedLevel": 9,
+   "source": "Trophies page 'Season 208: League Level 9' (user screenshot, 24 Sep 2026)",
    "prediction": "9 from Screenshot_20260418-092812.png (offset 40.05)",
-   "result": "pending - Season 208 Trophies page"
+   "result": "agree"
   }
  ],
  "clubLevelIsLeagueLevel": "The level in the law is the league level shown on the Trophies page; S209 = 10 and S214 = 15 are both observed, consistent with one promotion per season."
