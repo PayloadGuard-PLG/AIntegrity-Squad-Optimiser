@@ -84,8 +84,12 @@ first. None of this is production; `resourceCoachV2.ts` is unchanged.
     PREREG-20260924-SINGLE-DOSE-22PLUS (addendum 8, `freeze_single_dose.py`). The first eligible players are
     Blakie, Ferguson and Kawa after the S215 rollover. Commit each player's predictions from their card before
     any preview.
-- **WHITE threshold 127** has helped out of sample twice. It is not adopted while the 10–12 Sep archive
-  conflict lacks a mechanism.
+- **Shape, not dose (addendum 9).** A joint refit of the thresholds and K, plus a 22–25 WHITE term (M\*), scores
+  1.475 / 85% inside leave-one-player-out against YG's 2.312 / 74.5%. The 127 vs 132.6 conflict dissolves under the
+  joint refit. Same-player anchors hurt, including production V2's. **PREREG-20260924-SHAPE-FIVE-MODEL** freezes
+  YG / SD22 / M1 / M\* / M\*\* (`shape_models.py`, `freeze_shape_test.py`, `shape-models-20260924.json`) and
+  supersedes SD22's consequence clause. It needs new players outside the 30-player pool, at least two of them aged
+  22–25.
 - Frozen prediction files are pinned by sha256 in `tests/test_resource_coach_structure_audit.py`. Never
   regenerate them to fit an observation.
 
