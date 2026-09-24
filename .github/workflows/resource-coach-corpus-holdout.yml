@@ -48,7 +48,7 @@ jobs:
 
       - name: Run direct player-card replay
         env:
-          REPLAY_SEED: \${{ inputs.seed || 'vader-direct-20260924' }}
+          REPLAY_SEED: ${{ inputs.seed || 'vader-direct-20260924' }}
         run: |
           rm -rf /tmp/resource-coach-direct-replay
           mkdir -p /tmp/resource-coach-direct-replay
