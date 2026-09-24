@@ -1,0 +1,250 @@
+{
+  "schemaVersion": "resource-coach-matched-floor-falsifier-freeze-v1",
+  "status": "frozen-pending-observation",
+  "recordedDate": "2026-09-24",
+  "hypothesis": "LOW_STAT_HIDDEN_DEBT_20260924",
+  "evidenceBoundary": {
+    "purpose": "Matched falsifier for the Galileo Crossing=1 zero-gain anomaly using Lt Ripley under the identical current Standard Attacking x25 Skill Seminar.",
+    "independence": "Temporal/matched mechanism diagnostic only. Lt Ripley is already represented in the historical M** fitting pool, so this is NOT unseen-player prospective validation.",
+    "leakageRule": "No Ripley x25 selected-player preview has been observed. Primary predictions use only the pre-existing frozen M** model, Ripley's player card, and the already-known unselected x25 coach definition. Galileo's observed x25 outcome is used only to define the falsification question, not to refit the numeric primary prediction."
+  },
+  "source": {
+    "playerCard": "chat_upload:64241.png",
+    "playerCardSha256": "9006cc1f758e0e3f2bcae5423597ae0c76a0d850db3d3ee7a6e60e31edef5c54",
+    "coachCard": "chat_upload:64248.png",
+    "coachCardSha256": "3262a9e124cf60e5e326cbb853a53ea7792e6d1da5848f974cafb258543d931a",
+    "GalileoObservation": "calibration/resource-coach-identification/observation-20260924-galileo-standard-attacking-x25.json",
+    "hypothesisNote": "calibration/resource-coach-identification/LOW_STAT_HIDDEN_DEBT_20260924.md",
+    "researchBranchBase": "research/card-only-trust-20260924",
+    "trustPr": 164
+  },
+  "player": {
+    "name": "Lt Ripley",
+    "age": 28,
+    "tier": "T2",
+    "tierIndex": 2,
+    "ovrDisplayed": 97,
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "stats": {
+      "TACKLING": 36,
+      "MARKING": 91,
+      "POSITIONING": 165,
+      "HEADING": 206,
+      "BRAVERY": 141,
+      "PASSING": 94,
+      "DRIBBLING": 104,
+      "CROSSING": 1,
+      "SHOOTING": 86,
+      "FINISHING": 57,
+      "FITNESS": 147,
+      "STRENGTH": 60,
+      "AGGRESSION": 68,
+      "SPEED": 87,
+      "CREATIVITY": 128
+    },
+    "classes": {
+      "PASSING": "WHITE",
+      "DRIBBLING": "WHITE",
+      "CROSSING": "MID_GREY"
+    }
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Attacking",
+    "multiplier": 25,
+    "transferClass": "ordinary",
+    "affectedStatCount": 3,
+    "affectedStats": [
+      "PASSING",
+      "DRIBBLING",
+      "CROSSING"
+    ]
+  },
+  "matchedControl": {
+    "player": "LJ Galileo",
+    "same": [
+      "tier T2",
+      "roles DMC/MC/AMC",
+      "Crossing displayed 1 MID_GREY",
+      "coach Standard Attacking x25 Skill Seminar",
+      "p=3"
+    ],
+    "differs": [
+      "age 28 vs 31",
+      "player/stat history"
+    ],
+    "GalileoObserved": {
+      "PASSING": [
+        15,
+        22
+      ],
+      "DRIBBLING": [
+        23,
+        34
+      ],
+      "CROSSING": [
+        0,
+        0
+      ],
+      "OVR": [
+        3,
+        5
+      ]
+    },
+    "primaryQuestion": "Does Ripley Crossing=1 produce visible positive gain? Positive gain falsifies a universal hard stat=1 lock."
+  },
+  "frozenModel": {
+    "primaryDiagnostic": "Mstarstar_nearest",
+    "modelConstants": "calibration/resource-coach-identification/shape-models-20260924.json",
+    "renderer": "nearest independently: floor(x + 0.5) for each endpoint",
+    "note": "Unmodified pre-Galileo M** model; no zero-suppression or hidden-debt patch applied.",
+    "comparators": [
+      "productionCold_continuous",
+      "productionCold_nearest",
+      "Mstar_continuous",
+      "Mstarstar_continuous",
+      "Mstarstar_nearest",
+      "Mstarstar_floorBoth"
+    ]
+  },
+  "predictions": [
+    {
+      "stat": "PASSING",
+      "start": 94,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          44.133333,
+          67.479867
+        ],
+        "nearest": [
+          44,
+          67
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          45.833534,
+          68.737708
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          45.73783,
+          69.185703
+        ],
+        "nearest": [
+          46,
+          69
+        ],
+        "floorBoth": [
+          45,
+          69
+        ],
+        "pointRaw": 57.461766,
+        "pointNearest": 57.5
+      }
+    },
+    {
+      "stat": "DRIBBLING",
+      "start": 104,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          44.133333,
+          66.241103
+        ],
+        "nearest": [
+          44,
+          66
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          45.833534,
+          65.669947
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          45.73783,
+          66.398609
+        ],
+        "nearest": [
+          46,
+          66
+        ],
+        "floorBoth": [
+          45,
+          66
+        ],
+        "pointRaw": 56.06822,
+        "pointNearest": 56
+      }
+    },
+    {
+      "stat": "CROSSING",
+      "start": 1,
+      "displayClass": "MID_GREY",
+      "productionCold": {
+        "raw": [
+          44.133333,
+          67.479867
+        ],
+        "nearest": [
+          44,
+          67
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          45.833534,
+          70.079473
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          45.73783,
+          69.933142
+        ],
+        "nearest": [
+          46,
+          70
+        ],
+        "floorBoth": [
+          45,
+          69
+        ],
+        "pointRaw": 57.835486,
+        "pointNearest": 58
+      }
+    }
+  ],
+  "ovrProxy": {
+    "definition": "sum of affected-stat predicted gains / 15; aggregate proxy only, not a separately identified displayed-OVR renderer",
+    "MstarstarRaw": {
+      "lo": 9.147566,
+      "hi": 13.701164,
+      "point": 11.424365
+    },
+    "standingEnvelopeRule": {
+      "lo": 9,
+      "hi": 14
+    },
+    "nearestStatEndpointAggregate": {
+      "lo": 9.2,
+      "hi": 13.666667,
+      "point": 11.433333
+    }
+  },
+  "preregisteredInterpretation": {
+    "crossingPositive": "Falsifies a universal hard displayed-stat=1 lock. Strongly favours player/stat history or hidden debt, with age-limited recovery as an amplifier.",
+    "crossingZero": "Does not distinguish a hard stat=1 lock from comparable hidden debt in both players. Requires a stronger-dose same-stat or known transition test.",
+    "crossingSmallPositive": "Strongest result for a hidden-debt model because it directly bounds how much of the coach budget is consumed before the stat becomes visible."
+  },
+  "revealProtocol": "After this commit exists and the Drive rows are locked, select Lt Ripley with the same Standard Attacking x25 once and capture Passing, Dribbling, Crossing and displayed OVR boost. Do not train."
+}
