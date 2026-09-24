@@ -39,8 +39,8 @@ def condition_check(rows):
     for r in rows:
         typ = r.get("event_type")
         try:
-            loss = -float(r.get("delta_from_prev_capture", ""))
-            cond = float(r.get("condition_pct", ""))
+            loss = -float(str(r.get("delta_from_prev_capture", "")).replace("%",""))
+            cond = float(str(r.get("condition_pct", "")).replace("%",""))
             order = float(r["event_order"])
         except (ValueError, TypeError):
             loss = cond = order = None
@@ -164,8 +164,10 @@ def score_events(events,P,yg,white_shape=None):
     X=sa.Rows(events)
     lo,hi=sm.predict(P,X,yg)
     if white_shape is not None:
-        h,K=white_shape
+        h,K,*mode=white_shape
         u,_,B,rho=sa._parts(P,X)
+        if mode and mode[0]=="age_shift":
+            h = h - P["hWflag"] + P["hWflag"]*((X.age>=22)&(X.age<=25))
         wl=sa.movement(u,h,K,B)
         wh=sa.movement(u,h,K,B*rho)
         lo=np.where(X.w,wl,lo)
@@ -232,8 +234,9 @@ def evaluate(events,yg,candidates):
                 X,lo,hi=score_events(test,fits[label],yg)
             else:
                 shape=candidates[label]
-                z=fit_scale(train,fits["M1"],yg,shape)
-                X,lo,hi=score_events(test,dict(fits["M1"],logC=fits["M1"]["logC"]+z),yg,shape)
+                base="Mstar" if label.endswith("_Mstar") else "M1"
+                z=fit_scale(train,fits[base],yg,shape)
+                X,lo,hi=score_events(test,dict(fits[base],logC=fits[base]["logC"]+z),yg,shape)
             allpred[label].append((player,test,X,lo,hi))
     output={}
     for label,folds in allpred.items():
@@ -271,9 +274,11 @@ def main():
     candidates={"drill_flat_white":(1e6,35.),
                 "drill_early_white":(100.,70.),
                 "drill_transition_white":(120.,35.),
-                "drill_late_white":(130.,35.)}
-    drill={name:dict(equalAllocation=drill_constraints(*v),
-                     allocationIntervals={str(alpha):drill_constraints(*v,alpha=alpha,step=.05)
+                "drill_late_white":(130.,35.),
+                "drill_transition_white_Mstar":(120.,35.,"age_shift"),
+                "drill_late_white_Mstar":(130.,35.,"age_shift")}
+    drill={name:dict(equalAllocation=drill_constraints(*v[:2]),
+                     allocationIntervals={str(alpha):drill_constraints(*v[:2],alpha=alpha,step=.05)
                                           for alpha in (.8,1.,1.2,1.4)})
            for name,v in candidates.items()}
     detail=residual_detail(ev,MS,yg)
