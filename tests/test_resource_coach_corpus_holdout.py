@@ -46,7 +46,7 @@ class CurrentResourceCoachReplayTests(unittest.TestCase):
         for r in cv['predictions']:
             self.assertNotEqual(r['anchor_event'], r['target_event'])
             self.assertEqual(r['evidence_grade'] in {
-                'direct-screenshot-reference','conversation-screenshot-observed'
+                'referenced-screenshot-unverified','conversation-screenshot-observed'
             }, True)
 
     def test_reward_chat_observation_is_excluded_from_ordinary_replay(self):
@@ -69,6 +69,30 @@ class CurrentResourceCoachReplayTests(unittest.TestCase):
         calibrate = src[src.index('def calibrate_event'):src.index('def evidence_grade')]
         self.assertNotIn('midpoint', calibrate.lower())
         self.assertIn('midpoint_abs_error', src)
+
+    def test_age_factor_cancels_under_exact_state_amplitude_calibration(self):
+        events = MOD.build_events(MOD.load_archive_rows() + MOD.load_chat_observed_rows())
+        eligible = MOD.cross_validate(events, primary_only=True)
+        example = next(r for r in eligible['predictions'] if r['player_name'] == 'Willie Ferguson')
+        a = next(e for e in events if e['event'] == example['anchor_event'])
+        b = next(e for e in events if e['event'] == example['target_event'])
+        budget = MOD.calibrate_event(a)['commonBudgetLo']
+        amp_no_age = budget / (a['N'] / a['p'])
+        amp_with_age = budget / (MOD.age_scale(a['age']) * a['N'] / a['p'])
+        self.assertAlmostEqual(
+            amp_no_age * b['N'] / b['p'],
+            amp_with_age * MOD.age_scale(b['age']) * b['N'] / b['p'], places=10)
+
+    def test_close_coach_concentration_and_global_baseline_share_targets(self):
+        events = MOD.build_events(MOD.load_archive_rows() + MOD.load_chat_observed_rows())
+        cv = MOD.cross_validate(events, primary_only=True)
+        sensitivity = MOD.primary_sensitivities(cv)
+        self.assertEqual(sensitivity['closeSameCoach106to114']['n'], 64)
+        self.assertEqual(sensitivity['excludingCloseSameCoach106to114']['n'], 63)
+        self.assertEqual(sensitivity['fixedGlobalAmplitudeOnSameTargets']['n'], 127)
+        self.assertLess(
+            sensitivity['fixedGlobalAmplitudeOnSameTargets']['midpointMae'],
+            cv['metrics']['midpointMae'])
 
 
 if __name__ == '__main__':
