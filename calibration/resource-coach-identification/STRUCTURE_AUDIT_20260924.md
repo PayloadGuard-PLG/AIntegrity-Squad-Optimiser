@@ -36,7 +36,12 @@ The generated tables (`STRUCTURE_AUDIT.md`, `structure-audit.json`,
 >   adopted until that conflict has a mechanism.
 > - **Revised (addendum 6, post hoc).** Anchoring on other players' previews improves players aged 23–26
 >   (MAE 1.90 → 1.35, 28 rows) and fails only where young-grey applies. It is age-conditional, not falsified
->   outright. Young-grey + anchor is the next test to pre-register.
+>   outright.
+> - **Young-grey + anchor: inconclusive (addendum 7).** The pre-registered test on four new players found
+>   22+ MAE 2.46 → 1.94, but YGA won only 9 of 15 cells against the required 10. Post hoc, a single
+>   coach-agnostic dose (×0.90, from the same frozen table) does better: 1.43, winning 11 of 15 cells. So the
+>   anchor's gain looks like a general over-prediction at ages 22+, not a coach effect. That is the next test
+>   to pre-register. T127 helped the 22+ WHITE rows again (1.87 → 1.40).
 
 ## Answer in one paragraph
 
@@ -446,3 +451,70 @@ young-grey + anchor against young-grey alone.
 **Grey rows, open.** Panic's MID_GREY rows at 107–115 on ×5/×10 are over-predicted (implied dose 0.73–0.75).
 His MID_GREY 136–138 on Defending ×20 are under-predicted (1.30). No young-grey arm applies here: these players
 have no grey rows below 70, so the young-grey decision rule is not exercised by them.
+
+## Addendum 7: PREREG-20260924-YOUNG-GREY-ANCHOR scored
+
+The predictions were frozen at `5e42483` from the pinned anchor table (`89ff060`), before any preview of
+these players. Twenty previews were then taken at club level 15, nothing applied: ×5, ×10, ×20, ×15 and ×59
+for each of King Alfie (23, T4), Plamen Andonov (23, T0), Cieran Morgan (22, T4) and Ryan Blakie (21, T3).
+
+- All 80 start values equal the frozen cards.
+- Every preview passes the category-sum `round(Σ/5)` and OVR-envelope checks.
+- Every coach showed its registered p (3/4/4/4/5), so all 80 rows are scored.
+- Andonov's previews show "unable to train in the Academy". The user identified this as a contract state,
+  so his ranges are scored as ordinary evidence.
+- Morgan ×5 Passing reads `+0`, recorded as the degenerate interval [0,0].
+
+Scores come from `tools/resource-coach-v2/score_young_grey_anchor.py` and are stored in
+`control-score-20260924-young-grey-anchor.json`. `YoungGreyAnchorScore` in the test suite reproduces the
+verdict and the arithmetic checks; the *Resource Coach Direct Player-Card Replay* run for `825f7c7` is green.
+
+**Verdict under the registered rule: inconclusive.**
+
+| Primary arm (22+) | Rows | YG MAE | YGA MAE | YGA better in |
+|---|---:|---:|---:|---:|
+| King Alfie, Andonov, Morgan | 60 | 2.463 | **1.939** | 9 / 15 cells (10 required) |
+
+The pooled margin (0.52 against 0.2) is met, but the cell criterion is not. By player, YG → YGA:
+
+- King Alfie 1.97 → 1.38
+- Andonov 2.98 → 2.42
+- Morgan 2.44 → 2.01
+
+YG over-predicts at every coach for all three. The implied doses against YG run from ×0.72 to ×1.00, and 14 of
+15 are below 0.98. The losing cells:
+
+- **×20 Defending, all three players.** Its anchor rests on n = 3 and points the wrong way (×1.02), while the
+  implied doses are ×0.78–0.89.
+- **Andonov ×5 and ×10.** YG was already inside and the anchor over-shrank.
+- **Morgan ×15.**
+
+**Post hoc, not in the rule.** One coach-agnostic dose, taken from the same frozen anchor table with no new
+data, gives:
+
+| Dose from | Events | Dose | Primary MAE | Better than YG in |
+|---|---:|---:|---:|---:|
+| every anchor event | 28 | ×0.925 | 1.579 | 12 / 15 |
+| anchor events aged 22+ | 19 | ×0.903 | **1.427** | 11 / 15 |
+
+The coach-agnostic dose beats the coach-specific anchor (1.94). The effect the anchor was capturing therefore
+looks like a **general level over-prediction for ages 22+** rather than per-coach efficiency. The likely
+candidate is the age-band dose for 22–23, which is where all three primary players sit. The next
+pre-registration should be *YG × one 22+ dose from the pinned table* against YG, on new players aged 22+.
+
+**By class (primary arm).**
+
+| Class | Rows | YG (signed) | YGA (signed) | YGA127 (signed) |
+|---|---:|---:|---:|---:|
+| WHITE | 48 | 2.40 (+2.20) | 1.87 (+1.07) | **1.40** (−1.13) |
+| MID_GREY | 12 | 2.70 (+2.70) | 2.21 (+1.53) | 2.21 (+1.53) |
+
+The WHITE threshold of 127 helped out of sample a second time. The unresolved conflict with the 10–12 Sep
+archive still stands, so it is not adopted.
+
+**Secondary arm (Blakie, 21).** YG MAE is 3.39 over 20 rows; YGA_ungated is 3.56, so the gate did no harm. The
+young-grey re-test is **untestable**: his only MID_GREY rows (STRENGTH 87, AGGRESSION 88) sit above the knot
+(80), where YG and the frozen model are identical. His doses scatter in both directions: ×5 implies ×1.89
+(under-predicted) and ×20 implies ×0.75. That spread is larger than anything in the primary arm and is left
+open.
+
