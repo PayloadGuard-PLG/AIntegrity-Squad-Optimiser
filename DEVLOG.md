@@ -6,6 +6,34 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## 2026-09-24 — Drills mobile hierarchy regression hotfix
+
+Physical-device review of PR #159 exposed a presentation regression in the
+Drills tab. The compact recommendation row introduced in the original Drill
+Library build had accumulated intensity, training-XP, WHITE efficiency, raw
+condition cost and billed-range fields in the same non-wrapping horizontal row.
+On Android that left the flex drill-name cell effectively no width; the name
+wrapped into a tall invisible-looking column and each recommendation expanded to
+hundreds of pixels. Separately, the recommendation seam's evidence reasons were
+rendered in full before the projection summary, pushing the useful result below
+a wall of model prose.
+
+The fix is presentation-only. Recommendation identity is again the primary row
+(rank · category · drill name · WHITE efficiency), with intensity/XP/condition
+on a compact secondary row and trained stats beneath it. The drill name is
+explicitly single-line/shrinkable so future metadata cannot recreate the same
+Android flex failure. Projection evidence is preserved verbatim but collapsed
+behind **MODEL NOTES** by default; a training lock remains surfaced immediately.
+The current corrected semantics stay intact: the filter remains **INTENSITY**,
+Perfect Conditions remains activation + level, raw and billed condition remain
+separate, and all projections still route through `projectDrillAction`.
+
+Historical reference: Sprint 30's `dcc4b64` compact Drill Library organisation
+and the May Drive repository snapshot. No engine constant, projection formula,
+calibration evidence or persistence path changed.
+
+---
+
 
 ## Sprint 39 — Resource Coach V2 Integrated, Audited, Proven, and Merged
 **2026-09-13**
