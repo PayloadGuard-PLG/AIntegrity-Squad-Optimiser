@@ -1,0 +1,377 @@
+{
+  "schema": "haggag-fractional-sequence-v1",
+  "status": "research-only",
+  "source": {
+    "driveFolderId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+    "driveFolderTitle": "Sept 24th season 15",
+    "spreadsheetId": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+    "sequenceTab": "Haggag_Drill_Sequence",
+    "teamplayTab": "Haggag_Teamplay_Raw",
+    "imageIndexTab": "Haggag_Image_Index",
+    "indexedImages": 163,
+    "experimentStart": {
+      "time": "13:52:47",
+      "filename": "Screenshot_20260924-135247.png",
+      "driveId": "1B48-iSK4IEiDOm6sboFpN4QGzCggZuEZ"
+    },
+    "finalCard": {
+      "time": "14:24:07",
+      "filename": "Screenshot_20260924-142407.png",
+      "driveId": "1UasBctnnK2s0WNE-mkCrcATKyBBUFgQY"
+    }
+  },
+  "player": {
+    "name": "Said Haggag",
+    "age": 22,
+    "position": "ST",
+    "tier": "T0",
+    "baselineOvrDisplayed": 96,
+    "finalOvrDisplayed": 98,
+    "baselineStats": {
+      "TACKLING": 82,
+      "MARKING": 73,
+      "POSITIONING": 125,
+      "HEADING": 112,
+      "BRAVERY": 75,
+      "PASSING": 102,
+      "DRIBBLING": 102,
+      "CROSSING": 80,
+      "SHOOTING": 97,
+      "FINISHING": 121,
+      "FITNESS": 80,
+      "STRENGTH": 104,
+      "AGGRESSION": 85,
+      "SPEED": 102,
+      "CREATIVITY": 101
+    },
+    "finalChangedStats": {
+      "TACKLING": 87,
+      "DRIBBLING": 110,
+      "FINISHING": 129
+    },
+    "visibleGain": {
+      "TACKLING": 5,
+      "DRIBBLING": 8,
+      "FINISHING": 8,
+      "total": 21
+    }
+  },
+  "drill": {
+    "name": "1-on-1 Finishing",
+    "baseConditionDrainPct": 1.5,
+    "campusConditionDrainModifier": -0.1,
+    "configuredDrainPct": 1.35
+  },
+  "sequence": {
+    "capturedTrainingReports": 115,
+    "reportIdRange": [
+      2,
+      118
+    ],
+    "nonReportSlots": [
+      50,
+      97
+    ],
+    "displayedDeltaCounts": {
+      "-1": 69,
+      "-2": 35,
+      "-3": 7,
+      "-4": 1
+    },
+    "minimumMissingRunsForcedByDeltas": 8,
+    "minimumActualRuns": 123,
+    "recoveries": [
+      {
+        "fromCondition": 29,
+        "toCondition": 89,
+        "delta": 60,
+        "restsSpent": 4
+      },
+      {
+        "fromCondition": 29,
+        "toCondition": 89,
+        "delta": 60,
+        "restsSpent": 4
+      }
+    ],
+    "finalConditionDisplayed": 54,
+    "aggregateIfInitialConditionWas100": {
+      "visibleConditionConsumed": 166,
+      "nominalConditionConsumedAt123Runs": 166.05,
+      "discrepancy": -0.05,
+      "integerSettlementCountsConsistentWithTotal": {
+        "ones": 80,
+        "twos": 43
+      },
+      "empiricalTwoRate": 0.34959349593495936,
+      "nominalTwoRateUnderUnbiasedSettlement": 0.35
+    }
+  },
+  "directVisibleStatGainReports": {
+    "TACKLING": [
+      2,
+      51,
+      81,
+      110
+    ],
+    "DRIBBLING": [
+      8,
+      20,
+      31,
+      46,
+      64,
+      78,
+      95,
+      108
+    ],
+    "FINISHING": [
+      10,
+      21,
+      32,
+      48,
+      65,
+      80,
+      110
+    ]
+  },
+  "endpointConservation": {
+    "directlyRenderedPoints": 19,
+    "finalVisiblePoints": 21,
+    "missingUnlocalizedPoints": 2,
+    "missingByEndpoint": {
+      "TACKLING": 1,
+      "FINISHING": 1
+    }
+  },
+  "teamplayHistory": {
+    "note": "Rows are ordered newest to oldest within each screenshot. Windows are overlapping history views, not independent samples.",
+    "windows": {
+      "142238": [
+        [
+          "14:17",
+          -2
+        ],
+        [
+          "14:17",
+          -1
+        ],
+        [
+          "14:17",
+          -2
+        ],
+        [
+          "14:16",
+          -1
+        ],
+        [
+          "14:16",
+          -1
+        ],
+        [
+          "14:16",
+          -1
+        ],
+        [
+          "14:16",
+          -1
+        ],
+        [
+          "14:16",
+          -2
+        ],
+        [
+          "14:16",
+          -1
+        ]
+      ],
+      "142244": [
+        [
+          "14:18",
+          -1
+        ],
+        [
+          "14:18",
+          -2
+        ],
+        [
+          "14:18",
+          -1
+        ],
+        [
+          "14:18",
+          -2
+        ],
+        [
+          "14:18",
+          -1
+        ],
+        [
+          "14:17",
+          -1
+        ],
+        [
+          "14:17",
+          -1
+        ],
+        [
+          "14:17",
+          -2
+        ],
+        [
+          "14:17",
+          -1
+        ]
+      ],
+      "142249": [
+        [
+          "14:20",
+          -2
+        ],
+        [
+          "14:19",
+          -1
+        ],
+        [
+          "14:19",
+          -1
+        ],
+        [
+          "14:19",
+          -2
+        ],
+        [
+          "14:19",
+          -1
+        ],
+        [
+          "14:19",
+          -1
+        ],
+        [
+          "14:19",
+          -1
+        ],
+        [
+          "14:19",
+          -2
+        ],
+        [
+          "14:19",
+          -2
+        ]
+      ],
+      "142255": [
+        [
+          "14:21",
+          -2
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:20",
+          -1
+        ],
+        [
+          "14:20",
+          -2
+        ],
+        [
+          "14:20",
+          -2
+        ],
+        [
+          "14:20",
+          -2
+        ],
+        [
+          "14:20",
+          -2
+        ],
+        [
+          "14:20",
+          -1
+        ]
+      ],
+      "142259": [
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:21",
+          -2
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:21",
+          -1
+        ],
+        [
+          "14:20",
+          -1
+        ],
+        [
+          "14:20",
+          -2
+        ]
+      ]
+    },
+    "exactAdjacentWindowOverlaps": {
+      "142244_to_142238": 2,
+      "142259_to_142255": 5
+    },
+    "dedupedKnownUniqueRows": 38,
+    "dedupedKnownCounts": {
+      "ones": 24,
+      "twos": 14
+    },
+    "dedupedKnownMeanDrain": 1.368421052631579,
+    "hasAdjacentTwos": true,
+    "maxObservedConsecutiveTwos": 4
+  },
+  "hypotheses": {
+    "deterministicPersistentCarry": {
+      "status": "falsified-for-condition",
+      "reason": "Exact 1.35 decrement plus a single persistent unit-interval floor/nearest phase cannot yield adjacent visible -2 rows; the independently visible Teamplay history contains adjacent -2 rows, including four consecutive -2 events."
+    },
+    "independentIntegerSettlement": {
+      "status": "compatible-not-proven",
+      "rule": "visible drain = 1 + Bernoulli(0.35)",
+      "evidence": "The deduped visible history has 14/38 twos (0.3684), and the minimum 123-run aggregate conditional on initial condition 100 requires 43/123 twos (0.3496)."
+    },
+    "perStatLatentAccumulator": {
+      "status": "supported-as-research-hypothesis",
+      "evidence": "Dribbling contributes all 8 endpoint points in directly captured +1 events, while Finishing +1 events repeatedly follow Dribbling events by one or two captured reports; Tackling crosses more slowly. This is structured enough to test stat-specific phase/dose rather than a single global remainder."
+    }
+  },
+  "plannedCoachTransferTest": {
+    "rule": "Freeze Resource Coach M1/M*/M** dose/response parameters. Infer Haggag per-stat latent phase intervals from the drill sequence only. Then propagate those phase intervals through the frozen coach response for a fresh ordinary-coach preview. Do not condition phase on the target preview.",
+    "primaryStats": [
+      "DRIBBLING",
+      "FINISHING",
+      "TACKLING"
+    ],
+    "rationale": "Age 22 T0 gives WHITE Dribbling 102→110, WHITE Finishing 121→129 across the disputed WHITE response region, and grey Tackling 82→87 as a class control."
+  }
+}
