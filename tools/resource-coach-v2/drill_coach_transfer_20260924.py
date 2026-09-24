@@ -250,7 +250,7 @@ def evaluate(events,yg,candidates):
             index=0
             for e in test:
                 for r in e["rows"]:
-                    d=dict(player=player,partition=e["partition"],lo=float(lo[index]),hi=float(hi[index]),
+                    d=dict(player=player,partition=e["partition"],cls=r["cls"],lo=float(lo[index]),hi=float(hi[index]),
                            ol=float(X.lo[index]),oh=float(X.hi[index]))
                     bypart[e["partition"]].append(d);allrows.append(d);index+=1
         def summarize(rr):
@@ -261,8 +261,12 @@ def evaluate(events,yg,candidates):
                 inside=float(np.mean((pred>=a[:,2])&(pred<=a[:,3]))),
                 signed=float(np.mean(pred-obs)))
         output[label]=dict(all=summarize(allrows),
+            white=summarize([r for r in allrows if r["cls"]=="WHITE"]),
+            grey=summarize([r for r in allrows if r["cls"]!="WHITE"]),
             prospectiveX59=summarize(bypart["prospective-x59"]),
-            controls=summarize(bypart["control"]))
+            prospectiveWhite=summarize([r for r in bypart["prospective-x59"] if r["cls"]=="WHITE"]),
+            controls=summarize(bypart["control"]),
+            controlWhite=summarize([r for r in bypart["control"] if r["cls"]=="WHITE"]))
     return output
 
 def main():
