@@ -16,6 +16,23 @@ The generated tables (`STRUCTURE_AUDIT.md`, `structure-audit.json`,
 `candidate-direct-predictions.csv`) are also produced by the
 *Resource Coach Direct Player-Card Replay* workflow for every player in the corpus.
 
+> **Status after the prospective controls (read this first).** The one-paragraph answer below
+> was written before the controls and is kept as the historical record. The addenda decide.
+>
+> - **Falsified.** The `N − 1` dose law (point 2): Ferguson ×5 implied 1.42× the frozen dose.
+>   Other-player coach anchoring (point 3): Ferguson, and regime-matched on Rodger ×10.
+> - **Supported prospectively.**
+>   - Young-grey cheapness at ages 18–21: Kawa, out of corpus, MAE 2.33 against 10.51. It is
+>     age-specific (Rodger at 23: 1.02×). This is the research candidate
+>     `resource_coach_structure_candidate_20260924b.json`.
+>   - The frozen response geometry and age bands.
+> - **New (addendum 5).**
+>   - Club level can be read from the quality offset.
+>   - Displayed-unit thresholds carry across club levels.
+>   - Whether dose scales with club level is open; the archive decides it.
+>   - The HIST tier in `PRV-0015` came from a later season, which explains its contamination.
+> - **Unresolved.** A white threshold near 127 fits 23–24 Sep and ×59 but not the 10–12 Sep archive.
+
 ## Answer in one paragraph
 
 The frozen **response** (tier-subtracted latent coordinate, flat→exponential marginal cost,
