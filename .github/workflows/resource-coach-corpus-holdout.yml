@@ -1,22 +1,24 @@
-name: Resource Coach Screenshot Replay
+name: Resource Coach Direct Player-Card Replay
 
 on:
   pull_request:
     paths:
       - 'profiles/resource_coach_current_replay_20260923.json'
-      - 'tools/resource-coach-v2/corpus_holdout_validation.py'
-      - 'tests/test_resource_coach_corpus_holdout.py'
+      - 'tools/resource-coach-v2/direct_player_card_validation.py'
+      - 'tests/test_resource_coach_direct_validation.py'
       - 'calibration/resource-coach-identification/archived-preview-rows-v1.json'
       - 'calibration/resource-coach-identification/chat-locked-tests-20260923.json'
+      - 'calibration/resource-coach-identification/prospective-evidence-20260921.json'
+      - 'calibration/resource-coach-identification/live-preview-20260923-gilmartin.json'
       - 'calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64'
       - 'calibration/resource-coach-log/quality-exclusions.json'
       - '.github/workflows/resource-coach-corpus-holdout.yml'
   workflow_dispatch:
     inputs:
       seed:
-        description: 'Deterministic spotlight anchor→target pair'
+        description: 'Deterministic single-event spotlight'
         required: false
-        default: 'vader-20260924-rerun-2'
+        default: 'vader-direct-20260924'
 
 permissions:
   contents: read
@@ -36,45 +38,47 @@ jobs:
 
       - name: Static checks
         run: |
-          python -m py_compile             tools/resource-coach-v2/corpus_holdout_validation.py             tests/test_resource_coach_corpus_holdout.py
+          python -m py_compile \
+            tools/resource-coach-v2/direct_player_card_validation.py \
+            tests/test_resource_coach_direct_validation.py
 
-      - name: Replay invariants
+      - name: Direct replay invariants
         run: |
-          python -m unittest discover -s tests -p 'test_resource_coach_corpus_holdout.py'
+          python -m unittest discover -s tests -p 'test_resource_coach_direct_validation.py'
 
-      - name: Run screenshot-grounded leave-one-coach-out replay
+      - name: Run direct player-card replay
         env:
-          REPLAY_SEED: ${{ inputs.seed || 'vader-20260924-rerun-2' }}
+          REPLAY_SEED: \${{ inputs.seed || 'vader-direct-20260924' }}
         run: |
-          rm -rf /tmp/resource-coach-current-replay
-          mkdir -p /tmp/resource-coach-current-replay
-          python tools/resource-coach-v2/corpus_holdout_validation.py             --seed "$REPLAY_SEED"             --out-dir /tmp/resource-coach-current-replay
+          rm -rf /tmp/resource-coach-direct-replay
+          mkdir -p /tmp/resource-coach-direct-replay
+          python tools/resource-coach-v2/direct_player_card_validation.py \
+            --seed "$REPLAY_SEED" \
+            --out-dir /tmp/resource-coach-direct-replay
 
           {
-            cat /tmp/resource-coach-current-replay/REPORT.md
+            cat /tmp/resource-coach-direct-replay/REPORT.md
             echo
             echo '## Reproducibility'
             echo
             echo "- Commit: \`$GITHUB_SHA\`"
             echo "- Seed: \`$REPLAY_SEED\`"
             echo "- Python: 3.12"
-            echo "- No model fitting package or stochastic optimiser is used."
+            echo "- Primary predictor uses frozen global C only; no observed target or anchor coach is fitted."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify audit bundle
         run: |
-          test -s /tmp/resource-coach-current-replay/summary.json
-          test -s /tmp/resource-coach-current-replay/REPORT.md
-          test -s /tmp/resource-coach-current-replay/primary-predictions.csv
-          test -s /tmp/resource-coach-current-replay/primary-anchor-calibrations.csv
-          test -s /tmp/resource-coach-current-replay/canonical-predictions.csv
-          test -s /tmp/resource-coach-current-replay/canonical-anchor-calibrations.csv
-          test -s /tmp/resource-coach-current-replay/global-baseline-predictions.csv
+          test -s /tmp/resource-coach-direct-replay/summary.json
+          test -s /tmp/resource-coach-direct-replay/REPORT.md
+          test -s /tmp/resource-coach-direct-replay/direct-predictions.csv
+          test -s /tmp/resource-coach-direct-replay/event-inventory.csv
+          test -s /tmp/resource-coach-direct-replay/quarantined-rows.csv
 
       - name: Upload replay bundle
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: resource-coach-current-model-replay
-          path: /tmp/resource-coach-current-replay
+          name: resource-coach-direct-player-card-replay
+          path: /tmp/resource-coach-direct-replay
           if-no-files-found: error
           retention-days: 30
