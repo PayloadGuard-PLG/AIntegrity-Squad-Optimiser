@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "haggag-one-on-one-finishing-observation-v1",
+  "preregistration": "PREREG-20260924-SHAPE-FIVE-MODEL",
+  "player": {
+    "name": "Said Haggag",
+    "age": 22,
+    "tier": "T0",
+    "roles": [
+      "ST"
+    ],
+    "baselineOVR": 96,
+    "finalOVR": 98,
+    "baseline": {
+      "TACKLING": 82,
+      "DRIBBLING": 102,
+      "FINISHING": 121
+    },
+    "final": {
+      "TACKLING": 87,
+      "DRIBBLING": 110,
+      "FINISHING": 129
+    },
+    "endpointGain": {
+      "TACKLING": 5,
+      "DRIBBLING": 8,
+      "FINISHING": 8,
+      "total": 21
+    }
+  },
+  "intervention": {
+    "drill": "1-on-1 Finishing",
+    "nominalConditionCostPct": -1.5,
+    "campusConditionDrainModifierPct": -10,
+    "configuredDisplayedDrainPct": -1.35
+  },
+  "evidence": {
+    "driveProviderItems": 163,
+    "uniqueFilenames": 152,
+    "providerDuplicateCopies": 11,
+    "directlyRenderedGainPoints": 19,
+    "directlyRenderedByStat": {
+      "TACKLING": 4,
+      "DRIBBLING": 8,
+      "FINISHING": 7
+    },
+    "endpointRequiredAdditionalPoints": 2,
+    "endpointRequiredAdditionalByStat": {
+      "TACKLING": 1,
+      "FINISHING": 1
+    },
+    "missingGainLocalization": "unresolved",
+    "teamplayRawSnapshots": 5,
+    "teamplayRawRows": 45,
+    "teamplayRawMinus1Rows": 28,
+    "teamplayRawMinus2Rows": 17,
+    "teamplayNote": "Rows are preserved raw because snapshots overlap; identical minute labels are insufficient to create unique run identities."
+  },
+  "recoveryLedger": {
+    "baselineRestInventory": 7,
+    "firstCapturedTrainingRestInventory": 5,
+    "preFirstRecoveryRestSpend": 2,
+    "preFirstRecoverySpendLocalization": "unresolved",
+    "firstRecovery": {
+      "conditionBefore": 29,
+      "conditionAfter": 89,
+      "restsBefore": 5,
+      "restsAfter": 1,
+      "restsConsumed": 4
+    },
+    "secondRecovery": {
+      "conditionBefore": 29,
+      "conditionAfter": 89,
+      "restsBeforePurchase": 1,
+      "restsPurchased": 10,
+      "restsAfterRecovery": 7,
+      "restsConsumed": 4,
+      "tokenBefore": 50,
+      "tokenAfter": 40
+    },
+    "totalRestSpendFromLedger": 10,
+    "directlyAttributableToHaggagRecoveries": 8
+  },
+  "conditionAccounting": {
+    "blockA": {
+      "start": 100,
+      "end": 29,
+      "loss": 71,
+      "status": "conditional on start condition 100"
+    },
+    "blockB": {
+      "start": 89,
+      "end": 29,
+      "loss": 60,
+      "status": "direct"
+    },
+    "blockC": {
+      "start": 89,
+      "end": 54,
+      "loss": 35,
+      "status": "direct"
+    },
+    "totalLossIfBlockAStart100": 166,
+    "nominalRunEquivalent": 122.96296296296296,
+    "note": "166/1.35 = 122.963...; the near-123 arithmetic is suggestive only. Exact run count is not established from the overlapping Teamplay history."
+  },
+  "spreadsheet": {
+    "id": "1Sgu5etUVWCmpigbsyA280x33MwnMLW7po9TLU3V4QmI",
+    "title": "Resource Coach Experiment Log — v1",
+    "tabs": [
+      "Haggag_Drill_Sequence",
+      "Haggag_Teamplay_Raw",
+      "Haggag_Image_Index"
+    ]
+  },
+  "provenance": {
+    "baselineCard": "Screenshot_20260924-135247.png",
+    "firstRecoveryPreviews": [
+      "Screenshot_20260924-141202.png",
+      "Screenshot_20260924-141205.png",
+      "Screenshot_20260924-141207.png",
+      "Screenshot_20260924-141210.png"
+    ],
+    "secondRecoveryStart": "Screenshot_20260924-141815.png",
+    "secondRecoveryPostState": "Screenshot_20260924-142207.png",
+    "finalCard": "Screenshot_20260924-142407.png",
+    "teamplaySnapshots": [
+      "Screenshot_20260924-142238.png",
+      "Screenshot_20260924-142244.png",
+      "Screenshot_20260924-142249.png",
+      "Screenshot_20260924-142255.png",
+      "Screenshot_20260924-142259.png"
+    ]
+  }
+}
