@@ -1,0 +1,84 @@
+name: Resource Coach Direct Player-Card Replay
+
+on:
+  pull_request:
+    paths:
+      - 'profiles/resource_coach_current_replay_20260923.json'
+      - 'tools/resource-coach-v2/direct_player_card_validation.py'
+      - 'tests/test_resource_coach_direct_validation.py'
+      - 'calibration/resource-coach-identification/archived-preview-rows-v1.json'
+      - 'calibration/resource-coach-identification/chat-locked-tests-20260923.json'
+      - 'calibration/resource-coach-identification/prospective-evidence-20260921.json'
+      - 'calibration/resource-coach-identification/live-preview-20260923-gilmartin.json'
+      - 'calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64'
+      - 'calibration/resource-coach-log/quality-exclusions.json'
+      - '.github/workflows/resource-coach-corpus-holdout.yml'
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Deterministic single-event spotlight'
+        required: false
+        default: 'vader-direct-20260924'
+
+permissions:
+  contents: read
+
+jobs:
+  replay-current-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+
+      - name: Static checks
+        run: |
+          python -m py_compile \
+            tools/resource-coach-v2/direct_player_card_validation.py \
+            tests/test_resource_coach_direct_validation.py
+
+      - name: Direct replay invariants
+        run: |
+          python -m unittest discover -s tests -p 'test_resource_coach_direct_validation.py'
+
+      - name: Run direct player-card replay
+        env:
+          REPLAY_SEED: ${{ inputs.seed || 'vader-direct-20260924' }}
+        run: |
+          rm -rf /tmp/resource-coach-direct-replay
+          mkdir -p /tmp/resource-coach-direct-replay
+          python tools/resource-coach-v2/direct_player_card_validation.py \
+            --seed "$REPLAY_SEED" \
+            --out-dir /tmp/resource-coach-direct-replay
+
+          {
+            cat /tmp/resource-coach-direct-replay/REPORT.md
+            echo
+            echo '## Reproducibility'
+            echo
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Seed: \`$REPLAY_SEED\`"
+            echo "- Python: 3.12"
+            echo "- Primary predictor uses frozen global C only; no observed target or anchor coach is fitted."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify audit bundle
+        run: |
+          test -s /tmp/resource-coach-direct-replay/summary.json
+          test -s /tmp/resource-coach-direct-replay/REPORT.md
+          test -s /tmp/resource-coach-direct-replay/direct-predictions.csv
+          test -s /tmp/resource-coach-direct-replay/event-inventory.csv
+          test -s /tmp/resource-coach-direct-replay/quarantined-rows.csv
+
+      - name: Upload replay bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: resource-coach-direct-player-card-replay
+          path: /tmp/resource-coach-direct-replay
+          if-no-files-found: error
+          retention-days: 30
