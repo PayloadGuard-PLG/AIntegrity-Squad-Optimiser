@@ -54,6 +54,23 @@ audit is in `docs/audits/PR_134_PAYLOADGUARD_FALSE_POSITIVE_AUDIT.md`.
 **Active branch:** create a task branch from current `main`; no permanent dev branch is authoritative.
 **Never push to main directly** — main triggers EAS OTA to production devices. Development work goes to a task branch created from current `main`; user merges via reviewed PR.
 
+### Screenshot archive S208–S209 (2026-09-24)
+
+The Drive folder "Archive Coaches" (18 Apr–16 May 2026) is transcribed into `Archive_*` tabs of the
+Resource Coach sheet under `calibration/archive-s208-s209/PROTOCOL.md`. `archive-validate.mjs` computes
+seasons, grades, tier pairing and club level; nothing typed there is trusted, and nothing is promoted
+into the run log. Archive rows in `Experiments` are refused by the collector. The committed snapshot in
+`calibration/archive-s208-s209/snapshot/` must hash identically to the Drive tabs; once sealed, drift
+fails the collection run.
+
+- **Club level is readable from every preview:** `Avg: X (Q)` obeys `Q = 5(level−1) + mean/4` (fits
+  L15/L17/L31/L54 exactly). The archive reads level 9 (April) and 10 (May). The direct test is pending.
+- **Displayed-unit thresholds carry across levels;** the "cost is defined in quality units" reading is
+  withdrawn (Scott Ritchie April previews). Whether the dose scales with level (`H-LEVEL-DOSE`) is open
+  and is decided by the archive.
+- **HIST PRV-0015 carries a tier from an 11 Sep source attached to an 18 Apr preview.** Never pair a
+  tier with a preview unless a card of the identical state in the same season shows it.
+
 ### Stop guessing the fucking answer
 
 This app does not automate a decision by manufacturing a quantity. It reports

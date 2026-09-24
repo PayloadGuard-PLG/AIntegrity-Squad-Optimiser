@@ -1,0 +1,646 @@
+{
+ "schemaVersion": "resource-coach-archive-drive-inventory-v1",
+ "listedAt": "2026-09-24",
+ "folderId": "1CfEZSCr4QTuUts0HTu7BiCDw7_N5DnRP",
+ "folderName": "Archive Coaches",
+ "listingMethod": "Drive search by parentId through the user's Drive connector; sizes from Drive metadata. md5 was not exposed by that connector; the CI collection run lists the folder again with md5Checksum.",
+ "counts": {
+  "total": 103,
+  "namedScreenshots": 73,
+  "imageJpgCopies": 30
+ },
+ "verified": {
+  "byteIdenticalPair": {
+   "copy": "1y1zsCTh_Bxju29drwmpHlyZXYnqvb8BA (image.jpg)",
+   "original": "1N0GesMTakLxddvKY70-1XFAkBO8bN_3i Screenshot_20260516-125335.png",
+   "sha256Prefix": "e1c91130a3760004"
+  },
+  "distinctSameSizePair": {
+   "files": [
+    "Screenshot_20260508-134609.png",
+    "Screenshot_20260508-134625.png"
+   ],
+   "sha256Prefixes": [
+    "e371db524d1ef55f",
+    "fadc0dfbd2790750"
+   ]
+  },
+  "resolution": {
+   "Screenshot_20260418-092812.png": "2244x1008",
+   "Screenshot_20260516-125335.png": "2992x1344",
+   "Screenshot_20260508-134609.png": "2992x1344"
+  }
+ },
+ "notes": [
+  "Every image.jpg has the byte size of exactly one named screenshot; one pair verified byte-identical by SHA-256. The user is deleting the image.jpg copies (24 Sep).",
+  "The user quoted 74 screenshots; 73 named files are present.",
+  "18 Apr is the last day of S208 and 16 May the last day of S209: seasons for those captures are resolved only through player age (SEASON_BY_AGE)."
+ ],
+ "files": [
+  {
+   "id": "1N0GesMTakLxddvKY70-1XFAkBO8bN_3i",
+   "name": "Screenshot_20260516-125335.png",
+   "size": 554204
+  },
+  {
+   "id": "1dL28_NH03dqd-N6pP2xTas1vkvi6T3FZ",
+   "name": "Screenshot_20260515-235001.png",
+   "size": 476327
+  },
+  {
+   "id": "1xqggoSSgMtlEmv66h1bIaOGIatY6kuBE",
+   "name": "Screenshot_20260515-234955.png",
+   "size": 450723
+  },
+  {
+   "id": "1Eku7Xdpcgs_zhH_S31YsFPLsbl5fxGcQ",
+   "name": "Screenshot_20260515-225621.png",
+   "size": 554791
+  },
+  {
+   "id": "1oDEizn_H6IjR1MFusyijfK3rgniMn5py",
+   "name": "Screenshot_20260515-225624.png",
+   "size": 556441
+  },
+  {
+   "id": "1QzRLoOlCRWv_w1FPYLZSEKUvy7NR_WVV",
+   "name": "Screenshot_20260515-225658.png",
+   "size": 572405
+  },
+  {
+   "id": "1FCo6tpvk8CXLBw7_Inx77sdugzVV0kB5",
+   "name": "Screenshot_20260515-234949.png",
+   "size": 408693
+  },
+  {
+   "id": "1d_LxshvlhFHLy9POotFrT9L19GUNrOaG",
+   "name": "Screenshot_20260515-225511.png",
+   "size": 625133
+  },
+  {
+   "id": "1ZWtWuw-k8jlCuueuCGPyXwZNKfyFI3GD",
+   "name": "Screenshot_20260515-225524.png",
+   "size": 605823
+  },
+  {
+   "id": "1XFjjZBolnTgIsghiXR0CSAFyYExPAer7",
+   "name": "Screenshot_20260515-225536.png",
+   "size": 618237
+  },
+  {
+   "id": "16kiQwApDMSqPGO78uzX00yNgfzjtSFBh",
+   "name": "Screenshot_20260515-225608.png",
+   "size": 557656
+  },
+  {
+   "id": "1GqdZWyYIFSVorseR0zlaupIIp1ROhcjV",
+   "name": "Screenshot_20260515-225420.png",
+   "size": 617759
+  },
+  {
+   "id": "1ViuxEl6llwRtqcO_QSFO3v6Cj5WO2cv7",
+   "name": "Screenshot_20260511-151259.png",
+   "size": 465426
+  },
+  {
+   "id": "1hsPE0fB2MussJUlG5Q7aNtOZdoZhSzS4",
+   "name": "Screenshot_20260510-203155.png",
+   "size": 609801
+  },
+  {
+   "id": "1cX9RvKgEmFYiVcXaRbBLShIXXoLtKgmh",
+   "name": "Screenshot_20260510-203141.png",
+   "size": 559111
+  },
+  {
+   "id": "16s3ZJB2YTigDvXPKUldSYpHrb24irVZA",
+   "name": "Screenshot_20260510-203054.png",
+   "size": 611440
+  },
+  {
+   "id": "1vOgdDybS0fo8aMV8TUj3gx0gO1ZwltAg",
+   "name": "Screenshot_20260510-203112.png",
+   "size": 613820
+  },
+  {
+   "id": "1vg6m_dduxnTuQcj1n4ln0aM04G9HKfVc",
+   "name": "Screenshot_20260510-203124.png",
+   "size": 609075
+  },
+  {
+   "id": "1TAxaRrK7lYDRJFG1Lh2Q6sr_6ONDpitS",
+   "name": "Screenshot_20260510-203132.png",
+   "size": 614578
+  },
+  {
+   "id": "1RPj41i3Wd50Fm_cvEzAp6upegrhvXw-d",
+   "name": "Screenshot_20260510-203045.png",
+   "size": 578527
+  },
+  {
+   "id": "1pLQOT0N8s4kuLWPMQplv6jeAugq9QoBy",
+   "name": "Screenshot_20260509-100720.png",
+   "size": 604494
+  },
+  {
+   "id": "12kduBReJfQeiVs7_X6mkr_X5m54VTpw8",
+   "name": "Screenshot_20260509-100709.png",
+   "size": 615771
+  },
+  {
+   "id": "1S6BzJDYgK0ox7rRcgvtoVauzpIzLAyLT",
+   "name": "Screenshot_20260509-100653.png",
+   "size": 558231
+  },
+  {
+   "id": "1ZbNyb7S7Ndg4h1vVmaTHwBDs5IRiXY_P",
+   "name": "Screenshot_20260509-100602.png",
+   "size": 578204
+  },
+  {
+   "id": "1dazBYJTWWWZdoNjJfaXd1fvQ113kXMIL",
+   "name": "Screenshot_20260509-100615.png",
+   "size": 613891
+  },
+  {
+   "id": "1zy70MY3xYyS4h-g9THuJym5tNRjv4shP",
+   "name": "Screenshot_20260509-100628.png",
+   "size": 611320
+  },
+  {
+   "id": "12uqTt8PyBNU5s15__-VCPuBmtizSs72r",
+   "name": "Screenshot_20260509-100642.png",
+   "size": 558143
+  },
+  {
+   "id": "1eQyjmdcxq0UDL2AzeUCczsRZt5AGkSm5",
+   "name": "Screenshot_20260509-100538.png",
+   "size": 580538
+  },
+  {
+   "id": "1n9xZBSt--Jq2AwsS_IaCxsSZ_GV6L7m6",
+   "name": "Screenshot_20260509-100349.png",
+   "size": 1046099
+  },
+  {
+   "id": "14Vb3-ZNmfMsRR2pf1ugs0lU9EzINLpV2",
+   "name": "Screenshot_20260509-100344.png",
+   "size": 1072332
+  },
+  {
+   "id": "1Y0i41UA6lkHy8ky8YXM9xc6NEyzOkdDu",
+   "name": "Screenshot_20260508-134642.png",
+   "size": 564926
+  },
+  {
+   "id": "1Re6CqUEBXdwzYt3osplqojmPTODaIir1",
+   "name": "Screenshot_20260508-121755.png",
+   "size": 613515
+  },
+  {
+   "id": "1NkaNYRN2Czcqq5Of2YfL6QcOxb2CVETl",
+   "name": "Screenshot_20260508-121829.png",
+   "size": 591822
+  },
+  {
+   "id": "1pDSwi7a1HoncObujKgi5i8c4lOxuUeGw",
+   "name": "Screenshot_20260508-134609.png",
+   "size": 591543
+  },
+  {
+   "id": "1s2JnL88TH4-5deqCzBsj0vtReGI1CXsI",
+   "name": "Screenshot_20260508-134625.png",
+   "size": 591543
+  },
+  {
+   "id": "1klkyF2VzXDpaiEgLmFYs6kiscv9o4n_W",
+   "name": "Screenshot_20260508-121746.png",
+   "size": 613174
+  },
+  {
+   "id": "1npy9q2kGvao1G0dPRstGZA1yWTV3DX0O",
+   "name": "Screenshot_20260508-121338.png",
+   "size": 1110785
+  },
+  {
+   "id": "17FDuSe-k60cbvyZKVS9fSBrMOvp66gMz",
+   "name": "Screenshot_20260508-033339.png",
+   "size": 602446
+  },
+  {
+   "id": "1TxrZAdk6W78HQXj7bsv3gN3FIw3vhW0J",
+   "name": "Screenshot_20260508-010522.png",
+   "size": 611784
+  },
+  {
+   "id": "1lsHmRkCIlrgXpCTXF04UrExQbP3Ghco6",
+   "name": "Screenshot_20260508-000913.png",
+   "size": 604064
+  },
+  {
+   "id": "1dL0qBBuxZ1_TN7xYcox4vEBtXlGnXE4F",
+   "name": "Screenshot_20260508-000925.png",
+   "size": 552954
+  },
+  {
+   "id": "1ZqfySMHADQ6s5HzjEv841VcYmKjZlcas",
+   "name": "Screenshot_20260508-000936.png",
+   "size": 606900
+  },
+  {
+   "id": "1PCSgd9ErCVw6cin2kkyjzzuMAZUQxYeH",
+   "name": "Screenshot_20260508-000957.png",
+   "size": 745155
+  },
+  {
+   "id": "1uhYJJdU51LIrTpcQHX_1SaDVdSRfRza0",
+   "name": "Screenshot_20260508-000856.png",
+   "size": 607802
+  },
+  {
+   "id": "1SF1H1-aFpfwBQDwoMZsftJZoRRClPghf",
+   "name": "Screenshot_20260508-000519.png",
+   "size": 760380
+  },
+  {
+   "id": "1XWS55WhK9kTCaNLMNlAeJ1gHyevLwjhJ",
+   "name": "Screenshot_20260508-000506.png",
+   "size": 589503
+  },
+  {
+   "id": "1Pm_ZnVNqz5js6ZsQtZ_mEWYUY5vkmhN8",
+   "name": "Screenshot_20260508-000456.png",
+   "size": 604717
+  },
+  {
+   "id": "1g0yOh8Y2O31TtBJXnuFk7AoTh-S6Q7N6",
+   "name": "Screenshot_20260507-235751.png",
+   "size": 601170
+  },
+  {
+   "id": "10wguIdjBAwngibWdPjJLiNUC74l7kmhy",
+   "name": "Screenshot_20260508-000416.png",
+   "size": 557094
+  },
+  {
+   "id": "16xuhDp2tifSXv5nYTsC-R0RnzZcEzo2y",
+   "name": "Screenshot_20260508-000431.png",
+   "size": 600917
+  },
+  {
+   "id": "1bZ-4ECqhzVNvRSPlJzTzop4A-uMbP-0u",
+   "name": "Screenshot_20260508-000445.png",
+   "size": 618252
+  },
+  {
+   "id": "19YqE_dOeO1Pz8g6EIkQydxHiBsX279Nh",
+   "name": "Screenshot_20260506-134753.png",
+   "size": 700833
+  },
+  {
+   "id": "1pz-KSV7YSYY-uQwTUuzTQZP5BnNPR6cG",
+   "name": "Screenshot_20260506-134808.png",
+   "size": 689775
+  },
+  {
+   "id": "1EyafrEQuJKpGQQGMdo-Bs6XMQhOZgdHm",
+   "name": "Screenshot_20260506-134817.png",
+   "size": 710403
+  },
+  {
+   "id": "1AmZbkWYHO_ltjxSRib0Kui68Tycnw2ly",
+   "name": "Screenshot_20260507-235144.png",
+   "size": 758684
+  },
+  {
+   "id": "1-AgGTmI9QoipLvlsIVHdqhCjUxrKJoPa",
+   "name": "Screenshot_20260506-134741.png",
+   "size": 1144494
+  },
+  {
+   "id": "11O5G8JBt3x5RA7KLOlWjCGJLVIWLs0YX",
+   "name": "Screenshot_20260506-134736.png",
+   "size": 1185154
+  },
+  {
+   "id": "1jHxSHrPOriB3yTV92ZAsVCFMCm1bU-lf",
+   "name": "Screenshot_20260506-133559.png",
+   "size": 608321
+  },
+  {
+   "id": "1HRCPtPYinMwTchPNgR9Pyax9WlyqL-Lc",
+   "name": "Screenshot_20260506-133544.png",
+   "size": 610498
+  },
+  {
+   "id": "1gJulMtjtm6sA49CzGy7rg5AVd2uVJgGp",
+   "name": "Screenshot_20260506-133459.png",
+   "size": 595659
+  },
+  {
+   "id": "16gAQ0O-a734dQfqWISvEV3NsqjsydZkQ",
+   "name": "Screenshot_20260506-133507.png",
+   "size": 604086
+  },
+  {
+   "id": "1nZPDES5vJpOytg9D0lnpA9qvhN-1lYO_",
+   "name": "Screenshot_20260506-133533.png",
+   "size": 604032
+  },
+  {
+   "id": "1s9e_KFOCkN_3opygqd__-mCj43ApD1yV",
+   "name": "Screenshot_20260506-133426.png",
+   "size": 1127319
+  },
+  {
+   "id": "1HcP-_jxViWrOI6svMcScu8JCiCGkCxGd",
+   "name": "Screenshot_20260423-115500.png",
+   "size": 1113358
+  },
+  {
+   "id": "1y-J5FAafacud7cJ9-eRsJnQ8HNPK6M7Q",
+   "name": "Screenshot_20260423-114222.png",
+   "size": 701288
+  },
+  {
+   "id": "1RcVJHD1FyG05B-MWuHJBq_McmT7c1c_l",
+   "name": "Screenshot_20260423-114209.png",
+   "size": 727968
+  },
+  {
+   "id": "1Wmqc2WGlv-XotvKAOBItEPR8cRWrCN3I",
+   "name": "Screenshot_20260418-092812.png",
+   "size": 401737
+  },
+  {
+   "id": "1NDKTBVXx_5DtWwDx8KVjyPfkuXSeeW2k",
+   "name": "Screenshot_20260418-093412.png",
+   "size": 414006
+  },
+  {
+   "id": "1DrheP129qFtIUCF8hkT5c3LQZX3USQVs",
+   "name": "Screenshot_20260423-113525.png",
+   "size": 791872
+  },
+  {
+   "id": "14uys12EVCLpgw_8HAF_4iiK38S6Ngnt9",
+   "name": "Screenshot_20260418-092758.png",
+   "size": 428641
+  },
+  {
+   "id": "1DbEPBfvp9PhwFRFRp0IUN8hR4UlX9BAs",
+   "name": "Screenshot_20260418-092357.png",
+   "size": 761417
+  },
+  {
+   "id": "1SJPn1zthkExcX_d0KAkttlenOe76jRbX",
+   "name": "Screenshot_20260418-085903.png",
+   "size": 334661
+  },
+  {
+   "id": "1YW7-ZqYjcGMZ4iPzEs2y1Nz4zD6drkuC",
+   "name": "Screenshot_20260418-085857.png",
+   "size": 325005
+  },
+  {
+   "id": "135iHBDInxAtSzyFMqumiJYKs3CQhJfg2",
+   "name": "image.jpg",
+   "size": 1072332,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100344.png"
+   ]
+  },
+  {
+   "id": "1Rgps8FvBX-9WTrPiOdBHF_atVPSAxdDc",
+   "name": "image.jpg",
+   "size": 1046099,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100349.png"
+   ]
+  },
+  {
+   "id": "1hNJsNUAp07XepgLbDAao3kbKpcCPoXgg",
+   "name": "image.jpg",
+   "size": 580538,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100538.png"
+   ]
+  },
+  {
+   "id": "1J9iKN4KJSE_eqA-upVmZAnVaoDh-RHEy",
+   "name": "image.jpg",
+   "size": 578204,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100602.png"
+   ]
+  },
+  {
+   "id": "1HpDvtYvfkL_MooPTbsTKyr1Aetnu2NSi",
+   "name": "image.jpg",
+   "size": 613891,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100615.png"
+   ]
+  },
+  {
+   "id": "1zXnnDCiguypDTf63zY8rulKmEmZPFpBQ",
+   "name": "image.jpg",
+   "size": 611320,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100628.png"
+   ]
+  },
+  {
+   "id": "1DABTLhXla0jjFhDJJOq5b9vhkjgiGtrX",
+   "name": "image.jpg",
+   "size": 558143,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100642.png"
+   ]
+  },
+  {
+   "id": "1ASTwyO93sGBTQP0zDrjrdEd726ARxg8e",
+   "name": "image.jpg",
+   "size": 558231,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100653.png"
+   ]
+  },
+  {
+   "id": "1mcO3vbTQdPzIccnMeWs6cSuPe_Bl-ItG",
+   "name": "image.jpg",
+   "size": 615771,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100709.png"
+   ]
+  },
+  {
+   "id": "1b_PhslVhFkLxGWWp10ZHZihLKQIn4jnp",
+   "name": "image.jpg",
+   "size": 604494,
+   "sizeMatchesNamed": [
+    "Screenshot_20260509-100720.png"
+   ]
+  },
+  {
+   "id": "1oSHbH7gsPWGlHTgi_51Vz4jPxdPUSyJW",
+   "name": "image.jpg",
+   "size": 578527,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203045.png"
+   ]
+  },
+  {
+   "id": "1thiUT-a--NjOQxQwgj07YzV4dI8kFzkc",
+   "name": "image.jpg",
+   "size": 611440,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203054.png"
+   ]
+  },
+  {
+   "id": "1jeqtoAEIMUKddjSOxVG-Dhc0thXTELTR",
+   "name": "image.jpg",
+   "size": 613820,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203112.png"
+   ]
+  },
+  {
+   "id": "1zMzagQyMqUuIK__5wCoXgtznpxfQ9GN0",
+   "name": "image.jpg",
+   "size": 609075,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203124.png"
+   ]
+  },
+  {
+   "id": "1cGNzPtI5Zds2mfaSHezRe5XaPMaL4NJt",
+   "name": "image.jpg",
+   "size": 614578,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203132.png"
+   ]
+  },
+  {
+   "id": "1nzGQQS01WoDhl8gsNeRonhLFb5YvRclV",
+   "name": "image.jpg",
+   "size": 559111,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203141.png"
+   ]
+  },
+  {
+   "id": "10EsHWlu_V-Rb_2wR7XdeCFX63DVg4r3u",
+   "name": "image.jpg",
+   "size": 609801,
+   "sizeMatchesNamed": [
+    "Screenshot_20260510-203155.png"
+   ]
+  },
+  {
+   "id": "1HjinHF0gVPWBvL7q8st6OfSmVa19BqGE",
+   "name": "image.jpg",
+   "size": 465426,
+   "sizeMatchesNamed": [
+    "Screenshot_20260511-151259.png"
+   ]
+  },
+  {
+   "id": "1U9-CoCfreH96vAaCAH3T5KwR66cRNqKp",
+   "name": "image.jpg",
+   "size": 617759,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225420.png"
+   ]
+  },
+  {
+   "id": "1cpf7LxxKt-owuEiTYwx5Sq9teK-dbEuz",
+   "name": "image.jpg",
+   "size": 625133,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225511.png"
+   ]
+  },
+  {
+   "id": "1BklU5-r7GfuJ55_PzZRxuB3IeuZ7DZPc",
+   "name": "image.jpg",
+   "size": 605823,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225524.png"
+   ]
+  },
+  {
+   "id": "1n9TCgb88Edg9bxPnmQ7UL2RPrKCE7MD1",
+   "name": "image.jpg",
+   "size": 618237,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225536.png"
+   ]
+  },
+  {
+   "id": "1G-0Jg_t7MiV6ODGoBmDwnTjakhJDZyAj",
+   "name": "image.jpg",
+   "size": 557656,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225608.png"
+   ]
+  },
+  {
+   "id": "1VGfy66A7BcUFQx8A4XZI5HKoF0O_GvBw",
+   "name": "image.jpg",
+   "size": 554791,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225621.png"
+   ]
+  },
+  {
+   "id": "107h9TlKsKzEGb2vLMGnc9ji0a0cGQ0Sn",
+   "name": "image.jpg",
+   "size": 556441,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225624.png"
+   ]
+  },
+  {
+   "id": "19L2fLaE2_qBKz67uORg5vIwjBGDWhJan",
+   "name": "image.jpg",
+   "size": 572405,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-225658.png"
+   ]
+  },
+  {
+   "id": "1BOY4VHabpv4zGyVLa_1djvtd9RVgnjmM",
+   "name": "image.jpg",
+   "size": 408693,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-234949.png"
+   ]
+  },
+  {
+   "id": "1e927R14MGzQBQ9JDym6ecz3GOv-_jtrs",
+   "name": "image.jpg",
+   "size": 450723,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-234955.png"
+   ]
+  },
+  {
+   "id": "1dEnZ1XvnqRgazXjeznoVFUhFk-nX_IJL",
+   "name": "image.jpg",
+   "size": 476327,
+   "sizeMatchesNamed": [
+    "Screenshot_20260515-235001.png"
+   ]
+  },
+  {
+   "id": "1y1zsCTh_Bxju29drwmpHlyZXYnqvb8BA",
+   "name": "image.jpg",
+   "size": 554204,
+   "sizeMatchesNamed": [
+    "Screenshot_20260516-125335.png"
+   ]
+  }
+ ]
+}

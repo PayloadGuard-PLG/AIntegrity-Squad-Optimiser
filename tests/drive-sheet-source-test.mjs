@@ -61,3 +61,11 @@ test('new Sheet records cannot silently upgrade a missing class source',()=>{
 test('source digest is key-order stable',()=>{
   assert.equal(digest({b:2,a:1}),digest({a:1,b:2}));
 });
+
+import { archiveRowReason } from '../tools/drive-data-exchange/collect-resource-coach-sheet.mjs';
+test('archive transcriptions can never be staged through the Experiments tab',()=>{
+  assert.equal(archiveRowReason(exp),null);
+  assert.match(archiveRowReason({...exp,partition:'archive-s209'}),/partition/);
+  assert.match(archiveRowReason({...exp,current_partition:'Archive-S208'}),/current_partition/);
+  assert.match(archiveRowReason({...exp,log_source:'archive-screenshot'}),/log_source/);
+});

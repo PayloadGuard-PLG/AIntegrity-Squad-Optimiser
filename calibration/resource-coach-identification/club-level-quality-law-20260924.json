@@ -1,0 +1,43 @@
+{
+ "schemaVersion": "resource-coach-finding-v1",
+ "id": "FINDING-20260924-CLUB-LEVEL-QUALITY-LAW",
+ "recordedDate": "2026-09-24",
+ "status": "hypothesis-fits-all-available-points; direct test pending (archive screen showing club level)",
+ "law": "quality = 5 * (clubLevel - 1) + displayed / 4",
+ "evidence": {
+  "alreadyOnRecord": {
+   "source": "quality-scale-20260924.json (offsets at slope 1/4)",
+   "points": [
+    {"view": "own", "clubLevel": 15, "offset": 70.0, "law": 70},
+    {"view": "association", "clubLevel": 17, "offset": 80.0, "law": 80},
+    {"view": "association", "clubLevel": 31, "offset": 150.0, "law": 150},
+    {"view": "association", "clubLevel": 54, "offset": 265.0, "law": 265}
+   ],
+   "friendsViews": "L17/L21/L22 friends views read 70: rendered at the viewer's level (15), not the viewed club's."
+  },
+  "archive": {
+   "source": "Drive folder 'Archive Coaches', read 24 Sep 2026 (derived numbers only; images not committed)",
+   "points": [
+    {"file": "Screenshot_20260418-092812.png", "player": "Scott Ritchie", "columns": {"DEFENSE": [122.8, 70.8], "ATTACK": [73.6, 58.4], "PHYSICAL_AND_MENTAL": [103.4, 65.9]}, "offset": 40.05, "levelIfLaw": 9},
+    {"file": "Screenshot_20260516-125335.png", "player": "Michael Benwell", "columns": {"DEFENSE": [96.4, 69.1], "ATTACK": [117.2, 74.4], "PHYSICAL_AND_MENTAL": [111.6, 72.9]}, "offset": 45.0, "levelIfLaw": 10}
+   ],
+   "columnFormat": "[mean of the five displayed stats, bracketed quality]"
+  }
+ },
+ "falsifier": "Any screen showing a club level L together with a quality/OVR pair whose offset differs from 5(L-1) by more than display rounding.",
+ "consequences": {
+  "archiveEra": "The S208-S209 archive (and the HIST previews drawn from it) sits at club levels ~9-10, not 15. HIST was therefore a different club-level regime from the calibration partition; it was never only a different tier bookkeeping.",
+  "thresholdsNotInLevelQualityUnits": "If cost thresholds were fixed in quality units, at level 9 they would sit 4*5*6 = 120 displayed points above the level-15 values. Against Scott Ritchie PRV-0014/0015 (frozen amplitude, untiered) a +60 or +120 displayed shift raises RMSE from 18.2 to 50-77. The steep regime starts where it does at level 15: thresholds are not level-shifted quality constants. The earlier remark that the grey threshold 120.1 'equals quality 100' at offset 70 is a coincidence of that level, not a mechanism.",
+  "doseLevelHypothesis": {
+   "id": "H-LEVEL-DOSE",
+   "statement": "Coach dose amplitude scales with club level (candidate form: proportional to the quality offset).",
+   "support": "Shape-frozen, untiered per-event budget fits: HIST T0 previews need 0.46-0.86 of the frozen amplitude; Scott Ritchie (offset 40) needs 0.54-0.60 vs 40/70 = 0.571.",
+   "status": "untested - HIST previews carry no level. Every archive preview carries its own offset, so the transcribed archive decides it; to be pre-registered before the archive candidates are scored."
+  }
+ },
+ "histProvenance": {
+  "finding": "Canonical-corpus HIST PRV-0015 (Scott Ritchie, Standard Defending x40) is reading-for-reading identical to Screenshot_20260418-092812.png (18 Apr 2026, S208, age 18). Its tier T2 was attached from SRC-USER-20260911-005 (11 Sep 2026), a source five seasons later.",
+  "consequence": "Explains the audit finding that Scott Ritchie's previews are admissible only at Delta=0: the recorded tier was never observed for that state. The archive protocol forbids the construction (rule P3: tier only from a card of the identical state in the same season).",
+  "frozenArtefactsUnchanged": "HIST records are left as they are; the correction is recorded here and in STRUCTURE_AUDIT_20260924.md addendum 5."
+ }
+}

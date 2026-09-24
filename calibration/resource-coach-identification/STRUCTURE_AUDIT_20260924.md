@@ -339,3 +339,46 @@ partition. It is recorded as research candidate `profiles/resource_coach_structu
 superseding the falsified N − 1 candidate. The white-threshold change helps the 23–24 Sep data but
 degrades the 10–12 Sep archive at the same club level. That is an unresolved conflict between the
 two periods (same offset and ages; programme mix differs) and is not adopted.
+
+## Addendum 5: the S208–S209 archive; club level from the quality offset; HIST provenance
+
+Record: `club-level-quality-law-20260924.json`. Archive protocol, schema and validator:
+`calibration/archive-s208-s209/` and `tools/drive-data-exchange/archive-validate.mjs`.
+
+**Club level is on every preview.** The four offsets already on record fit **offset = 5 × (club
+level − 1)** exactly: own L15 = 70, association L17 = 80, L31 = 150, L54 = 265. Friends views read 70
+because they render at the viewer's level. Two archive previews give offsets 40.05 (Scott Ritchie,
+18 Apr) and 45.0 (Michael Benwell, 16 May). If the law holds, the club level was **9** in April and **10**
+in mid-May. That is a prediction for the user to check against any screen showing the level.
+
+**Correction to addendum 3.** Addendum 3 read the grey threshold landing on quality 100 as a sign that
+cost is defined in quality units. If it were, the displayed-unit thresholds at level 9 would sit 120
+points higher than at level 15. Scott Ritchie's archive previews (PRV-0014/0015) rule that out:
+
+| Displayed threshold shift | RMSE (frozen amplitude, untiered) |
+|---:|---:|
+| 0 | 18.2 |
+| +60 | 50–57 |
+| +120 | 57–77 |
+
+The steep regime starts where it does at level 15, so **displayed-unit thresholds carry across
+club levels**, and the quality-100 coincidence is specific to level 15. Pooling across levels in
+displayed units is therefore not the problem.
+
+**What differs is the dose.** With the shape frozen and Δ = 0, the per-event budget fits for the
+T0 HIST previews need **0.46–0.86** of the frozen amplitude, and Scott Ritchie needs 0.54–0.60. That
+compares with 40/70 = 0.57. The candidate **H-LEVEL-DOSE** (dose amplitude scales with club level) is
+**untested**, because HIST carries no level. Every archive preview carries its own offset, so the
+transcribed archive decides it; it will be pre-registered before the archive candidates are scored.
+
+**HIST provenance, root cause.** HIST `PRV-0015` is identical, reading for reading, to
+`Screenshot_20260418-092812.png` (18 Apr, last day of S208, age 18). Its tier T2 was attached from
+`SRC-USER-20260911-005`, a source dated 11 Sep. A tier observed five seasons later was stitched onto an
+April preview, which is why Scott Ritchie fitted only at Δ = 0. HIST is left unchanged. The archive
+validator makes the construction impossible: the tier comes only from a card showing the identical
+stats in the same season (`TIER_CARD_SEASON`, `TIER_CARD_STATE`).
+
+**Archive inventory.** The folder holds 103 files: 73 named screenshots and 30 byte-copies named
+`image.jpg` (one pair verified by SHA-256; the copies are being deleted). Captures run 18 Apr–16 May.
+Both end days are season boundaries, and there are two screen resolutions. Details are in
+`calibration/archive-s208-s209/PROTOCOL.md` §1.

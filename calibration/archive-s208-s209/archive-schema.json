@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "resource-coach-archive-schema-v1",
+  "purpose": "Transcription schema for the S208-S209 screenshot archive (Drive folder 'Archive Coaches'). The Drive spreadsheet tabs and the committed snapshot CSVs must use exactly these tab names and column orders. Grades, seasons, pairing verdicts and club-level estimates are COMPUTED by tools/drive-data-exchange/archive-validate.mjs and are never typed.",
+  "readIds": {
+    "A": "first independent transcription",
+    "B": "second independent transcription, made without looking at read A",
+    "U": "user adjudication from the image; wins over A and B"
+  },
+  "enums": {
+    "readId": ["A", "B", "U"],
+    "captureBasis": ["filename", "in-image-clock", "user-stated", "inherited-duplicate"],
+    "screenType": ["coach-preview", "player-card", "squad-list", "club-overview", "coach-inventory", "other", "unreadable"],
+    "coachType": ["Standard", "Focused", "Extensive"],
+    "rewardBadge": ["TRUE", "FALSE", "UNREAD"],
+    "displayClass": ["WHITE", "MID_GREY", "DARK_GREY", "UNREAD"],
+    "category": ["DEFENSE", "ATTACK", "PHYSICAL_AND_MENTAL"],
+    "tierLabel": ["None", "Rare", "Elite", "Stellar", "Master", "Epic", "Legendary", "UNREAD"],
+    "view": ["own", "friends", "association"],
+    "decision": ["REJECT", "QUARANTINE", "ACKNOWLEDGE"]
+  },
+  "tabs": {
+    "Archive_Sources": {
+      "key": ["source_id"],
+      "columns": [
+        ["source_id", "str", true, "ARC-0001 ... one row per Drive file, including duplicates"],
+        ["drive_file_id", "str", true, "Drive file ID"],
+        ["drive_name", "str", true, "file name exactly as in Drive"],
+        ["drive_md5", "str", false, "Drive md5Checksum; the CI listing supplies it and overrides a typed value"],
+        ["width_px", "int", false, "image width"],
+        ["height_px", "int", false, "image height"],
+        ["capture_local", "str", true, "YYYY-MM-DDTHH:MM:SS device-local capture time"],
+        ["capture_basis", "enum:captureBasis", true, "where capture_local came from"],
+        ["screen_type", "enum:screenType", true, "what the screen shows"],
+        ["duplicate_of_source_id", "str", false, "set only on byte-identical copies; points at the kept source"],
+        ["notes", "str", false, "free text; never evidence"]
+      ]
+    },
+    "Archive_Previews": {
+      "key": ["preview_id", "read_id"],
+      "columns": [
+        ["preview_id", "str", true, "PV-0001 ..."],
+        ["source_id", "str", true, "Archive_Sources.source_id"],
+        ["read_id", "enum:readId", true, ""],
+        ["player_name", "str", true, "as displayed"],
+        ["age", "int", true, "as displayed on the preview card"],
+        ["roles_established", "str", true, "space-separated chips that are coloured (established)"],
+        ["roles_learning", "str", false, "space-separated dark chips (learning); blank if none"],
+        ["ovr_displayed", "num", true, "OVR box exactly as shown, e.g. 100.3"],
+        ["coach_type", "enum:coachType", true, ""],
+        ["coach_category", "str", true, "word after the type, e.g. Defending"],
+        ["multiplier", "int", true, "the xN number"],
+        ["programme_label", "str", false, "pill above the title verbatim, e.g. DRILL SESSION; blank if none shown"],
+        ["duration_label", "str", false, "e.g. 1h, 3 days"],
+        ["reward_badge", "enum:rewardBadge", true, "TRUE only if a Reward marking is visible; FALSE only if the whole header is visible and has none"],
+        ["eligibility_text", "str", false, "e.g. Max 9 stars, Max 30 years"],
+        ["ovr_boost_lo", "int", false, "lower number of the OVR +lo-hi box"],
+        ["ovr_boost_hi", "int", false, "upper number; equal to lo for a single +N"],
+        ["tier_card_id", "str", false, "Archive_Cards.card_id claimed to show this exact state; the validator verifies it"],
+        ["notes", "str", false, ""]
+      ]
+    },
+    "Archive_Preview_Stats": {
+      "key": ["preview_id", "read_id", "stat"],
+      "columns": [
+        ["preview_id", "str", true, ""],
+        ["read_id", "enum:readId", true, ""],
+        ["stat", "str", true, "stat name as displayed; all 15 rows, affected or not"],
+        ["start_value", "int", true, "number before the +"],
+        ["gain_lo", "int", false, "blank when the row has no +lo-hi"],
+        ["gain_hi", "int", false, "blank when the row has no +lo-hi"],
+        ["display_class", "enum:displayClass", true, "text colour: WHITE (dark/bold text), MID_GREY (dimmed), UNREAD when a highlight bar hides it"]
+      ]
+    },
+    "Archive_Preview_Categories": {
+      "key": ["preview_id", "read_id", "category"],
+      "columns": [
+        ["preview_id", "str", true, ""],
+        ["read_id", "enum:readId", true, ""],
+        ["category", "enum:category", true, ""],
+        ["avg_displayed", "int", false, "the X in 'Avg: X (Q)'"],
+        ["quality", "num", false, "the Q in brackets, one decimal"],
+        ["gain_lo", "int", false, "category +lo-hi under the column; blank if none"],
+        ["gain_hi", "int", false, ""]
+      ]
+    },
+    "Archive_Cards": {
+      "key": ["card_id", "read_id"],
+      "columns": [
+        ["card_id", "str", true, "CD-0001 ..."],
+        ["source_id", "str", true, ""],
+        ["read_id", "enum:readId", true, ""],
+        ["player_name", "str", true, ""],
+        ["age", "int", true, ""],
+        ["tier_label", "enum:tierLabel", true, "tier word as the game shows it"],
+        ["roles_established", "str", true, ""],
+        ["roles_learning", "str", false, "include the X/50 counter, e.g. MC:2/50"],
+        ["ovr_displayed", "num", true, "as shown"],
+        ["notes", "str", false, ""]
+      ]
+    },
+    "Archive_Card_Stats": {
+      "key": ["card_id", "read_id", "stat"],
+      "columns": [
+        ["card_id", "str", true, ""],
+        ["read_id", "enum:readId", true, ""],
+        ["stat", "str", true, "all 15"],
+        ["value", "int", true, ""],
+        ["display_class", "enum:displayClass", true, ""]
+      ]
+    },
+    "Archive_Club_State": {
+      "key": ["source_id", "read_id", "view", "club_name"],
+      "columns": [
+        ["source_id", "str", true, ""],
+        ["read_id", "enum:readId", true, ""],
+        ["view", "enum:view", true, ""],
+        ["club_name", "str", true, ""],
+        ["club_level_displayed", "int", false, "only if the level number itself is on screen"],
+        ["team_ovr", "num", false, ""],
+        ["team_quality", "num", false, ""],
+        ["notes", "str", false, ""]
+      ]
+    },
+    "Archive_Decisions": {
+      "key": ["entity_id", "decided_at"],
+      "columns": [
+        ["entity_id", "str", true, "source_id, preview_id or card_id"],
+        ["decided_at", "str", true, "ISO timestamp"],
+        ["decided_by", "str", true, "user or reader name"],
+        ["decision", "enum:decision", true, "REJECT/QUARANTINE downgrade; ACKNOWLEDGE clears only acknowledgeable flags"],
+        ["codes", "str", true, "space-separated codes the decision refers to"],
+        ["rationale", "str", true, ""]
+      ]
+    }
+  }
+}
