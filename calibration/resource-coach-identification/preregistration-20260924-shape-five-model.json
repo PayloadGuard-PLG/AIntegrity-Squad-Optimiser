@@ -1,0 +1,69 @@
+{
+ "schemaVersion": "resource-coach-preregistration-v1",
+ "id": "PREREG-20260924-SHAPE-FIVE-MODEL",
+ "registeredDate": "2026-09-24",
+ "question": "Is the ordinary Resource Coach misfit a response-shape error rather than a dose error, and does a shape refit (M*) predict new players' previews better than the young-grey model (YG)? Separately: does any model reach an in-range standard across players?",
+ "origin": "Research report 'Cross player coach prediction model' (24 Sep 2026) and its notes (card-only structural search, same-player anchor, observation ceiling, community mechanics). On the 341-row admissible pool, leave-one-player-out: YG 2.312 MAE / 74.5% inside; M1 1.730 / 82.7%; M* 1.475 / 85.0%; M** 1.437 / 87.4%; oracle per-preview dose 1.010 / 91.2%. The model family and the 22-25 term were chosen after seeing all 341 rows, so every claim here is post hoc until this test is scored.",
+ "models": {
+  "YG": "profiles/resource_coach_structure_candidate_20260924b.json unchanged (incumbent)",
+  "SD22": "YG with logC + DOSE_LOG (-0.1019518947368421, x0.9031) for ages 22+, as PREREG-20260924-SINGLE-DOSE-22PLUS; equals YG below 22",
+  "M1": "YG with logC, hW, hG, K refitted on the pool",
+  "Mstar": "M1 + WHITE threshold shift hWflag for ages 22-25 (primary challenger)",
+  "Mstarstar": "Mstar + hShiftOld (both thresholds, ages 22+) and KOld (K x exp(KOld), ages 22+) (exploratory)"
+ },
+ "frozenArtefacts": {
+  "constants": "calibration/resource-coach-identification/shape-models-20260924.json (full-precision fits; sha256 pinned in tools/resource-coach-v2/freeze_shape_test.py and by the test suite). Rounded: M1 C 1.383 hW 120.43 hG 106.13 K 35.85; M* C 1.375 hW 123.50 hG 107.33 K 34.84 hWflag -5.82; M** C 1.372 hW 116.44 hG 100.78 K 41.56 hWflag -5.78 hShiftOld +10.12 KOld -0.276",
+  "pool": "structure_audit.load_events() minus HIST, plus the ten 24 Sep control arms: 96 events, 341 rows, 30 players; event-id sha256 recorded in the constants file",
+  "code": "tools/resource-coach-v2/shape_models.py (model family, refit) and tools/resource-coach-v2/freeze_shape_test.py (card -> predictions for all five models). shape_models.predict equals structure_audit.predict_young_grey exactly when the extras are zero, and equals the research engine exactly for the three fitted models.",
+  "unchanged": "age bands 8/6/4/2/1; dose N/p; young-grey g 0.65, knot 80, ages 18-21, MID_GREY only; tier offsets 0/10/30/50/80/120/160; equal allocation; rho = frozen base value (the flat-regime admissible range [1.482, 1.521] is a diagnostic, not refitted). No anchor. No training-rate input.",
+  "rule": "Each player's prediction file is generated with freeze_shape_test.py from their card and committed BEFORE any preview of that card state. Constants, code and pool are never refitted during this test."
+ },
+ "eligiblePlayers": {
+  "primaryArm": "Outfield, aged 18-32, tier T0-T6, not one of the 30 pool players (the generator refuses them). Required composition for a verdict: at least 2 players aged 22-25, at least 1 aged 26+, at least 1 aged 18-21.",
+  "secondaryArm": "Ryan Blakie, Willie Ferguson and Michal Kawa once aged 22 (after the S215 rollover, 4 Oct 2026). Scored and reported separately: their age-21 rows trained the shape models. It is the within-player test of the 21->22 step (YG and M* predict the age scale falling 8 -> 6 and young-grey switching off; SD22 additionally predicts x0.903).",
+  "admissibility": "club level recorded (Q-law); ordinary coaches only (Reward and unresolved abstain); preview start values equal the frozen card; visible p equals the registered p for the five registered coaches; a coach outside that inventory is scored only if its prediction was generated from pre-outcome metadata alone (programme, label, N, affected set) with --coaches and committed before scoring; class from established roles only (learning chips recorded); tier from a same-season card of the identical state. The S208-S209 archive is excluded from this test (it is the designated H-LEVEL-DOSE test)."
+ },
+ "scoring": {
+  "rows": "every displayed +lo-hi row on an admissible preview. [0,0] rows are excluded from MAE and inside rates and scored separately as hit/miss on 'predicted upper movement < 0.5'.",
+  "metrics": "midpoint MAE of the predicted interval against the observed interval midpoint (scoring only; never fitted); inside = predicted midpoint within [lo, hi]; overlap = predicted and observed intervals intersect; z = |predMid - obsMid| / max(half-width, 0.5); relative bias = mean over a player's rows of (predMid - obsMid) / max(obsMid, 1)",
+  "ovrBoost": "predicted boost interval = [floor(sum rawLo / 15), ceil(sum rawHi / 15)] over the preview's scored rows",
+  "cells": "a cell is one player x coach preview"
+ },
+ "decisionRule": {
+  "minimum": "at least 60 scored rows from at least 4 primary-arm players and at least 16 previews, with the required age composition; otherwise inconclusive",
+  "primary": {
+   "contrast": "Mstar against YG, primary arm",
+   "supported": "pooled MAE(Mstar) <= MAE(YG) - 0.2 AND Mstar has the strictly lower MAE in at least two thirds of cells",
+   "falsified": "MAE(Mstar) >= MAE(YG)",
+   "otherwise": "inconclusive"
+  },
+  "secondary": {
+   "gate": "tested only if the primary is supported",
+   "ageTerm": "Mstar against M1 on WHITE rows of players aged 22-25. The 22-25 term is dropped if MAE(M1) <= MAE(Mstar) there, or if the hWflag refitted on the new rows alone (diagnostic) is >= 0.",
+   "levelVersusShape": "SD22 against Mstar on 22+ rows, with the mechanism check: under YG, the implied dose on flat-zone WHITE rows of 22-25-year-olds (u + hi < 110) lies within x[0.95, 1.05] if the shape reading is right and within x[0.85, 0.95] if the level-shift reading is right",
+   "exploratory": "Mstarstar against Mstar"
+  }
+ },
+ "sd22Interpretation": "PREREG-20260924-SINGLE-DOSE-22PLUS is not modified: its generator, dose and decision rule stand and its verdict is recorded by its own rule on its own eligible rows. This registration supersedes only its consequence clause, before any eligible preview exists: an SD22 'supported' verdict makes SD22 the 22+ research candidate only if SD22 also beats Mstar on the same rows AND the flat-zone mechanism check above falls in x[0.85, 0.95]. Otherwise the verdict is recorded and SD22 is not promoted.",
+ "acceptanceClaim": {
+  "separateFrom": "the comparison; accumulates across both arms and later batches, for whichever model is named when the claim is made",
+  "criteria": [
+   "pooled inside >= 90%",
+   "pooled overlap >= 98%",
+   "median z <= 0.5",
+   "every player with >= 8 rows: inside >= 75% and relative bias within +/-0.08",
+   "at least 80% of previews with >= 3 rows have an implied dose (under the claimed model, fitted to both bounds) within x[0.85, 1.18]",
+   "predicted OVR boost overlaps the observed boost in >= 95% of previews"
+  ],
+  "sampleSize": "'in-range' is claimed only at >= 150 scored rows (about 40 previews), with point inside >= 90% and a preview-clustered bootstrap 95% lower bound >= 80%. 'Not in-range' is declared as soon as the clustered 95% upper bound falls below 90%. Otherwise report the current level.",
+  "secondaryMetric": "inside with a +/-0.5 display-rounding tolerance, declared here in advance; it never substitutes for the primary inside rate"
+ },
+ "statedExpectation": "Mstar passes the comparison against YG and does not reach the 90% acceptance bar (out-of-sample point estimate 85%; oracle ceiling 91%). Recorded so the outcome cannot be reinterpreted afterwards.",
+ "exploratoryProbes": [
+  "one stat at a fixed coordinate through three or more coaches with different N/p (isolates the dose law at a fixed point on the curve)",
+  "one 22-25 player's WHITE rows spanning u 80-180 (maps the threshold dip)",
+  "MID_GREY rows at u 110-140 (the grey near-threshold misfit)"
+ ],
+ "procedure": "Send each eligible player's card (all 15 stats, role chips including any learning chip, age, tier, club level). Predictions are generated and pushed. Then preview every coach you have for that player, screenshot, and do not start training.",
+ "doesNotChange": "Every earlier frozen prediction, score, profile, the anchor table, and PREREG-20260924-SINGLE-DOSE-22PLUS (apart from the interpretation stated above). Production (resourceCoachV2.ts) is not touched."
+}

@@ -384,5 +384,81 @@ class SingleDoseFreeze(unittest.TestCase):
         finally:
             self.m.DOSE_LOG = saved
 
+class ShapeFiveModelFreeze(unittest.TestCase):
+    """PREREG-20260924-SHAPE-FIVE-MODEL: frozen constants reproduce from the pinned pool, the ported model family is the
+    research engine, and the generator enforces the arms."""
+
+    CRI = ROOT / "calibration" / "resource-coach-identification"
+    PREREG = CRI / "preregistration-20260924-shape-five-model.json"
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("fst", ROOT / "tools" / "resource-coach-v2" / "freeze_shape_test.py")
+        cls.g = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.g)
+        cls.sm, cls.sa = cls.g.sm, cls.g.sa
+        cls.yg = cls.sa.young_grey_params()
+        cls.frozen = json.loads(cls.sm.FROZEN_MODELS.read_text(encoding="utf-8"))
+        cls.pool = cls.sm.pool()
+
+    def _card(self, slug, **kw):
+        return dict(json.loads((self.CRI / f"control-card-20260924-{slug}.json").read_text(encoding="utf-8")), **kw)
+
+    def test_preregistration_and_constants_are_byte_stable(self):
+        self.assertEqual(hashlib.sha256(self.PREREG.read_bytes()).hexdigest(), "8bfd53738b5033631b5a85e72d812361f0df18a6adb5de57af76e85c9a17d0f1")
+        self.assertEqual(hashlib.sha256(self.sm.FROZEN_MODELS.read_bytes()).hexdigest(), self.g.SHAPE_MODELS_SHA256)
+
+    def test_pool_is_the_frozen_pool(self):
+        p = self.frozen["pool"]
+        self.assertEqual((len(self.pool), int(len(self.sa.Rows(self.pool).lo))), (p["events"], p["rows"]))
+        self.assertEqual(self.sm.pool_digest(self.pool), p["eventIdSha256"])
+        self.assertEqual({e["playerName"] for e in self.pool}, self.g.POOL_PLAYERS)
+
+    def test_constants_refit_from_the_pool(self):
+        X = self.sa.Rows(self.pool)
+        for name, m in self.frozen["models"].items():
+            refit = self.sm.fit(self.sm.FREE[name], X, self.yg)
+            for k, v in m["fitted"].items():
+                self.assertAlmostEqual(refit[k], v, places=4, msg=f"{name}.{k}")
+
+    def test_zero_extras_is_young_grey(self):
+        X = self.sa.Rows(self.pool)
+        a = self.sm.predict(self.sm.params({}), X, self.yg)
+        b = self.sa.predict_young_grey(dict(self.sa.BASE), X, self.yg)
+        self.assertTrue(np.array_equal(a[0], b[0]) and np.array_equal(a[1], b[1]))
+
+    def test_leave_one_player_out_headline_reproduces(self):
+        LO, HI, OL, OH = [], [], [], []
+        for p in sorted({e["playerName"] for e in self.pool}):
+            tr = [e for e in self.pool if e["playerName"] != p]
+            X = self.sa.Rows([e for e in self.pool if e["playerName"] == p])
+            lo, hi = self.sm.predict(self.sm.params(self.sm.fit(self.sm.FREE["Mstar"], self.sa.Rows(tr), self.yg)), X, self.yg)
+            LO += list(lo); HI += list(hi); OL += list(X.lo); OH += list(X.hi)
+        s = self.sa.score(*map(np.array, (LO, HI, OL, OH)))
+        self.assertAlmostEqual(s["midpointMae"], 1.475, places=3)
+        self.assertAlmostEqual(s["pointInsideRate"], 0.850, places=3)
+
+    def test_arms_are_enforced(self):
+        for slug in ("king-alfie", "rodger", "blakie"):  # pool players; Blakie is 21 today
+            with self.assertRaises(SystemExit):
+                self.g.predict_card(self._card(slug), self.g.fya.COACHES)
+        arm, _ = self.g.predict_card(self._card("blakie", age=22), self.g.fya.COACHES)
+        self.assertEqual(arm, "secondary")
+        arm, _ = self.g.predict_card(self._card("blakie", name="Probe Player", age=19), self.g.fya.COACHES)
+        self.assertEqual(arm, "primary")
+
+    def test_sd22_matches_its_own_generator_and_is_yg_below_22(self):
+        _, young = self.g.predict_card(self._card("blakie", name="Probe Player", age=21), self.g.fya.COACHES)
+        for c in young:
+            for s in c["statIntervals"]:
+                self.assertEqual(s["SD22"], s["YG"])
+        probe = self._card("blakie", name="Probe Player", age=23)
+        _, ours = self.g.predict_card(probe, self.g.fya.COACHES)
+        table = json.loads(self.g.fya.ANCHOR_TABLE.read_text(encoding="utf-8"))
+        theirs = self.g.fsd.predict_card(probe, table, self.g.fya.COACHES)
+        for a, b in zip(ours, theirs):
+            for x, y in zip(a["statIntervals"], b["statIntervals"]):
+                self.assertEqual(x["SD22"], y["SD22"])
+
+
 if __name__ == "__main__":
     unittest.main()

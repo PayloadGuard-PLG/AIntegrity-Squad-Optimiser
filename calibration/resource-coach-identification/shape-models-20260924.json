@@ -1,0 +1,79 @@
+{
+ "schemaVersion": "resource-coach-shape-models-v1",
+ "preregistration": "PREREG-20260924-SHAPE-FIVE-MODEL",
+ "status": "research-candidate-not-production",
+ "base": "structure_audit.BASE + young-grey (profiles/resource_coach_structure_candidate_20260924b.json); every parameter not listed under `fitted` keeps its YG value",
+ "fitProcedure": "Nelder-Mead on endpoint SSE over both observed bounds of every admissible row (no midpoint), start {'logC': 0.33, 'hW': 120.0, 'hG': 105.0, 'K': 35.0, 'hWflag': 0.0, 'hShiftOld': 0.0, 'KOld': 0.0}, two passes as in shape_models.fit",
+ "pool": {
+  "events": 96,
+  "rows": 341,
+  "players": 30,
+  "eventIdSha256": "5ef2b6dca18247f37afc1371d0fb4016ee721ee6e51e5759b995b0097452197b",
+  "definition": "structure_audit.load_events() minus HIST, plus the ten 24 Sep control arms"
+ },
+ "outOfSample": "leave-one-player-out, research note card_only_structural_search / report 'Cross player coach prediction model': YG 2.312 / 74.5% inside; M1 1.730 / 82.7%; Mstar 1.475 / 85.0%; Mstarstar 1.437 / 87.4%",
+ "models": {
+  "M1": {
+   "free": [
+    "logC",
+    "hW",
+    "hG",
+    "K"
+   ],
+   "fitted": {
+    "logC": 0.324512148764136,
+    "hW": 120.43329542314473,
+    "hG": 106.13163003486954,
+    "K": 35.84576581258254
+   },
+   "inSample": {
+    "midpointMae": 1.6428469948464133,
+    "pointInsideRate": 0.8357771260997068
+   }
+  },
+  "Mstar": {
+   "free": [
+    "logC",
+    "hW",
+    "hG",
+    "K",
+    "hWflag"
+   ],
+   "fitted": {
+    "logC": 0.3184581025559922,
+    "hW": 123.49576799282023,
+    "hG": 107.32797613810739,
+    "K": 34.840149255105295,
+    "hWflag": -5.818049313161435
+   },
+   "inSample": {
+    "midpointMae": 1.3986220050188687,
+    "pointInsideRate": 0.8504398826979472
+   }
+  },
+  "Mstarstar": {
+   "free": [
+    "logC",
+    "hW",
+    "hG",
+    "K",
+    "hWflag",
+    "hShiftOld",
+    "KOld"
+   ],
+   "fitted": {
+    "logC": 0.3163678539772327,
+    "hW": 116.43846448031746,
+    "hG": 100.77964473284328,
+    "K": 41.56207787560394,
+    "hWflag": -5.779493649123966,
+    "hShiftOld": 10.122739009591099,
+    "KOld": -0.2764019926681457
+   },
+   "inSample": {
+    "midpointMae": 1.3062444616519566,
+    "pointInsideRate": 0.8914956011730205
+   }
+  }
+ }
+}
