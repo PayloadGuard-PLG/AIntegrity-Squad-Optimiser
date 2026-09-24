@@ -1,0 +1,1643 @@
+{
+  "schemaVersion": "haggag-image-manifest-v1",
+  "player": "Said Haggag",
+  "date": "2026-09-24",
+  "driveFolderId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+  "selectionWindow": "filename timestamp 13:50:00 through 14:43:29",
+  "providerItemCount": 163,
+  "uniqueFilenameCount": 152,
+  "providerDuplicateCount": 11,
+  "duplicateRule": "same screenshot filename with same byte size and matching timestamped content context; canonical copy is earliest Drive-created item",
+  "items": [
+    {
+      "filename": "Screenshot_20260924-135247.png",
+      "driveId": "1B48-iSK4IEiDOm6sboFpN4QGzCggZuEZ",
+      "bytes": 541798,
+      "driveCreatedAt": "2026-09-24T13:52:45.407Z",
+      "driveUpdatedAt": "2026-09-24T13:52:45.510Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140412.png",
+      "driveId": "1-Dlp48EQPbmaSpVemh-cFZPN-fUkJTrk",
+      "bytes": 426213,
+      "driveCreatedAt": "2026-09-24T13:52:45.201Z",
+      "driveUpdatedAt": "2026-09-24T13:52:45.285Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140415.png",
+      "driveId": "1w_ajF0MPLv3k-yuDiXrxaVw-Sc8dNiIe",
+      "bytes": 372384,
+      "driveCreatedAt": "2026-09-24T13:52:44.980Z",
+      "driveUpdatedAt": "2026-09-24T13:52:45.068Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140432.png",
+      "driveId": "1aV7xbPs0XaJdSybhzli5RzexgVJEI1np",
+      "bytes": 350020,
+      "driveCreatedAt": "2026-09-24T13:52:44.561Z",
+      "driveUpdatedAt": "2026-09-24T13:52:44.711Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140442.png",
+      "driveId": "1R9BE93oxWKQwWc0AxL4a-eWiqj5kyZcO",
+      "bytes": 355648,
+      "driveCreatedAt": "2026-09-24T13:52:42.959Z",
+      "driveUpdatedAt": "2026-09-24T13:52:43.638Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140451.png",
+      "driveId": "17naTcC-Ww-P-Mh7MJyugZmNiWU1e5jFS",
+      "bytes": 342122,
+      "driveCreatedAt": "2026-09-24T13:52:42.512Z",
+      "driveUpdatedAt": "2026-09-24T13:52:42.715Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140500.png",
+      "driveId": "1BfQDkBFnS677Hs_9t3XTqvzQz0q4yNWy",
+      "bytes": 356696,
+      "driveCreatedAt": "2026-09-24T13:52:41.905Z",
+      "driveUpdatedAt": "2026-09-24T13:52:42.149Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140520.png",
+      "driveId": "1Iq5TSJb8QamXZXljV0NBH8cble49KXDu",
+      "bytes": 350187,
+      "driveCreatedAt": "2026-09-24T13:52:40.538Z",
+      "driveUpdatedAt": "2026-09-24T13:52:41.630Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140529.png",
+      "driveId": "1_QOdo6-7Vo3uSDu81c-GEwa6TUulix0d",
+      "bytes": 347007,
+      "driveCreatedAt": "2026-09-24T13:52:39.389Z",
+      "driveUpdatedAt": "2026-09-24T13:52:39.476Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140534.png",
+      "driveId": "19QhRmxSyyTaAVb9GbY9RswG_DTxz-NP0",
+      "bytes": 326260,
+      "driveCreatedAt": "2026-09-24T13:52:39.130Z",
+      "driveUpdatedAt": "2026-09-24T13:52:39.229Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140536.png",
+      "driveId": "1jEVnDbuvn9sAKhZtBu3q4oiw_KTGAKBX",
+      "bytes": 329339,
+      "driveCreatedAt": "2026-09-24T13:52:38.519Z",
+      "driveUpdatedAt": "2026-09-24T13:52:38.903Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140543.png",
+      "driveId": "1QXqMyMm8aRBxHoH2QDGAgn8tTx4NXZwl",
+      "bytes": 376985,
+      "driveCreatedAt": "2026-09-24T13:52:35.860Z",
+      "driveUpdatedAt": "2026-09-24T13:52:35.951Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140552.png",
+      "driveId": "1fbQs9OHj6rapu7TzwSZE5YiZmzlUmTxR",
+      "bytes": 358278,
+      "driveCreatedAt": "2026-09-24T13:52:35.695Z",
+      "driveUpdatedAt": "2026-09-24T13:52:35.761Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140559.png",
+      "driveId": "1ch_UlYCLVNpdJgIGUSAvJFyBoxsEP-4C",
+      "bytes": 328896,
+      "driveCreatedAt": "2026-09-24T13:52:35.506Z",
+      "driveUpdatedAt": "2026-09-24T13:52:35.571Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140606.png",
+      "driveId": "11Vt6WIJ9S8dIGQ1OO5r7MN9ioJHLg0RW",
+      "bytes": 340396,
+      "driveCreatedAt": "2026-09-24T13:52:35.307Z",
+      "driveUpdatedAt": "2026-09-24T13:52:35.356Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140613.png",
+      "driveId": "1iV6GZbNqxQD4fGiS2J8pCeRKvr0Y6PvP",
+      "bytes": 334315,
+      "driveCreatedAt": "2026-09-24T13:52:35.149Z",
+      "driveUpdatedAt": "2026-09-24T13:52:35.197Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140628.png",
+      "driveId": "1bCDW2tj7brekiVEry9lBIoETLOT0lBfZ",
+      "bytes": 349000,
+      "driveCreatedAt": "2026-09-24T13:52:34.909Z",
+      "driveUpdatedAt": "2026-09-24T13:52:35.003Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140634.png",
+      "driveId": "152hVAwl0a8StX0KZc45_iUNMkGipg2iK",
+      "bytes": 331982,
+      "driveCreatedAt": "2026-09-24T13:52:34.710Z",
+      "driveUpdatedAt": "2026-09-24T13:52:34.777Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140637.png",
+      "driveId": "1_8qiQ7cJLQQUJ3xDuBLDg6JHXIvmaFAB",
+      "bytes": 349266,
+      "driveCreatedAt": "2026-09-24T13:52:34.500Z",
+      "driveUpdatedAt": "2026-09-24T13:52:34.575Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140644.png",
+      "driveId": "1pOl33Zvl3_P9qGmFu_TKTqzAcyFlJDNl",
+      "bytes": 336464,
+      "driveCreatedAt": "2026-09-24T13:52:34.254Z",
+      "driveUpdatedAt": "2026-09-24T13:52:34.306Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140650.png",
+      "driveId": "1CQDZX3gwkWTItA3vSDIPLXWz-_N2ltYk",
+      "bytes": 325812,
+      "driveCreatedAt": "2026-09-24T13:52:34.116Z",
+      "driveUpdatedAt": "2026-09-24T13:52:34.162Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140655.png",
+      "driveId": "1_Gip4GZmRMcVmH7fh6rSLqZYuJdy8TGC",
+      "bytes": 348150,
+      "driveCreatedAt": "2026-09-24T13:52:32.827Z",
+      "driveUpdatedAt": "2026-09-24T13:52:33.926Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140701.png",
+      "driveId": "1i7jVqYQ1IdF95wY9BgKhTlqG7t_emHOR",
+      "bytes": 357602,
+      "driveCreatedAt": "2026-09-24T13:52:32.629Z",
+      "driveUpdatedAt": "2026-09-24T13:52:32.723Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140710.png",
+      "driveId": "17mnSNKGC6r4mBR3jlMXZVDTTrLu5CADu",
+      "bytes": 346398,
+      "driveCreatedAt": "2026-09-24T13:52:32.456Z",
+      "driveUpdatedAt": "2026-09-24T13:52:32.528Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140712.png",
+      "driveId": "1JaCxZ05GB5PDvRQrHvaL71W2t2wjbJC1",
+      "bytes": 416291,
+      "driveCreatedAt": "2026-09-24T13:52:32.259Z",
+      "driveUpdatedAt": "2026-09-24T13:52:32.312Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140713.png",
+      "driveId": "1cl_mNW-Dfvs7wsVBnC1qvaw6QA9Ywtx_",
+      "bytes": 371529,
+      "driveCreatedAt": "2026-09-24T13:52:32.047Z",
+      "driveUpdatedAt": "2026-09-24T13:52:32.119Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140724.png",
+      "driveId": "1mJ-UBghI1PgFblh8xwPoDNP196aQiFMd",
+      "bytes": 370851,
+      "driveCreatedAt": "2026-09-24T13:52:31.826Z",
+      "driveUpdatedAt": "2026-09-24T13:52:31.905Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140751.png",
+      "driveId": "1wpoQP94y3YvcR1_iClmHLiDDIQqvjRu3",
+      "bytes": 349580,
+      "driveCreatedAt": "2026-09-24T13:52:31.674Z",
+      "driveUpdatedAt": "2026-09-24T13:52:31.732Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140758.png",
+      "driveId": "12XcZs-3TbjOG80cGBOVbVjgyM4V7fy14",
+      "bytes": 342513,
+      "driveCreatedAt": "2026-09-24T13:52:31.411Z",
+      "driveUpdatedAt": "2026-09-24T13:52:31.531Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140806.png",
+      "driveId": "1nVJexyVa0HTh4_aDX2MDndh4rAjww5vw",
+      "bytes": 349128,
+      "driveCreatedAt": "2026-09-24T13:52:29.730Z",
+      "driveUpdatedAt": "2026-09-24T13:52:31.125Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140817.png",
+      "driveId": "10sLygaZ94i8rtyURnBSVlfOKvsH_2ltV",
+      "bytes": 346154,
+      "driveCreatedAt": "2026-09-24T13:52:29.533Z",
+      "driveUpdatedAt": "2026-09-24T13:52:29.619Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140823.png",
+      "driveId": "1QkJMsIaKwR9TvbhbA63wwWN_A7dhKXSo",
+      "bytes": 331741,
+      "driveCreatedAt": "2026-09-24T13:52:29.294Z",
+      "driveUpdatedAt": "2026-09-24T13:52:29.388Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140825.png",
+      "driveId": "1B2zqd2e7W4ZpCCsUhS6wlSjyQAIJlvWE",
+      "bytes": 355480,
+      "driveCreatedAt": "2026-09-24T13:52:29.000Z",
+      "driveUpdatedAt": "2026-09-24T13:52:29.068Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140834.png",
+      "driveId": "1gdysEsczKd61Rck5o8kA13yY-pY3qR6f",
+      "bytes": 356595,
+      "driveCreatedAt": "2026-09-24T13:52:28.609Z",
+      "driveUpdatedAt": "2026-09-24T13:52:28.789Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140841.png",
+      "driveId": "1IsXrszaEoK_NtR5n9higDczWGtl23Xta",
+      "bytes": 339161,
+      "driveCreatedAt": "2026-09-24T13:52:26.971Z",
+      "driveUpdatedAt": "2026-09-24T13:52:28.370Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140847.png",
+      "driveId": "18QQ9eMyVJGdW9JYepoVsXGIpqth_426_",
+      "bytes": 342467,
+      "driveCreatedAt": "2026-09-24T13:52:26.020Z",
+      "driveUpdatedAt": "2026-09-24T13:52:26.098Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140849.png",
+      "driveId": "1tyEhv6GbzSOZaaRBYC3u-35AnbuWrnAr",
+      "bytes": 347443,
+      "driveCreatedAt": "2026-09-24T13:52:25.784Z",
+      "driveUpdatedAt": "2026-09-24T13:52:25.870Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140901.png",
+      "driveId": "19RfVfN15B9gm8KKmvR2evuO-NWhllwh_",
+      "bytes": 348337,
+      "driveCreatedAt": "2026-09-24T13:52:25.545Z",
+      "driveUpdatedAt": "2026-09-24T13:52:25.633Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140907.png",
+      "driveId": "1kasCU63jLR5T9fJNKU58rWOkRyxm0W72",
+      "bytes": 324373,
+      "driveCreatedAt": "2026-09-24T13:52:25.290Z",
+      "driveUpdatedAt": "2026-09-24T13:52:25.372Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140914.png",
+      "driveId": "1qKT3O7vreuAAzdj-8H8Pdi3LD5PDoehK",
+      "bytes": 338655,
+      "driveCreatedAt": "2026-09-24T13:52:25.057Z",
+      "driveUpdatedAt": "2026-09-24T13:52:25.129Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140920.png",
+      "driveId": "1va041HyooI5qm5cyOQdsrwTpe7_IEs7T",
+      "bytes": 352665,
+      "driveCreatedAt": "2026-09-24T13:52:24.827Z",
+      "driveUpdatedAt": "2026-09-24T13:52:24.900Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140923.png",
+      "driveId": "19h2upunpHb8PqfQbhyDUpRfNZFqJae3v",
+      "bytes": 374094,
+      "driveCreatedAt": "2026-09-24T13:52:24.627Z",
+      "driveUpdatedAt": "2026-09-24T13:52:24.685Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140931.png",
+      "driveId": "1WL2KHbIHq00TKpVwp9hznq4voImfdAXn",
+      "bytes": 374646,
+      "driveCreatedAt": "2026-09-24T13:52:24.494Z",
+      "driveUpdatedAt": "2026-09-24T13:52:24.539Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140939.png",
+      "driveId": "1nKW5TQFbmmfvr_DYKueEtkrTQ6iwNc2-",
+      "bytes": 355864,
+      "driveCreatedAt": "2026-09-24T13:52:24.356Z",
+      "driveUpdatedAt": "2026-09-24T13:52:24.410Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140947.png",
+      "driveId": "17J74MqaGmYqjKEzgQAK5nPvn-Q9bo1pg",
+      "bytes": 355842,
+      "driveCreatedAt": "2026-09-24T13:52:24.199Z",
+      "driveUpdatedAt": "2026-09-24T13:52:24.267Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-140955.png",
+      "driveId": "1gPziG8ugbpzcK-Xz1ssBuh4e_fbSdVjr",
+      "bytes": 331343,
+      "driveCreatedAt": "2026-09-24T13:52:24.017Z",
+      "driveUpdatedAt": "2026-09-24T13:52:24.065Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141002.png",
+      "driveId": "1k0xKWoSSEEzsCGF1G2Ss0cvw6JmeIsZX",
+      "bytes": 340234,
+      "driveCreatedAt": "2026-09-24T13:52:23.822Z",
+      "driveUpdatedAt": "2026-09-24T13:52:23.896Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141011.png",
+      "driveId": "1Aej9RTv7M7G9uHFYavUnE-YRGR3eAEVy",
+      "bytes": 337477,
+      "driveCreatedAt": "2026-09-24T13:52:23.603Z",
+      "driveUpdatedAt": "2026-09-24T13:52:23.681Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141018.png",
+      "driveId": "1aMaivo36Gt6GMnV4vvhkun4o0UAI2AIt",
+      "bytes": 342716,
+      "driveCreatedAt": "2026-09-24T13:52:23.311Z",
+      "driveUpdatedAt": "2026-09-24T13:52:23.400Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141025.png",
+      "driveId": "1pz5iukJhkz2hCTyIi1SL0HGo6qxp6AOl",
+      "bytes": 334476,
+      "driveCreatedAt": "2026-09-24T13:52:22.098Z",
+      "driveUpdatedAt": "2026-09-24T13:52:23.101Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141033.png",
+      "driveId": "1F3ARomaoh0aqQAwPlZEtofBresNLCOcy",
+      "bytes": 346052,
+      "driveCreatedAt": "2026-09-24T13:52:21.746Z",
+      "driveUpdatedAt": "2026-09-24T13:52:21.819Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141040.png",
+      "driveId": "1S1aw9Ht0SajP57cXZz-Hd1oEqi7VvVDS",
+      "bytes": 338002,
+      "driveCreatedAt": "2026-09-24T13:52:21.525Z",
+      "driveUpdatedAt": "2026-09-24T13:52:21.614Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141047.png",
+      "driveId": "1yKI4pwevGyp-xBvuRyrve4VTSn-7Lcqe",
+      "bytes": 340797,
+      "driveCreatedAt": "2026-09-24T13:51:17.012Z",
+      "driveUpdatedAt": "2026-09-24T13:51:17.083Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141047.png",
+      "driveId": "1ZLAIr3qgcYUHaU2t1YvxnfdX1jq_OtX3",
+      "bytes": 340797,
+      "driveCreatedAt": "2026-09-24T13:52:21.261Z",
+      "driveUpdatedAt": "2026-09-24T13:52:21.338Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1yKI4pwevGyp-xBvuRyrve4VTSn-7Lcqe"
+    },
+    {
+      "filename": "Screenshot_20260924-141054.png",
+      "driveId": "1a7II7zZBQ1znKmx5JsvLsdKEcBJCJT8S",
+      "bytes": 339466,
+      "driveCreatedAt": "2026-09-24T13:51:16.758Z",
+      "driveUpdatedAt": "2026-09-24T13:51:16.861Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141054.png",
+      "driveId": "1vt5FpC47ZY8BVRHA47h1BLKWxMhh8M13",
+      "bytes": 339466,
+      "driveCreatedAt": "2026-09-24T13:52:21.056Z",
+      "driveUpdatedAt": "2026-09-24T13:52:21.129Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1a7II7zZBQ1znKmx5JsvLsdKEcBJCJT8S"
+    },
+    {
+      "filename": "Screenshot_20260924-141103.png",
+      "driveId": "1OjFJN08xIL2olsKBQoV86M6nGJyhRoRk",
+      "bytes": 337886,
+      "driveCreatedAt": "2026-09-24T13:51:16.503Z",
+      "driveUpdatedAt": "2026-09-24T13:51:16.616Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141103.png",
+      "driveId": "1wcppPveF-NgX6B6RIqgpWWTFb2Ih09_9",
+      "bytes": 337886,
+      "driveCreatedAt": "2026-09-24T13:52:20.809Z",
+      "driveUpdatedAt": "2026-09-24T13:52:20.890Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1OjFJN08xIL2olsKBQoV86M6nGJyhRoRk"
+    },
+    {
+      "filename": "Screenshot_20260924-141111.png",
+      "driveId": "1QhbUjo9P92F5IDxmjezemTkuW38YxZ0n",
+      "bytes": 355598,
+      "driveCreatedAt": "2026-09-24T13:51:16.252Z",
+      "driveUpdatedAt": "2026-09-24T13:51:16.339Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141111.png",
+      "driveId": "1_6Lqm6r9o26gUPbgw6SIctJbNoZPiDGR",
+      "bytes": 355598,
+      "driveCreatedAt": "2026-09-24T13:52:20.588Z",
+      "driveUpdatedAt": "2026-09-24T13:52:20.654Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1QhbUjo9P92F5IDxmjezemTkuW38YxZ0n"
+    },
+    {
+      "filename": "Screenshot_20260924-141118.png",
+      "driveId": "1Fe7vxMxBUUgNrZ_0pQh2D__BJIEt3iBq",
+      "bytes": 338221,
+      "driveCreatedAt": "2026-09-24T13:51:15.999Z",
+      "driveUpdatedAt": "2026-09-24T13:51:16.096Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141118.png",
+      "driveId": "1ayYTYYG16e6QTTXNW3MSxN9HEyWKLqO3",
+      "bytes": 338221,
+      "driveCreatedAt": "2026-09-24T13:52:20.352Z",
+      "driveUpdatedAt": "2026-09-24T13:52:20.414Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1Fe7vxMxBUUgNrZ_0pQh2D__BJIEt3iBq"
+    },
+    {
+      "filename": "Screenshot_20260924-141124.png",
+      "driveId": "1CIuYoZVgtck37Z8YNO3aFTYjIu0V2iZ6",
+      "bytes": 352464,
+      "driveCreatedAt": "2026-09-24T13:51:15.781Z",
+      "driveUpdatedAt": "2026-09-24T13:51:15.832Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141124.png",
+      "driveId": "1WYAfk3fx1PUA2btw2F-2S6xiQTgTT6gw",
+      "bytes": 352464,
+      "driveCreatedAt": "2026-09-24T13:52:20.222Z",
+      "driveUpdatedAt": "2026-09-24T13:52:20.254Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1CIuYoZVgtck37Z8YNO3aFTYjIu0V2iZ6"
+    },
+    {
+      "filename": "Screenshot_20260924-141130.png",
+      "driveId": "1AWbJfDTce8Qkibmgoj1jSkqVG5yVUH5Q",
+      "bytes": 368934,
+      "driveCreatedAt": "2026-09-24T13:51:13.218Z",
+      "driveUpdatedAt": "2026-09-24T13:51:15.677Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141130.png",
+      "driveId": "1k5YsYC6vXLOdZ84B-dTF6J_O5gAYH5wc",
+      "bytes": 368934,
+      "driveCreatedAt": "2026-09-24T13:52:20.092Z",
+      "driveUpdatedAt": "2026-09-24T13:52:20.125Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1AWbJfDTce8Qkibmgoj1jSkqVG5yVUH5Q"
+    },
+    {
+      "filename": "Screenshot_20260924-141136.png",
+      "driveId": "1deTtomc8KxMUZw6oxpGqvdENYHnbfWfW",
+      "bytes": 308527,
+      "driveCreatedAt": "2026-09-24T13:51:12.935Z",
+      "driveUpdatedAt": "2026-09-24T13:51:13.031Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141136.png",
+      "driveId": "1U4_cNxxBbxexCEjDjvrHY3qAjoejDeTY",
+      "bytes": 308527,
+      "driveCreatedAt": "2026-09-24T13:52:19.927Z",
+      "driveUpdatedAt": "2026-09-24T13:52:19.987Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1deTtomc8KxMUZw6oxpGqvdENYHnbfWfW"
+    },
+    {
+      "filename": "Screenshot_20260924-141138.png",
+      "driveId": "13HpYZPO57FB08TGKpGZ2wXoAa7JxyUI5",
+      "bytes": 375493,
+      "driveCreatedAt": "2026-09-24T13:51:12.677Z",
+      "driveUpdatedAt": "2026-09-24T13:51:12.758Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141138.png",
+      "driveId": "1blFE8yvdj1_KKXgIIlKJsJxAcJFEu0ae",
+      "bytes": 375493,
+      "driveCreatedAt": "2026-09-24T13:52:19.626Z",
+      "driveUpdatedAt": "2026-09-24T13:52:19.714Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "13HpYZPO57FB08TGKpGZ2wXoAa7JxyUI5"
+    },
+    {
+      "filename": "Screenshot_20260924-141154.png",
+      "driveId": "1SBmBVPISMFNMNfdjIu5-y4L6iAbdEVRd",
+      "bytes": 347880,
+      "driveCreatedAt": "2026-09-24T13:51:12.355Z",
+      "driveUpdatedAt": "2026-09-24T13:51:12.506Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141154.png",
+      "driveId": "1ogQbewvEfEZV0pfiXcmM8B2sEUKYy8gw",
+      "bytes": 347880,
+      "driveCreatedAt": "2026-09-24T13:52:19.343Z",
+      "driveUpdatedAt": "2026-09-24T13:52:19.460Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1SBmBVPISMFNMNfdjIu5-y4L6iAbdEVRd"
+    },
+    {
+      "filename": "Screenshot_20260924-141202.png",
+      "driveId": "1WE0XKETW_nQQzBKo0Meidq3P4st079e6",
+      "bytes": 433398,
+      "driveCreatedAt": "2026-09-24T13:51:12.109Z",
+      "driveUpdatedAt": "2026-09-24T13:51:12.201Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141202.png",
+      "driveId": "1LCMYLNEDL576TfTu3cXqFNDysiJB6vAE",
+      "bytes": 433398,
+      "driveCreatedAt": "2026-09-24T13:52:19.076Z",
+      "driveUpdatedAt": "2026-09-24T13:52:19.169Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": true,
+      "duplicateOfDriveId": "1WE0XKETW_nQQzBKo0Meidq3P4st079e6"
+    },
+    {
+      "filename": "Screenshot_20260924-141205.png",
+      "driveId": "1bAGN-FpR9MrU4Xq5EyaKlIzi9xpqYAL7",
+      "bytes": 432792,
+      "driveCreatedAt": "2026-09-24T13:51:11.876Z",
+      "driveUpdatedAt": "2026-09-24T13:51:11.984Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141207.png",
+      "driveId": "1ekj9WBHNWxboQ8W0DteIPd1Ra94BNR1Z",
+      "bytes": 432962,
+      "driveCreatedAt": "2026-09-24T13:51:11.615Z",
+      "driveUpdatedAt": "2026-09-24T13:51:11.709Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141210.png",
+      "driveId": "13PZfO9jh87GgFo2nXHPqhFDbjR0XD7zO",
+      "bytes": 433247,
+      "driveCreatedAt": "2026-09-24T13:51:08.145Z",
+      "driveUpdatedAt": "2026-09-24T13:51:11.427Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141219.png",
+      "driveId": "1mkb63rEEqpoEPGc1aNFDoNVMqBz0eyFL",
+      "bytes": 351264,
+      "driveCreatedAt": "2026-09-24T13:51:07.525Z",
+      "driveUpdatedAt": "2026-09-24T13:51:07.590Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141227.png",
+      "driveId": "124akSaaoFLNgCt6mZ9BlV2GE-kjfRR5s",
+      "bytes": 345778,
+      "driveCreatedAt": "2026-09-24T13:51:07.317Z",
+      "driveUpdatedAt": "2026-09-24T13:51:07.377Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141234.png",
+      "driveId": "1u6i4nJ2ot2SlcfEAq8NwjXRr2OO7kVIl",
+      "bytes": 341297,
+      "driveCreatedAt": "2026-09-24T13:51:07.119Z",
+      "driveUpdatedAt": "2026-09-24T13:51:07.164Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141241.png",
+      "driveId": "17O2kQ4YutwoEMa5TYaCadGZLtH-SwxSE",
+      "bytes": 341062,
+      "driveCreatedAt": "2026-09-24T13:51:06.878Z",
+      "driveUpdatedAt": "2026-09-24T13:51:06.956Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141249.png",
+      "driveId": "1HsY1oMa9Q88UQWEyqCnw3uuHGGV4dsJI",
+      "bytes": 342183,
+      "driveCreatedAt": "2026-09-24T13:51:06.611Z",
+      "driveUpdatedAt": "2026-09-24T13:51:06.717Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141256.png",
+      "driveId": "1tevK4BHPXlH4Rev8itbCyt1R2HuUpYsm",
+      "bytes": 344942,
+      "driveCreatedAt": "2026-09-24T13:51:06.369Z",
+      "driveUpdatedAt": "2026-09-24T13:51:06.454Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141305.png",
+      "driveId": "1gHgzt2xmE5otolLpzz_nUc5eXB5i3dhj",
+      "bytes": 336496,
+      "driveCreatedAt": "2026-09-24T13:51:06.079Z",
+      "driveUpdatedAt": "2026-09-24T13:51:06.168Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141313.png",
+      "driveId": "1ioQAfp1XYadJbAS_tp3yHXq8bZai8Gvr",
+      "bytes": 349303,
+      "driveCreatedAt": "2026-09-24T13:51:05.875Z",
+      "driveUpdatedAt": "2026-09-24T13:51:05.947Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141321.png",
+      "driveId": "1EgzKOsLRgKVDsOQVxJnVva3SKjzuQgBD",
+      "bytes": 336175,
+      "driveCreatedAt": "2026-09-24T13:51:05.641Z",
+      "driveUpdatedAt": "2026-09-24T13:51:05.726Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141328.png",
+      "driveId": "1jdrp77_aYfoRnuM6oRcTP4fMaA6Ze1Lu",
+      "bytes": 342598,
+      "driveCreatedAt": "2026-09-24T13:51:05.353Z",
+      "driveUpdatedAt": "2026-09-24T13:51:05.440Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141335.png",
+      "driveId": "1YpFSpZaUXJlzmFHGXvEOK6JAYJMhxP5I",
+      "bytes": 336245,
+      "driveCreatedAt": "2026-09-24T13:51:05.131Z",
+      "driveUpdatedAt": "2026-09-24T13:51:05.200Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141342.png",
+      "driveId": "1IUyFYHyivIcLWmWXm9pcuZE5crHdCUl3",
+      "bytes": 336024,
+      "driveCreatedAt": "2026-09-24T13:51:04.922Z",
+      "driveUpdatedAt": "2026-09-24T13:51:04.996Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141349.png",
+      "driveId": "19Gue_NF82ID4HdjkRG9frfyGYLCRcNK5",
+      "bytes": 337773,
+      "driveCreatedAt": "2026-09-24T13:51:04.686Z",
+      "driveUpdatedAt": "2026-09-24T13:51:04.753Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141357.png",
+      "driveId": "17RE8vkszxER8aqfDiQi0tvXIBaoG1Ngt",
+      "bytes": 367879,
+      "driveCreatedAt": "2026-09-24T13:51:04.435Z",
+      "driveUpdatedAt": "2026-09-24T13:51:04.551Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141404.png",
+      "driveId": "1gsEH3vMgPEYctbphi1EK_pEg56B9eNAy",
+      "bytes": 361072,
+      "driveCreatedAt": "2026-09-24T13:51:04.171Z",
+      "driveUpdatedAt": "2026-09-24T13:51:04.267Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141413.png",
+      "driveId": "1qJairxilMU0tL7LdYlIBYa-J1nFbDst3",
+      "bytes": 356053,
+      "driveCreatedAt": "2026-09-24T13:51:03.895Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.988Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141420.png",
+      "driveId": "1O0JRWLHEyVFqpqyA41Y-r9s18kTyvKUU",
+      "bytes": 342806,
+      "driveCreatedAt": "2026-09-24T13:51:03.648Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.719Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141427.png",
+      "driveId": "1syBNc5MCzvEg1xMiuEjhqEFqwBLKPS8Z",
+      "bytes": 328492,
+      "driveCreatedAt": "2026-09-24T13:51:03.506Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.539Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141434.png",
+      "driveId": "14uPcXRF5M7oISWcnsxFUA21FNId6puFJ",
+      "bytes": 333473,
+      "driveCreatedAt": "2026-09-24T13:51:03.424Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.452Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141441.png",
+      "driveId": "1z9b70OhneUTiMoYX-JnlO_D7x7cfU60v",
+      "bytes": 341809,
+      "driveCreatedAt": "2026-09-24T13:51:03.326Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.357Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141449.png",
+      "driveId": "1Rd5AEPcSggsm_ihwCSwj2ZZ2-Oz--etG",
+      "bytes": 332069,
+      "driveCreatedAt": "2026-09-24T13:51:03.171Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.243Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141456.png",
+      "driveId": "1EUHiHY71m-fYmKfff7ouBnct5F0ZdLK9",
+      "bytes": 331289,
+      "driveCreatedAt": "2026-09-24T13:51:02.933Z",
+      "driveUpdatedAt": "2026-09-24T13:51:03.009Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141504.png",
+      "driveId": "1yJcmvTOqj21Y45CUciPBasX8DI1qNkTx",
+      "bytes": 339195,
+      "driveCreatedAt": "2026-09-24T13:51:02.725Z",
+      "driveUpdatedAt": "2026-09-24T13:51:02.792Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141511.png",
+      "driveId": "1Mwlyj4tp0B4SPCQqQQakTwzLv2eKxvvK",
+      "bytes": 336349,
+      "driveCreatedAt": "2026-09-24T13:51:02.444Z",
+      "driveUpdatedAt": "2026-09-24T13:51:02.542Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141519.png",
+      "driveId": "1X788RxCb_ZHyJdjhmjg4Af71uAZKf-2N",
+      "bytes": 334541,
+      "driveCreatedAt": "2026-09-24T13:51:02.233Z",
+      "driveUpdatedAt": "2026-09-24T13:51:02.315Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141528.png",
+      "driveId": "1uR651bfzdd7Bq40R0PH9cKLpfT7wg2Pn",
+      "bytes": 330451,
+      "driveCreatedAt": "2026-09-24T13:51:01.967Z",
+      "driveUpdatedAt": "2026-09-24T13:51:02.084Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141535.png",
+      "driveId": "1P7FyGJWFT6M6H3uiEONn_xS4SB-6rw7F",
+      "bytes": 331670,
+      "driveCreatedAt": "2026-09-24T13:51:00.803Z",
+      "driveUpdatedAt": "2026-09-24T13:51:01.777Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141542.png",
+      "driveId": "1ptMyrx5Wg94_F82tnjeD8m1O0-bgRylO",
+      "bytes": 352751,
+      "driveCreatedAt": "2026-09-24T13:51:00.050Z",
+      "driveUpdatedAt": "2026-09-24T13:51:00.141Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141546.png",
+      "driveId": "18P6FDVBeCUn2grxZgW24CwY-LApAEZE8",
+      "bytes": 375695,
+      "driveCreatedAt": "2026-09-24T13:50:59.807Z",
+      "driveUpdatedAt": "2026-09-24T13:50:59.879Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141553.png",
+      "driveId": "1nCj95OD7DiKlB2Fd1oZb_FHJW00TSYzw",
+      "bytes": 334237,
+      "driveCreatedAt": "2026-09-24T13:50:59.584Z",
+      "driveUpdatedAt": "2026-09-24T13:50:59.663Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141600.png",
+      "driveId": "1pNH8mZA_gWV3gdzLJVu0Pj7KRWbgcLSr",
+      "bytes": 352643,
+      "driveCreatedAt": "2026-09-24T13:50:59.323Z",
+      "driveUpdatedAt": "2026-09-24T13:50:59.408Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141602 (1).png",
+      "driveId": "1rdqixIoutoKl_xuoZ3cTKhzot2sZWzA8",
+      "bytes": 370184,
+      "driveCreatedAt": "2026-09-24T13:50:58.799Z",
+      "driveUpdatedAt": "2026-09-24T13:50:58.865Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141602.png",
+      "driveId": "1brgo9M5oZ5bzPRQmWiZJAJ14QjGwFAjS",
+      "bytes": 377705,
+      "driveCreatedAt": "2026-09-24T13:50:59.042Z",
+      "driveUpdatedAt": "2026-09-24T13:50:59.159Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141610.png",
+      "driveId": "1jrmkd0U1p3YwwVkihkyUTA1dUF8He0NO",
+      "bytes": 361543,
+      "driveCreatedAt": "2026-09-24T13:50:57.624Z",
+      "driveUpdatedAt": "2026-09-24T13:50:58.623Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141617.png",
+      "driveId": "1GuXtOFo2JOtO3nbJ5-K3kY07rkBHIH6R",
+      "bytes": 337673,
+      "driveCreatedAt": "2026-09-24T13:50:56.823Z",
+      "driveUpdatedAt": "2026-09-24T13:50:56.898Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141625.png",
+      "driveId": "18amNyhCSFl6C62BqU7X9OQpXMquHq6Ia",
+      "bytes": 356233,
+      "driveCreatedAt": "2026-09-24T13:50:56.604Z",
+      "driveUpdatedAt": "2026-09-24T13:50:56.695Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141632.png",
+      "driveId": "12xtneedur92wBMTA6gbriB3EYEf4b40X",
+      "bytes": 340523,
+      "driveCreatedAt": "2026-09-24T13:50:56.358Z",
+      "driveUpdatedAt": "2026-09-24T13:50:56.445Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141640.png",
+      "driveId": "1RkNt0QH5fX8M3JmklfmdFfXxng3AHqbp",
+      "bytes": 337872,
+      "driveCreatedAt": "2026-09-24T13:50:56.105Z",
+      "driveUpdatedAt": "2026-09-24T13:50:56.195Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141647.png",
+      "driveId": "1UT9idDIHrNahn6n0H2H28XOOr0SaDFmb",
+      "bytes": 342293,
+      "driveCreatedAt": "2026-09-24T13:50:55.894Z",
+      "driveUpdatedAt": "2026-09-24T13:50:55.968Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141654.png",
+      "driveId": "1rBBiQP8y5jWsZ8nNWlOTj7csyDNadYID",
+      "bytes": 340573,
+      "driveCreatedAt": "2026-09-24T13:50:55.649Z",
+      "driveUpdatedAt": "2026-09-24T13:50:55.706Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141701.png",
+      "driveId": "18dgENbAIdgmXi94b7bt2geO3bpmo3bXR",
+      "bytes": 342075,
+      "driveCreatedAt": "2026-09-24T13:50:55.457Z",
+      "driveUpdatedAt": "2026-09-24T13:50:55.508Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141709.png",
+      "driveId": "1eo3FxsTlSl_D9_7ZsKuGRIYq4DMJif5c",
+      "bytes": 335902,
+      "driveCreatedAt": "2026-09-24T13:50:55.346Z",
+      "driveUpdatedAt": "2026-09-24T13:50:55.380Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141716.png",
+      "driveId": "13Mh2hYhplMRue0NhgfGAxTlG4Ud-pdWR",
+      "bytes": 349291,
+      "driveCreatedAt": "2026-09-24T13:50:55.255Z",
+      "driveUpdatedAt": "2026-09-24T13:50:55.290Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141723.png",
+      "driveId": "1tmieV-ccLkNYfzHqsY3GyRl8MGxDgy9r",
+      "bytes": 338902,
+      "driveCreatedAt": "2026-09-24T13:50:53.913Z",
+      "driveUpdatedAt": "2026-09-24T13:50:54.346Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141730.png",
+      "driveId": "1gZqi1DYp0nyA3zriwZi70T3IJ5sn-S6l",
+      "bytes": 336227,
+      "driveCreatedAt": "2026-09-24T13:50:53.634Z",
+      "driveUpdatedAt": "2026-09-24T13:50:53.706Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141738.png",
+      "driveId": "1o-yKh2c6N6i8XjtN-Y-RbOB0rdrHGVcK",
+      "bytes": 355598,
+      "driveCreatedAt": "2026-09-24T13:50:53.427Z",
+      "driveUpdatedAt": "2026-09-24T13:50:53.504Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141743.png",
+      "driveId": "1nhSPi-ztxwfMVfq0mBDTESh3KBQ0kicp",
+      "bytes": 353475,
+      "driveCreatedAt": "2026-09-24T13:50:53.309Z",
+      "driveUpdatedAt": "2026-09-24T13:50:53.334Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141746.png",
+      "driveId": "11eiYh-Wn3tb91b3wuxVR9KLjoV-O2IBG",
+      "bytes": 349202,
+      "driveCreatedAt": "2026-09-24T13:50:53.211Z",
+      "driveUpdatedAt": "2026-09-24T13:50:53.240Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141758.png",
+      "driveId": "1DEk2-X3FzYjhEbuJaTkA0h3CtyK50aSv",
+      "bytes": 370403,
+      "driveCreatedAt": "2026-09-24T13:50:52.935Z",
+      "driveUpdatedAt": "2026-09-24T13:50:53.018Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141809.png",
+      "driveId": "1DSuvOY0SNpFLuhG8vSoTBpT8vv3aKE6r",
+      "bytes": 348818,
+      "driveCreatedAt": "2026-09-24T13:50:52.715Z",
+      "driveUpdatedAt": "2026-09-24T13:50:52.790Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141815.png",
+      "driveId": "1l_df_O4AH7kYreyS6KC44AmsKevqeIVX",
+      "bytes": 312784,
+      "driveCreatedAt": "2026-09-24T13:50:52.456Z",
+      "driveUpdatedAt": "2026-09-24T13:50:52.538Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141841.png",
+      "driveId": "1FDdKeAO8CUwnwngBPKZ21z7e9RLcPMhV",
+      "bytes": 346945,
+      "driveCreatedAt": "2026-09-24T13:50:52.258Z",
+      "driveUpdatedAt": "2026-09-24T13:50:52.310Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141850.png",
+      "driveId": "18Y_Jfdt-iOFMp_Z65p0LHCATVVgHIWQK",
+      "bytes": 340979,
+      "driveCreatedAt": "2026-09-24T13:50:52.077Z",
+      "driveUpdatedAt": "2026-09-24T13:50:52.133Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141900.png",
+      "driveId": "1c8x24hLdLJLFF9N7LuClmtXT7O_wg0TX",
+      "bytes": 348728,
+      "driveCreatedAt": "2026-09-24T13:50:51.898Z",
+      "driveUpdatedAt": "2026-09-24T13:50:51.945Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141907.png",
+      "driveId": "1Fhb31LABpC54r9vZ7E9BsHkyOuhWOcIc",
+      "bytes": 335615,
+      "driveCreatedAt": "2026-09-24T13:50:50.583Z",
+      "driveUpdatedAt": "2026-09-24T13:50:50.697Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141914.png",
+      "driveId": "14PsmUOKSvLQrsxJb6k80XpHhvN324zfl",
+      "bytes": 338982,
+      "driveCreatedAt": "2026-09-24T13:50:50.365Z",
+      "driveUpdatedAt": "2026-09-24T13:50:50.442Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141922.png",
+      "driveId": "1tmvsRN6cgxPPonPQGEZPrxOSr5VaTLTY",
+      "bytes": 335491,
+      "driveCreatedAt": "2026-09-24T13:50:50.128Z",
+      "driveUpdatedAt": "2026-09-24T13:50:50.227Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141929.png",
+      "driveId": "1HxhA2KTOMYAll-WhMpn9J97iA6Zl9CHU",
+      "bytes": 394509,
+      "driveCreatedAt": "2026-09-24T13:50:49.844Z",
+      "driveUpdatedAt": "2026-09-24T13:50:49.941Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141943.png",
+      "driveId": "12_kDTwnG5fRP9lbwrFaa1X-cVw0IajUQ",
+      "bytes": 345835,
+      "driveCreatedAt": "2026-09-24T13:50:49.568Z",
+      "driveUpdatedAt": "2026-09-24T13:50:49.635Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-141950.png",
+      "driveId": "1jNitwc2Lmmc3Ud71B_BdBuydq6dZLmoS",
+      "bytes": 339652,
+      "driveCreatedAt": "2026-09-24T13:50:49.345Z",
+      "driveUpdatedAt": "2026-09-24T13:50:49.430Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142000.png",
+      "driveId": "1qit_Y3O7uJjbrmCKb-FfwxUWFVyljF8x",
+      "bytes": 339731,
+      "driveCreatedAt": "2026-09-24T13:50:47.766Z",
+      "driveUpdatedAt": "2026-09-24T13:50:49.174Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142005.png",
+      "driveId": "1aX_5WrIhfYue0qUsAZemgAR0fTzevWWk",
+      "bytes": 324665,
+      "driveCreatedAt": "2026-09-24T13:50:46.909Z",
+      "driveUpdatedAt": "2026-09-24T13:50:46.968Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142019.png",
+      "driveId": "1CVdoUXLeJUA7nWgPA2cDz2tcB1l-cQUw",
+      "bytes": 357918,
+      "driveCreatedAt": "2026-09-24T13:50:46.760Z",
+      "driveUpdatedAt": "2026-09-24T13:50:46.821Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142030.png",
+      "driveId": "12aSQvkt05ik-tag1sfoFYIoXbyldi_f0",
+      "bytes": 352542,
+      "driveCreatedAt": "2026-09-24T13:50:46.560Z",
+      "driveUpdatedAt": "2026-09-24T13:50:46.634Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142039.png",
+      "driveId": "1ZbBZ0UA2k79-IX2HecEXG3Gn2keT7Esr",
+      "bytes": 436361,
+      "driveCreatedAt": "2026-09-24T13:50:46.359Z",
+      "driveUpdatedAt": "2026-09-24T13:50:46.431Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142041.png",
+      "driveId": "1Ba1xipydm6XfBIzgnBTpasCFkgZOSfU1",
+      "bytes": 373991,
+      "driveCreatedAt": "2026-09-24T13:50:46.146Z",
+      "driveUpdatedAt": "2026-09-24T13:50:46.221Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142049.png",
+      "driveId": "1FAvUtwaSShKCYLmIy02Lw8V7qZXb8bsL",
+      "bytes": 343479,
+      "driveCreatedAt": "2026-09-24T13:50:45.941Z",
+      "driveUpdatedAt": "2026-09-24T13:50:46.014Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142059.png",
+      "driveId": "1gtLY77Wkh9lOdZryUYLx9E9BTLm66-AZ",
+      "bytes": 335172,
+      "driveCreatedAt": "2026-09-24T13:50:45.713Z",
+      "driveUpdatedAt": "2026-09-24T13:50:45.790Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142106.png",
+      "driveId": "1PPuHcTZeVdUKGCujHA8v-XaspT1GnPCv",
+      "bytes": 340067,
+      "driveCreatedAt": "2026-09-24T13:50:45.432Z",
+      "driveUpdatedAt": "2026-09-24T13:50:45.568Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142114.png",
+      "driveId": "1pDq4Vr57Bw_RNjPoB11iKBuOVb2VfmGj",
+      "bytes": 336881,
+      "driveCreatedAt": "2026-09-24T13:50:45.173Z",
+      "driveUpdatedAt": "2026-09-24T13:50:45.273Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142121.png",
+      "driveId": "1IJ9ifwIRqcgV4T0vSpA2G36cJd0i11vJ",
+      "bytes": 341533,
+      "driveCreatedAt": "2026-09-24T13:50:44.933Z",
+      "driveUpdatedAt": "2026-09-24T13:50:45.012Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142128.png",
+      "driveId": "1IX_EJHzvLgJPbYWCto0UUXwSpM21oVMj",
+      "bytes": 341069,
+      "driveCreatedAt": "2026-09-24T13:50:44.182Z",
+      "driveUpdatedAt": "2026-09-24T13:50:44.775Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142144.png",
+      "driveId": "14ztUYCLF1JGbOKLAZIOgqmyfQnnHJkdS",
+      "bytes": 404172,
+      "driveCreatedAt": "2026-09-24T13:50:43.932Z",
+      "driveUpdatedAt": "2026-09-24T13:50:43.980Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142146.png",
+      "driveId": "1Z-QKsJRh6cMGs_gOXwTFn9695xUbtHUx",
+      "bytes": 352249,
+      "driveCreatedAt": "2026-09-24T13:50:43.745Z",
+      "driveUpdatedAt": "2026-09-24T13:50:43.805Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142153.png",
+      "driveId": "1aLzHL7GDrHfQTghAC_A8yRPf4hINBRKH",
+      "bytes": 339857,
+      "driveCreatedAt": "2026-09-24T13:50:43.547Z",
+      "driveUpdatedAt": "2026-09-24T13:50:43.622Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142201.png",
+      "driveId": "1LD1g0OGKcMVmxdDinmAWQAVTJ0ICl6P9",
+      "bytes": 354129,
+      "driveCreatedAt": "2026-09-24T13:50:43.293Z",
+      "driveUpdatedAt": "2026-09-24T13:50:43.349Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142207.png",
+      "driveId": "1gbqloEJIYRdnbzBuMGO3HtHhUnYAQz5Q",
+      "bytes": 324823,
+      "driveCreatedAt": "2026-09-24T13:50:43.073Z",
+      "driveUpdatedAt": "2026-09-24T13:50:43.163Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142238.png",
+      "driveId": "1lhUuHSsKwRxV0x1iBIwIDasB5pKp2Gi3",
+      "bytes": 289608,
+      "driveCreatedAt": "2026-09-24T13:50:42.846Z",
+      "driveUpdatedAt": "2026-09-24T13:50:42.910Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142244.png",
+      "driveId": "1bc8t8jEgQnkTLNPR6IgTOn58KYJMBGUB",
+      "bytes": 288937,
+      "driveCreatedAt": "2026-09-24T13:50:42.667Z",
+      "driveUpdatedAt": "2026-09-24T13:50:42.713Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142249.png",
+      "driveId": "1TnRgUy-Of3Qx6OIipEwuz-jMCLzN9wMb",
+      "bytes": 290802,
+      "driveCreatedAt": "2026-09-24T13:50:42.406Z",
+      "driveUpdatedAt": "2026-09-24T13:50:42.500Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142255.png",
+      "driveId": "1jHWNiTsaxCUPB6KdPXtfUg4OYHJdzTRI",
+      "bytes": 295337,
+      "driveCreatedAt": "2026-09-24T13:50:42.199Z",
+      "driveUpdatedAt": "2026-09-24T13:50:42.276Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142259.png",
+      "driveId": "12Lc_T-MWgxzSdAJ3xEexpDzymgrhCKS2",
+      "bytes": 290105,
+      "driveCreatedAt": "2026-09-24T13:50:42.028Z",
+      "driveUpdatedAt": "2026-09-24T13:50:42.093Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-142407.png",
+      "driveId": "1UasBctnnK2s0WNE-mkCrcATKyBBUFgQY",
+      "bytes": 494718,
+      "driveCreatedAt": "2026-09-24T13:50:41.863Z",
+      "driveUpdatedAt": "2026-09-24T13:50:41.920Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-143529.png",
+      "driveId": "1n4ryMEGkCfdA8lWkWlfnYJpMcQ_-o1by",
+      "bytes": 265425,
+      "driveCreatedAt": "2026-09-24T13:50:41.667Z",
+      "driveUpdatedAt": "2026-09-24T13:50:41.730Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-144319.png",
+      "driveId": "1YAqq9tnTvUItFbARFifcSD0kPCkaATjA",
+      "bytes": 272920,
+      "driveCreatedAt": "2026-09-24T13:50:41.399Z",
+      "driveUpdatedAt": "2026-09-24T13:50:41.535Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    },
+    {
+      "filename": "Screenshot_20260924-144329.png",
+      "driveId": "1_Ey9-jlRX3-wJyrZHnzweyfeSiqBIaY5",
+      "bytes": 219102,
+      "driveCreatedAt": "2026-09-24T13:50:41.148Z",
+      "driveUpdatedAt": "2026-09-24T13:50:41.265Z",
+      "parentId": "1gxDKa0xlhLsZfm5oM0qpVPU18YNFwzFT",
+      "providerDuplicate": false,
+      "duplicateOfDriveId": null
+    }
+  ]
+}
