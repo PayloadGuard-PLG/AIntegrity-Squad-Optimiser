@@ -328,5 +328,61 @@ class YoungGreyAnchorScore(unittest.TestCase):
             self.assertIn(slug, YoungGreyAnchorFreeze.FROZEN_PREDICTIONS)
 
 
+class SingleDoseFreeze(unittest.TestCase):
+    """PREREG-20260924-SINGLE-DOSE-22PLUS: the dose is the pinned table's 22+ mean, is the object behind the post-hoc
+    finding, and can only be applied to eligible players."""
+
+    PREREG = ROOT / "calibration" / "resource-coach-identification" / "preregistration-20260924-single-dose-22plus.json"
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("fsd", ROOT / "tools" / "resource-coach-v2" / "freeze_single_dose.py")
+        cls.m = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.m)
+        cls.table = json.loads(cls.m.fya.ANCHOR_TABLE.read_text(encoding="utf-8"))
+
+    def test_preregistration_is_byte_stable(self):
+        self.assertEqual(hashlib.sha256(self.PREREG.read_bytes()).hexdigest(), "096ba081b5881acf2836a421fb75ac73568e48e5f0275c1a865bf0398a8f95d5")
+
+    def test_dose_literal_equals_the_pinned_table(self):
+        mean, n = self.m.dose_from_table(self.table)
+        self.assertAlmostEqual(mean, self.m.DOSE_LOG, places=12)
+        self.assertEqual(n, self.m.DOSE_EVENTS)
+        contributors = {e["player"] for c in self.table["coaches"].values() for e in c["events"] if e["age"] >= self.m.DOSE_MIN_AGE}
+        self.assertEqual(contributors, set(self.m.DOSE_PLAYERS))
+        pre = json.loads(self.PREREG.read_text(encoding="utf-8"))["dose"]
+        self.assertEqual(pre["doseLog"], self.m.DOSE_LOG)
+        self.assertEqual(set(pre["contributingPlayers"]), contributors)
+
+    def test_frozen_dose_is_the_one_behind_the_post_hoc_finding(self):
+        rec = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-score-20260924-young-grey-anchor.json").read_text(encoding="utf-8"))
+        ph = rec["postHocGlobalDose"]["age22plus"]
+        self.assertEqual(ph["dose"], round(math.exp(self.m.DOSE_LOG), 4))
+        self.assertEqual(ph["anchorEvents"], self.m.DOSE_EVENTS)
+
+    def test_ineligible_players_are_refused(self):
+        card = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-card-20260924-blakie.json").read_text(encoding="utf-8"))
+        with self.assertRaises(SystemExit):  # 21 today
+            self.m.predict_card(card, self.table, self.m.fya.COACHES)
+        for slug in ("king-alfie", "rodger"):
+            card = json.loads((ROOT / "calibration" / "resource-coach-identification" / f"control-card-20260924-{slug}.json").read_text(encoding="utf-8"))
+            with self.assertRaises(SystemExit):
+                self.m.predict_card(card, self.table, self.m.fya.COACHES)
+
+    def test_sd22_is_yg_shifted_by_the_dose_only(self):
+        card = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-card-20260924-blakie.json").read_text(encoding="utf-8"))
+        card = dict(card, name="Eligibility Probe", age=22)
+        for c in self.m.predict_card(card, self.table, self.m.fya.COACHES):
+            for s in c["statIntervals"]:
+                if s["YG"]["rawHi"] > 0.5:
+                    self.assertLess(s["SD22"]["rawHi"], s["YG"]["rawHi"])
+        saved = self.m.DOSE_LOG
+        try:
+            self.m.DOSE_LOG = 0.0
+            for c in self.m.predict_card(card, self.table, self.m.fya.COACHES):
+                for s in c["statIntervals"]:
+                    self.assertEqual(s["SD22"], s["YG"])
+        finally:
+            self.m.DOSE_LOG = saved
+
 if __name__ == "__main__":
     unittest.main()
