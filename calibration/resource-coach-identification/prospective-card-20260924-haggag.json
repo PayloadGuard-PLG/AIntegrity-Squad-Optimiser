@@ -1,0 +1,56 @@
+{
+ "schemaVersion": "resource-coach-prospective-card-v1",
+ "preregistration": "PREREG-20260924-SHAPE-FIVE-MODEL",
+ "name": "Said Haggag",
+ "age": 22,
+ "tier": "T0",
+ "roles": [
+  "ST"
+ ],
+ "learningRoles": [],
+ "ovrDisplayed": 96,
+ "statSum": 1441,
+ "statMean": 96.0666666667,
+ "source": "user-supplied in-chat player card screenshot, 24 Sep 2026, after signing and before any Resource Coach preview",
+ "eligibility": "primary arm: new outfield player age 22-25, not in 30-player fitting pool",
+ "checks": {
+  "singleEstablishedRole": true,
+  "whiteSetMatchesSTRoleMap": true,
+  "tierState": "T0 (Tier Up available; no tier applied)",
+  "previewSeenBeforeFreeze": false
+ },
+ "stats": {
+  "TACKLING": 82,
+  "MARKING": 73,
+  "POSITIONING": 125,
+  "HEADING": 112,
+  "BRAVERY": 75,
+  "PASSING": 102,
+  "DRIBBLING": 102,
+  "CROSSING": 80,
+  "SHOOTING": 97,
+  "FINISHING": 121,
+  "FITNESS": 80,
+  "STRENGTH": 104,
+  "AGGRESSION": 85,
+  "SPEED": 102,
+  "CREATIVITY": 101
+ },
+ "classes": {
+  "TACKLING": "MID_GREY",
+  "MARKING": "MID_GREY",
+  "POSITIONING": "WHITE",
+  "HEADING": "WHITE",
+  "BRAVERY": "MID_GREY",
+  "PASSING": "WHITE",
+  "DRIBBLING": "WHITE",
+  "CROSSING": "MID_GREY",
+  "SHOOTING": "WHITE",
+  "FINISHING": "WHITE",
+  "FITNESS": "MID_GREY",
+  "STRENGTH": "WHITE",
+  "AGGRESSION": "MID_GREY",
+  "SPEED": "WHITE",
+  "CREATIVITY": "WHITE"
+ }
+}
