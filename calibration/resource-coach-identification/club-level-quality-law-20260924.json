@@ -2,24 +2,82 @@
  "schemaVersion": "resource-coach-finding-v1",
  "id": "FINDING-20260924-CLUB-LEVEL-QUALITY-LAW",
  "recordedDate": "2026-09-24",
- "status": "hypothesis-fits-all-available-points; direct test pending (archive screen showing club level)",
+ "status": "supported: fits the four levels on record and passed its first direct check (S209 = League level 10, predicted 10 from the 16 May preview); S208 = 9 still to confirm",
  "law": "quality = 5 * (clubLevel - 1) + displayed / 4",
  "evidence": {
   "alreadyOnRecord": {
    "source": "quality-scale-20260924.json (offsets at slope 1/4)",
    "points": [
-    {"view": "own", "clubLevel": 15, "offset": 70.0, "law": 70},
-    {"view": "association", "clubLevel": 17, "offset": 80.0, "law": 80},
-    {"view": "association", "clubLevel": 31, "offset": 150.0, "law": 150},
-    {"view": "association", "clubLevel": 54, "offset": 265.0, "law": 265}
+    {
+     "view": "own",
+     "clubLevel": 15,
+     "offset": 70.0,
+     "law": 70
+    },
+    {
+     "view": "association",
+     "clubLevel": 17,
+     "offset": 80.0,
+     "law": 80
+    },
+    {
+     "view": "association",
+     "clubLevel": 31,
+     "offset": 150.0,
+     "law": 150
+    },
+    {
+     "view": "association",
+     "clubLevel": 54,
+     "offset": 265.0,
+     "law": 265
+    }
    ],
    "friendsViews": "L17/L21/L22 friends views read 70: rendered at the viewer's level (15), not the viewed club's."
   },
   "archive": {
    "source": "Drive folder 'Archive Coaches', read 24 Sep 2026 (derived numbers only; images not committed)",
    "points": [
-    {"file": "Screenshot_20260418-092812.png", "player": "Scott Ritchie", "columns": {"DEFENSE": [122.8, 70.8], "ATTACK": [73.6, 58.4], "PHYSICAL_AND_MENTAL": [103.4, 65.9]}, "offset": 40.05, "levelIfLaw": 9},
-    {"file": "Screenshot_20260516-125335.png", "player": "Michael Benwell", "columns": {"DEFENSE": [96.4, 69.1], "ATTACK": [117.2, 74.4], "PHYSICAL_AND_MENTAL": [111.6, 72.9]}, "offset": 45.0, "levelIfLaw": 10}
+    {
+     "file": "Screenshot_20260418-092812.png",
+     "player": "Scott Ritchie",
+     "columns": {
+      "DEFENSE": [
+       122.8,
+       70.8
+      ],
+      "ATTACK": [
+       73.6,
+       58.4
+      ],
+      "PHYSICAL_AND_MENTAL": [
+       103.4,
+       65.9
+      ]
+     },
+     "offset": 40.05,
+     "levelIfLaw": 9
+    },
+    {
+     "file": "Screenshot_20260516-125335.png",
+     "player": "Michael Benwell",
+     "columns": {
+      "DEFENSE": [
+       96.4,
+       69.1
+      ],
+      "ATTACK": [
+       117.2,
+       74.4
+      ],
+      "PHYSICAL_AND_MENTAL": [
+       111.6,
+       72.9
+      ]
+     },
+     "offset": 45.0,
+     "levelIfLaw": 10
+    }
    ],
    "columnFormat": "[mean of the five displayed stats, bracketed quality]"
   }
@@ -39,5 +97,21 @@
   "finding": "Canonical-corpus HIST PRV-0015 (Scott Ritchie, Standard Defending x40) is reading-for-reading identical to Screenshot_20260418-092812.png (18 Apr 2026, S208, age 18). Its tier T2 was attached from SRC-USER-20260911-005 (11 Sep 2026), a source five seasons later.",
   "consequence": "Explains the audit finding that Scott Ritchie's previews are admissible only at Delta=0: the recorded tier was never observed for that state. The archive protocol forbids the construction (rule P3: tier only from a card of the identical state in the same season).",
   "frozenArtefactsUnchanged": "HIST records are left as they are; the correction is recorded here and in STRUCTURE_AUDIT_20260924.md addendum 5."
- }
+ },
+ "directChecks": [
+  {
+   "season": "S209",
+   "observedLevel": 10,
+   "source": "Trophies page 'Season 209: League Level 10' and season review 'Promoted to League level 11' (user screenshots, 24 Sep 2026)",
+   "prediction": "10 from Screenshot_20260516-125335.png (offset 45.0)",
+   "result": "agree"
+  },
+  {
+   "season": "S208",
+   "observedLevel": null,
+   "prediction": "9 from Screenshot_20260418-092812.png (offset 40.05)",
+   "result": "pending - Season 208 Trophies page"
+  }
+ ],
+ "clubLevelIsLeagueLevel": "The level in the law is the league level shown on the Trophies page; S209 = 10 and S214 = 15 are both observed, consistent with one promotion per season."
 }

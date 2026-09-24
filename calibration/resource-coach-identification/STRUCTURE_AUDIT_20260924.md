@@ -366,7 +366,12 @@ Record: `club-level-quality-law-20260924.json`. Archive protocol, schema and val
 level − 1)** exactly: own L15 = 70, association L17 = 80, L31 = 150, L54 = 265. Friends views read 70
 because they render at the viewer's level. Two archive previews give offsets 40.05 (Scott Ritchie,
 18 Apr) and 45.0 (Michael Benwell, 16 May). If the law holds, the club level was **9** in April and **10**
-in mid-May. That is a prediction for the user to check against any screen showing the level.
+in mid-May.
+
+**First direct check: agree.** The user's Season 209 Trophies page shows League level 10, and the
+season review promotes the club to 11 for S210. Level 10 in S209 is also consistent with 15 in S214 after one
+promotion per season. S208 = 9 is still to confirm. The observed levels are in
+`calibration/archive-s208-s209/club-level-timeline.json`.
 
 **Correction to addendum 3.** Addendum 3 read the grey threshold landing on quality 100 as a sign that
 cost is defined in quality units. If it were, the displayed-unit thresholds at level 9 would sit 120

@@ -21,6 +21,13 @@ const ROOT = path.resolve(HERE, '..', '..');
 export const SCHEMA_PATH = path.join(ROOT, 'calibration', 'archive-s208-s209', 'archive-schema.json');
 export const DEFAULT_SNAPSHOT_DIR = path.join(ROOT, 'calibration', 'archive-s208-s209', 'snapshot');
 const ROLE_WEIGHTS_TS = path.join(ROOT, 'src', 'utils', 'roleWeights.ts');
+export const CLUB_LEVEL_TIMELINE = path.join(ROOT, 'calibration', 'archive-s208-s209', 'club-level-timeline.json');
+/** Observed league level per season index, e.g. {209: 10, 210: 11}. Inferred seasons are never used. */
+export function loadClubLevels(file = CLUB_LEVEL_TIMELINE) {
+  if (!fs.existsSync(file)) return {};
+  const t = JSON.parse(fs.readFileSync(file, 'utf8'));
+  return Object.fromEntries(Object.entries(t.observed ?? {}).map(([s, v]) => [seasonIndex(s), Number(v.level)]));
+}
 
 // ── Calendar ──────────────────────────────────────────────────────────────────────────────────────
 export const SEASONS = [
@@ -91,7 +98,7 @@ export function whiteSet(roles, roleMap) {
 // HARD codes quarantine an entity: a transcription or the screen itself contradicts the game's arithmetic.
 export const HARD = new Set(['READ_DISAGREE', 'STAT_SET', 'INTERVAL_HALF', 'INTERVAL_INVERTED', 'INTERVAL_NEGATIVE',
   'NO_AFFECTED_STATS', 'OVR_DISPLAY', 'OVR_BOOST_HALF', 'OVR_BOOST_ENVELOPE', 'CATEGORY_SUM', 'AVG_DISPLAY',
-  'OFFSET_INCONSISTENT', 'ROLES_EMPTY', 'SEASON_UNRESOLVED', 'AGE_SEASON', 'TIER_REGRESS', 'SOURCE_UNKNOWN', 'SOURCE_TYPE',
+  'OFFSET_INCONSISTENT', 'ROLES_EMPTY', 'SEASON_UNRESOLVED', 'SEASON_CONFLICT', 'AGE_SEASON', 'TIER_REGRESS', 'SOURCE_UNKNOWN', 'SOURCE_TYPE',
   'TIER_CARD_UNKNOWN', 'TIER_CARD_PLAYER', 'TIER_CARD_SEASON', 'TIER_CARD_STATE', 'CLASS_CARD_CONFLICT', 'NO_READ']);
 // PROVISIONAL codes hold an entity below VERIFIED: nothing is contradicted, but something is missing.
 export const PROVISIONAL = new Set(['SINGLE_READ', 'TIER_UNOBSERVED', 'TIER_CARD_NOT_VERIFIED', 'TIER_UNREAD',
@@ -263,7 +270,7 @@ const statSetOk = stats => {
  * @param tables normalised tables (normaliseTables().tables)
  * @param opts.driveFiles optional Drive listing [{id,name,md5Checksum}] of the archive folder
  */
-export function validateArchive(tables, { schema, roleMap, driveFiles = null } = {}) {
+export function validateArchive(tables, { schema, roleMap, driveFiles = null, clubLevels = {} } = {}) {
   const errors = [];
   const sources = new Map(tables.Archive_Sources.map(s => [s.source_id, { ...s, codes: [], flags: [] }]));
 
@@ -433,12 +440,27 @@ export function validateArchive(tables, { schema, roleMap, driveFiles = null } =
     if (!births.has(e.playerKey)) births.set(e.playerKey, new Set());
     births.get(e.playerKey).add(e.seasonCandidates[0] - e.age);
   }
+  // A preview also carries its club level (quality offset). A boundary candidate whose OBSERVED level
+  // differs from the preview's level is eliminated. This leans on the level law, so it is flagged.
+  const byLevel = e => {
+    if (e.clubLevelHypothesis === undefined || e.clubLevelResidual === undefined || Math.abs(e.clubLevelResidual) > 0.3) return null;
+    const left = e.seasonCandidates.filter(i => !(i in clubLevels) || clubLevels[i] === e.clubLevelHypothesis);
+    return left.length === 1 ? left[0] : null;
+  };
   for (const e of all) {
     const b = births.get(e.playerKey);
     if (b && b.size > 1) { e.codes.push('AGE_SEASON'); e.birthSeasons = [...b].map(seasonName); }
-    if (!e.seasonBoundary) { e.season = seasonName(e.seasonCandidates[0]); continue; }
+    const lv = byLevel(e);
+    if (!e.seasonBoundary) {
+      e.season = seasonName(e.seasonCandidates[0]);
+      if (e.seasonCandidates[0] in clubLevels && e.clubLevelHypothesis !== undefined && Math.abs(e.clubLevelResidual) <= 0.3
+          && clubLevels[e.seasonCandidates[0]] !== e.clubLevelHypothesis) e.flags.push('CLUB_LEVEL_LAW_MISMATCH');
+      continue;
+    }
     const fit = b && b.size === 1 ? e.seasonCandidates.filter(i => i - e.age === [...b][0]) : [];
-    if (fit.length === 1) { e.season = seasonName(fit[0]); e.flags.push('SEASON_BY_AGE'); }
+    if (fit.length === 1 && lv !== null && fit[0] !== lv) { e.season = null; e.codes.push('SEASON_CONFLICT'); }
+    else if (fit.length === 1) { e.season = seasonName(fit[0]); e.flags.push('SEASON_BY_AGE'); if (lv !== null) e.flags.push('SEASON_BY_LEVEL'); }
+    else if (lv !== null) { e.season = seasonName(lv); e.flags.push('SEASON_BY_LEVEL'); }
     else { e.season = null; e.codes.push('SEASON_UNRESOLVED'); }
   }
 
@@ -546,12 +568,12 @@ export function validateArchive(tables, { schema, roleMap, driveFiles = null } =
 
 // ── Orchestration ─────────────────────────────────────────────────────────────────────────────────
 /** Validate raw tabs, build the Drive-derived snapshot and compare it with the committed one. */
-export function runArchive({ rawTables, schema = loadSchema(), roleMap = loadRoleMap(), driveFiles = null, snapshotDir = DEFAULT_SNAPSHOT_DIR, meta = {} }) {
+export function runArchive({ rawTables, schema = loadSchema(), roleMap = loadRoleMap(), driveFiles = null, snapshotDir = DEFAULT_SNAPSHOT_DIR, meta = {}, clubLevels = loadClubLevels() }) {
   const norm = normaliseTables(rawTables, schema);
   if (!norm.tables) return { summary: { status: 'ABSENT', note: 'No Archive_* tabs in the source yet.' } };
   const snapshot = buildSnapshot(norm.tables, schema, meta);
   if (norm.errors.length) return { summary: { status: 'INVALID', errors: norm.errors, stage: 'table-normalisation' }, snapshot };
-  const report = validateArchive(norm.tables, { schema, roleMap, driveFiles });
+  const report = validateArchive(norm.tables, { schema, roleMap, driveFiles, clubLevels });
   let repo = null, repoTables = null;
   if (snapshotDir && fs.existsSync(snapshotDir)) {
     const r = readSnapshotDir(snapshotDir, schema);
@@ -591,7 +613,7 @@ export function checkSnapshot(dir, schema = loadSchema(), roleMap = loadRoleMap(
   if (!errors.length) {
     const rebuilt = buildSnapshot(norm.tables, schema);
     if (rebuilt.manifest.combinedSha256 !== manifest.combinedSha256) errors.push({ code: 'SNAPSHOT_NOT_CANONICAL' });
-    const rep = validateArchive(norm.tables, { schema, roleMap });
+    const rep = validateArchive(norm.tables, { schema, roleMap, clubLevels: loadClubLevels() });
     errors.push(...rep.summary.errors);
     return { status: errors.length ? 'INVALID' : 'VALID', errors, sealed: !!manifest.sealed, summary: rep.summary };
   }

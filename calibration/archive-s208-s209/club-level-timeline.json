@@ -1,0 +1,21 @@
+{
+ "schemaVersion": "resource-coach-club-level-timeline-v1",
+ "recordedDate": "2026-09-24",
+ "meaning": "League level of DarkVader FC per season. This is the 'club level' of the quality law Q = 5(level-1) + mean/4.",
+ "observed": {
+  "S209": {"level": 10, "source": "Manager > Trophies, Season 209: League Level 10, Elite League Level 10, Cup Level 10 (user screenshot, 24 Sep 2026)"},
+  "S210": {"level": 11, "source": "Season in review for S209: 'Promoted to League level 11 and qualified for Elite League' (user screenshot, 24 Sep 2026)"},
+  "S214": {"level": 15, "source": "Club overview tooltip, own view, 24 Sep 2026 (quality-scale-20260924.json)"}
+ },
+ "inferredNotUsed": {
+  "S211-S213": "12-14 if promoted once per season (10 -> 15 across S209-S214 requires a promotion every season if promotion is at most one level). Not observed; not used by the validator.",
+  "S208": "Not observed. The quality law reads 9 from the 18 Apr preview (offset 40.05); confirm on the Season 208 Trophies page."
+ },
+ "events": [
+  {"date": "2026-05-08", "event": "Cup won (Cup level 10), S209", "source": "user, 24 Sep 2026"}
+ ],
+ "lawChecks": [
+  {"capture": "Screenshot_20260516-125335.png", "offset": 45.0, "levelIfLaw": 10, "observedLevelForSeason": {"S209": 10}, "result": "agree",
+   "note": "Also shows the S209->S210 rollover had not happened by 16 May 12:53 device time (S210 is level 11, offset 50)."}
+ ]
+}

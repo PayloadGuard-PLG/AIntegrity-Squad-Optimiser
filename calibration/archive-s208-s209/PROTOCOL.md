@@ -26,8 +26,16 @@ and a transcriber never types it. Anything that cannot be read is left **absent*
    | 18 Apr 09:28 | Scott Ritchie | 40.05 | **9** |
    | 16 May 12:53 | Michael Benwell | 45.0 | **10** |
 
-   This is a prediction that you can check. If any archive screen shows the club level itself, record it in
-   `Archive_Club_State.club_level_displayed`. The validator then scores the law (`clubLevelLawTests`).
+   **The first direct check agrees.** The Season 209 Trophies page shows League level 10, and the season
+   review says "Promoted to League level 11". The observed levels are kept in
+   [`club-level-timeline.json`](club-level-timeline.json). **S208 = 9 is still a prediction:** open the Season
+   208 page of Manager → Trophies and add it there. Any archive screen that shows the level also goes in
+   `Archive_Club_State.club_level_displayed`.
+
+   The level doubles as a season marker. Offset 45 on 16 May 12:53 means level 10, so S209 had not yet
+   rolled over (S210 is level 11). The validator therefore settles a boundary day in either of two ways
+   (`SEASON_BY_LEVEL`, `SEASON_BY_AGE`). If the two ways disagree, the result is quarantined
+   (`SEASON_CONFLICT`).
 2. **Whether the coach dose depends on club level.** The quarantined HIST previews at T0 need 0.46–0.86 of
    the frozen amplitude. Scott Ritchie, at offset 40, needs 0.54–0.60; for comparison, 40/70 = 0.57. The
    hypothesis is untested, because the HIST records carry no level. Every archive preview carries its own
@@ -184,7 +192,8 @@ level-annotated comparison set, until a pre-registered test says otherwise.
 | `OFFSET_INCONSISTENT` | the three columns' `Q − mean/4` differ by more than 0.3 |
 | `INTERVAL_HALF`, `INTERVAL_INVERTED`, `INTERVAL_NEGATIVE` | failed interval read |
 | `NO_AFFECTED_STATS`, `ROLES_EMPTY` | nothing observed |
-| `SEASON_UNRESOLVED` | boundary-day screen with no age anchor for the player |
+| `SEASON_UNRESOLVED` | boundary-day screen resolved neither by the player's age elsewhere nor by its club level |
+| `SEASON_CONFLICT` | age and club level resolve a boundary day to different seasons |
 | `AGE_SEASON` | season − age is not constant for a player |
 | `TIER_REGRESS` | a later card shows a lower tier |
 | `TIER_CARD_SEASON`, `TIER_CARD_STATE`, `TIER_CARD_PLAYER`, `TIER_CARD_UNKNOWN` | the claimed tier card is from another season, shows different stats, shows another player or does not exist |
@@ -226,6 +235,8 @@ level-annotated comparison set, until a pre-registered test says otherwise.
 |---|---|
 | `DEGENERATE_INTERVAL` | a zero-width range; retained |
 | `SEASON_BY_AGE` | a boundary-day season was resolved from the player's age elsewhere |
+| `SEASON_BY_LEVEL` | a boundary-day season was resolved because the preview's club level excludes the other candidate (depends on the level law) |
+| `CLUB_LEVEL_LAW_MISMATCH` | a preview's offset contradicts the observed level for its season: a test failure of the law, reported and never repaired |
 | `ADJUDICATED` | a `U` read was used |
 | `DUPLICATE_EVIDENCE` | a later capture of an identical preview; zero weight |
 | `OUT_OF_ARCHIVE_WINDOW` | capture outside S208–S209 |
@@ -287,6 +298,5 @@ A Reward or unread-badge preview can be VERIFIED as a record, but it is never an
 
 ## 10. Still needed from the user
 
-- Any screen that shows the club level as a number, entered in `Archive_Club_State`. This is the direct test
-  of `offset = 5 × (level − 1)`.
+- The Season 208 Trophies page (League level): the second direct test of `offset = 5 × (level − 1)`.
 - Adjudication of every `READ_DISAGREE` from the image.

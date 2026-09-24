@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  loadSchema, loadRoleMap, normaliseTables, validateArchive, runArchive, buildSnapshot, writeSnapshot, checkSnapshot,
+  loadSchema, loadRoleMap, loadClubLevels, normaliseTables, validateArchive, runArchive, buildSnapshot, writeSnapshot, checkSnapshot,
   parseCsv, canonicalCsv, seasonCandidates, captureFromName, TAB_NAMES,
 } from '../tools/drive-data-exchange/archive-validate.mjs';
 
@@ -232,4 +232,21 @@ test('snapshot identity is order-independent, round-trips through CSV and detect
     assert.ok(checkSnapshot(dir, schema, roleMap).errors.some(e => e.code === 'SNAPSHOT_HASH_MISMATCH'));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   assert.equal(checkSnapshot(path.join(os.tmpdir(), 'no-such-archive-snapshot'), schema, roleMap).status, 'NO_SNAPSHOT');
+});
+
+test('the observed club-level timeline resolves boundary days and the 16 May preview agrees with it', () => {
+  const levels = loadClubLevels();
+  assert.deepEqual(levels, { 209: 10, 210: 11, 214: 15 });
+  const t = blank();
+  source(t, 'ARC-1', 'Screenshot_20260418-092812.png'); preview(t, 'PV-1', 'ARC-1', RITCHIE);
+  source(t, 'ARC-2', 'Screenshot_20260516-125335.png'); preview(t, 'PV-2', 'ARC-2', BENWELL);
+  const r = run(t, { clubLevels: levels });
+  // 18 Apr: level 9 excludes S209 (observed 10), leaving S208. 16 May: level 10 excludes S210 (observed 11).
+  assert.equal(pv(r, 'PV-1').season, 'S208'); assert.ok(pv(r, 'PV-1').flags.includes('SEASON_BY_LEVEL'));
+  assert.equal(pv(r, 'PV-2').season, 'S209'); assert.ok(pv(r, 'PV-2').flags.includes('SEASON_BY_LEVEL'));
+  // Age and level disagreeing on a boundary day is a hard conflict, never a silent pick.
+  const t2 = blank();
+  source(t2, 'ARC-1', 'Screenshot_20260418-092812.png'); preview(t2, 'PV-1', 'ARC-1', RITCHIE);
+  source(t2, 'ARC-2', 'Screenshot_20260423-114209.png'); preview(t2, 'PV-2', 'ARC-2', RITCHIE);   // age says S209
+  assert.ok(pv(run(t2, { clubLevels: levels }), 'PV-1').codes.includes('SEASON_CONFLICT'));
 });
