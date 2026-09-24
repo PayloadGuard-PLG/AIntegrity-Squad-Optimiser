@@ -44,6 +44,11 @@ The generated tables (`STRUCTURE_AUDIT.md`, `structure-audit.json`,
 >   to pre-register. T127 helped the 22+ WHITE rows again (1.87 → 1.40).
 > - **Pre-registered, awaiting players (addendum 8).** PREREG-20260924-SINGLE-DOSE-22PLUS freezes that dose
 >   (×0.9031) and its generator. The first eligible players are Blakie, Ferguson and Kawa after the S215 rollover.
+> - **Reframed (addendum 9): shape, not dose.** A joint refit of the response shape (thresholds and K), plus one
+>   22–25 WHITE-threshold term (M\*), scores 1.475 MAE / 85.0% inside leave-one-player-out on 341 rows, against YG's
+>   2.312 / 74.5%. The age bands, N and 1/p come back unchanged, and same-player anchors hurt out of sample.
+>   PREREG-20260924-SHAPE-FIVE-MODEL freezes YG / SD22 / M1 / M\* / M\*\* for new players and supersedes SD22's
+>   consequence clause. This is post hoc until it is scored.
 
 ## Answer in one paragraph
 
@@ -546,4 +551,71 @@ prospective test. The CI run for `e394bcf` is green.
 | Inconclusive | otherwise |
 
 SD22 against YGA is reported as the level-versus-coach reading, but it does not decide the verdict.
+
+## Addendum 9: shape, not dose; the five-model test is pre-registered (frozen at `da05fd6`)
+
+A research round on 24 Sep pooled every admissible preview: CAL, ×59 and the ten control arms, 96 events and 341
+rows from 30 players, with HIST quarantined. Four questions were asked:
+- whether a card-only model can land inside the displayed intervals across players;
+- whether same-player anchors help;
+- what accuracy the display permits;
+- what the game's community knows.
+
+The report and notes are kept outside git, in the owner's Drive; the analysis scripts are local. Everything below is
+**post hoc**: the model family and the 22–25 term were chosen after seeing all 341 rows. Leave-one-player-out (LOPO)
+protects the fitted numbers, not the choice of model.
+
+**Findings.**
+
+- **The misfit is in the response shape.** Under YG, the implied dose is organised by the row's position on the cost
+  curve and by age band, not by player (p = 0.16) or coach (p = 0.31). WHITE rows at u ≈ 110–160 are over-predicted
+  and flat-zone rows sit near 1.0. A joint refit of logC, hW, hG and K puts the transition earlier and softer. The
+  within-preview compression of upper bounds, measured without any dose model, locates it in the same place: ≈109 for
+  grey and 121–127 for WHITE.
+- **Dose is close to solved.** With the shape refitted:
+  - per-age scales estimated without each player reproduce 8/6/4/2/1;
+  - the N exponent is 1.01, N₀ is 0.15 and geometric decay is 0;
+  - the p exponent is 0.99 and the family terms are ≈0.
+- **The 127 vs 132.6 conflict** came from refitting hW alone with K fixed. Refitted jointly, the 11–12 Sep archive and
+  the 23–24 Sep data agree.
+- **Same-player anchors hurt out of sample.** One anchor takes the controls from 2.44 to 2.86 MAE, and production V2's
+  own anchor from 3.20 to 3.42. Player accounts for 8% of the log-dose variance, coach ≈0%, and player × coach 92%.
+  Only a same-stat, same-coordinate row anchor transfers (60% → 85% inside on 82 rows), which points at the curve
+  again.
+- **The display is deterministic.** Twins and repeat previews match exactly. The oracle ceiling, a perfect dose per
+  preview, is 91.2% of rows inside, so the last points must come from shape.
+- **Any hidden per-player training rate is ≤ ~5%**. This is consistent with keeping the Training Rate selector out.
+
+| Leave-one-player-out, 341 rows | MAE | Inside | Previews all-in |
+|---|---:|---:|---:|
+| YG | 2.312 | 74.5% | 49.0% |
+| M1 (refit logC, hW, hG, K) | 1.730 | 82.7% | 62.5% |
+| **M\*** (M1 + ΔhW at 22–25) | **1.475** | **85.0%** | 63.5% |
+| M\*\* (M\* + threshold and K for 22+) | 1.437 | 87.4% | 67.7% |
+| oracle dose per preview | 1.010 | 91.2% | 76.0% |
+
+**SD22.** On the pool, SD22 scores 2.674 against YG's 2.312. But it beats YG on the 24 Sep 22–25 controls, where
+WHITE rows sit at u 110–160, so it can pass its own test for the wrong reason. Under YG, flat-zone 22–25 WHITE rows
+show an implied dose of 1.00, not 0.90.
+
+**What is frozen.**
+- `shape-models-20260924.json`: the full-precision fits. The pool's event ids are pinned.
+- `tools/resource-coach-v2/shape_models.py`: the model family and the refit. With the extras at zero it equals
+  `predict_young_grey` exactly.
+- `tools/resource-coach-v2/freeze_shape_test.py`: the card → five-model generator.
+- `preregistration-20260924-shape-five-model.json`: the test itself.
+
+`ShapeFiveModelFreeze` pins the hashes and the pool identity. It also checks that the constants refit to 1e-4 and
+reproduces the LOPO headline of 1.475 / 85.0%.
+
+**The test.**
+
+| Part | Rule |
+|---|---|
+| Primary contrast | M\* against YG: margin 0.2 MAE and ≥ 2/3 of cells. Needs ≥ 60 rows from ≥ 4 new players and ≥ 16 previews, with ≥ 2 players aged 22–25, ≥ 1 aged 26+ and ≥ 1 aged 18–21 |
+| Gated secondaries | the age term (M\* against M1), then SD22 against M\* with the flat-zone mechanism check |
+| Acceptance claim | separate from the comparison: ≥ 90% inside, ≥ 98% overlap, per-player floors, ≥ 150 rows and a clustered bootstrap |
+| Stated expectation | M\* wins the comparison and misses the 90% bar |
+| Arms | the primary arm is new players only. The secondary arm is Blakie, Ferguson and Kawa at 22, scored separately |
+| SD22 | not modified. Only its consequence clause is superseded, before any eligible preview exists |
 
