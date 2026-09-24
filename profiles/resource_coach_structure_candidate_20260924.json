@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "resource-coach-structure-candidate-v1",
+  "modelVersion": "ordinary-affine-multiplier-20260924-research",
+  "status": "research-candidate-not-production",
+  "baselineProfile": "profiles/resource_coach_current_replay_20260923.json",
+  "scope": "Ordinary coach direct player-card prediction. Reward remains separate. The frozen baseline and the frozen x59 predictions are not modified.",
+  "structuralChange": {
+    "hypothesis": "The coach multiplier transfers N-1 effective dose units, not N.",
+    "law": "B_lo = C * A(age) * (N - multiplierOffset) / p; B_hi = upperDoseRatio * B_lo",
+    "multiplierOffset": "fixed a priori at 1 (integer); not fitted",
+    "unchanged": [
+      "tier additions and u = s - Delta(T) for WHITE, u = s for MID_GREY",
+      "flat-to-exponential response with class thresholds 132.6 / 120.1 and K = 26.05",
+      "upper dose ratio 1.529 and rectification at zero",
+      "age scale bands 8/6/4/2/1",
+      "equal allocation across the p displayed affected stats"
+    ]
+  },
+  "dose": {
+    "globalAmplitude": 1.3877,
+    "multiplierOffset": 1,
+    "amplitudeCalibrationPartition": "All complete ordinary previews except canonical-workbook ORDINARY COACH (HIST) records and the frozen 24 Sep Standard Safeguard x59 prospective test. One parameter fitted by endpoint least squares with the response frozen."
+  },
+  "tierAdditions": [0, 10, 30, 50, 80, 120, 160],
+  "ageScaleBands": [
+    {"minAge": 17, "maxAge": 21, "scale": 8},
+    {"minAge": 22, "maxAge": 25, "scale": 6},
+    {"minAge": 26, "maxAge": 29, "scale": 4},
+    {"minAge": 30, "maxAge": 31, "scale": 2},
+    {"minAge": 32, "maxAge": 99, "scale": 1}
+  ],
+  "response": {
+    "whiteThreshold": 132.6,
+    "midGreyThreshold": 120.1,
+    "K": 26.05,
+    "upperDoseRatio": 1.529,
+    "visibleGainRectification": true
+  },
+  "optionalCoachAnchor": {
+    "status": "secondary-mode-not-primary",
+    "rule": "If an observed preview of the identical coach definition (programme family, label, multiplier, affected-stat count and affected-stat set) exists for a DIFFERENT player, the coach's log dose offset is estimated from those other players' previews only and added to log C for the target. The target player's own previews are never used. Without such an anchor the primary card + metadata prediction is used unchanged.",
+    "reason": "Implied dose varies by coach definition beyond family, shape, N and p; no stable player-level factor is detectable."
+  },
+  "evidenceBoundary": [
+    "Canonical-workbook ORDINARY COACH records are scored but never fitted: they fail dose-free geometric admissibility or carry degenerate/conflicting state provenance.",
+    "The frozen x59 predictions remain the baseline's prospective record; this candidate's x59 score is out of sample because C was fitted without it.",
+    "No player-specific amplitude is fitted from any observed outcome."
+  ]
+}

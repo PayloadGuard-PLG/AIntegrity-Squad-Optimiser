@@ -4,12 +4,26 @@ on:
   pull_request:
     paths:
       - 'profiles/resource_coach_current_replay_20260923.json'
+      - 'profiles/resource_coach_structure_candidate_20260924.json'
       - 'tools/resource-coach-v2/direct_player_card_validation.py'
+      - 'tools/resource-coach-v2/structure_audit.py'
       - 'tests/test_resource_coach_direct_validation.py'
-      - 'calibration/resource-coach-identification/archived-preview-rows-v1.json'
-      - 'calibration/resource-coach-identification/chat-locked-tests-20260923.json'
-      - 'calibration/resource-coach-identification/prospective-evidence-20260921.json'
-      - 'calibration/resource-coach-identification/live-preview-20260923-gilmartin.json'
+      - 'tests/test_resource_coach_structure_audit.py'
+      - 'calibration/resource-coach-identification/**'
+      - 'calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64'
+      - 'calibration/resource-coach-log/quality-exclusions.json'
+      - '.github/workflows/resource-coach-corpus-holdout.yml'
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - 'profiles/resource_coach_current_replay_20260923.json'
+      - 'profiles/resource_coach_structure_candidate_20260924.json'
+      - 'tools/resource-coach-v2/direct_player_card_validation.py'
+      - 'tools/resource-coach-v2/structure_audit.py'
+      - 'tests/test_resource_coach_direct_validation.py'
+      - 'tests/test_resource_coach_structure_audit.py'
+      - 'calibration/resource-coach-identification/**'
       - 'calibration/longitudinal-corpus/canonical-corpus-v1.json.gz.b64'
       - 'calibration/resource-coach-log/quality-exclusions.json'
       - '.github/workflows/resource-coach-corpus-holdout.yml'
@@ -36,15 +50,21 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install structure-audit dependencies
+        run: python -m pip install --disable-pip-version-check 'numpy>=1.26,<3' 'scipy>=1.11,<2'
+
       - name: Static checks
         run: |
           python -m py_compile \
             tools/resource-coach-v2/direct_player_card_validation.py \
-            tests/test_resource_coach_direct_validation.py
+            tools/resource-coach-v2/structure_audit.py \
+            tests/test_resource_coach_direct_validation.py \
+            tests/test_resource_coach_structure_audit.py
 
       - name: Direct replay invariants
         run: |
           python -m unittest discover -s tests -p 'test_resource_coach_direct_validation.py'
+          python -m unittest discover -s tests -p 'test_resource_coach_structure_audit.py'
 
       - name: Run direct player-card replay
         env:
@@ -67,6 +87,19 @@ jobs:
             echo "- Primary predictor uses frozen global C only; no observed target or anchor coach is fitted."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Run structure audit across the entire corpus (frozen vs candidate, every player)
+        run: |
+          python tools/resource-coach-v2/structure_audit.py \
+            --out-dir /tmp/resource-coach-direct-replay/structure-audit \
+            --seed 20260924 --permutations 500
+          {
+            echo
+            cat /tmp/resource-coach-direct-replay/structure-audit/STRUCTURE_AUDIT.md
+            echo
+            echo "- Frozen baseline profile and frozen x59 predictions are verified byte-stable by the test suite."
+            echo "- Candidate is research-only: \`profiles/resource_coach_structure_candidate_20260924.json\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Verify audit bundle
         run: |
           test -s /tmp/resource-coach-direct-replay/summary.json
@@ -74,6 +107,9 @@ jobs:
           test -s /tmp/resource-coach-direct-replay/direct-predictions.csv
           test -s /tmp/resource-coach-direct-replay/event-inventory.csv
           test -s /tmp/resource-coach-direct-replay/quarantined-rows.csv
+          test -s /tmp/resource-coach-direct-replay/structure-audit/structure-audit.json
+          test -s /tmp/resource-coach-direct-replay/structure-audit/STRUCTURE_AUDIT.md
+          test -s /tmp/resource-coach-direct-replay/structure-audit/candidate-direct-predictions.csv
 
       - name: Upload replay bundle
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
