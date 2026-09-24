@@ -1,0 +1,871 @@
+{
+  "schema": "fractional-observation-recheck-v1",
+  "status": "research-only",
+  "poolDigest": "5ef2b6dca18247f37afc1371d0fb4016ee721ee6e51e5759b995b0097452197b",
+  "groups": 30,
+  "mark": {
+    "assumptions": "OVR=floor(mean of the 15 unrounded stats), each card stat=floor(latent stat)",
+    "intervals": [
+      {
+        "target": 148,
+        "visibleSum": 2228,
+        "minFraction": 0,
+        "maxFractionExclusive": 7
+      },
+      {
+        "target": 152,
+        "visibleSum": 2289,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 156,
+        "visibleSum": 2349,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 160,
+        "visibleSum": 2409,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 164,
+        "visibleSum": 2469,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 168,
+        "visibleSum": 2529,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 172,
+        "visibleSum": 2589,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 176,
+        "visibleSum": 2649,
+        "minFraction": 0,
+        "maxFractionExclusive": 6
+      },
+      {
+        "target": 180,
+        "visibleSum": 2695,
+        "minFraction": 5,
+        "maxFractionExclusive": 15
+      }
+    ],
+    "commonFractionInterval": [
+      5,
+      6
+    ],
+    "commonFractionFeasible": true,
+    "nearestRoundingInteriorImpossible": true
+  },
+  "periodTransfer": {
+    "trainEvents": 45,
+    "trainRows": 148,
+    "testEvents": 44,
+    "testRows": 175,
+    "testPlayers": 13,
+    "playerDisjoint": true,
+    "status": "retrospective time split, families already selected post hoc",
+    "models": {
+      "M1": {
+        "raw": {
+          "midpointMae": 2.036791586570299,
+          "endpointMae": 2.0853577504894174,
+          "pointInside": 0.7142857142857143,
+          "endpointExact": 0.0,
+          "nRows": 175
+        },
+        "nearestZero": {
+          "midpointMae": 2.0514285714285716,
+          "endpointMae": 2.0742857142857143,
+          "pointInside": 0.7314285714285714,
+          "endpointExact": 0.18857142857142858,
+          "nRows": 175
+        },
+        "floorUniform": {
+          "midpointMae": 1.9672321428571429,
+          "endpointMae": 2.0083035714285713,
+          "pointInside": 0.7314285714285714,
+          "endpointExact": 0.06,
+          "nRows": 175
+        }
+      },
+      "Mstar": {
+        "raw": {
+          "midpointMae": 1.5340656407030473,
+          "endpointMae": 1.605693726130058,
+          "pointInside": 0.84,
+          "endpointExact": 0.0,
+          "nRows": 175
+        },
+        "nearestZero": {
+          "midpointMae": 1.5571428571428572,
+          "endpointMae": 1.5971428571428572,
+          "pointInside": 0.8685714285714285,
+          "endpointExact": 0.23714285714285716,
+          "nRows": 175
+        },
+        "floorUniform": {
+          "midpointMae": 1.5150892857142857,
+          "endpointMae": 1.5748214285714286,
+          "pointInside": 0.8514285714285714,
+          "endpointExact": 0.07428571428571429,
+          "nRows": 175
+        }
+      },
+      "Mstarstar": {
+        "raw": {
+          "midpointMae": 1.524091709880283,
+          "endpointMae": 1.6031477666753982,
+          "pointInside": 0.88,
+          "endpointExact": 0.0,
+          "nRows": 175
+        },
+        "nearestZero": {
+          "midpointMae": 1.5371428571428571,
+          "endpointMae": 1.5942857142857143,
+          "pointInside": 0.92,
+          "endpointExact": 0.21142857142857144,
+          "nRows": 175
+        },
+        "floorUniform": {
+          "midpointMae": 1.4624553571428571,
+          "endpointMae": 1.5246875,
+          "pointInside": 0.8857142857142857,
+          "endpointExact": 0.08,
+          "nRows": 175
+        }
+      }
+    }
+  },
+  "conditionCarry20": {
+    "nominalDrain": 1.35,
+    "twosIn20": 7,
+    "onesIn20": 13,
+    "stochasticBinomialCountVariance": 4.55,
+    "assumptions": "exact 1.35 per drill, carry preserved, no recovery or other modifiers",
+    "phases": [
+      {
+        "initialFraction": 0.03,
+        "losses": [
+          2,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1
+        ],
+        "adjacentTwos": false
+      },
+      {
+        "initialFraction": 0.17,
+        "losses": [
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1
+        ],
+        "adjacentTwos": false
+      },
+      {
+        "initialFraction": 0.41,
+        "losses": [
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1
+        ],
+        "adjacentTwos": false
+      },
+      {
+        "initialFraction": 0.69,
+        "losses": [
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2
+        ],
+        "adjacentTwos": false
+      },
+      {
+        "initialFraction": 0.93,
+        "losses": [
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          2,
+          1,
+          1,
+          2
+        ],
+        "adjacentTwos": false
+      }
+    ]
+  },
+  "models": {
+    "M1": {
+      "scores": {
+        "raw": {
+          "midpointMae": 1.7295709940392623,
+          "endpointMae": 1.8500785830624302,
+          "pointInside": 0.8269794721407625,
+          "endpointExact": 0.002932551319648094,
+          "nRows": 341
+        },
+        "floorUniform": {
+          "midpointMae": 1.7506185850439884,
+          "endpointMae": 1.851470857771261,
+          "pointInside": 0.8299120234604106,
+          "endpointExact": 0.09530791788856305,
+          "nRows": 341
+        },
+        "nearestUniform": {
+          "midpointMae": 1.7174899193548387,
+          "endpointMae": 1.8366248167155426,
+          "pointInside": 0.8269794721407625,
+          "endpointExact": 0.08357771260997067,
+          "nRows": 341
+        },
+        "floorZero": {
+          "midpointMae": 1.781524926686217,
+          "endpointMae": 1.8812316715542523,
+          "pointInside": 0.8621700879765396,
+          "endpointExact": 0.21700879765395895,
+          "nRows": 341
+        },
+        "nearestZero": {
+          "midpointMae": 1.7111436950146628,
+          "endpointMae": 1.8196480938416422,
+          "pointInside": 0.841642228739003,
+          "endpointExact": 0.2375366568914956,
+          "nRows": 341
+        }
+      },
+      "floorSupportCoverage": 0.3255131964809384,
+      "floorMeanSupportWidth": 0.5483870967741935,
+      "byPlayer": {
+        "Bryan Baxter": {
+          "raw": 1.0429216462985949,
+          "floorUniform": 0.628125,
+          "nearestUniform": 1.0875
+        },
+        "Cieran Morgan": {
+          "raw": 2.1661279026930687,
+          "floorUniform": 2.02265625,
+          "nearestUniform": 2.168359375
+        },
+        "Cptn Dallas": {
+          "raw": 1.928312296467368,
+          "floorUniform": 2.3125,
+          "nearestUniform": 1.9296875
+        },
+        "Darren Moore": {
+          "raw": 2.2573214350930493,
+          "floorUniform": 2.1302083333333335,
+          "nearestUniform": 2.26171875
+        },
+        "David Midgley": {
+          "raw": 1.3017056064187287,
+          "floorUniform": 1.46240234375,
+          "nearestUniform": 1.31689453125
+        },
+        "G Neri": {
+          "raw": 1.434756478736451,
+          "floorUniform": 1.50625,
+          "nearestUniform": 1.43515625
+        },
+        "Garry McCluskey": {
+          "raw": 1.8250175018431471,
+          "floorUniform": 1.9260416666666667,
+          "nearestUniform": 1.8075520833333334
+        },
+        "Kevin Mehlem": {
+          "raw": 1.1447158247368037,
+          "floorUniform": 1.2296875,
+          "nearestUniform": 1.13984375
+        },
+        "King Alfie": {
+          "raw": 2.403076367123617,
+          "floorUniform": 2.258203125,
+          "nearestUniform": 2.410546875
+        },
+        "LJ Galileo": {
+          "raw": 2.0474249873528647,
+          "floorUniform": 2.1362847222222223,
+          "nearestUniform": 2.0434027777777777
+        },
+        "LJDark leo": {
+          "raw": 1.7336545970038382,
+          "floorUniform": 1.6838541666666667,
+          "nearestUniform": 1.7197916666666666
+        },
+        "Lt Ripley": {
+          "raw": 1.3796210584525097,
+          "floorUniform": 1.5380859375,
+          "nearestUniform": 1.3935546875
+        },
+        "Mark Lurinsky": {
+          "raw": 1.6168803188998677,
+          "floorUniform": 1.5658482142857142,
+          "nearestUniform": 1.640625
+        },
+        "Michal Kawa": {
+          "raw": 1.1197079803849215,
+          "floorUniform": 1.2533482142857142,
+          "nearestUniform": 1.1294642857142858
+        },
+        "Mirsad Panic": {
+          "raw": 1.8685373434959265,
+          "floorUniform": 1.9715073529411764,
+          "nearestUniform": 1.8396139705882353
+        },
+        "Oliver Lerchl": {
+          "raw": 1.681721109242336,
+          "floorUniform": 1.5807291666666667,
+          "nearestUniform": 1.6493055555555556
+        },
+        "Paul Watson": {
+          "raw": 6.424887433974035,
+          "floorUniform": 6.3125,
+          "nearestUniform": 6.41015625
+        },
+        "Plamen Andonov": {
+          "raw": 1.5408999780885082,
+          "floorUniform": 1.43203125,
+          "nearestUniform": 1.524609375
+        },
+        "Robert Gavil\u00e1n": {
+          "raw": 2.507683285469021,
+          "floorUniform": 2.375,
+          "nearestUniform": 2.6328125
+        },
+        "Ross Ritchie": {
+          "raw": 0.22575015064926163,
+          "floorUniform": 0.75,
+          "nearestUniform": 0.08984375
+        },
+        "Russell Diamond": {
+          "raw": 3.6633949795649,
+          "floorUniform": 3.7265625,
+          "nearestUniform": 3.63359375
+        },
+        "Ryan Blakie": {
+          "raw": 2.156512266856671,
+          "floorUniform": 2.112109375,
+          "nearestUniform": 2.138671875
+        },
+        "Ryan Gilmartin": {
+          "raw": 1.0351445901446066,
+          "floorUniform": 1.0260416666666667,
+          "nearestUniform": 1.0572916666666667
+        },
+        "Ryan Rodger": {
+          "raw": 0.8472692375185983,
+          "floorUniform": 0.7769886363636364,
+          "nearestUniform": 0.8153409090909091
+        },
+        "S DarkVader": {
+          "raw": 0.9301321688118179,
+          "floorUniform": 0.9453125,
+          "nearestUniform": 0.9203125
+        },
+        "SD Faye": {
+          "raw": 1.1117836696709062,
+          "floorUniform": 1.234375,
+          "nearestUniform": 1.11328125
+        },
+        "Scott Ritchie": {
+          "raw": 1.327438933946354,
+          "floorUniform": 1.828125,
+          "nearestUniform": 1.0234375
+        },
+        "Vince N\u00e9meth": {
+          "raw": 2.5107126396693276,
+          "floorUniform": 2.4453125,
+          "nearestUniform": 2.4046875
+        },
+        "Willie Ferguson": {
+          "raw": 1.0147179758676548,
+          "floorUniform": 1.091452205882353,
+          "nearestUniform": 0.9875919117647058
+        },
+        "Willie Howden": {
+          "raw": 1.5805975648665103,
+          "floorUniform": 1.7936789772727273,
+          "nearestUniform": 1.5522017045454546
+        }
+      }
+    },
+    "Mstar": {
+      "scores": {
+        "raw": {
+          "midpointMae": 1.4753623101238988,
+          "endpointMae": 1.6254381791436479,
+          "pointInside": 0.8504398826979472,
+          "endpointExact": 0.002932551319648094,
+          "nRows": 341
+        },
+        "floorUniform": {
+          "midpointMae": 1.5147543988269794,
+          "endpointMae": 1.6329270527859236,
+          "pointInside": 0.8533724340175953,
+          "endpointExact": 0.10850439882697947,
+          "nRows": 341
+        },
+        "nearestUniform": {
+          "midpointMae": 1.473973607038123,
+          "endpointMae": 1.6132697947214076,
+          "pointInside": 0.8533724340175953,
+          "endpointExact": 0.09237536656891496,
+          "nRows": 341
+        },
+        "floorZero": {
+          "midpointMae": 1.5718475073313782,
+          "endpointMae": 1.686217008797654,
+          "pointInside": 0.8826979472140762,
+          "endpointExact": 0.22580645161290322,
+          "nRows": 341
+        },
+        "nearestZero": {
+          "midpointMae": 1.4824046920821115,
+          "endpointMae": 1.6143695014662756,
+          "pointInside": 0.8797653958944281,
+          "endpointExact": 0.22727272727272727,
+          "nRows": 341
+        }
+      },
+      "floorSupportCoverage": 0.3651026392961877,
+      "floorMeanSupportWidth": 0.5601173020527859,
+      "byPlayer": {
+        "Bryan Baxter": {
+          "raw": 1.5922004999019321,
+          "floorUniform": 1.090625,
+          "nearestUniform": 1.7
+        },
+        "Cieran Morgan": {
+          "raw": 1.5586938414997629,
+          "floorUniform": 1.53046875,
+          "nearestUniform": 1.5703125
+        },
+        "Cptn Dallas": {
+          "raw": 0.7236879074057541,
+          "floorUniform": 1.02734375,
+          "nearestUniform": 0.66015625
+        },
+        "Darren Moore": {
+          "raw": 1.9709339977174214,
+          "floorUniform": 2.05859375,
+          "nearestUniform": 1.96875
+        },
+        "David Midgley": {
+          "raw": 1.049532722687287,
+          "floorUniform": 1.14404296875,
+          "nearestUniform": 1.05615234375
+        },
+        "G Neri": {
+          "raw": 1.2980700129124263,
+          "floorUniform": 1.36640625,
+          "nearestUniform": 1.3015625
+        },
+        "Garry McCluskey": {
+          "raw": 1.4132374120592017,
+          "floorUniform": 1.409375,
+          "nearestUniform": 1.4411458333333333
+        },
+        "Kevin Mehlem": {
+          "raw": 0.9506218857149562,
+          "floorUniform": 1.015625,
+          "nearestUniform": 1.01015625
+        },
+        "King Alfie": {
+          "raw": 1.430272041289325,
+          "floorUniform": 1.380859375,
+          "nearestUniform": 1.405859375
+        },
+        "LJ Galileo": {
+          "raw": 1.9256803760165444,
+          "floorUniform": 2.0130208333333335,
+          "nearestUniform": 1.9127604166666667
+        },
+        "LJDark leo": {
+          "raw": 1.6003855884617642,
+          "floorUniform": 1.6151041666666666,
+          "nearestUniform": 1.6098958333333333
+        },
+        "Lt Ripley": {
+          "raw": 0.8274111574356464,
+          "floorUniform": 0.97265625,
+          "nearestUniform": 0.85107421875
+        },
+        "Mark Lurinsky": {
+          "raw": 1.8826799047001768,
+          "floorUniform": 1.8270089285714286,
+          "nearestUniform": 1.8973214285714286
+        },
+        "Michal Kawa": {
+          "raw": 1.287403654512811,
+          "floorUniform": 1.4363839285714286,
+          "nearestUniform": 1.2801339285714286
+        },
+        "Mirsad Panic": {
+          "raw": 1.7288259735736868,
+          "floorUniform": 1.7624080882352942,
+          "nearestUniform": 1.7389705882352942
+        },
+        "Oliver Lerchl": {
+          "raw": 0.8279771411424091,
+          "floorUniform": 0.9123263888888888,
+          "nearestUniform": 0.8133680555555556
+        },
+        "Paul Watson": {
+          "raw": 6.753657282274773,
+          "floorUniform": 6.61328125,
+          "nearestUniform": 6.66796875
+        },
+        "Plamen Andonov": {
+          "raw": 1.1384259868717983,
+          "floorUniform": 1.1828125,
+          "nearestUniform": 1.115234375
+        },
+        "Robert Gavil\u00e1n": {
+          "raw": 0.9968531744322817,
+          "floorUniform": 1.03515625,
+          "nearestUniform": 1.0
+        },
+        "Ross Ritchie": {
+          "raw": 0.5480687320784767,
+          "floorUniform": 0.546875,
+          "nearestUniform": 0.5
+        },
+        "Russell Diamond": {
+          "raw": 3.3002915983697605,
+          "floorUniform": 3.38125,
+          "nearestUniform": 3.22265625
+        },
+        "Ryan Blakie": {
+          "raw": 2.477064584700485,
+          "floorUniform": 2.41484375,
+          "nearestUniform": 2.487890625
+        },
+        "Ryan Gilmartin": {
+          "raw": 1.0052182137630343,
+          "floorUniform": 0.9973958333333334,
+          "nearestUniform": 1.0208333333333333
+        },
+        "Ryan Rodger": {
+          "raw": 1.4422948052903095,
+          "floorUniform": 1.5454545454545454,
+          "nearestUniform": 1.4428267045454546
+        },
+        "S DarkVader": {
+          "raw": 1.0807474972143267,
+          "floorUniform": 1.0921875,
+          "nearestUniform": 1.078125
+        },
+        "SD Faye": {
+          "raw": 0.47018861402200685,
+          "floorUniform": 0.6015625,
+          "nearestUniform": 0.5546875
+        },
+        "Scott Ritchie": {
+          "raw": 4.038152080967933,
+          "floorUniform": 4.5,
+          "nearestUniform": 4.0859375
+        },
+        "Vince N\u00e9meth": {
+          "raw": 0.6760792532566142,
+          "floorUniform": 0.75625,
+          "nearestUniform": 0.6421875
+        },
+        "Willie Ferguson": {
+          "raw": 1.2755772662861722,
+          "floorUniform": 1.2761948529411764,
+          "nearestUniform": 1.2274816176470589
+        },
+        "Willie Howden": {
+          "raw": 0.7893704680206323,
+          "floorUniform": 0.9641335227272727,
+          "nearestUniform": 0.7638494318181818
+        }
+      }
+    },
+    "Mstarstar": {
+      "scores": {
+        "raw": {
+          "midpointMae": 1.437094337201725,
+          "endpointMae": 1.5475148719873857,
+          "pointInside": 0.873900293255132,
+          "endpointExact": 0.002932551319648094,
+          "nRows": 341
+        },
+        "floorUniform": {
+          "midpointMae": 1.449917521994135,
+          "endpointMae": 1.5421554252199414,
+          "pointInside": 0.8885630498533724,
+          "endpointExact": 0.10850439882697947,
+          "nRows": 341
+        },
+        "nearestUniform": {
+          "midpointMae": 1.435025659824047,
+          "endpointMae": 1.532258064516129,
+          "pointInside": 0.873900293255132,
+          "endpointExact": 0.10410557184750734,
+          "nRows": 341
+        },
+        "floorZero": {
+          "midpointMae": 1.497067448680352,
+          "endpointMae": 1.596774193548387,
+          "pointInside": 0.9237536656891495,
+          "endpointExact": 0.218475073313783,
+          "nRows": 341
+        },
+        "nearestZero": {
+          "midpointMae": 1.4120234604105573,
+          "endpointMae": 1.5058651026392962,
+          "pointInside": 0.9178885630498533,
+          "endpointExact": 0.2595307917888563,
+          "nRows": 341
+        }
+      },
+      "floorSupportCoverage": 0.36656891495601174,
+      "floorMeanSupportWidth": 0.5733137829912024,
+      "byPlayer": {
+        "Bryan Baxter": {
+          "raw": 1.7507094650192727,
+          "floorUniform": 1.2890625,
+          "nearestUniform": 1.746875
+        },
+        "Cieran Morgan": {
+          "raw": 1.1449388129344418,
+          "floorUniform": 1.1203125,
+          "nearestUniform": 1.125
+        },
+        "Cptn Dallas": {
+          "raw": 0.7605204530128091,
+          "floorUniform": 1.01171875,
+          "nearestUniform": 0.765625
+        },
+        "Darren Moore": {
+          "raw": 2.107891540298411,
+          "floorUniform": 1.9986979166666667,
+          "nearestUniform": 2.09765625
+        },
+        "David Midgley": {
+          "raw": 1.1255556798596231,
+          "floorUniform": 1.15087890625,
+          "nearestUniform": 1.13720703125
+        },
+        "G Neri": {
+          "raw": 1.2004169404685165,
+          "floorUniform": 1.27265625,
+          "nearestUniform": 1.20078125
+        },
+        "Garry McCluskey": {
+          "raw": 1.2818151562768112,
+          "floorUniform": 1.0997395833333334,
+          "nearestUniform": 1.2901041666666666
+        },
+        "Kevin Mehlem": {
+          "raw": 1.1776167689901798,
+          "floorUniform": 1.1421875,
+          "nearestUniform": 1.28125
+        },
+        "King Alfie": {
+          "raw": 0.9076323114632384,
+          "floorUniform": 0.83984375,
+          "nearestUniform": 0.88671875
+        },
+        "LJ Galileo": {
+          "raw": 1.9845301612708879,
+          "floorUniform": 2.0690104166666665,
+          "nearestUniform": 1.9791666666666667
+        },
+        "LJDark leo": {
+          "raw": 1.451852673625012,
+          "floorUniform": 1.4703125,
+          "nearestUniform": 1.459375
+        },
+        "Lt Ripley": {
+          "raw": 0.7390682548785987,
+          "floorUniform": 0.6923828125,
+          "nearestUniform": 0.7734375
+        },
+        "Mark Lurinsky": {
+          "raw": 1.827040552630381,
+          "floorUniform": 1.7756696428571428,
+          "nearestUniform": 1.8180803571428572
+        },
+        "Michal Kawa": {
+          "raw": 1.4402861683160535,
+          "floorUniform": 1.5904017857142858,
+          "nearestUniform": 1.4352678571428572
+        },
+        "Mirsad Panic": {
+          "raw": 2.0896699065178517,
+          "floorUniform": 2.0418198529411766,
+          "nearestUniform": 2.1020220588235294
+        },
+        "Oliver Lerchl": {
+          "raw": 0.5313768380521348,
+          "floorUniform": 0.5017361111111112,
+          "nearestUniform": 0.5286458333333334
+        },
+        "Paul Watson": {
+          "raw": 7.424312487766322,
+          "floorUniform": 7.33984375,
+          "nearestUniform": 7.40234375
+        },
+        "Plamen Andonov": {
+          "raw": 1.2190826729469664,
+          "floorUniform": 1.148046875,
+          "nearestUniform": 1.208203125
+        },
+        "Robert Gavil\u00e1n": {
+          "raw": 0.466388349355789,
+          "floorUniform": 0.42578125,
+          "nearestUniform": 0.28515625
+        },
+        "Ross Ritchie": {
+          "raw": 0.856790349986106,
+          "floorUniform": 0.33984375,
+          "nearestUniform": 0.8046875
+        },
+        "Russell Diamond": {
+          "raw": 2.3964170319656035,
+          "floorUniform": 2.4296875,
+          "nearestUniform": 2.35390625
+        },
+        "Ryan Blakie": {
+          "raw": 2.0729236887800844,
+          "floorUniform": 2.0375,
+          "nearestUniform": 2.082421875
+        },
+        "Ryan Gilmartin": {
+          "raw": 1.132355478250081,
+          "floorUniform": 1.0989583333333333,
+          "nearestUniform": 1.125
+        },
+        "Ryan Rodger": {
+          "raw": 0.9341101460227919,
+          "floorUniform": 1.0969460227272727,
+          "nearestUniform": 0.9030539772727273
+        },
+        "S DarkVader": {
+          "raw": 1.2854325419232864,
+          "floorUniform": 1.309375,
+          "nearestUniform": 1.2828125
+        },
+        "SD Faye": {
+          "raw": 0.6411002867649458,
+          "floorUniform": 0.74609375,
+          "nearestUniform": 0.625
+        },
+        "Scott Ritchie": {
+          "raw": 3.6764482579235818,
+          "floorUniform": 4.0,
+          "nearestUniform": 3.6640625
+        },
+        "Vince N\u00e9meth": {
+          "raw": 0.44966272847582045,
+          "floorUniform": 0.4890625,
+          "nearestUniform": 0.4046875
+        },
+        "Willie Ferguson": {
+          "raw": 1.3848477016899583,
+          "floorUniform": 1.5703125,
+          "nearestUniform": 1.3832720588235294
+        },
+        "Willie Howden": {
+          "raw": 2.0411967541466822,
+          "floorUniform": 2.418678977272727,
+          "nearestUniform": 2.0426136363636362
+        }
+      }
+    }
+  }
+}
