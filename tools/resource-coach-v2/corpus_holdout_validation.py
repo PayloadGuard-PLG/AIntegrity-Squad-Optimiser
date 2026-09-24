@@ -147,7 +147,7 @@ def calibrate_event(event: dict[str, Any]) -> dict[str, Any]:
 
 def evidence_grade(source: str) -> str:
     if SCREENSHOT_RE.search(source or ""):
-        return "direct-screenshot-reference"
+        return "referenced-screenshot-unverified"
     if source.startswith("conversation-observed:"):
         return "conversation-screenshot-observed"
     return "structured-secondary"
@@ -337,6 +337,8 @@ def score_row(anchor: dict[str, Any], target: dict[str, Any], row: dict[str, Any
         "target_coach": target["coach"],
         "target_multiplier": target["N"],
         "target_p": target["p"],
+        "target_age": row["age"],
+        "target_tier": row["tier"],
         "stat": row["stat"],
         "start": row["s"],
         "display_class": row["cls"],
@@ -349,6 +351,7 @@ def score_row(anchor: dict[str, Any], target: dict[str, Any], row: dict[str, Any
         "obs_lo": olo,
         "obs_hi": ohi,
         "obs_mid": omid,
+        "signed_midpoint_residual": pmid - omid,
         "midpoint_abs_error": abs(pmid - omid),
         "point_inside_observed": olo <= pmid <= ohi,
         "interval_overlap": overlap,
@@ -363,7 +366,7 @@ def cross_validate(events: list[dict[str, Any]], primary_only: bool) -> dict[str
     by_state: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for e in events:
         if primary_only and e["evidenceGrade"] not in {
-            "direct-screenshot-reference", "conversation-screenshot-observed"
+            "referenced-screenshot-unverified", "conversation-screenshot-observed"
         }:
             continue
         by_state[(e["partition"], e["player"], e["state"])].append(e)
@@ -422,6 +425,7 @@ def aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "intervalOverlapRate": sum(bool(r["interval_overlap"]) for r in rows) / len(rows),
         "endpointMae": sum(r["endpoint_mae"] for r in rows) / len(rows),
         "meanIntervalIou": sum(r["interval_iou"] for r in rows) / len(rows),
+        "signedMidpointResidual": sum(r["signed_midpoint_residual"] for r in rows) / len(rows),
     }
 
 
@@ -441,13 +445,40 @@ def global_baseline(events: list[dict[str, Any]], primary_only: bool) -> dict[st
     rows = []
     for e in events:
         if primary_only and e["evidenceGrade"] not in {
-            "direct-screenshot-reference", "conversation-screenshot-observed"
+            "referenced-screenshot-unverified", "conversation-screenshot-observed"
         }:
             continue
         for row in e["rows"]:
             dummy = {"event": "GLOBAL", "family": "GLOBAL", "coach": "GLOBAL"}
             rows.append(score_row(dummy, e, row, c))
     return {"metrics": aggregate(rows), "byTargetFamily": grouped_metrics(rows, "target_family"), "predictions": rows}
+
+
+def primary_sensitivities(cv: dict[str, Any]) -> dict[str, Any]:
+    """Expose repeated close-coach transfers and a baseline on identical targets."""
+    rows = cv["predictions"]
+    close = [r for r in rows if r["anchor_coach"] == r["target_coach"]
+             and r["target_p"] == 8 and r["target_multiplier"] in (106, 114)]
+    remaining = [r for r in rows if r not in close]
+    by_event = {a["anchor_event"]: a for a in cv["anchors"]}
+    fixed = []
+    for r in rows:
+        anchor = by_event[r["anchor_event"]]
+        target = {"partition": r["partition"], "player": r["player_id"],
+                  "playerName": r["player_name"], "state": r["state"],
+                  "event": r["target_event"], "family": r["target_family"],
+                  "coach": r["target_coach"], "N": r["target_multiplier"], "p": r["target_p"]}
+        row = {"s": r["start"], "tier": r["target_tier"], "cls": r["display_class"],
+               "age": r["target_age"], "N": r["target_multiplier"], "p": r["target_p"],
+               "g": [r["obs_lo"], r["obs_hi"]], "stat": r["stat"],
+               "evidenceGrade": r["evidence_grade"], "source": r["source"]}
+        fixed.append(score_row({"event": anchor["anchor_event"], "family": anchor["anchor_family"],
+                                "coach": anchor["anchor_coach"]}, target, row,
+                               float(PROFILE["dose"]["globalAmplitude"])))
+    return {"closeSameCoach106to114": aggregate(close),
+            "excludingCloseSameCoach106to114": aggregate(remaining),
+            "fixedGlobalAmplitudeOnSameTargets": aggregate(fixed),
+            "ageBandIdentifiability": "Not identifiable: the age multiplier cancels algebraically when amplitude is calibrated and predicted within one exact player state."}
 
 
 def seeded_spotlight(cv: dict[str, Any], seed: str) -> dict[str, Any] | None:
@@ -518,7 +549,7 @@ def markdown(report: dict[str, Any]) -> str:
         f"| Endpoint MAE | {num(m.get('endpointMae'))} | {num(g.get('endpointMae'))} |",
         f"| Mean interval IoU | {num(m.get('meanIntervalIou'))} | {num(g.get('meanIntervalIou'))} |",
         "",
-        "The primary score uses only records with explicit screenshot references or conversation-observed screenshot provenance. Frozen assistant predictions are never read as truth.",
+        "The primary score uses transcribed preview ranges with screenshot filenames or conversation references. The image pixels are not bundled or independently checked here. These are game preview ranges, not gains measured after applying a coach. Frozen assistant predictions are never read as truth.",
         "",
         "## By target family",
         "",
@@ -531,6 +562,21 @@ def markdown(report: dict[str, Any]) -> str:
             f"{pct(fm.get('pointInsideObservedRate'))} | {pct(fm.get('intervalOverlapRate'))} | "
             f"{num(fm.get('endpointMae'))} |"
         )
+
+    sens = report["primarySensitivities"]
+    lines += [
+        "", "## Sensitivity and identification",
+        "",
+        f"- Close same-coach x106/x114 transfers: {sens['closeSameCoach106to114']['n']} of {m['n']} predictions.",
+        f"- Without those transfers: {sens['excludingCloseSameCoach106to114']['n']} predictions, "
+        f"midpoint MAE {num(sens['excludingCloseSameCoach106to114'].get('midpointMae'))}, "
+        f"midpoint inside {pct(sens['excludingCloseSameCoach106to114'].get('pointInsideObservedRate'))}.",
+        f"- Fixed global amplitude on the **same scored target rows**: midpoint MAE "
+        f"{num(sens['fixedGlobalAmplitudeOnSameTargets'].get('midpointMae'))}; player-state fitted amplitude: {num(m.get('midpointMae'))}.",
+        f"- {sens['ageBandIdentifiability']}",
+        "- Scores from repeated stats and reciprocal anchor/target directions are correlated. The number of independent player states is six.",
+        "- Canonical workbook results and provenance exclusions must be read before treating the headline as transferable.",
+    ]
 
     s = report.get("spotlight")
     if s:
@@ -587,6 +633,7 @@ def main() -> None:
     canonical_events = build_events(canonical)
 
     primary_cv = cross_validate(primary_events, primary_only=True)
+    sensitivities = primary_sensitivities(primary_cv)
     canonical_cv = cross_validate(canonical_events, primary_only=False)
     global_base = global_baseline(primary_events, primary_only=True)
     spotlight = seeded_spotlight(primary_cv, args.seed)
@@ -606,6 +653,11 @@ def main() -> None:
         "primaryCrossValidation": {
             k: v for k, v in primary_cv.items() if k != "predictions" and k != "anchors"
         },
+        "primarySensitivities": sensitivities,
+        "byPlayer": grouped_metrics(primary_cv["predictions"], "player_name"),
+        "byTargetN": grouped_metrics(primary_cv["predictions"], "target_multiplier"),
+        "byTargetP": grouped_metrics(primary_cv["predictions"], "target_p"),
+        "byDisplayClass": grouped_metrics(primary_cv["predictions"], "display_class"),
         "canonicalCrossValidation": {
             k: v for k, v in canonical_cv.items() if k != "predictions" and k != "anchors"
         },
