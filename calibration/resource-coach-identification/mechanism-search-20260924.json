@@ -1,0 +1,6124 @@
+{
+  "poolSha256": "5ef2b6dca18247f37afc1371d0fb4016ee721ee6e51e5759b995b0097452197b",
+  "split": "player",
+  "directConstraints": {
+    "flatRows": 17,
+    "rhoIntersection": [
+      1.4819277108433735,
+      1.5100671140939597
+    ],
+    "rho1_5Violations": 0,
+    "rho1_529Violations": 8,
+    "collisions": [
+      {
+        "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+        "coordinate": 10.0,
+        "displayClass": "WHITE",
+        "rows": [
+          {
+            "stat": "AGGRESSION",
+            "interval": [
+              37.0,
+              56.0
+            ]
+          },
+          {
+            "stat": "TACKLING",
+            "interval": [
+              37.0,
+              55.0
+            ]
+          }
+        ]
+      },
+      {
+        "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+        "coordinate": 111.0,
+        "displayClass": "WHITE",
+        "rows": [
+          {
+            "stat": "CROSSING",
+            "interval": [
+              25.0,
+              32.0
+            ]
+          },
+          {
+            "stat": "SPEED",
+            "interval": [
+              25.0,
+              31.0
+            ]
+          }
+        ]
+      },
+      {
+        "event": "CONTROL-panic-STD-DEF-X20",
+        "coordinate": 138.0,
+        "displayClass": "MID_GREY",
+        "rows": [
+          {
+            "stat": "MARKING",
+            "interval": [
+              15.0,
+              21.0
+            ]
+          },
+          {
+            "stat": "BRAVERY",
+            "interval": [
+              14.0,
+              21.0
+            ]
+          }
+        ]
+      },
+      {
+        "event": "CONTROL-panic-DS-STD-OFF-X10",
+        "coordinate": 107.0,
+        "displayClass": "MID_GREY",
+        "rows": [
+          {
+            "stat": "CROSSING",
+            "interval": [
+              10.0,
+              15.0
+            ]
+          },
+          {
+            "stat": "SHOOTING",
+            "interval": [
+              11.0,
+              15.0
+            ]
+          }
+        ]
+      }
+    ],
+    "decimalOvrChecks": [
+      {
+        "player": "Michal Kawa",
+        "ovrMinusIntegerMean": 0.5667
+      },
+      {
+        "player": "Ryan Rodger",
+        "ovrMinusIntegerMean": 0.5333
+      },
+      {
+        "player": "David Midgley",
+        "ovrMinusIntegerMean": 0.6
+      },
+      {
+        "player": "LJDark leo",
+        "ovrMinusIntegerMean": 0.4333
+      },
+      {
+        "player": "Mirsad Panic",
+        "ovrMinusIntegerMean": 0.5333
+      },
+      {
+        "player": "King Alfie",
+        "ovrMinusIntegerMean": 0.5
+      },
+      {
+        "player": "Plamen Andonov",
+        "ovrMinusIntegerMean": 0.5
+      },
+      {
+        "player": "Cieran Morgan",
+        "ovrMinusIntegerMean": 0.4667
+      },
+      {
+        "player": "Ryan Blakie",
+        "ovrMinusIntegerMean": 0.5667
+      }
+    ]
+  },
+  "baselineInSample": {
+    "mae": 2.312113747196596,
+    "inside": 0.7448680351906158,
+    "overlap": 0.9589442815249267,
+    "endpoint_mae": 2.458306268676627,
+    "sse": 6938.580584988466
+  },
+  "models": {
+    "M1": {
+      "cv": {
+        "summary": {
+          "mae": 1.7295709940392623,
+          "inside": 0.8269794721407625,
+          "overlap": 0.9794721407624634,
+          "endpoint_mae": 1.8500785830624302,
+          "all_in": 0.625,
+          "rows": 341,
+          "events": 96
+        },
+        "renderDiagnostics": {
+          "round_nearest": {
+            "endpoint_mae": 1.8196480938416422,
+            "exact_endpoint_rate": 0.2375366568914956,
+            "inside": 0.841642228739003
+          },
+          "floor_zero_fraction": {
+            "endpoint_mae": 1.8812316715542523,
+            "exact_endpoint_rate": 0.21700879765395895,
+            "inside": 0.8621700879765396
+          }
+        }
+      }
+    },
+    "Mstar": {
+      "cv": {
+        "summary": {
+          "mae": 1.4753623101238988,
+          "inside": 0.8504398826979472,
+          "overlap": 0.9824046920821115,
+          "endpoint_mae": 1.6254381791436479,
+          "all_in": 0.6354166666666666,
+          "rows": 341,
+          "events": 96
+        },
+        "renderDiagnostics": {
+          "round_nearest": {
+            "endpoint_mae": 1.6143695014662756,
+            "exact_endpoint_rate": 0.22727272727272727,
+            "inside": 0.8797653958944281
+          },
+          "floor_zero_fraction": {
+            "endpoint_mae": 1.686217008797654,
+            "exact_endpoint_rate": 0.22580645161290322,
+            "inside": 0.8826979472140762
+          }
+        }
+      }
+    },
+    "Mstarstar": {
+      "cv": {
+        "summary": {
+          "mae": 1.437094337201725,
+          "inside": 0.873900293255132,
+          "overlap": 0.9794721407624634,
+          "endpoint_mae": 1.5475148719873857,
+          "all_in": 0.6770833333333334,
+          "rows": 341,
+          "events": 96
+        },
+        "renderDiagnostics": {
+          "round_nearest": {
+            "endpoint_mae": 1.5058651026392962,
+            "exact_endpoint_rate": 0.2595307917888563,
+            "inside": 0.9178885630498533
+          },
+          "floor_zero_fraction": {
+            "endpoint_mae": 1.596774193548387,
+            "exact_endpoint_rate": 0.218475073313783,
+            "inside": 0.9237536656891495
+          }
+        }
+      }
+    },
+    "hard-rho1.529": {
+      "params": [
+        1.383681671523283,
+        120.43217022140912,
+        106.1413583900786,
+        35.83969496333361
+      ],
+      "inSample": {
+        "mae": 1.6444405442648542,
+        "inside": 0.8357771260997068,
+        "overlap": 0.9824046920821115,
+        "endpoint_mae": 1.7709043507165725,
+        "sse": 4132.592798482643
+      },
+      "cv": {
+        "summary": {
+          "mae": 1.7309614756517986,
+          "inside": 0.8269794721407625,
+          "overlap": 0.9794721407624634,
+          "endpoint_mae": 1.851747779254157,
+          "all_in": 0.625,
+          "rows": 341,
+          "events": 96
+        },
+        "events": [
+          {
+            "event": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+            "player": "Bryan Baxter",
+            "score": {
+              "mae": 1.0476649136293132,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.374908629036628,
+              "sse": 25.998592085852508
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-ATT-X5",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.8575736457050928,
+              "inside": 0.6666666666666666,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 0.8575736457050928,
+              "sse": 5.532111717430113
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-OFF-X10",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.9463357050584449,
+              "inside": 0.75,
+              "overlap": 0.75,
+              "endpoint_mae": 0.9792592092696779,
+              "sse": 12.994805845089237
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-DEF-X20",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 3.066446497305538,
+              "inside": 0.25,
+              "overlap": 1.0,
+              "endpoint_mae": 3.066446497305538,
+              "sse": 89.1154793677196
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-PHY-X15",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 1.0200051291965515,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0895165508225126,
+              "sse": 13.71321212441446
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 4.120160766358154,
+              "inside": 0.4,
+              "overlap": 1.0,
+              "endpoint_mae": 4.421506573530567,
+              "sse": 211.08018235258572
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "player": "Cptn Dallas",
+            "score": {
+              "mae": 1.9281577924199311,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9281577924199311,
+              "sse": 15.411054906686147
+            },
+            "n": 2
+          },
+          {
+            "event": "CHAT-20260923-DARREN-STD-ATK-X23-SKILL",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.51876587323054,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.51876587323054,
+              "sse": 55.032228009188174
+            },
+            "n": 3
+          },
+          {
+            "event": "DARREN-SKILL-X33",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 1.9991862059638141,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.600397072718252,
+              "sse": 66.13316666772549
+            },
+            "n": 3
+          },
+          {
+            "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+            "player": "David Midgley",
+            "score": {
+              "mae": 2.8622294244944926,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.8622294244944926,
+              "sse": 101.51254090381146
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-ATT-X5",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.6503357830223516,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7032082695549585,
+              "sse": 5.2384518576695225
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-OFF-X10",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.33464485839449765,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.40994038202920535,
+              "sse": 2.2381755123375386
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-midgley-STD-PHY-X15",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.8043506730294769,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8043506730294769,
+              "sse": 7.160879410115787
+            },
+            "n": 4
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Attacking-7",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.6584411228885472,
+              "inside": 0.0,
+              "overlap": 0.5,
+              "endpoint_mae": 0.6584411228885472,
+              "sse": 2.815091484717699
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Defending-13",
+            "player": "G Neri",
+            "score": {
+              "mae": 1.2818839711847048,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2818839711847048,
+              "sse": 3.4160747622981047
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Safeguard-23",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.025053629071248196,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.0514383147680455,
+              "sse": 0.026188676446529766
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Standard Defending-30",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.0613975616908697,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0613975616908697,
+              "sse": 51.389596137131775
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.7762650625263454,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.7762650625263454,
+              "sse": 59.53959428857037
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Attacking-7",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 3.6464539366564495,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.6464539366564495,
+              "sse": 100.25758026628876
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Defending-13",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.6552690281171891,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6552690281171891,
+              "sse": 0.9230691012076191
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Safeguard-23",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.966842294553679,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.966842294553679,
+              "sse": 18.4174525630357
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Standard Defending-30",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.3372301354523348,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3372301354523348,
+              "sse": 20.8572040576461
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9816328300308044,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9816328300308044,
+              "sse": 16.25730560954882
+            },
+            "n": 2
+          },
+          {
+            "event": "MCCLUSKEY-X65-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.0662768589461322,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.2884991999534137,
+              "sse": 26.587328618178113
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.814445071130038,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9642940225238341,
+              "sse": 73.5972047488736
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9648845389684695,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.068555044879009,
+              "sse": 83.08226341314979
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.2482917121514134,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2482917121514134,
+              "sse": 7.2517348750161235
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Attacking-7",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.4593610891599411,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.49230243750301383,
+              "sse": 1.52446515306175
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Defending-13",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.32277319526863835,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8030979710897839,
+              "sse": 1.4982977735049077
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Safeguard-23",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.18024131570494,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4643828047269167,
+              "sse": 12.705313027739406
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Standard Defending-30",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.510296818892968,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.510296818892968,
+              "sse": 16.146220815086863
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-KEVIN-MEHLEM-FOCUSED-OFFENSIVE-X26",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.6531494783644618,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6744331420103933,
+              "sse": 14.862300423007106
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-ATT-X5",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.5590248423914375,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6097078221663329,
+              "sse": 4.853711500412844
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-OFF-X10",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.9510483477768545,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9967694023194937,
+              "sse": 13.47112302263328
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-DEF-X20",
+            "player": "King Alfie",
+            "score": {
+              "mae": 3.030522287849731,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 3.030522287849731,
+              "sse": 80.16921632807355
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-PHY-X15",
+            "player": "King Alfie",
+            "score": {
+              "mae": 1.6973349809537872,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.723446412291917,
+              "sse": 38.27575896112234
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "player": "King Alfie",
+            "score": {
+              "mae": 4.739787666480524,
+              "inside": 0.2,
+              "overlap": 1.0,
+              "endpoint_mae": 4.739787666480524,
+              "sse": 233.9838969172809
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 3.49140469725198,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.5101933559540583,
+              "sse": 86.85517797337828
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.78136489795469,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8952262923787142,
+              "sse": 142.45785515927372
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.9334302630322444,
+              "inside": 0.75,
+              "overlap": 0.875,
+              "endpoint_mae": 2.1087415379752006,
+              "sse": 178.52376338664848
+            },
+            "n": 8
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 2.6309441022050457,
+              "inside": 0.25,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6309441022050457,
+              "sse": 68.54653532322395
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.4571620192681607,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4605339880777422,
+              "sse": 21.93426421162867
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.8083004061737675,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8083004061737675,
+              "sse": 37.73024493790125
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 0.8019895224402281,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8183695009528075,
+              "sse": 5.873745629915643
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3545036140000999,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4247456273333672,
+              "sse": 48.041041053399454
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3857912257498466,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5249415982618677,
+              "sse": 48.680633042535575
+            },
+            "n": 8
+          },
+          {
+            "event": "LURINSKY-STD-OFF-X10-DRILL",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 2.17497822152173,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.17497822152173,
+              "sse": 58.0206893903887
+            },
+            "n": 4
+          },
+          {
+            "event": "MARK-ORDINARY-X5",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 0.8716292515857589,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8716292515857589,
+              "sse": 6.015056872633215
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-ATT-X5",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 0.6630141373970938,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.058732926169019,
+              "sse": 8.784164275744619
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-OFF-X10",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 1.569375215543543,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.569375215543543,
+              "sse": 21.680243547220684
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-MIRSAD-PANIC-FOCUSED-OFFENSIVE-X26",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 2.844045232569769,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.844045232569769,
+              "sse": 37.091919599023086
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-panic-STD-DEF-X20",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 4.664778561065262,
+              "inside": 0.25,
+              "overlap": 0.5,
+              "endpoint_mae": 4.664778561065262,
+              "sse": 218.06956839886658
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-STD-PHY-X15",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.9426795105408843,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9426795105408843,
+              "sse": 8.273484088685441
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-ATT-X5",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.3576177235181011,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5618898587687156,
+              "sse": 2.369680963860068
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-OFF-X10",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.643066905500028,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7396826587522014,
+              "sse": 5.830489408080235
+            },
+            "n": 4
+          },
+          {
+            "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 2.6958025074677407,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.9192283477790655,
+              "sse": 117.28385166930602
+            },
+            "n": 5
+          },
+          {
+            "event": "LERCHL-STD-OFF-X10-DRILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 0.40537315977600485,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.40537315977600485,
+              "sse": 1.56631479432681
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "player": "Paul Watson",
+            "score": {
+              "mae": 6.436118145600574,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 6.452144273796801,
+              "sse": 334.8091987161113
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-ATT-X5",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.4731034527599955,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5834867816867918,
+              "sse": 3.3690781429034855
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-OFF-X10",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.8435919708847095,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8435919708847095,
+              "sse": 11.88885142825623
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-DEF-X20",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.6696194901003274,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.670546976614819,
+              "sse": 28.048395657263242
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-PHY-X15",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.5118722753394245,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5118722753394245,
+              "sse": 25.167148919348218
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 2.6727841088012867,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6727841088012867,
+              "sse": 116.64652963902124
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-ROBERT-GAVILAN-FOCUSED-OFFENSIVE-X26",
+            "player": "Robert Gavil\u00e1n",
+            "score": {
+              "mae": 2.5016759666564283,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5016759666564283,
+              "sse": 36.827219010601816
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-ROSS-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Ross Ritchie",
+            "score": {
+              "mae": 0.22985842372780496,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3976954226854303,
+              "sse": 10.100969493391153
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Attacking-7",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 1.5276378692434989,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5276378692434989,
+              "sse": 12.503935789804675
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Defending-13",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.636739880301803,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 4.636739880301803,
+              "sse": 43.98759101160327
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Safeguard-23",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.297538226919372,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 4.777068887613524,
+              "sse": 121.15451331431147
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Standard Defending-30",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 2.676249841546351,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.676249841546351,
+              "sse": 77.57031390142986
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 6.150883606763408,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 6.150883606763408,
+              "sse": 157.28681019513093
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-ATT-X5",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 1.1770194987486586,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1770194987486586,
+              "sse": 9.51964753364783
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-OFF-X10",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 0.6310484213865095,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6851152840720971,
+              "sse": 6.292344962137552
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-DEF-X20",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 3.5176121444908723,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 3.5176121444908723,
+              "sse": 119.88246114014433
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-PHY-X15",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.488077168078499,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.488077168078499,
+              "sse": 62.46052821794867
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.607505175685307,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 2.9896706640192208,
+              "sse": 139.54872152966095
+            },
+            "n": 5
+          },
+          {
+            "event": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+            "player": "Ryan Gilmartin",
+            "score": {
+              "mae": 1.0353613584081671,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 1.0353613584081671,
+              "sse": 7.819351134366293
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.8739389379953195,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2338705385992057,
+              "sse": 10.029459814219125
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.371532318868816,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.371532318868816,
+              "sse": 7.772140448685445
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.9425743568220118,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1099264496552859,
+              "sse": 10.845127372189031
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-ATT-X5",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.48784400515353826,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6056298021773046,
+              "sse": 3.070542542090953
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-OFF-X10",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.1556721026770589,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.26823386177260033,
+              "sse": 0.7787314293742669
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-DEF-X20",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.6791475165679302,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6791475165679302,
+              "sse": 29.547902761193544
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-PHY-X15",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.6546496582724153,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7319496023244376,
+              "sse": 7.947261657205665
+            },
+            "n": 4
+          },
+          {
+            "event": "DARKVADER-SKILL-X20",
+            "player": "S DarkVader",
+            "score": {
+              "mae": 0.936558826380218,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9679917630642535,
+              "sse": 19.467173201159646
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "player": "SD Faye",
+            "score": {
+              "mae": 1.105731122290571,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1057311222905746,
+              "sse": 7.900611894728975
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Scott Ritchie",
+            "score": {
+              "mae": 1.3220098301213028,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.9380837807342317,
+              "sse": 20.760092587101827
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+            "player": "Vince N\u00e9meth",
+            "score": {
+              "mae": 2.5063752786010043,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5063752786010043,
+              "sse": 101.1949997083289
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-FOC-DEF-X20-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 2.5789972213661656,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5789972213661656,
+              "sse": 13.676825835322898
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-STD-ATK-X33-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.3553851773141083,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.4784505206503162,
+              "sse": 56.703954733654356
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-ATT-X5",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.579991651908389,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.579991651908389,
+              "sse": 16.379014515559547
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.3389104648256076,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.895632237259699,
+              "sse": 8.185374350943194
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.6822875311283099,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9418407081296323,
+              "sse": 15.580005496827198
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-HOWDEN-STD-ATK-X33-SKILL",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.8479904788282298,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.653514620141081,
+              "sse": 30.400342996923783
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.2196028109634085,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2196028109634085,
+              "sse": 12.43920217613262
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.580555343827447,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6339942238735485,
+              "sse": 79.62015511220835
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 2.0325037095257894,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0693395166077018,
+              "sse": 116.5776110627197
+            },
+            "n": 8
+          }
+        ]
+      }
+    },
+    "hard-rho1.5": {
+      "params": [
+        1.3984986794405316,
+        120.18856222451113,
+        105.88406648722741,
+        36.125100088228905
+      ],
+      "inSample": {
+        "mae": 1.6443831914135931,
+        "inside": 0.8328445747800587,
+        "overlap": 0.9765395894428153,
+        "endpoint_mae": 1.7571808775664093,
+        "sse": 4128.588921263188
+      },
+      "cv": {
+        "summary": {
+          "mae": 1.7314627963009106,
+          "inside": 0.8240469208211144,
+          "overlap": 0.9765395894428153,
+          "endpoint_mae": 1.8381247392667477,
+          "all_in": 0.625,
+          "rows": 341,
+          "events": 96
+        },
+        "events": [
+          {
+            "event": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+            "player": "Bryan Baxter",
+            "score": {
+              "mae": 1.1190942821106376,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5246051051475091,
+              "sse": 33.273835505800164
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-ATT-X5",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.8632684209009085,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 0.8632684209009085,
+              "sse": 5.470161408814384
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-OFF-X10",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.9476023499053241,
+              "inside": 0.75,
+              "overlap": 0.75,
+              "endpoint_mae": 0.9597909782923608,
+              "sse": 12.890996960306463
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-DEF-X20",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 3.095080875003056,
+              "inside": 0.25,
+              "overlap": 1.0,
+              "endpoint_mae": 3.095080875003056,
+              "sse": 89.19086525899112
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-PHY-X15",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 1.0102622626060676,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.050917544447172,
+              "sse": 13.577419328369743
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 4.184298516388213,
+              "inside": 0.4,
+              "overlap": 1.0,
+              "endpoint_mae": 4.422000252179697,
+              "sse": 211.76505879136798
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "player": "Cptn Dallas",
+            "score": {
+              "mae": 1.907507525015376,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.907507525015376,
+              "sse": 15.180704088380617
+            },
+            "n": 2
+          },
+          {
+            "event": "CHAT-20260923-DARREN-STD-ATK-X23-SKILL",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.5265017732464656,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5265017732464656,
+              "sse": 55.109416007154785
+            },
+            "n": 3
+          },
+          {
+            "event": "DARREN-SKILL-X33",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.0268359604223747,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.695263315770679,
+              "sse": 65.98826719455768
+            },
+            "n": 3
+          },
+          {
+            "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+            "player": "David Midgley",
+            "score": {
+              "mae": 2.852692098512807,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.852692098512807,
+              "sse": 104.17262083534709
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-ATT-X5",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.6647838850044536,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6973221700494131,
+              "sse": 5.429352247543029
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-OFF-X10",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.3393338383644178,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4235100195112267,
+              "sse": 2.4382323137891175
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-midgley-STD-PHY-X15",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.8033468104442836,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8033468104442836,
+              "sse": 7.633082707888469
+            },
+            "n": 4
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Attacking-7",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.6562547856272687,
+              "inside": 0.0,
+              "overlap": 0.5,
+              "endpoint_mae": 0.6562547856272687,
+              "sse": 2.7241603063003175
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Defending-13",
+            "player": "G Neri",
+            "score": {
+              "mae": 1.2550488047605626,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2550488047605626,
+              "sse": 3.153657501804052
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Safeguard-23",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.014022161987547577,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.04219039168371097,
+              "sse": 0.015813201417839776
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Standard Defending-30",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.0720189914191636,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0755586278956244,
+              "sse": 52.42272940978582
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.7492449434570077,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.7492449434570077,
+              "sse": 57.821320919940185
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Attacking-7",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 3.6037924209782872,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.6037924209782872,
+              "sse": 98.39137538274089
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Defending-13",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.6043130247736173,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6043130247736173,
+              "sse": 0.9834430130345966
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Safeguard-23",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 2.0201306387454636,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0201306387454636,
+              "sse": 19.45621845806831
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Standard Defending-30",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.392459263603688,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 1.392459263603688,
+              "sse": 22.151046185773218
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9857096347145955,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9857096347145955,
+              "sse": 16.49695586639543
+            },
+            "n": 2
+          },
+          {
+            "event": "MCCLUSKEY-X65-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.0751000640668522,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9893811450155496,
+              "sse": 21.818014512355347
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.8209612076264925,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9626672437769948,
+              "sse": 75.2801380127403
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9904506094666932,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0650194322881337,
+              "sse": 85.27902098296614
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.2695578797242888,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2695578797242888,
+              "sse": 8.037629109611041
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Attacking-7",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.4206836798081355,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4206836798081355,
+              "sse": 1.1333606059717232
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Defending-13",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.3452209638975887,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.039968114506081,
+              "sse": 2.401422386207427
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Safeguard-23",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.1434815971016619,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5708562308460543,
+              "sse": 15.053693904529801
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Standard Defending-30",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.5220444229024206,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5220444229024206,
+              "sse": 15.770191856786033
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-KEVIN-MEHLEM-FOCUSED-OFFENSIVE-X26",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.6519820139199979,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7842981698154503,
+              "sse": 16.186554651161163
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-ATT-X5",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.561888622066372,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5639107345643405,
+              "sse": 4.220246128912022
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-OFF-X10",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.9506784912242807,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.07420560764146,
+              "sse": 14.232572963862758
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-DEF-X20",
+            "player": "King Alfie",
+            "score": {
+              "mae": 3.071838018121827,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 3.071838018121827,
+              "sse": 81.15154935550608
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-PHY-X15",
+            "player": "King Alfie",
+            "score": {
+              "mae": 1.6974334327632192,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6974334327632192,
+              "sse": 37.74347572154622
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "player": "King Alfie",
+            "score": {
+              "mae": 4.833409118087786,
+              "inside": 0.2,
+              "overlap": 1.0,
+              "endpoint_mae": 4.833409118087786,
+              "sse": 242.21767952009276
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 3.533500080550887,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.533500080550887,
+              "sse": 86.92514325481342
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.7932641413620045,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8092887297015379,
+              "sse": 143.14887834105045
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.9903950726077078,
+              "inside": 0.75,
+              "overlap": 0.875,
+              "endpoint_mae": 1.9903950726077078,
+              "sse": 179.56659255899368
+            },
+            "n": 8
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 2.6720036828952693,
+              "inside": 0.25,
+              "overlap": 0.75,
+              "endpoint_mae": 2.6720036828952693,
+              "sse": 69.47178848408915
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.4575186081435643,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4575186081435643,
+              "sse": 21.48756433534642
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.7849902801548208,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7863440346640242,
+              "sse": 36.43621292309221
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 0.807247233722786,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8170438635687228,
+              "sse": 5.920175604246324
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3421740702113087,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3491640081824503,
+              "sse": 46.261649276128686
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3558819526738528,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3600480444968124,
+              "sse": 46.357609156119466
+            },
+            "n": 8
+          },
+          {
+            "event": "LURINSKY-STD-OFF-X10-DRILL",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 2.186383900062282,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.186383900062282,
+              "sse": 57.945922018352945
+            },
+            "n": 4
+          },
+          {
+            "event": "MARK-ORDINARY-X5",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 0.8689316449203327,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8689316449203327,
+              "sse": 5.9130009220166855
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-ATT-X5",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 0.6952072093561222,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2160966976996501,
+              "sse": 11.443698230733641
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-OFF-X10",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 1.615881203745415,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.615881203745415,
+              "sse": 21.514914286027526
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-MIRSAD-PANIC-FOCUSED-OFFENSIVE-X26",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 2.815002362735129,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.815002362735129,
+              "sse": 37.29873456561785
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-panic-STD-DEF-X20",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 4.66023303661342,
+              "inside": 0.25,
+              "overlap": 0.5,
+              "endpoint_mae": 4.66023303661342,
+              "sse": 219.0147935812638
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-STD-PHY-X15",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.9712701851578451,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9712701851578451,
+              "sse": 8.588955916049608
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-ATT-X5",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.3239191637236966,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5007533719161567,
+              "sse": 1.8794498558887096
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-OFF-X10",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.6181457466129494,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7297944845641737,
+              "sse": 5.493227821171993
+            },
+            "n": 4
+          },
+          {
+            "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 2.719387500738537,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 2.8512665576330276,
+              "sse": 115.35489517034102
+            },
+            "n": 5
+          },
+          {
+            "event": "LERCHL-STD-OFF-X10-DRILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 0.39383475583638905,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.39383475583638905,
+              "sse": 1.7926021078858139
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "player": "Paul Watson",
+            "score": {
+              "mae": 6.482185035485472,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 6.732713594351193,
+              "sse": 343.1349989991679
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-ATT-X5",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.4517419670848521,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.464069571782962,
+              "sse": 2.8094268691829347
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-OFF-X10",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.8027045491384666,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8625011902950401,
+              "sse": 10.952550324066408
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-DEF-X20",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.6231763285479133,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6231763285479133,
+              "sse": 26.73132896757567
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-PHY-X15",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.4492670369930298,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4492670369930298,
+              "sse": 23.15305925469886
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 2.686787109053469,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.686787109053469,
+              "sse": 113.93752521404687
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-ROBERT-GAVILAN-FOCUSED-OFFENSIVE-X26",
+            "player": "Robert Gavil\u00e1n",
+            "score": {
+              "mae": 2.52467550152317,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.52467550152317,
+              "sse": 36.69277811445643
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-ROSS-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Ross Ritchie",
+            "score": {
+              "mae": 0.22138767292529593,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6612760273908478,
+              "sse": 13.190904276215909
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Attacking-7",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 1.5345587136537802,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5345587136537802,
+              "sse": 12.015091051333952
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Defending-13",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.487893493916516,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 4.487893493916516,
+              "sse": 41.87406789970831
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Safeguard-23",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.169939589967036,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 4.810879956076512,
+              "sse": 118.1610698284913
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Standard Defending-30",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 2.686025483340264,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.686025483340264,
+              "sse": 78.60203638097383
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 6.003468284405585,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 6.003468284405585,
+              "sse": 150.95196441892782
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-ATT-X5",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 1.1545793872759351,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1545793872759351,
+              "sse": 9.232031461362045
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-OFF-X10",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 0.6279543413171851,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6791083227802375,
+              "sse": 6.178275969364513
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-DEF-X20",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 3.514297928511059,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 3.514297928511059,
+              "sse": 118.36086948558773
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-PHY-X15",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.495466338164819,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.495466338164819,
+              "sse": 63.73945310179342
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.5615418252041167,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 3.0464905913396736,
+              "sse": 139.56894431762856
+            },
+            "n": 5
+          },
+          {
+            "event": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+            "player": "Ryan Gilmartin",
+            "score": {
+              "mae": 1.0410637546328398,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 1.0410637546328398,
+              "sse": 7.756467035918234
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.8816377844235959,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9384003778026333,
+              "sse": 6.704059018992471
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.5728658540325,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5728658540325071,
+              "sse": 10.948711167550332
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.9110649834608372,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.018347253393055,
+              "sse": 10.134754812241432
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-ATT-X5",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.48918596907868545,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5604679618034917,
+              "sse": 2.662581358810729
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-OFF-X10",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.11941682301744194,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.336089428250272,
+              "sse": 1.3302557833649313
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-DEF-X20",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.644168470456112,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.644168470456112,
+              "sse": 26.033973109037355
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-PHY-X15",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.6209735791859039,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6970979018120467,
+              "sse": 5.443227246578056
+            },
+            "n": 4
+          },
+          {
+            "event": "DARKVADER-SKILL-X20",
+            "player": "S DarkVader",
+            "score": {
+              "mae": 0.9139638800233897,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9286316155447125,
+              "sse": 14.959849486695667
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "player": "SD Faye",
+            "score": {
+              "mae": 1.058847650196867,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1547886224182378,
+              "sse": 8.053952146481443
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Scott Ritchie",
+            "score": {
+              "mae": 1.2905226299080255,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5591492941339595,
+              "sse": 16.429387535942137
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+            "player": "Vince N\u00e9meth",
+            "score": {
+              "mae": 2.5194711474566676,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5194711474566676,
+              "sse": 97.38712036766023
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-FOC-DEF-X20-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 2.4332283764704243,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.4332283764704243,
+              "sse": 12.876789938494278
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-STD-ATK-X33-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.3487737286672505,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.219160145460574,
+              "sse": 49.575198104975236
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-ATT-X5",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.6061086310986876,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6061086310986876,
+              "sse": 17.638085442505506
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.3393487399598065,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9830639780327779,
+              "sse": 9.458966328936194
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.7146726062704033,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9561707057298008,
+              "sse": 16.46341565521112
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-HOWDEN-STD-ATK-X33-SKILL",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.808257664514052,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3004492265003833,
+              "sse": 20.86736123065041
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.2151282784233786,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2151282784233786,
+              "sse": 13.874198767816024
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.5561402248014389,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5727544172180146,
+              "sse": 85.63977198115384
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.9996658703033443,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.102813093533591,
+              "sse": 125.00406565203211
+            },
+            "n": 8
+          }
+        ]
+      }
+    },
+    "soft-rho1.5": {
+      "params": [
+        1.4019915816328299,
+        120.81984120889952,
+        106.51960359871703,
+        35.55968702611905,
+        3.7400074582714984
+      ],
+      "inSample": {
+        "mae": 1.634911613039589,
+        "inside": 0.8299120234604106,
+        "overlap": 0.9765395894428153,
+        "endpoint_mae": 1.752255318334157,
+        "sse": 4116.768377759455
+      },
+      "cv": {
+        "summary": {
+          "mae": 1.7336187426101546,
+          "inside": 0.8152492668621701,
+          "overlap": 0.967741935483871,
+          "endpoint_mae": 1.8474235852290477,
+          "all_in": 0.6145833333333334,
+          "rows": 341,
+          "events": 96
+        },
+        "events": [
+          {
+            "event": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+            "player": "Bryan Baxter",
+            "score": {
+              "mae": 1.115392226761162,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5396195227152703,
+              "sse": 34.1990245968065
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-ATT-X5",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.8766584695763177,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 0.8766584695763177,
+              "sse": 5.908135811877084
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-OFF-X10",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.8626758636481675,
+              "inside": 0.75,
+              "overlap": 0.75,
+              "endpoint_mae": 0.9095121344205133,
+              "sse": 12.054037312941105
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-DEF-X20",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 3.1357067690036438,
+              "inside": 0.25,
+              "overlap": 1.0,
+              "endpoint_mae": 3.1357067690036438,
+              "sse": 90.37867679774823
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-PHY-X15",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 1.2705677432931424,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2705677432931424,
+              "sse": 19.15220532684394
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 4.2141920501195616,
+              "inside": 0.2,
+              "overlap": 1.0,
+              "endpoint_mae": 4.444317540752769,
+              "sse": 213.5092424884755
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "player": "Cptn Dallas",
+            "score": {
+              "mae": 1.883474539321412,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.883474539321412,
+              "sse": 14.86525336614988
+            },
+            "n": 2
+          },
+          {
+            "event": "CHAT-20260923-DARREN-STD-ATK-X23-SKILL",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.604243729089139,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.604243729089139,
+              "sse": 58.123886652557005
+            },
+            "n": 3
+          },
+          {
+            "event": "DARREN-SKILL-X33",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.0531771949614828,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.781290989090323,
+              "sse": 69.9384156517506
+            },
+            "n": 3
+          },
+          {
+            "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+            "player": "David Midgley",
+            "score": {
+              "mae": 2.7720975380160495,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.7720975380160495,
+              "sse": 99.34660852279337
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-ATT-X5",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.6471066679869987,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6835530687035364,
+              "sse": 5.228113403295029
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-OFF-X10",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.32034852295284466,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.39653616848631046,
+              "sse": 2.253501683300663
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-midgley-STD-PHY-X15",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.7748402755965582,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7748402755965582,
+              "sse": 6.917346565079303
+            },
+            "n": 4
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Attacking-7",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.6601876952019516,
+              "inside": 0.0,
+              "overlap": 0.5,
+              "endpoint_mae": 0.6601876952019516,
+              "sse": 2.7862416330726587
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Defending-13",
+            "player": "G Neri",
+            "score": {
+              "mae": 1.11705966935979,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.11705966935979,
+              "sse": 2.5160159138517475
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Safeguard-23",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.09434111708293358,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.11422809460376726,
+              "sse": 0.17558643175410388
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Standard Defending-30",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.159394968364722,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.159394968364722,
+              "sse": 51.393165552618754
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.698640403313327,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.7324238386306448,
+              "sse": 59.102726122660826
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Attacking-7",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 3.5855412951389276,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.5855412951389276,
+              "sse": 96.80377844100414
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Defending-13",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.5982414875397097,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5982414875397097,
+              "sse": 0.9751917461493621
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Safeguard-23",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 2.0056419938899026,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0056419938899026,
+              "sse": 19.176067801850724
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Standard Defending-30",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.3807766243232322,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3807766243232322,
+              "sse": 21.855865220620657
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9705341390784596,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9705341390784596,
+              "sse": 16.215913940776932
+            },
+            "n": 2
+          },
+          {
+            "event": "MCCLUSKEY-X65-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.0687345763072074,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9767731430501527,
+              "sse": 21.51120505467159
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.8141151612599256,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9537972578095566,
+              "sse": 74.39613616094702
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9788502865150974,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.054485395065875,
+              "sse": 84.20904278903686
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.2452346018300346,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2452346018300346,
+              "sse": 7.765711604683989
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Attacking-7",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.522219960992814,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.522219960992814,
+              "sse": 1.5423504309990994
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Defending-13",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.3152782785033281,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.038744958613492,
+              "sse": 2.356782963881935
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Safeguard-23",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.1507748428727922,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.564727390877053,
+              "sse": 14.876582094254001
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Standard Defending-30",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.4040934152677191,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4040934152677191,
+              "sse": 13.59880429037824
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-KEVIN-MEHLEM-FOCUSED-OFFENSIVE-X26",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.5953342140956437,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7352450315490273,
+              "sse": 15.294347033413505
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-ATT-X5",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.4791905046048181,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4939674174248623,
+              "sse": 3.171746012019681
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-OFF-X10",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.8924116063661636,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0638675427249957,
+              "sse": 13.719483442812614
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-DEF-X20",
+            "player": "King Alfie",
+            "score": {
+              "mae": 3.058247339601035,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 3.058247339601035,
+              "sse": 80.55926432848867
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-PHY-X15",
+            "player": "King Alfie",
+            "score": {
+              "mae": 1.7490190656590698,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7490190656590698,
+              "sse": 38.40564648589228
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "player": "King Alfie",
+            "score": {
+              "mae": 4.798414195257692,
+              "inside": 0.2,
+              "overlap": 1.0,
+              "endpoint_mae": 4.798414195257692,
+              "sse": 239.07716300815116
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 3.4309172136293213,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.4309172136293196,
+              "sse": 84.61583373048225
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.805284182900703,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8594302766657158,
+              "sse": 143.17504286073486
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.9463989127041117,
+              "inside": 0.75,
+              "overlap": 0.875,
+              "endpoint_mae": 1.946398912704113,
+              "sse": 179.18212307352667
+            },
+            "n": 8
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 2.6602111357178018,
+              "inside": 0.25,
+              "overlap": 0.75,
+              "endpoint_mae": 2.6602111357178018,
+              "sse": 69.25000212451177
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.3815482167901578,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3815482167901578,
+              "sse": 18.74092602168331
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.8775835608464782,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8775835608464782,
+              "sse": 39.320151871577025
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 0.7673678867652901,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7737244600452678,
+              "sse": 5.429671141236675
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.2993540297116635,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3392733328707243,
+              "sse": 44.3134608440749
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3156431803994106,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3156431803994106,
+              "sse": 44.368515972651764
+            },
+            "n": 8
+          },
+          {
+            "event": "LURINSKY-STD-OFF-X10-DRILL",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 2.1969125023943583,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.1969125023943583,
+              "sse": 60.12889520730832
+            },
+            "n": 4
+          },
+          {
+            "event": "MARK-ORDINARY-X5",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 0.8933074514645701,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8933074514645701,
+              "sse": 6.226132806234315
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-ATT-X5",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 0.6522779581122151,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1957772106622595,
+              "sse": 11.00879608007006
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-OFF-X10",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 1.6622140061933468,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6622140061933468,
+              "sse": 22.692296599780665
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-MIRSAD-PANIC-FOCUSED-OFFENSIVE-X26",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 2.754150451470572,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.754150451470572,
+              "sse": 35.69274064737168
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-panic-STD-DEF-X20",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 4.62064878847319,
+              "inside": 0.25,
+              "overlap": 0.5,
+              "endpoint_mae": 4.62064878847319,
+              "sse": 216.90682713706863
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-STD-PHY-X15",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.8916865410230415,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8916865410230415,
+              "sse": 7.492088773013935
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-ATT-X5",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.37121782147450705,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5176432874521595,
+              "sse": 2.095814452194267
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-OFF-X10",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.6143499194827431,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7428035721186514,
+              "sse": 5.544002001536295
+            },
+            "n": 4
+          },
+          {
+            "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 2.764021923755905,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 2.9008743679715394,
+              "sse": 119.58875892631394
+            },
+            "n": 5
+          },
+          {
+            "event": "LERCHL-STD-OFF-X10-DRILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 0.3753069410858014,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.3753069410858014,
+              "sse": 1.5181302728054764
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "player": "Paul Watson",
+            "score": {
+              "mae": 6.406438908764848,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 6.651330226098786,
+              "sse": 338.41712556469184
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-ATT-X5",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.3421123890767059,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.42122240875212213,
+              "sse": 1.8512136082253818
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-OFF-X10",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.6492994212210288,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7438868335741926,
+              "sse": 8.866098061978084
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-DEF-X20",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.5322525984807598,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5322525984807598,
+              "sse": 23.971464816479976
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-PHY-X15",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.4056787652524498,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4056787652524498,
+              "sse": 21.34333733606221
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 2.6989196718885156,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6989196718885156,
+              "sse": 114.94276225431935
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-ROBERT-GAVILAN-FOCUSED-OFFENSIVE-X26",
+            "player": "Robert Gavil\u00e1n",
+            "score": {
+              "mae": 2.5482184339420044,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5482184339420044,
+              "sse": 37.52836165523524
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-ROSS-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Ross Ritchie",
+            "score": {
+              "mae": 0.21926103731718882,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7039617888013723,
+              "sse": 13.799167009228325
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Attacking-7",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 1.7089835200284895,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7089835200284895,
+              "sse": 13.930240226937297
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Defending-13",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.760886773639285,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 4.760886773639285,
+              "sse": 47.25232433743427
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Safeguard-23",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.367000305916186,
+              "inside": 0.5,
+              "overlap": 0.5,
+              "endpoint_mae": 5.022001827164239,
+              "sse": 129.04145388800052
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Standard Defending-30",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 2.8041745748354523,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.8138945080823654,
+              "sse": 85.0552231554908
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 6.264811784214608,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 6.264811784214608,
+              "sse": 164.48818303403436
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-ATT-X5",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 1.2163259195159053,
+              "inside": 0.0,
+              "overlap": 0.3333333333333333,
+              "endpoint_mae": 1.2163259195159053,
+              "sse": 10.08623939835766
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-OFF-X10",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 0.6541441052347281,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7357025401889388,
+              "sse": 6.8738756908296335
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-DEF-X20",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 3.613029930784709,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 3.613029930784709,
+              "sse": 124.98955020561026
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-PHY-X15",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.6841627199285725,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6841627199285725,
+              "sse": 71.40921003698469
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.6367640876377068,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 3.1652852038354835,
+              "sse": 151.54127859180184
+            },
+            "n": 5
+          },
+          {
+            "event": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+            "player": "Ryan Gilmartin",
+            "score": {
+              "mae": 1.0371056900364504,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 1.0371056900364504,
+              "sse": 7.8611181763190885
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.8886473822655176,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8886473822655141,
+              "sse": 5.751585489739474
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.414130263014087,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.414130263014087,
+              "sse": 9.3657967573271
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.9532142111571554,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0063718488428652,
+              "sse": 10.592545219895591
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-ATT-X5",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.4396744075272139,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5500479285842607,
+              "sse": 2.476561574316234
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-OFF-X10",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.13597510956775594,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.27779259463109796,
+              "sse": 1.0860961011903945
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-DEF-X20",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.7620642309461143,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7620642309461143,
+              "sse": 28.914043966614756
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-PHY-X15",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.6039205217604078,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7492483240326351,
+              "sse": 5.962915615912559
+            },
+            "n": 4
+          },
+          {
+            "event": "DARKVADER-SKILL-X20",
+            "player": "S DarkVader",
+            "score": {
+              "mae": 0.9402337581951571,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9582065180325607,
+              "sse": 14.600329246519276
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "player": "SD Faye",
+            "score": {
+              "mae": 1.062485325924584,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.062485325924584,
+              "sse": 7.183008757175955
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Scott Ritchie",
+            "score": {
+              "mae": 1.256012460650652,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.565174640516574,
+              "sse": 16.31537647531808
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+            "player": "Vince N\u00e9meth",
+            "score": {
+              "mae": 2.5235146810500195,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5235146810500195,
+              "sse": 97.7238429575898
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-FOC-DEF-X20-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 2.599376442780155,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.599376442780155,
+              "sse": 14.757313463110739
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-STD-ATK-X33-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.3354550665156495,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.2402240420961306,
+              "sse": 50.074636681082936
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-ATT-X5",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.6067775645712554,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6067775645712554,
+              "sse": 17.74868250719078
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.2906031002341063,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.026388530881702,
+              "sse": 9.682958662509295
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.7266933190585121,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9751678971939782,
+              "sse": 16.742543166667012
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-HOWDEN-STD-ATK-X33-SKILL",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.7835451044257589,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3193495078057147,
+              "sse": 21.292142940215978
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.223950186327734,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.223950186327734,
+              "sse": 14.089178652962206
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.557955475417959,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.589111593658977,
+              "sse": 86.2804493254119
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 2.0054463009605783,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.11607631149106,
+              "sse": 127.06942932438348
+            },
+            "n": 8
+          }
+        ]
+      }
+    },
+    "discrete-rho1.5": {
+      "params": [
+        1.397867607148248,
+        119.7336535042722,
+        105.42429298069369,
+        36.10238252940314
+      ],
+      "inSample": {
+        "mae": 1.6430043261823306,
+        "inside": 0.8328445747800587,
+        "overlap": 0.9765395894428153,
+        "endpoint_mae": 1.7556578398092735,
+        "sse": 4124.1558909995365
+      },
+      "cv": {
+        "summary": {
+          "mae": 1.7288949350757317,
+          "inside": 0.8269794721407625,
+          "overlap": 0.9765395894428153,
+          "endpoint_mae": 1.835682444199591,
+          "all_in": 0.625,
+          "rows": 341,
+          "events": 96
+        },
+        "events": [
+          {
+            "event": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+            "player": "Bryan Baxter",
+            "score": {
+              "mae": 1.1158616996775124,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5203554135206077,
+              "sse": 33.17390482562512
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-ATT-X5",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.8604009979838688,
+              "inside": 0.6666666666666666,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 0.8604009979838688,
+              "sse": 5.457334175050682
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-OFF-X10",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.9474525168010999,
+              "inside": 0.75,
+              "overlap": 0.75,
+              "endpoint_mae": 0.9554436766342107,
+              "sse": 12.82559031047517
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-DEF-X20",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 3.0917115592271536,
+              "inside": 0.25,
+              "overlap": 1.0,
+              "endpoint_mae": 3.0917115592271536,
+              "sse": 88.95991712395127
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-PHY-X15",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 1.0175035545604416,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.055244630993002,
+              "sse": 13.643352575003588
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 4.179927028296078,
+              "inside": 0.4,
+              "overlap": 1.0,
+              "endpoint_mae": 4.415705695945126,
+              "sse": 211.14976500040387
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "player": "Cptn Dallas",
+            "score": {
+              "mae": 1.9036246061361979,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9036246061361979,
+              "sse": 15.11765172723586
+            },
+            "n": 2
+          },
+          {
+            "event": "CHAT-20260923-DARREN-STD-ATK-X23-SKILL",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.5204262943973768,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5204262943973768,
+              "sse": 54.91654731164902
+            },
+            "n": 3
+          },
+          {
+            "event": "DARREN-SKILL-X33",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.021098450836613,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6923361145087674,
+              "sse": 65.81066894422852
+            },
+            "n": 3
+          },
+          {
+            "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+            "player": "David Midgley",
+            "score": {
+              "mae": 2.845874333205302,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.845874333205302,
+              "sse": 103.7163633663443
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-ATT-X5",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.661116548480346,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6948940863091811,
+              "sse": 5.416343322462391
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-OFF-X10",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.33745471281713435,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4210295042648937,
+              "sse": 2.4185533614694323
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-midgley-STD-PHY-X15",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.8028179456453177,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8028179456453177,
+              "sse": 7.570092218350421
+            },
+            "n": 4
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Attacking-7",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.654462444921009,
+              "inside": 0.0,
+              "overlap": 0.5,
+              "endpoint_mae": 0.654462444921009,
+              "sse": 2.712468166069549
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Defending-13",
+            "player": "G Neri",
+            "score": {
+              "mae": 1.2462700828868307,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2462700828868307,
+              "sse": 3.1094200160706147
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Safeguard-23",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.011082910959942183,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.04213333470204361,
+              "sse": 0.015184390467683512
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Standard Defending-30",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.0707915727231145,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.072630953773517,
+              "sse": 52.357717470464145
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.740930480469256,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.740930480469256,
+              "sse": 57.62841896848508
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Attacking-7",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 3.605961231155746,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.605961231155746,
+              "sse": 98.27064434992097
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Defending-13",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.6018514509102744,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6018514509102744,
+              "sse": 0.9777444700375749
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Safeguard-23",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 2.0121277303282596,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0121277303282596,
+              "sse": 19.34388837533313
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Standard Defending-30",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.3859209770463394,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3859209770463394,
+              "sse": 22.04830781501694
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.9796945868568656,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9796945868568656,
+              "sse": 16.392048633435216
+            },
+            "n": 2
+          },
+          {
+            "event": "MCCLUSKEY-X65-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.0751856658833816,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.985682283353981,
+              "sse": 21.763128783853052
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.8169574748766273,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9583160898226453,
+              "sse": 74.89723099093587
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.985057380700022,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.0600168775225765,
+              "sse": 84.83090144008413
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.2612445456675303,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2612445456675303,
+              "sse": 7.945835866060266
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Attacking-7",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.4259115925835957,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4259115925835957,
+              "sse": 1.1498904721895062
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Defending-13",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.34232059755288446,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0415510215773054,
+              "sse": 2.4040238441153847
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Safeguard-23",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.1468107978629334,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.572458187419251,
+              "sse": 15.086284557874412
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Standard Defending-30",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.5180121575378063,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5180121575378063,
+              "sse": 15.686720100640187
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-KEVIN-MEHLEM-FOCUSED-OFFENSIVE-X26",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.649250128400233,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.783697681981259,
+              "sse": 16.161382472095397
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-ATT-X5",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.5637059464299791,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5663772040526922,
+              "sse": 4.21721535148709
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-OFF-X10",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.9506147977991972,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0744450320039078,
+              "sse": 14.251344902150205
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-DEF-X20",
+            "player": "King Alfie",
+            "score": {
+              "mae": 3.073850459254473,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 3.073850459254473,
+              "sse": 81.24662199379955
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-PHY-X15",
+            "player": "King Alfie",
+            "score": {
+              "mae": 1.6959971391778836,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6959971391778836,
+              "sse": 37.74052246880773
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "player": "King Alfie",
+            "score": {
+              "mae": 4.839139315311766,
+              "inside": 0.2,
+              "overlap": 1.0,
+              "endpoint_mae": 4.839139315311766,
+              "sse": 242.76532359928012
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 3.5441357059447185,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.5441357059447185,
+              "sse": 86.98539454021316
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.7965690598248756,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8062503055682981,
+              "sse": 143.17939293802914
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 2.004776671512956,
+              "inside": 0.75,
+              "overlap": 0.875,
+              "endpoint_mae": 2.004776671512956,
+              "sse": 179.69021595003676
+            },
+            "n": 8
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 2.670145876965261,
+              "inside": 0.25,
+              "overlap": 0.75,
+              "endpoint_mae": 2.670145876965261,
+              "sse": 69.40878346415529
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.4564865521730592,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4564865521730592,
+              "sse": 21.488407508178952
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.79289559853766,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.79289559853766,
+              "sse": 36.701623138409374
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 0.8076953477515806,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8171500968383091,
+              "sse": 5.920014460345144
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3541686999680813,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3541686999680813,
+              "sse": 46.367349920408465
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 1.3673623358819356,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3673623358819347,
+              "sse": 46.422609792345725
+            },
+            "n": 8
+          },
+          {
+            "event": "LURINSKY-STD-OFF-X10-DRILL",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 2.1867869455651494,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.1867869455651494,
+              "sse": 58.00759593041938
+            },
+            "n": 4
+          },
+          {
+            "event": "MARK-ORDINARY-X5",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 0.8685726658748081,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8685726658748081,
+              "sse": 5.908243574540398
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-ATT-X5",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 0.6365958355896453,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1879008364921806,
+              "sse": 10.779949327854007
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-OFF-X10",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 1.5327363570348922,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5327363570348922,
+              "sse": 19.418453219203705
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-MIRSAD-PANIC-FOCUSED-OFFENSIVE-X26",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 2.8155353202472,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.8155353202472,
+              "sse": 37.319366301937286
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-panic-STD-DEF-X20",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 4.660721955090658,
+              "inside": 0.25,
+              "overlap": 0.5,
+              "endpoint_mae": 4.660721955090658,
+              "sse": 219.11916293151134
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-STD-PHY-X15",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.9686745958709722,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9686745958709722,
+              "sse": 8.555899342305612
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-ATT-X5",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.32477244495884605,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5012301192846161,
+              "sse": 1.8865941194532958
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-OFF-X10",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.6197229490078229,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7313161715834369,
+              "sse": 5.517965467490014
+            },
+            "n": 4
+          },
+          {
+            "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 2.7209283325426696,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 2.8529402765453398,
+              "sse": 115.5226840079566
+            },
+            "n": 5
+          },
+          {
+            "event": "LERCHL-STD-OFF-X10-DRILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 0.396004260321547,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.396004260321547,
+              "sse": 1.7982473525597493
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "player": "Paul Watson",
+            "score": {
+              "mae": 6.470466544307172,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 6.724499275758404,
+              "sse": 342.3923711668942
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-ATT-X5",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.45004984204528614,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4627308446820635,
+              "sse": 2.7875073976740996
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-OFF-X10",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.7968667666811715,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8583286517250261,
+              "sse": 10.871321084239614
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-DEF-X20",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.6119831373103892,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6119831373103892,
+              "sse": 26.41022968360772
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-PHY-X15",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.4402415955868637,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4402415955868637,
+              "sse": 22.90946353101159
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 2.6909204667794624,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6909204667794624,
+              "sse": 114.0026750940819
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-ROBERT-GAVILAN-FOCUSED-OFFENSIVE-X26",
+            "player": "Robert Gavil\u00e1n",
+            "score": {
+              "mae": 2.525276427106391,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.525276427106391,
+              "sse": 36.695425459844536
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-ROSS-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Ross Ritchie",
+            "score": {
+              "mae": 0.21917207190017507,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6641321365604256,
+              "sse": 13.226816496781717
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Attacking-7",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 1.5316686708391956,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5316686708391956,
+              "sse": 11.998646663454348
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Defending-13",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.481412080243459,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 4.481412080243459,
+              "sse": 41.75266159241563
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Safeguard-23",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 4.164067178234205,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 4.807240397878502,
+              "sse": 117.94569044409792
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Standard Defending-30",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 2.683006970371532,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.683006970371532,
+              "sse": 78.47006619507772
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 5.994951376889823,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 5.994951376889823,
+              "sse": 150.53286574475354
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-ATT-X5",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 1.1582698525110497,
+              "inside": 0.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1582698525110497,
+              "sse": 9.28282890559435
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-OFF-X10",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 0.6282248908112962,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6808908354498797,
+              "sse": 6.212793865234736
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-DEF-X20",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 3.520002169130514,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 3.520002169130514,
+              "sse": 118.79280979780735
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-PHY-X15",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.495780636182209,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.495780636182209,
+              "sse": 63.81897465887424
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.567253411871158,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 3.052450892818629,
+              "sse": 140.1975557896068
+            },
+            "n": 5
+          },
+          {
+            "event": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+            "player": "Ryan Gilmartin",
+            "score": {
+              "mae": 1.040180605866586,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 1.040180605866586,
+              "sse": 7.76249663762678
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.868733012853717,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.937713071701328,
+              "sse": 6.598566838148852
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.565802493423007,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5658024934230212,
+              "sse": 10.865287400734195
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.9136319759170087,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.020105912965055,
+              "sse": 10.155398448992614
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-ATT-X5",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.49115960953443266,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5630568774030351,
+              "sse": 2.6796089283450253
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-OFF-X10",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.12045705471166457,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.3346728173002802,
+              "sse": 1.3240324557122887
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-DEF-X20",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.6307774739727083,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6307774739727083,
+              "sse": 25.79535227373994
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-PHY-X15",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 0.6135601420921439,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6892658202371571,
+              "sse": 5.321979019936102
+            },
+            "n": 4
+          },
+          {
+            "event": "DARKVADER-SKILL-X20",
+            "player": "S DarkVader",
+            "score": {
+              "mae": 0.9032049599898329,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9183196047725091,
+              "sse": 14.698779328061065
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "player": "SD Faye",
+            "score": {
+              "mae": 1.0633444840926103,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1486478395810416,
+              "sse": 8.02071133612312
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Scott Ritchie",
+            "score": {
+              "mae": 1.289289862600583,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.55910605580317,
+              "sse": 16.422584309306174
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+            "player": "Vince N\u00e9meth",
+            "score": {
+              "mae": 2.522413547215365,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.522413547215365,
+              "sse": 97.59972593584602
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-FOC-DEF-X20-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 2.426258584754507,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.426258584754507,
+              "sse": 12.80387209300457
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-STD-ATK-X33-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.3333447529647557,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.2150854442943313,
+              "sse": 49.34695441387637
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-ATT-X5",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.563438424618629,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.563438424618629,
+              "sse": 16.84018051262017
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.3099661723172744,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9723613581463226,
+              "sse": 9.032266258358733
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.7231278635994556,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9599882461234757,
+              "sse": 16.53208095809237
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-HOWDEN-STD-ATK-X33-SKILL",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.7981796394053546,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2931341848247087,
+              "sse": 20.6264243347063
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.2205660901422846,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2205660901422846,
+              "sse": 13.904338497697275
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.5600714655660664,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5760988406281875,
+              "sse": 85.71680171539657
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 2.002801264861091,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.1054195160746616,
+              "sse": 125.12189011601974
+            },
+            "n": 8
+          }
+        ]
+      }
+    },
+    "soft-rho1.5-shift22": {
+      "params": [
+        1.394703873830485,
+        124.04842769114377,
+        107.89909390431951,
+        34.41543512381057,
+        4.267537256656815,
+        -5.819419057712646
+      ],
+      "inSample": {
+        "mae": 1.4026591875646368,
+        "inside": 0.8504398826979472,
+        "overlap": 0.9824046920821115,
+        "endpoint_mae": 1.5484376340813037,
+        "sse": 3304.7378351618695
+      },
+      "cv": {
+        "summary": {
+          "mae": 1.4889886531646714,
+          "inside": 0.8504398826979472,
+          "overlap": 0.9794721407624634,
+          "endpoint_mae": 1.6331585518194285,
+          "all_in": 0.6354166666666666,
+          "rows": 341,
+          "events": 96
+        },
+        "events": [
+          {
+            "event": "CHAT-20260924-BRYAN-BAXTER-STD-SAFE-X59-SKILL",
+            "player": "Bryan Baxter",
+            "score": {
+              "mae": 1.6538537126206734,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7100165260615199,
+              "sse": 56.48706445614427
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-ATT-X5",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 0.4441293493549428,
+              "inside": 0.6666666666666666,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 0.4441293493549428,
+              "sse": 1.5890068924917857
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-cieran-morgan-DS-STD-OFF-X10",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 1.314600096578598,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.314600096578598,
+              "sse": 14.592947278897594
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-DEF-X20",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 1.6456544711912962,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.882225191732342,
+              "sse": 32.16616985080989
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-STD-PHY-X15",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 2.1493705469452102,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.1493705469452102,
+              "sse": 44.77534266620734
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "player": "Cieran Morgan",
+            "score": {
+              "mae": 2.0040980391705974,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.162083251071434,
+              "sse": 53.53307403208258
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-CPTN-DALLAS-FOCUSED-OFFENSIVE-X26",
+            "player": "Cptn Dallas",
+            "score": {
+              "mae": 0.6703710378379455,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6703710378379455,
+              "sse": 2.3251369535756115
+            },
+            "n": 2
+          },
+          {
+            "event": "CHAT-20260923-DARREN-STD-ATK-X23-SKILL",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 2.3515693437482335,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.3515693437482335,
+              "sse": 46.999363863090636
+            },
+            "n": 3
+          },
+          {
+            "event": "DARREN-SKILL-X33",
+            "player": "Darren Moore",
+            "score": {
+              "mae": 1.6782800491335526,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6242070674718767,
+              "sse": 57.029308113417734
+            },
+            "n": 3
+          },
+          {
+            "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+            "player": "David Midgley",
+            "score": {
+              "mae": 2.242014886558164,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.349463027630614,
+              "sse": 86.30613878462822
+            },
+            "n": 5
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-ATT-X5",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.5694540648646864,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6677774258329615,
+              "sse": 3.676211699314317
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-midgley-DS-STD-OFF-X10",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.3032378892854197,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4413835748782873,
+              "sse": 2.35735051914466
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-midgley-STD-PHY-X15",
+            "player": "David Midgley",
+            "score": {
+              "mae": 0.5257860494300832,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6024941728226967,
+              "sse": 4.534532823383924
+            },
+            "n": 4
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Attacking-7",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.6412216251844498,
+              "inside": 0.0,
+              "overlap": 0.5,
+              "endpoint_mae": 0.6412216251844498,
+              "sse": 2.630288086853408
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Defending-13",
+            "player": "G Neri",
+            "score": {
+              "mae": 1.0559488093724312,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0559488093724312,
+              "sse": 2.240650659520302
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0004-Focused Safeguard-23",
+            "player": "G Neri",
+            "score": {
+              "mae": 0.09226679563492723,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.09226679563492723,
+              "sse": 0.12306586438546133
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0004-Standard Defending-30",
+            "player": "G Neri",
+            "score": {
+              "mae": 1.8694969083805677,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8694969083805677,
+              "sse": 38.11641508030861
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+            "player": "G Neri",
+            "score": {
+              "mae": 2.616218311437688,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.653200268908382,
+              "sse": 56.476266044361516
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Attacking-7",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 4.118841122390062,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 4.118841122390062,
+              "sse": 99.69800522229079
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Defending-13",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.6036260056657738,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6036260056657738,
+              "sse": 0.9223346407252045
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0008-Focused Safeguard-23",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.8607676784052316,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8607676784052316,
+              "sse": 22.106204549249775
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0008-Standard Defending-30",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.876474545839173,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 1.876474545839173,
+              "sse": 29.410888416848273
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-GARRY-MCCLUSKEY-FOCUSED-OFFENSIVE-X26",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.4203735363195591,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.44011832700934406,
+              "sse": 1.0770180278318127
+            },
+            "n": 2
+          },
+          {
+            "event": "MCCLUSKEY-X65-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 2.049236030505874,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.685805666365148,
+              "sse": 35.91851450090922
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.0557685624384163,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3261341959679456,
+              "sse": 54.595663641528844
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-GARRY-MCCLUSKEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 1.3632114507188575,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.4029896661362642,
+              "sse": 66.9509463394688
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-MCCLUSKEY-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Garry McCluskey",
+            "score": {
+              "mae": 0.03779055036684298,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.38961143838748313,
+              "sse": 0.9925660280548084
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Attacking-7",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.390043874982517,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.390043874982517,
+              "sse": 8.37008819138916
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Defending-13",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.11553756159962347,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.097619123884428,
+              "sse": 2.436233338514412
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0009-Focused Safeguard-23",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 1.3748610899382072,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6915332707497868,
+              "sse": 17.419622978343046
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0009-Standard Defending-30",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.6349023223745291,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8224650071650123,
+              "sse": 5.652776608530016
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-KEVIN-MEHLEM-FOCUSED-OFFENSIVE-X26",
+            "player": "Kevin Mehlem",
+            "score": {
+              "mae": 0.8449370385615325,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.112609573012115,
+              "sse": 7.104201359573974
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-ATT-X5",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.6097063019687567,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.649992395311808,
+              "sse": 4.521757461160563
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-king-alfie-DS-STD-OFF-X10",
+            "player": "King Alfie",
+            "score": {
+              "mae": 0.7491765810905306,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 0.929667763129018,
+              "sse": 9.525866860410746
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-DEF-X20",
+            "player": "King Alfie",
+            "score": {
+              "mae": 1.7709752315353775,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7709752315353775,
+              "sse": 28.555204897427174
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-STD-PHY-X15",
+            "player": "King Alfie",
+            "score": {
+              "mae": 1.2295482138923646,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2295482138923646,
+              "sse": 17.37456033747164
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "player": "King Alfie",
+            "score": {
+              "mae": 2.35214522473901,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.35214522473901,
+              "sse": 63.40822731541765
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-LJ-GALILEO-FOCUSED-OFFENSIVE-X26",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 3.1578670404244704,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 3.1578670404244704,
+              "sse": 64.56206249383268
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X106-TRAINING-CAMP",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.6154209253526872,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6423210559601418,
+              "sse": 107.28179306580662
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LJ-GALILEO-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "LJ Galileo",
+            "score": {
+              "mae": 1.9005572668649453,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9005572668649462,
+              "sse": 137.428826679888
+            },
+            "n": 8
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.3272513511143487,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 1.3668425847811463,
+              "sse": 24.242161867819966
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 1.4327562704616312,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.539790808266872,
+              "sse": 22.60108609351451
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 2.5930145008294527,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.5930145008294527,
+              "sse": 64.46467963628525
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ljdark-leo-DS-STD-ATT-X5",
+            "player": "LJDark leo",
+            "score": {
+              "mae": 0.7317963208033168,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.7317963208033168,
+              "sse": 4.947422407307034
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 0.7530337800665112,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8808971678047346,
+              "sse": 27.5473374212793
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-LT-RIPLEY-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Lt Ripley",
+            "score": {
+              "mae": 0.7300353748573833,
+              "inside": 0.875,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8651403903978538,
+              "sse": 29.846564706661088
+            },
+            "n": 8
+          },
+          {
+            "event": "LURINSKY-STD-OFF-X10-DRILL",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 2.6495354017580333,
+              "inside": 0.5,
+              "overlap": 0.75,
+              "endpoint_mae": 2.6495354017580333,
+              "sse": 86.52979720368351
+            },
+            "n": 4
+          },
+          {
+            "event": "MARK-ORDINARY-X5",
+            "player": "Mark Lurinsky",
+            "score": {
+              "mae": 0.9424927669431469,
+              "inside": 0.6666666666666666,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9424927669431469,
+              "sse": 7.273105931126039
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-ATT-X5",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 0.7692892201638154,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2579071178790169,
+              "sse": 12.458833355996056
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-kawa-DS-STD-OFF-X10",
+            "player": "Michal Kawa",
+            "score": {
+              "mae": 1.8517397107212261,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8517397107212261,
+              "sse": 28.039000842460027
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-MIRSAD-PANIC-FOCUSED-OFFENSIVE-X26",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 2.200735680225627,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.200735680225627,
+              "sse": 28.941047954003956
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-panic-STD-DEF-X20",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 4.397598943592964,
+              "inside": 0.25,
+              "overlap": 0.5,
+              "endpoint_mae": 4.531767522823049,
+              "sse": 215.29149279810633
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-STD-PHY-X15",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.4936109309719363,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.5523365893141836,
+              "sse": 3.1602346935019403
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-ATT-X5",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.5136351677318748,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6029323378062633,
+              "sse": 2.9539320417032116
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-panic-DS-STD-OFF-X10",
+            "player": "Mirsad Panic",
+            "score": {
+              "mae": 0.782257094578938,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.86498599783652,
+              "sse": 7.447374561777244
+            },
+            "n": 4
+          },
+          {
+            "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 0.9839511331587317,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1073295378528685,
+              "sse": 17.37647673132797
+            },
+            "n": 5
+          },
+          {
+            "event": "LERCHL-STD-OFF-X10-DRILL",
+            "player": "Oliver Lerchl",
+            "score": {
+              "mae": 0.6723952582243236,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.6846855641831233,
+              "sse": 4.899897727077162
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+            "player": "Paul Watson",
+            "score": {
+              "mae": 6.710769835960939,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 6.710769835960939,
+              "sse": 337.80633121764123
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-ATT-X5",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.38294395229988965,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.4280035239701121,
+              "sse": 1.795162503770927
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-andonov-DS-STD-OFF-X10",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.0567605974900118,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0567605974900118,
+              "sse": 13.37922723033303
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-DEF-X20",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.8312865317372893,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.8312865317372893,
+              "sse": 28.65933159047553
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-STD-PHY-X15",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 1.638489981280017,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.638489981280017,
+              "sse": 25.100627522860155
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "player": "Plamen Andonov",
+            "score": {
+              "mae": 0.8084325434880639,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9654572321265761,
+              "sse": 14.716373289963572
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-ROBERT-GAVILAN-FOCUSED-OFFENSIVE-X26",
+            "player": "Robert Gavil\u00e1n",
+            "score": {
+              "mae": 1.0360810553466138,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0360810553466138,
+              "sse": 4.845750008366131
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-ROSS-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Ross Ritchie",
+            "score": {
+              "mae": 0.5444749525882102,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.7960321515667417,
+              "sse": 17.064431723594595
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Attacking-7",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 2.133109078227619,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 2.133109078227619,
+              "sse": 22.002486095293957
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Defending-13",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 3.803678007429852,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 3.803678007429852,
+              "sse": 30.796069906918852
+            },
+            "n": 1
+          },
+          {
+            "event": "DOC-PLY-0017-Focused Safeguard-23",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 3.4066667168068676,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 4.657382438233142,
+              "sse": 105.3505278376896
+            },
+            "n": 2
+          },
+          {
+            "event": "DOC-PLY-0017-Standard Defending-30",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 2.9265529895705193,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.9265529895705193,
+              "sse": 77.77959836072935
+            },
+            "n": 3
+          },
+          {
+            "event": "EXP-20260911-RUSSELL-DIAMOND-FOCUSED-OFFENSIVE-X26",
+            "player": "Russell Diamond",
+            "score": {
+              "mae": 5.290742283052438,
+              "inside": 0.5,
+              "overlap": 1.0,
+              "endpoint_mae": 5.290742283052438,
+              "sse": 119.89029845604381
+            },
+            "n": 2
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-ATT-X5",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 1.1437821415969534,
+              "inside": 0.0,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 1.1437821415969534,
+              "sse": 8.747618235761042
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-blakie-DS-STD-OFF-X10",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 0.7432030481015417,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.8135654486144688,
+              "sse": 6.794369313393089
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-DEF-X20",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 4.983144925892184,
+              "inside": 0.25,
+              "overlap": 1.0,
+              "endpoint_mae": 4.983144925892184,
+              "sse": 225.21529921086258
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-STD-PHY-X15",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.842524749891453,
+              "inside": 0.75,
+              "overlap": 1.0,
+              "endpoint_mae": 2.842524749891453,
+              "sse": 93.20499918690362
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "player": "Ryan Blakie",
+            "score": {
+              "mae": 2.7690400992175968,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 2.985546566200037,
+              "sse": 138.73125130996192
+            },
+            "n": 5
+          },
+          {
+            "event": "GILMARTIN-STANDARD-ATTACKING-X5-20260923",
+            "player": "Ryan Gilmartin",
+            "score": {
+              "mae": 1.0075659408472006,
+              "inside": 0.3333333333333333,
+              "overlap": 0.6666666666666666,
+              "endpoint_mae": 1.0075659408472006,
+              "sse": 7.444328348805628
+            },
+            "n": 3
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 2.045591553022227,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.154302665076653,
+              "sse": 27.010951313786748
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-SAFEGUARD-X65-DRILL-SESSION",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.0577097383945215,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.0577097383945073,
+              "sse": 6.479438734605945
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-RYAN-RODGER-STANDARD-ATTACKING-X20-TRAINING-CAMP",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.715755338213275,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.715755338213275,
+              "sse": 22.989994106249885
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-ATT-X5",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.1309605000365412,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1309605000365412,
+              "sse": 8.953991637742293
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-rodger-DS-STD-OFF-X10",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.6581724184437228,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6581724184437228,
+              "sse": 24.530172693993677
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-DEF-X20",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.9565639349927118,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.9565639349927118,
+              "sse": 47.907359176961734
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-rodger-STD-PHY-X15",
+            "player": "Ryan Rodger",
+            "score": {
+              "mae": 1.274748944043207,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.274748944043207,
+              "sse": 16.12211285530835
+            },
+            "n": 4
+          },
+          {
+            "event": "DARKVADER-SKILL-X20",
+            "player": "S DarkVader",
+            "score": {
+              "mae": 1.1072029028908603,
+              "inside": 0.8,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1072029028908594,
+              "sse": 16.310344999199113
+            },
+            "n": 5
+          },
+          {
+            "event": "EXP-20260911-SD-FAYE-FOCUSED-OFFENSIVE-X26",
+            "player": "SD Faye",
+            "score": {
+              "mae": 0.368799223412033,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.42394961878921933,
+              "sse": 1.0446815278836454
+            },
+            "n": 2
+          },
+          {
+            "event": "EXP-20260911-SCOTT-RITCHIE-FOCUSED-OFFENSIVE-X26",
+            "player": "Scott Ritchie",
+            "score": {
+              "mae": 3.975409427400109,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 3.975409427400109,
+              "sse": 41.314886857154086
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+            "player": "Vince N\u00e9meth",
+            "score": {
+              "mae": 0.6999306168371447,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 0.9376687074291737,
+              "sse": 13.32314390294387
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-FOC-DEF-X20-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.2659747348430272,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2659747348430272,
+              "sse": 4.832310794242665
+            },
+            "n": 1
+          },
+          {
+            "event": "CHAT-20260923-FERGUSON-STD-ATK-X33-SKILL",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.6352616860869098,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 2.6063982147786326,
+              "sse": 77.3124904041624
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-ATT-X5",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.6422007858841994,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.6422007858841994,
+              "sse": 18.593091397167488
+            },
+            "n": 3
+          },
+          {
+            "event": "CONTROL-ferguson-DS-STD-OFF-X10",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 0.7506211937988283,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.1337276921177732,
+              "sse": 15.785235131534876
+            },
+            "n": 4
+          },
+          {
+            "event": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "player": "Willie Ferguson",
+            "score": {
+              "mae": 1.145491683326793,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2104931200522515,
+              "sse": 31.767878735450644
+            },
+            "n": 5
+          },
+          {
+            "event": "CHAT-20260923-HOWDEN-STD-ATK-X33-SKILL",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.8199323597922472,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.371676406940196,
+              "sse": 22.755947550500917
+            },
+            "n": 4
+          },
+          {
+            "event": "EXP-20260911-WILLIE-HOWDEN-FOCUSED-OFFENSIVE-X26",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.42778198434054104,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.015501190510605,
+              "sse": 6.4452811821193965
+            },
+            "n": 2
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X106-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 0.5706231287742103,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.2789380723212371,
+              "sse": 39.251445007952874
+            },
+            "n": 8
+          },
+          {
+            "event": "OBSERVED-20260912-WILLIE-HOWDEN-EXTENSIVE-SAFEGUARD-X114-DRILL-SESSION",
+            "player": "Willie Howden",
+            "score": {
+              "mae": 1.0063240886516382,
+              "inside": 1.0,
+              "overlap": 1.0,
+              "endpoint_mae": 1.5668164319523399,
+              "sse": 62.26246322872019
+            },
+            "n": 8
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,231 @@
+{
+  "poolSha256": "5ef2b6dca18247f37afc1371d0fb4016ee721ee6e51e5759b995b0097452197b",
+  "dose": {
+    "None": {
+      "exponent": null,
+      "midpointMae": 1.7295134231207443,
+      "inside": 0.8269794721407625
+    },
+    "q": {
+      "exponent": 1.0104988389533323,
+      "midpointMae": 1.7215825439643322,
+      "inside": 0.8240469208211144
+    },
+    "eta": {
+      "exponent": 0.987435453179236,
+      "midpointMae": 1.7319584588809018,
+      "inside": 0.8211143695014663
+    }
+  },
+  "tier": {
+    "0.0": {
+      "mae": 7.079626652628372,
+      "inside": 0.4281524926686217,
+      "overlap": 0.7067448680351907,
+      "endpoint_mae": 7.190674706326292,
+      "all_in": 0.15625,
+      "rows": 341,
+      "events": 96
+    },
+    "0.8": {
+      "mae": 2.4369406167573504,
+      "inside": 0.7712609970674487,
+      "overlap": 0.9472140762463344,
+      "endpoint_mae": 2.4918377677501233,
+      "all_in": 0.5104166666666666,
+      "rows": 341,
+      "events": 96
+    },
+    "1.0": {
+      "mae": 1.7314627963009106,
+      "inside": 0.8240469208211144,
+      "overlap": 0.9765395894428153,
+      "endpoint_mae": 1.8381247392667477,
+      "all_in": 0.625,
+      "rows": 341,
+      "events": 96
+    },
+    "1.2": {
+      "mae": 2.819055254402355,
+      "inside": 0.7360703812316716,
+      "overlap": 0.8768328445747801,
+      "endpoint_mae": 2.8927978262619134,
+      "all_in": 0.5104166666666666,
+      "rows": 341,
+      "events": 96
+    }
+  },
+  "period": {
+    "older_to_controls": {
+      "M1": {
+        "mae": 1.7505360497606999,
+        "inside": 0.7290322580645161,
+        "ageShift": 0.0
+      },
+      "Mstar": {
+        "mae": 1.4319883131736904,
+        "inside": 0.8516129032258064,
+        "ageShift": -5.785529590885735
+      },
+      "Mstarstar": {
+        "mae": 1.2622216174793182,
+        "inside": 0.8774193548387097,
+        "ageShift": -5.699415331991598
+      }
+    },
+    "controls_to_older": {
+      "M1": {
+        "mae": 2.20355613555242,
+        "inside": 0.8870967741935484,
+        "ageShift": 0.0
+      },
+      "Mstar": {
+        "mae": 1.676855736723868,
+        "inside": 0.8817204301075269,
+        "ageShift": -3.7469357806983155
+      },
+      "Mstarstar": {
+        "mae": 1.7206068720181236,
+        "inside": 0.8924731182795699,
+        "ageShift": -2.9397935303474783
+      }
+    }
+  },
+  "impliedAllocation": [
+    {
+      "event": "EXP-20260911-G-NERI-FOCUSED-OFFENSIVE-X26",
+      "tier": "T6",
+      "greyWhite": 0.7772776982067487
+    },
+    {
+      "event": "DOC-PLY-0008-Focused Attacking-7",
+      "tier": "T3",
+      "greyWhite": 0.7345258169022144
+    },
+    {
+      "event": "DOC-PLY-0009-Standard Defending-30",
+      "tier": "T0",
+      "greyWhite": 1.0085137462306346
+    },
+    {
+      "event": "EXP-20260911-KEVIN-MEHLEM-FOCUSED-OFFENSIVE-X26",
+      "tier": "T0",
+      "greyWhite": 0.9420310412734345
+    },
+    {
+      "event": "EXP-20260911-MIRSAD-PANIC-FOCUSED-OFFENSIVE-X26",
+      "tier": "T0",
+      "greyWhite": 1.0623271928444944
+    },
+    {
+      "event": "EXP-20260911-PAUL-WATSON-FOCUSED-OFFENSIVE-X26",
+      "tier": "T2",
+      "greyWhite": 0.7885162822835656
+    },
+    {
+      "event": "EXP-20260911-ROBERT-GAVILAN-FOCUSED-OFFENSIVE-X26",
+      "tier": "T0",
+      "greyWhite": 1.2047281931513305
+    },
+    {
+      "event": "OBSERVED-20260912-RYAN-RODGER-FOCUSED-MIXED-X14-TRAINING-CAMP",
+      "tier": "T0",
+      "greyWhite": 0.9673006140695274
+    },
+    {
+      "event": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+      "tier": "T0",
+      "greyWhite": 1.1660045877153085
+    },
+    {
+      "event": "CHAT-20260924-OLIVER-LERCHL-STD-SAFE-X59-SKILL",
+      "tier": "T0",
+      "greyWhite": 1.1905589366186524
+    },
+    {
+      "event": "CHAT-20260924-DAVID-MIDGLEY-STD-SAFE-X59-SKILL",
+      "tier": "T0",
+      "greyWhite": 1.0838015301190098
+    },
+    {
+      "event": "LERCHL-STD-OFF-X10-DRILL",
+      "tier": "T0",
+      "greyWhite": 1.0671018933196565
+    },
+    {
+      "event": "DARKVADER-SKILL-X20",
+      "tier": "T6",
+      "greyWhite": 0.9109398352424183
+    },
+    {
+      "event": "CONTROL-rodger-STD-DEF-X20",
+      "tier": "T0",
+      "greyWhite": 0.9138094658242486
+    },
+    {
+      "event": "CONTROL-rodger-STD-PHY-X15",
+      "tier": "T0",
+      "greyWhite": 0.9901338900828439
+    },
+    {
+      "event": "CONTROL-midgley-STD-PHY-X15",
+      "tier": "T0",
+      "greyWhite": 0.9865599827124069
+    },
+    {
+      "event": "CONTROL-ljdark-leo-DS-STD-OFF-X10",
+      "tier": "T3",
+      "greyWhite": 1.051634914019404
+    },
+    {
+      "event": "CONTROL-ljdark-leo-STD-PHY-X15",
+      "tier": "T3",
+      "greyWhite": 0.858937369137773
+    },
+    {
+      "event": "CONTROL-panic-STD-DEF-X20",
+      "tier": "T0",
+      "greyWhite": 1.490300558723726
+    },
+    {
+      "event": "CONTROL-panic-STD-PHY-X15",
+      "tier": "T0",
+      "greyWhite": 1.0061059038044173
+    },
+    {
+      "event": "CONTROL-king-alfie-DS-STD-ATT-X5",
+      "tier": "T4",
+      "greyWhite": 0.9360607564522386
+    },
+    {
+      "event": "CONTROL-king-alfie-DS-STD-OFF-X10",
+      "tier": "T4",
+      "greyWhite": 1.1294723084463532
+    },
+    {
+      "event": "CONTROL-andonov-DS-STD-OFF-X10",
+      "tier": "T0",
+      "greyWhite": 0.9508547764028304
+    },
+    {
+      "event": "CONTROL-andonov-STD-DEF-X20",
+      "tier": "T0",
+      "greyWhite": 0.9579635918066476
+    },
+    {
+      "event": "CONTROL-andonov-STD-PHY-X15",
+      "tier": "T0",
+      "greyWhite": 0.9372712781394428
+    },
+    {
+      "event": "CONTROL-andonov-SS-STD-SAFE-X59",
+      "tier": "T0",
+      "greyWhite": 1.1851842927044811
+    },
+    {
+      "event": "CONTROL-cieran-morgan-DS-STD-OFF-X10",
+      "tier": "T4",
+      "greyWhite": 1.1831937543649003
+    }
+  ]
+}
