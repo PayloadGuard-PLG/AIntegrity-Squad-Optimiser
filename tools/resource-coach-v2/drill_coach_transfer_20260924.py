@@ -52,15 +52,20 @@ def condition_check(rows):
                     adjacent.append([prev["id"],r["record_id"]])
             clean.append([r["record_id"], int(loss)])
         prev = dict(id=r["record_id"],type=typ,loss=loss,cond=cond,order=order)
-    # The first captured report following a recovery is not an independently
-    # witnessed single run; keep it in raw but exclude from frequency analysis.
-    ambiguous = {"HAG-R051","HAG-R098"}
-    frequency = [x for x in clean if x[0] not in ambiguous]
-    c = collections.Counter(x[1] for x in frequency)
-    return dict(rawCleanCandidates=len(clean),frequencyAdmissible=len(frequency),
-                losses=dict(one=c[1],two=c[2]),adjacentPairs={str(k):v for k,v in sorted(pair_counts.items())},
+    # Preserve the two witnessed post-recovery transitions, but expose a
+    # conservative sensitivity that omits them. The raw 104 count disagrees
+    # with the previous report's 102 = 69/33, which cannot be obtained by
+    # omitting the first post-recovery -2 (R051) and -1 (R098).
+    post_recovery = {"HAG-R051","HAG-R098"}
+    all_count = collections.Counter(x[1] for x in clean)
+    restricted = collections.Counter(x[1] for x in clean if x[0] not in post_recovery)
+    return dict(oneRunCandidates=len(clean),
+                candidateLosses=dict(one=all_count[1],two=all_count[2]),
+                excludingPostRecovery=dict(n=sum(restricted.values()),
+                                           one=restricted[1],two=restricted[2]),
+                adjacentPairs={str(k):v for k,v in sorted(pair_counts.items())},
                 adjacentTwos=adjacent,carryFalsified=bool(adjacent),
-                caveat="Clean frequency excludes first post-recovery captures; paired evidence is verified by adjacent report order and integer state differences.")
+                caveat="Recovery at 89 is shown before R051 and R098. The candidate losses and strict adjacent-report pairs are distinct samples. The earlier 102 = 69/33 cannot be reproduced by excluding both post-recovery first reports.")
 
 def choose(n,k):
     return math.comb(n,k)
