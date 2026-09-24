@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "resource-coach-low-stat-hidden-debt-falsifier-v1",
+  "status": "frozen-pending-observation",
+  "recordedDate": "2026-09-24",
+  "purpose": "Matched falsifier for Galileo Crossing=1 zero-gain anomaly using Lt Ripley under the same Standard Attacking x25 coach.",
+  "controls": {
+    "sameTier": "T2",
+    "sameRoles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "sameDisplayedCrossing": 1,
+    "sameCrossingClass": "MID_GREY",
+    "sameCoach": "Standard Attacking x25 Skill Seminar",
+    "sameAffectedCount": 3,
+    "changed": [
+      "player",
+      "age/history"
+    ],
+    "ages": {
+      "galileo": 31,
+      "ripley": 28
+    }
+  },
+  "source": {
+    "playerCard": "chat_upload:64241.png",
+    "playerCardSha256": "9006cc1f758e0e3f2bcae5423597ae0c76a0d850db3d3ee7a6e60e31edef5c54",
+    "coachCard": "chat_upload:64248.png",
+    "coachCardSha256": "3262a9e124cf60e5e326cbb853a53ea7792e6d1da5848f974cafb258543d931a",
+    "hiddenDebtResearch": "calibration/resource-coach-identification/LOW_STAT_HIDDEN_DEBT_20260924.md"
+  },
+  "player": {
+    "name": "Lt Ripley",
+    "age": 28,
+    "tier": "T2",
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "ovrDisplayed": 97,
+    "stats": {
+      "PASSING": 94,
+      "DRIBBLING": 104,
+      "CROSSING": 1
+    },
+    "classes": {
+      "PASSING": "WHITE",
+      "DRIBBLING": "WHITE",
+      "CROSSING": "MID_GREY"
+    }
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Attacking",
+    "multiplier": 25,
+    "transferClass": "ordinary",
+    "affectedStatCount": 3,
+    "affectedStats": [
+      "PASSING",
+      "DRIBBLING",
+      "CROSSING"
+    ]
+  },
+  "frozenPrimary": {
+    "model": "Mstarstar_nearest",
+    "predictions": {
+      "PASSING": {
+        "raw": [
+          45.7378302695,
+          69.1857026029
+        ],
+        "nearest": [
+          46,
+          69
+        ],
+        "point": 57.4617664362
+      },
+      "DRIBBLING": {
+        "raw": [
+          45.7378302695,
+          66.3986091166
+        ],
+        "nearest": [
+          46,
+          66
+        ],
+        "point": 56.0682196931
+      },
+      "CROSSING": {
+        "raw": [
+          45.7378302695,
+          69.933142482
+        ],
+        "nearest": [
+          46,
+          70
+        ],
+        "point": 57.8354863758
+      }
+    },
+    "ovrProxy": {
+      "raw": [
+        9.1478320539,
+        13.7011636134
+      ],
+      "standingEnvelope": [
+        9,
+        14
+      ],
+      "definition": "sum affected-stat raw gains / 15; not a separately identified game OVR renderer"
+    }
+  },
+  "preregisteredInterpretation": {
+    "crossingPositive": "Falsifies a universal hard displayed-stat=1 lock and materially supports player-history/hidden-debt plus age-limited recovery.",
+    "crossingZero": "Supports either a hard floor lock or comparable hidden debt in both players; does not distinguish them without a stronger same-stat dose.",
+    "crossingSmallPositive": "Strongest evidence for finite hidden debt: directly brackets how much latent movement is consumed before visible recovery.",
+    "safeguard": "Passing and Dribbling are retained as same-event amplitude controls. Do not rescale the coach after seeing Crossing."
+  },
+  "leakageRule": "No selected-player Ripley x25 preview may be used before this freeze. Galileo's prior x25 outcome is hypothesis-generating context only and does not alter the frozen M** primary."
+}
