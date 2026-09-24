@@ -20,7 +20,7 @@ The generated tables (`STRUCTURE_AUDIT.md`, `structure-audit.json`,
 > was written before the controls and is kept as the historical record. The addenda decide.
 >
 > - **Falsified.** The `N − 1` dose law (point 2): Ferguson ×5 implied 1.42× the frozen dose.
->   Other-player coach anchoring (point 3): Ferguson, and regime-matched on Rodger ×10.
+>   Other-player coach anchoring as a *universal* correction (point 3): Ferguson, and regime-matched on Rodger ×10.
 > - **Supported prospectively.**
 >   - Young-grey cheapness at ages 18–21: Kawa, out of corpus, MAE 2.33 against 10.51. It is
 >     age-specific (Rodger at 23: 1.02×). This is the research candidate
@@ -31,7 +31,12 @@ The generated tables (`STRUCTURE_AUDIT.md`, `structure-audit.json`,
 >   - Displayed-unit thresholds carry across club levels.
 >   - Whether dose scales with club level is open; the archive decides it.
 >   - The HIST tier in `PRV-0015` came from a later season, which explains its contamination.
-> - **Unresolved.** A white threshold near 127 fits 23–24 Sep and ×59 but not the 10–12 Sep archive.
+> - **Unresolved.** A white threshold near 127 fits 23–24 Sep and ×59, and it passed its pre-registered test
+>   (22 WHITE rows: MAE 1.11 against 1.71, addendum 6). It still degrades the 10–12 Sep archive, so it is not
+>   adopted until that conflict has a mechanism.
+> - **Revised (addendum 6, post hoc).** Anchoring on other players' previews improves players aged 23–26
+>   (MAE 1.90 → 1.35, 28 rows) and fails only where young-grey applies. It is age-conditional, not falsified
+>   outright. Young-grey + anchor is the next test to pre-register.
 
 ## Answer in one paragraph
 
@@ -404,3 +409,40 @@ stats in the same season (`TIER_CARD_SEASON`, `TIER_CARD_STATE`).
 `image.jpg` (one pair verified by SHA-256; the copies are being deleted). Captures run 18 Apr–16 May.
 Both end days are season boundaries, and there are two screen resolutions. Details are in
 `calibration/archive-s208-s209/PROTOCOL.md` §1.
+
+## Addendum 6: Midgley, LJDark leo and Panic previews; the white-threshold test
+
+The predictions were frozen at `cb238fc`/`eb7b8a4` (H0/HYG/A) and at `bd43e5e` (H0/T127, pinned by sha256).
+Eleven previews were then taken at club level 15, and nothing was applied. All 45 start values equal the frozen
+cards. Every preview passes the category-sum and OVR-envelope checks, and each multi-day coach showed the
+registered p = 4. Scores come from `tools/resource-coach-v2/score_control_observations.py` and are stored
+in `control-score-20260924-{midgley,ljdark-leo,panic}.json` and `control-score-20260924-white-threshold.json`.
+
+**PREREG-20260924-WHITE-THRESHOLD-127: supports T127 under the registered rule.**
+
+| Model | Scored WHITE rows | Midpoint MAE | Signed | Inside |
+|---|---:|---:|---:|---:|
+| H0 (WHITE threshold 132.6) | 22 | 1.710 | +0.92 | 77% |
+| T127 (WHITE threshold 127) | 22 | **1.105** | −0.87 | 86% |
+
+The margin is 0.61, against the registered 0.3, and H0 over-predicts. By the pre-registration's own consequence
+clause, T127 is **not adopted**. The 10–12 Sep archive at the same club level still prefers 132.6 (CAL MAE
+2.26 → 3.49 under 127). That conflict now has prospective evidence on the 127 side, and it needs a mechanism, not
+a vote.
+
+**Other-player coach anchor: revised from "falsified" to "age-conditional" (post hoc).** Pooled over every
+×5/×10 control row:
+
+| Rows | Frozen MAE | Anchor MAE |
+|---|---:|---:|
+| Players aged 23–26: Rodger, Midgley, LJDark leo, Panic (28 rows) | 1.90 | **1.35** |
+| Kawa, age 21 (7 rows) | 10.4 | 14.7 |
+
+Panic ×10 goes from 3.38 to 0.57. Ferguson (21) also failed under the anchor. The anchor therefore works
+where the young-grey term is inactive and fails where it is active, which is consistent with a coach-efficiency
+term plus the young-grey term. This pooling was not pre-registered. It is the next test to pre-register, as
+young-grey + anchor against young-grey alone.
+
+**Grey rows, open.** Panic's MID_GREY rows at 107–115 on ×5/×10 are over-predicted (implied dose 0.73–0.75).
+His MID_GREY 136–138 on Defending ×20 are under-predicted (1.30). No young-grey arm applies here: these players
+have no grey rows below 70, so the young-grey decision rule is not exercised by them.

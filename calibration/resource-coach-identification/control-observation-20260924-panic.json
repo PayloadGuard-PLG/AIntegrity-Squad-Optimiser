@@ -1,0 +1,146 @@
+{
+ "player": "Mirsad Panic",
+ "preregistration": [
+  "PREREG-20260924-YOUNG-GREY-CONTROL",
+  "PREREG-20260924-WHITE-THRESHOLD-127"
+ ],
+ "predictionsFrozenAtCommit": {
+  "H0/HYG/A": "eb7b8a4",
+  "H0/T127": "bd43e5ee401c37e876054048933e113035b08ff3"
+ },
+ "displayedOvr": 125.6,
+ "startValuesMatchFrozenCard": true,
+ "programmeLabels": {
+  "STD-DEF-X20": "DRILL SESSION, 3 days, cost 30/38/60/150",
+  "STD-PHY-X15": "SKILL SEMINAR, 8 days, cost 90",
+  "DS-STD-ATT-X5": "DRILL SESSION, 1h, 1/1 available",
+  "DS-STD-OFF-X10": "DRILL SESSION, 1h, 1/1 available"
+ },
+ "statIntervals": {
+  "STD-DEF-X20": {
+   "TACKLING": [
+    15,
+    22
+   ],
+   "MARKING": [
+    15,
+    21
+   ],
+   "HEADING": [
+    15,
+    22
+   ],
+   "BRAVERY": [
+    14,
+    21
+   ]
+  },
+  "STD-PHY-X15": {
+   "FITNESS": [
+    14,
+    19
+   ],
+   "STRENGTH": [
+    16,
+    21
+   ],
+   "AGGRESSION": [
+    10,
+    14
+   ],
+   "CREATIVITY": [
+    14,
+    20
+   ]
+  },
+  "DS-STD-ATT-X5": {
+   "PASSING": [
+    7,
+    9
+   ],
+   "DRIBBLING": [
+    7,
+    10
+   ],
+   "FINISHING": [
+    7,
+    9
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "CROSSING": [
+    10,
+    15
+   ],
+   "SHOOTING": [
+    11,
+    15
+   ],
+   "SPEED": [
+    8,
+    12
+   ],
+   "CREATIVITY": [
+    9,
+    14
+   ]
+  }
+ },
+ "ovrBoost": {
+  "STD-DEF-X20": [
+   4,
+   6
+  ],
+  "STD-PHY-X15": [
+   4,
+   5
+  ],
+  "DS-STD-ATT-X5": [
+   1,
+   2
+  ],
+  "DS-STD-OFF-X10": [
+   3,
+   4
+  ]
+ },
+ "categoryAverageGain": {
+  "STD-DEF-X20": {
+   "DEFENSE": [
+    12,
+    17
+   ]
+  },
+  "STD-PHY-X15": {
+   "PHYSICAL_AND_MENTAL": [
+    11,
+    15
+   ]
+  },
+  "DS-STD-ATT-X5": {
+   "ATTACK": [
+    4,
+    6
+   ]
+  },
+  "DS-STD-OFF-X10": {
+   "ATTACK": [
+    4,
+    6
+   ],
+   "PHYSICAL_AND_MENTAL": [
+    3,
+    5
+   ]
+  }
+ },
+ "categoryAverageDisplay": {
+  "DEFENSE": "138 (104.5)",
+  "ATTACK": "110 (97.7)",
+  "PHYSICAL_AND_MENTAL": "127 (101.8)"
+ },
+ "schemaVersion": "resource-coach-control-observation-v1",
+ "observedDate": "2026-09-24",
+ "clubLevel": 15,
+ "source": "user-supplied in-chat preview screenshots supplied after the frozen commits; previews only, nothing applied"
+}

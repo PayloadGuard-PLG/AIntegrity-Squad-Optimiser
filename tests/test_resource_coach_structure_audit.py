@@ -218,5 +218,24 @@ class WhiteThresholdFreeze(unittest.TestCase):
                         self.assertEqual(s["H0"], s["T127"])
 
 
+class WhiteThresholdScore(unittest.TestCase):
+    """The committed verdict must be reproducible from the frozen predictions and the observations alone."""
+
+    def test_verdict_reproduces(self):
+        spec = importlib.util.spec_from_file_location("sc", ROOT / "tools" / "resource-coach-v2" / "score_control_observations.py")
+        sc = importlib.util.module_from_spec(spec); spec.loader.exec_module(sc)
+        wt = json.loads(sc.WT_PREDICTIONS.read_text(encoding="utf-8"))
+        white = []
+        for slug in ("midgley", "ljdark-leo", "panic"):
+            white += sc.score_player(slug, wt)["whiteRows"]
+        h0 = sc._score([r["H0"] for r in white], [r["observed"] for r in white])
+        t127 = sc._score([r["T127"] for r in white], [r["observed"] for r in white])
+        rec = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-score-20260924-white-threshold.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(white), rec["scoredWhiteRows"])
+        self.assertAlmostEqual(h0["midpointMae"], rec["H0"]["midpointMae"], places=9)
+        self.assertAlmostEqual(t127["midpointMae"], rec["T127"]["midpointMae"], places=9)
+        self.assertEqual(rec["verdict"], "supports T127")
+
+
 if __name__ == "__main__":
     unittest.main()
