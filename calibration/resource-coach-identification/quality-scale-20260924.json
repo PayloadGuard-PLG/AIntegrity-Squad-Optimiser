@@ -40,6 +40,24 @@
     "category": "PHYSICAL_AND_MENTAL",
     "displayedMean": 68.2,
     "quality": 87.1
+   },
+   {
+    "player": "Ryan Rodger",
+    "category": "DEFENCE",
+    "displayedMean": 64.0,
+    "quality": 86.1
+   },
+   {
+    "player": "Ryan Rodger",
+    "category": "ATTACK",
+    "displayedMean": 114.4,
+    "quality": 98.6
+   },
+   {
+    "player": "Ryan Rodger",
+    "category": "PHYSICAL_AND_MENTAL",
+    "displayedMean": 91.8,
+    "quality": 93.0
    }
   ],
   "teamOverview": [
@@ -115,7 +133,8 @@
   },
   "implication": "At a fixed offset the displayed-unit model and a quality-unit model are identical. If the offset differs between captures (club level or view), every displayed-unit threshold shifts by 4 x the offset difference. Every card and preview must therefore record the club level and the view it was captured in; historic records captured under a different offset are not directly comparable in displayed units.",
   "archiveComparability": "The 10-12 Sep archive and the 23-24 Sep captures share club level 15, so they share the displayed-unit scale; no conversion is needed inside the calibration partition.",
-  "histNote": "An offset change cannot by itself rescue the HIST dose anomaly. Ryan Rodger's OVR 114 (HIST) -> 89 (current) implies either an older, lower offset, which inflates HIST displayed coordinates and makes his low implied dose (0.47) worse, or seasonal decay; the two are not separable from the records."
+  "histNote": "An offset change cannot by itself rescue the HIST dose anomaly. Ryan Rodger's OVR 114 (HIST) -> 89 (current) implies either an older, lower offset, which inflates HIST displayed coordinates and makes his low implied dose (0.47) worse, or seasonal decay; the two are not separable from the records.",
+  "replication": "Ryan Rodger's coach screen (24 Sep, club level 15) reproduces 70 + mean/4 on all three categories (86.0 / 98.6 / 93.0 vs displayed 86.1 / 98.6 / 93)."
  },
  "openQuestions": [
   "Club level and offset during the canonical-workbook HISTORICAL_CALIBRATION captures (the quarantined ORDINARY COACH stratum). Unknown; those records stay quarantined for the dose-free reasons already documented.",

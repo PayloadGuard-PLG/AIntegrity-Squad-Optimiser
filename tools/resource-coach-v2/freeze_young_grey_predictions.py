@@ -40,6 +40,14 @@ COACHES = [
     dict(key="DS-STD-ATT-X5", family="DRILL SESSION", label="Standard Attacking", N=5, p=3, stats=["PASSING", "DRIBBLING", "FINISHING"]),
     dict(key="DS-STD-OFF-X10", family="DRILL SESSION", label="Standard Offensive", N=10, p=4, stats=["CROSSING", "SHOOTING", "SPEED", "CREATIVITY"]),
 ]
+# Multi-day coaches in the 24 Sep inventory whose four affected stats are not shown on the tile:
+# predictions are frozen for all five category stats at the registered p = 4; no anchor exists.
+EXTRA_COACHES = {
+    "STD-DEF-X20": dict(key="STD-DEF-X20", family="UNSPECIFIED", label="Standard Defending", N=20, p=4,
+                        stats=["TACKLING", "MARKING", "POSITIONING", "HEADING", "BRAVERY"], affectedSetKnown=False),
+    "STD-PHY-X15": dict(key="STD-PHY-X15", family="UNSPECIFIED", label="Standard Physical", N=15, p=4,
+                        stats=["FITNESS", "STRENGTH", "AGGRESSION", "SPEED", "CREATIVITY"], affectedSetKnown=False),
+}
 
 
 def piecewise_movement(u, h, K, B, g, knot):
@@ -73,6 +81,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--card", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--extra-coaches", nargs="*", default=[], choices=sorted(EXTRA_COACHES))
     args = ap.parse_args()
     prereg = json.loads(PREREG.read_text(encoding="utf-8"))
     fp = prereg["fixedParameters"]
@@ -83,32 +92,35 @@ def main():
                player={k: card[k] for k in ("name", "age", "tier", "roles", "ovr", "stats", "classes", "source")},
                arm=card.get("arm"), corpusStatus=card.get("corpusStatus"),
                corpusStatusFromRoster=cr.lookup(card["name"], *cr.sources()), fixedParameters=fp, coaches=[])
-    for c in COACHES:
+    for c in COACHES + [EXTRA_COACHES[k] for k in args.extra_coaches]:
         rows = [dict(stat=s, s=float(card["stats"][s]), cls=card["classes"][s], g=[0.0, 0.0]) for s in fc.OUTFIELD]
         ev = sa._event(event=f"CONTROL-{c['key']}", playerName=card["name"], partition="control", family=c["family"],
                        coach=c["label"], N=float(c["N"]), p=c["p"], age=int(card["age"]), tier=card["tier"],
                        evidence="control-card-only", rows=rows)
         X = sa.Rows([ev])
         h0 = sa.predict(F, X)
-        a = sa.predict(dict(F, logC=F["logC"] + anchors[c["key"]]["logOffset"]), X)
+        anchor = anchors.get(c["key"])
+        a = sa.predict(dict(F, logC=F["logC"] + anchor["logOffset"]), X) if anchor else None
         stats = []
         for i, r in enumerate(rows):
             yl, yh = hyg_interval(F, int(card["age"]), card["tier"], c["N"], c["p"], r["s"], r["cls"], fp["g"], fp["knot"], fp["ageBand"])
             entry = dict(stat=r["stat"], start=r["s"], displayClass=r["cls"], registeredAffected=r["stat"] in c["stats"])
-            for name, (lo, hi) in (("H0", (h0[0][i], h0[1][i])), ("HYG", (yl, yh)), ("A", (a[0][i], a[1][i]))):
+            models = [("H0", (h0[0][i], h0[1][i])), ("HYG", (yl, yh))] + ([("A", (a[0][i], a[1][i]))] if a else [])
+            for name, (lo, hi) in models:
                 entry[name] = dict(rawLo=round(float(lo), 4), rawHi=round(float(hi), 4), lo=int(math.floor(lo)), hi=int(math.ceil(hi)),
                                    point=round(float((lo + hi) / 2), 3))
             stats.append(entry)
         out["coaches"].append(dict(key=c["key"], programme=c["family"], label=c["label"], N=c["N"], p=c["p"], registeredStats=c["stats"],
-                                   anchor=anchors[c["key"]], statIntervals=stats))
+                                   anchor=anchor, affectedSetKnown=c.get("affectedSetKnown", True), statIntervals=stats))
     pathlib.Path(args.out).write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     print(card["name"], "|", card.get("arm"), "|", out["corpusStatusFromRoster"]["status"])
     for c in out["coaches"]:
         print(f"  {c['key']}")
         for s in c["statIntervals"]:
             if s["registeredAffected"]:
+                a_txt = f"  A [{s['A']['lo']},{s['A']['hi']}]" if "A" in s else "  A n/a"
                 print(f"    {s['stat']:11s} {s['start']:5.0f} {s['displayClass']:8s} H0 [{s['H0']['lo']},{s['H0']['hi']}]  "
-                      f"HYG [{s['HYG']['lo']},{s['HYG']['hi']}]  A [{s['A']['lo']},{s['A']['hi']}]")
+                      f"HYG [{s['HYG']['lo']},{s['HYG']['hi']}]{a_txt}")
 
 
 if __name__ == "__main__":

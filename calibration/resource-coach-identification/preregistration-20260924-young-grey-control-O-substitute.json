@@ -1,0 +1,20 @@
+{
+ "schemaVersion": "resource-coach-preregistration-v1",
+ "id": "PREREG-20260924-YOUNG-GREY-CONTROL-O-SUBSTITUTE",
+ "recordedDate": "2026-09-24",
+ "parent": "PREREG-20260924-YOUNG-GREY-CONTROL",
+ "status": "registered-before-any-rodger-ordinary-preview",
+ "reason": "No eligible 24-29 O player exists. Ryan Rodger (23, T0) is outside the H-YG band 18-21 and has MID_GREY Tackling 9, Bravery 28, Marking 49, Heading 84, Strength 41, Aggression 55.",
+ "weakness": "Age 23 is adjacent to the band; he is a known corpus player (no player amplitude is used). His 12 Sep archive low-grey rows (Bravery 27 at TC x14: implied 1.06; Marking 49 / Aggression 54 at DS x65: ~0.98) already suggest no cheapness; this is the prospective repeat.",
+ "coaches": [
+  "Standard Defending x20 (p=4, affected set unknown until preview)",
+  "Standard Physical x15 (p=4, affected set unknown until preview)"
+ ],
+ "decisionRules": [
+  "Use only MID_GREY affected rows with start below 70.",
+  "Age-specificity supported if those rows imply dose within 0.80-1.20 of H0 (H-YG and H0 coincide for age 23).",
+  "Age-specificity falsified if those rows imply dose >= 1.25 of H0 (the cheapness would then not be confined to ages 18-21).",
+  "Between 1.20 and 1.25: inconclusive."
+ ],
+ "fixedParameters": "as parent: g = 0.65, knot 80 (displayed, club level 15), band 18-21"
+}
