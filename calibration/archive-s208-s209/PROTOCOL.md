@@ -44,8 +44,8 @@ and a transcriber never types it. Anything that cannot be read is left **absent*
 - The folder held **103 files**: **73 named** `Screenshot_YYYYMMDD-HHMMSS.png` files and **30 `image.jpg`**
   files. The `image.jpg` files are PNGs despite the extension, and each has the same byte size as a named
   screenshot. One pair was hashed: `image.jpg` `1y1zsCTh…` is byte-identical to
-  `Screenshot_20260516-125335.png`. The user is deleting the `image.jpg` copies. After deletion there should
-  be **73 files, not the 74 quoted**; confirm whether one screenshot is missing.
+  `Screenshot_20260516-125335.png`. The user deleted the `image.jpg` copies and confirmed **73 screenshots**
+  (not the 74 first quoted).
 - `Screenshot_20260508-134609.png` and `-134625.png` have identical sizes but **different contents**. Keep both.
   If they show the same preview, the validator marks the later one `DUPLICATE_EVIDENCE`.
 - The captures run to **16 May**, not 12 May. By day: 18 Apr (6), 23 Apr (4), 6 May (11), 7 May (2),
@@ -287,7 +287,6 @@ A Reward or unread-badge preview can be VERIFIED as a record, but it is never an
 
 ## 10. Still needed from the user
 
-- Confirm the file count once the copies are deleted (73 against the 74 quoted).
 - Any screen that shows the club level as a number, entered in `Archive_Club_State`. This is the direct test
   of `offset = 5 × (level − 1)`.
 - Adjudication of every `READ_DISAGREE` from the image.

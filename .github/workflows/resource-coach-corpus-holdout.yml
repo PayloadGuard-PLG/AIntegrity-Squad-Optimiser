@@ -5,6 +5,7 @@ on:
     paths:
       - 'profiles/resource_coach_current_replay_20260923.json'
       - 'profiles/resource_coach_structure_candidate_20260924.json'
+      - 'profiles/resource_coach_structure_candidate_20260924b.json'
       - 'tools/resource-coach-v2/direct_player_card_validation.py'
       - 'tools/resource-coach-v2/structure_audit.py'
       - 'tests/test_resource_coach_direct_validation.py'
@@ -19,6 +20,7 @@ on:
     paths:
       - 'profiles/resource_coach_current_replay_20260923.json'
       - 'profiles/resource_coach_structure_candidate_20260924.json'
+      - 'profiles/resource_coach_structure_candidate_20260924b.json'
       - 'tools/resource-coach-v2/direct_player_card_validation.py'
       - 'tools/resource-coach-v2/structure_audit.py'
       - 'tests/test_resource_coach_direct_validation.py'
@@ -87,7 +89,7 @@ jobs:
             echo "- Primary predictor uses frozen global C only; no observed target or anchor coach is fitted."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Run structure audit across the entire corpus (frozen vs candidate, every player)
+      - name: Run structure audit across the entire corpus (frozen vs young-grey candidate, every player)
         run: |
           python tools/resource-coach-v2/structure_audit.py \
             --out-dir /tmp/resource-coach-direct-replay/structure-audit \
@@ -97,7 +99,8 @@ jobs:
             cat /tmp/resource-coach-direct-replay/structure-audit/STRUCTURE_AUDIT.md
             echo
             echo "- Frozen baseline profile and frozen x59 predictions are verified byte-stable by the test suite."
-            echo "- Candidate is research-only: \`profiles/resource_coach_structure_candidate_20260924.json\`."
+            echo "- Current research candidate (not production): \`profiles/resource_coach_structure_candidate_20260924b.json\` (young-grey)."
+            echo "- \`profiles/resource_coach_structure_candidate_20260924.json\` (N−1) is falsified and kept for the record."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify audit bundle

@@ -40,7 +40,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 CRI = ROOT / "calibration" / "resource-coach-identification"
 FROZEN_PROFILE = ROOT / "profiles" / "resource_coach_current_replay_20260923.json"
-CANDIDATE_PROFILE = ROOT / "profiles" / "resource_coach_structure_candidate_20260924.json"
+CANDIDATE_PROFILE = ROOT / "profiles" / "resource_coach_structure_candidate_20260924.json"   # N-1; falsified (Ferguson x5)
+YOUNG_GREY_PROFILE = ROOT / "profiles" / "resource_coach_structure_candidate_20260924b.json"  # current research candidate
 
 _spec = importlib.util.spec_from_file_location("direct_replay", HERE / "direct_player_card_validation.py")
 dv = importlib.util.module_from_spec(_spec)
@@ -184,15 +185,48 @@ def log_age(P, X):
     return math.log(BANDS[0][2]) + P["ageElast"] * off[X.bi]
 
 
-def predict(P, X):
+def _parts(P, X):
     la = log_age(P, X)
     dose = np.maximum(X.N - P["N0"], 1e-9) ** P["q"] / X.p ** P["eta"]
     B = np.exp(P["logC"] + la + np.log(dose) + P["fDS"] * X.DS + P["fSS"] * X.SS + P["sF"] * X.F + P["sE"] * X.E)
     u = X.s - np.where(X.w, X.delta, 0.0)
     h = np.where(X.w, P["hW"], P["hG"]) - P["K"] * P["kappa"] * (la - math.log(BANDS[0][2]))
     gw = np.where(X.w, 1.0, P["gAll"] / (1.0 + P["beta"] * X.delta / 100.0))
-    rho = math.exp(P["logRho"])
-    return movement(u, h, P["K"], B * gw), movement(u, h, P["K"], B * gw * rho)
+    return u, h, B * gw, math.exp(P["logRho"])
+
+
+def predict(P, X):
+    u, h, B, rho = _parts(P, X)
+    return movement(u, h, P["K"], B), movement(u, h, P["K"], B * rho)
+
+
+def young_grey_params(path=YOUNG_GREY_PROFILE):
+    c = json.loads(path.read_text(encoding="utf-8"))
+    q = c["structuralChange"]["parameters"]
+    return dict(modelVersion=c["modelVersion"], g=float(q["g"]), knot=float(q["knotDisplayed"]), ageBand=tuple(q["ageBand"]))
+
+
+def movement_young_grey(u, h, K, B, g, knot, mask):
+    """movement() with marginal cost g below `knot` on the masked rows (cost g, then 1 up to h, then exponential)."""
+    base = movement(u, h, K, B)
+    B = np.maximum(B, 0.0)
+    seg = np.maximum(knot - u, 0.0) * g
+    alt = np.where(B <= seg, B / g, np.maximum(knot - u, 0.0) + movement(np.maximum(u, knot), h, K, np.maximum(B - seg, 0.0)))
+    return np.where(mask, alt, base)
+
+
+def predict_young_grey(P, X, yg):
+    """Frozen model plus the young-grey term: MID_GREY rows of players inside the age band cost g below the knot."""
+    u, h, B, rho = _parts(P, X)
+    mask = (~X.w) & (X.age >= yg["ageBand"][0]) & (X.age <= yg["ageBand"][1])
+    return (movement_young_grey(u, h, P["K"], B, yg["g"], yg["knot"], mask),
+            movement_young_grey(u, h, P["K"], B * rho, yg["g"], yg["knot"], mask))
+
+
+def metrics_young_grey(P, events, yg):
+    X = Rows(events)
+    lo, hi = predict_young_grey(P, X, yg)
+    return score(lo, hi, X.lo, X.hi)
 
 
 def sse(P, X):
@@ -592,18 +626,29 @@ def run(args):
     per_player = collections.defaultdict(list)
     for e in cal + x59 + hist:
         per_player[e["playerName"]].append(e)
+    # 11. Current research candidate: frozen model plus young-grey cheapness (supported prospectively on Kawa)
+    yg = young_grey_params()
+    no_diamond = [e for e in cal if e["playerName"] != "Russell Diamond"]
+    out["youngGrey"] = dict(modelVersion=yg["modelVersion"], profile=str(YOUNG_GREY_PROFILE.relative_to(ROOT)),
+                            parameters=dict(g=yg["g"], knot=yg["knot"], ageBand=list(yg["ageBand"])),
+                            frozen=dict(CAL=metrics(frozen, cal), CALexclDiamond=metrics(frozen, no_diamond), X59=metrics(frozen, x59), HIST=metrics(frozen, hist)),
+                            youngGrey=dict(CAL=metrics_young_grey(frozen, cal, yg), CALexclDiamond=metrics_young_grey(frozen, no_diamond, yg),
+                                           X59=metrics_young_grey(frozen, x59, yg), HIST=metrics_young_grey(frozen, hist, yg)),
+                            rowsAffected=int(sum(1 for e in cal + x59 + hist for r in e["rows"]
+                                                 if r["cls"] != "WHITE" and yg["ageBand"][0] <= e["age"] <= yg["ageBand"][1] and r["s"] < yg["knot"])))
     out["byPlayer"] = {name: dict(events=len(ev), partitions=sorted({e["partition"] for e in ev}), hist=any(e["hist"] for e in ev),
-                                  frozen=metrics(frozen, ev), candidate=metrics(Pc, ev))
+                                  frozen=metrics(frozen, ev), candidate=metrics(Pc, ev), youngGrey=metrics_young_grey(frozen, ev, yg))
                        for name, ev in sorted(per_player.items())}
     rows = []
     for e in cal + x59 + hist:
-        Xe = Rows([e]); flo, fhi = predict(frozen, Xe); clo, chi = predict(Pc, Xe)
+        Xe = Rows([e]); flo, fhi = predict(frozen, Xe); clo, chi = predict(Pc, Xe); ylo, yhi = predict_young_grey(frozen, Xe, yg)
         for i, r in enumerate(e["rows"]):
             rows.append(dict(partition="HIST" if e["hist"] else ("X59" if e["partition"] == "prospective-x59" else "CAL"),
                              source=e["partition"], player=e["playerName"], event=e["event"], family=e["fam"], coach=e["coach"],
                              N=e["N"], p=e["p"], age=e["age"], tier=e["tier"], stat=r["stat"], start=r["s"], cls=r["cls"],
                              obs_lo=r["g"][0], obs_hi=r["g"][1], frozen_lo=float(flo[i]), frozen_hi=float(fhi[i]),
-                             candidate_lo=float(clo[i]), candidate_hi=float(chi[i])))
+                             candidate_lo=float(clo[i]), candidate_hi=float(chi[i]),
+                             young_grey_lo=float(ylo[i]), young_grey_hi=float(yhi[i])))
     out["_rows"] = rows
     return out
 
@@ -766,7 +811,15 @@ def markdown(o):
         L.append(f"| {k} | {m(b[k])} |")
     L += ["", f"HIST share of total absolute midpoint error (CAL+HIST): **{100*b['histShareOfAbsoluteMidpointError']:.1f}%**. "
           f"Frozen x59 reproduction max |Δ| = {b['x59FrozenReproductionMaxAbs']:.2e}.", ""]
-    L += ["## Candidate vs frozen (card + coach metadata only)", "", hdr]
+    y = o["youngGrey"]
+    L += ["## Current research candidate: young-grey (card + coach metadata only)", "",
+          f"`{y['profile']}` — MID_GREY marginal cost {y['parameters']['g']} below displayed {y['parameters']['knot']:.0f} "
+          f"for ages {y['parameters']['ageBand'][0]}–{y['parameters']['ageBand'][1]}; everything else frozen. "
+          f"Supported prospectively out of corpus (Kawa), age-specific (Rodger). {y['rowsAffected']} corpus rows are affected.", "", hdr]
+    for k in ("CAL", "CALexclDiamond", "X59", "HIST"):
+        L.append(f"| frozen {k} | {m(y['frozen'][k])} |")
+        L.append(f"| young-grey {k} | {m(y['youngGrey'][k])} |")
+    L += ["", "## Falsified candidate: N − 1 multiplier (retained for the record; Ferguson x5 implied 1.42x)", "", hdr]
     L.append(f"| frozen CAL | {m(b['CAL'])} |")
     for k in ("CAL", "leaveOnePlayerOut", "leaveOneCoachOut", "leaveOneFamilyOut", "X59", "X59display", "HIST"):
         L.append(f"| candidate {k} | {m(o['candidate'][k])} |")
@@ -809,13 +862,13 @@ def markdown(o):
                 L.append(f"| {tag}: {label} | {k} | {v['logCorrection']:+.3f} | {v['se']:.3f} | {sc} |")
     rng = o["withinCoachContrastsExcludingDiamond"]["leaveOnePlayerOutRange"]
     L += ["", "Leave-one-player-out range (excl. Diamond): " + "; ".join(f"{k} [{a:+.3f}, {b:+.3f}]" for k, (a, b) in rng.items()), ""]
-    L += ["", "## Every player across the corpus (frozen → candidate midpoint MAE)", "",
-          "| Player | events | HIST | frozen MAE | candidate MAE | frozen inside | candidate inside | frozen signed | candidate signed |",
-          "|---|---:|---|---:|---:|---:|---:|---:|---:|"]
+    L += ["", "## Every player across the corpus (midpoint MAE: frozen / young-grey / falsified N−1)", "",
+          "| Player | events | HIST | frozen MAE | young-grey MAE | N−1 MAE | frozen inside | young-grey inside | frozen signed | young-grey signed |",
+          "|---|---:|---|---:|---:|---:|---:|---:|---:|---:|"]
     for name, r in o["byPlayer"].items():
-        f, c = r["frozen"], r["candidate"]
-        L.append(f"| {name} | {r['events']} | {'yes' if r['hist'] else ''} | {f['midpointMae']:.2f} | {c['midpointMae']:.2f} | "
-                 f"{100*f['pointInsideRate']:.0f}% | {100*c['pointInsideRate']:.0f}% | {f['signedResidual']:+.2f} | {c['signedResidual']:+.2f} |")
+        f, yv, c = r["frozen"], r["youngGrey"], r["candidate"]
+        L.append(f"| {name} | {r['events']} | {'yes' if r['hist'] else ''} | {f['midpointMae']:.2f} | {yv['midpointMae']:.2f} | {c['midpointMae']:.2f} | "
+                 f"{100*f['pointInsideRate']:.0f}% | {100*yv['pointInsideRate']:.0f}% | {f['signedResidual']:+.2f} | {yv['signedResidual']:+.2f} |")
     L.append("")
     h = o["histAdmissibility"]
     L += ["## HIST admissibility", "", f"Non-HIST per-event geometry RMSE: median {h['nonHistGeometryRmse']['median']:.2f}, "
@@ -858,7 +911,7 @@ def main():
         w = csv.DictWriter(fh, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
     (d / "structure-audit.json").write_text(json.dumps(out, indent=1, allow_nan=False, default=float) + "\n", encoding="utf-8")
     (d / "STRUCTURE_AUDIT.md").write_text(markdown(out), encoding="utf-8")
-    print(json.dumps({"baseline": out["baseline"]["CAL"], "candidate": out["candidate"]["X59"]}, indent=1))
+    print(json.dumps({"baseline": out["baseline"]["CAL"], "youngGrey": out["youngGrey"]["youngGrey"], "falsifiedNminus1X59": out["candidate"]["X59"]}, indent=1))
 
 
 if __name__ == "__main__":

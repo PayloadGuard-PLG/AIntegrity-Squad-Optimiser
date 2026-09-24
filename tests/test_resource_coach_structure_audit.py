@@ -127,8 +127,6 @@ class StructuralFindings(unittest.TestCase):
         self.assertIsNone(sa.anchor_offset(P, target, [target]))
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class CorpusRoster(unittest.TestCase):
@@ -160,3 +158,65 @@ class CorpusRoster(unittest.TestCase):
     def test_user_handle_claim_is_withdrawn(self):
         d = json.loads((ROOT / "profiles" / "calibration_data.json").read_text(encoding="utf-8"))
         self.assertIn("WITHDRAWN", d["gillespie"]["correction_20260924"])
+
+
+class YoungGreyCandidate(unittest.TestCase):
+    """The current research candidate as scored by the corpus-wide audit."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.yg = sa.young_grey_params()
+        cls.cand = json.loads(sa.YOUNG_GREY_PROFILE.read_text(encoding="utf-8"))
+
+    def test_parameters_come_from_the_committed_profile(self):
+        self.assertEqual(self.cand["status"], "research-candidate-not-production")
+        self.assertEqual((self.yg["g"], self.yg["knot"], self.yg["ageBand"]), (0.65, 80.0, (18, 21)))
+
+    def test_reduces_to_frozen_outside_the_young_grey_rows(self):
+        X = sa.Rows(CAL + X59 + HIST)
+        f = sa.predict(dict(sa.BASE), X); y = sa.predict_young_grey(dict(sa.BASE), X, self.yg)
+        untouched = X.w | (X.age < 18) | (X.age > 21) | (X.s >= self.yg["knot"])
+        self.assertTrue(np.allclose(f[0][untouched], y[0][untouched]) and np.allclose(f[1][untouched], y[1][untouched]))
+        self.assertTrue(np.all(y[0] >= f[0] - 1e-12))   # cheaper cost can only raise the gain
+
+    def test_matches_the_frozen_control_prediction_script(self):
+        spec = importlib.util.spec_from_file_location("fy", ROOT / "tools" / "resource-coach-v2" / "freeze_young_grey_predictions.py")
+        fy = importlib.util.module_from_spec(spec); spec.loader.exec_module(fy)
+        card = json.loads((ROOT / "calibration" / "resource-coach-identification" / "control-card-20260924-kawa.json").read_text(encoding="utf-8"))
+        for c in fy.COACHES:
+            rows = [dict(stat=s, s=float(card["stats"][s]), cls=card["classes"][s], g=[0, 0]) for s in fy.fc.OUTFIELD]
+            e = sa._event(event="t", playerName=card["name"], partition="control", family=c["family"], coach=c["label"], N=float(c["N"]),
+                          p=c["p"], age=int(card["age"]), tier=card["tier"], evidence="x", rows=rows)
+            lo, hi = sa.predict_young_grey(dict(sa.BASE), sa.Rows([e]), self.yg)
+            for i, r in enumerate(rows):
+                a, b = fy.hyg_interval(dict(sa.BASE), int(card["age"]), card["tier"], c["N"], c["p"], r["s"], r["cls"],
+                                       self.yg["g"], self.yg["knot"], self.yg["ageBand"])
+                self.assertAlmostEqual(lo[i], a, places=9); self.assertAlmostEqual(hi[i], b, places=9)
+
+    def test_recorded_retrospective_scores_reproduce(self):
+        F = dict(sa.BASE)
+        self.assertAlmostEqual(sa.metrics_young_grey(F, CAL, self.yg)["midpointMae"], 2.208, delta=5e-4)
+        nd = [e for e in CAL if e["playerName"] != "Russell Diamond"]
+        self.assertAlmostEqual(sa.metrics_young_grey(F, nd, self.yg)["midpointMae"], 1.987, delta=5e-4)
+        self.assertAlmostEqual(sa.metrics_young_grey(F, X59, self.yg)["midpointMae"], sa.metrics(F, X59)["midpointMae"], places=12)
+
+
+class WhiteThresholdFreeze(unittest.TestCase):
+    """PREREG-20260924-WHITE-THRESHOLD-127: predictions are frozen before any preview and must not move."""
+
+    PATH = ROOT / "calibration" / "resource-coach-identification" / "control-predictions-20260924-white-threshold.json"
+
+    def test_frozen_file_is_byte_stable(self):
+        self.assertEqual(hashlib.sha256(self.PATH.read_bytes()).hexdigest(), "75d56e5291b9b87e17cce6379f6d77f3edcdb66ddf152f780c2db242ba2165a1")
+
+    def test_models_differ_only_on_white_rows(self):
+        d = json.loads(self.PATH.read_text(encoding="utf-8"))
+        for p in d["players"]:
+            for c in p["coaches"]:
+                for s in c["statIntervals"]:
+                    if s["displayClass"] != "WHITE":
+                        self.assertEqual(s["H0"], s["T127"])
+
+
+if __name__ == "__main__":
+    unittest.main()

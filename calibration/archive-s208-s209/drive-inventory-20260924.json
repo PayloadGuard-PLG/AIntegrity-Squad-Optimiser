@@ -33,7 +33,8 @@
  },
  "notes": [
   "Every image.jpg has the byte size of exactly one named screenshot; one pair verified byte-identical by SHA-256. The user is deleting the image.jpg copies (24 Sep).",
-  "The user quoted 74 screenshots; 73 named files are present.",
+  "After the user deleted the image.jpg copies the folder should hold 73 files; the CI listing re-counts it on every run.",
+  "The user quoted 74 screenshots and then confirmed 73 (24 Sep); 73 named files are present.",
   "18 Apr is the last day of S208 and 16 May the last day of S209: seasons for those captures are resolved only through player age (SEASON_BY_AGE)."
  ],
  "files": [
