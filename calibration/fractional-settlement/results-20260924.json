@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "fractional-settlement-results-v1",
+  "date": "2026-09-24",
+  "branch": "research/fractional-settlement-20260924",
+  "baseMain": "9dec1ef0beb666c638ea75f3b58b7a28eed5bf08",
+  "workflowRuns": {
+    "baselineRendererReplay": 36026134977,
+    "quantizationAwareReplay": 36026649391
+  },
+  "haggag": {
+    "reconstructedRuns": 123,
+    "configuredDrainPerRun": 1.35,
+    "configuredTotalDrain": 166.05,
+    "visibleTotalDrain": 166,
+    "cleanSingleRunTransitions": {
+      "n": 102,
+      "minus1": 69,
+      "minus2": 33,
+      "pMinus2": 0.3235294117647059
+    },
+    "binomialPvs035": 0.6053555959928927,
+    "wilson95": [
+      0.24057906530881729,
+      0.4192895683899344
+    ],
+    "simpleDeterministicCarry": "falsified",
+    "statEndpointGain": 21,
+    "directlyRenderedStatGain": 19,
+    "constantDribblingCarry": "falsified"
+  },
+  "resourceCoachLOPO": {
+    "YG": {
+      "continuous": {
+        "midpointMae": 2.3121137471965953,
+        "insideRate": 0.7448680351906158
+      },
+      "nearest": {
+        "midpointMae": 2.2947214076246336,
+        "insideRate": 0.7771260997067448
+      },
+      "oneStepEndpointSupportRate": 0.26099706744868034
+    },
+    "M1": {
+      "continuous": {
+        "midpointMae": 1.72957101085426,
+        "insideRate": 0.8269794721407625
+      },
+      "nearest": {
+        "midpointMae": 1.7111436950146628,
+        "insideRate": 0.841642228739003
+      },
+      "oneStepEndpointSupportRate": 0.40175953079178883
+    },
+    "Mstar": {
+      "continuous": {
+        "midpointMae": 1.475362307991764,
+        "insideRate": 0.8504398826979472
+      },
+      "nearest": {
+        "midpointMae": 1.4824046920821115,
+        "insideRate": 0.8797653958944281
+      },
+      "support": {
+        "midpointMae": 1.4809384164222874,
+        "insideRate": 0.8768328445747801
+      },
+      "oneStepEndpointSupportRate": 0.44428152492668627,
+      "oneStepRowSupportRate": 0.2697947214076246
+    },
+    "Mstarstar": {
+      "continuous": {
+        "midpointMae": 1.4370943663321765,
+        "insideRate": 0.873900293255132
+      },
+      "nearest": {
+        "midpointMae": 1.4120234604105573,
+        "insideRate": 0.9178885630498533
+      },
+      "support": {
+        "midpointMae": 1.4442815249266863,
+        "insideRate": 0.9090909090909091
+      },
+      "oneStepEndpointSupportRate": 0.4413489736070382,
+      "oneStepRowSupportRate": 0.2756598240469208
+    }
+  },
+  "quantizationAwareRefitLOPO": {
+    "Mstar": {
+      "exactSSE": {
+        "midpointMae": 1.4753623101238988,
+        "insideRate": 0.8504398826979472
+      },
+      "censoredLoss": {
+        "midpointMae": 1.4921894048623174,
+        "insideRate": 0.8504398826979472
+      }
+    },
+    "Mstarstar": {
+      "exactSSE": {
+        "midpointMae": 1.437094337201725,
+        "insideRate": 0.873900293255132
+      },
+      "censoredLoss": {
+        "midpointMae": 1.4422438428103694,
+        "insideRate": 0.873900293255132
+      }
+    }
+  },
+  "conclusions": [
+    "Top Eleven demonstrably permits fractional configured quantities upstream of integer displayed outcomes.",
+    "The Haggag condition sequence is compatible with stochastic/quantized settlement around 1.35 but falsifies a simple conserved fractional carry model.",
+    "A one-step unbiased floor/ceil stochastic quantizer cannot explain most Resource Coach residuals; fewer than half of Mstar/Mstarstar held-out endpoints are in its support.",
+    "Nearest-integer rendering can improve apparent inside-rate, especially for exploratory Mstarstar, but does not consistently improve MAE and is not a standalone mechanism solution.",
+    "Fitting Mstar/Mstarstar to hidden +/-0.5 endpoint bands does not improve LOPO accuracy; quantization-aware censoring is rejected as the missing identification correction on this corpus.",
+    "The remaining error is predominantly upstream: response shape, dose/allocation, or another player/coach state variable."
+  ],
+  "productionStatus": "unchanged"
+}
