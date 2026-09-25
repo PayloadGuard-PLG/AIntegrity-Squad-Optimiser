@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "resource-coach-seasonal-hidden-debt-freeze-v1",
+  "status": "frozen-pending-observation",
+  "recordedDate": "2026-09-25",
+  "hypothesis": "Seasonal decay continues beneath the visible stat floor; visible Resource Coach gain is rectified after hidden debt is repaid.",
+  "source": {
+    "playerCard": "chat_upload:64241.png",
+    "playerCardSha256": "9006cc1f758e0e3f2bcae5423597ae0c76a0d850db3d3ee7a6e60e31edef5c54",
+    "coachCard": "chat_upload:64248.png",
+    "coachCardSha256": "3262a9e124cf60e5e326cbb853a53ea7792e6d1da5848f974cafb258543d931a",
+    "noDebtFreeze": "calibration/resource-coach-identification/frozen-prediction-20260924-ripley-standard-attacking-x25-floor-falsifier.json",
+    "hiddenDebtNote": "calibration/resource-coach-identification/LOW_STAT_HIDDEN_DEBT_20260924.md"
+  },
+  "player": {
+    "name": "Lt Ripley",
+    "age": 28,
+    "tier": "T2",
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "ovrDisplayed": 97,
+    "affected": {
+      "PASSING": {
+        "start": 94,
+        "class": "WHITE"
+      },
+      "DRIBBLING": {
+        "start": 104,
+        "class": "WHITE"
+      },
+      "CROSSING": {
+        "start": 1,
+        "class": "MID_GREY"
+      }
+    }
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Attacking",
+    "multiplier": 25,
+    "affectedStatCount": 3
+  },
+  "seasonalModel": {
+    "decayPerPromotedSeason": 20,
+    "displayFloor": 1,
+    "hiddenCoordinateRule": "u_hidden = 1 - 20*d for a floor-clamped grey stat, where d is the number of additional promoted-season decrements after first reaching displayed 1.",
+    "visibleGainRule": "max(0, u_hidden + latentMovement) - max(0, u_hidden)",
+    "primaryScenario": {
+      "d": 1,
+      "rationale": "Smallest non-zero hidden-debt case: one further seasonal decrement beneath the displayed floor.",
+      "crossingHiddenCoordinate": -19
+    }
+  },
+  "frozenMstarstarRaw": {
+    "PASSING": [
+      45.73783,
+      69.185703
+    ],
+    "DRIBBLING": [
+      45.73783,
+      66.398609
+    ],
+    "CROSSING_latentMovement": [
+      45.73783,
+      69.933142
+    ]
+  },
+  "primaryPredictionNearest": {
+    "PASSING": [
+      46,
+      69
+    ],
+    "DRIBBLING": [
+      46,
+      66
+    ],
+    "CROSSING": [
+      27,
+      51
+    ],
+    "ovrProxyRaw": [
+      7.880899333333334,
+      12.434496933333334
+    ],
+    "ovrEnvelope": [
+      7,
+      13
+    ],
+    "pointOvrProxy": 10.157698133333334
+  },
+  "debtScenarios": [
+    {
+      "d": 0,
+      "hiddenCoordinate": 1,
+      "crossing": [
+        46,
+        70
+      ],
+      "ovrProxyRaw": [
+        9.147566,
+        13.7011636
+      ]
+    },
+    {
+      "d": 1,
+      "hiddenCoordinate": -19,
+      "crossing": [
+        27,
+        51
+      ],
+      "ovrProxyRaw": [
+        7.880899333333334,
+        12.434496933333334
+      ]
+    },
+    {
+      "d": 2,
+      "hiddenCoordinate": -39,
+      "crossing": [
+        7,
+        31
+      ],
+      "ovrProxyRaw": [
+        6.547566,
+        11.1011636
+      ]
+    },
+    {
+      "d": 3,
+      "hiddenCoordinate": -59,
+      "crossing": [
+        0,
+        11
+      ],
+      "ovrProxyRaw": [
+        6.0983773333333335,
+        9.767830266666667
+      ]
+    },
+    {
+      "d": 4,
+      "hiddenCoordinate": -79,
+      "crossing": [
+        0,
+        0
+      ],
+      "ovrProxyRaw": [
+        6.0983773333333335,
+        9.038954133333334
+      ]
+    }
+  ],
+  "interpretation": {
+    "crossingAbove51": "Hidden-debt model with d>=1 is disfavoured; floor is probably newly reached or no hidden decay applies.",
+    "crossing27to51": "Supports approximately one post-floor seasonal decrement.",
+    "crossing7to31": "Supports approximately two post-floor seasonal decrements.",
+    "crossing1to11": "Supports deep debt around three decrements.",
+    "crossingZero": "Requires roughly four post-floor decrements under this simple 20-point ladder, or a hard floor lock / other suppression mechanism."
+  },
+  "warning": "d is not identifiable from the current card alone. The primary d=1 prediction is a deliberately explicit test assumption, not a fitted fact."
+}
