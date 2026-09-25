@@ -6,6 +6,161 @@ Reverse-chronological. Each entry covers what shipped, what broke, and what the 
 
 ---
 
+## 2026-09-25 — Resource Coach predictive convergence, floor-debt falsifier, and PRINCIPIA V
+
+The Resource Coach work has moved from broad mechanism discovery into a narrower
+predictive-calibration phase. The production Resource Coach V2 engine remains
+unchanged; the work below is research-only unless explicitly promoted later.
+
+### Shape-not-dose result consolidated
+
+PR #161 merged the current structure audit and comparative five-model
+pre-registration. Across the admissible card-only pool, the strongest signal is
+still the **shape of the response curve at the stat coordinate**, not a new
+player- or coach-level dose term. The frozen age bands remain approximately
+8/6/4/2/1 for ages 18–21 / 22–25 / 26–29 / 30–31 / 32+, tier subtraction is
+retained for WHITE stats, and the flat-to-exponential response remains the
+working geometry.
+
+The research family now distinguishes YG, M1, M*, and M**. M** is the exploratory
+shape variant used for the latest locked calculations because it has the best
+leave-one-player-out performance among the frozen candidates, but it is not a
+production law.
+
+### Current retrospective trust numbers
+
+PR #164 remains open and research-only. Its replay covers **96 previews, 341
+affected-stat rows and 30 players**. Under nearest endpoint rendering, M** reaches:
+
+- midpoint inside observed interval: **91.8%**
+- interval overlap: **99.7%**
+- endpoint MAE: **1.51**
+- both endpoints exact: **10.3%**
+- entire preview inside: **77.1%**
+
+These are retrospective diagnostics after model-family selection, not a 90%
+prospective product claim. The same audit explicitly showed that midpoint
+coverage can be gamed by renderer choices, so endpoint error, bias, per-player
+failure and preview-level performance remain guardrails.
+
+### Galileo: stat=1 suppression isolated
+
+LJ Galileo, age 31, T2, Standard Attacking ×25 Skill Seminar, provided a clean
+within-preview anomaly:
+
+- Passing 170 WHITE: frozen **+12–17**, observed **+15–22**
+- Dribbling 69 WHITE: frozen **+23–35**, observed **+23–34**
+- Crossing 1 MID_GREY: frozen **+23–35**, observed **+0**
+
+Because Passing and Dribbling behaved normally in the same coach event, a
+whole-coach amplitude failure is not viable. Existing corpus rows also falsify a
+general rule that old or low displayed stats simply cannot train.
+
+The leading research hypothesis is therefore **hidden seasonal debt below the
+visible stat floor**: the renderer clamps the card at 1 while the trainable
+coordinate may continue to decay, so later coach resource first repays hidden
+debt before visible gain appears. This is plausible and quantitatively useful,
+but still unobserved internally and therefore not treated as established fact.
+
+### Ripley matched falsifier
+
+Lt Ripley, age 28, T2, DMC/MC/AMC, Crossing 1 MID_GREY, was frozen against the
+same Standard Attacking ×25 Skill Seminar as Galileo. The no-debt M** prediction
+was roughly +46–70 on Crossing. A second explicit seasonal-debt freeze mapped
+post-floor decrements to visible Crossing outcomes:
+
+- d=0: **+46–70**
+- d=1: **+27–51**
+- d=2: **+7–31**
+- d=3: **+0–11**
+- d=4: **+0**
+
+The observed Ripley preview was **Passing +45–66, Dribbling +46–64, Crossing
++13–30**. Positive Crossing falsifies a universal hard stat=1 lock. The full
+Crossing interval sits inside the predeclared d=2 scenario and only overlaps a
+small edge of d=1, so the simple debt ladder currently points to roughly two
+post-floor decrements for that state. That supports the debt interpretation but
+does not prove the hidden coordinate or uniquely identify the number of seasons.
+
+### Saunders: first GK extrapolation of the current shape model
+
+Mark Saunders, age 24, T2 GK, Standard Physical ×15 Skill Seminar, was frozen
+before preview reveal with p=4 affected stats:
+
+| Stat | Frozen M** | Observed |
+|---|---:|---:|
+| Fitness 190 WHITE | +7–12 | +5–8 |
+| Strength 78 MID_GREY | +30–45 | +29–42 |
+| Aggression 99 MID_GREY | +26–36 | +24–33 |
+| Creativity 111 MID_GREY | +21–29 | +20–29 |
+| OVR boost | +5–9 | +5–8 |
+
+Three of four stat point estimates, plus the OVR point estimate, landed inside
+the observed ranges. Every frozen endpoint was slightly high or equal, with the
+largest miss on the high-coordinate WHITE Fitness row. This is consistent with
+the broader residual pattern: the geometry is close, while some regions retain
+a small positive bias. One GK event is not enough evidence for a goalkeeper-
+specific scalar.
+
+### Predictive objective clarified
+
+The product does not need the hidden Top Eleven formula. It needs a reliable
+card-only state-transition predictor: scan player, identify coach, estimate the
+likely next state, and let the user move through the plan with minimal manual
+work.
+
+For production calibration, the primary operational quantity will be the
+**predicted midpoint against the midpoint of the game's displayed interval**,
+with signed error and MAE tracked across genuinely prospective observations.
+The physical interval is retained as uncertainty evidence and as a guardrail;
+it is not discarded merely because midpoint accuracy is the user-facing target.
+
+A persistent small signed residual should be corrected empirically only after it
+replicates across prospective tests. Do not contort the core response geometry
+to force exact endpoints from one player or one coach.
+
+### PRINCIPIA V
+
+A new synthesis document, **PRINCIPIA V — Resource Coach Predictive Mechanics**,
+was produced from the current repository research state, PR #164, the connected
+Resource Coach longitudinal evidence, the shape-model code and the latest locked
+Galileo/Ripley/Saunders calculations.
+
+It records the current M** equations and constants, tier coordinate transform,
+age bands, young-grey rule, renderer treatment, prospective-scoring discipline,
+hidden-debt hypothesis and the boundary between established, provisional and
+falsified claims. It is a research synthesis, not an automatic production
+promotion.
+
+### UI / change-control decision
+
+The next phase increasingly shifts toward UI integration and other game
+mechanics. A hard implementation rule is now explicit: **the requested task
+defines the permitted change surface**. Maths, ingestion or backend work must not
+silently alter unrelated layouts, labels, loading screens, navigation, spacing
+or visual components. Optional UI ideas are proposals first, not incidental
+changes in the same diff.
+
+UI refinement will proceed screen-by-screen, preserving the existing visual
+language and freezing each approved screen as the new baseline. This is intended
+to stop repeated regressions where opening the app effectively reveals a new
+interface after unrelated engineering work.
+
+### Next
+
+- ingest and score the Ripley and Saunders observations into the canonical
+  longitudinal evidence path;
+- continue the registered prospective Resource Coach tests before promoting any
+  midpoint bias correction;
+- keep M** research-only until the prospective gate is met or explicitly relaxed;
+- continue drill/fractional-response research separately from coach transfer;
+- stabilise the current UI, then refine each screen in isolation under strict
+  change-surface control;
+- add mentors and other more deterministic game mechanics without blocking on
+  perfect Resource Coach identification.
+
+---
+
 ## 2026-09-24 — Drills mobile hierarchy regression hotfix
 
 Physical-device review of PR #159 exposed a presentation regression in the
