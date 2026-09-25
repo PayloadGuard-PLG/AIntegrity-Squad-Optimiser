@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "resource-coach-low-dose-overlay-v1",
+  "modelVersion": "shape-Mstarstar-LD1-20260925",
+  "status": "research-candidate-not-production",
+  "baseModel": "shape-Mstarstar-20260924",
+  "baseConstants": "calibration/resource-coach-identification/shape-models-20260924.json",
+  "diagnosis": "The card-only response shape remains the base. A narrow low-dose overlay is required for the observed Focused Defending x2 Drill Session, p=2 regime at age 22+. The previous separable B=C*A(age)*N/p assumption over-predicts this cell.",
+  "overlay": {
+    "factor": 0.719,
+    "law": "B'_lo = L * B_lo; B'_hi = L * B_hi",
+    "trigger": {
+      "minAge": 22,
+      "programmeFamily": "DRILL SESSION",
+      "coachLabel": "Focused Defending",
+      "multiplier": 2,
+      "affectedStatCount": 2
+    },
+    "otherwise": 1.0,
+    "scopeBoundary": "Do not generalise this factor to Standard coaches, Skill Seminar, other multipliers, other p values, or age <=21 until prospectively tested."
+  },
+  "postHocEvidence": [
+    {"player":"Vince Németh","age":23,"impliedBudgetScale":0.720},
+    {"player":"Garry McCluskey","age":28,"impliedBudgetScale":0.724},
+    {"player":"King Alfie","age":23,"impliedBudgetScale":0.657},
+    {"player":"Michal Kawa","age":21,"impliedBudgetScale":1.019}
+  ],
+  "jointFitAge22Plus": 0.719,
+  "historicalCrossCheck": {
+    "player": "Michael Benwell",
+    "age": 22,
+    "coach": "Focused Defending x2",
+    "observed": {"MARKING":[6,9],"POSITIONING":[6,9]},
+    "note": "An older archive row independently agrees with the ~0.72 low-dose correction. Its class was previously unread; current AMC role mapping makes both affected stats MID_GREY."
+  },
+  "exactRepeatPolicy": "If player state and coach definition exactly match a previously observed verified preview, return that observed interval as an exact-repeat prediction and label it non-independent. Do not count it as model validation.",
+  "productionBoundary": "No production runtime profile or source file is changed by this research overlay."
+}
