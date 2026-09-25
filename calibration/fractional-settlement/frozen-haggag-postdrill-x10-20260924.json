@@ -1,0 +1,261 @@
+{
+  "schemaVersion": "resource-coach-prospective-freeze-v1",
+  "id": "HAGGAG-POSTDRILL-STD-OFF-X10-20260924",
+  "frozenAtWorkflowRun": 36027143671,
+  "generatedBy": "tools/resource-coach-v2/freeze_shape_test.py",
+  "outcomeSeen": false,
+  "preregistration": "PREREG-20260924-SHAPE-FIVE-MODEL",
+  "arm": "primary",
+  "player": {
+    "name": "Said Haggag",
+    "age": 22,
+    "tier": "T0",
+    "roles": [
+      "ST"
+    ],
+    "ovr": 98,
+    "state": {
+      "CROSSING": 80,
+      "SHOOTING": 97,
+      "SPEED": 102,
+      "CREATIVITY": 101
+    },
+    "classes": {
+      "CROSSING": "MID_GREY",
+      "SHOOTING": "WHITE",
+      "SPEED": "WHITE",
+      "CREATIVITY": "WHITE"
+    },
+    "provenance": "post-123-drill endpoint state; full card frozen in haggag-postdrill-card-20260924.json"
+  },
+  "coach": {
+    "key": "DS-STD-OFF-X10",
+    "label": "Standard Offensive",
+    "programme": "DRILL SESSION",
+    "multiplier": 10,
+    "affectedStatCount": 4,
+    "affected": [
+      "CROSSING",
+      "SHOOTING",
+      "SPEED",
+      "CREATIVITY"
+    ]
+  },
+  "models": {
+    "YG": {
+      "CROSSING": {
+        "raw": [
+          19.86,
+          30.3659
+        ],
+        "nearest": [
+          20,
+          30
+        ]
+      },
+      "SHOOTING": {
+        "raw": [
+          19.86,
+          30.3659
+        ],
+        "nearest": [
+          20,
+          30
+        ]
+      },
+      "SPEED": {
+        "raw": [
+          19.86,
+          30.3659
+        ],
+        "nearest": [
+          20,
+          30
+        ]
+      },
+      "CREATIVITY": {
+        "raw": [
+          19.86,
+          30.3659
+        ],
+        "nearest": [
+          20,
+          30
+        ]
+      }
+    },
+    "SD22": {
+      "CROSSING": {
+        "raw": [
+          17.935,
+          27.4227
+        ],
+        "nearest": [
+          18,
+          27
+        ]
+      },
+      "SHOOTING": {
+        "raw": [
+          17.935,
+          27.4227
+        ],
+        "nearest": [
+          18,
+          27
+        ]
+      },
+      "SPEED": {
+        "raw": [
+          17.935,
+          27.4227
+        ],
+        "nearest": [
+          18,
+          27
+        ]
+      },
+      "CREATIVITY": {
+        "raw": [
+          17.935,
+          27.4227
+        ],
+        "nearest": [
+          18,
+          27
+        ]
+      }
+    },
+    "M1": {
+      "CROSSING": {
+        "raw": [
+          20.7503,
+          31.3312
+        ],
+        "nearest": [
+          21,
+          31
+        ]
+      },
+      "SHOOTING": {
+        "raw": [
+          20.7503,
+          30.894
+        ],
+        "nearest": [
+          21,
+          31
+        ]
+      },
+      "SPEED": {
+        "raw": [
+          20.6785,
+          29.7406
+        ],
+        "nearest": [
+          21,
+          30
+        ]
+      },
+      "CREATIVITY": {
+        "raw": [
+          20.7267,
+          30.0036
+        ],
+        "nearest": [
+          21,
+          30
+        ]
+      }
+    },
+    "Mstar": {
+      "CROSSING": {
+        "raw": [
+          20.6251,
+          31.3004
+        ],
+        "nearest": [
+          21,
+          31
+        ]
+      },
+      "SHOOTING": {
+        "raw": [
+          20.6251,
+          30.1294
+        ],
+        "nearest": [
+          21,
+          30
+        ]
+      },
+      "SPEED": {
+        "raw": [
+          20.3039,
+          28.7469
+        ],
+        "nearest": [
+          20,
+          29
+        ]
+      },
+      "CREATIVITY": {
+        "raw": [
+          20.417,
+          29.0529
+        ],
+        "nearest": [
+          20,
+          29
+        ]
+      }
+    },
+    "Mstarstar": {
+      "CROSSING": {
+        "raw": [
+          20.582,
+          31.4649
+        ],
+        "nearest": [
+          21,
+          31
+        ]
+      },
+      "SHOOTING": {
+        "raw": [
+          20.582,
+          30.6615
+        ],
+        "nearest": [
+          21,
+          31
+        ]
+      },
+      "SPEED": {
+        "raw": [
+          20.5325,
+          29.4448
+        ],
+        "nearest": [
+          21,
+          29
+        ]
+      },
+      "CREATIVITY": {
+        "raw": [
+          20.572,
+          29.7236
+        ],
+        "nearest": [
+          21,
+          30
+        ]
+      }
+    }
+  },
+  "scoringPlan": {
+    "primary": "score raw continuous endpoints and frozen model arms before any refit",
+    "rendererSecondary": "score nearest-integer endpoints exactly as frozen above",
+    "noOutcomeConditioning": true
+  }
+}
