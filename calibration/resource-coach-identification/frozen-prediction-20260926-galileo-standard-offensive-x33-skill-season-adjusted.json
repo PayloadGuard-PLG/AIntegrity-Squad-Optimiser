@@ -2,9 +2,9 @@
  "schemaVersion": "resource-coach-prospective-freeze-v1",
  "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL-SEASON-ADJUSTED",
  "status": "locked-before-outcome",
- "calculationMode": "fresh-recompute-from-current-repo-logic",
+ "calculationMode": "fresh-recompute-from-repo-math-only",
  "validationCaveat": "Prospective state/coach residual test; not an independent held-out-player validation.",
- "leakageRule": "No prior Galileo preview/result, no other-player result, no analogue, no nearest-neighbour transfer, and no community source used in this calculation.",
+ "leakageRule": "No prior Galileo result or preview, no other-player result, no analogue, no nearest-neighbour transfer, and no community source used.",
  "sourceScreenshots": {
   "coachUnselectedSha256": "7f99a3e2ca6cf4b839222386b188306f09cbf38ff0dc80dd9174344ff9ab828f",
   "suppliedPlayerCardSha256": "3a8a234d050be17c91568ada9a3c365b0b43a7f31597644a530075e7772768ca"
@@ -14,7 +14,7 @@
   "flatDecayPerLevel": 20,
   "ageBefore": 31,
   "ageAfter": 32,
-  "note": "The supplied card is treated as pre-rollover. Repo season logic applies -20 to every stat for one promoted level; the player ages by one season. For the floor-clamped Crossing=1 row, research hidden-debt geometry uses internal 1-20=-19 rather than laundering the displayed floor back to +1."
+  "rule": "applySeasonDecay: subtract 20 per promoted level from every stat, floored at zero."
  },
  "playerAfterSeasonAdjustment": {
   "name": "LJ Galileo",
@@ -36,7 +36,7 @@
    "BRAVERY": 106,
    "PASSING": 150,
    "DRIBBLING": 49,
-   "CROSSING": 1,
+   "CROSSING": 0,
    "SHOOTING": 1,
    "FINISHING": 44,
    "FITNESS": 66,
@@ -44,9 +44,6 @@
    "AGGRESSION": 20,
    "SPEED": 18,
    "CREATIVITY": 85
-  },
-  "hiddenCoordinates": {
-   "CROSSING": -19
   }
  },
  "coach": {
@@ -98,8 +95,8 @@
   },
   "CROSSING": {
    "displayClass": "MID_GREY",
-   "displayedAfterDecay": 1,
-   "hiddenU": -19
+   "startAfterDecay": 0,
+   "u": 0
   },
   "FITNESS": {
    "displayClass": "WHITE",
@@ -122,11 +119,11 @@
     "point": 13.401241010914191
    },
    "CROSSING": {
-    "rawLo": 0,
-    "rawHi": 0,
-    "lo": 0,
-    "hi": 0,
-    "point": 0
+    "rawLo": 11.320112991696167,
+    "rawHi": 17.30845276430344,
+    "lo": 11,
+    "hi": 18,
+    "point": 14.314282877999805
    },
    "FITNESS": {
     "rawLo": 11.320112991696163,
@@ -144,12 +141,13 @@
    }
   },
   "ovrProxy": {
-   "rawLo": 2.242242735382382,
-   "rawHi": 3.361731500206124,
+   "rawLo": 2.996916934828793,
+   "rawHi": 4.515628351159687,
    "lo": 2,
-   "hi": 4,
-   "point": 2.801987117794253
+   "hi": 5,
+   "point": 3.7562726429942397
   },
   "ovrDefinition": "sum of affected predicted gains / 15; planning proxy, not an observed post-action OVR"
- }
+ },
+ "correctionNote": "This replaces an intermediate draft that incorrectly injected the unproven hidden-debt hypothesis. This artifact uses the repository's explicit season-decay function only."
 }
