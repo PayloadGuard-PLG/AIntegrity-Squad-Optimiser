@@ -1,7 +1,7 @@
 {
  "schemaVersion": "resource-coach-prospective-freeze-v1",
  "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL",
- "status": "locked-before-outcome",
+ "status": "INVALIDATED",
  "experimentType": "prospective-state-coach-residual-test",
  "validationCaveat": "LJ Galileo is present in the historical fitting pool, so this is not an independent held-out-player validation.",
  "leakageRule": "No selected-player Standard Offensive x33 preview/outcome, historical result, same-player result, other-player result, analogue, nearest-neighbour transfer, or community source was used at inference time.",
@@ -148,5 +148,7 @@
    "point": 6.697819897193212
   },
   "ovrDefinition": "sum of affected predicted gains / 15; planning proxy, not an observed post-action OVR"
- }
+ },
+ "invalidatedReason": "Prediction reused pre-season player state and omitted the season rollover. User requested a fresh calculation from repo logic only. Do not score this artifact.",
+ "supersededBy": "calibration/resource-coach-identification/frozen-prediction-20260926-galileo-standard-offensive-x33-skill-season-adjusted.json"
 }
