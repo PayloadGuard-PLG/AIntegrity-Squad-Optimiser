@@ -1,7 +1,7 @@
 {
  "schemaVersion": "resource-coach-prospective-freeze-v1",
  "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL-SEASON-ADJUSTED",
- "status": "locked-before-outcome",
+ "status": "INVALIDATED",
  "calculationMode": "fresh-recompute-from-repo-math-only",
  "validationCaveat": "Prospective state/coach residual test; not an independent held-out-player validation.",
  "leakageRule": "No prior Galileo result or preview, no other-player result, no analogue, no nearest-neighbour transfer, and no community source used.",
@@ -149,5 +149,7 @@
   },
   "ovrDefinition": "sum of affected predicted gains / 15; planning proxy, not an observed post-action OVR"
  },
- "correctionNote": "This replaces an intermediate draft that incorrectly injected the unproven hidden-debt hypothesis. This artifact uses the repository's explicit season-decay function only."
+ "correctionNote": "This replaces an intermediate draft that incorrectly injected the unproven hidden-debt hypothesis. This artifact uses the repository's explicit season-decay function only.",
+ "invalidatedReason": "Incorrectly treated the supplied current Galileo card as a pre-rollover card and applied a new whole-card season transition. The relevant repository seasonal-decay issue is unresolved hidden floor debt on the current displayed Crossing=1 state.",
+ "supersededBy": "calibration/resource-coach-identification/frozen-prediction-20260926-galileo-standard-offensive-x33-skill-debt-scenarios.json"
 }
