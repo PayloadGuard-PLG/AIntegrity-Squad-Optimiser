@@ -1,0 +1,178 @@
+{
+ "schemaVersion": "resource-coach-prospective-freeze-v1",
+ "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL-DEBT-SCENARIOS",
+ "status": "locked-before-outcome",
+ "calculationMode": "fresh-current-card-recompute-from-repository-math-only",
+ "leakageRule": "No prior Galileo preview/result, no other-player result, no analogue, no nearest-neighbour transfer, and no community source is used to select the prediction. Current card and coach inputs only. Seasonal floor debt is retained as an unresolved latent state rather than inferred from historical outcomes.",
+ "player": {
+  "name": "LJ Galileo",
+  "age": 31,
+  "tier": "T2",
+  "tierAddition": 30,
+  "quality": "ELITE",
+  "displayedOvr": 81,
+  "roles": [
+   "DMC",
+   "MC",
+   "AMC"
+  ],
+  "stats": {
+   "TACKLING": 40,
+   "MARKING": 94,
+   "POSITIONING": 168,
+   "HEADING": 209,
+   "BRAVERY": 126,
+   "PASSING": 170,
+   "DRIBBLING": 69,
+   "CROSSING": 1,
+   "SHOOTING": 21,
+   "FINISHING": 64,
+   "FITNESS": 86,
+   "STRENGTH": 34,
+   "AGGRESSION": 40,
+   "SPEED": 38,
+   "CREATIVITY": 105
+  }
+ },
+ "coach": {
+  "transferClass": "ordinary",
+  "programme": "SKILL SEMINAR",
+  "label": "Standard Offensive",
+  "multiplier": 33,
+  "affectedStatCount": 4,
+  "affectedStats": [
+   "PASSING",
+   "CROSSING",
+   "FITNESS",
+   "CREATIVITY"
+  ]
+ },
+ "repoLogic": {
+  "branch": "research/card-only-trust-20260924",
+  "model": "Mstarstar",
+  "modelStatus": "research-candidate-not-production",
+  "seasonRule": "flat 20 points per promoted season; white and grey equally",
+  "floorDebtRule": "For a displayed floor stat, hidden seasonal debt is an unresolved latent coordinate. Use u_hidden = displayed_stat - 20*d for debt scenario d and rectified visible gain; do not select d from prior outcomes.",
+  "renderer": "displayed interval=floor(rawLo), ceil(rawHi)"
+ },
+ "parameters": {
+  "logC": 0.3163678539772327,
+  "C": 1.3721349080843839,
+  "effectiveHWhite": 126.56120348990856,
+  "effectiveHMidGrey": 110.90238374243438,
+  "effectiveK": 31.525166687898416,
+  "upperDoseRatio": 1.529,
+  "ageScale": 2,
+  "N": 33,
+  "p": 4,
+  "budgetLo": 22.640225983392334,
+  "budgetHi": 34.61690552860688,
+  "youngGreyApplied": false
+ },
+ "transformedInputs": {
+  "PASSING": {
+   "displayClass": "WHITE",
+   "start": 170,
+   "u": 140
+  },
+  "CROSSING": {
+   "displayClass": "MID_GREY",
+   "displayedStart": 1,
+   "uWithoutDebt": 1,
+   "latentDebtState": "unresolved"
+  },
+  "FITNESS": {
+   "displayClass": "WHITE",
+   "start": 86,
+   "u": 56
+  },
+  "CREATIVITY": {
+   "displayClass": "WHITE",
+   "start": 105,
+   "u": 75
+  }
+ },
+ "frozenPrediction": {
+  "fixedRows": {
+   "PASSING": {
+    "rawLo": 12.122062950781299,
+    "rawHi": 17.04113942901745,
+    "lo": 12,
+    "hi": 18,
+    "point": 14.581601189899374
+   },
+   "FITNESS": {
+    "rawLo": 22.640225983392327,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999603
+   },
+   "CREATIVITY": {
+    "rawLo": 22.640225983392327,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999603
+   }
+  },
+  "crossingDebtScenarios": {
+   "d0": {
+    "hiddenU": 1,
+    "rawLo": 22.640225983392334,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999606
+   },
+   "d1": {
+    "hiddenU": -19,
+    "rawLo": 3.640225983392334,
+    "rawHi": 15.616905528606878,
+    "lo": 3,
+    "hi": 16,
+    "point": 9.628565755999606
+   },
+   "d2plus": {
+    "hiddenUAtD2": -39,
+    "rawLo": 0,
+    "rawHi": 0,
+    "lo": 0,
+    "hi": 0,
+    "point": 0,
+    "note": "d>=2 remains fully rectified to zero for this dose under the frozen Mstarstar geometry"
+   }
+  },
+  "crossingHeadline": {
+   "lo": 0,
+   "hi": 35,
+   "status": "unresolved-floor-debt-envelope",
+   "point": null
+  },
+  "ovrProxyByDebtScenario": {
+   "d0": {
+    "rawLo": 5.336182726730552,
+    "rawHi": 8.059457067655872,
+    "lo": 5,
+    "hi": 9,
+    "point": 6.697819897193212
+   },
+   "d1": {
+    "rawLo": 4.069516060063886,
+    "rawHi": 6.792790400989206,
+    "lo": 4,
+    "hi": 7,
+    "point": 5.431153230526546
+   },
+   "d2plus": {
+    "rawLo": 3.82683432783773,
+    "rawHi": 5.751663365748747,
+    "lo": 3,
+    "hi": 6,
+    "point": 4.789248846793239
+   }
+  },
+  "ovrDefinition": "sum of affected predicted gains / 15; planning proxy, not an observed post-action OVR"
+ },
+ "freezeNote": "This freeze deliberately does not choose a hidden-debt count. Selecting d from prior Galileo outcomes would violate the requested fresh-prediction protocol."
+}
