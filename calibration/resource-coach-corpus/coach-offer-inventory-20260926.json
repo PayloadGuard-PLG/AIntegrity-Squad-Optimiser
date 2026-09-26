@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "resource-coach-offer-inventory-v1",
+  "recordedDate": "2026-09-26",
+  "scope": "Current Academy Coaches rotation observed from user-supplied in-chat screenshots. Inventory evidence only: preserve coach identity, multiplier, duration and any directly displayed target information. Do not infer programme family or hidden affected stats from the tile.",
+  "rotation": {
+    "screenLabel": "ACADEMY COACHES",
+    "newCoachesIn": "1d 15h"
+  },
+  "sourceScreenshots": [
+    {
+      "source": "chat_upload:64370.png",
+      "notes": "Shows Standard Offensive x11, Standard Goalkeeping x17, Standard Mixed x20 and Standard Safeguard x25."
+    },
+    {
+      "source": "chat_upload:64371.png",
+      "notes": "Shows Standard Mixed x20, Standard Safeguard x25, Extensive All-Round x30 and Standard Offensive x33."
+    }
+  ],
+  "uniqueCoachLabels": [
+    "Standard Mixed",
+    "Standard Safeguard",
+    "Extensive All-Round",
+    "Standard Offensive",
+    "Standard Goalkeeping"
+  ],
+  "offers": [
+    {
+      "key": "STD-OFF-X11-20260926",
+      "coachTitle": "Standard Offensive",
+      "coachType": "Standard",
+      "coachCategory": "Offensive",
+      "multiplier": 11,
+      "durationDays": 4,
+      "displayedAffectedCount": 3,
+      "affectedStatsObserved": ["SHOOTING", "SPEED", "CREATIVITY"],
+      "affectedSetStatus": "directly-listed-on-tile",
+      "programmeFamily": null,
+      "transferClass": "ordinary",
+      "sourceScreenshots": ["chat_upload:64370.png"]
+    },
+    {
+      "key": "STD-GK-X17-20260926",
+      "coachTitle": "Standard Goalkeeping",
+      "coachType": "Standard",
+      "coachCategory": "Goalkeeping",
+      "multiplier": 17,
+      "durationDays": 3,
+      "displayedAffectedCount": 4,
+      "affectedStatsObserved": [],
+      "affectedSetStatus": "count-only",
+      "programmeFamily": null,
+      "transferClass": "ordinary",
+      "sourceScreenshots": ["chat_upload:64370.png"]
+    },
+    {
+      "key": "STD-MIX-X20-20260926",
+      "coachTitle": "Standard Mixed",
+      "coachType": "Standard",
+      "coachCategory": "Mixed",
+      "multiplier": 20,
+      "durationDays": 6,
+      "displayedAffectedCount": 4,
+      "affectedStatsObserved": [],
+      "affectedSetStatus": "count-only",
+      "programmeFamily": null,
+      "transferClass": "ordinary",
+      "sourceScreenshots": ["chat_upload:64370.png", "chat_upload:64371.png"]
+    },
+    {
+      "key": "STD-SAFE-X25-20260926",
+      "coachTitle": "Standard Safeguard",
+      "coachType": "Standard",
+      "coachCategory": "Safeguard",
+      "multiplier": 25,
+      "durationDays": 6,
+      "displayedAffectedCount": 4,
+      "affectedStatsObserved": [],
+      "affectedSetStatus": "count-only",
+      "programmeFamily": null,
+      "transferClass": "ordinary",
+      "sourceScreenshots": ["chat_upload:64370.png", "chat_upload:64371.png"]
+    },
+    {
+      "key": "EXT-ALL-X30-20260926",
+      "coachTitle": "Extensive All-Round",
+      "coachType": "Extensive",
+      "coachCategory": "All-Round",
+      "multiplier": 30,
+      "durationDays": 5,
+      "displayedAffectedCount": 6,
+      "affectedStatsObserved": [],
+      "affectedSetStatus": "count-only",
+      "programmeFamily": null,
+      "transferClass": "ordinary",
+      "sourceScreenshots": ["chat_upload:64371.png"]
+    },
+    {
+      "key": "STD-OFF-X33-20260926",
+      "coachTitle": "Standard Offensive",
+      "coachType": "Standard",
+      "coachCategory": "Offensive",
+      "multiplier": 33,
+      "durationDays": 6,
+      "displayedAffectedCount": 4,
+      "affectedStatsObserved": [],
+      "affectedSetStatus": "count-only",
+      "programmeFamily": null,
+      "transferClass": "ordinary",
+      "sourceScreenshots": ["chat_upload:64371.png"]
+    }
+  ],
+  "notes": [
+    "Standard Mixed x20 and Standard Safeguard x25 appear in both screenshots and are stored once with both provenance sources.",
+    "Standard Offensive appears at two multipliers (x11 and x33), so both offers are preserved separately under one coach label.",
+    "This file expands corpus identity coverage only. It does not modify frozen preregistration coach sets, production prediction logic or UI."
+  ]
+}
