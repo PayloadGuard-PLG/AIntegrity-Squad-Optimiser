@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "resource-coach-prospective-freeze-v1",
+  "predictionDate": "2026-09-26",
+  "predictionId": "CHAT-20260926-LT-RIPLEY-EXT-ALLROUND-X30-DRILL",
+  "status": "prospective-pre-preview",
+  "player": {
+    "name": "Lt Ripley",
+    "age": 28,
+    "tier": "T2",
+    "tierLabel": "ELITE",
+    "tierAddition": 30,
+    "roles": ["DMC", "MC", "AMC"],
+    "ovr": 97,
+    "stats": {
+      "TACKLING": 36,
+      "MARKING": 91,
+      "POSITIONING": 165,
+      "HEADING": 206,
+      "BRAVERY": 141,
+      "PASSING": 94,
+      "DRIBBLING": 104,
+      "CROSSING": 1,
+      "SHOOTING": 86,
+      "FINISHING": 57,
+      "FITNESS": 147,
+      "STRENGTH": 60,
+      "AGGRESSION": 68,
+      "SPEED": 87,
+      "CREATIVITY": 128
+    },
+    "affectedClasses": {
+      "BRAVERY": "WHITE",
+      "PASSING": "WHITE",
+      "SHOOTING": "WHITE",
+      "FINISHING": "WHITE",
+      "FITNESS": "WHITE",
+      "CREATIVITY": "WHITE"
+    },
+    "evidence": "user-supplied card screenshot 64241.png before selected-player preview; classes resolved by repository roleWeights.ts for established DMC/MC/AMC roles"
+  },
+  "coach": {
+    "programmeFamily": "DRILL SESSION",
+    "label": "Extensive All-Round",
+    "multiplier": 30,
+    "affectedStatCount": 6,
+    "affectedStats": ["BRAVERY", "PASSING", "SHOOTING", "FINISHING", "FITNESS", "CREATIVITY"],
+    "duration": "5 days",
+    "transferClass": "ordinary",
+    "evidence": "user-supplied unselected coach screenshot 64374.png before selected-player preview"
+  },
+  "model": {
+    "base": "Mstarstar / shape-models-20260924",
+    "method": "pure frozen repository mathematics; no player-specific calibration, no same-coach anchor, no nearest-neighbour transfer, no target preview",
+    "repositorySources": {
+      "shapeModelsJsonSha": "d8e1770b9efa205379b87de950d32b46c17f63d0",
+      "shapeModelsPySha": "3384d5a212116eb70c2dda5abfa0f1db0a947ba5",
+      "structureAuditPySha": "37dc7b680488dfe39984c9161904ea4a8ef98128",
+      "baseReplayProfileSha": "0fdfb29c57b3d253b17d862db3669f1e3d435596",
+      "roleWeightsSha": "486ee58cf8b6212eb3c603ce6b79585d8629906c",
+      "principiaSha": "ed84369e2228357456e0648a27f85e07453fa12e"
+    },
+    "parameters": {
+      "logC": 0.3163678539772327,
+      "hWBase": 116.43846448031746,
+      "hShiftOld": 10.122739009591099,
+      "effectiveHWhiteAge28": 126.56120348990856,
+      "KBase": 41.56207787560394,
+      "KOld": -0.2764019926681457,
+      "effectiveKAge28": 31.525166687898416,
+      "upperDoseRatio": 1.529,
+      "ageScale": 4,
+      "N": 30,
+      "p": 6,
+      "budgetLo": 27.442698161687677,
+      "budgetHi": 41.959885489220454
+    },
+    "tierAdjustedCoordinates": {
+      "BRAVERY": 111,
+      "PASSING": 64,
+      "SHOOTING": 56,
+      "FINISHING": 27,
+      "FITNESS": 117,
+      "CREATIVITY": 98
+    },
+    "renderer": "store raw continuous endpoints; display interval is floor(rawLo), ceil(rawHi), matching freeze_shape_test.py"
+  },
+  "frozenPrediction": {
+    "stats": {
+      "BRAVERY": {"rawLo": 25.643795017942466, "rawHi": 34.73931875263531, "lo": 25, "hi": 35, "point": 30.19155688528889},
+      "PASSING": {"rawLo": 27.442698161687673, "rawHi": 41.959885489220454, "lo": 27, "hi": 42, "point": 34.701291825454064},
+      "SHOOTING": {"rawLo": 27.442698161687673, "rawHi": 41.959885489220454, "lo": 27, "hi": 42, "point": 34.701291825454064},
+      "FINISHING": {"rawLo": 27.442698161687673, "rawHi": 41.959885489220454, "lo": 27, "hi": 42, "point": 34.701291825454064},
+      "FITNESS": {"rawLo": 23.725432230211766, "rawHi": 31.846543732972066, "lo": 23, "hi": 32, "point": 27.785987981591916},
+      "CREATIVITY": {"rawLo": 27.442698161687673, "rawHi": 39.7268701145357, "lo": 27, "hi": 40, "point": 33.58478413811169}
+    },
+    "ovrProxy": {
+      "rawLo": 10.609334659660329,
+      "rawHi": 15.479492604520296,
+      "lo": 10,
+      "hi": 16,
+      "point": 13.044413632090311
+    }
+  },
+  "leakageBoundary": "No selected-player Extensive All-Round x30 preview or outcome was used. No other player's outcome or coach preview was used at inference time.",
+  "validationBoundary": "Lt Ripley is present in the historical fitting pool, so this is a prospective state/coach freeze and residual test, not an independent held-out-player validation."
+}

@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "resource-coach-temporal-diagnostic-freeze-v1",
+  "status": "frozen-pending-observation",
+  "recordedDate": "2026-09-24",
+  "evidenceBoundary": {
+    "purpose": "Freeze a same-state Standard Safeguard x59 Skill Seminar prediction for Lt Ripley before any Ripley preview is revealed.",
+    "independence": "Temporal/state-shift diagnostic only. Lt Ripley is in the historical 30-player shape-fitting pool, so this is NOT unseen-player prospective validation.",
+    "primaryLeakageRule": "The primary M** prediction is generated from the already-frozen model only. The newly observed Galileo x59 outcome is NOT used to refit or alter the primary.",
+    "secondaryDiagnostic": "A separately labelled same-coach Galileo anchor is frozen as a mechanism diagnostic because Galileo was observed first. It may be scored later but cannot replace the primary."
+  },
+  "source": {
+    "playerCard": "chat_upload:64241.png",
+    "playerCardSha256": "9006cc1f758e0e3f2bcae5423597ae0c76a0d850db3d3ee7a6e60e31edef5c54",
+    "imageSize": [
+      1536,
+      690
+    ],
+    "coachInventorySource": "Google Drive Resource Coach Experiment Log — v1; same current Standard Safeguard x59 as Galileo",
+    "researchBranchBase": "research/card-only-trust-20260924",
+    "trustPr": 164
+  },
+  "player": {
+    "name": "Lt Ripley",
+    "age": 28,
+    "tier": "T2",
+    "tierIndex": 2,
+    "ovrDisplayed": 97,
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "stats": {
+      "TACKLING": 36,
+      "MARKING": 91,
+      "POSITIONING": 165,
+      "HEADING": 206,
+      "BRAVERY": 141,
+      "PASSING": 94,
+      "DRIBBLING": 104,
+      "CROSSING": 1,
+      "SHOOTING": 86,
+      "FINISHING": 57,
+      "FITNESS": 147,
+      "STRENGTH": 60,
+      "AGGRESSION": 68,
+      "SPEED": 87,
+      "CREATIVITY": 128
+    },
+    "classes": {
+      "TACKLING": "WHITE",
+      "MARKING": "WHITE",
+      "POSITIONING": "WHITE",
+      "HEADING": "WHITE",
+      "BRAVERY": "WHITE",
+      "PASSING": "WHITE",
+      "DRIBBLING": "WHITE",
+      "CROSSING": "MID_GREY",
+      "SHOOTING": "WHITE",
+      "FINISHING": "WHITE",
+      "FITNESS": "WHITE",
+      "STRENGTH": "WHITE",
+      "AGGRESSION": "WHITE",
+      "SPEED": "WHITE",
+      "CREATIVITY": "WHITE"
+    },
+    "classBasis": "Established-role union DMC/MC/AMC plus repo exact AMC|DMC|MC STRENGTH override; CROSSING is the only MID_GREY stat."
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Safeguard",
+    "multiplier": 59,
+    "transferClass": "ordinary",
+    "affectedStatCount": 5,
+    "affectedStats": [
+      "HEADING",
+      "BRAVERY",
+      "FITNESS",
+      "STRENGTH",
+      "CREATIVITY"
+    ]
+  },
+  "frozenModel": {
+    "primaryDiagnostic": "Mstarstar_nearest",
+    "modelConstants": "calibration/resource-coach-identification/shape-models-20260924.json",
+    "trustProtocol": "calibration/resource-coach-identification/preregistration-20260924-card-only-trust.json",
+    "renderer": "nearest independently: floor(x + 0.5) for each endpoint",
+    "comparators": [
+      "productionCold_continuous",
+      "productionCold_nearest",
+      "Mstar_continuous",
+      "Mstarstar_continuous",
+      "Mstarstar_nearest",
+      "Mstarstar_floorBoth",
+      "GalileoAnchor_Mstarstar_nearest"
+    ]
+  },
+  "predictions": [
+    {
+      "stat": "HEADING",
+      "start": 206,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          11.11235,
+          15.810656
+        ],
+        "nearest": [
+          11,
+          16
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          12.038511,
+          17.045472
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          11.235168,
+          15.875885
+        ],
+        "nearest": [
+          11,
+          16
+        ],
+        "floorBoth": [
+          11,
+          15
+        ],
+        "pointRaw": 13.555526,
+        "pointNearest": 13.5
+      },
+      "GalileoAnchorMstarstar": {
+        "raw": [
+          11.357465,
+          16.037181
+        ],
+        "nearest": [
+          11,
+          16
+        ]
+      }
+    },
+    {
+      "stat": "BRAVERY",
+      "start": 141,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          39.059493,
+          50.122856
+        ],
+        "nearest": [
+          39,
+          50
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          44.477143,
+          56.038174
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          45.204581,
+          56.356435
+        ],
+        "nearest": [
+          45,
+          56
+        ],
+        "floorBoth": [
+          45,
+          56
+        ],
+        "pointRaw": 50.780508,
+        "pointNearest": 50.5
+      },
+      "GalileoAnchorMstarstar": {
+        "raw": [
+          45.530787,
+          56.706466
+        ],
+        "nearest": [
+          46,
+          57
+        ]
+      }
+    },
+    {
+      "stat": "FITNESS",
+      "start": 147,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          35.395173,
+          45.899682
+        ],
+        "nearest": [
+          35,
+          46
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          40.794376,
+          51.716505
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          41.464642,
+          51.959901
+        ],
+        "nearest": [
+          41,
+          52
+        ],
+        "floorBoth": [
+          41,
+          51
+        ],
+        "pointRaw": 46.712271,
+        "pointNearest": 46.5
+      },
+      "GalileoAnchorMstarstar": {
+        "raw": [
+          41.768389,
+          52.292664
+        ],
+        "nearest": [
+          42,
+          52
+        ]
+      }
+    },
+    {
+      "stat": "STRENGTH",
+      "start": 60,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          104.638899,
+          120.068833
+        ],
+        "nearest": [
+          105,
+          120
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          64.900284,
+          98.806413
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          64.764768,
+          98.933768
+        ],
+        "nearest": [
+          65,
+          99
+        ],
+        "floorBoth": [
+          64,
+          98
+        ],
+        "pointRaw": 81.849268,
+        "pointNearest": 82
+      },
+      "GalileoAnchorMstarstar": {
+        "raw": [
+          65.604443,
+          100.102617
+        ],
+        "nearest": [
+          66,
+          100
+        ]
+      }
+    },
+    {
+      "stat": "CREATIVITY",
+      "start": 128,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          47.717117,
+          59.888024
+        ],
+        "nearest": [
+          48,
+          60
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          51.855668,
+          65.098161
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          52.669265,
+          65.574324
+        ],
+        "nearest": [
+          53,
+          66
+        ],
+        "floorBoth": [
+          52,
+          65
+        ],
+        "pointRaw": 59.121794,
+        "pointNearest": 59.5
+      },
+      "GalileoAnchorMstarstar": {
+        "raw": [
+          53.057699,
+          65.968693
+        ],
+        "nearest": [
+          53,
+          66
+        ]
+      }
+    }
+  ],
+  "ovrProxy": {
+    "definition": "sum of affected-stat predicted gains / 15; aggregate/ranking proxy only, not a separately identified displayed-OVR renderer",
+    "MstarstarRaw": {
+      "lo": 14.355895,
+      "hi": 19.246688,
+      "point": 16.801291
+    },
+    "standingEnvelopeRule": {
+      "lo": 14,
+      "hi": 20
+    },
+    "nearestStatEndpointAggregate": {
+      "lo": 14.333333,
+      "hi": 19.266667,
+      "point": 16.8
+    },
+    "GalileoAnchorRaw": {
+      "lo": 14.487919,
+      "hi": 19.407175,
+      "point": 16.947547
+    }
+  },
+  "sameCoachContext": {
+    "priorPlayer": "LJ Galileo",
+    "priorFrozenCommit": "3b055d828c111385e7be2573bb55dd9ab59c2558",
+    "priorObserved": {
+      "HEADING": [
+        8,
+        12
+      ],
+      "BRAVERY": [
+        32,
+        47
+      ],
+      "FITNESS": [
+        33,
+        50
+      ],
+      "STRENGTH": [
+        33,
+        50
+      ],
+      "CREATIVITY": [
+        33,
+        49
+      ],
+      "OVR": [
+        9,
+        13
+      ]
+    },
+    "fittedBudgetOffsetDiagnostic": 1.012965,
+    "interpretation": "The all-row same-coach offset is only +1.3%; Galileo's main miss is localized to high Heading rather than a broad x59 coach-amplitude error. Therefore the primary Ripley forecast remains the unchanged frozen M** model."
+  },
+  "revealProtocol": "After this commit exists, open the Ripley x59 preview once and capture all five printed endpoints plus separately displayed OVR boost. Do not train. Score primary and secondary without altering this freeze."
+}

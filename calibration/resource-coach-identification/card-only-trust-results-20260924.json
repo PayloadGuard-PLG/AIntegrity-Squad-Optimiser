@@ -1,0 +1,1120 @@
+{
+  "schema": "card-only-trust-diagnostic-20260924-v1",
+  "pool": {
+    "events": 96,
+    "rows": 341,
+    "players": 30,
+    "digest": "5ef2b6dca18247f37afc1371d0fb4016ee721ee6e51e5759b995b0097452197b"
+  },
+  "variantScores": {
+    "productionCold": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 3.835996094431553,
+        "inside": 0.7067448680351907,
+        "overlap": 0.9178885630498533,
+        "entirePreviewInside": 0.4791666666666667,
+        "playersEightRowsMinInside": 0.2
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 3.244164392525873,
+        "inside": 0.9,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.75,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 3.17673333265098,
+        "inside": 0.6967741935483871,
+        "overlap": 0.9096774193548387,
+        "entirePreviewInside": 0.425,
+        "playersEightRowsMinInside": 0.5333333333333333
+      }
+    },
+    "M1": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.7295709882754298,
+        "inside": 0.8269794721407625,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.625,
+        "playersEightRowsMinInside": 0.45
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 2.280108013782228,
+        "inside": 1.0,
+        "overlap": 1.0,
+        "entirePreviewInside": 1.0,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 1.628614271541324,
+        "inside": 0.7806451612903226,
+        "overlap": 0.9741935483870968,
+        "entirePreviewInside": 0.575,
+        "playersEightRowsMinInside": 0.45
+      }
+    },
+    "Mstar": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.475362307203739,
+        "inside": 0.8504398826979472,
+        "overlap": 0.9824046920821115,
+        "entirePreviewInside": 0.6354166666666666,
+        "playersEightRowsMinInside": 0.6
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 1.3853153511036254,
+        "inside": 1.0,
+        "overlap": 1.0,
+        "entirePreviewInside": 1.0,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 1.4779708709760784,
+        "inside": 0.8516129032258064,
+        "overlap": 0.9806451612903225,
+        "entirePreviewInside": 0.65,
+        "playersEightRowsMinInside": 0.6
+      }
+    },
+    "Mstarstar": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4370943288133446,
+        "inside": 0.873900293255132,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6770833333333334,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 1.2375242824166832,
+        "inside": 1.0,
+        "overlap": 1.0,
+        "entirePreviewInside": 1.0,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 1.3033581453919465,
+        "inside": 0.8903225806451613,
+        "overlap": 0.9741935483870968,
+        "entirePreviewInside": 0.675,
+        "playersEightRowsMinInside": 0.5333333333333333
+      }
+    },
+    "blend_half": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4146547539473895,
+        "inside": 0.8533724340175953,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6354166666666666,
+        "playersEightRowsMinInside": 0.6
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 1.3018154164418045,
+        "inside": 1.0,
+        "overlap": 1.0,
+        "entirePreviewInside": 1.0,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 1.3547741854699957,
+        "inside": 0.864516129032258,
+        "overlap": 0.9741935483870968,
+        "entirePreviewInside": 0.65,
+        "playersEightRowsMinInside": 0.6
+      }
+    },
+    "blend_25star": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4165512036742405,
+        "inside": 0.8651026392961877,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6354166666666666,
+        "playersEightRowsMinInside": 0.6
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 1.2696698494292435,
+        "inside": 1.0,
+        "overlap": 1.0,
+        "entirePreviewInside": 1.0,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 1.3210733854299628,
+        "inside": 0.8903225806451613,
+        "overlap": 0.9741935483870968,
+        "entirePreviewInside": 0.65,
+        "playersEightRowsMinInside": 0.7333333333333333
+      }
+    },
+    "blend_three": {
+      "overall": {
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4296090150262788,
+        "inside": 0.8533724340175953,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6354166666666666,
+        "playersEightRowsMinInside": 0.6
+      },
+      "x59": {
+        "n": 20,
+        "previews": 4,
+        "players": 4,
+        "mae": 1.4800986092254493,
+        "inside": 1.0,
+        "overlap": 1.0,
+        "entirePreviewInside": 1.0,
+        "playersEightRowsMinInside": null
+      },
+      "controls": {
+        "n": 155,
+        "previews": 40,
+        "players": 10,
+        "mae": 1.352678749420567,
+        "inside": 0.8580645161290322,
+        "overlap": 0.9741935483870968,
+        "entirePreviewInside": 0.65,
+        "playersEightRowsMinInside": 0.65
+      }
+    }
+  },
+  "selection": {
+    "width": {
+      "0.5": {
+        "cutoff": 9.407230821701688,
+        "n": 171,
+        "previews": 61,
+        "players": 27,
+        "mae": 1.5667472125844377,
+        "inside": 0.9766081871345029,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.9344262295081968,
+        "playersEightRowsMinInside": 0.8888888888888888
+      },
+      "0.6": {
+        "cutoff": 7.751685645560883,
+        "n": 205,
+        "previews": 67,
+        "players": 28,
+        "mae": 1.5351324256657515,
+        "inside": 0.9707317073170731,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.9104477611940298,
+        "playersEightRowsMinInside": 0.8181818181818182
+      },
+      "0.7": {
+        "cutoff": 6.1740681953227465,
+        "n": 239,
+        "previews": 78,
+        "players": 28,
+        "mae": 1.4859559381685563,
+        "inside": 0.9623430962343096,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.8846153846153846,
+        "playersEightRowsMinInside": 0.8125
+      },
+      "0.8": {
+        "cutoff": 4.652513209048266,
+        "n": 273,
+        "previews": 86,
+        "players": 29,
+        "mae": 1.4905238048134701,
+        "inside": 0.9304029304029304,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.813953488372093,
+        "playersEightRowsMinInside": 0.75
+      },
+      "0.9": {
+        "cutoff": 3.3212513294773203,
+        "n": 307,
+        "previews": 92,
+        "players": 29,
+        "mae": 1.4982619837007798,
+        "inside": 0.9022801302931596,
+        "overlap": 0.990228013029316,
+        "entirePreviewInside": 0.75,
+        "playersEightRowsMinInside": 0.5625
+      },
+      "1.0": {
+        "cutoff": 0.0,
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4370943288133446,
+        "inside": 0.873900293255132,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6770833333333334,
+        "playersEightRowsMinInside": 0.5882352941176471
+      }
+    },
+    "spread": {
+      "0.5": {
+        "cutoff": 1.1507702902967551,
+        "n": 171,
+        "previews": 70,
+        "players": 29,
+        "mae": 1.350951860549573,
+        "inside": 0.8128654970760234,
+        "overlap": 0.9590643274853801,
+        "entirePreviewInside": 0.6857142857142857,
+        "playersEightRowsMinInside": 0.36363636363636365
+      },
+      "0.6": {
+        "cutoff": 1.3359196763630194,
+        "n": 205,
+        "previews": 77,
+        "players": 29,
+        "mae": 1.3871905284374206,
+        "inside": 0.8195121951219512,
+        "overlap": 0.9658536585365853,
+        "entirePreviewInside": 0.6753246753246753,
+        "playersEightRowsMinInside": 0.5
+      },
+      "0.7": {
+        "cutoff": 1.627560718557092,
+        "n": 239,
+        "previews": 81,
+        "players": 29,
+        "mae": 1.4440554018659133,
+        "inside": 0.8326359832635983,
+        "overlap": 0.9707112970711297,
+        "entirePreviewInside": 0.654320987654321,
+        "playersEightRowsMinInside": 0.5
+      },
+      "0.8": {
+        "cutoff": 1.9423631707192754,
+        "n": 273,
+        "previews": 86,
+        "players": 29,
+        "mae": 1.4509700234880876,
+        "inside": 0.8498168498168498,
+        "overlap": 0.9743589743589743,
+        "entirePreviewInside": 0.6627906976744186,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "0.9": {
+        "cutoff": 2.6110480901008373,
+        "n": 307,
+        "previews": 90,
+        "players": 29,
+        "mae": 1.4253016770098923,
+        "inside": 0.8631921824104235,
+        "overlap": 0.9771986970684039,
+        "entirePreviewInside": 0.6666666666666666,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "1.0": {
+        "cutoff": 3.779257484510424,
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4370943288133446,
+        "inside": 0.873900293255132,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6770833333333334,
+        "playersEightRowsMinInside": 0.5882352941176471
+      }
+    },
+    "exposure": {
+      "0.5": {
+        "cutoff": 8.25,
+        "n": 171,
+        "previews": 48,
+        "players": 25,
+        "mae": 1.4806278360872653,
+        "inside": 0.9122807017543859,
+        "overlap": 0.9941520467836257,
+        "entirePreviewInside": 0.7708333333333334,
+        "playersEightRowsMinInside": 0.7222222222222222
+      },
+      "0.6": {
+        "cutoff": 5.0,
+        "n": 205,
+        "previews": 58,
+        "players": 26,
+        "mae": 1.5643266600442758,
+        "inside": 0.8975609756097561,
+        "overlap": 0.9804878048780488,
+        "entirePreviewInside": 0.7413793103448276,
+        "playersEightRowsMinInside": 0.7222222222222222
+      },
+      "0.7": {
+        "cutoff": 3.75,
+        "n": 239,
+        "previews": 66,
+        "players": 27,
+        "mae": 1.565740682823506,
+        "inside": 0.899581589958159,
+        "overlap": 0.9832635983263598,
+        "entirePreviewInside": 0.7424242424242424,
+        "playersEightRowsMinInside": 0.7
+      },
+      "0.8": {
+        "cutoff": 2.5,
+        "n": 273,
+        "previews": 76,
+        "players": 27,
+        "mae": 1.5524972733065439,
+        "inside": 0.8901098901098901,
+        "overlap": 0.9816849816849816,
+        "entirePreviewInside": 0.7105263157894737,
+        "playersEightRowsMinInside": 0.6
+      },
+      "0.9": {
+        "cutoff": 1.6666666666666667,
+        "n": 307,
+        "previews": 85,
+        "players": 29,
+        "mae": 1.5018078016500502,
+        "inside": 0.8859934853420195,
+        "overlap": 0.9804560260586319,
+        "entirePreviewInside": 0.7058823529411765,
+        "playersEightRowsMinInside": 0.6
+      },
+      "1.0": {
+        "cutoff": 1.6666666666666667,
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4370943288133446,
+        "inside": 0.873900293255132,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6770833333333334,
+        "playersEightRowsMinInside": 0.5882352941176471
+      }
+    },
+    "entirePreviewByDisagreement": {
+      "0.5": {
+        "maxSpread": 1.5988895936938263,
+        "n": 163,
+        "previews": 48,
+        "players": 22,
+        "mae": 1.3802296409369081,
+        "inside": 0.8098159509202454,
+        "overlap": 0.9570552147239264,
+        "entirePreviewInside": 0.5625,
+        "playersEightRowsMinInside": 0.46153846153846156
+      },
+      "0.6": {
+        "maxSpread": 1.8931835197598872,
+        "n": 200,
+        "previews": 58,
+        "players": 25,
+        "mae": 1.4364638014204059,
+        "inside": 0.84,
+        "overlap": 0.965,
+        "entirePreviewInside": 0.6206896551724138,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "0.7": {
+        "maxSpread": 2.059332938404552,
+        "n": 245,
+        "previews": 68,
+        "players": 26,
+        "mae": 1.4310639270118697,
+        "inside": 0.8571428571428571,
+        "overlap": 0.9714285714285714,
+        "entirePreviewInside": 0.6323529411764706,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "0.8": {
+        "maxSpread": 2.5374972916969796,
+        "n": 282,
+        "previews": 77,
+        "players": 27,
+        "mae": 1.4287602969275501,
+        "inside": 0.8546099290780141,
+        "overlap": 0.975177304964539,
+        "entirePreviewInside": 0.6233766233766234,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "0.9": {
+        "maxSpread": 3.1035824425950693,
+        "n": 306,
+        "previews": 87,
+        "players": 28,
+        "mae": 1.4758536949795433,
+        "inside": 0.8594771241830066,
+        "overlap": 0.9771241830065359,
+        "entirePreviewInside": 0.6436781609195402,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "1.0": {
+        "maxSpread": 3.779257484510424,
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4370943288133446,
+        "inside": 0.873900293255132,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6770833333333334,
+        "playersEightRowsMinInside": 0.5882352941176471
+      }
+    },
+    "entirePreviewByMinWidth": {
+      "0.5": {
+        "minWidth": 6.60061201322992,
+        "n": 151,
+        "previews": 48,
+        "players": 23,
+        "mae": 1.6549516488915772,
+        "inside": 0.9735099337748344,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.9166666666666666,
+        "playersEightRowsMinInside": 0.875
+      },
+      "0.6": {
+        "minWidth": 5.363608178808178,
+        "n": 183,
+        "previews": 58,
+        "players": 26,
+        "mae": 1.6425471276595178,
+        "inside": 0.9617486338797814,
+        "overlap": 1.0,
+        "entirePreviewInside": 0.8793103448275862,
+        "playersEightRowsMinInside": 0.8
+      },
+      "0.7": {
+        "minWidth": 4.150935041124029,
+        "n": 234,
+        "previews": 68,
+        "players": 28,
+        "mae": 1.5860676104262164,
+        "inside": 0.9230769230769231,
+        "overlap": 0.9871794871794872,
+        "entirePreviewInside": 0.8088235294117647,
+        "playersEightRowsMinInside": 0.7777777777777778
+      },
+      "0.8": {
+        "minWidth": 3.6629864436517323,
+        "n": 268,
+        "previews": 77,
+        "players": 28,
+        "mae": 1.5546142331975354,
+        "inside": 0.914179104477612,
+        "overlap": 0.9888059701492538,
+        "entirePreviewInside": 0.7792207792207793,
+        "playersEightRowsMinInside": 0.6428571428571429
+      },
+      "0.9": {
+        "minWidth": 2.0276733278238908,
+        "n": 313,
+        "previews": 87,
+        "players": 28,
+        "mae": 1.4979445818714472,
+        "inside": 0.8945686900958466,
+        "overlap": 0.987220447284345,
+        "entirePreviewInside": 0.7241379310344828,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "1.0": {
+        "minWidth": 0.0,
+        "n": 341,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4370943288133446,
+        "inside": 0.873900293255132,
+        "overlap": 0.9794721407624634,
+        "entirePreviewInside": 0.6770833333333334,
+        "playersEightRowsMinInside": 0.5882352941176471
+      }
+    }
+  },
+  "rounding": {
+    "productionCold_continuous": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 3.835996094431553,
+      "inside": 0.7067448680351907,
+      "overlap": 0.9178885630498533,
+      "entirePreviewInside": 0.4791666666666667,
+      "playersEightRowsMinInside": 0.2,
+      "nonZero": {
+        "n": 338,
+        "previews": 96,
+        "players": 30,
+        "mae": 3.8269366292922524,
+        "inside": 0.7130177514792899,
+        "overlap": 0.9260355029585798,
+        "entirePreviewInside": 0.4895833333333333,
+        "playersEightRowsMinInside": 0.25
+      },
+      "endpointMae": 3.943910533219851,
+      "bothEndpointsWithinOne": 0.15249266862170088,
+      "bothEndpointsExact": 0.0
+    },
+    "productionCold_nearest": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 3.837243401759531,
+      "inside": 0.7478005865102639,
+      "overlap": 0.9442815249266863,
+      "entirePreviewInside": 0.53125,
+      "playersEightRowsMinInside": 0.2,
+      "nonZero": {
+        "n": 338,
+        "previews": 96,
+        "players": 30,
+        "mae": 3.826923076923077,
+        "inside": 0.7544378698224852,
+        "overlap": 0.9497041420118343,
+        "entirePreviewInside": 0.5520833333333334,
+        "playersEightRowsMinInside": 0.25
+      },
+      "endpointMae": 3.9252199413489737,
+      "bothEndpointsWithinOne": 0.24926686217008798,
+      "bothEndpointsExact": 0.05865102639296188
+    },
+    "Mstar_continuous": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.475362307203739,
+      "inside": 0.8504398826979472,
+      "overlap": 0.9824046920821115,
+      "entirePreviewInside": 0.6354166666666666,
+      "playersEightRowsMinInside": 0.6,
+      "nonZero": {
+        "n": 338,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4862976710274025,
+        "inside": 0.8550295857988166,
+        "overlap": 0.9881656804733728,
+        "entirePreviewInside": 0.6458333333333334,
+        "playersEightRowsMinInside": 0.6
+      },
+      "endpointMae": 1.6254381782602658,
+      "bothEndpointsWithinOne": 0.2697947214076246,
+      "bothEndpointsExact": 0.002932551319648094
+    },
+    "Mstar_nearest": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4824046920821115,
+      "inside": 0.8797653958944281,
+      "overlap": 0.9941348973607038,
+      "entirePreviewInside": 0.6979166666666666,
+      "playersEightRowsMinInside": 0.6,
+      "nonZero": {
+        "n": 338,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4940828402366864,
+        "inside": 0.8816568047337278,
+        "overlap": 0.9940828402366864,
+        "entirePreviewInside": 0.7083333333333334,
+        "playersEightRowsMinInside": 0.6
+      },
+      "endpointMae": 1.6143695014662756,
+      "bothEndpointsWithinOne": 0.44574780058651026,
+      "bothEndpointsExact": 0.06744868035190615
+    },
+    "Mstarstar_continuous": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4370943288133446,
+      "inside": 0.873900293255132,
+      "overlap": 0.9794721407624634,
+      "entirePreviewInside": 0.6770833333333334,
+      "playersEightRowsMinInside": 0.5882352941176471,
+      "nonZero": {
+        "n": 338,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4481935029265676,
+        "inside": 0.878698224852071,
+        "overlap": 0.985207100591716,
+        "entirePreviewInside": 0.6875,
+        "playersEightRowsMinInside": 0.5882352941176471
+      },
+      "endpointMae": 1.5475148658399942,
+      "bothEndpointsWithinOne": 0.2756598240469208,
+      "bothEndpointsExact": 0.002932551319648094
+    },
+    "Mstarstar_nearest": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4120234604105573,
+      "inside": 0.9178885630498533,
+      "overlap": 0.9970674486803519,
+      "entirePreviewInside": 0.7708333333333334,
+      "playersEightRowsMinInside": 0.7222222222222222,
+      "nonZero": {
+        "n": 338,
+        "previews": 96,
+        "players": 30,
+        "mae": 1.4230769230769231,
+        "inside": 0.9201183431952663,
+        "overlap": 0.9970414201183432,
+        "entirePreviewInside": 0.78125,
+        "playersEightRowsMinInside": 0.7222222222222222
+      },
+      "endpointMae": 1.5058651026392962,
+      "bothEndpointsWithinOne": 0.4868035190615836,
+      "bothEndpointsExact": 0.10263929618768329
+    }
+  },
+  "roundingSensitivity": {
+    "continuous": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4370943288133446,
+      "inside": 0.873900293255132,
+      "overlap": 0.9794721407624634,
+      "entirePreviewInside": 0.6770833333333334,
+      "playersEightRowsMinInside": 0.5882352941176471,
+      "midpointBias": -0.007374649161625348,
+      "endpointMae": 1.5475148658399942,
+      "bothEndpointsExact": 0.002932551319648094
+    },
+    "floorBoth": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.497067448680352,
+      "inside": 0.9237536656891495,
+      "overlap": 0.9882697947214076,
+      "entirePreviewInside": 0.8229166666666666,
+      "playersEightRowsMinInside": 0.7222222222222222,
+      "midpointBias": -0.5058651026392962,
+      "endpointMae": 1.596774193548387,
+      "bothEndpointsExact": 0.07624633431085044
+    },
+    "ceilBoth": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.5205278592375366,
+      "inside": 0.8651026392961877,
+      "overlap": 0.9882697947214076,
+      "entirePreviewInside": 0.6666666666666666,
+      "playersEightRowsMinInside": 0.5294117647058824,
+      "midpointBias": 0.4912023460410557,
+      "endpointMae": 1.6143695014662756,
+      "bothEndpointsExact": 0.09970674486803519
+    },
+    "nearestBoth": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4120234604105573,
+      "inside": 0.9178885630498533,
+      "overlap": 0.9970674486803519,
+      "entirePreviewInside": 0.7708333333333334,
+      "playersEightRowsMinInside": 0.7222222222222222,
+      "midpointBias": 0.001466275659824047,
+      "endpointMae": 1.5058651026392962,
+      "bothEndpointsExact": 0.10263929618768329
+    },
+    "outerBounds": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4442815249266863,
+      "inside": 0.9090909090909091,
+      "overlap": 0.9970674486803519,
+      "entirePreviewInside": 0.75,
+      "playersEightRowsMinInside": 0.7,
+      "midpointBias": -0.007331378299120235,
+      "endpointMae": 1.652492668621701,
+      "bothEndpointsExact": 0.0469208211143695
+    },
+    "nearestMidpointCollapsed": {
+      "n": 341,
+      "previews": 96,
+      "players": 30,
+      "mae": 1.4589442815249267,
+      "inside": 0.9413489736070382,
+      "overlap": 0.9413489736070382,
+      "entirePreviewInside": 0.84375,
+      "playersEightRowsMinInside": 0.7222222222222222,
+      "midpointBias": -0.02785923753665689,
+      "endpointMae": 5.151026392961877,
+      "bothEndpointsExact": 0.008797653958944282
+    }
+  },
+  "rankDiagnostic": {
+    "metric": "displayed OVR interval midpoint",
+    "comparators": {
+      "pred": {
+        "players": 10,
+        "meanRegret": 0.05,
+        "maxRegret": 0.5,
+        "pairOrderingAccuracy": 0.9836065573770492,
+        "correctPairs": 60,
+        "comparedPairs": 61,
+        "clearIntervalDominance": {
+          "correct": 49,
+          "n": 49
+        },
+        "gapAtLeastOne": {
+          "correct": 49,
+          "n": 49
+        },
+        "details": [
+          {
+            "player": "Cieran Morgan",
+            "options": 5,
+            "selected": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 9,
+            "pairComparable": 9
+          },
+          {
+            "player": "David Midgley",
+            "options": 3,
+            "selected": "CONTROL-midgley-STD-PHY-X15",
+            "observedRegret": 0.0,
+            "pairCorrect": 3,
+            "pairComparable": 3
+          },
+          {
+            "player": "King Alfie",
+            "options": 5,
+            "selected": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 8,
+            "pairComparable": 8
+          },
+          {
+            "player": "LJDark leo",
+            "options": 4,
+            "selected": "CONTROL-ljdark-leo-STD-PHY-X15",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 6
+          },
+          {
+            "player": "Michal Kawa",
+            "options": 2,
+            "selected": "CONTROL-kawa-DS-STD-OFF-X10",
+            "observedRegret": 0.0,
+            "pairCorrect": 1,
+            "pairComparable": 1
+          },
+          {
+            "player": "Mirsad Panic",
+            "options": 4,
+            "selected": "CONTROL-panic-STD-PHY-X15",
+            "observedRegret": 0.5,
+            "pairCorrect": 5,
+            "pairComparable": 6
+          },
+          {
+            "player": "Plamen Andonov",
+            "options": 5,
+            "selected": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 10,
+            "pairComparable": 10
+          },
+          {
+            "player": "Ryan Blakie",
+            "options": 5,
+            "selected": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 9,
+            "pairComparable": 9
+          },
+          {
+            "player": "Ryan Rodger",
+            "options": 4,
+            "selected": "CONTROL-rodger-STD-DEF-X20",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 6
+          },
+          {
+            "player": "Willie Ferguson",
+            "options": 3,
+            "selected": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 3,
+            "pairComparable": 3
+          }
+        ]
+      },
+      "N": {
+        "players": 10,
+        "meanRegret": 0.6,
+        "maxRegret": 6.0,
+        "pairOrderingAccuracy": 0.9180327868852459,
+        "correctPairs": 56,
+        "comparedPairs": 61,
+        "clearIntervalDominance": {
+          "correct": 47,
+          "n": 49
+        },
+        "gapAtLeastOne": {
+          "correct": 47,
+          "n": 49
+        },
+        "details": [
+          {
+            "player": "Cieran Morgan",
+            "options": 5,
+            "selected": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 8,
+            "pairComparable": 9
+          },
+          {
+            "player": "David Midgley",
+            "options": 3,
+            "selected": "CONTROL-midgley-STD-PHY-X15",
+            "observedRegret": 0.0,
+            "pairCorrect": 3,
+            "pairComparable": 3
+          },
+          {
+            "player": "King Alfie",
+            "options": 5,
+            "selected": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 8
+          },
+          {
+            "player": "LJDark leo",
+            "options": 4,
+            "selected": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "observedRegret": 6.0,
+            "pairCorrect": 4,
+            "pairComparable": 6
+          },
+          {
+            "player": "Michal Kawa",
+            "options": 2,
+            "selected": "CONTROL-kawa-DS-STD-OFF-X10",
+            "observedRegret": 0.0,
+            "pairCorrect": 1,
+            "pairComparable": 1
+          },
+          {
+            "player": "Mirsad Panic",
+            "options": 4,
+            "selected": "CONTROL-panic-STD-DEF-X20",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 6
+          },
+          {
+            "player": "Plamen Andonov",
+            "options": 5,
+            "selected": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 10,
+            "pairComparable": 10
+          },
+          {
+            "player": "Ryan Blakie",
+            "options": 5,
+            "selected": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 9,
+            "pairComparable": 9
+          },
+          {
+            "player": "Ryan Rodger",
+            "options": 4,
+            "selected": "CONTROL-rodger-STD-DEF-X20",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 6
+          },
+          {
+            "player": "Willie Ferguson",
+            "options": 3,
+            "selected": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 3,
+            "pairComparable": 3
+          }
+        ]
+      },
+      "exposure": {
+        "players": 10,
+        "meanRegret": 0.6,
+        "maxRegret": 6.0,
+        "pairOrderingAccuracy": 0.9180327868852459,
+        "correctPairs": 56,
+        "comparedPairs": 61,
+        "clearIntervalDominance": {
+          "correct": 47,
+          "n": 49
+        },
+        "gapAtLeastOne": {
+          "correct": 39,
+          "n": 41
+        },
+        "details": [
+          {
+            "player": "Cieran Morgan",
+            "options": 5,
+            "selected": "CONTROL-cieran-morgan-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 8,
+            "pairComparable": 9
+          },
+          {
+            "player": "David Midgley",
+            "options": 3,
+            "selected": "CONTROL-midgley-STD-PHY-X15",
+            "observedRegret": 0.0,
+            "pairCorrect": 3,
+            "pairComparable": 3
+          },
+          {
+            "player": "King Alfie",
+            "options": 5,
+            "selected": "CONTROL-king-alfie-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 8
+          },
+          {
+            "player": "LJDark leo",
+            "options": 4,
+            "selected": "CONTROL-ljdark-leo-STD-DEF-X20",
+            "observedRegret": 6.0,
+            "pairCorrect": 4,
+            "pairComparable": 6
+          },
+          {
+            "player": "Michal Kawa",
+            "options": 2,
+            "selected": "CONTROL-kawa-DS-STD-OFF-X10",
+            "observedRegret": 0.0,
+            "pairCorrect": 1,
+            "pairComparable": 1
+          },
+          {
+            "player": "Mirsad Panic",
+            "options": 4,
+            "selected": "CONTROL-panic-STD-DEF-X20",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 6
+          },
+          {
+            "player": "Plamen Andonov",
+            "options": 5,
+            "selected": "CONTROL-andonov-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 10,
+            "pairComparable": 10
+          },
+          {
+            "player": "Ryan Blakie",
+            "options": 5,
+            "selected": "CONTROL-blakie-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 9,
+            "pairComparable": 9
+          },
+          {
+            "player": "Ryan Rodger",
+            "options": 4,
+            "selected": "CONTROL-rodger-STD-DEF-X20",
+            "observedRegret": 0.0,
+            "pairCorrect": 6,
+            "pairComparable": 6
+          },
+          {
+            "player": "Willie Ferguson",
+            "options": 3,
+            "selected": "CONTROL-ferguson-SS-STD-SAFE-X59",
+            "observedRegret": 0.0,
+            "pairCorrect": 3,
+            "pairComparable": 3
+          }
+        ]
+      }
+    },
+    "caveat": "Game preview labels, not actual training outcomes, currency-adjusted utility, or independent players per pair."
+  },
+  "clusterBootstrap": {
+    "players": 30,
+    "resamples": 5000,
+    "unit": "player",
+    "raw95": [
+      0.8157874860868183,
+      0.9292950693374422
+    ],
+    "rounded95": [
+      0.875,
+      0.9586432552117539
+    ],
+    "roundedMinusRaw95": [
+      0.021680007047748504,
+      0.06825110124039294
+    ],
+    "caveat": "Retrospective model-family selection is not captured by this bootstrap."
+  },
+  "cautions": [
+    "Families and gates considered after inspecting the corpus: retrospective diagnostics.",
+    "Mstarstar shape and young-grey inherit earlier candidate selection; LOPO refits free constants only.",
+    "Selection never widens a game's physical [lo,hi] prediction and never reads the target outcome."
+  ]
+}

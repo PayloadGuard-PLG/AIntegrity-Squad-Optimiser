@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "resource-coach-temporal-diagnostic-freeze-v1",
+  "status": "frozen-pending-observation",
+  "recordedDate": "2026-09-24",
+  "evidenceBoundary": {
+    "purpose": "Freeze the current LJ Galileo Standard Attacking x25 Skill Seminar prediction before any selected-player preview is revealed.",
+    "independence": "Temporal/current-state diagnostic only. LJ Galileo is already in the historical 30-player M** fitting pool, so this is NOT unseen-player prospective validation.",
+    "leakageRule": "Primary prediction uses only the already-frozen research model, the current player card, and the unselected coach card. No selected-player x25 preview endpoints or displayed OVR boost are used."
+  },
+  "source": {
+    "coachCard": "chat_upload:64248.png",
+    "coachCardSha256": "3262a9e124cf60e5e326cbb853a53ea7792e6d1da5848f974cafb258543d931a",
+    "playerCard": "chat_upload:64240.png",
+    "playerCardSha256": "3a8a234d050be17c91568ada9a3c365b0b43a7f31597644a530075e7772768ca",
+    "researchBranchBase": "research/card-only-trust-20260924",
+    "trustPr": 164
+  },
+  "player": {
+    "name": "LJ Galileo",
+    "age": 31,
+    "tier": "T2",
+    "tierIndex": 2,
+    "ovrDisplayed": 81,
+    "roles": [
+      "DMC",
+      "MC",
+      "AMC"
+    ],
+    "stats": {
+      "TACKLING": 40,
+      "MARKING": 94,
+      "POSITIONING": 168,
+      "HEADING": 209,
+      "BRAVERY": 126,
+      "PASSING": 170,
+      "DRIBBLING": 69,
+      "CROSSING": 1,
+      "SHOOTING": 21,
+      "FINISHING": 64,
+      "FITNESS": 86,
+      "STRENGTH": 34,
+      "AGGRESSION": 40,
+      "SPEED": 38,
+      "CREATIVITY": 105
+    },
+    "classes": {
+      "PASSING": "WHITE",
+      "DRIBBLING": "WHITE",
+      "CROSSING": "MID_GREY"
+    }
+  },
+  "coach": {
+    "programmeFamily": "SKILL SEMINAR",
+    "label": "Standard Attacking",
+    "multiplier": 25,
+    "transferClass": "ordinary",
+    "affectedStatCount": 3,
+    "affectedStats": [
+      "PASSING",
+      "DRIBBLING",
+      "CROSSING"
+    ]
+  },
+  "frozenModel": {
+    "primaryDiagnostic": "Mstarstar_nearest",
+    "modelConstants": "calibration/resource-coach-identification/shape-models-20260924.json",
+    "trustProtocol": "calibration/resource-coach-identification/preregistration-20260924-card-only-trust.json",
+    "renderer": "nearest independently: floor(x + 0.5) for each endpoint",
+    "comparators": [
+      "productionCold_continuous",
+      "productionCold_nearest",
+      "Mstar_continuous",
+      "Mstarstar_continuous",
+      "Mstarstar_nearest",
+      "Mstarstar_floorBoth"
+    ]
+  },
+  "predictions": [
+    {
+      "stat": "PASSING",
+      "start": 170,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          14.428745,
+          20.20954
+        ],
+        "nearest": [
+          14,
+          20
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          11.960422,
+          16.942021
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          12.223551,
+          17.173831
+        ],
+        "nearest": [
+          12,
+          17
+        ],
+        "floorBoth": [
+          12,
+          17
+        ],
+        "pointRaw": 14.698691,
+        "pointNearest": 14.5
+      }
+    },
+    {
+      "stat": "DRIBBLING",
+      "start": 69,
+      "displayClass": "WHITE",
+      "productionCold": {
+        "raw": [
+          23.273545,
+          35.265852
+        ],
+        "nearest": [
+          23,
+          35
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          22.916767,
+          35.039737
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          22.868915,
+          34.966571
+        ],
+        "nearest": [
+          23,
+          35
+        ],
+        "floorBoth": [
+          22,
+          34
+        ],
+        "pointRaw": 28.917743,
+        "pointNearest": 29
+      }
+    },
+    {
+      "stat": "CROSSING",
+      "start": 1,
+      "displayClass": "MID_GREY",
+      "productionCold": {
+        "raw": [
+          15.959306,
+          24.182758
+        ],
+        "nearest": [
+          16,
+          24
+        ]
+      },
+      "Mstar": {
+        "raw": [
+          22.916767,
+          35.039737
+        ]
+      },
+      "Mstarstar": {
+        "raw": [
+          22.868915,
+          34.966571
+        ],
+        "nearest": [
+          23,
+          35
+        ],
+        "floorBoth": [
+          22,
+          34
+        ],
+        "pointRaw": 28.917743,
+        "pointNearest": 29
+      }
+    }
+  ],
+  "ovrProxy": {
+    "definition": "sum of affected-stat predicted gains / 15; aggregate proxy only, not a separately identified displayed-OVR renderer",
+    "MstarstarRaw": {
+      "lo": 3.864092,
+      "hi": 5.807132,
+      "point": 4.835612
+    },
+    "standingEnvelopeRule": {
+      "lo": 3,
+      "hi": 6
+    },
+    "nearestStatEndpointAggregate": {
+      "lo": 3.866667,
+      "hi": 5.8,
+      "point": 4.833333
+    }
+  },
+  "diagnostics": {
+    "discriminatingRows": [
+      "PASSING 170 WHITE is above the old-player M** knee and probes the exponential tail.",
+      "DRIBBLING 69 WHITE and CROSSING 1 MID_GREY are both in the flat response region. M** predicts almost identical gain despite very different displayed starts; CROSSING also tests white-vs-grey handling at age 31."
+    ]
+  },
+  "revealProtocol": "After this commit exists, select Galileo with Standard Attacking x25 once and capture all three printed stat endpoints plus the separately displayed OVR boost. Do not train. Score without altering this freeze."
+}

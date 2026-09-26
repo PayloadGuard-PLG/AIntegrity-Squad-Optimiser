@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "resource-coach-preregistration-v1",
+  "id": "PREREG-20260924-CARD-ONLY-TRUST",
+  "registeredDate": "2026-09-24",
+  "status": "NEW prospective challenger; do not back-score as if registered before the 341-row pool",
+  "researchQuestion": "Can a frozen card-only Mstarstar shape with separately nearest-rounded predicted endpoints give reliably in-range ordinary Resource Coach previews and choose better coach previews for new players?",
+  "priorWorkUnchanged": "PREREG-20260924-SHAPE-FIVE-MODEL still scores its primary continuous response and Mstar-versus-YG comparison exactly as written. This document does not change past locked predictions, model selection, production, or score labels.",
+  "developmentPool": {
+    "events": 96,
+    "rows": 341,
+    "players": 30,
+    "eventIdSha256": "5ef2b6dca18247f37afc1371d0fb4016ee721ee6e51e5759b995b0097452197b",
+    "retrospectivePosthocResult": "Mstarstar leave-one-player-out refit and nearest endpoint rounding: 91.8% pooled midpoint inside, 99.7% overlap, 77.1% all-rows-inside previews; 10.3% exact endpoint pairs. Model family and renderer were selected after observing development data."
+  },
+  "frozenInputs": {
+    "shapeParameters": "calibration/resource-coach-identification/shape-models-20260924.json; sha256 5d35ff4050054181f68401050214c607899ab437094135687c02fc971a7b83ef; Mstarstar.fitted full-pool constants; no refit on test rows",
+    "shapeImplementation": "tools/resource-coach-v2/shape_models.py as committed at the preregistration commit; predict(P, X, yg) and sa.young_grey_params(); young-grey, tiers and dose unchanged",
+    "researchAudit": "tools/resource-coach-v2/trust_policy_20260924.py; sha256 8c98902a65c2ebf12d5f948431985c59d7cf0989652918ab85c2c2ce34cc3a47",
+    "incumbentProfile": "profiles/resource_coach_v2.json; sha256 84f105bb58cd136e79d8e8b6aa28d1de20bb4a5d14e7172261dac0205ba10897",
+    "targetInputs": "The same player's *pre-preview* complete 15-stat card, age, position and role chips, season-matched tier and club level; the ordinary coach's affected set, exact visible affected-stat count p and advertised N. Exclude any target preview as a calibration anchor.",
+    "rendering": "For each nonnegative raw Mstarstar predicted endpoint x independently output floor(x + 0.5); predicted interval is [floor(lo + 0.5), floor(hi + 0.5)]. In-range scoring tests its arithmetic midpoint against the game's unaltered printed inclusive [lo,hi]. No widened intervals or tolerance.",
+    "ranking": "Within a same-card-state player slate, order coaches by the sum over their affected stats of the mean of *raw* predicted endpoints, divided by 15. This is a forecast ranking proxy. Score actual separately displayed OVR interval midpoints, and record prices; do not manufacture observed OVR from printed gains.",
+    "abstention": "Ordinary coaches only; outfield, age 18–32, tier T0–T6, metadata and start-state agreement required. Reward/unresolved, historical incompatible tiers, zero-gain-only unknown behavior and unsupported state are separately labeled."
+  },
+  "prospectiveCollection": {
+    "primaryArm": "At least 150 previously unseen nonzero stat rows in approximately 40 ordinary previews from at least 12 players who are absent from the 30-player development pool. At least two aged 22–25, one aged 26+, one aged 18–21, and preferentially one aged 31 at T2 for a difficult falsification. Capture >=3 ordinary coaches per player where offered; keep previews from the exact same card state in each slate.",
+    "order": "Commit the full player's card, metadata, all offered coach IDs and costs, and each model's frozen predicted endpoints and ranking BEFORE opening or reading any of that player's target previews; then save screenshots and print-extracted numbers with a quality check. Do not train or change the card until every frozen same-state preview has been captured.",
+    "zeroRows": "Record all displayed [0,0] observations, report separately with denominator and whether predicted upper movement <0.5; exclude only from the 150 nonzero-row minimum and main in-range calculation. Do not discard other hard rows.",
+    "quality": "Reject before scoring previews whose start card mismatches, affected set/p differs from locked input, tier is from a different season/state, or source is not ordinary. Publish all exclusions and reasons. Do not let game outcomes decide exclusions. Preserve pre-existing frozen tests."
+  },
+  "comparators": [
+    "current deployed production V2 cold start, continuous and nearest-rounded as a diagnostic",
+    "Mstar continuous, Mstarstar continuous (old prereg primary remains separately reported)",
+    "Mstarstar nearest independent endpoints (the NEW primary challenger)",
+    "Mstarstar floor both endpoints (predeclared falsification of the renderer)",
+    "largest advertised N and, where costs are equal or explicitly accounted for, coach decision baselines"
+  ],
+  "scores": {
+    "inside": "Predicted midpoint lies within the unmodified inclusive observed integer interval. Give denominator and counts; both raw and rendered predictions are scored, never reinterpret a 0.5 tolerance as the primary old test.",
+    "overlap": "Predicted [lo,hi] intersects printed [lo,hi].",
+    "endpoint": "Mean absolute error of two endpoints and proportion both exact / both within one point, all on printed stat units. Report by player, age, tier, class, coach family and native interval width.",
+    "wholePreview": "All affected rows in the preview have predicted midpoint inside printed interval; retain the full preview denominator.",
+    "bias": "Within player, arithmetic mean of (predicted midpoint - observed interval midpoint)/max(observed midpoint,1) over scored rows.",
+    "bootstrap": "5,000 bootstrap draws of preview clusters, deterministic seed 20260924; report the 2.5th and 97.5th percentiles of inside coverage. Also show a player-cluster bootstrap sensitivity interval.",
+    "ranking": "For each player with at least three same-state ordinary coaches, evaluate pairwise sign agreement for distinct observed displayed OVR midpoints, and separately for strictly nonoverlapping displayed OVR intervals. Report selected coach regret against the highest observed displayed midpoint, maximum regret, and compared pair/player denominators. Repeat in equal-cost slates or explicitly price-adjusted utility only; cost-free results are not spending recommendations."
+  },
+  "newClaimThreshold": {
+    "minimum": "The complete required primary arm; otherwise INCONCLUSIVE, never 90% validated.",
+    "inside": ">=90% over the nonzero primary-arm rows",
+    "overlap": ">=98%",
+    "clusterLower95": ">=80% for the preview-cluster bootstrap inside rate",
+    "eachPlayer": "Each player with >=8 scored rows has >=75% inside and absolute relative bias <=0.08.",
+    "wholePreview": "Report; >=75% is a practical guardrail for unqualified preview-level display. If it fails, any claim must say row-level only.",
+    "endpoint": "Report exact pairs, within-one pairs and MAE. A passed midpoint claim never licenses an exact-endpoint claim.",
+    "ranking": "Report against N even if the primary claim fails; call the ranking supported only with >=30 distinct-midpoint pairs across >=10 new player slates, higher pair accuracy than N and lower mean regret without a larger maximum regret. Cost-aware utility needs separately observed costs and a frozen utility rule."
+  },
+  "exploratorySecondary": {
+    "widthGate": "A separately labeled conditional policy admits a preview only if every row's raw Mstarstar interval has width >=3.6629864436517323. The cutoff was chosen after inspecting development outcomes. Record row and preview retention and every demographic/coach subgroup; never replace the unfiltered primary result with a gated score.",
+    "minimumSingleSlateFalsifier": "One new age-31 T2 outfielder with full same-state card, four ordinary previews spanning small and large N/p, all endpoint, displayed OVR and price captures. Freeze predictions first. This diagnoses old-player renderer/shape and decision ranking but cannot approve the population threshold."
+  },
+  "productionRule": "No production switch based on retrospective 91.8%. Only consider a reviewed production change after the full prospective primary passes and the false-confidence/price guardrails are reviewed; no merge on this research branch."
+}

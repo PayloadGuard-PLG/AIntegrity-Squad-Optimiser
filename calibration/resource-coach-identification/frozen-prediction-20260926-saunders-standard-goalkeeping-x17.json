@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "resource-coach-prospective-freeze-v1",
+  "predictionDate": "2026-09-26",
+  "predictionId": "CHAT-20260926-MARK-SAUNDERS-STD-GK-X17-DRILL",
+  "status": "prospective-pre-preview",
+  "player": {
+    "name": "Mark Saunders",
+    "age": 24,
+    "tier": "T2",
+    "tierLabel": "ELITE",
+    "tierAddition": 30,
+    "roles": [
+      "GK"
+    ],
+    "ovr": 118,
+    "stats": {
+      "REFLEXES": 143,
+      "AGILITY": 121,
+      "ANTICIPATION": 142,
+      "RUSHING OUT": 160,
+      "COMMUNICATION": 174,
+      "THROWING": 62,
+      "KICKING": 90,
+      "PUNCHING": 137,
+      "AERIAL REACH": 93,
+      "CONCENTRATION": 114,
+      "FITNESS": 190,
+      "STRENGTH": 78,
+      "AGGRESSION": 99,
+      "SPEED": 58,
+      "CREATIVITY": 111
+    },
+    "affectedClasses": {
+      "AGILITY": "WHITE",
+      "ANTICIPATION": "WHITE",
+      "THROWING": "WHITE",
+      "KICKING": "WHITE"
+    },
+    "evidence": "user-supplied card screenshot before selected-player preview"
+  },
+  "coach": {
+    "programmeFamily": "DRILL SESSION",
+    "label": "Standard Goalkeeping",
+    "multiplier": 17,
+    "affectedStatCount": 4,
+    "affectedStats": [
+      "AGILITY",
+      "ANTICIPATION",
+      "THROWING",
+      "KICKING"
+    ],
+    "duration": "3 days",
+    "transferClass": "ordinary",
+    "evidence": "unselected coach screenshot supplied before selected-player preview"
+  },
+  "model": {
+    "base": "Mstarstar / shape-models-20260924",
+    "method": "same-coach x17 anchor transfer using Jables JaseysBoi low-tail Agility row; current high-stat tail correction retained but inactive for Saunders because all tier-adjusted affected coordinates are below the high-tail region",
+    "sameCoachAnchor": {
+      "player": "Jables JaseysBoi",
+      "age": 22,
+      "tier": "T5",
+      "coach": "Standard Goalkeeping x17 Drill Session",
+      "affectedStatCount": 4,
+      "anchorStat": "AGILITY",
+      "displayedStart": 269,
+      "tierAdjustedU": 149,
+      "observed": [
+        13,
+        16
+      ],
+      "reason": "u=149 is below the newly identified high-tail failure region, so it identifies this coach/event budget without relying on the tail correction"
+    },
+    "fittedEventBudget": {
+      "lower": 39.38215360725441,
+      "upper": 51.017448847917834,
+      "note": "Inverted through the frozen age22-25 WHITE M** response at Jables Agility +13/+16, then transferred unchanged to Saunders because both players are in the same 22-25 age band and use the identical x17/p4 coach."
+    },
+    "saundersShape": {
+      "whiteThreshold": 120.7817098407846,
+      "K": 31.525166687898416,
+      "tierAdjustedCoordinates": {
+        "AGILITY": 91,
+        "ANTICIPATION": 112,
+        "THROWING": 32,
+        "KICKING": 60
+      }
+    }
+  },
+  "frozenPrediction": {
+    "stats": {
+      "AGILITY": {
+        "rawLo": 38.16251410721415,
+        "rawHi": 46.016676518658954,
+        "lo": 38,
+        "hi": 47,
+        "point": 42.08959531293655
+      },
+      "ANTICIPATION": {
+        "rawLo": 30.167504670932857,
+        "rawHi": 35.57944729699312,
+        "lo": 30,
+        "hi": 36,
+        "point": 32.87347598396299
+      },
+      "THROWING": {
+        "rawLo": 39.38215360725441,
+        "rawHi": 51.017448847917834,
+        "lo": 39,
+        "hi": 52,
+        "point": 45.19980122758612
+      },
+      "KICKING": {
+        "rawLo": 39.38215360725441,
+        "rawHi": 51.017448847917834,
+        "lo": 39,
+        "hi": 52,
+        "point": 45.19980122758612
+      }
+    },
+    "ovrProxy": {
+      "rawLo": 9.806288399510388,
+      "rawHi": 12.24206810076585,
+      "lo": 9,
+      "hi": 13,
+      "point": 11.024178250138117
+    }
+  },
+  "leakageBoundary": "No Mark Saunders Standard Goalkeeping x17 selected-player preview or outcome was used. Previous Saunders Standard Physical x15 evidence was not used to fit this freeze.",
+  "validationBoundary": "This is prospective for the player/coach pairing but the coach amplitude is anchored on an already observed identical x17 coach in another goalkeeper."
+}

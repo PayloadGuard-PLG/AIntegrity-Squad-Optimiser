@@ -1,0 +1,139 @@
+{
+ "schemaVersion": "resource-coach-prospective-freeze-v1",
+ "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL-D2",
+ "status": "locked-before-outcome",
+ "calculationMode": "fresh-current-card-recompute-repo-math-d2-applied",
+ "leakageRule": "No prior Galileo preview/result, analogue, nearest-neighbour transfer, other-player outcome, or community source used in the numerical calculation. User-specified established seasonal floor-debt state d=2 is applied as a model state.",
+ "player": {
+  "name": "LJ Galileo",
+  "age": 31,
+  "tier": "T2",
+  "tierAddition": 30,
+  "quality": "ELITE",
+  "displayedOvr": 81,
+  "roles": [
+   "DMC",
+   "MC",
+   "AMC"
+  ],
+  "stats": {
+   "TACKLING": 40,
+   "MARKING": 94,
+   "POSITIONING": 168,
+   "HEADING": 209,
+   "BRAVERY": 126,
+   "PASSING": 170,
+   "DRIBBLING": 69,
+   "CROSSING": 1,
+   "SHOOTING": 21,
+   "FINISHING": 64,
+   "FITNESS": 86,
+   "STRENGTH": 34,
+   "AGGRESSION": 40,
+   "SPEED": 38,
+   "CREATIVITY": 105
+  }
+ },
+ "coach": {
+  "transferClass": "ordinary",
+  "programme": "SKILL SEMINAR",
+  "label": "Standard Offensive",
+  "multiplier": 33,
+  "affectedStatCount": 4,
+  "affectedStats": [
+   "PASSING",
+   "CROSSING",
+   "FITNESS",
+   "CREATIVITY"
+  ]
+ },
+ "seasonalFloorDebt": {
+  "stat": "CROSSING",
+  "displayedStart": 1,
+  "d": 2,
+  "decayPerStep": 20,
+  "hiddenCoordinate": -39,
+  "law": "u_hidden = displayed_stat - 20*d"
+ },
+ "repoLogic": {
+  "branch": "research/card-only-trust-20260924",
+  "model": "Mstarstar",
+  "modelStatus": "research-candidate-not-production",
+  "renderer": "raw continuous endpoints; displayed interval=floor(rawLo), ceil(rawHi)",
+  "visibleGain": "rectified at zero"
+ },
+ "parameters": {
+  "logC": 0.3163678539772327,
+  "effectiveHWhite": 126.56120348990856,
+  "effectiveHMidGrey": 110.90238374243438,
+  "effectiveK": 31.525166687898416,
+  "upperDoseRatio": 1.529,
+  "ageScale": 2,
+  "N": 33,
+  "p": 4,
+  "budgetLo": 22.640225983392334,
+  "budgetHi": 34.61690552860688
+ },
+ "transformedInputs": {
+  "PASSING": {
+   "displayClass": "WHITE",
+   "start": 170,
+   "u": 140
+  },
+  "CROSSING": {
+   "displayClass": "MID_GREY",
+   "displayedStart": 1,
+   "hiddenU": -39
+  },
+  "FITNESS": {
+   "displayClass": "WHITE",
+   "start": 86,
+   "u": 56
+  },
+  "CREATIVITY": {
+   "displayClass": "WHITE",
+   "start": 105,
+   "u": 75
+  }
+ },
+ "frozenPrediction": {
+  "statIntervals": {
+   "PASSING": {
+    "rawLo": 12.122062950781299,
+    "rawHi": 17.04113942901745,
+    "lo": 12,
+    "hi": 18,
+    "point": 14.581601189899374
+   },
+   "CROSSING": {
+    "rawLo": 0,
+    "rawHi": 0,
+    "lo": 0,
+    "hi": 0,
+    "point": 0
+   },
+   "FITNESS": {
+    "rawLo": 22.640225983392327,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999603
+   },
+   "CREATIVITY": {
+    "rawLo": 22.640225983392327,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999603
+   }
+  },
+  "ovrProxy": {
+   "rawLo": 3.82683432783773,
+   "rawHi": 5.751663365748747,
+   "lo": 3,
+   "hi": 6,
+   "point": 4.789248846793239
+  },
+  "ovrDefinition": "sum of affected predicted gains / 15; planning proxy"
+ }
+}

@@ -1,0 +1,114 @@
+{
+ "schemaVersion": "resource-coach-observation-v1",
+ "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL-D2",
+ "freezeCommit": "add6fbd6e13e14208cbc91f1bd7673391b68a6fb",
+ "sourceScreenshot": {
+  "filename": "64404.png",
+  "sha256": "d4e1925e194d4b6e7aa0d1a223436ef8136fc2a491dfd38713724860d40a469a"
+ },
+ "player": {
+  "name": "LJ Galileo",
+  "age": 31,
+  "tier": "T2",
+  "roles": [
+   "DMC",
+   "MC",
+   "AMC"
+  ]
+ },
+ "coach": {
+  "programme": "SKILL SEMINAR",
+  "label": "Standard Offensive",
+  "multiplier": 33,
+  "affectedStatCount": 4
+ },
+ "actual": {
+  "PASSING": {
+   "lo": 15,
+   "hi": 22
+  },
+  "CROSSING": {
+   "lo": 0,
+   "hi": 0
+  },
+  "FITNESS": {
+   "lo": 23,
+   "hi": 35
+  },
+  "CREATIVITY": {
+   "lo": 23,
+   "hi": 34
+  },
+  "OVR": {
+   "lo": 5,
+   "hi": 7
+  }
+ },
+ "frozen": {
+  "PASSING": {
+   "lo": 12,
+   "hi": 18,
+   "point": 14.581601189899374
+  },
+  "CROSSING": {
+   "lo": 0,
+   "hi": 0,
+   "point": 0
+  },
+  "FITNESS": {
+   "lo": 22,
+   "hi": 35,
+   "point": 28.628565755999603
+  },
+  "CREATIVITY": {
+   "lo": 22,
+   "hi": 35,
+   "point": 28.628565755999603
+  },
+  "OVR": {
+   "lo": 3,
+   "hi": 6,
+   "point": 4.789248846793239
+  }
+ },
+ "score": {
+  "statPointInsideActual": "3/4",
+  "statIntervalOverlap": "4/4",
+  "statMidpointMAE": 1.1045997025251566,
+  "statEndpointMAE": 1.25,
+  "statMeanIoU": 0.7673076923076924,
+  "ovrPointInsideActual": false,
+  "ovrIntervalOverlap": true,
+  "perStat": {
+   "PASSING": {
+    "lowError": -3,
+    "highError": -4,
+    "midpointError": -3.9183988101006264,
+    "pointInsideActual": false,
+    "iou": 0.3
+   },
+   "CROSSING": {
+    "lowError": 0,
+    "highError": 0,
+    "midpointError": 0,
+    "pointInsideActual": true,
+    "iou": 1
+   },
+   "FITNESS": {
+    "lowError": -1,
+    "highError": 0,
+    "midpointError": -0.3714342440003975,
+    "pointInsideActual": true,
+    "iou": 0.9230769230769231
+   },
+   "CREATIVITY": {
+    "lowError": -1,
+    "highError": 1,
+    "midpointError": 0.12856575599960252,
+    "pointInsideActual": true,
+    "iou": 0.8461538461538461
+   }
+  }
+ },
+ "interpretation": "d=2 seasonal floor-debt prediction is exactly confirmed on Crossing (+0). Fitness and Creativity are close. Passing is systematically underpredicted in this event. Do not alter the frozen prediction post hoc."
+}

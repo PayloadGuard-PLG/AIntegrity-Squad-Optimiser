@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "resource-coach-repeat-prediction-v1",
+  "predictionDate": "2026-09-25",
+  "predictionId": "CHAT-20260925-VINCE-NEMETH-STD-SAFE-X59-REPEAT",
+  "status": "historical-exact-repeat-not-independent",
+  "currentEvidence": {
+    "playerCard": "chat_upload:64346.png",
+    "coachDefinition": "chat_upload:64348.png"
+  },
+  "player": {
+    "name": "Vince Németh",
+    "age": 23,
+    "tier": "T0",
+    "roles": ["AMC"],
+    "ovr": 104,
+    "stats": {
+      "TACKLING":87,"MARKING":84,"POSITIONING":94,"HEADING":116,"BRAVERY":94,
+      "PASSING":121,"DRIBBLING":116,"CROSSING":93,"SHOOTING":116,"FINISHING":115,
+      "FITNESS":115,"STRENGTH":90,"AGGRESSION":92,"SPEED":120,"CREATIVITY":112
+    },
+    "classes": {
+      "HEADING":"WHITE","BRAVERY":"MID_GREY","FITNESS":"WHITE","STRENGTH":"MID_GREY","CREATIVITY":"WHITE"
+    }
+  },
+  "coach": {
+    "family": "SKILL SEMINAR",
+    "label": "Standard Safeguard",
+    "N": 59,
+    "p": 5,
+    "affectedStats": ["HEADING","BRAVERY","FITNESS","STRENGTH","CREATIVITY"]
+  },
+  "model": {
+    "version": "shape-Mstarstar-LD1-20260925",
+    "lowDoseOverlayApplies": false,
+    "reason": "Standard Safeguard Skill Seminar has N/p=11.8; the LD1 overlay is scoped only to age>=22 Focused Defending x2 Drill Session p=2.",
+    "formulaOnly": {
+      "HEADING":{"raw":[47.9275,58.8665],"rendered":[47,59]},
+      "BRAVERY":{"raw":[56.8024,68.7282],"rendered":[56,69]},
+      "FITNESS":{"raw":[48.6720,59.6861],"rendered":[48,60]},
+      "STRENGTH":{"raw":[59.6535,71.9457],"rendered":[59,72]},
+      "CREATIVITY":{"raw":[50.8928,62.1387],"rendered":[50,63]},
+      "OVR":{"raw":[17.5965,21.4243],"rendered":[17,22]}
+    }
+  },
+  "exactRepeat": {
+    "sourceTestId": "CHAT-20260924-VINCE-NEMETH-STD-SAFE-X59-SKILL",
+    "stateMatch": "exact: age, tier, role, all 15 displayed stats and affected classes match",
+    "coachMatch": "exact: Standard Safeguard x59 Skill Seminar, p=5, identical affected set",
+    "prediction": {
+      "HEADING":[48,57],
+      "BRAVERY":[57,69],
+      "FITNESS":[49,58],
+      "STRENGTH":[60,72],
+      "CREATIVITY":[52,61],
+      "OVR":[18,22]
+    },
+    "validationBoundary": "This is the best prediction for use, but it is not an independent test because the identical preview was observed on 2026-09-24."
+  }
+}

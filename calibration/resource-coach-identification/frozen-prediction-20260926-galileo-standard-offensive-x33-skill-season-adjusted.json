@@ -1,0 +1,155 @@
+{
+ "schemaVersion": "resource-coach-prospective-freeze-v1",
+ "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL-SEASON-ADJUSTED",
+ "status": "INVALIDATED",
+ "calculationMode": "fresh-recompute-from-repo-math-only",
+ "validationCaveat": "Prospective state/coach residual test; not an independent held-out-player validation.",
+ "leakageRule": "No prior Galileo result or preview, no other-player result, no analogue, no nearest-neighbour transfer, and no community source used.",
+ "sourceScreenshots": {
+  "coachUnselectedSha256": "7f99a3e2ca6cf4b839222386b188306f09cbf38ff0dc80dd9174344ff9ab828f",
+  "suppliedPlayerCardSha256": "3a8a234d050be17c91568ada9a3c365b0b43a7f31597644a530075e7772768ca"
+ },
+ "seasonTransition": {
+  "levelsPromoted": 1,
+  "flatDecayPerLevel": 20,
+  "ageBefore": 31,
+  "ageAfter": 32,
+  "rule": "applySeasonDecay: subtract 20 per promoted level from every stat, floored at zero."
+ },
+ "playerAfterSeasonAdjustment": {
+  "name": "LJ Galileo",
+  "age": 32,
+  "tier": "T2",
+  "tierAddition": 30,
+  "quality": "ELITE",
+  "roles": [
+   "DMC",
+   "MC",
+   "AMC"
+  ],
+  "displayedOvrApprox": 61,
+  "stats": {
+   "TACKLING": 20,
+   "MARKING": 74,
+   "POSITIONING": 148,
+   "HEADING": 189,
+   "BRAVERY": 106,
+   "PASSING": 150,
+   "DRIBBLING": 49,
+   "CROSSING": 0,
+   "SHOOTING": 1,
+   "FINISHING": 44,
+   "FITNESS": 66,
+   "STRENGTH": 14,
+   "AGGRESSION": 20,
+   "SPEED": 18,
+   "CREATIVITY": 85
+  }
+ },
+ "coach": {
+  "transferClass": "ordinary",
+  "programme": "SKILL SEMINAR",
+  "label": "Standard Offensive",
+  "multiplier": 33,
+  "affectedStatCount": 4,
+  "affectedStats": [
+   "PASSING",
+   "CROSSING",
+   "FITNESS",
+   "CREATIVITY"
+  ]
+ },
+ "repoLogic": {
+  "branch": "research/card-only-trust-20260924",
+  "model": "Mstarstar",
+  "modelStatus": "research-candidate-not-production",
+  "renderer": "raw continuous endpoints; displayed interval=floor(rawLo), ceil(rawHi)",
+  "seasonRule": "flat 20 points per promoted level; white and grey equally"
+ },
+ "parameters": {
+  "logC": 0.3163678539772327,
+  "C": 1.3721349080843839,
+  "hWBase": 116.43846448031746,
+  "hGBase": 100.77964473284328,
+  "hShiftOld": 10.122739009591099,
+  "hWflag": -5.779493649123966,
+  "hWflagApplied": false,
+  "effectiveHWhite": 126.56120348990856,
+  "effectiveHMidGrey": 110.90238374243438,
+  "KBase": 41.56207787560394,
+  "KOld": -0.2764019926681457,
+  "effectiveK": 31.525166687898416,
+  "upperDoseRatio": 1.529,
+  "ageScale": 1,
+  "N": 33,
+  "p": 4,
+  "budgetLo": 11.320112991696167,
+  "budgetHi": 17.30845276430344,
+  "youngGreyApplied": false
+ },
+ "transformedInputs": {
+  "PASSING": {
+   "displayClass": "WHITE",
+   "startAfterDecay": 150,
+   "u": 120
+  },
+  "CROSSING": {
+   "displayClass": "MID_GREY",
+   "startAfterDecay": 0,
+   "u": 0
+  },
+  "FITNESS": {
+   "displayClass": "WHITE",
+   "startAfterDecay": 66,
+   "u": 36
+  },
+  "CREATIVITY": {
+   "displayClass": "WHITE",
+   "startAfterDecay": 85,
+   "u": 55
+  }
+ },
+ "frozenPrediction": {
+  "statIntervals": {
+   "PASSING": {
+    "rawLo": 10.993415047343404,
+    "rawHi": 15.809066974484978,
+    "lo": 10,
+    "hi": 16,
+    "point": 13.401241010914191
+   },
+   "CROSSING": {
+    "rawLo": 11.320112991696167,
+    "rawHi": 17.30845276430344,
+    "lo": 11,
+    "hi": 18,
+    "point": 14.314282877999805
+   },
+   "FITNESS": {
+    "rawLo": 11.320112991696163,
+    "rawHi": 17.30845276430344,
+    "lo": 11,
+    "hi": 18,
+    "point": 14.314282877999801
+   },
+   "CREATIVITY": {
+    "rawLo": 11.320112991696163,
+    "rawHi": 17.30845276430344,
+    "lo": 11,
+    "hi": 18,
+    "point": 14.314282877999801
+   }
+  },
+  "ovrProxy": {
+   "rawLo": 2.996916934828793,
+   "rawHi": 4.515628351159687,
+   "lo": 2,
+   "hi": 5,
+   "point": 3.7562726429942397
+  },
+  "ovrDefinition": "sum of affected predicted gains / 15; planning proxy, not an observed post-action OVR"
+ },
+ "correctionNote": "This replaces an intermediate draft that incorrectly injected the unproven hidden-debt hypothesis. This artifact uses the repository's explicit season-decay function only.",
+ "invalidatedReason": "Incorrectly treated the supplied current Galileo card as a pre-rollover card and applied a new whole-card season transition. The relevant repository seasonal-decay issue is unresolved hidden floor debt on the current displayed Crossing=1 state.",
+ "supersededBy": "calibration/resource-coach-identification/frozen-prediction-20260926-galileo-standard-offensive-x33-skill-debt-scenarios.json"
+}

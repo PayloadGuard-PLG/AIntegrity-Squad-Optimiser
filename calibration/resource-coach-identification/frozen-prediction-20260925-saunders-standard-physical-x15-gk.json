@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "resource-coach-gk-extrapolation-freeze-v1",
+  "frozenAt": "2026-09-25",
+  "status": "prospective-pre-preview",
+  "repositoryRef": "research/card-only-trust-20260924",
+  "player": {
+    "name": "Mark Saunders",
+    "age": 24,
+    "tier": "T2",
+    "tierLabel": "ELITE",
+    "roles": ["GK"],
+    "ovrDisplayed": 118,
+    "stats": {
+      "REFLEXES": 143,
+      "AGILITY": 121,
+      "ANTICIPATION": 142,
+      "RUSHING OUT": 160,
+      "COMMUNICATION": 174,
+      "THROWING": 62,
+      "KICKING": 90,
+      "PUNCHING": 137,
+      "AERIAL REACH": 93,
+      "CONCENTRATION": 114,
+      "FITNESS": 190,
+      "STRENGTH": 78,
+      "AGGRESSION": 99,
+      "SPEED": 58,
+      "CREATIVITY": 111
+    },
+    "classes": {
+      "FITNESS": "WHITE",
+      "STRENGTH": "MID_GREY",
+      "AGGRESSION": "MID_GREY",
+      "SPEED": "MID_GREY",
+      "CREATIVITY": "MID_GREY"
+    },
+    "source": "user-supplied in-chat player card screenshot 64284.png"
+  },
+  "coach": {
+    "label": "Standard Physical",
+    "programme": "SKILL SEMINAR",
+    "N": 15,
+    "p": 4,
+    "affected": ["FITNESS", "STRENGTH", "AGGRESSION", "CREATIVITY"],
+    "source": "user-supplied in-chat coach screenshot 64285.png"
+  },
+  "evidenceBoundary": {
+    "previewEndpointsSeen": false,
+    "driveSearch": "No Mark Saunders row found in Experiments or Observed_Stats A1:AN1000 of Resource Coach Experiment Log v1 before this freeze.",
+    "scopeWarning": "PREREG-20260924-SHAPE-FIVE-MODEL primary arm is outfield. This GK prediction is a deliberate extrapolation of the same age/tier/class/dose response law to common physical stats and must be scored separately unless the preregistration is extended."
+  },
+  "model": {
+    "primary": "Mstarstar",
+    "constantsSource": "calibration/resource-coach-identification/shape-models-20260924.json",
+    "formulaSource": "tools/resource-coach-v2/shape_models.py + tools/resource-coach-v2/structure_audit.py",
+    "inputs": {
+      "ageScale": 6,
+      "tierWhiteOffset": 30,
+      "dose": "N/p = 15/4",
+      "rho": 1.529
+    }
+  },
+  "predictions": {
+    "Mstarstar": {
+      "FITNESS": {"start": 190, "class": "WHITE", "rawLo": 7.8378653630, "rawHi": 11.3103894306, "integerEnvelope": [7, 12], "point": 9.5741273968},
+      "STRENGTH": {"start": 78, "class": "MID_GREY", "rawLo": 30.8730354319, "rawHi": 44.6959971917, "integerEnvelope": [30, 45], "point": 37.7845163118},
+      "AGGRESSION": {"start": 99, "class": "MID_GREY", "rawLo": 26.7540271912, "rawHi": 35.5882127465, "integerEnvelope": [26, 36], "point": 31.1711199689},
+      "CREATIVITY": {"start": 111, "class": "MID_GREY", "rawLo": 21.4755565569, "rawHi": 28.7945567126, "integerEnvelope": [21, 29], "point": 25.1350566348},
+      "OVR": {"rawLo": 5.7960323029, "rawHi": 8.0259437388, "integerEnvelope": [5, 9], "point": 6.9109880208}
+    },
+    "MstarCrossCheck": {
+      "FITNESS": [8, 12],
+      "STRENGTH": [30, 44],
+      "AGGRESSION": [25, 35],
+      "CREATIVITY": [20, 28],
+      "OVR": [5, 8]
+    }
+  },
+  "interpretation": "Use Mstarstar as the primary frozen range because it has the best leave-one-player-out performance among the frozen shape candidates. Mstar is retained as a close sensitivity check. No preview result may alter this file."
+}

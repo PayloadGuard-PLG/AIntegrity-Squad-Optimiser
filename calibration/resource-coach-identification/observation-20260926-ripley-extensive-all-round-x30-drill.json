@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "resource-coach-prospective-observation-v1",
+  "predictionId": "CHAT-20260926-LT-RIPLEY-EXT-ALLROUND-X30-DRILL",
+  "observationDate": "2026-09-26",
+  "frozenPrediction": {
+    "path": "calibration/resource-coach-identification/frozen-prediction-20260926-ripley-extensive-all-round-x30-drill.json",
+    "commit": "20ae85e23843c32f08b32625f85e7b5c3aed63c6"
+  },
+  "evidence": {
+    "selectedPlayerPreview": "user-supplied in-chat 64389.png",
+    "sha256": "e08b7596e63db049e0e1721208afb3e5e738e300d76129a13727a4cb37e4e6fb"
+  },
+  "player": {
+    "name": "Lt Ripley",
+    "age": 28,
+    "tier": "T2",
+    "roles": ["DMC", "MC", "AMC"],
+    "displayedOvrAtPreview": 97.1
+  },
+  "coach": {
+    "programmeFamily": "DRILL SESSION",
+    "label": "Extensive All-Round",
+    "multiplier": 30,
+    "affectedStatCount": 6,
+    "transferClass": "ordinary"
+  },
+  "observed": {
+    "statIntervals": {
+      "BRAVERY": [24, 32],
+      "PASSING": [27, 41],
+      "SHOOTING": [27, 41],
+      "FINISHING": [27, 41],
+      "FITNESS": [22, 29],
+      "CREATIVITY": [27, 38]
+    },
+    "ovrBoost": [10, 14]
+  },
+  "scoreAgainstFrozen": {
+    "rows": {
+      "BRAVERY": {
+        "predicted": [25, 35],
+        "point": 30.19155688528889,
+        "pointInsideActual": true,
+        "lowEndpointAbsError": 1,
+        "highEndpointAbsError": 3,
+        "midpointAbsError": 2.1915568852888896,
+        "intervalIoU": 0.6363636363636364
+      },
+      "PASSING": {
+        "predicted": [27, 42],
+        "point": 34.701291825454064,
+        "pointInsideActual": true,
+        "lowEndpointAbsError": 0,
+        "highEndpointAbsError": 1,
+        "midpointAbsError": 0.7012918254540637,
+        "intervalIoU": 0.9333333333333333
+      },
+      "SHOOTING": {
+        "predicted": [27, 42],
+        "point": 34.701291825454064,
+        "pointInsideActual": true,
+        "lowEndpointAbsError": 0,
+        "highEndpointAbsError": 1,
+        "midpointAbsError": 0.7012918254540637,
+        "intervalIoU": 0.9333333333333333
+      },
+      "FINISHING": {
+        "predicted": [27, 42],
+        "point": 34.701291825454064,
+        "pointInsideActual": true,
+        "lowEndpointAbsError": 0,
+        "highEndpointAbsError": 1,
+        "midpointAbsError": 0.7012918254540637,
+        "intervalIoU": 0.9333333333333333
+      },
+      "FITNESS": {
+        "predicted": [23, 32],
+        "point": 27.785987981591916,
+        "pointInsideActual": true,
+        "lowEndpointAbsError": 1,
+        "highEndpointAbsError": 3,
+        "midpointAbsError": 2.2859879815919157,
+        "intervalIoU": 0.6
+      },
+      "CREATIVITY": {
+        "predicted": [27, 40],
+        "point": 33.58478413811169,
+        "pointInsideActual": true,
+        "lowEndpointAbsError": 0,
+        "highEndpointAbsError": 2,
+        "midpointAbsError": 1.0847841381116865,
+        "intervalIoU": 0.8461538461538461
+      }
+    },
+    "summary": {
+      "rows": 6,
+      "pointInsideRate": 1.0,
+      "wholePreviewPointInside": true,
+      "overlapRate": 1.0,
+      "midpointMae": 1.277700746892447,
+      "endpointMae": 1.0833333333333333,
+      "meanIntervalIoU": 0.8137529137529137
+    },
+    "ovr": {
+      "predicted": [10, 16],
+      "point": 13.044413632090311,
+      "actual": [10, 14],
+      "pointInsideActual": true
+    }
+  },
+  "interpretationBoundary": "This file records the frozen prediction and the revealed observation only. It does not refit or alter M**."
+}
