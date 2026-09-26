@@ -1,0 +1,152 @@
+{
+ "schemaVersion": "resource-coach-prospective-freeze-v1",
+ "testId": "CHAT-20260926-LJ-GALILEO-STD-OFF-X33-SKILL",
+ "status": "locked-before-outcome",
+ "experimentType": "prospective-state-coach-residual-test",
+ "validationCaveat": "LJ Galileo is present in the historical fitting pool, so this is not an independent held-out-player validation.",
+ "leakageRule": "No selected-player Standard Offensive x33 preview/outcome, historical result, same-player result, other-player result, analogue, nearest-neighbour transfer, or community source was used at inference time.",
+ "sourceScreenshots": {
+  "coachUnselectedSha256": "7f99a3e2ca6cf4b839222386b188306f09cbf38ff0dc80dd9174344ff9ab828f",
+  "playerCardSha256": "3a8a234d050be17c91568ada9a3c365b0b43a7f31597644a530075e7772768ca"
+ },
+ "player": {
+  "name": "LJ Galileo",
+  "age": 31,
+  "tier": "T2",
+  "tierAddition": 30,
+  "quality": "ELITE",
+  "displayedOvr": 81,
+  "roles": [
+   "DMC",
+   "MC",
+   "AMC"
+  ],
+  "stats": {
+   "TACKLING": 40,
+   "MARKING": 94,
+   "POSITIONING": 168,
+   "HEADING": 209,
+   "BRAVERY": 126,
+   "PASSING": 170,
+   "DRIBBLING": 69,
+   "CROSSING": 1,
+   "SHOOTING": 21,
+   "FINISHING": 64,
+   "FITNESS": 86,
+   "STRENGTH": 34,
+   "AGGRESSION": 40,
+   "SPEED": 38,
+   "CREATIVITY": 105
+  }
+ },
+ "coach": {
+  "transferClass": "ordinary",
+  "programme": "SKILL SEMINAR",
+  "label": "Standard Offensive",
+  "multiplier": 33,
+  "affectedStatCount": 4,
+  "affectedStats": [
+   "PASSING",
+   "CROSSING",
+   "FITNESS",
+   "CREATIVITY"
+  ]
+ },
+ "repoLogic": {
+  "branch": "research/card-only-trust-20260924",
+  "model": "Mstarstar",
+  "modelStatus": "research-candidate-not-production",
+  "shapeModelsJsonSha": "d8e1770b9efa205379b87de950d32b46c17f63d0",
+  "shapeModelsPySha": "3384d5a212116eb70c2dda5abfa0f1db0a947ba5",
+  "structureAuditPySha": "37dc7b680488dfe39984c9161904ea4a8ef98128",
+  "freezeShapeTestPySha": "63a6d0ed4be6b610aef0d574ff6020d2b93c6822",
+  "baseReplayProfileSha": "0fdfb29c57b3d253b17d862db3669f1e3d435596",
+  "youngGreyProfileSha": "ed89f2fea7e9f6b9886fa31359f1ea83dc2785d1",
+  "roleWeightsSha": "486ee58cf8b6212eb3c603ce6b79585d8629906c",
+  "principiaSha": "ed84369e2228357456e0648a27f85e07453fa12e",
+  "renderer": "raw continuous endpoints; displayed interval=floor(rawLo), ceil(rawHi)"
+ },
+ "parameters": {
+  "logC": 0.3163678539772327,
+  "C": 1.3721349080843839,
+  "hWBase": 116.43846448031746,
+  "hGBase": 100.77964473284328,
+  "hShiftOld": 10.122739009591099,
+  "hWflag": -5.779493649123966,
+  "hWflagApplied": false,
+  "effectiveHWhite": 126.56120348990856,
+  "effectiveHMidGrey": 110.90238374243438,
+  "KBase": 41.56207787560394,
+  "KOld": -0.2764019926681457,
+  "effectiveK": 31.525166687898416,
+  "upperDoseRatio": 1.529,
+  "ageScale": 2,
+  "N": 33,
+  "p": 4,
+  "budgetLo": 22.640225983392334,
+  "budgetHi": 34.61690552860688,
+  "youngGreyApplied": false
+ },
+ "transformedInputs": {
+  "PASSING": {
+   "displayClass": "WHITE",
+   "start": 170,
+   "u": 140
+  },
+  "CROSSING": {
+   "displayClass": "MID_GREY",
+   "start": 1,
+   "u": 1
+  },
+  "FITNESS": {
+   "displayClass": "WHITE",
+   "start": 86,
+   "u": 56
+  },
+  "CREATIVITY": {
+   "displayClass": "WHITE",
+   "start": 105,
+   "u": 75
+  }
+ },
+ "frozenPrediction": {
+  "statIntervals": {
+   "PASSING": {
+    "rawLo": 12.122062950781299,
+    "rawHi": 17.04113942901745,
+    "lo": 12,
+    "hi": 18,
+    "point": 14.581601189899374
+   },
+   "CROSSING": {
+    "rawLo": 22.640225983392334,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999606
+   },
+   "FITNESS": {
+    "rawLo": 22.640225983392327,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999603
+   },
+   "CREATIVITY": {
+    "rawLo": 22.640225983392327,
+    "rawHi": 34.61690552860688,
+    "lo": 22,
+    "hi": 35,
+    "point": 28.628565755999603
+   }
+  },
+  "ovrProxy": {
+   "rawLo": 5.336182726730552,
+   "rawHi": 8.059457067655872,
+   "lo": 5,
+   "hi": 9,
+   "point": 6.697819897193212
+  },
+  "ovrDefinition": "sum of affected predicted gains / 15; planning proxy, not an observed post-action OVR"
+ }
+}
